@@ -428,14 +428,17 @@ export class FsProjectAdapter implements ProjectAdapter {
       }
     }
 
-    // Auth exists as a provider contract with no issuer. Reported as such.
+    // Auth topology reports implementation presence only; runtime provider health is resolved by the auth capability probe.
     const hasAuth = relative.some((file) => file.startsWith('src/lib/auth/'));
+    const hasSupabaseAuth = relative.some((file) => file.startsWith('src/lib/supabase/'));
     nodes.push({
       id: 'domain:auth', domain: 'auth', label: 'Auth', source: 'src/lib/auth/',
       path: 'src/lib/auth/', route: null, status: hasAuth ? 'present' : 'absent',
-      detail: hasAuth
-        ? 'Auth contracts exist. No provider adapter signs a session, so sign-in cannot complete.'
-        : 'No auth module present.',
+      detail: hasAuth && hasSupabaseAuth
+        ? 'Supabase Auth SSR integration is present. Runtime provider availability is verified separately from the repository topology.'
+        : hasAuth
+          ? 'Auth contracts exist, but no Supabase SSR integration was discovered.'
+          : 'No auth module present.',
     });
     nodes.push({
       id: 'domain:data', domain: 'data', label: 'Data', source: 'src/data/',

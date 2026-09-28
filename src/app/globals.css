@@ -3517,3 +3517,82 @@ html[data-chamber="armed"] .auth-panel.is-risen [data-stagger="foot"]{transition
   .software-field__record::before,
   .software-field__record strong { transition: none; }
 }
+
+/* --- Supabase Auth live-session additions ---------------------------- */
+.auth-credentials{
+  display:flex;
+  flex-direction:column;
+  gap:17px;
+}
+.auth-session-note{
+  font-family:var(--mono);
+  font-size:9px;
+  line-height:1.5;
+  letter-spacing:.08em;
+  color:var(--dim);
+}
+.auth-status--success{color:var(--text-dim)}
+.auth-status--success .auth-status__rule{background:var(--signal-green)}
+.auth-provider:disabled{
+  cursor:not-allowed;
+  opacity:.52;
+  background:rgba(255,255,255,.015);
+}
+.account-page{
+  min-height:100vh;
+  padding:150px max(5.3vw,24px) 100px;
+  background:radial-gradient(ellipse at 75% 15%,rgba(161,138,203,.07),transparent 35%),var(--bg);
+}
+.account-shell{
+  width:min(760px,100%);
+  margin:0 auto;
+  border-top:1px solid var(--line-strong);
+  padding-top:30px;
+}
+.account-shell h1{
+  margin:18px 0 16px;
+  font-size:clamp(46px,7vw,92px);
+  font-weight:400;
+  letter-spacing:-.07em;
+  line-height:.96;
+}
+.account-shell__intro{
+  max-width:58ch;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.75;
+  margin-bottom:38px;
+}
+.account-facts{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  margin:0 0 32px;
+  border-top:1px solid var(--line);
+}
+.account-facts>div{
+  min-width:0;
+  padding:18px 0;
+  border-bottom:1px solid var(--line);
+}
+.account-facts>div:nth-child(odd){padding-right:24px}
+.account-facts dt{
+  margin-bottom:7px;
+  font-family:var(--mono);
+  font-size:8.5px;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:var(--dim);
+}
+.account-facts dd{
+  margin:0;
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:11px;
+  line-height:1.6;
+  overflow-wrap:anywhere;
+}
+.account-signout{max-width:240px}
+@media(max-width:620px){
+  .account-facts{grid-template-columns:1fr}
+  .account-facts>div:nth-child(odd){padding-right:0}
+}
