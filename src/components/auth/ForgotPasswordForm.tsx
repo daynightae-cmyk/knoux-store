@@ -9,13 +9,7 @@ import { AuthStatus } from '@/components/auth/AuthStatus';
 import { AuthSubmit } from '@/components/auth/ProviderButtons';
 import { ChamberIdentity } from '@/components/auth/ChamberIdentity';
 
-/**
- * Password recovery.
- *
- * Deliberately does not say a message has been sent. No mail transport is
- * configured, so the action reports the deployment's real state and the page
- * never implies a recovery email is on its way.
- */
+/** Password recovery through the configured Supabase Auth mail flow. */
 export function ForgotPasswordForm() {
   const [state, formAction] = useActionState(requestPasswordResetAction, IDLE_STATE);
 
@@ -26,12 +20,12 @@ export function ForgotPasswordForm() {
         Reset your password
       </h1>
       <p className="auth-form__statement" data-stagger="statement">
-        State the address on the account and the chamber will say what it can do.
+        Enter the email address on your account to request a recovery link.
       </p>
 
       <AuthField label="Email" name="email" type="email" autoComplete="email" error={state.errors.email} />
 
-      <AuthSubmit pendingLabel="Checkingâ€¦">Request Reset</AuthSubmit>
+      <AuthSubmit pendingLabel="Requesting...">Request Reset</AuthSubmit>
 
       <AuthStatus state={state} />
 

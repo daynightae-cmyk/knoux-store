@@ -1,23 +1,11 @@
 'use client';
 
+import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-
-/**
- * External providers.
- *
- * Google and GitHub, and nothing else. Each is a named submit inside the
- * credentials form, so a press reaches the server action as a real request and
- * is answered through the same live region as the email path. There is no
- * second form, no second status region and no result invented in the browser.
- *
- * The buttons are never disabled. A disabled control is silent, and the honest
- * answer deserves to be heard. Their unavailable state is declared in markup and
- * in each control's accessible description, so the situation is already known
- * before anything is pressed, and it is never conveyed by colour alone.
- *
- * Icons are the providers' own marks, drawn inline. No icon font and no remote
- * asset is loaded to render them.
- */
+import { oauthSignInAction } from '@/lib/auth/actions';
+import { IDLE_STATE } from '@/lib/auth/state';
+import type { AuthCapabilities, AuthProviderName } from '@/lib/auth/capabilities';
+import { AuthStatus } from '@/components/auth/AuthStatus';
 
 function GoogleIcon() {
   return (
@@ -33,35 +21,29 @@ function GoogleIcon() {
 function GitHubIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path
-        fill="currentColor"
-        d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.2 11.39.6.11.82-.26.82-.58v-2.03c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.34-5.47-5.95 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.11-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6.01 0c2.29-1.55 3.3-1.23 3.3-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.62-2.8 5.64-5.48 5.94.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12 12 0 0 0 24 12.5C24 5.87 18.63.5 12 .5z"
-      />
+      <path fill="currentColor" d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.2 11.39.6.11.82-.26.82-.58v-2.03c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.34-5.47-5.95 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.11-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6.01 0c2.29-1.55 3.3-1.23 3.3-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.62-2.8 5.64-5.48 5.94.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12 12 0 0 0 24 12.5C24 5.87 18.63.5 12 .5z" />
     </svg>
   );
 }
 
-function ProviderButton({ provider, label }: { provider: 'google' | 'github'; label: string }) {
+function ProviderButton({ provider, connected }: { provider: AuthProviderName; connected: boolean }) {
+  const { pending } = useFormStatus();
+  const label = provider === 'google' ? 'Google' : 'GitHub';
   return (
-    <button
-      className="auth-provider"
-      type="submit"
-      name="provider"
-      value={provider}
-      aria-describedby={`${provider}-state`}
-      data-stagger={provider}
-    >
+    <button className="auth-provider" type="submit" name="provider" value={provider}
+      aria-describedby={`${provider}-state`} disabled={!connected || pending} data-stagger={provider}>
       {provider === 'google' ? <GoogleIcon /> : <GitHubIcon />}
       <span className="auth-provider__label">{label}</span>
-      {/* Stated in text, so the state never depends on a style. */}
       <span className="auth-provider__state" id={`${provider}-state`}>
-        Not connected
+        {connected ? (pending ? 'Opening…' : 'Connected') : 'Not connected'}
       </span>
     </button>
   );
 }
 
-export function ProviderButtons() {
+export function ProviderButtons({ capabilities }: { capabilities: AuthCapabilities }) {
+  const [state, formAction] = useActionState(oauthSignInAction, IDLE_STATE);
+  const connected = [capabilities.google && 'Google', capabilities.github && 'GitHub'].filter(Boolean);
   return (
     <div className="auth-providers" data-stagger="providers">
       <div className="auth-divider" role="separator" aria-label="Alternative sign-in methods">
@@ -69,27 +51,25 @@ export function ProviderButtons() {
         <span className="auth-divider__label">or continue with</span>
         <span className="auth-divider__rule" aria-hidden="true" />
       </div>
-
-      <div className="auth-providers__row">
-        <ProviderButton provider="google" label="Google" />
-        <ProviderButton provider="github" label="GitHub" />
-      </div>
-
+      <form className="auth-providers__row" action={formAction}>
+        <ProviderButton provider="google" connected={capabilities.google} />
+        <ProviderButton provider="github" connected={capabilities.github} />
+      </form>
       <p className="auth-providers__note">
-        Provider sign-in is not connected on this deployment. Pressing either control contacts no external account.
+        {connected.length > 0
+          ? `${connected.join(' and ')} sign-in ${connected.length > 1 ? 'are' : 'is'} connected through Supabase.`
+          : 'No external sign-in provider is available right now.'}
       </p>
+      <AuthStatus state={state} />
     </div>
   );
 }
 
-/** Primary action, reflecting the pending state of the form it belongs to. */
 export function AuthSubmit({ children, pendingLabel }: { children: string; pendingLabel: string }) {
   const { pending } = useFormStatus();
   return (
     <button className="auth-submit" type="submit" disabled={pending} data-stagger="submit">
       <span className="auth-submit__label">{pending ? pendingLabel : children}</span>
-      {/* Rendered only while the server is being asked, so the sweep means
-          something instead of running forever. */}
       {pending ? <span className="auth-submit__pulse" aria-hidden="true" /> : null}
     </button>
   );

@@ -3,12 +3,7 @@ import { AuthShell } from '@/components/auth/AuthShell';
 import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
 import { authRouteMetadata } from '@/data/auth';
 
-/**
- * Password recovery.
- *
- * The route exists and states the deployment's real capability. It does not
- * claim an email was sent, because no recovery transport is configured.
- */
+/** Password recovery entry for the configured Supabase Auth flow. */
 export const metadata: Metadata = authRouteMetadata(
   '/forgot-password',
   'Reset Password',

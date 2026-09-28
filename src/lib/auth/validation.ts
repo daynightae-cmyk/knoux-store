@@ -76,3 +76,23 @@ export function validatePasswordReset(input: { email: string }): FieldErrors<'em
 export function hasErrors(errors: FieldErrors): boolean {
   return Object.values(errors).some(Boolean);
 }
+
+
+export function validatePasswordUpdate(input: {
+  password: string;
+  confirmPassword: string;
+}): FieldErrors<'password' | 'confirmPassword'> {
+  const errors: FieldErrors<'password' | 'confirmPassword'> = {};
+  if (!input.password) errors.password = 'Choose a password.';
+  else if (input.password.length < PASSWORD_MINIMUM) {
+    errors.password = `Use at least ${PASSWORD_MINIMUM} characters.`;
+  }
+
+  if (!input.confirmPassword) {
+    errors.confirmPassword = 'Repeat your password.';
+  } else if (input.password !== input.confirmPassword) {
+    errors.confirmPassword = 'Those passwords do not match.';
+  }
+
+  return errors;
+}
