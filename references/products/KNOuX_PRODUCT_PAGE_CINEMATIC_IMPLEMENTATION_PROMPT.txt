@@ -1,0 +1,756 @@
+EXECUTE THIS AS A REAL CONTINUATION OF THE EXISTING KNOuX STORE PROJECT.
+
+MISSION:
+Rebuild the individual KNOuX product page system into a product-aware cinematic experience.
+
+PROJECT ROOT:
+D:\Knoux Store
+
+SPECIALIZED REFERENCES:
+1. D:\Knoux Store\references\products\KNOuX-product-page-cinematic-reference.md
+2. D:\Knoux Store\references\products\KNOuX-product-cinematic-profiles.reference.ts
+
+AUTHORITATIVE PRODUCT DATA:
+D:\Knoux Store\src\data\software.ts
+
+CURRENT ROUTE:
+D:\Knoux Store\src\app\products\[slug]\page.tsx
+
+CURRENT DOSSIER:
+D:\Knoux Store\src\components\ProductDossier.tsx
+
+DO NOT START FROM SCRATCH.
+DO NOT RESET THE WORKING TREE.
+DO NOT MERGE MAIN.
+DO NOT REPLACE THE ACCEPTED GLOBAL KNOuX HEADER/HERO.
+PRESERVE VERIFIED WORK FROM OTHER AGENTS.
+
+FIRST — REALITY REFRESH
+
+Before editing:
+1. Confirm actual root, branch and HEAD.
+2. Run git status and preserve all unrelated uncommitted work.
+3. Read software.ts completely.
+4. Read ProductDossier.tsx completely.
+5. Read current global motion infrastructure:
+   - src/components/motion/*
+   - src/components/three/*
+   - relevant globals.css
+6. Audit public/ and src assets for REAL product-specific logos.
+7. Read both specialized references above.
+8. Inspect existing product pages in the browser.
+
+Do not trust assumptions from this prompt when current code proves otherwise.
+
+CORE PRODUCT CONTRACT
+
+The page system is data-driven.
+
+Textual/product truth MUST continue to come from softwareProducts.
+
+Do not duplicate into visual profile files:
+- statements
+- capabilities
+- limitations
+- technologies
+- evidence
+- repository URLs
+- live URLs
+- versions
+- status
+
+Presentation may be selected by product.slug.
+
+The visual system may never manufacture missing product truth.
+
+TARGET EXPERIENCE
+
+Every /products/[slug] page must feel like a dedicated engineered product world.
+
+The pages must clearly belong to ONE KNOuX institution,
+but they must NOT be seven identical dossiers with only the text changed.
+
+Shared DNA:
+- current KNOuX header
+- deep black
+- graphite
+- off-white
+- platinum/silver
+- restrained violet
+- architectural lines
+- disciplined typography
+- evidence-first content
+- same motion grammar
+- same accessibility quality
+
+Variable product identity:
+- product logo/mark
+- loader choreography
+- scene geometry
+- hero spatial object
+- section signatures
+- block arrangement where justified
+- micro-motion behavior
+- accent intensity
+
+The result should feel:
+SAME ENGINEERING INSTITUTION
++
+DIFFERENT PRODUCT PERSONALITY.
+
+PRODUCT-AWARE ARRIVAL / LOADER
+
+Build a reusable product arrival system.
+
+Suggested component:
+src/components/products/ProductArrival.tsx
+
+Inputs must include:
+- product
+- visualProfile
+- verified local logo asset if one exists
+
+The arrival must react to the current product slug.
+
+Example identity:
+KNOUX ONE -> KNOUX ONE name/logo
+KForge -> KNOuX Forge name/logo
+KNOuX Repair -> KNOuX Repair name/logo
+etc.
+
+DO NOT use one generic NovaCore-style loader for all products.
+
+Required sequence:
+1. quiet KNOuX field
+2. canonical KNOuX identity anchors the scene
+3. current product name/logo resolves
+4. product-specific geometry assembles
+5. product code/family appears subtly
+6. page hero is revealed from the SAME geometry
+
+The loader and hero must feel connected,
+not like two unrelated animations glued together.
+
+IMPORTANT LOADING HONESTY
+
+The supplied source reference simulated progress with Math.random() and fake status messages.
+
+DO NOT COPY THAT.
+
+No fake:
+- 0-100 percentage
+- 'booting neural matrix'
+- 'calibrating cores'
+- 'systems nominal'
+- invented loading stages
+- fake backend progress
+
+If real measurable assets are loading, progress may represent them truthfully.
+
+Otherwise:
+use a short deterministic cinematic transition without a percentage.
+
+The transition should communicate identity, not pretend to measure work.
+
+Do not replay on every React rerender.
+
+Prefer:
+- first entry to a product route
+- meaningful transition between different product slugs
+
+Use session continuity to avoid irritating repetition.
+
+Reduced motion:
+skip long choreography and reveal final identity immediately.
+
+LOGO AUTHORITY
+
+Audit the project for product-specific local logos.
+
+If a verified product logo exists:
+use it.
+
+If no verified logo exists:
+use the canonical KNOuX mark plus the exact product shortName/name.
+
+DO NOT invent logos.
+DO NOT redraw an unofficial logo.
+DO NOT fetch logos from random external URLs.
+DO NOT use a generic triangle from the NovaCore source.
+
+Create an auditable logo resolver/manifest only if needed.
+
+Every product hero and loader must resolve identity from the same source.
+
+PRODUCT VISUAL PROFILE LAYER
+
+Use the provided reference TS as presentation guidance.
+
+Create production code in an appropriate location, for example:
+src/data/product-visuals.ts
+
+The profile layer may contain:
+- motif
+- scene type
+- geometry vocabulary
+- motion vocabulary
+- accent tokens
+- optional local logo asset key
+
+It must not contain duplicated business/product facts.
+
+PRODUCT-SPECIFIC HERO WORLDS
+
+KNOUX ONE
+Theme:
+Windows intelligence / modular system command center.
+Use:
+- system nucleus
+- modular service shells
+- layered operating planes
+- restrained service path pulses
+
+KNOuX Forge
+Theme:
+engineering / repositories / workflow topology.
+Use:
+- branching graph
+- dependency traces
+- build pipeline planes
+- code/repository nodes
+
+KNOuX Repair
+Theme:
+diagnostics / repair / safety.
+Use:
+- diagnostic rings
+- bounded service sectors
+- scan arcs
+- repair pulses
+Never show fake PC health percentages.
+
+KNOuX SmartOrganizer
+Theme:
+files / storage / organisation.
+Use:
+- file tiles
+- folder clusters
+- storage bands
+- deterministic scatter-to-order choreography.
+
+KNOuX REC
+Theme:
+capture / recording / timeline.
+Use:
+- framing corners
+- waveform ribbon
+- timeline lanes
+- recording-space geometry
+Do not fake recording statistics.
+
+KNOuX Player X
+Theme:
+media playback / DSP / subtitles.
+Use:
+- playback ring
+- spectral bands
+- signal lanes
+- subtitle/time tracks
+Keep movement elegant, not nightclub equalizer spam.
+
+KNOuX Clipboard AI
+Theme:
+guarded clipboard / privacy boundary.
+Use:
+- clipboard cards
+- inspection gates
+- protected channels
+- blocked/allowed path vocabulary
+Only represent safety behavior established by product evidence.
+
+DO NOT use literal solar-system planets for these pages.
+DO NOT create unrelated fantasy objects.
+The geometry must communicate the product's actual domain.
+
+HERO COMPOSITION
+
+Upgrade the current ProductDossier hero.
+
+The first viewport should include:
+- breadcrumb/context
+- product code/family/status
+- large exact product identity
+- tagline
+- product-specific cinematic scene
+- verified repository action
+- verified declared live URL action when available
+- contact/request action
+- version only when registry provides one
+
+The hero must feel premium and spatial like the accepted KNOuX headquarters.
+
+Do not bury the product name below a giant decorative object.
+Do not let animation reduce legibility.
+
+Preferred composition:
+identity/context zone
++
+product world / object zone
++
+restrained action rail
+
+Maintain breathing room and strong negative space.
+
+The global header remains authoritative.
+
+CONTENT SYSTEM — SHARED GRAMMAR, VARIABLE EXPRESSION
+
+Preserve the semantic information currently provided by ProductDossier:
+- Overview
+- What it does
+- Stated limits
+- Technologies
+- Evidence
+- Access
+- Related systems
+- previous/next navigation
+
+But redesign the presentation.
+
+Do not force every product into identical card stacks.
+
+Allow motif-aware block presentations while preserving the same KNOuX design tokens.
+
+Examples:
+
+KNOUX ONE:
+capabilities can read as modular system lanes.
+
+Forge:
+capabilities/evidence can read as engineering traces or dependency records.
+
+Repair:
+capabilities can read as diagnostic/service sectors;
+limitations should feel like explicit safety boundaries.
+
+SmartOrganizer:
+capabilities can resolve as ordered storage/file clusters.
+
+REC:
+capabilities may align to capture -> recording -> verification -> export flow.
+
+Player X:
+capabilities may align to playback -> inspect -> DSP -> subtitles -> optional AI.
+
+Clipboard AI:
+capabilities/limits may align to local history -> guard -> provider boundary -> result.
+
+These are PRESENTATION patterns only.
+Never invent missing steps or claims.
+
+BLOCK VARIATION RULE
+
+Visual profile may choose from a controlled block library.
+
+Suggested reusable primitives:
+- ProductHero
+- ProductIdentityMark
+- ProductScene
+- EvidenceRail
+- CapabilityField
+- LimitationBoundary
+- StackStrip
+- AccessRail
+- RelatedSystems
+- ProductPager
+
+Create motif-specific visual renderers only where they add meaning.
+
+Do NOT create seven unrelated page implementations.
+
+Prefer:
+one product page shell
++
+one data registry
++
+one visual profile registry
++
+small motif renderers.
+
+This prevents duplication and preserves maintainability.
+
+SOURCE REFERENCE MECHANICS TO ADAPT
+
+From the supplied NovaCore reference, the following mechanics are approved:
+- staged loader exit
+- loader-to-hero continuity
+- cursor-reactive ambient field
+- pointer parallax
+- per-section scene motif
+- progressive section reveal
+- detail expansion
+- subtle glow response
+
+Translate them into KNOuX.
+Do not clone the source's appearance.
+
+SOURCE REFERENCE MECHANICS TO REJECT
+
+Reject:
+- NovaCore name/content
+- Inter/Playfair Google Fonts CDN
+- cyan/magenta/gold/green rainbow palette
+- fake science products
+- fake metrics
+- fake timelines
+- fake online status
+- fake 99.x percentages
+- arbitrary 'system active' claims
+- Math.random() identity layouts
+- four permanent post-process canvases
+- expensive pixel-by-pixel barrel distortion
+- uncontrolled motion blur
+- chromatic aberration as a global gimmick
+- endless full-page effects where not needed
+
+KNOuX should feel engineered, not like a WebGL effects demo.
+
+DETERMINISM
+
+No Math.random() in product identity/layout/choreography.
+
+If procedural placement is needed:
+derive a seeded value from:
+- product.id
+- product.slug
+- stable index
+
+The same product should render the same spatial composition across refreshes and QA.
+
+POINTER / MOTION
+
+Desktop:
+- subtle pointer parallax
+- local node attraction only inside product scene
+- restrained glow/proximity response
+- optional scene tilt within strict limits
+
+Implementation:
+- requestAnimationFrame
+- refs
+- CSS variables
+- existing motion engine where possible
+
+DO NOT:
+- set React state on every mousemove
+- hijack scroll
+- trap wheel
+- let product scene chase the cursor aggressively
+
+Touch:
+- remove pointer-follow behavior
+- preserve scroll
+- tap only where there is a real control
+
+Reduced motion:
+- stop continuous drift
+- skip long arrival travel
+- preserve final scene and all content.
+
+PERFORMANCE
+
+Reuse existing KNOuX scene infrastructure before creating another renderer.
+
+Audit:
+src/components/three/LivingParticleMark.tsx
+src/components/motion/*
+current WebGL usage
+
+Rules:
+- at most one heavy hero scene per product page
+- no renderer per block
+- pause when document.hidden
+- pause/reduce offscreen animation
+- adaptive DPR
+- conservative particle count
+- dispose geometry/material/texture/resources
+- no runtime font CDN
+- no Three CDN
+- no unbounded pixel post-processing
+
+Prefer SVG/Canvas2D/DOM for secondary product signatures.
+
+If WebGL is unavailable:
+provide a composed static/SVG/Canvas2D fallback with the same identity.
+
+ACCESSIBILITY
+
+Every product page must remain fully useful without animation.
+
+Required:
+- semantic headings
+- real links
+- visible focus
+- keyboard-accessible actions
+- no content only on hover
+- contrast maintained
+- scene marked decorative when it carries no unique information
+- descriptive accessible identity where needed
+
+Do not turn a canvas into the only navigation path.
+
+MOBILE
+
+Do not shrink desktop blindly.
+
+At 390x844 and 375x812:
+- product identity first
+- compact scene second or integrated behind identity
+- action rail reachable
+- blocks stack naturally
+- no horizontal overflow
+- no tiny unreadable labels
+- no pointer-only mechanics
+- restrained scene density
+- no viewport-height traps
+
+Preserve the KNOuX premium feel without frying the phone.
+
+ROUTING / PRODUCT TRANSITIONS
+
+Preserve:
+generateStaticParams()
+findSoftwareProduct()
+metadata generation
+deep-linkable /products/[slug] routes
+previous/next product navigation
+
+When navigating product -> product:
+the transition may reuse the arrival system.
+
+Desired effect:
+current product geometry collapses/fades
+-> canonical KNOuX field remains
+-> next product identity resolves
+-> next motif assembles
+
+Do not reload the entire app unnecessarily.
+
+Do not break browser Back/Forward.
+
+RELATED PRODUCTS
+
+Use product.relatedIds only.
+
+Do not fabricate recommendations.
+
+Related systems may visually inherit the target product's motif hint,
+but their name/status/route comes from the registry.
+
+GITHUB / LIVE / CONTACT ACTIONS
+
+Repository button:
+show only the real product.repository.
+
+Live/Open button:
+show only when product.liveUrl exists.
+
+Contact/request:
+use the site's existing route.
+
+Do not add:
+Discord
+Twitter/X
+download links
+store links
+docs links
+pricing
+unless real project evidence and current product data establish them.
+
+Do not call a Vercel preview a downloadable application.
+
+VISUAL IDENTITY
+
+Primary:
+#000 / near-black
+graphite
+off-white
+silver
+platinum
+restrained KNOuX violet
+
+Any product-specific accent must stay within the KNOuX family.
+No rainbow per product.
+
+Differentiate products primarily through:
+geometry
+density
+rhythm
+motion
+composition
+not random saturated colors.
+
+IMPLEMENTATION ARCHITECTURE
+
+Prefer an architecture similar to:
+
+src/components/products/
+  ProductExperience.tsx
+  ProductArrival.tsx
+  ProductHero.tsx
+  ProductScene.tsx
+  ProductBlocks.tsx
+  scenes/
+    SystemNucleusScene.tsx
+    RepositoryTopologyScene.tsx
+    DiagnosticRingsScene.tsx
+    FileClusterScene.tsx
+    CaptureTimelineScene.tsx
+    MediaSpectrumScene.tsx
+    GuardedClipboardScene.tsx
+
+src/data/product-visuals.ts
+
+This is guidance, not a demand to create pointless files.
+
+Reuse existing primitives where better.
+
+ProductDossier may be refactored,
+but do not lose any current evidence/limitations/access content.
+
+NO FAKE PRODUCT CONTENT.
+
+If a visual idea requires facts the registry does not provide:
+simplify the visual instead of inventing the facts.
+
+VISUAL QA — REQUIRED
+
+Actually render every canonical product page:
+
+/products/knoux-one
+/products/kforge
+/products/knoux-repair
+/products/knoux-smartorganizer
+/products/knoux-rec
+/products/knoux-x
+/products/knoux-clipboard-ai
+
+For EACH page verify:
+- correct product name
+- correct logo strategy
+- correct motif
+- correct capabilities
+- correct limitations
+- correct technologies
+- correct evidence
+- repository button
+- live URL only where real
+- related systems
+- previous/next
+- no stale identity from the previous product
+
+Test at minimum:
+1440x900
+1600x1000
+390x844
+375x812
+
+Also verify:
+keyboard
+touch
+reduced motion
+browser back/forward
+direct deep link
+refresh
+console
+overflow
+animation pause behavior.
+
+LOADER QA — REQUIRED
+
+Prove the arrival changes with the product slug.
+
+Evidence examples:
+- KNOUX ONE must not show Forge identity.
+- Forge must not show Repair geometry.
+- Repair must not reuse REC motif.
+- product-to-product navigation must not leave old logo/name behind.
+
+Verify the loader does NOT:
+- use fake percentage
+- use Math.random()
+- claim fake system states
+- fetch external font/CDN resources
+
+If loader is skipped due to session continuity:
+provide a deterministic QA flag/dev mechanism to inspect it,
+without shipping a debug control to production.
+
+TESTS
+
+Add tests for:
+- every canonical softwareProducts slug has a visual profile
+- no unknown visual profile silently maps to the wrong product
+- profile layer does not contain product claims
+- logo fallback behavior
+- product route still uses softwareProducts truth
+- live URL action remains conditional
+- reduced-motion path where practical
+
+
+GATES
+
+Run:
+npm run lint
+npm run typecheck
+npm test
+npm run build
+git diff --check
+
+If a gate fails:
+investigate it.
+Separate pre-existing failures from introduced failures.
+Do not call PASS without evidence.
+
+GIT SAFETY
+
+Remain on the current feature branch.
+Do not reset unrelated work.
+Do not delete other agents' files.
+Do not merge main.
+Do not push directly to main.
+
+Commit only after:
+- all seven product pages are visibly correct
+- loader identity is product-aware
+- QA is complete enough to support the claim
+- gates are truthfully reported.
+
+FINAL REPORT
+
+Return:
+- starting branch and HEAD
+- files changed
+- architecture chosen
+- visual profile mapping
+- logo resolution result for every product
+- loader behavior for every product
+- scene/motif used for every product
+- authoritative data source
+- proof no fake metrics were introduced
+- proof no Math.random() exists in the identity-critical path
+- visual QA results
+- mobile/reduced-motion/accessibility results
+- performance decisions
+- gate results
+- remaining limitations
+- checkpoint SHA if committed
+
+IMPLEMENT NOW.
+DO NOT STOP AT PLANNING.
+
+BUILD.
+RENDER.
+INSPECT.
+CORRECT.
+VERIFY.

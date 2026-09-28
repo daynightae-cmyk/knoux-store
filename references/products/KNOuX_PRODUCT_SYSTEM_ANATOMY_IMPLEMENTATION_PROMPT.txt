@@ -1,0 +1,481 @@
+EXECUTE THIS AS A REAL CONTINUATION OF THE EXISTING KNOuX STORE PROJECT.
+
+PROJECT ROOT:
+D:\Knoux Store
+
+SPECIALIZED REFERENCE:
+D:\Knoux Store\references\products\KNOuX-product-system-anatomy-constellation-reference.md
+
+RELATED EXISTING PRODUCT REFERENCES:
+D:\Knoux Store\references\products\KNOuX-product-page-cinematic-reference.md
+D:\Knoux Store\references\products\KNOuX-product-cinematic-profiles.reference.ts
+
+AUTHORITATIVE PRODUCT DATA:
+D:\Knoux Store\src\data\software.ts
+
+DO NOT START FROM SCRATCH.
+DO NOT RESET THE WORKING TREE.
+DO NOT MERGE MAIN.
+PRESERVE THE ACCEPTED GLOBAL HEADER, PRODUCT ROUTES, PRODUCT ARRIVAL/HERO WORK, AND UNRELATED WORK.
+
+MISSION
+
+Add a reusable PRODUCT SYSTEM ANATOMY interaction to every canonical individual KNOuX product page.
+
+This is NOT a new global hero.
+This is NOT the /products Product Universe.
+This is NOT a replacement for the product loader.
+
+It is a dedicated interactive block inside /products/[slug] that lets a visitor explore the real structure of the current product.
+
+The experience should feel like an engineered constellation:
+real nodes
+real relationships
+camera reframing
+selected-path emphasis
+real detail narration.
+
+The source inspiration is only a mechanics reference.
+Do not copy its original branding, narrative, labels or palette.
+
+FIRST — REALITY REFRESH
+
+Before changing anything:
+1. Confirm repository root.
+2. Record current branch and HEAD.
+3. Run git status.
+4. Preserve unrelated uncommitted work.
+5. Read completely:
+   - src/data/software.ts
+   - src/app/products/[slug]/page.tsx
+   - src/components/ProductDossier.tsx
+   - existing product visual-profile work
+   - src/components/three/*
+   - src/components/motion/*
+   - relevant globals.css
+6. Inspect every canonical product route in the browser.
+7. Check whether another agent already implemented product cinematic work; integrate, do not duplicate it.
+
+DATA TRUTH
+
+All semantic anatomy content must derive from real product data.
+
+Allowed node sources:
+- product identity
+- capabilities
+- technologies
+- limitations
+- evidence
+- relatedIds
+- other VERIFIED product-specific structured data already in the repository
+
+Never invent nodes.
+
+Never add a decorative fake service just to make the constellation look dense.
+
+If necessary, cluster long capability prose into presentation nodes, but every cluster must retain a transparent mapping back to the actual source strings.
+
+Create a normalized visual node model separate from product truth.
+
+SUGGESTED NODE MODEL
+
+type ProductAnatomyNode = {
+  id: string;
+  productId: string;
+  kind: 'core' | 'capability' | 'technology' | 'boundary' | 'evidence' | 'related';
+  label: string;
+  summary: string;
+  sourceRefs: string[];
+  relatedNodeIds: string[];
+  route?: string;
+  emphasis?: 'primary' | 'secondary' | 'boundary';
+};
+
+This is guidance, not a requirement to use the exact type.
+
+The adapter owns derivation.
+The Three/R3F scene consumes normalized visual data only.
+Do not put product facts inside scene code.
+
+PRODUCT MOTIFS
+
+Use the existing product visual profile to change geometry while preserving one interaction grammar.
+
+KNOuX ONE:
+system nucleus / modular operating field.
+
+KNOuX Forge:
+repository graph / dependency lattice / workflow paths.
+
+KNOuX Repair:
+diagnostic lattice / bounded service sectors / repair paths.
+
+KNOuX SmartOrganizer:
+file/folder/storage clusters.
+
+KNOuX REC:
+capture frame / waveform / timeline topology.
+
+KNOuX Player X:
+playback ring / signal lanes / spectral topology.
+
+KNOuX Clipboard AI:
+guarded clipboard flow / privacy boundaries.
+
+Do not create seven unrelated interaction engines.
+Use one shared anatomy engine with motif-level rendering differences.
+
+INTERACTION — REQUIRED
+
+IDLE
+- subtle deterministic field motion
+- slow bounded camera drift
+- no selected detail
+
+HOVER
+- restrained halo/scale
+- local path highlight
+- pointer cursor
+- no essential information available only on hover
+
+SELECT
+- selected node becomes dominant
+- unrelated geometry dims
+- related pathways brighten
+- camera reframes smoothly toward the selected node
+- real detail panel changes to selected node
+- optional travelling relation signal may connect to one verified related node
+
+CLEAR
+- Escape clears selection
+- explicit clear/back control
+- camera returns to neutral after a short delay
+
+Do not use fake narration.
+
+PICKING
+
+Implement reliable screen-space node picking.
+
+Use stable pixel hit radii by form factor:
+- desktop smaller
+- tablet larger
+- mobile largest
+
+Distinguish drag from click/tap using a movement threshold.
+
+Desktop:
+- drag to orbit
+- damping
+- bounded polar angle
+- no pan
+- do not let wheel zoom trap normal page scroll
+
+Touch:
+- preserve vertical scroll
+- tap selects
+- no hover assumptions
+
+Keyboard:
+- mirror every node in a semantic DOM index
+- visible focus
+- Enter/Space selects
+- Escape clears
+
+CAMERA / SELECTION
+
+When a node is selected:
+- compute a bounded framing target
+- ease camera toward that target
+- never allow the panel and selected node to collide badly
+- preserve readable negative space for the information panel
+- on mobile, prefer panel below the scene instead of side-by-side
+
+When the user manually orbits:
+- cancel automatic reframing control temporarily
+- record the resulting camera state
+- resume idle drift only after inactivity
+
+Do not implement aggressive camera jumps.
+
+DETERMINISM
+
+No Math.random() in identity-critical topology.
+
+Derive stable seeds from:
+- product.id
+- product.slug
+- node.id
+- stable index
+
+The same product must produce the same:
+- node positions
+- node ordering
+- edge relationships
+- initial composition
+
+across refreshes and QA runs.
+
+Procedural ambience may animate with time, but semantic layout must not reshuffle.
+
+VISUAL TRANSLATION
+
+Use the current KNOuX palette only:
+deep black
+graphite
+off-white
+platinum
+silver
+restrained violet
+violet-gray connectors
+
+Selected nodes may move toward soft violet/platinum.
+Boundaries may use reduced brightness, ring/outline differences or structural separation.
+
+Do not use rainbow node categories.
+
+Do not use the source reference's gold identity.
+
+Differentiate node kinds using:
+- scale
+- ring geometry
+- opacity
+- connector treatment
+- depth
+- label treatment
+not saturated colors.
+
+DETAIL PANEL
+
+The detail panel must update from the selected real node.
+
+Possible fields:
+- title
+- kind
+- verified summary
+- why it matters to the product
+- evidence source names
+- limitation/boundary text
+- related product
+- real route/action
+
+Only show fields that exist.
+
+Do NOT show:
+- fake scores
+- fake system health
+- fake percentages
+- fake benchmark numbers
+- fake confidence
+- fake AI explanation
+- fake current runtime state
+
+PLACEMENT INSIDE PRODUCT PAGE
+
+Preferred position:
+after the main product hero / identity chamber,
+before or alongside the deeper dossier blocks.
+
+Suggested section title:
+SYSTEM ANATOMY
+or
+EXPLORE THE SYSTEM
+
+The block should make the visitor understand the product before they reach the long evidence sections.
+
+Do not remove the existing factual dossier.
+
+Do not duplicate the same capability text three times.
+
+Use the anatomy for spatial exploration; use the dossier for full evidence.
+
+COMPONENT ARCHITECTURE
+
+Prefer something like:
+
+src/components/products/anatomy/
+  ProductSystemAnatomy.tsx
+  ProductAnatomyScene.tsx
+  ProductAnatomyPanel.tsx
+  ProductAnatomyIndex.tsx
+  product-anatomy-data.ts
+  product-anatomy-layout.ts
+
+But reuse existing project primitives when a smaller architecture is cleaner.
+
+One canvas maximum for the anatomy block.
+
+Do not create a standalone iframe or another mini-app.
+
+PERFORMANCE / LIFECYCLE
+
+Reuse existing Three.js / R3F infrastructure.
+
+Required:
+- capped DPR
+- conservative point density
+- integrated-GPU-safe defaults
+- quality tiers where useful
+- pause when anatomy is offscreen
+- pause on document.hidden
+- stop or simplify continuous motion for prefers-reduced-motion
+- dispose geometries/materials/textures
+- no React setState on every pointermove
+- no per-node RAF loops
+- no external Three/CDN dependencies
+
+The source's offscreen/hidden render-pausing behavior is a requirement worth preserving.
+
+ACCESSIBILITY / FALLBACK
+
+Canvas is progressive enhancement.
+
+The page must remain complete without WebGL.
+
+Provide a DOM anatomy index that exposes the SAME node data.
+
+Required:
+- semantic heading
+- accessible description
+- keyboard node controls
+- visible focus
+- selected-state announcement
+- information panel reachable without pointer
+- reduced-motion path
+
+If WebGL fails:
+show a styled 2D/DOM constellation or node index.
+Do not show a blank hole.
+
+OPTIONAL GUIDED TOUR
+
+A guided product walkthrough is optional.
+
+If implemented:
+- call it Guided Tour / System Walkthrough
+- traverse only verified nodes
+- order nodes meaningfully
+- allow instant interruption
+- no auto-start for returning visitors
+- disable in reduced motion
+
+Do not block PASS if the tour is omitted.
+
+OPTIONAL BLUEPRINT VIEW
+
+A 2D architecture/blueprint mode is optional.
+If used, it must consume the SAME node model and preserve selection.
+
+QA — ALL CANONICAL PRODUCTS
+
+Render and inspect:
+/products/knoux-one
+/products/kforge
+/products/knoux-repair
+/products/knoux-smartorganizer
+/products/knoux-rec
+/products/knoux-x
+/products/knoux-clipboard-ai
+
+For each verify:
+- anatomy appears in the right location
+- node labels match real product data
+- product motif is correct
+- click/tap changes the panel
+- camera reframes
+- related pathways react
+- Escape clears
+- drag orbit works
+- page scroll remains usable
+- no stale nodes from previous product
+- direct refresh works
+- browser Back/Forward works
+
+RESPONSIVE QA
+
+Inspect at minimum:
+1440x900
+1600x1000
+390x844
+375x812
+
+Verify:
+- no panel collision
+- no horizontal overflow
+- mobile tap targets
+- page scrolling
+- keyboard
+- reduced motion
+- WebGL fallback
+- offscreen pause
+- hidden-tab pause
+- console errors
+- GPU usage is reasonable for the page
+
+Do not accept a visually impressive desktop build that becomes unusable on the user's integrated-GPU class hardware.
+
+TESTS
+
+Add targeted tests where practical for:
+- every canonical product creates anatomy data
+- anatomy data never has an unknown product id
+- no semantic node exists without source mapping
+- related product nodes resolve only from relatedIds
+- deterministic layout returns stable coordinates for the same input
+- unknown product profile fails safely
+- reduced-motion mode still exposes all information
+
+Search the new anatomy path for Math.random() and report the result.
+
+
+GATES
+
+Run:
+npm run lint
+npm run typecheck
+npm test
+npm run build
+git diff --check
+
+If a gate fails:
+- investigate
+- distinguish pre-existing from introduced failures
+- do not falsely report PASS
+
+GIT SAFETY
+
+Stay on the current feature branch.
+Do not reset unrelated work.
+Do not delete other agents' work.
+Do not merge main.
+Do not push directly to main.
+
+Create a checkpoint only after visible implementation and truthful verification.
+
+FINAL REPORT
+
+Return:
+- starting branch + HEAD
+- files changed
+- architecture
+- node derivation rules
+- product-by-product anatomy motif
+- proof nodes map to real product data
+- proof deterministic topology is stable
+- proof no Math.random() in semantic topology
+- interaction QA
+- mobile QA
+- keyboard/accessibility QA
+- reduced-motion QA
+- performance/lifecycle QA
+- gate results
+- remaining limitations
+- checkpoint SHA if committed
+
+IMPLEMENT NOW.
+DO NOT STOP AT PLANNING.
+BUILD.
+RENDER.
+INSPECT.
+CORRECT.
+VERIFY.

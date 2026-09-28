@@ -1,0 +1,218 @@
+CONTINUE THE EXISTING KNOuX STORE IMPLEMENTATION.
+
+PROJECT ROOT:
+D:\Knoux Store
+
+DO NOT START FROM SCRATCH.
+DO NOT REDESIGN OR REPLACE THE ACCEPTED KNOuX HERO.
+PRESERVE ALL VERIFIED WORK ALREADY COMPLETED.
+
+NEW SPECIALIZED REFERENCE:
+D:\Knoux Store\references\universe\KNOuX-system-constellation-reference.md
+
+Use this reference ONLY for:
+
+- Product Universe spatial navigation
+- Institution / division constellation
+- connector-line architecture
+- node hover / focus / tap interaction
+- contextual pointer tooltip
+- numbered micro-navigation
+- right-side contextual inspector
+- spatial context preservation during inspection
+
+IMPORTANT SOURCE LIMITATION:
+
+The original AGENT.OS HTML referenced an external index.js file that was NOT supplied.
+
+Therefore DO NOT:
+- invent missing source code,
+- claim to reproduce its unseen Three.js scene,
+- copy AGENT.OS,
+- reproduce its branding or dashboard,
+- fabricate metrics.
+
+Translate ONLY the verified interaction patterns into the CURRENT KNOuX architecture.
+
+PRODUCT UNIVERSE TARGET:
+
+Turn the verified KNOuX products into an elegant navigable constellation.
+
+Each verified product becomes a spatial node.
+
+Hover / keyboard focus:
+reveal a compact identity hint.
+
+Select:
+focus the node,
+subtly reorganize surrounding relationships,
+and open the KNOuX Inspector.
+
+INSPECTOR:
+
+Create a premium dark right-side inspector containing ONLY real registry-backed information:
+
+- product name
+- classification
+- verified status
+- real description
+- existing capabilities
+- relevant stack/evidence
+- repository evidence when appropriate
+- real product route
+- real launch/preview link only when available
+
+Closing the inspector must restore the previous spatial context.
+
+Normal deep-linkable product routes must continue to exist.
+
+CONNECTORS:
+
+Use dedicated SVG or Canvas 2D relationship connectors.
+
+Do not capture pointer events on decorative lines.
+
+Connectors should respond subtly to:
+- focused node
+- selected node
+- nearby pointer influence
+
+No frantic movement.
+
+MICRO NAVIGATION:
+
+Adapt the numbered navigation concept:
+
+01 Software
+02 WordPress
+03 Web
+04 Growth
+05 Creative
+06 Solutions
+07 Labs
+08 Institution
+
+Use the REAL existing division registry.
+
+The active item may expand a fine tick/line and increase contrast.
+
+Support:
+mouse
+keyboard
+touch
+
+TOOLTIP:
+
+Desktop pointer devices only.
+
+Do NOT update React state on every mousemove.
+
+Use requestAnimationFrame + refs or the existing motion engine.
+
+Disable pointer-follow behavior on touch/mobile.
+
+KNOuX VISUAL IDENTITY:
+
+deep black
+graphite
+off-white
+silver
+platinum
+restrained KNOuX violet
+
+Maintain continuity with the accepted Living Particle Mark.
+
+Do NOT introduce:
+Agent.OS branding
+blue dashboard styling
+yellow styling
+global scanlines
+fake HUD numbers
+random telemetry
+fake uptime
+fake system status
+external font CDN dependencies
+decorative SaaS cards
+
+The experience must feel like part of the SAME cinematic KNOuX headquarters as the accepted Hero.
+
+PERFORMANCE:
+
+Prefer:
+DOM
+SVG
+Canvas 2D
+
+Reuse current Three.js/R3F only when true spatial depth materially improves the experience.
+
+Do NOT add another permanent WebGL context without necessity.
+
+Pause nonessential animation offscreen or when document.hidden.
+
+Respect prefers-reduced-motion.
+
+MOBILE:
+
+Do NOT simply scale down desktop.
+
+Recompose:
+- reduce visible labels
+- simplify connectors
+- remove pointer tooltip
+- tap node -> inspector/bottom sheet
+- zero horizontal overflow
+- preserve all product routes
+
+ACCESSIBILITY:
+
+All nodes keyboard reachable.
+Visible focus.
+Enter/Space selects.
+Escape closes inspector.
+Use aria-expanded / aria-controls.
+Return focus to the selected node after closing.
+No information may depend solely on hover.
+
+DATA TRUTH:
+
+Use ONLY verified KNOuX products/divisions from the existing registries and repository evidence.
+
+Do not expose client/non-KNOuX repositories as KNOuX products.
+
+Never replace missing information with impressive-looking placeholders.
+
+IMPLEMENT NOW.
+
+Build.
+Render.
+Inspect visually.
+Correct.
+Repeat.
+
+Verify:
+desktop
+mobile
+keyboard
+touch
+reduced motion
+Product Universe
+Institution
+inspector open/close
+deep links
+back/context restoration
+performance
+overflow
+
+Then run:
+
+npm run lint
+npm run typecheck
+npm test
+npm run build
+
+Remain on the current feature branch.
+
+DO NOT MERGE TO MAIN YET.
+
+Return evidence and the resulting checkpoint SHA.
+

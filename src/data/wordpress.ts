@@ -1,311 +1,387 @@
-export interface WpItem {
+import type { DiscoverableEntity, EntityStatus } from '@/lib/entities';
+
+/**
+ * KNOuX WordPress ecosystem registry.
+ *
+ * This catalogue is intentionally empty. No KNOuX WordPress theme, plugin,
+ * block, starter site or bundle has been released, so none is listed. The
+ * schema below is the one future releases will publish through, and the
+ * division renders an explicit in-development state instead of filler.
+ *
+ * Nothing in this file may be populated to make the division look fuller than
+ * it is. A release becomes an entry when a repository or a verified download
+ * establishes it, and the fields it cannot establish stay absent.
+ */
+
+export type WordPressItemType =
+  | 'theme'
+  | 'starter-site'
+  | 'block'
+  | 'plugin'
+  | 'woocommerce-extension'
+  | 'integration'
+  | 'bundle';
+
+export type WordPressCategory = 'themes' | 'plugins' | 'blocks' | 'starter-sites' | 'solutions';
+
+/** Pillar grouping used by the overview and by the composer rules. */
+export type WordPressPillar = 'build' | 'extend' | 'operate' | 'grow';
+
+export type WordPressItem = {
   id: string;
   slug: string;
-  category: 'themes' | 'plugins' | 'blocks' | 'starter-sites' | 'solutions';
+  type: WordPressItemType;
   name: string;
-  tagline: string;
-  description: string;
-  version: string;
-  status: 'production' | 'active-development' | 'enterprise';
-  techStack: string[];
-  capabilities: string[];
-  metrics: { label: string; value: string }[];
-  targetAudience: string;
-}
+  shortName: string;
+  /** Every field below is optional. Absence means "not established". */
+  summary?: string;
+  description?: string;
+  status: EntityStatus;
+  version?: string;
+  compatibility?: string[];
+  wordpressVersion?: string;
+  phpVersion?: string;
+  woocommerceCompatibility?: string;
+  categories: string[];
+  tags: string[];
+  features?: string[];
+  /** Local asset paths under /public. Never remote hotlinks. */
+  screenshots?: string[];
+  icon?: string;
+  demoUrl?: string;
+  docsUrl?: string;
+  repositoryUrl?: string;
+  downloadUrl?: string;
+  purchaseUrl?: string;
+  license?: string;
+  supportStatus?: string;
+  updatedAt?: string;
+  relatedItems: string[];
+  /** Solution identifiers from `data/solutions.ts` that may include this item. */
+  solutionTags: string[];
+};
 
-export const wpCategories = [
-  { slug: 'all', label: 'All WP Systems' },
-  { slug: 'themes', label: 'Engineered Themes' },
-  { slug: 'plugins', label: 'Core Plugins' },
-  { slug: 'blocks', label: 'Gutenberg Blocks' },
-  { slug: 'starter-sites', label: 'Starter Systems' },
-  { slug: 'solutions', label: 'WP Engineering' },
-] as const;
-
-export const wpItems: WpItem[] = [
-  // THEMES
+/**
+ * Catalogue categories with their declared intent. `state` is honest and
+ * visible; it is not a placeholder for content that does not exist.
+ */
+export const wordpressCategories: ReadonlyArray<{
+  slug: WordPressCategory;
+  label: string;
+  type: WordPressItemType;
+  index: string;
+  intent: string;
+  route: string;
+}> = [
   {
-    id: 'wp-th-01',
-    slug: 'knoux-mono',
-    category: 'themes',
-    name: 'KNOuX Mono',
-    tagline: 'Minimalist Monospace Editorial FSE Theme',
-    description: 'Engineered for technical engineering consultancies, research labs, and architectural publications. Zero bloat, zero runtime JavaScript dependencies, 100/100 Lighthouse performance baseline.',
-    version: '2.4.0',
-    status: 'production',
-    techStack: ['Full Site Editing (FSE)', 'Tailwind Engine', 'Fluid Typography', 'Web Vitals Zero-Shift'],
-    capabilities: [
-      'Sub-50ms server response time on standard edge hosts',
-      'Zero layout shift (CLS 0.000) with deterministic font metric overrides',
-      'Native Gutenberg block styling with custom dark and technical color palettes',
-      'Semantic HTML5 structure optimized for technical LLM and algorithmic crawlers',
-    ],
-    metrics: [
-      { label: 'Lighthouse', value: '100 / 100' },
-      { label: 'Bundle Size', value: '14.2 KB CSS' },
-      { label: 'JS Runtime', value: '0.00 KB' },
-    ],
-    targetAudience: 'Engineering firms, technical publishers, software consultancies.',
+    slug: 'themes',
+    label: 'Themes',
+    type: 'theme',
+    index: 'WP-01',
+    intent: 'Full site editing systems built for editorial control without a page builder dependency.',
+    route: '/wordpress/themes',
   },
   {
-    id: 'wp-th-02',
-    slug: 'knoux-commerce',
-    category: 'themes',
-    name: 'KNOuX Commerce',
-    tagline: 'High-Throughput WooCommerce Architecture Theme',
-    description: 'High-performance storefront theme built for high-inventory catalogs and sub-millisecond cart interactions. Eliminates template bloat and integrates High-Performance Order Storage (HPOS).',
-    version: '3.1.2',
-    status: 'production',
-    techStack: ['WooCommerce HPOS', 'Vanilla JS Micro-Cart', 'Native Web Components', 'Edge Cache Tiering'],
-    capabilities: [
-      'Instantaneous client-side faceted filtering without page reloads',
-      'Decoupled cart drawer powered by native Web Components without jQuery dependencies',
-      'Deterministic inventory telemetry and high-concurrency checkout resilience',
-      'Direct integration with Meta Conversions API (CAPI) and Google GA4 server-side',
-    ],
-    metrics: [
-      { label: 'Catalog TTFB', value: '< 180ms' },
-      { label: 'Cart Latency', value: '12ms' },
-      { label: 'Mobile Score', value: '98 / 100' },
-    ],
-    targetAudience: 'High-volume merchants, bespoke product studios, international retailers.',
+    slug: 'plugins',
+    label: 'Plugins',
+    type: 'plugin',
+    index: 'WP-02',
+    intent: 'Extensions that add a capability, a workflow or an integration to an existing install.',
+    route: '/wordpress/plugins',
   },
   {
-    id: 'wp-th-03',
-    slug: 'knoux-headless-starter',
-    category: 'themes',
-    name: 'KNOuX Headless WP',
-    tagline: 'Decoupled WordPress & Next.js Hybrid Backbone',
-    description: 'Bridges WordPress as an enterprise headless CMS with Next.js App Router frontends. Delivers live Gutenberg preview synchronization, On-Demand ISR webhooks, and type-safe WPGraphQL queries.',
-    version: '1.8.0',
-    status: 'production',
-    techStack: ['Next.js 16', 'WPGraphQL', 'JWT Authentication', 'On-Demand ISR'],
-    capabilities: [
-      'Real-time Gutenberg block editor drafting with live Next.js preview window',
-      'Automatic incremental static regeneration (ISR) triggered by WordPress post hooks',
-      'GraphQL schema code generation for TypeScript frontends',
-      'Enterprise edge caching via Cloudflare and Vercel edge networks',
-    ],
-    metrics: [
-      { label: 'ISR Latency', value: '120ms' },
-      { label: 'Preview Sync', value: 'Realtime' },
-      { label: 'Type Coverage', value: '100% Strict' },
-    ],
-    targetAudience: 'Enterprises requiring editorial freedom with modern edge frontend performance.',
-  },
-
-  // PLUGINS
-  {
-    id: 'wp-pl-01',
-    slug: 'knoux-speed-core',
-    category: 'plugins',
-    name: 'KNOuX Speed Core',
-    tagline: 'Zero-Bloat Asset & Cache Optimization Engine',
-    description: 'Low-level performance optimizer engineered to strip core WordPress overhead. Replaces heavy caching plugins with surgical transient caching, critical CSS generation, and database index tuning.',
-    version: '4.2.1',
-    status: 'production',
-    techStack: ['Object Cache (Redis)', 'Critical CSS Engine', 'Asset Dependency Tree Pruning'],
-    capabilities: [
-      'De-queues unused core scripts and block library CSS on pages where they are not invoked',
-      'Automated Redis object cache tiering with intelligent transient invalidation',
-      'Database query analysis: highlights unindexed postmeta queries and slow queries',
-      'Native AVIF / WebP image delivery with automated responsive srcset formulation',
-    ],
-    metrics: [
-      { label: 'Asset Reduction', value: '-68% Payload' },
-      { label: 'DB Query Load', value: '-54% CPU' },
-      { label: 'TTFB Boost', value: '3.2x Faster' },
-    ],
-    targetAudience: 'High-traffic portals, media publishers, WooCommerce stores experiencing database locks.',
+    slug: 'blocks',
+    label: 'Blocks',
+    type: 'block',
+    index: 'WP-03',
+    intent: 'Reusable Gutenberg components that let editors assemble technical layouts safely.',
+    route: '/wordpress/blocks',
   },
   {
-    id: 'wp-pl-02',
-    slug: 'knoux-security-shield',
-    category: 'plugins',
-    name: 'KNOuX Security Shield',
-    tagline: 'Hardened Zero-Trust Gateway & Audit Engine',
-    description: 'Enterprise defense plugin replacing brittle security plugins. Provides granular REST API authorization, automated file integrity hashing, brute-force throttling, and cryptographic audit logs.',
-    version: '2.9.0',
-    status: 'production',
-    techStack: ['Cryptographic SHA-256 Checksums', 'Rate Limiter', 'Zero-Trust REST Gateway'],
-    capabilities: [
-      'Blocks enumeration of usernames, XML-RPC exploits, and unauthorized REST endpoints',
-      'Cryptographic baseline file hashing: detects core and plugin tampering in real time',
-      'Dual-factor WebAuthn authentication support for administrative roles',
-      'Webhook alerting pipeline for Slack, Telegram, and Discord incident notifications',
-    ],
-    metrics: [
-      { label: 'Zero-Day Shield', value: '100% Coverage' },
-      { label: 'Memory Footprint', value: '< 2.4 MB' },
-      { label: 'Failed Auth Drop', value: 'Instant Drop' },
-    ],
-    targetAudience: 'Financial portals, corporate headquarters, compliance-sensitive websites.',
+    slug: 'starter-sites',
+    label: 'Starter Sites',
+    type: 'starter-site',
+    index: 'WP-04',
+    intent: 'Pre-architected foundations for a named business vertical, wired to real content models.',
+    route: '/wordpress/starter-sites',
   },
   {
-    id: 'wp-pl-03',
-    slug: 'knoux-conversion-engine',
-    category: 'plugins',
-    name: 'KNOuX Conversion Engine',
-    tagline: 'Privacy-First Server-Side Telemetry & CAPI Integration',
-    description: 'Server-side marketing telemetry pipeline. Emits clean conversion events directly from WordPress backend hooks to Meta CAPI, Google Analytics 4, and TikTok without browser cookies or ad-blocker loss.',
-    version: '1.5.0',
-    status: 'production',
-    techStack: ['Meta Conversions API', 'GA4 Measurement Protocol', 'Server-Side Async Queues'],
-    capabilities: [
-      'Bypasses iOS / Safari tracking restrictions via 100% server-to-server dispatch',
-      'Deduplicates browser and server events using cryptographic transaction IDs',
-      'Tracks checkout funnels, lead form submissions, and PDF downloads without client-side lag',
-      'Strict GDPR/CCPA consent mode honoring with dynamic event masking',
-    ],
-    metrics: [
-      { label: 'Event Match Quality', value: '9.4 / 10' },
-      { label: 'Ad-Block Recovery', value: '+28% Conversions' },
-      { label: 'Client Overhead', value: '0.00 KB' },
-    ],
-    targetAudience: 'DTC e-commerce operators, performance marketers, lead generation platforms.',
-  },
-
-  // BLOCKS
-  {
-    id: 'wp-bl-01',
-    slug: 'knoux-blocks-grid',
-    category: 'blocks',
-    name: 'KNOuX Blocks: Data Grid',
-    tagline: 'Technical Matrix & Telemetry Block Suite',
-    description: 'A suite of lightweight, responsive Gutenberg blocks built for presenting complex technical specs, comparison tables, interactive KPI counters, and engineering architecture trees.',
-    version: '2.0.1',
-    status: 'production',
-    techStack: ['React Block API', 'CSS Grid', 'Zero Frontend Library'],
-    capabilities: [
-      'Responsive tabular matrix with frozen column headers and mobile swipe cards',
-      'Live metric KPI counter with accessible screen-reader live announcements',
-      'Telemetry bar visualizations with percentage bars and comparative status pills',
-      'Configurable column schemas with JSON import and export support',
-    ],
-    metrics: [
-      { label: 'CSS Overhead', value: '3.8 KB' },
-      { label: 'Accessibility', value: 'WCAG AAA' },
-      { label: 'Render Delay', value: '0ms' },
-    ],
-    targetAudience: 'Technical documentation teams, SaaS marketing managers, institutional agencies.',
-  },
-  {
-    id: 'wp-bl-02',
-    slug: 'knoux-blocks-radar',
-    category: 'blocks',
-    name: 'KNOuX Blocks: Capability Radar',
-    tagline: 'Dynamic Polygon & Skill Matrix Visualizer',
-    description: 'Interactive SVG radar visualizer block allowing editors to configure multi-axis performance ratings, technology maturity matrices, and institutional capabilities directly inside Gutenberg.',
-    version: '1.4.0',
-    status: 'production',
-    techStack: ['Pure SVG', 'Web Standards', 'Native Gutenberg Attributes'],
-    capabilities: [
-      'Fully customizable 3 to 12-axis polygonal radar plots',
-      'Client-side hover tooltips without third-party chart.js or D3 dependencies',
-      'Dark mode and print styles built directly into SVG stroke definitions',
-      'Direct synchronization with custom post types and ACF fields',
-    ],
-    metrics: [
-      { label: 'Execution', value: 'Pure SVG' },
-      { label: 'Load Impact', value: '0 Dependencies' },
-      { label: 'Format', value: 'Vector Infinite' },
-    ],
-    targetAudience: 'Consultancies, research institutions, portfolio sites.',
-  },
-
-  // STARTER SITES
-  {
-    id: 'wp-ss-01',
-    slug: 'starter-enterprise-corp',
-    category: 'starter-sites',
-    name: 'Enterprise Corporate Foundation',
-    tagline: 'Turnkey Multi-Language Institutional Architecture',
-    description: 'Pre-architected WordPress foundation designed for multinational organizations. Ships with corporate governance pages, investor relations modules, career board integration, and WCAG 2.1 AA compliance.',
-    version: '3.0.0',
-    status: 'production',
-    techStack: ['WordPress VIP Standards', 'Multisite Ready', 'Polylang / WPML Architecture'],
-    capabilities: [
-      'Turnkey multi-region localization with localized routing and hreflang verification',
-      'Granular role-based editorial workflow (Author, Fact-Checker, Legal Counsel, Publisher)',
-      'High-security SSO integration (SAML 2.0 / Okta / Azure AD)',
-      'Automated sitemap split architecture for sites exceeding 50,000 URLs',
-    ],
-    metrics: [
-      { label: 'Deploy Time', value: '< 48 Hours' },
-      { label: 'Compliance', value: 'WCAG 2.1 AA' },
-      { label: 'Security Score', value: 'Grade A+' },
-    ],
-    targetAudience: 'Global enterprises, holding groups, institutional foundations.',
-  },
-  {
-    id: 'wp-ss-02',
-    slug: 'starter-b2b-saas',
-    category: 'starter-sites',
-    name: 'B2B SaaS Growth Foundation',
-    tagline: 'Product-Led Growth & Documentation Architecture',
-    description: 'Complete marketing site stack tailored for modern software companies. Features interactive pricing comparison matrices, customer case study modules, API changelog systems, and demo booking funnels.',
-    version: '2.5.0',
-    status: 'production',
-    techStack: ['Full Site Editing', 'HubSpot / CRM Webhooks', 'Algolia Search Ready'],
-    capabilities: [
-      'Interactive tiered pricing calculator with monthly/annual toggle and feature breakdowns',
-      'Case study CMS with quantitative KPI highlight cards and testimonial callouts',
-      'Integration-ready lead capture forms with instant qualification and webhook routing',
-      'Built-in structured schema (SoftwareApplication, Organization, FAQPage)',
-    ],
-    metrics: [
-      { label: 'Conversion Lift', value: '+34% Average' },
-      { label: 'Deploy Window', value: '3 to 5 Days' },
-      { label: 'SEO Schema', value: 'Automated JSON-LD' },
-    ],
-    targetAudience: 'B2B software founders, VC portfolio companies, technology startups.',
-  },
-
-  // SOLUTIONS
-  {
-    id: 'wp-sol-01',
-    slug: 'wp-headless-migration',
-    category: 'solutions',
-    name: 'Decoupled & Headless WP Engineering',
-    tagline: 'Full Migration from Monolithic WP to Next.js Frontend',
-    description: 'Complete architectural transition: maintain WordPress as the editorial dashboard while routing the frontend through high-performance Next.js on edge infrastructure. Zero downtime guaranteed.',
-    version: 'Service',
-    status: 'enterprise',
-    techStack: ['Next.js 16', 'WordPress Headless', 'WPGraphQL', 'Edge CDN'],
-    capabilities: [
-      'Full database audit and content extraction into clean GraphQL schemas',
-      'Elimination of server-side PHP bottlenecks and shared hosting vulnerability surfaces',
-      'Sub-100ms global page loads on Vercel or Cloudflare Edge networks',
-      'Continuous integration pipeline for frontend and backend deployment',
-    ],
-    metrics: [
-      { label: 'TTFB Improvement', value: '5x to 10x' },
-      { label: 'Downtime', value: '0 Seconds' },
-      { label: 'Security', value: 'Zero PHP Surface' },
-    ],
-    targetAudience: 'Enterprises outgrowing traditional WordPress hosting looking for edge speed.',
-  },
-  {
-    id: 'wp-sol-02',
-    slug: 'wp-enterprise-hardening',
-    category: 'solutions',
-    name: 'Enterprise Performance & Security Hardening',
-    tagline: 'Deep Infrastructure Diagnostic, Optimization & Defense Audit',
-    description: 'Direct code and server-level intervention for compromised or slow WordPress installations. We dissect slow queries, eliminate plugin bloat, configure Redis object caching, and install military-grade defensive headers.',
-    version: 'Service',
-    status: 'enterprise',
-    techStack: ['MySQL Slow Log Analysis', 'Redis / Memcached', 'Nginx Microcaching', 'OWASP Top 10'],
-    capabilities: [
-      'Database query profiling: index missing keys and purge bloated autoload options',
-      'Server configuration: HTTP/3, Brotli compression, strict Content-Security-Policy headers',
-      'Removal of redundant plugins with clean native code implementations',
-      'Automated disaster recovery scripts and offsite encrypted backup pipelines',
-    ],
-    metrics: [
-      { label: 'Load Time Drop', value: '-65% Average' },
-      { label: 'Vulnerability Fix', value: '100% Remediation' },
-      { label: 'Audit Report', value: '45+ Page Dossier' },
-    ],
-    targetAudience: 'Publishers suffering from traffic spikes, hacked sites, or high server costs.',
+    slug: 'solutions',
+    label: 'Bundles',
+    type: 'bundle',
+    index: 'WP-05',
+    intent: 'Complete configurations pairing software, extensions and operating services for one outcome.',
+    route: '/wordpress/solutions',
   },
 ];
+
+/** Vertical filters for starter sites. Filters render regardless of catalogue size. */
+export const starterSiteVerticals: ReadonlyArray<{ id: string; label: string }> = [
+  { id: 'corporate', label: 'Corporate' },
+  { id: 'academy', label: 'Academy' },
+  { id: 'delivery', label: 'Delivery' },
+  { id: 'restaurant', label: 'Restaurant' },
+  { id: 'real-estate', label: 'Real Estate' },
+  { id: 'portfolio', label: 'Portfolio' },
+  { id: 'store', label: 'Store' },
+  { id: 'professional-services', label: 'Professional Services' },
+  { id: 'healthcare', label: 'Healthcare' },
+  { id: 'education', label: 'Education' },
+];
+
+/** Operating groups inside the ecosystem overview. */
+export const wordpressPillars: ReadonlyArray<{
+  id: WordPressPillar;
+  index: string;
+  label: string;
+  statement: string;
+  activities: string[];
+  categoryRoute: string | null;
+}> = [
+  {
+    id: 'build',
+    index: '01',
+    label: 'Build',
+    statement: 'The authoring layer: the structures an editor works inside every day.',
+    activities: ['Themes', 'Starter Sites', 'Blocks', 'Layouts', 'Components'],
+    categoryRoute: '/wordpress/themes',
+  },
+  {
+    id: 'extend',
+    index: '02',
+    label: 'Extend',
+    statement: 'Additional capability added to an install that already runs.',
+    activities: ['Plugins', 'WooCommerce Extensions', 'Integrations', 'Utilities', 'Automation'],
+    categoryRoute: '/wordpress/plugins',
+  },
+  {
+    id: 'operate',
+    index: '03',
+    label: 'Operate',
+    statement: 'The work required to keep an install correct, fast and recoverable.',
+    activities: ['Setup', 'Migration', 'Maintenance', 'Performance', 'Security', 'Backups'],
+    categoryRoute: null,
+  },
+  {
+    id: 'grow',
+    index: '04',
+    label: 'Grow',
+    statement: 'Work that makes an existing site findable and measurable.',
+    activities: ['SEO', 'Analytics', 'Conversion', 'Campaign Landing Pages', 'Content Systems'],
+    categoryRoute: '/growth/seo',
+  },
+];
+
+/**
+ * The catalogue. Empty by evidence, not by omission of effort.
+ *
+ * Adding a release is a data change only: append an entry, then the themes
+ * gallery, plugin registry, starter-site filters, composer rules, global
+ * search and sitemap all pick it up without a component rewrite.
+ */
+export const wordPressItems: readonly WordPressItem[] = [];
+
+export function wordPressByCategory(category: WordPressCategory): WordPressItem[] {
+  const type = wordpressCategories.find((entry) => entry.slug === category)?.type;
+  return wordPressItems.filter((item) => item.type === type);
+}
+
+/**
+ * WordPress operating services. These are performed by KNOuX as engineering
+ * work rather than shipped as files, so they are real offerings even though
+ * the file catalogue is empty. They carry no price, no duration and no
+ * outcome promise.
+ */
+export type WordPressService = {
+  id: string;
+  code: string;
+  name: string;
+  summary: string;
+  activities: string[];
+  route: string;
+};
+
+export const wordPressServices: readonly WordPressService[] = [
+  {
+    id: 'wp-svc-install',
+    code: 'WPS-01',
+    name: 'Install & Configuration',
+    summary: 'A working WordPress environment configured to the requirements of the project, with a documented baseline.',
+    activities: ['Hosting and environment selection', 'Core and multisite configuration', 'Role and capability model', 'Baseline documentation'],
+    route: '/wordpress',
+  },
+  {
+    id: 'wp-svc-migration',
+    code: 'WPS-02',
+    name: 'Migration',
+    summary: 'Moving an existing WordPress site onto a new host or architecture without losing content, URLs or behaviour.',
+    activities: ['Content and database audit', 'URL and redirect mapping', 'Staged cutover', 'Post-migration verification'],
+    route: '/wordpress',
+  },
+  {
+    id: 'wp-svc-maintenance',
+    code: 'WPS-03',
+    name: 'Maintenance',
+    summary: 'Recurring work that keeps an install patched, current and reversible.',
+    activities: ['Update management', 'Plugin compatibility review', 'Uptime and error monitoring', 'Change log'],
+    route: '/wordpress',
+  },
+  {
+    id: 'wp-svc-performance',
+    code: 'WPS-04',
+    name: 'Performance',
+    summary: 'Measurement-led removal of the specific work that makes a WordPress site slow.',
+    activities: ['Query and cache profiling', 'Critical rendering path work', 'Media and font delivery', 'Before and after measurement'],
+    route: '/wordpress',
+  },
+  {
+    id: 'wp-svc-security',
+    code: 'WPS-05',
+    name: 'Security',
+    summary: 'Hardening and monitoring of a WordPress install, with a written boundary between protection and intrusion response.',
+    activities: ['Access and permission audit', 'File integrity and update control', 'Backup and restore verification', 'Incident runbook'],
+    route: '/wordpress',
+  },
+  {
+    id: 'wp-svc-backup',
+    code: 'WPS-06',
+    name: 'Backup & Recovery',
+    summary: 'Backups that have been restored at least once, because an untested backup is only a hypothesis.',
+    activities: ['Automated off-site backup', 'Restore drill and timing record', 'Retention policy', 'Recovery runbook'],
+    route: '/wordpress',
+  },
+  {
+    id: 'wp-svc-headless',
+    code: 'WPS-07',
+    name: 'Headless & Decoupled',
+    summary: 'WordPress retained as the editorial system while delivery moves to an edge-rendered frontend.',
+    activities: ['Content model and API design', 'Frontend integration', 'Preview and revalidation wiring', 'Editorial handover'],
+    route: '/web',
+  },
+];
+
+/**
+ * Goals a visitor can start from. Each resolves to services and, once the file
+ * catalogue exists, to catalogue items. Only verified entries are attached.
+ */
+export type WordPressGoal = {
+  id: string;
+  code: string;
+  label: string;
+  statement: string;
+  verticals: string[];
+  /** Service ids from `wordPressServices`. */
+  serviceIds: string[];
+  /** Catalogue item ids. Empty until releases exist. */
+  itemIds: string[];
+  /** Other divisions that legitimately combine into this outcome. */
+  companionEntityIds: string[];
+};
+
+export const wordPressGoals: readonly WordPressGoal[] = [
+  {
+    id: 'wp-goal-corporate',
+    code: 'WPG-01',
+    label: 'Corporate',
+    statement: 'A controlled institutional site with governance, roles and review built into the editorial model.',
+    verticals: ['corporate', 'professional-services'],
+    serviceIds: ['wp-svc-install', 'wp-svc-maintenance', 'wp-svc-security'],
+    itemIds: [],
+    companionEntityIds: ['web-corporate', 'creative-brand-identity', 'growth-technical-seo'],
+  },
+  {
+    id: 'wp-goal-store',
+    code: 'WPG-02',
+    label: 'Store',
+    statement: 'A commerce site with a deliberate catalogue model, checkout behaviour and measurement in place.',
+    verticals: ['store'],
+    serviceIds: ['wp-svc-install', 'wp-svc-performance', 'wp-svc-maintenance'],
+    itemIds: [],
+    companionEntityIds: ['web-ecommerce', 'growth-google-ads', 'growth-meta-ads', 'growth-conversion-tracking'],
+  },
+  {
+    id: 'wp-goal-academy',
+    code: 'WPG-03',
+    label: 'Academy',
+    statement: 'A learning destination with a content hierarchy, enrolment path and a clear student experience.',
+    verticals: ['academy', 'education'],
+    serviceIds: ['wp-svc-install', 'wp-svc-maintenance', 'wp-svc-performance'],
+    itemIds: [],
+    companionEntityIds: ['web-portal', 'growth-content', 'creative-editorial'],
+  },
+  {
+    id: 'wp-goal-local',
+    code: 'WPG-04',
+    label: 'Local Business',
+    statement: 'A site for a business that depends on being found and contacted from nearby.',
+    verticals: ['restaurant', 'delivery', 'real-estate', 'healthcare'],
+    serviceIds: ['wp-svc-install', 'wp-svc-backup', 'wp-svc-maintenance'],
+    itemIds: [],
+    companionEntityIds: ['web-corporate', 'growth-local-visibility', 'creative-launch-content'],
+  },
+  {
+    id: 'wp-goal-modernise',
+    code: 'WPG-05',
+    label: 'Modernise',
+    statement: 'Replacing or repairing an install that has become slow, fragile or impossible to edit safely.',
+    verticals: ['corporate', 'portfolio', 'professional-services'],
+    serviceIds: ['wp-svc-performance', 'wp-svc-security', 'wp-svc-migration', 'wp-svc-backup'],
+    itemIds: [],
+    companionEntityIds: ['web-performance-audit', 'growth-technical-seo'],
+  },
+];
+
+export function wordPressEntities(): DiscoverableEntity[] {
+  const itemEntities: DiscoverableEntity[] = wordPressItems.map((item) => ({
+    id: item.id,
+    kind: 'block',
+    division: 'wordpress',
+    code: item.id.toUpperCase(),
+    slug: item.slug,
+    name: item.name,
+    shortName: item.shortName,
+    summary: item.summary ?? 'WordPress release.',
+    status: item.status,
+    route: `/wordpress/${item.type}s`,
+    categories: item.categories,
+    searchTerms: [...item.tags, item.name, item.shortName],
+    capabilities: item.features ?? [],
+    relatedIds: item.relatedItems,
+  }));
+
+  const serviceEntities: DiscoverableEntity[] = wordPressServices.map((service) => ({
+    id: service.id,
+    kind: 'bundle',
+    division: 'wordpress',
+    code: service.code,
+    slug: service.id,
+    name: service.name,
+    shortName: service.name,
+    summary: service.summary,
+    status: 'service',
+    route: service.route,
+    categories: ['wordpress', 'operate'],
+    searchTerms: service.activities,
+    capabilities: [],
+    relatedIds: [],
+  }));
+
+  const goalEntities: DiscoverableEntity[] = wordPressGoals.map((goal) => ({
+    id: goal.id,
+    kind: 'bundle',
+    division: 'wordpress',
+    code: goal.code,
+    slug: goal.id,
+    name: `${goal.label} on WordPress`,
+    shortName: goal.label,
+    summary: goal.statement,
+    status: 'service',
+    route: '/wordpress',
+    categories: ['wordpress', goal.label.toLowerCase()],
+    searchTerms: [...goal.verticals, goal.label],
+    capabilities: [],
+    relatedIds: goal.companionEntityIds,
+  }));
+
+  return [...itemEntities, ...serviceEntities, ...goalEntities];
+}

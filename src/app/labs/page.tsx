@@ -1,139 +1,122 @@
-import Link from 'next/link';
 import { PageIntro } from '@/components/PageIntro';
+import { DivisionBridge, NextLink } from '@/components/blocks';
 import { pageMetadata } from '@/lib/metadata';
+import { labExperiments, repositoryLedger, softwareProducts } from '@/data/software';
+import { TrackOnView } from '@/components/TrackOnView';
+import { ExperimentChamber } from '@/components/SpatialExperiences';
 
 export const metadata = pageMetadata(
-  'Labs & Research',
-  'Active computational experiments, proto-systems, and security research from KNOuX: Knoux-Quill, knoux-security, and foundational research.',
-  '/labs'
+  'Labs',
+  'KNOuX research and unfinished systems: experiments kept deliberately visible so the state of the practice is inspectable.',
+  '/labs',
 );
 
-interface LabExperiment {
-  id: string;
-  code: string;
-  name: string;
-  repo: string;
-  status: 'active-research' | 'experimental' | 'proto-system';
-  tagline: string;
-  statement: string;
-  vector: string;
-  techStack: string[];
-}
-
-const experiments: LabExperiment[] = [
-  {
-    id: 'lab-quill',
-    code: 'LAB-EXP-01',
-    name: 'Knoux-Quill',
-    repo: 'daynightae-cmyk/Knoux-Quill',
-    status: 'active-research',
-    tagline: 'AI-Assisted Technical Markdown & Knowledge Extraction Engine',
-    statement: 'Investigating high-density algorithmic documentation workflows. Explores deterministic markdown parsing, automated architectural diagram generation, and semantic entity graph extraction from raw codebases.',
-    vector: 'NATURAL LANGUAGE PROCESSING • COMPILER DESIGN',
-    techStack: ['TypeScript', 'AST Parser', 'Markdown AST (mdast)', 'LLM Embedding Mesh'],
-  },
-  {
-    id: 'lab-sec',
-    code: 'LAB-EXP-02',
-    name: 'knoux-security',
-    repo: 'daynightae-cmyk/knoux-security',
-    status: 'active-research',
-    tagline: 'Application Security Scanner & Vulnerability Inspector',
-    statement: 'A zero-dependency security audit harness engineered to scan code repositories for exposed credentials, entropy anomalies in token strings, dependency vulnerabilities, and OWASP Top 10 configuration drifts.',
-    vector: 'DEFENSIVE CYBERSECURITY • STATIC ANALYSIS',
-    techStack: ['Go', 'Static Analysis Engine', 'Regex Entropy Scanner', 'SARIF Report Format'],
-  },
-  {
-    id: 'lab-core',
-    code: 'LAB-EXP-03',
-    name: 'knoux (Core Proto-System)',
-    repo: 'daynightae-cmyk/knoux',
-    status: 'proto-system',
-    tagline: 'Foundational Research & Mathematical Shader Geometry',
-    statement: 'The primordial laboratory where KNOuX particle mathematics, deterministic shader geometry, and experimental computational models were first formulated and stress-tested before graduating to production systems.',
-    vector: 'SPATIAL MATHEMATICS • GPU SHADER COMPUTATION',
-    techStack: ['GLSL Shaders', 'Three.js', 'Vector Mathematics', 'Procedural Topography'],
-  },
-];
-
 export default function LabsPage() {
+  const nonCanonical = repositoryLedger.filter(
+    (record) => record.classification === 'LAB' || record.classification === 'PLACEHOLDER' || record.classification === 'DUPLICATE',
+  );
+
   return (
     <main id="main-content">
+      <TrackOnView event={{ type: 'division_opened', division: 'labs', route: '/labs' }} />
       <PageIntro
-        index="08"
+        index="09"
         label="Labs"
-        title="Curiosity is"
-        italic="a working method."
-        description="A transparent index of active research, prototypes, and open computational experiments verified from our source repositories."
+        title="What is still"
+        italic="unfinished."
+        description="Research, concept documents and repositories that exist but are not products. Kept visible rather than quietly removed, because the state of the practice should be inspectable."
       />
 
-      <section className="section-shell labs-grid-section">
-        <div className="section-header-split">
+      <section className="shell" style={{ paddingTop: 'clamp(56px, 7vw, 110px)', paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
+        <div className="block-head">
           <div>
-            <p className="eyebrow">ACTIVE RESEARCH TRACKS</p>
-            <h2>Verified Proto-Systems & Security Tools</h2>
+            <span className="label label--signal">EXPERIMENTS</span>
+            <h2 className="block-head__title">
+              In the
+              <br />
+              lab.
+            </h2>
           </div>
-          <p className="section-statement">
-            These initiatives represent our frontier work in progress. When an experiment matures into an enterprise utility or commercial platform, it graduates to the KNOuX Software or Web systems catalog.
+          <p className="block-head__aside">
+            Each entry states what the repository actually contains. Where a repository is a design document rather
+            than a build, this page says so.
           </p>
         </div>
 
-        <div className="labs-stack">
-          {experiments.map((exp) => (
-            <article key={exp.id} className="lab-experiment-card">
-              <div className="lab-card-top">
-                <div className="lab-meta-badge">
-                  <span className="lab-code">{exp.code}</span>
-                  <span className="lab-vector">{exp.vector}</span>
-                </div>
-                <span className={`lab-status ${exp.status}`}>
-                  {exp.status.replace('-', ' ').toUpperCase()}
-                </span>
-              </div>
-
-              <div className="lab-card-body">
-                <h3 className="lab-title">{exp.name}</h3>
-                <p className="lab-tagline">{exp.tagline}</p>
-                <p className="lab-statement">{exp.statement}</p>
-
-                <div className="lab-tech-strip">
-                  <span className="section-micro-label">TECHNOLOGY / ARCHITECTURE:</span>
-                  <div className="lab-tags">
-                    {exp.techStack.map((tech) => (
-                      <span key={tech} className="lab-tag">{tech}</span>
-                    ))}
-                  </div>
+        <ExperimentChamber />
+        <details className="evidence-disclosure"><summary>VIEW EXPERIMENT EVIDENCE</summary><div className="index-rows" style={{ marginTop: 34 }}>
+          {labExperiments.map((lab) => (
+            <article key={lab.id} className="lab-row">
+              <span className="lab-row__code">{lab.code}</span>
+              <div className="lab-row__body">
+                <h3>
+                  {lab.name}
+                  <span className={`mark mark--${lab.status}`}>{lab.status}</span>
+                </h3>
+                <p>{lab.statement}</p>
+                <p className="lab-row__evidence">
+                  <span className="label">EVIDENCE</span>
+                  {lab.evidence}
+                </p>
+                <div className="tags" style={{ marginTop: 14 }}>
+                  {lab.stack.split(', ').map((tech) => (
+                    <span key={tech} className="tag">
+                      {tech}
+                    </span>
+                  ))}
                 </div>
               </div>
-
-              <div className="lab-card-footer">
-                <a
-                  href={`https://github.com/${exp.repo}`}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="button-text"
-                >
-                  VIEW REPOSITORY ON GITHUB <span>↗</span>
-                </a>
-                <span className="repo-source">daynightae-cmyk/{exp.name}</span>
-              </div>
+              <a className="lab-row__link" href={lab.repository} target="_blank" rel="noreferrer noopener">
+                REPOSITORY <span aria-hidden="true">↗</span>
+              </a>
             </article>
           ))}
-        </div>
+        </div></details>
       </section>
 
-      {/* Outro Callout */}
-      <section className="page-outro section-shell">
-        <p className="eyebrow">RESEARCH COLLABORATION</p>
-        <h2>Interested in testing an experimental prototype or contributing research?</h2>
-        <div className="outro-actions">
-          <Link href="/contact?scope=labs" className="button-primary">
-            <span>INQUIRE ABOUT LAB EXPERIMENTS</span>
-            <span>↗</span>
-          </Link>
-          <Link href="/engineering" className="button-text">
-            SEE OUR ENGINEERING PHILOSOPHY <span>→</span>
-          </Link>
+      <section className="shell" style={{ paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
+        <div className="block-head">
+          <div>
+            <span className="label label--signal">NOT PRODUCTS</span>
+            <h2 className="block-head__title">
+              Repositories that
+              <br />
+              stay unpublished.
+            </h2>
+          </div>
+          <p className="block-head__aside">
+            These exist under the KNOuX account but carry no product identity, overlap a maintained repository, or
+            are empty. Publishing them would imply a release that does not exist.
+          </p>
+        </div>
+        <details className="evidence-disclosure"><summary>VIEW UNPUBLISHED REPOSITORIES</summary><div className="registry" style={{ marginTop: 30 }}>
+          {nonCanonical.map((record) => (
+            <div key={record.repository} className="registry-row" style={{ gridTemplateColumns: 'minmax(0,1fr) 130px minmax(0,1.4fr)' }}>
+              <span className="registry-row__name mono" style={{ fontSize: 12 }}>
+                {record.repository}
+              </span>
+              <span className="registry-row__compat">{record.classification}</span>
+              <span className="registry-row__purpose">{record.basis}</span>
+            </div>
+          ))}
+        </div></details>
+        <p className="meta-row" style={{ marginTop: 22 }}>
+          <span>{softwareProducts.length} canonical products</span>
+          <span>{labExperiments.length} research items</span>
+          <span>{nonCanonical.length} held back</span>
+        </p>
+      </section>
+
+      <section className="shell" style={{ paddingBottom: 'clamp(80px, 9vw, 150px)' }}>
+        <DivisionBridge
+          label="ACROSS DIVISIONS"
+          title="Looking for something released?"
+          body="The product universe lists only what a repository establishes. Everything held back is on this page with the reason."
+          href="/products"
+          action="KNOuX Software"
+        />
+        <div style={{ marginTop: 60 }}>
+          <NextLink label="Institution" name="About KNOuX" href="/about" />
         </div>
       </section>
     </main>

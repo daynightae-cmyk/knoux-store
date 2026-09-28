@@ -1,0 +1,540 @@
+EXECUTE THIS AS A REAL, ISOLATED KNOuX STORE IMPLEMENTATION TASK.
+
+PROJECT:
+D:\Knoux Store
+
+MISSION:
+Build the missing Web + Creative detail-route engine as a complete production-grade batch.
+
+IMPORTANT CONCURRENCY RULE:
+Another agent is actively modifying product pages and WordPress work in the primary working tree.
+DO NOT interfere with that work.
+
+Prefer an ISOLATED git worktree/branch for this mission.
+Suggested branch:
+feat/web-creative-detail-engine
+
+If Codex is already operating inside an isolated worktree, stay there.
+Do not reset, clean, stash, overwrite, or delete the primary working tree.
+Do not merge main.
+
+STARTING BASELINE:
+Treat the checked-out repository state you actually see as authority.
+Record branch + HEAD before editing.
+The known primary branch when this prompt was prepared was feat/digital-headquarters at 3eb805e, but do not assume it is still current.
+
+FIRST — REALITY REFRESH
+
+Read completely:
+- src/data/services.ts
+- src/app/web/page.tsx
+- src/app/creative/page.tsx
+- src/data/navigation.ts
+- src/app/sitemap.ts
+- src/components/SiteHeader.tsx
+- src/components/SiteFooter.tsx
+- src/components/CommandPalette.tsx
+- src/components/blocks/*
+- src/components/DivisionShell.tsx
+- src/app/globals.css
+- src/lib/entities.ts
+- src/data/composer-rules.ts
+- tests/* relevant to routes/data integrity
+
+Then:
+1. enumerate every current WebSystem
+2. enumerate every current CreativeDiscipline
+3. identify every current link using /web?system=...
+4. identify every current creative #anchor link
+5. identify route assumptions in search, composer, related links, sitemap and breadcrumbs
+6. preserve all factual data exactly as established by the registries
+
+CURRENT VERIFIED WEB SYSTEM SLUGS
+
+corporate-site
+ecommerce
+web-application
+customer-portal
+admin-dashboard
+interactive-experience
+
+CURRENT VERIFIED CREATIVE DISCIPLINE SLUGS
+
+brand-identity
+ui-ux
+art-direction
+campaign-creative
+social-content
+motion
+product-visuals
+presentation
+
+Do not hard-code these lists in multiple places if the registry can drive them.
+
+TARGET ROUTES
+
+/web/[slug]
+/creative/[slug]
+
+Every canonical registry entry must have a real deep-linkable detail route.
+
+No fake routes.
+No placeholder detail pages.
+No duplicate copies of the same page with only a title swapped.
+
+ARCHITECTURAL GOAL
+
+Create ONE shared detail-page grammar with division-specific renderers.
+
+Preferred model:
+registry truth
+→ detail adapter
+→ shared detail shell
+→ Web or Creative visual profile
+→ reusable content blocks
+→ real related-entity actions
+
+The result should feel:
+ONE KNOuX INSTITUTION
++
+DISTINCT SYSTEM PERSONALITIES
+
+Do not create fourteen unrelated microsites.
+
+Do not create one boring dossier copied fourteen times.
+
+Use shared primitives and data-driven visual profiles.
+
+WEB DETAIL EXPERIENCE
+
+Each WebSystem page must expose, from real data:
+- code
+- title
+- tagline
+- statement
+- category
+- capabilityIds resolved to labels
+- disciplines
+- artefacts
+- platformNotes
+- qualifiers
+- relatedEntityIds
+- request/build actions
+
+Suggested semantic sections:
+1. system identity hero
+2. what this system is
+3. architecture / disciplines
+4. artefacts the client actually receives
+5. platform starting points
+6. architecture-changing questions
+7. capability relationships
+8. related systems/divisions
+9. request/build CTA
+
+Do not add prices, delivery windows, performance promises or client counts.
+
+WEB VISUAL PROFILES
+
+corporate-site:
+editorial grid / content model / governance geometry
+
+ecommerce:
+catalogue -> cart -> checkout -> payment/shipping flow
+
+web-application:
+state/data/permission topology
+
+customer-portal:
+identity boundary / scoped-user rings / self-service flow
+
+admin-dashboard:
+dense information planes / freshness / safe-action architecture
+
+interactive-experience:
+spatial scene / progressive-enhancement layers / device envelope
+
+These are PRESENTATION metaphors only.
+Never imply technical facts not present in the registry.
+
+Prefer SVG/CSS/Canvas2D for secondary visuals.
+Use WebGL only when it provides meaningful depth and fits the existing performance budget.
+
+CREATIVE DETAIL EXPERIENCE
+
+Each CreativeDiscipline page must expose, from real data:
+- code
+- title
+- subtitle
+- statement
+- capabilityIds
+- deliverables
+- principles
+- pairsWith
+- request action
+
+Suggested semantic sections:
+1. discipline identity hero
+2. statement
+3. deliverables
+4. operating principles
+5. capability relationships
+6. pairs-with graph
+7. request CTA
+8. related creative disciplines
+
+No fake portfolio projects.
+No fake client logos.
+No invented awards.
+No fake outcomes.
+
+CREATIVE VISUAL PROFILES
+
+brand-identity:
+mark construction / proportion grid / type + color system
+
+ui-ux:
+wireflow / state graph / focus-path architecture
+
+art-direction:
+editorial rhythm / image treatment / layout field
+
+campaign-creative:
+variant matrix / hypothesis axis / format distribution
+
+social-content:
+publishing cadence / format rhythm / reusable content system
+
+motion:
+timing curves / transition grammar / reduced-motion counterpart
+
+product-visuals:
+lighting / context / scale-reference / shot-system geometry
+
+presentation:
+narrative spine / slide hierarchy / information sequencing
+
+Use KNOuX visual DNA.
+Do not use rainbow category colors.
+Do not imitate unrelated design references.
+
+ROUTE MIGRATION
+
+Replace legacy internal navigation that points to:
+/web?system=<slug>
+
+with:
+/web/<slug>
+
+where the destination is the canonical WebSystem detail page.
+
+Replace Creative detail anchors such as:
+/creative#brand-identity
+
+with:
+/creative/brand-identity
+
+when they represent a full discipline destination.
+
+Keep overview pages:
+/web
+/creative
+
+They remain discovery/index pages.
+
+Do not break query parameters that serve a different real purpose.
+
+Add compatibility redirects only if the current application architecture makes them necessary and safe.
+
+DATA / HELPERS
+
+Do not duplicate registry objects inside page components.
+
+Add helpers where appropriate, for example:
+findWebSystem(slug)
+findCreativeDiscipline(slug)
+
+generateStaticParams() must derive from the registries.
+
+generateMetadata() must derive from real registry fields.
+
+Unknown slugs:
+notFound()
+
+Breadcrumbs:
+KNOuX / Web / <system>
+KNOuX / Creative / <discipline>
+
+Update breadcrumb logic if required.
+
+Update entity routes so global search, Composer and related-entity links point to canonical detail URLs.
+
+VISUAL IDENTITY
+
+Use current KNOuX tokens:
+deep black / graphite
+off-white
+platinum / silver
+restrained violet
+architectural lines
+strong negative space
+large editorial typography
+technical monospace metadata
+
+Do not redesign the global header.
+Do not replace the accepted homepage hero.
+Do not introduce a second global design language.
+
+Each detail hero should feel specific through:
+geometry
+layout
+motion
+density
+information hierarchy
+
+not random saturated colors.
+
+DETAIL HERO
+
+Build reusable detail hero primitives.
+
+Required:
+- breadcrumb
+- code/category
+- title
+- tagline/subtitle
+- concise statement
+- relevant visual profile
+- action rail
+
+Web actions may include:
+- Compose this system
+- Request this system
+- related verified routes
+
+Creative actions may include:
+- Request this discipline
+- Compose it into a build
+- related verified routes
+
+Do not invent GitHub/demo/download buttons for service pages.
+
+Hero animation must remain subordinate to readability.
+
+INTERACTION
+
+Desktop:
+- subtle pointer parallax where useful
+- local hover/focus response
+- progressive reveal
+- no scroll hijacking
+
+Touch:
+- no hover dependence
+- native vertical scroll
+
+Keyboard:
+- all actions reachable
+- visible focus
+- semantic landmarks
+
+Reduced motion:
+- final composition available immediately
+- no essential information hidden behind animation
+
+Avoid React state updates on every pointermove.
+Use refs/CSS variables/requestAnimationFrame when motion is needed.
+
+PERFORMANCE / IMPLEMENTATION ISOLATION
+
+Because another agent is modifying product and WordPress systems:
+DO NOT EDIT:
+- src/components/products/**
+- src/data/product-visuals.ts
+- src/app/products/**
+- src/components/WordPressCatalog.tsx
+- src/data/wordpress.ts
+- src/app/wordpress/**
+- references/products/**
+- references/wordpress/**
+
+unless a read-only inspection is required.
+
+Minimize edits to globals.css.
+Prefer scoped CSS modules/new local styles for this mission if the project supports them.
+
+If a shared file must change:
+make the smallest surgical edit and document it.
+
+SEO / DISCOVERY
+
+Update sitemap to include all:
+- /web/[slug]
+- /creative/[slug]
+
+Use registry-derived static routes.
+
+Update command palette / global search route targets if they currently resolve to overview query/anchor URLs.
+
+Ensure canonical metadata for each detail route.
+
+Add appropriate schema only if supported by real facts.
+Do not invent AggregateRating, Review, Organization membership, staff, awards or locations.
+
+REQUEST / COMPOSER INTEGRATION
+
+Web detail CTA:
+link into /build with a meaningful preset derived from the real system title/tagline/objective.
+
+Creative detail CTA:
+link into /contact with requestType=creative&discipline=<slug>
+and optionally /build with a truthful preset.
+
+Preserve existing contact semantics.
+
+Do not create fake quote/pricing flows.
+
+Every related entity link must resolve from current registries/composer entity map.
+
+TESTING
+
+Add/extend tests for:
+- every webSystems slug has a valid detail route
+- every creativeDisciplines slug has a valid detail route
+- helpers return the correct object
+- unknown slug fails safely
+- metadata path/title derives from registry
+- global entity routes use canonical detail routes
+- no legacy /web?system route remains where a canonical detail route is expected
+- no legacy creative #anchor remains where a discipline detail route is expected
+- sitemap contains every canonical detail route
+- no fabricated fields are introduced
+
+VISUAL QA
+
+Actually render ALL 14 detail routes.
+
+Web:
+- /web/corporate-site
+- /web/ecommerce
+- /web/web-application
+- /web/customer-portal
+- /web/admin-dashboard
+- /web/interactive-experience
+
+Creative:
+- /creative/brand-identity
+- /creative/ui-ux
+- /creative/art-direction
+- /creative/campaign-creative
+- /creative/social-content
+- /creative/motion
+- /creative/product-visuals
+- /creative/presentation
+
+Do not visually inspect only one template and assume the rest work.
+
+RESPONSIVE QA
+
+Inspect representative pages and all route data at:
+1440x900
+1600x1000
+390x844
+375x812
+
+Verify:
+- title does not collide
+- no horizontal overflow
+- actions remain reachable
+- long discipline/artefact text wraps correctly
+- visual profile does not obscure content
+- reduced motion
+- keyboard focus
+- direct deep link
+- refresh
+- browser Back/Forward
+- notFound path
+- console cleanliness
+
+If browser automation is available, use it.
+If not, state the limitation explicitly.
+
+
+QUALITY RULE
+
+Do not stop because routes compile.
+
+The mission is complete only when:
+- route architecture exists
+- links migrate
+- search/composer routes migrate
+- sitemap migrates
+- metadata works
+- detail content is genuinely different by registry data
+- visual expression is appropriate per system/discipline
+- mobile is usable
+- accessibility is preserved
+- gates are run
+
+No fake PASS.
+No "implementation complete" before browser inspection.
+
+GATES
+
+Run:
+npm run lint
+npm run typecheck
+npm test
+npm run build
+git diff --check
+
+If any gate fails:
+investigate and identify whether it is:
+A) introduced by this branch
+B) pre-existing in the baseline
+
+Fix A.
+Do not hide B.
+Do not call the branch green while introduced failures remain.
+
+Also search for:
+- /web?system=
+- /creative#
+
+Report intentional remaining matches, if any.
+
+GIT / DELIVERY
+
+Work in the isolated Codex branch/worktree.
+
+Do not touch the other agent's live working tree.
+Do not merge main.
+Do not overwrite concurrent work.
+
+When implementation and verification are complete:
+create one clean checkpoint commit.
+
+Return:
+- worktree path
+- branch
+- starting SHA
+- ending SHA
+- files changed
+- routes created
+- shared files changed
+- legacy links migrated
+- visual profile mapping
+- tests added
+- browser QA evidence
+- responsive/accessibility results
+- gates
+- known limitations
+- exact checkpoint SHA
+
+DO NOT RETURN A PLAN.
+IMPLEMENT THE FULL BATCH NOW.
+BUILD.
+RENDER.
+INSPECT.
+CORRECT.
+VERIFY.

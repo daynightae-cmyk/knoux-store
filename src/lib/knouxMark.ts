@@ -192,11 +192,15 @@ export type MarkSample = {
 };
 
 // KNOuX Core ring, and the four product paths the diagonals separate into.
-const CORE_RADIUS = 0.66;
-const NODE_RADIUS = 2.35;
+// Reach is deliberately kept inside the mark's own frame: the stage is portrait,
+// so a wider orbit would push the product nodes outside the canvas and clip them
+// into hard wedges at the stage edge.
+const CORE_RADIUS = 0.55;
+const NODE_REACH = 1.3;
 const NODE_ANGLES = [42, 138, 228, 318].map((degrees) => (degrees * Math.PI) / 180);
 const NODE_GROUP = [0, 1, 3, 3] as const;
 const NODE_SPILL = 0.24;
+const ARM_WIDTH = 0.06;
 const VIOLET_RATIO = 0.08;
 
 function destinationFor(group: MarkGroup, rand: () => number): [number, number, number] {
@@ -206,11 +210,17 @@ function destinationFor(group: MarkGroup, rand: () => number): [number, number, 
     const radius = CORE_RADIUS + rand() * 0.05;
     return [Math.cos(angle) * radius, Math.sin(angle) * radius, (rand() - 0.5) * 0.3];
   }
-  // The three diagonals separate into structured product paths.
+  // The three diagonals separate into structured product paths: each becomes an
+  // arm running out from the Core, densest at the product node it resolves into.
   const node = rand() < NODE_SPILL ? 3 : NODE_GROUP[group];
-  const angle = NODE_ANGLES[node] + (rand() - 0.5) * 0.18;
-  const radius = NODE_RADIUS + (rand() - 0.5) * 0.4;
-  return [Math.cos(angle) * radius, Math.sin(angle) * radius, (rand() - 0.5) * 0.5];
+  const angle = NODE_ANGLES[node] + (rand() - 0.5) * 0.15;
+  const reach = NODE_REACH * (0.45 + rand() * 0.55);
+  const across = (rand() - 0.5) * ARM_WIDTH;
+  return [
+    Math.cos(angle) * reach - Math.sin(angle) * across,
+    Math.sin(angle) * reach + Math.cos(angle) * across,
+    (rand() - 0.5) * 0.4,
+  ];
 }
 
 /**

@@ -1,0 +1,385 @@
+EXECUTE THIS AS A REAL CONTINUATION OF THE EXISTING KNOuX STORE PROJECT.
+
+PROJECT ROOT:
+D:\Knoux Store
+
+SPECIALIZED REFERENCE:
+D:\Knoux Store\references\wordpress\KNOuX-wordpress-live-marketplace-reference.md
+
+DO NOT START FROM SCRATCH.
+DO NOT RESET THE WORKING TREE.
+DO NOT MERGE MAIN.
+PRESERVE ALL VERIFIED EXISTING WORK.
+
+MISSION:
+Turn the current intentionally-empty WordPress catalogue into a real live hybrid marketplace.
+
+CURRENT REALITY TO PRESERVE:
+src/data/wordpress.ts is the first-party KNOuX WordPress registry.
+It currently contains no released KNOuX themes/plugins/blocks/starter sites.
+Do NOT fake first-party releases.
+
+NEW ARCHITECTURE
+
+Keep two clearly separate layers:
+
+A) KNOuX RELEASES
+- sourced only from wordPressItems
+- first-party
+- never fabricate entries
+
+B) WORDPRESS.ORG DISCOVERY
+- fetched live from official WordPress.org APIs
+- clearly labeled external
+- never presented as KNOuX-owned
+
+The public UI should no longer look empty just because KNOuX has not shipped a first-party plugin yet.
+
+Use official WordPress.org data to populate:
+- Plugins
+- Themes
+- Blocks
+- Patterns
+
+Do not scrape arbitrary websites.
+
+FIRST — REALITY REFRESH
+
+Read completely:
+- src/data/wordpress.ts
+- src/components/WordPressCatalog.tsx
+- src/app/wordpress/page.tsx
+- src/app/wordpress/plugins/page.tsx
+- src/app/wordpress/themes/page.tsx
+- src/app/wordpress/blocks/page.tsx
+- src/app/wordpress/starter-sites/page.tsx
+- relevant CSS
+- Next config
+- image config
+- existing fetch/cache utilities
+
+Record branch, HEAD and git status.
+Preserve unrelated work.
+
+OFFICIAL ADAPTERS
+
+Create server-side adapters for official sources.
+
+Plugins:
+https://api.wordpress.org/plugins/info/1.2/
+
+Support:
+query_plugins
+plugin_information
+
+Request only fields needed by the UI:
+icons
+banners
+short_description
+rating
+num_ratings
+active_installs
+last_updated
+requires
+requires_php
+tested
+download_link
+homepage
+tags
+
+Themes:
+https://api.wordpress.org/themes/info/1.2/
+
+Support:
+query_themes
+theme_information
+
+Request:
+screenshot_url
+rating
+downloaded
+last_updated
+homepage
+tags
+requires_php
+version
+author
+
+Patterns:
+use the official WordPress Pattern Directory API.
+
+Blocks:
+use the documented Block Directory search contract.
+Do not invent undocumented endpoints.
+
+NORMALIZE
+
+Create a provider-neutral type for external marketplace items.
+
+Suggested fields:
+source
+kind
+slug
+name
+author
+shortDescription
+iconUrl
+screenshotUrl
+bannerUrl
+rating
+ratingCount
+activeInstalls
+downloaded
+version
+requiresWp
+testedWp
+requiresPhp
+lastUpdated
+tags
+homepageUrl
+downloadUrl
+sourceUrl
+
+Do not store external marketplace results inside wordPressItems.
+
+The first-party and external models must remain separate.
+
+UI TARGET
+
+/wordpress
+must become a real ecosystem landing page with:
+- KNOuX WordPress services
+- KNOuX Releases section
+- Explore WordPress.org section
+- featured/popular plugins
+- featured/popular themes
+- blocks/pattern discovery
+- search entry point
+
+/wordpress/plugins
+must show real plugin results.
+
+Each plugin card/list item should show when available:
+- official icon
+- name
+- author
+- short description
+- rating
+- rating count
+- active installs
+- last updated
+- WordPress/PHP compatibility
+- source badge
+- details action
+
+/wordpress/themes
+must show real theme results with:
+- official screenshot
+- name
+- author
+- rating/download count when returned
+- tags
+- updated date
+- source badge
+
+/wordpress/blocks
+must show real block-directory search results with icon and metadata.
+
+Add a Patterns discovery surface if appropriate.
+
+SEARCH / FILTERS
+
+Implement:
+- text search
+- source category tabs
+- popular / updated / featured where supported
+- tag filters where supported
+- pagination or infinite load
+- URL query params so views are shareable
+
+DO NOT load all results at once.
+
+"All products" means every item is reachable through search/filter/pagination.
+
+Use bounded per-page sizes.
+
+Preserve browser Back/Forward and direct links.
+
+LOGOS / IMAGES
+
+Use the exact official icons/screenshots returned by WordPress.org.
+
+Do not redraw them.
+Do not recolor them into KNOuX branding.
+Do not imply ownership.
+
+Prefer:
+- server-side image proxy/cache
+or
+- strict Next Image remotePatterns limited to official WordPress asset hosts
+
+If an item has no icon:
+use a neutral WordPress fallback mark.
+
+Never fetch random third-party image domains.
+
+DETAIL EXPERIENCE
+
+Selecting an external item should open either:
+- an internal marketplace detail route/drawer using normalized official metadata
+or
+- a clear WordPress.org source link
+
+Do not claim:
+- KNOuX authored it
+- KNOuX supports it
+- KNOuX guarantees compatibility
+unless first-party data explicitly establishes that.
+
+KNOuX service CTA may say:
+Configure with KNOuX
+Migrate with KNOuX
+Optimize with KNOuX
+
+Keep provenance visible.
+
+CACHING / RESILIENCE
+
+Use Next server-side fetching.
+
+Add:
+- cache/revalidate
+- timeout
+- schema validation
+- graceful upstream errors
+- stale-safe fallback where appropriate
+- request deduplication
+
+Do not make the page fail completely if WordPress.org is temporarily unavailable.
+
+No client-side secret is required.
+
+Do not scrape the entire catalogue at build time.
+
+PERFORMANCE
+
+Use lazy images.
+Avoid giant initial payloads.
+Avoid loading full plugin descriptions in list views.
+Fetch detail only when needed.
+Keep search debounced.
+Cancel stale client requests where applicable.
+No React state churn on scroll.
+No thousands of cards in the DOM.
+
+MOBILE
+
+Real responsive marketplace:
+- compact item cards
+- readable icons/screenshots
+- filter sheet/drawer
+- no horizontal overflow
+- pagination/load-more accessible
+- search remains first-class.
+
+TRUST / LEGAL PRESENTATION
+
+Every external item must carry:
+SOURCE: WORDPRESS.ORG
+
+Keep:
+KNOuX Releases
+separate from:
+WordPress.org Marketplace
+
+Do not scrape premium marketplaces such as commercial vendors without a supported API/feed and explicit integration decision.
+
+If future provider APIs are added, add them as separate adapters with explicit source attribution.
+
+REMOVE EMPTY-STATE COPY WHERE IT IS NOW FALSE
+
+The current UI says:
+"The catalogue is empty"
+"0 plugins registered"
+"0 themes published"
+"0 blocks registered"
+
+Once the live external catalogue is implemented, rewrite these areas truthfully.
+
+Do NOT erase the fact that KNOuX first-party releases are still zero.
+
+Example distinction:
+KNOuX Releases: 0
+WordPress.org Discovery: live external catalogue
+
+That is honest and useful.
+
+
+QA
+
+Verify:
+- /wordpress
+- /wordpress/plugins
+- /wordpress/themes
+- /wordpress/blocks
+- any new patterns route/surface
+
+Test:
+- search
+- page 1/page 2
+- popular/updated/featured where supported
+- plugin with icon
+- plugin without icon
+- theme screenshot
+- upstream failure
+- slow response
+- no-results search
+- malformed upstream field
+- desktop
+- mobile
+- keyboard
+- direct URL query
+- Back/Forward
+- image failure
+- no horizontal overflow
+
+Check that external items never enter the KNOuX first-party registry.
+
+GATES
+
+Run:
+npm run lint
+npm run typecheck
+npm test
+npm run build
+git diff --check
+
+Do not claim PASS if a gate fails.
+
+GIT:
+remain on the current feature branch.
+Do not merge main.
+Do not reset unrelated work.
+
+FINAL REPORT:
+- starting branch + HEAD
+- files changed
+- source adapters
+- normalized model
+- caching policy
+- image policy
+- search/pagination behavior
+- provenance UX
+- visual QA
+- mobile QA
+- gate results
+- remaining limitations
+- checkpoint SHA if committed
+
+IMPLEMENT NOW.
+BUILD.
+RENDER.
+INSPECT.
+CORRECT.
+VERIFY.
+DO NOT STOP AT A PLAN.

@@ -1,0 +1,504 @@
+EXECUTE THIS AS A REAL CONTINUATION OF THE EXISTING KNOuX STORE PROJECT.
+
+PROJECT ROOT:
+D:\Knoux Store
+
+CURRENT REALITY OVERRIDE — 2026-09-28
+
+This mission is PARTIALLY IMPLEMENTED already.
+
+Verified files currently exist:
+- src/components/build/BuildComposerOrb.tsx
+- src/components/build/orb-layout.ts
+- src/components/build/orb-icons.ts
+- src/components/build/orb-types.ts
+
+These files are NOT proof of completion.
+
+Verified current gap:
+- src/components/Composer.tsx does NOT yet import or render BuildComposerOrb / BuildComposerOrbCanvas.
+- /build still renders the existing Composer surface only.
+- the orb component files are currently untracked.
+- render/browser QA/gates/checkpoint for the integrated Orb are NOT complete.
+
+Therefore:
+DO NOT recreate the Orb files from scratch.
+DO NOT discard them.
+DO NOT claim the feature is implemented because the component files exist.
+
+The immediate job is:
+INSPECT EXISTING ORB IMPLEMENTATION
+→ RECONCILE IT WITH CURRENT COMPOSER STATE
+→ WIRE REAL COMPOSER DATA INTO IT
+→ RENDER IT INSIDE /build
+→ SYNCHRONIZE MANUAL EDITS
+→ VERIFY INTERACTION
+→ RUN QA/GATES
+→ CREATE A TRUTHFUL CHECKPOINT.
+
+DO NOT START FROM SCRATCH.
+DO NOT RESET THE WORKING TREE.
+DO NOT REPLACE THE ACCEPTED KNOuX HERO.
+DO NOT MERGE MAIN.
+
+SPECIALIZED BUILD REFERENCE:
+D:\Knoux Store\references\build\KNOuX-build-composer-orb-reference.md
+
+REFERENCE ROLE:
+This reference applies ONLY to the /build Composer experience.
+
+It provides interaction mechanics for:
+- deterministic 3D spherical distribution
+- spatial depth
+- restrained drag/orbit feeling
+- semantic icon sprites
+- stable node transitions
+- a visual representation of the existing Composer result
+
+It is NOT a global site design authority.
+
+FIRST: REALITY REFRESH
+
+Before editing:
+1. Confirm actual repository root and current branch.
+2. Record HEAD.
+3. Inspect git status without resetting anything.
+4. Read:
+   - src/app/build/page.tsx
+   - src/components/Composer.tsx
+   - src/data/composer-rules.ts
+   - src/lib/entities.ts
+   - the registries imported by composer-rules.ts
+   - current Three.js/R3F infrastructure
+   - the specialized reference above
+5. Preserve all unrelated uncommitted work.
+
+CURRENT PRODUCT CONTRACT
+
+The existing Composer is the authority.
+
+Do NOT replace evaluateComposer().
+Do NOT invent a second recommendation engine.
+Do NOT add an LLM decision layer.
+Do NOT duplicate registry truth inside WebGL.
+
+The required data flow is:
+
+visitor sentence
+→ existing evaluateComposer()
+→ real matches/entityIds/stack
+→ visual node model
+→ Build Intelligence Orb
+→ existing editable stack
+→ existing Build Request flow
+
+BUILD TARGET
+
+Upgrade /build from a mostly flat form/readout into a premium KNOuX Build Intelligence experience.
+
+The central visual device is a KNOuX Build Intelligence Orb.
+
+It must feel:
+- architectural
+- technical
+- mysterious
+- premium
+- restrained
+- alive
+- unmistakably part of the existing KNOuX headquarters
+
+Do not make it look like:
+- a colorful mind map
+- a generic AI orb
+- a crypto dashboard
+- a game skill tree
+- a SaaS neon demo
+
+VISUAL IDENTITY
+
+Use the CURRENT KNOuX visual system:
+- deep black
+- graphite
+- off-white
+- platinum / silver
+- restrained KNOuX violet
+- minimal cool-violet bloom
+
+Do not copy the source demo's rainbow palette.
+
+Do not introduce runtime Google Fonts or external icon/font CDNs.
+
+ORBITAL ARCHITECTURE
+
+Center node:
+KNOuX / COMPOSER
+
+First-level nodes:
+only divisions relevant to the actual result.
+
+Canonical existing Composer order:
+Solutions
+Software
+WordPress
+Web
+Growth
+Creative
+
+Second-level nodes:
+the real DiscoverableEntity items from the current stack.
+
+Every visible node must have a real registry id.
+No decorative fake product/service nodes.
+
+DETERMINISTIC LAYOUT
+
+No Math.random().
+
+Create stable node positions from:
+- entity.id
+- division
+- stable index
+
+Use a deterministic hash or seeded generator.
+
+Same input/result must produce the same spatial layout across:
+- rerenders
+- refreshes
+- QA runs
+
+Do not randomly reshuffle on Assemble.
+
+SCENE STATES
+
+1. IDLE
+Before evaluation:
+- show a quiet KNOuX nucleus
+- optional subtle division traces
+- no fake matched services
+- no fake recommendations
+
+2. TYPING
+
+While the user types:
+- the nucleus may respond subtly
+- restrained energy/pulse only
+- do not reveal semantic matches before the actual Compose action unless they are produced by the real deterministic engine
+- do not imply AI understanding
+
+3. ASSEMBLE / RESOLVE
+
+When the existing Assemble action runs:
+- call the current evaluateComposer() path
+- derive visual nodes from the actual result
+- animate relevant divisions into place
+- animate matched entities into stable deterministic positions
+- resolve subtle connectors
+- highlight only real matched paths
+
+4. MANUAL EDIT
+
+When the user adds/removes entities using the existing controls:
+
+- update the same Orb state
+- preserve positions for unaffected nodes
+- animate only the changed topology
+- never reshuffle everything
+
+5. EMPTY
+
+When nothing matches:
+- do not invent a visual answer
+- return to a quiet nucleus
+- keep the existing honest empty state and fallbacks
+
+INTERACTION
+
+Desktop:
+- drag to rotate
+- damping
+- no pan
+- disable wheel zoom
+- never steal normal page scrolling
+- subtle auto drift only while visible
+
+Hover:
+- restrained halo
+- compact real identity hint
+- no decorative tooltip noise
+
+Select:
+
+- synchronize with the existing entity/detail state
+- expose only real summary/route/reason data
+
+Touch:
+- no hover dependence
+- preserve vertical page scroll
+- tap selects
+- do not trap gestures
+
+KEYBOARD / ACCESSIBILITY
+
+Canvas must be progressive enhancement.
+
+Add or preserve a semantic DOM representation of the Orb nodes.
+
+Requirements:
+- keyboard reachable entities
+- visible focus
+- Enter/Space select
+- accessible labels
+- same real data as the canvas
+- no essential information only in WebGL
+
+REDUCED MOTION
+
+When prefers-reduced-motion is active:
+- disable automatic orbit
+- disable floating
+
+- disable long travel animations
+- show the final deterministic topology immediately
+- preserve all controls and content
+
+IMPLEMENTATION BOUNDARY — EXISTING CODE MUST BE REUSED
+
+The following implementation files ALREADY EXIST and must be audited before any replacement:
+
+src/components/build/BuildComposerOrb.tsx
+src/components/build/orb-layout.ts
+src/components/build/orb-icons.ts
+src/components/build/orb-types.ts
+
+Treat them as partially completed work.
+Do not create parallel V2/New/Replacement Orb components unless a verified blocker makes reuse impossible.
+Fix and complete the existing files instead.
+The primary missing integration boundary is Composer.tsx.
+
+Composer.tsx must remain owner of:
+- input
+- evaluated text
+- evaluateComposer result
+- removed ids
+- extra ids
+- stack
+- request flow
+
+Pass a derived visual node model into the Orb.
+
+Do not move business truth into the 3D component.
+
+THREE.JS / R3F
+
+Reuse the stack already present in the project.
+
+Do NOT import Three.js from a CDN.
+Do NOT create an unrelated renderer architecture.
+
+One Build Orb canvas maximum.
+
+Lazy-load it.
+Pause/reduce work when:
+- offscreen
+- document.hidden
+- reduced motion
+
+Use adaptive DPR.
+Cap expensive effects.
+Dispose resources.
+
+SPRITES / ICONS
+
+The source reference's CanvasTexture/SVG-path technique may be used.
+
+But icons must be semantic.
+
+Create stable mappings by:
+- division
+- entity kind
+- capability/system category
+
+Do not choose icons randomly.
+
+Prefer existing local icon assets/paths when available.
+
+NO GENERIC GLOBE
+
+Do not make a sphere covered in hundreds of unrelated icons.
+
+The topology should emerge from the real Composer stack.
+
+Recommended hierarchy:
+nucleus
+→ relevant division nodes
+→ matched entity nodes
+
+Ambient particles may exist only as restrained atmosphere.
+
+COMPOSER UI INTEGRATION — CURRENT BLOCKER
+
+The existing Orb must become part of the live Composer flow.
+
+Required wiring:
+1. Import the existing BuildComposerOrbCanvas (or the actual exported Orb surface) into Composer.tsx.
+2. Derive exactly one BuildComposerOrbModel from the CURRENT Composer state.
+3. Base that model on evaluateComposer() result + current stack after removed ids + current manual extra ids.
+4. Render the Orb inside the Composer experience.
+5. Before evaluation, render only the honest idle nucleus state.
+6. After Assemble, render only real resolved divisions/entities.
+7. Add/remove must update the Orb immediately without fake re-analysis.
+8. Clear must return the Orb to idle.
+9. Orb selection should synchronize with a real DOM detail/stack state where practical.
+10. No Orb node may exist unless it maps to the current Composer state.
+
+Do not stop after importing the component.
+The Orb must be visibly rendered and interactive inside /build.
+
+Do not delete the existing textarea/presets/Assemble controls.
+
+Refine the visual composition so the input and Orb read as one system.
+
+Preserve:
+- presets
+- Ctrl/Cmd + Enter
+- Clear
+- manual add/remove
+- detailed result readout
+- trace/match evidence
+- Build Request
+- route links
+- disclosure that price/date/outcome are not estimated
+
+The Orb is the visualization layer, not a replacement for useful information.
+
+MOBILE
+
+Do not scale desktop blindly.
+
+Recompose:
+- input first
+- compact Orb second
+- stack/readout after it
+- fewer simultaneous labels
+- simplified connectors
+- no horizontal overflow
+
+If WebGL is unavailable or too expensive:
+use an SVG/DOM constellation fallback with the SAME data.
+
+PERFORMANCE
+
+The source demo used hundreds of sprites.
+Do not inherit that fixed count.
+
+The visual population must follow real content.
+
+No:
+- permanent 700-sprite requirement
+- per-node RAF loops
+- React setState on mousemove
+- unbounded devicePixelRatio
+- duplicate WebGL contexts
+- runtime CDN dependencies
+
+VISUAL QA
+
+Actually render /build.
+
+Inspect at minimum:
+1440x900
+1600x1000
+390x844
+375x812
+
+Verify:
+- input composition
+- idle Orb
+- Assemble transition
+- real matched topology
+- add/remove synchronization
+- empty result
+- pointer drag
+- scroll behavior
+- keyboard
+- touch
+- reduced motion
+- fallback
+- no overflow
+- no console errors
+
+TEST EXAMPLES
+
+Use existing Composer presets and at least:
+
+"I have a new restaurant and need a website, Instagram and ads."
+
+"Build an ecommerce website with Google advertising."
+
+"Repair Windows."
+
+Do not assert a visual node unless the existing Composer returns it.
+
+GATES
+
+Run:
+npm run lint
+npm run typecheck
+npm test
+npm run build
+git diff --check
+
+If a gate fails:
+- investigate
+- distinguish pre-existing failure from introduced failure
+- do not call PASS falsely
+
+GIT
+
+Remain on the current feature branch.
+Do not reset unrelated work.
+Do not push directly to main.
+Do not merge main.
+
+Create a checkpoint only after:
+- implementation is visible
+- interaction is verified
+- gates are truthfully reported
+
+COMPLETION GATE — DO NOT CHEAT THIS
+
+The feature is NOT complete if any of these are true:
+- BuildComposerOrb files exist but Composer.tsx does not render them.
+- /build shows only the old Composer UI.
+- the Orb renders static mock nodes unrelated to the current stack.
+- manual Add/Remove does not change the Orb.
+- Clear does not return the Orb to idle.
+- browser interaction has not been inspected.
+- runtime console errors remain.
+- typecheck/build status is unknown.
+
+The feature is complete only when the Orb is visibly integrated into /build and driven by the current edited Composer stack.
+
+FINAL REPORT
+
+Return:
+- starting branch + HEAD
+- files changed
+- exact Build Orb component architecture
+- how the Orb consumes existing Composer data
+- proof there is no Math.random() in the new orb path
+- visual QA evidence
+- accessibility/reduced-motion evidence
+- performance decisions
+- gate results
+- remaining limitations
+- checkpoint SHA if committed
+
+IMPLEMENT NOW.
+BUILD.
+RENDER.
+INSPECT.
+CORRECT.
+VERIFY.
+DO NOT STOP AT A PLAN.
+

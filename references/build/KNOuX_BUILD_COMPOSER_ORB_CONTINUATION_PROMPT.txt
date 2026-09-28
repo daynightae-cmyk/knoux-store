@@ -1,0 +1,199 @@
+CONTINUE THE EXISTING KNOuX STORE BUILD COMPOSER ORB IMPLEMENTATION.
+
+PROJECT ROOT:
+D:\Knoux Store
+
+DO NOT START FROM SCRATCH.
+DO NOT RESET THE WORKING TREE.
+DO NOT MERGE MAIN.
+PRESERVE ALL VERIFIED EXISTING WORK.
+
+READ IN FULL:
+D:\Knoux Store\references\build\KNOuX_BUILD_COMPOSER_ORB_IMPLEMENTATION_PROMPT.txt
+D:\Knoux Store\references\build\KNOuX-build-composer-orb-reference.md
+
+CURRENT VERIFIED REALITY:
+- BuildComposerOrb.tsx exists.
+- orb-layout.ts exists.
+- orb-icons.ts exists.
+- orb-types.ts exists.
+- Composer.tsx still owns evaluateComposer() and the real stack.
+- Composer.tsx does NOT yet render the Orb.
+- /build does NOT yet visibly contain the Orb.
+- Orb files are still untracked.
+- integrated browser QA and checkpoint are not complete.
+
+MISSION:
+Finish the existing partial implementation.
+
+Do NOT recreate the Orb.
+Do NOT create a second Orb implementation.
+Do NOT replace evaluateComposer().
+Do NOT move product/service truth into WebGL.
+
+AUDIT FIRST:
+- existing Orb exports
+- existing Orb model contract
+- existing layout helpers
+- existing icon mapping
+- current Composer state shape
+- current stack after removed + extra ids
+- current /build layout
+- current CSS
+- current git status
+
+Then wire the existing Orb into Composer.tsx.
+
+REQUIRED DATA FLOW:
+
+visitor input
+→ existing evaluateComposer()
+→ existing result
+→ current edited stack
+→ BuildComposerOrbModel
+→ existing BuildComposerOrbCanvas
+→ existing textual stack/readout
+
+The current edited stack is authoritative after:
+- removed ids
+- manual extra ids
+
+The Orb must visualize THAT state,
+not the raw pre-edit result.
+
+No fake semantic nodes.
+No speculative divisions.
+No fake AI reasoning.
+
+REQUIRED STATE BEHAVIOR:
+
+IDLE:
+- nucleus only
+- no invented recommendations
+
+ASSEMBLED:
+- only real relevant divisions
+- only real stack entities
+
+MANUAL ADD:
+- add the real entity node
+- add/update its division node if needed
+- preserve unaffected node positions
+
+MANUAL REMOVE:
+- remove the real entity node
+- remove empty division node if appropriate
+- preserve unaffected positions
+
+CLEAR:
+- return to honest idle nucleus
+
+SELECT:
+- synchronize to a real DOM detail or selected stack item where practical.
+
+REQUIRED VISUAL INTEGRATION:
+
+The Orb must be visible inside /build.
+Input + Orb + stack must read as one Composer system.
+
+Do not bury the Orb below everything.
+Do not cover the input with Canvas.
+Do not remove existing useful controls.
+
+Desktop:
+- input and Orb may share a composed stage
+- drag orbit
+- damping
+- no pan
+- no wheel-scroll hijack
+
+Mobile:
+- input first
+- compact Orb
+- stack/readout
+- no overflow
+- native vertical scroll
+
+REQUIRED VERIFICATION:
+
+Prove in the browser:
+1. /build renders without runtime errors.
+2. idle Orb is visible before Assemble.
+3. a real preset/input changes the Orb topology.
+4. every visible entity node maps to a current stack entity.
+5. manual Remove updates the Orb.
+6. manual Add updates the Orb.
+7. Clear returns to idle.
+8. drag/orbit works.
+9. normal page scroll still works.
+10. reduced motion remains usable.
+11. WebGL fallback/DOM representation remains useful.
+12. no console errors from the Orb path.
+
+TEST WITH:
+"I have a new restaurant and need a website, Instagram and ads."
+"Build an ecommerce website with Google advertising."
+"Repair Windows."
+
+Do not force expected nodes.
+Compare visual nodes against what evaluateComposer() actually returns.
+
+SEARCH THE NEW BUILD ORB PATH FOR:
+Math.random()
+runtime CDN URLs
+fake prices
+fake durations
+fake outcomes
+fake telemetry
+fake AI claims
+
+Report exact findings.
+
+RUN GATES:
+npm run lint
+npm run typecheck
+npm test
+npm run build
+git diff --check
+
+If a gate fails:
+- investigate
+- identify introduced vs pre-existing
+- fix introduced failures
+- do not claim PASS falsely
+
+Do not commit unrelated concurrent work.
+
+COMPLETION STANDARD:
+
+NOT COMPLETE if:
+- Orb files merely exist
+- Orb imports but is hidden
+- static mock nodes render
+- Add/Remove does not synchronize
+- browser QA is skipped
+- build/typecheck is unverified
+
+COMPLETE only when:
+- the existing Orb is wired to the real Composer
+- /build visibly renders it
+- current stack drives it
+- edit synchronization works
+- QA/gates are truthfully reported
+- checkpoint is created if safe
+
+RETURN:
+branch + starting HEAD
+files changed
+wiring architecture
+model derivation
+browser evidence
+Add/Remove/Clear evidence
+accessibility/reduced-motion evidence
+gate results
+limitations
+checkpoint SHA
+
+IMPLEMENT NOW.
+DO NOT RETURN A PLAN.
+

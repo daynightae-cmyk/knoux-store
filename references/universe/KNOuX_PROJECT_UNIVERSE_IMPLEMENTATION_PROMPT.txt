@@ -1,0 +1,349 @@
+EXECUTE THIS AS A REAL CONTINUATION OF THE EXISTING KNOuX STORE PROJECT.
+
+PROJECT ROOT:
+D:\Knoux Store
+
+TARGET:
+THE SECOND MAJOR HOMEPAGE BLOCK ONLY:
+PROJECTS / PRODUCT UNIVERSE / SOFTWARE UNIVERSE MAP.
+
+DO NOT TOUCH OR REDESIGN THE ACCEPTED HERO.
+DO NOT START FROM SCRATCH.
+DO NOT RESET THE WORKING TREE.
+DO NOT MERGE MAIN.
+PRESERVE ALL VERIFIED WORK.
+
+PRIMARY NEW REFERENCE:
+D:\Knoux Store\references\universe\KNOuX-project-universe-mindmap-reference.ts
+
+REFERENCE NOTES:
+D:\Knoux Store\references\universe\KNOuX-project-universe-mindmap-notes.md
+
+COMPLEMENTARY INSPECTOR REFERENCE:
+D:\Knoux Store\references\universe\KNOuX-system-constellation-reference.md
+
+CURRENT PRODUCTION COMPONENT:
+D:\Knoux Store\src\components\ProductUniverse.tsx
+
+CURRENT SPATIAL COMPONENTS:
+D:\Knoux Store\src\components\SpatialExperiences.tsx
+
+MISSION:
+Transform the current flat Product Universe / project map into a premium spatial KNOuX constellation while preserving the existing truthful registry, search, product routes, analytics, keyboard semantics, and dossier navigation.
+
+THIS IS NOT A NEW PAGE.
+THIS IS NOT A HERO REDESIGN.
+THIS IS NOT A GENERIC MIND MAP.
+
+The result must look like the second chapter of the accepted KNOuX Hero.
+
+VISUAL LANGUAGE:
+deep black
+graphite
+off-white
+platinum
+silver
+restrained KNOuX violet
+fine luminous paths
+particle continuity
+large negative space
+cinematic depth
+precise technical typography
+
+NO rainbow palette.
+NO SaaS cards.
+NO dashboard HUD.
+NO fake telemetry.
+NO demo categories.
+NO external font CDN.
+NO remote HDR dependency.
+
+DATA TRUTH:
+Use ONLY verified products and relationships already present in the existing KNOuX registries.
+
+Do not invent:
+products
+capabilities
+status
+repositories
+routes
+preview URLs
+metrics
+customers
+downloads
+testimonials
+
+INITIAL STATE:
+The universe begins restrained and slightly mysterious.
+
+Show:
+- central KNOuX anchor
+- primary verified product nodes
+- only essential relationship paths
+
+Do NOT dump every capability on screen.
+
+PROGRESSIVE DISCLOSURE:
+Select or intentionally expand a product:
+- focus that product
+- strengthen its path
+- dim unrelated nodes slightly
+- reveal only its next verified capability layer
+- preserve the rest of the spatial context
+
+A second intentional expansion may reveal a deeper verified layer where real data exists.
+
+COLLAPSE:
+Closing/collapsing restores previous context.
+Do not randomly reposition the whole graph.
+
+DETERMINISM:
+The supplied source uses Math.random() in layout, expansion and particles.
+DO NOT COPY THAT.
+
+Use deterministic seeded placement based on stable IDs/metadata.
+The same registry data must render the same composition on every load.
+
+INTERACTION:
+Desktop:
+- pointer hover
+- keyboard focus
+- click/select
+- bounded wheel zoom
+- subtle camera/focus tween
+- optional node drag only if it improves exploration
+
+Keyboard:
+- every meaningful node reachable
+- Enter/Space selects
+- Escape closes inspector
+- visible focus
+- logical focus restoration
+
+Touch/mobile:
+- no hover dependency
+- tap to focus/select
+- simplified connector density
+- no unrestricted free-camera interaction
+- inspector becomes bottom sheet or mobile panel
+- zero horizontal overflow
+
+CONNECTORS:
+Use curved relationship connectors inspired by the supplied map.
+
+Use subtle animated signal travel only on visible/active relationships.
+
+Decorative connectors must not intercept pointer events.
+
+INSPECTOR:
+Reuse/adapt the existing accessible readout or build a restrained KNOuX inspector.
+
+It may show ONLY real registry-backed:
+- product name
+- code
+- verified status
+- family
+- platform
+- real description/tagline
+- verified capabilities
+- repository evidence where appropriate
+- real route
+- real preview/launch link only when available
+
+Do not make canvas text the only source of information.
+
+CAMERA:
+Do not create a game.
+
+Use bounded cinematic depth:
+- controlled zoom limits
+- short focus transitions
+- no uncontrolled orbit on mobile
+- no motion sickness
+- no scroll hijacking
+
+PERFORMANCE:
+The project already has:
+three
+@react-three/fiber
+@react-three/drei
+
+Reuse current infrastructure.
+
+Do NOT create a second permanent WebGL context if one reusable scene can serve this block.
+
+Use quality tiers:
+HIGH
+BALANCED
+LOW
+Support integrated GPUs.
+
+Pause nonessential animation:
+- when block is offscreen
+- when document.hidden
+
+Respect prefers-reduced-motion:
+- disable drift
+- disable signal travel
+- disable pointer parallax
+- replace camera tween with immediate state changes
+
+Keep the experience fully usable.
+
+DO NOT COPY FROM THE OMMA SOURCE:
+- Creative/Startup/Wellness/Music content
+- palette
+- settings panel
+- Google Fonts
+- jsDelivr imports
+- PolyHaven HDR
+- WebGPU-only requirement
+- random layout
+- full-screen ownership
+- demo controls
+- fake data
+IMPLEMENTATION ORDER:
+1. Reality refresh of branch/HEAD/working tree.
+2. Inspect current ProductUniverse and homepage placement.
+3. Preserve current registry/search/deep-link behavior.
+4. Introduce deterministic spatial graph model.
+5. Build the new visual layer.
+6. Add progressive expansion/collapse.
+7. Add focus/hover/touch/keyboard behavior.
+8. Integrate inspector/readout.
+9. Add quality/reduced-motion/offscreen controls.
+10. Render and inspect.
+11. Correct obvious visual problems.
+12. Verify desktop and mobile.
+13. Run gates.
+14. Commit only after evidence.
+
+VISUAL QA:
+Inspect at minimum:
+1440x900
+1600x1000
+390x844
+375x812
+
+Verify:
+- Hero unchanged
+- second block visually belongs to Hero
+- no horizontal overflow
+- central KNOuX anchor is clear
+- product labels remain readable
+- progressive disclosure works
+- hover/focus/tap parity
+- inspector open/close
+- deep links still work
+- search still works
+- no fake data
+- no external runtime CDN
+- no console errors
+- no duplicate permanent WebGL context
+- reduced motion
+- hidden/offscreen pause
+- mobile composition
+
+GATES:
+npm run lint
+npm run typecheck
+npm test
+npm run build
+git diff --check
+
+Remain on the current feature branch.
+DO NOT MERGE MAIN YET.
+Return:
+- exact files changed
+- what was preserved
+- what was replaced
+- visual QA evidence
+- gate results
+- final git status
+- checkpoint SHA
+
+IMPLEMENT NOW.
+DO NOT STOP AT PLANNING.
+
+============================================================
+AUTHORITATIVE COLOR CONTRACT — DO NOT IGNORE
+============================================================
+
+The sphere/node colors in the supplied Omma mind-map are NOT a design authority.
+The orange / cyan / green / yellow / pink / rainbow category palette MUST NOT be copied.
+
+The Project Universe must use the CURRENT KNOuX visual tokens already present in the production site and accepted Hero.
+
+BASE TOKENS:
+background: #08090a
+surface: #101113
+surface raised: #16171a
+text / warm off-white: #f1eee8
+muted: #9a9899
+dim: #6d6e70
+structural line: #292a2d
+KNOuX violet: #a18acb
+violet soft / hero signal: #c2b5d8
+platinum: #e6e2da
+silver: #b8b5b4
+graphite: #17171a
+connector violet-gray: #51455b
+
+NODE COLOR HIERARCHY:
+
+KNOuX CORE:
+- platinum / warm off-white body
+- restrained KNOuX violet aura
+- strongest visual authority
+- never neon white
+
+PRIMARY VERIFIED PRODUCT NODES:
+- KNOuX violet as the principal signal
+- use silver/platinum highlights
+- graphite shadow/material response
+- selected node may resolve toward #c2b5d8
+
+SECONDARY / CAPABILITY NODES:
+- increasingly neutral silver / muted gray / graphite with depth
+- restrained violet edge or emissive hint only
+- deeper layers must become quieter, not more colorful
+
+CONNECTORS:
+- default: #292a2d / #51455b
+- active relationship: restrained #a18acb
+- signal particle: #c2b5d8 or #e6e2da
+- never bright rainbow lines
+
+AMBIENT STARS / DUST:
+Match the accepted Hero starfield language:
+neutral silver / gray / off-white particles,
+low opacity,
+very restrained violet contamination only near active KNOuX nodes.
+
+IMPORTANT:
+DO NOT give each product a random unique hue.
+DO NOT use category colors merely to distinguish nodes.
+
+Differentiate products using:
+- node size
+- depth
+- orbit/ring geometry
+- label treatment
+- connector topology
+- opacity
+- halo radius
+- pulse timing
+- spatial position
+- active/selected state
+
+The map should read as ONE KNOuX system, not seven unrelated colored planets.
+
+GLOW / BLOOM:
+The Omma example uses heavy bloom.
+Reduce it substantially.
+Glow must feel premium and architectural, not gaming/neon.
+Only the focused path and selected node may temporarily gain stronger bloom.
+
+FINAL VISUAL TEST:
+If a screenshot of the Product Universe could belong to a different brand after removing the KNOuX logo, FAIL.
+If it unmistakably continues the accepted KNOuX Hero through color, particles, depth and restraint, PASS.

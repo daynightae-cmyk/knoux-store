@@ -1,194 +1,397 @@
-export interface GrowthChannel {
+import type { DiscoverableEntity } from '@/lib/entities';
+
+/**
+ * KNOuX Growth.
+ *
+ * A serious acquisition and discoverability practice, described in terms of
+ * the work performed. There are no target metrics, benchmarks, minimum spends
+ * or return claims anywhere in this file. A budget entered on the site is used
+ * to scope a project, never to project a result.
+ */
+
+export type GrowthChannelSlug = 'google-ads' | 'meta-ads' | 'social' | 'content' | 'seo';
+
+/** Channels KNOuX works in. Anything not listed here is not offered. */
+export const growthChannels: readonly GrowthChannelSlug[] = [
+  'google-ads',
+  'meta-ads',
+  'social',
+  'content',
+  'seo',
+];
+
+export type GrowthModule = {
   id: string;
-  slug: string;
+  code: string;
   name: string;
-  headline: string;
+  /** Which channels this module belongs to. */
+  channelSlugs: GrowthChannelSlug[];
+  /** True when the module is a one-off setup rather than recurring work. */
+  setup: boolean;
+  statement: string;
+  activities: string[];
+};
+
+export type GrowthChannel = {
+  id: string;
+  code: string;
+  slug: GrowthChannelSlug;
+  name: string;
+  shortName: string;
+  index: string;
   tagline: string;
-  overview: string;
-  methodology: { step: string; title: string; description: string }[];
-  deliverables: string[];
-  kpiTargets: { metric: string; description: string }[];
-  budgetThreshold: string;
-}
+  statement: string;
+  /** What a client is responsible for supplying. Prevents silent assumptions. */
+  prerequisites: string[];
+  /** What KNOuX produces. Artefacts, not outcomes. */
+  outputs: string[];
+  moduleIds: string[];
+  relatedEntityIds: string[];
+};
 
-export interface BudgetTier {
-  range: string;
-  recommendedChannels: string[];
-  expectedTrajectory: string;
-  operationalCadence: string;
-  includedModules: string[];
-}
+/** Step one: what is being grown. */
+export type GrowthTarget = {
+  id: string;
+  label: string;
+  statement: string;
+  /** Capability ids this target pulls in. */
+  capabilityIds: string[];
+  defaultChannelSlugs: GrowthChannelSlug[];
+};
 
-export const growthChannels: GrowthChannel[] = [
+export const growthTargets: readonly GrowthTarget[] = [
+  { id: 'brand', label: 'Brand', statement: 'A name or offer that has to become recognisable in a specific market.', capabilityIds: ['creative-brand-identity', 'creative-campaign'], defaultChannelSlugs: ['social', 'meta-ads'] },
+  { id: 'website', label: 'Website', statement: 'A site that needs qualified attention rather than raw volume.', capabilityIds: ['web-corporate', 'growth-google-ads'], defaultChannelSlugs: ['google-ads', 'seo'] },
+  { id: 'store', label: 'Store', statement: 'A catalogue that needs demand pointed at it and the purchase path measured.', capabilityIds: ['web-ecommerce', 'growth-google-ads'], defaultChannelSlugs: ['google-ads', 'meta-ads'] },
+  { id: 'application', label: 'Application', statement: 'A product where the goal is installs or signups rather than page views.', capabilityIds: ['web-application', 'growth-conversion-tracking'], defaultChannelSlugs: ['meta-ads', 'google-ads'] },
+  { id: 'local', label: 'Local Business', statement: 'A business whose customers are physically nearby.', capabilityIds: ['growth-local-visibility', 'web-corporate'], defaultChannelSlugs: ['google-ads', 'seo', 'social'] },
+  { id: 'product', label: 'New Product', statement: 'A launch that needs an audience before it has a sales history.', capabilityIds: ['creative-launch-content', 'growth-campaign-strategy'], defaultChannelSlugs: ['meta-ads', 'social', 'content'] },
+];
+
+/** Step two: what a successful outcome looks like, in the visitor's words. */
+export type GrowthObjective = {
+  id: string;
+  label: string;
+  statement: string;
+  /** What KNOuX measures to understand progress. Not a target. */
+  measuredBy: string[];
+  /** Capability ids this objective pulls in. */
+  capabilityIds: string[];
+};
+
+export const growthObjectives: readonly GrowthObjective[] = [
+  { id: 'sales', label: 'Sales', statement: 'Completed purchases.', measuredBy: ['Completed transactions', 'Revenue by channel and product', 'Checkout completion rate'], capabilityIds: ['web-ecommerce', 'growth-conversion-tracking'] },
+  { id: 'leads', label: 'Leads', statement: 'Qualified enquiries, with a definition agreed before campaigns start.', measuredBy: ['Form submissions by source', 'Qualified rate after sales review', 'Cost per qualified enquiry'], capabilityIds: ['growth-conversion-tracking', 'web-landing'] },
+  { id: 'messages', label: 'Messages', statement: 'Inbound conversations that need a response.', measuredBy: ['Message volume by channel', 'Response time', 'Conversation to enquiry rate'], capabilityIds: ['growth-local-visibility', 'creative-social-content'] },
+  { id: 'traffic', label: 'Traffic', statement: 'Qualified visits to something that matters.', measuredBy: ['Sessions by landing page', 'Engagement with key content', 'Assisted conversions'], capabilityIds: ['growth-technical-seo', 'growth-content'] },
+  { id: 'awareness', label: 'Awareness', statement: 'Reach and recall in a defined audience.', measuredBy: ['Reach within the target audience', 'Video completion', 'Branded search growth'], capabilityIds: ['creative-campaign', 'growth-social'] },
+  { id: 'installs', label: 'App Installs', statement: 'Product adoption on a specific platform.', measuredBy: ['Installs by source', 'First-run completion', 'Retention by cohort'], capabilityIds: ['web-application', 'growth-conversion-tracking'] },
+];
+
+/** Step three: where the audience is. Only channels KNOuX actually works in. */
+export type GrowthReach = {
+  id: string;
+  label: string;
+  /** Maps to a channel entity when one exists. */
+  channelSlug: GrowthChannelSlug | null;
+  note: string;
+};
+
+export const growthReaches: readonly GrowthReach[] = [
+  { id: 'google-search', label: 'Google Search', channelSlug: 'google-ads', note: 'Paid search and shopping, plus organic search work.' },
+  { id: 'youtube', label: 'YouTube', channelSlug: null, note: 'Handled as a destination for video assets produced for social and campaign work.' },
+  { id: 'instagram', label: 'Instagram', channelSlug: 'social', note: 'Organic short-form production and paid placement through Meta.' },
+  { id: 'facebook', label: 'Facebook', channelSlug: 'meta-ads', note: 'Paid placement through Meta, including retargeting audiences.' },
+  { id: 'tiktok', label: 'TikTok', channelSlug: 'social', note: 'Short-form production for organic distribution.' },
+  { id: 'organic-search', label: 'Organic Search', channelSlug: 'seo', note: 'Technical and content work rather than paid placement.' },
+];
+
+/**
+ * Service modules. Only work KNOuX intends to offer is listed. Each one is
+ * described by what it involves, never by the result it is expected to produce.
+ */
+export const growthModules: readonly GrowthModule[] = [
   {
-    id: 'gr-meta',
-    slug: 'meta-ads',
-    name: 'Meta Ads (Facebook & Instagram)',
-    headline: 'Algorithmic Acquisition with Server-Side Precision',
-    tagline: 'High-volume creative testing meets CAPI server-to-server data pipelines',
-    overview: 'We dismantle the guesswork of Meta advertising. By pairing rapid creative hypothesis testing with server-side Conversion API (CAPI) event streams, we feed Meta’s machine learning models with pristine, un-sampled transactional data.',
-    methodology: [
-      { step: '01', title: 'Data Pipeline Instrumentation', description: 'Deploy server-side Meta Conversions API (CAPI) to bypass browser privacy blocks, ensuring 100% purchase and lead signal capture.' },
-      { step: '02', title: 'Creative Velocity Protocol', description: 'Deploy 8 to 15 creative variants weekly (angles, hooks, visual formats) into structured testing sandboxes before graduating to scale campaigns.' },
-      { step: '03', title: 'Audience Architecture & Suppression', description: 'Consolidate broad Advantage+ audiences while maintaining strict custom audience suppression to eliminate wasted retargeting spend on recent buyers.' },
-      { step: '04', title: 'Liquidity Scaling & Bid Optimization', description: 'Systematically shift budget into top-performing creative winners using cost-cap and value-based bidding rules to protect blended margin.' },
-    ],
-    deliverables: [
-      'Meta Business Manager Audit & Pixel/CAPI Re-architecture',
-      'Weekly Creative Production (Static, Motion Graphics, UGC Editing)',
-      'Real-Time Attribution Dashboard (Blended ROAS vs. In-Platform ROAS)',
-      'Dynamic Product Ads (DPA) Catalog Feed Optimization',
-    ],
-    kpiTargets: [
-      { metric: 'ROAS Lift', description: '+35% to +85% Blended Return on Ad Spend' },
-      { metric: 'CAC Reduction', description: '-25% Sustained Reduction in Customer Acquisition Cost' },
-      { metric: 'Event Match Quality', description: '> 9.0 / 10 Meta Signal Reliability Score' },
-    ],
-    budgetThreshold: '$3,000 / month ad spend minimum',
+    id: 'growth-campaign-strategy',
+    code: 'G-01',
+    name: 'Campaign Strategy',
+    channelSlugs: ['google-ads', 'meta-ads', 'social', 'content', 'seo'],
+    setup: true,
+    statement: 'Deciding what is being pursued, on what evidence, before any spend is committed.',
+    activities: ['Objective and success definition agreed in writing', 'Market and competitor review', 'Channel selection and sequencing', 'Measurement plan and tracking requirements', 'Budget allocation logic and review points'],
   },
   {
-    id: 'gr-google',
-    slug: 'google-ads',
-    name: 'Google Ads (Search & Performance Max)',
-    headline: 'High-Intent Demand Capture & Algorithmic Scaling',
-    tagline: 'Exact-match intent harvesting combined with disciplined PMax asset structures',
-    overview: 'Google Ads is not about buying clicks; it is about harvesting high-commercial-intent demand at profitable margins. We isolate brand, competitor, and unbranded high-intent searches while deploying audited Performance Max campaigns with strict negative keyword barriers.',
-    methodology: [
-      { step: '01', title: 'Negative Keyword Perimeter', description: 'Build exhaustive negative keyword lists (thousands of irrelevant, job-seeker, and zero-intent search terms) to prevent ad budget leakage.' },
-      { step: '02', title: 'Single-Theme Search Ad Groups (STAG)', description: 'Structure granular search campaigns where keyword intent, responsive search ad copy, and landing page messaging align with 100% relevance.' },
-      { step: '03', title: 'PMax Clean Asset Structuring', description: 'Decouple Performance Max asset groups by product category or customer value tier, providing unique video, copy, and audience signals for each.' },
-      { step: '04', title: 'Offline Conversion Import (OCI)', description: 'Feed closed-won CRM deals back into Google Smart Bidding so the algorithm optimizes for actual cash revenue rather than raw form submissions.' },
-    ],
-    deliverables: [
-      'Complete Google Ads Account Restructure & Bid Strategy Migration',
-      'Value-Based Bidding & Offline Conversion Import (OCI) Setup',
-      'Merchant Center Product Feed Optimization & Supplemental Feeds',
-      'Competitor Auction Insights & Impression Share Monitoring',
-    ],
-    kpiTargets: [
-      { metric: 'Conversion Rate', description: '> 4.5% across high-intent Search traffic' },
-      { metric: 'Search Impression Share', description: '> 75% on core commercial queries' },
-      { metric: 'Wasted Spend Purge', description: 'Immediate 30-40% reduction in irrelevant query costs' },
-    ],
-    budgetThreshold: '$2,500 / month ad spend minimum',
+    id: 'growth-account-setup',
+    code: 'G-02',
+    name: 'Account & Campaign Setup',
+    channelSlugs: ['google-ads', 'meta-ads'],
+    setup: true,
+    statement: 'Structuring accounts, campaigns and ad groups so performance can be read later.',
+    activities: ['Account structure and naming', 'Campaign and ad group architecture', 'Bid and budget configuration', 'Ad scheduling and geo rules', 'Launch review'],
   },
   {
-    id: 'gr-social',
-    slug: 'social',
-    name: 'Social Media & Performance Distribution',
-    headline: 'Audience Multiplication & Narrative Dominance',
-    tagline: 'Multi-platform social presence engineered for algorithmic reach and brand prestige',
-    overview: 'Social presence without strategic distribution is invisible. We orchestrate short-form video production, LinkedIn thought leadership, and tactical platform distribution that builds institutional trust and feeds paid retargeting pools.',
-    methodology: [
-      { step: '01', title: 'Core Narrative Distillation', description: 'Identify your organization’s unfair engineering advantages, contrarian viewpoints, and proprietary methodologies to form editorial pillars.' },
-      { step: '02', title: 'High-Cadence Short-Form Asset Machine', description: 'Transform long-form engineering discussions, product demos, and executive statements into high-impact vertical video clips (Reels, TikTok, Shorts).' },
-      { step: '03', title: 'Executive B2B Positioning (LinkedIn)', description: 'Ghostwrite authoritative, data-backed insights for founders and key executives, establishing undeniable industry leadership.' },
-      { step: '04', title: 'Organic-to-Paid Liquidity Loop', description: 'Identify organic content pieces that gain high retention and immediately boost them with paid spend to scale reach profitably.' },
-    ],
-    deliverables: [
-      'Comprehensive Monthly Content Calendar (Visuals, Scripts, Captions)',
-      '12 to 24 Tailored Video Assets formatted for Reels / Shorts / TikTok',
-      'Founder / Executive Personal Brand Playbook',
-      'Community Management & Inbound Enquiry Routing Protocol',
-    ],
-    kpiTargets: [
-      { metric: 'Audience Reach', description: '3x to 8x Growth in Qualified Impressions' },
-      { metric: 'Engagement Quality', description: '> 5.2% True Engagement Rate among target accounts' },
-      { metric: 'Inbound Opportunities', description: 'Direct attribution of high-ticket client leads from social' },
-    ],
-    budgetThreshold: '$2,000 / month retainer minimum',
+    id: 'growth-search-campaign',
+    code: 'G-03',
+    name: 'Search Campaign Setup',
+    channelSlugs: ['google-ads'],
+    setup: true,
+    statement: 'Search campaigns built around what people are actually typing, and what to refuse to pay for.',
+    activities: ['Keyword research and intent grouping', 'Negative keyword architecture', 'Responsive search ad copy', 'Landing page alignment', 'Search term review process'],
   },
   {
-    id: 'gr-content',
-    slug: 'content',
-    name: 'Content & Inbound Authority',
-    headline: 'High-Density Technical Publishing & Thought Leadership',
-    tagline: 'In-depth research whitepapers, architecture teardowns, and programmatic guides',
-    overview: 'Generic 500-word SEO articles no longer generate business value. We engineer authoritative, research-backed technical content, whitepapers, and customer case studies that solve complex technical problems and position your company as the definitive category benchmark.',
-    methodology: [
-      { step: '01', title: 'Topic Cluster & Intent Mapping', description: 'Map buyer journeys to high-value informational and transactional query clusters, prioritizing high-ACV decision-maker pain points.' },
-      { step: '02', title: 'Subject-Matter Expert (SME) Teardowns', description: 'Extract proprietary knowledge directly from your technical staff through structured interviews and translate it into polished architectural essays.' },
-      { step: '03', title: 'Interactive Tools & Calculators', description: 'Build embeddable calculators, cost estimators, and benchmarking tools that earn natural backlinks and high visitor dwell time.' },
-      { step: '04', title: 'Repurposing & Syndication Engine', description: 'Atomize every flagship whitepaper into newsletters, slide decks, social threads, and podcast discussion guides.' },
-    ],
-    deliverables: [
-      'Quarterly Flagship Research Report / Industry Benchmark Whitepaper',
-      'Bi-Weekly In-Depth Technical Teardowns & Engineering Case Studies',
-      'Lead Magnet Gated Asset Funnels with Automated Email Sequences',
-      'Interactive Web Assessment or ROI Calculator Tool',
-    ],
-    kpiTargets: [
-      { metric: 'Organic Traffic Quality', description: '> 3.5 Minute Average Page Dwell Time' },
-      { metric: 'Lead Capture Rate', description: '> 8.5% Conversion on High-Intent Gated Assets' },
-      { metric: 'Passive Backlink Velocity', description: 'Natural inbound citations from tier-1 industry domains' },
-    ],
-    budgetThreshold: '$3,500 / month retainer minimum',
+    id: 'growth-social-campaign',
+    code: 'G-04',
+    name: 'Social Campaign Setup',
+    channelSlugs: ['meta-ads', 'social'],
+    setup: true,
+    statement: 'Paid social built on audience structure rather than a single broad blast.',
+    activities: ['Audience architecture and exclusions', 'Placement and device configuration', 'Creative specification and asset requirements', 'Retargeting windows agreed in advance', 'Launch review'],
   },
   {
-    id: 'gr-seo',
-    slug: 'seo',
-    name: 'Technical SEO & Search Architecture',
-    headline: 'Algorithmic Search Dominance through Engineering Rigor',
-    tagline: 'Semantic entity graphs, Core Web Vitals optimization, and programmatic indexing',
-    overview: 'Modern SEO is an engineering discipline. We treat search optimization as a software architecture problem: optimizing crawl efficiency, deploying deep JSON-LD schema graphs, perfecting Core Web Vitals, and architecting programmatic directory trees.',
-    methodology: [
-      { step: '01', title: 'Full Technical & Crawl Budget Audit', description: 'Eliminate redirect chains, resolve orphan URLs, optimize XML sitemaps, and configure server responses for lightning crawl velocity.' },
-      { step: '02', title: 'Core Web Vitals Engineering', description: 'Optimize LCP, INP, and CLS down to green baselines by tuning server response times, eliminating script bloat, and stabilizing DOM layouts.' },
-      { step: '03', title: 'Semantic Schema & Entity Graphs', description: 'Author dense JSON-LD microdata connecting Organizations, Products, SoftwareApplications, and Authors into an unambiguous knowledge graph.' },
-      { step: '04', title: 'Programmatic Index Scaling', description: 'Generate high-quality, non-duplicate landing page architectures for multi-location, multi-feature, or multi-integration search matrices.' },
-    ],
-    deliverables: [
-      'Comprehensive 60-Point Technical Crawl & Speed Remediation',
-      'Custom Structured Data (JSON-LD) Microdata Implementation',
-      'Internal PageRank Flow & Anchor Text Re-Architecture',
-      'Ongoing Monthly Algorithmic Rank & Search Console Telemetry',
-    ],
-    kpiTargets: [
-      { metric: 'Core Web Vitals', description: '100% Pass Rate on all production URLs' },
-      { metric: 'Rank Positioning', description: 'Top 3 positions on primary high-intent commercial keywords' },
-      { metric: 'Crawl Efficiency', description: 'Zero 4xx/5xx crawl errors, 99.8% indexing rate' },
-    ],
-    budgetThreshold: '$2,500 / month retainer minimum',
+    id: 'growth-audience-architecture',
+    code: 'G-05',
+    name: 'Audience Architecture',
+    channelSlugs: ['meta-ads', 'google-ads'],
+    setup: true,
+    statement: 'Deciding who is addressed, in what order, and who is deliberately excluded.',
+    activities: ['Audience segment definition', 'Exclusion and suppression rules', 'Retargeting window design', 'Lookalike and interest structure where justified', 'Privacy and consent review'],
+  },
+  {
+    id: 'growth-conversion-tracking',
+    code: 'G-06',
+    name: 'Conversion Tracking Setup',
+    channelSlugs: ['google-ads', 'meta-ads', 'social', 'seo'],
+    setup: true,
+    statement: 'Making sure the numbers a decision rests on are actually measured, once, without double counting.',
+    activities: ['Event definition and naming', 'Tag and server-side implementation', 'Deduplication setup', 'Consent handling', 'Verification against a back office or database'],
+  },
+  {
+    id: 'growth-creative-preparation',
+    code: 'G-07',
+    name: 'Creative Preparation',
+    channelSlugs: ['meta-ads', 'google-ads', 'social'],
+    setup: false,
+    statement: 'Producing the assets campaigns need, with a stated variation axis per test.',
+    activities: ['Asset specification per placement', 'Variant production with one variable each', 'Copy drafting and localisation', 'Adaptation across formats and aspect ratios', 'Creative performance review'],
+  },
+  {
+    id: 'growth-landing-integration',
+    code: 'G-08',
+    name: 'Landing Experience Integration',
+    channelSlugs: ['google-ads', 'meta-ads'],
+    setup: true,
+    statement: 'Connecting the destination to the campaign so measurement and message survive the click.',
+    activities: ['Landing page message alignment', 'Tracking and event wiring', 'Form or checkout path review', 'Mobile path verification', 'Post-click analytics review'],
+  },
+  {
+    id: 'growth-optimization',
+    code: 'G-09',
+    name: 'Optimization',
+    channelSlugs: ['google-ads', 'meta-ads'],
+    setup: false,
+    statement: 'Recurring work that reallocates effort based on what the data actually shows.',
+    activities: ['Search term and placement review', 'Bid and budget reallocation', 'Creative rotation decisions', 'Audience refresh', 'Change log with reasoning'],
+  },
+  {
+    id: 'growth-reporting',
+    code: 'G-10',
+    name: 'Reporting',
+    channelSlugs: ['google-ads', 'meta-ads', 'social', 'content', 'seo'],
+    setup: false,
+    statement: 'A readable account of what happened and what it implies for the next decision.',
+    activities: ['Reporting format agreed with the client', 'Source-separated performance view', 'Annotation of every change made', 'Written recommendation per period', 'Raw data access for the client'],
+  },
+  {
+    id: 'growth-content-production',
+    code: 'G-11',
+    name: 'Content Production',
+    channelSlugs: ['content', 'social'],
+    setup: false,
+    statement: 'Producing the material that gives a campaign and a site something to point at.',
+    activities: ['Editorial direction and topic selection', 'Drafting and editing', 'Subject-matter input sessions', 'Publication and repurposing', 'Content performance review'],
+  },
+  {
+    id: 'growth-technical-seo',
+    code: 'G-12',
+    name: 'Technical SEO',
+    channelSlugs: ['seo'],
+    setup: false,
+    statement: 'Fixing the parts of a site that decide whether search engines can use it at all.',
+    activities: ['Crawl and indexation review', 'Core Web Vitals remediation', 'Structured data implementation', 'Internal linking and URL architecture', 'Search Console monitoring'],
+  },
+  {
+    id: 'growth-analytics',
+    code: 'G-13',
+    name: 'Analytics',
+    channelSlugs: ['google-ads', 'meta-ads', 'social', 'content', 'seo'],
+    setup: true,
+    statement: 'Establishing a measurement baseline that survives staff changes.',
+    activities: ['Property and container configuration', 'Event and dimension design', 'Reporting built for the decisions in question', 'Access and ownership handover', 'Documentation for the client team'],
   },
 ];
 
-export const budgetEstimatorTiers: Record<string, BudgetTier> = {
-  starter: {
-    range: '$2,500 – $6,000 / mo',
-    recommendedChannels: ['Google Ads (High-Intent Search)', 'Technical SEO Foundation', 'Meta Retargeting'],
-    expectedTrajectory: 'Fast capture of existing in-market demand; initial revenue acceleration within 30-45 days.',
-    operationalCadence: 'Bi-weekly sprint check-ins, monthly executive reporting dashboard.',
-    includedModules: [
-      'Conversion tracking & CAPI instrumentation',
-      'Primary intent search campaigns',
-      'Initial Core Web Vitals remediation',
-      'Lead capture funnel audit',
-    ],
+export const growthChannelsDetail: readonly GrowthChannel[] = [
+  {
+    id: 'growth-google-ads',
+    code: 'GR-01',
+    slug: 'google-ads',
+    name: 'Google Advertising',
+    shortName: 'Google Ads',
+    index: '01',
+    tagline: 'Paid search, shopping and demand capture',
+    statement:
+      'Search and shopping campaigns structured around commercial intent, with the negative list treated as a first-class part of the build rather than a cleanup task. Performance Max is used only where the asset structure genuinely supports it.',
+    prerequisites: ['A website that can receive and record the traffic', 'A clear definition of what a conversion means for the business', 'Access to any existing analytics or tag manager'],
+    outputs: ['Account and campaign structure', 'Keyword and negative keyword architecture', 'Ad copy built per intent group', 'Conversion measurement wired and verified', 'Ongoing optimisation with a written change log'],
+    moduleIds: ['growth-campaign-strategy', 'growth-account-setup', 'growth-search-campaign', 'growth-audience-architecture', 'growth-conversion-tracking', 'growth-landing-integration', 'growth-optimization', 'growth-reporting', 'growth-analytics'],
+    relatedEntityIds: ['web-landing', 'creative-campaign', 'growth-technical-seo'],
   },
-  scale: {
-    range: '$6,000 – $20,000 / mo',
-    recommendedChannels: ['Meta Ads (Advantage+ & Creative Testing)', 'Google Ads (Search + PMax)', 'Social Video Engine', 'Content Authority'],
-    expectedTrajectory: 'Rapid market expansion, new customer acquisition, creative angle diversification with sustained ROAS.',
-    operationalCadence: 'Weekly tactical sprint calls, real-time shared Slack channel, continuous creative testing pipeline.',
-    includedModules: [
-      'Full Multi-Channel Funnel Orchestration',
-      'Weekly Creative Asset Generation (10+ variations)',
-      'Offline Conversion Import (OCI) CRM feedback',
-      'Flagship Whitepaper / Technical Lead Magnet',
-      'Custom Attribution Modeling',
-    ],
+  {
+    id: 'growth-meta-ads',
+    code: 'GR-02',
+    slug: 'meta-ads',
+    name: 'Meta Advertising',
+    shortName: 'Meta Ads',
+    index: '02',
+    tagline: 'Paid social on Instagram and Facebook',
+    statement:
+      'Placement across Meta with audience exclusions designed up front, creative produced as testable variants, and events sent from the server where measurement reliability requires it.',
+    prerequisites: ['Business asset access for account and domain verification', 'A defined audience, not a general description', 'Creative assets or agreement to produce them'],
+    outputs: ['Business and ad account structure', 'Audience and exclusion architecture', 'Creative variant set with a documented test axis', 'Event measurement and verification', 'Ongoing optimisation and reporting'],
+    moduleIds: ['growth-campaign-strategy', 'growth-account-setup', 'growth-social-campaign', 'growth-audience-architecture', 'growth-creative-preparation', 'growth-conversion-tracking', 'growth-optimization', 'growth-reporting'],
+    relatedEntityIds: ['creative-campaign', 'creative-launch-content', 'web-landing'],
   },
-  enterprise: {
-    range: '$20,000+ / mo',
-    recommendedChannels: ['Global Paid Acquisition (Meta, Google, LinkedIn)', 'Programmatic SEO Mesh', 'B2B Executive Distribution', 'Dedicated Growth Engineering'],
-    expectedTrajectory: 'Uncontested category leadership, international localized expansion, omnichannel audience dominance.',
-    operationalCadence: 'Dedicated Growth Lead & Media Buyer, daily telemetry tracking, bi-weekly strategic roadmap reviews.',
-    includedModules: [
-      'Dedicated Custom Landing Page Engineering (Next.js Edge)',
-      'Multi-Country Localization & Currency Ad Routing',
-      'Bespoke Interactive Calculator & Assessment Funnel Development',
-      'Custom Predictive LTV Modeling & Database Integration',
-      'Executive Ghostwriting & Media Representation',
-    ],
+  {
+    id: 'growth-social',
+    code: 'GR-03',
+    slug: 'social',
+    name: 'Social Media',
+    shortName: 'Social',
+    index: '03',
+    tagline: 'Organic short-form production and publishing',
+    statement:
+      'A repeatable production line for short-form video and social posts across the platforms a business can realistically maintain, with a published calendar rather than ad-hoc posting.',
+    prerequisites: ['A defined editorial point of view or offer', 'Access to footage or a production session', 'Someone who can approve and publish'],
+    outputs: ['Format and cadence definition', 'Asset source library and edit recipes', 'Editorial calendar with drafted copy', 'Publishing and community response guidance'],
+    moduleIds: ['growth-campaign-strategy', 'growth-social-campaign', 'growth-creative-preparation', 'growth-content-production', 'growth-reporting'],
+    relatedEntityIds: ['creative-social-content', 'creative-motion', 'growth-meta-ads'],
   },
-};
+  {
+    id: 'growth-content',
+    code: 'GR-04',
+    slug: 'content',
+    name: 'Content Systems',
+    shortName: 'Content',
+    index: '04',
+    tagline: 'Material that earns attention over time',
+    statement:
+      'Content built from subject-matter input rather than generated volume: a topic structure tied to what buyers ask, produced with the people who actually know the subject.',
+    prerequisites: ['Access to subject-matter experts for input', 'A reason to be trusted on the subject', 'Editorial review capacity'],
+    outputs: ['Topic and intent structure', 'Produced and edited content', 'Publication and repurposing plan', 'Performance review by topic, not by volume'],
+    moduleIds: ['growth-campaign-strategy', 'growth-content-production', 'growth-technical-seo', 'growth-reporting'],
+    relatedEntityIds: ['creative-editorial', 'web-corporate', 'growth-technical-seo'],
+  },
+  {
+    id: 'growth-technical-seo',
+    code: 'GR-05',
+    slug: 'seo',
+    name: 'SEO & Discoverability',
+    shortName: 'SEO',
+    index: '05',
+    tagline: 'Making a site legible to search engines',
+    statement:
+      'Technical work first: crawlable structure, stable performance, unambiguous structured data and internal linking that distributes authority deliberately. Content work follows the technical baseline.',
+    prerequisites: ['Crawl access to the site', 'A site that can be deployed and changed', 'Analytics access'],
+    outputs: ['Crawl and indexation audit', 'Technical remediation implemented', 'Structured data and internal linking changes', 'Search Console monitoring and reporting'],
+    moduleIds: ['growth-campaign-strategy', 'growth-technical-seo', 'growth-content-production', 'growth-analytics', 'growth-reporting'],
+    relatedEntityIds: ['web-performance-audit', 'growth-content', 'wordpress-maintenance'],
+  },
+];
+
+export function growthModulesFor(slug: GrowthChannelSlug): GrowthModule[] {
+  return growthModules.filter((module) => module.channelSlugs.includes(slug));
+}
+
+export function growthChannelBySlug(slug: string): GrowthChannel | undefined {
+  return growthChannelsDetail.find((channel) => channel.slug === slug);
+}
+
+/**
+ * Budget bands exist to help a visitor describe scope, and to let the enquiry
+ * carry a figure. They are not recommendations, not minimum spends, and not
+ * tied to any expected result.
+ */
+export type BudgetBand = { id: string; label: string; description: string };
+
+export const budgetBands: readonly BudgetBand[] = [
+  { id: 'unstated', label: 'Not yet decided', description: 'A range is useful but not required to start a conversation.' },
+  { id: 'under-5k', label: 'Under 5,000', description: 'Usually enough to establish a focused single channel with correct measurement.' },
+  { id: '5k-15k', label: '5,000 to 15,000', description: 'Allows a second channel and a creative production line alongside measurement.' },
+  { id: '15k-50k', label: '15,000 to 50,000', description: 'Suits multi-channel work where creative and audience testing are the constraint rather than budget.' },
+  { id: 'over-50k', label: 'Over 50,000', description: 'Indicates a scope where strategy, tracking and production are all required before spend is committed.' },
+  { id: 'not-media', label: 'Project budget, not media spend', description: 'The figure refers to build cost for web, WordPress or creative work rather than to advertising.' },
+];
+
+export function bandForAmount(amount: number, currency: string): BudgetBand {
+  const value = Math.abs(amount);
+  if (currency === 'project') return budgetBands[budgetBands.length - 1];
+  if (value < 5000) return budgetBands[1];
+  if (value < 15000) return budgetBands[2];
+  if (value < 50000) return budgetBands[3];
+  return budgetBands[4];
+}
+
+export function growthEntities(): DiscoverableEntity[] {
+  const channelEntities: DiscoverableEntity[] = growthChannelsDetail.map((channel) => ({
+    id: channel.id,
+    kind: 'growth-channel',
+    division: 'growth',
+    code: channel.code,
+    slug: channel.slug,
+    name: channel.name,
+    shortName: channel.shortName,
+    summary: channel.tagline,
+    status: 'service',
+    route: `/growth/${channel.slug}`,
+    categories: ['growth', channel.slug],
+    searchTerms: [channel.name, channel.tagline, ...channel.prerequisites.slice(0, 1)],
+    capabilities: channel.moduleIds,
+    relatedIds: channel.relatedEntityIds,
+  }));
+
+  const moduleEntities: DiscoverableEntity[] = growthModules.map((module) => ({
+    id: module.id,
+    kind: 'growth-channel',
+    division: 'growth',
+    code: module.code,
+    slug: module.id,
+    name: module.name,
+    shortName: module.name,
+    summary: module.statement,
+    status: 'service',
+    route: `/growth/${module.channelSlugs[0]}`,
+    categories: ['growth', module.channelSlugs[0]],
+    searchTerms: module.activities,
+    capabilities: [],
+    relatedIds: [],
+  }));
+
+  const objectiveEntities: DiscoverableEntity[] = growthObjectives.map((objective) => ({
+    id: `growth-objective-${objective.id}`,
+    kind: 'growth-channel',
+    division: 'growth',
+    code: 'GR-O',
+    slug: objective.id,
+    name: objective.label,
+    shortName: objective.label,
+    summary: objective.statement,
+    status: 'service',
+    route: '/growth',
+    categories: ['growth', 'objective'],
+    searchTerms: [objective.statement],
+    capabilities: objective.capabilityIds,
+    relatedIds: [],
+  }));
+
+  return [...channelEntities, ...moduleEntities, ...objectiveEntities];
+}

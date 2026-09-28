@@ -1,86 +1,176 @@
-import { products } from '@/data/products';
-import { wpItems } from '@/data/wordpress';
-import { webSystemTiers, creativeDisciplines } from '@/data/services';
-import { growthChannels } from '@/data/growth';
-import { businessSolutions } from '@/data/solutions';
+import { divisions, type DivisionId } from '@/lib/entities';
+import type { CapabilityDivisionId } from '@/data/capabilities';
+import { creativeDisciplines, findCreativeDiscipline, findWebSystem, webSystems } from '@/data/services';
 
-export const navigation = [
-  { label: 'Products', href: '/products' },
-  { label: 'WordPress', href: '/wordpress' },
-  { label: 'Web', href: '/web' },
-  { label: 'Growth', href: '/growth' },
-  { label: 'Creative', href: '/creative' },
-  { label: 'Solutions', href: '/solutions' },
-  { label: 'Composer', href: '/build' },
-  { label: 'Labs', href: '/labs' },
-  { label: 'About', href: '/about' },
-  { label: 'Contact', href: '/contact' },
-] as const;
+/**
+ * Site navigation.
+ *
+ * The header carries divisions, not pages. Long tails live behind their
+ * division and are reachable from the command palette, the division subrail
+ * and the sitemap. Keeping the top level short is what stops the site
+ * presenting as a storefront with a mega-menu.
+ */
 
-export const searchable = [
-  { label: 'Home', description: 'KNOuX Digital Headquarters — Canonical Home', href: '/' },
-  { label: 'Products', description: 'KNOuX Software Universe — Canonical Desktop & Cloud Tools', href: '/products' },
-  { label: 'WordPress Division', description: 'Engineered Themes, Plugins, Blocks, Starter Sites & Solutions', href: '/wordpress' },
-  { label: 'WordPress / Themes', description: 'FSE Themes: Mono, Commerce, Headless Starter', href: '/wordpress/themes' },
-  { label: 'WordPress / Plugins', description: 'Speed Core, Security Shield, Conversion Engine CAPI', href: '/wordpress/plugins' },
-  { label: 'WordPress / Blocks', description: 'Gutenberg Technical Matrix & Radar Block Suite', href: '/wordpress/blocks' },
-  { label: 'WordPress / Starter Sites', description: 'Turnkey Enterprise Corporate & B2B SaaS Foundations', href: '/wordpress/starter-sites' },
-  { label: 'WordPress / Solutions', description: 'Decoupled Headless Migrations & Database Hardening', href: '/wordpress/solutions' },
-  { label: 'Web Systems Studio', description: 'Capability Matrix: Next.js Flagships, High-Throughput E-Commerce, 3D WebGL', href: '/web' },
-  { label: 'Creative Studio', description: 'Brand Identity Systems, UI/UX Architecture, Motion Grammar & Art Direction', href: '/creative' },
-  { label: 'Growth Division', description: 'Meta Ads, Google Ads Search & PMax, Social Video, Content & Technical SEO', href: '/growth' },
-  { label: 'Growth / Meta Ads', description: 'Algorithmic Acquisition with Server-Side CAPI Precision', href: '/growth/meta-ads' },
-  { label: 'Growth / Google Ads', description: 'High-Intent Search & Clean Performance Max Asset Structuring', href: '/growth/google-ads' },
-  { label: 'Growth / Social Media', description: 'Audience Multiplication & Short-Form Video Engine', href: '/growth/social' },
-  { label: 'Growth / Content & Inbound', description: 'Technical Publishing, Architecture Teardowns & Whitepapers', href: '/growth/content' },
-  { label: 'Growth / Technical SEO', description: 'Semantic Entity Graphs & Core Web Vitals Optimization', href: '/growth/seo' },
-  { label: 'Cross-Division Solutions', description: 'Start a Business, Launch Product, Online Store, Digitize Ops, Academy', href: '/solutions' },
-  { label: 'KNOuX Composer (/build)', description: 'Natural-Language Solution Synthesis & Architecture Scoping Engine', href: '/build' },
-  { label: 'Labs & Research', description: 'Knoux-Quill, knoux-security & Foundational Computational Research', href: '/labs' },
-  { label: 'Engineering Practice', description: 'Principles, Architecture Standards & Code Governance', href: '/engineering' },
-  { label: 'Selected Work', description: 'Institutional Archive & Production Deployments', href: '/work' },
-  { label: 'About KNOuX', description: 'Founding Mission, Philosophy & Leadership by Eng. Sadek Elgazar', href: '/about' },
-  { label: 'Contact & Inquiries', description: 'Encrypted Contact Gateway & Project Scoping Pipeline', href: '/contact' },
+export type NavItem = { label: string; href: string; code: string };
 
-  // Software Products (8 Canonical Products)
-  ...products.map((p) => ({
-    label: p.name,
-    description: `SOFTWARE • ${p.tagline} • ${p.keywords.slice(0, 4).join(' ')}`,
-    href: `/products/${p.slug}`,
-  })),
-
-  // WordPress Items
-  ...wpItems.map((w) => ({
-    label: w.name,
-    description: `WORDPRESS (${w.category.toUpperCase()}) • ${w.tagline}`,
-    href: `/wordpress/${w.category}`,
-  })),
-
-  // Web System Tiers
-  ...webSystemTiers.map((t) => ({
-    label: t.title,
-    description: `WEB SYSTEMS • ${t.tagline}`,
-    href: '/web',
-  })),
-
-  // Creative Disciplines
-  ...creativeDisciplines.map((c) => ({
-    label: c.title,
-    description: `CREATIVE STUDIO • ${c.subtitle}`,
-    href: '/creative',
-  })),
-
-  // Growth Channels
-  ...growthChannels.map((g) => ({
-    label: g.name,
-    description: `GROWTH CHANNEL • ${g.tagline}`,
-    href: `/growth/${g.slug}`,
-  })),
-
-  // Cross-Division Solutions
-  ...businessSolutions.map((s) => ({
-    label: s.title,
-    description: `SOLUTION PACKAGE • ${s.tagline}`,
-    href: '/solutions',
-  })),
+export const primaryNavigation: readonly NavItem[] = [
+  { label: 'Software', href: '/products', code: '01' },
+  { label: 'WordPress', href: '/wordpress', code: '02' },
+  { label: 'Web', href: '/web', code: '03' },
+  { label: 'Growth', href: '/growth', code: '04' },
+  { label: 'Creative', href: '/creative', code: '05' },
+  { label: 'Solutions', href: '/solutions', code: '06' },
+  { label: 'Build', href: '/build', code: '07' },
 ];
+
+export const institutionNavigation: readonly NavItem[] = [
+  { label: 'Labs', href: '/labs', code: '08' },
+  { label: 'Work', href: '/work', code: '09' },
+  { label: 'Engineering', href: '/engineering', code: '10' },
+  { label: 'About', href: '/about', code: '11' },
+  { label: 'Contact', href: '/contact', code: '12' },
+];
+
+/** Per-division subrails. Rendered as a thin index, never a dropdown grid. */
+export type DivisionSubnav = {
+  division: DivisionId;
+  label: string;
+  items: NavItem[];
+};
+
+export const divisionSubnavs: readonly DivisionSubnav[] = [
+  {
+    division: 'software',
+    label: 'Software',
+    items: [
+      { label: 'Universe', href: '/products', code: 'SW' },
+      { label: 'Ledger', href: '/products#ledger', code: 'LDG' },
+      { label: 'Labs', href: '/labs', code: 'LAB' },
+      { label: 'Composer', href: '/build', code: 'CMP' },
+    ],
+  },
+  {
+    division: 'wordpress',
+    label: 'WordPress',
+    items: [
+      { label: 'Overview', href: '/wordpress', code: 'WP' },
+      { label: 'Themes', href: '/wordpress/themes', code: 'WP-01' },
+      { label: 'Plugins', href: '/wordpress/plugins', code: 'WP-02' },
+      { label: 'Blocks', href: '/wordpress/blocks', code: 'WP-03' },
+      { label: 'Starter Sites', href: '/wordpress/starter-sites', code: 'WP-04' },
+      { label: 'Bundles', href: '/wordpress/solutions', code: 'WP-05' },
+    ],
+  },
+  {
+    division: 'web',
+    label: 'Web',
+    items: [
+      { label: 'Systems Studio', href: '/web', code: 'WEB' },
+      ...webSystems.map((system) => ({ label: system.shortName, href: `/web/${system.slug}`, code: system.code })),
+      { label: 'Capability Matrix', href: '/web#matrix', code: 'MTX' },
+      { label: 'Engineering', href: '/engineering', code: 'ENG' },
+    ],
+  },
+  {
+    division: 'growth',
+    label: 'Growth',
+    items: [
+      { label: 'Overview', href: '/growth', code: 'GR' },
+      { label: 'Google Ads', href: '/growth/google-ads', code: 'GR-01' },
+      { label: 'Meta Ads', href: '/growth/meta-ads', code: 'GR-02' },
+      { label: 'Social', href: '/growth/social', code: 'GR-03' },
+      { label: 'Content', href: '/growth/content', code: 'GR-04' },
+      { label: 'SEO', href: '/growth/seo', code: 'GR-05' },
+    ],
+  },
+  {
+    division: 'creative',
+    label: 'Creative',
+    items: [
+      { label: 'Capabilities', href: '/creative', code: 'CR' },
+      ...creativeDisciplines.map((discipline) => ({ label: discipline.shortName, href: `/creative/${discipline.slug}`, code: discipline.code })),
+      { label: 'Work', href: '/work', code: 'WK' },
+    ],
+  },
+  {
+    division: 'solutions',
+    label: 'Solutions',
+    items: [
+      { label: 'By Need', href: '/solutions', code: 'SOL' },
+      { label: 'Composer', href: '/build', code: 'CMP' },
+      { label: 'Contact', href: '/contact', code: 'CT' },
+    ],
+  },
+];
+
+export const subnavFor = (division: DivisionId): readonly NavItem[] =>
+  divisionSubnavs.find((entry) => entry.division === division)?.items ?? [];
+
+export type Breadcrumb = { label: string; href: string | null };
+
+/** Breadcrumb resolver. Unknown segments resolve to their own division. */
+export function breadcrumbFor(path: string): Breadcrumb[] {
+  const trail: Breadcrumb[] = [{ label: 'KNOuX', href: '/' }];
+  const segments = path.split('/').filter(Boolean);
+  if (segments.length === 0) return trail;
+
+  const [first, second] = segments;
+  const divisionEntry: Record<string, Breadcrumb> = {
+    products: { label: 'Software', href: '/products' },
+    wordpress: { label: 'WordPress', href: '/wordpress' },
+    web: { label: 'Web', href: '/web' },
+    growth: { label: 'Growth', href: '/growth' },
+    creative: { label: 'Creative', href: '/creative' },
+    solutions: { label: 'Solutions', href: '/solutions' },
+    build: { label: 'Composer', href: null },
+    labs: { label: 'Labs', href: null },
+    work: { label: 'Work', href: null },
+    engineering: { label: 'Engineering', href: null },
+    about: { label: 'About', href: null },
+    contact: { label: 'Contact', href: null },
+  };
+
+  if (first === 'products' && second) {
+    trail.push({ label: 'Software', href: '/products' });
+    trail.push({ label: segments[2] ? segments[2].replace(/-/g, ' ') : 'Overview', href: null });
+    return trail;
+  }
+  if (first === 'solutions' && second) {
+    trail.push({ label: 'Solutions', href: '/solutions' });
+    trail.push({ label: segments[2]?.replace(/-/g, ' ') ?? 'Overview', href: null });
+    return trail;
+  }
+  if (first === 'web' && second) {
+    const system = findWebSystem(second);
+    trail.push({ label: 'Web', href: '/web' });
+    trail.push({ label: system?.title ?? second.replace(/-/g, ' '), href: null });
+    return trail;
+  }
+  if (first === 'creative' && second) {
+    const discipline = findCreativeDiscipline(second);
+    trail.push({ label: 'Creative', href: '/creative' });
+    trail.push({ label: discipline?.title ?? second.replace(/-/g, ' '), href: null });
+    return trail;
+  }
+
+  const entry = divisionEntry[first];
+  if (entry) {
+    trail.push({ label: entry.label, href: entry.href });
+    if (second) trail.push({ label: second.replace(/-/g, ' '), href: null });
+  } else {
+    trail.push({ label: first.replace(/-/g, ' '), href: null });
+  }
+  return trail;
+}
+
+/** Capability matrix axes, shared by /web and /creative. */
+export const capabilityMatrixDivisions: ReadonlyArray<{ id: CapabilityDivisionId; label: string }> = [
+  { id: 'software', label: 'Software' },
+  { id: 'wordpress', label: 'WordPress' },
+  { id: 'web', label: 'Web' },
+  { id: 'growth', label: 'Growth' },
+  { id: 'creative', label: 'Creative' },
+];
+
+export { divisions };
+export type { DivisionId };

@@ -112,7 +112,7 @@ void main() {
     pos.z = mix(pos.z, aDestination.z, route);
 
     // Reference morph dispersion, so the routed field never reads as a hard snap.
-    pos += normalize(pos + vec3(0.001)) * sin(route * 3.14159) * 0.14 * aRandom * uMotion;
+    pos += normalize(pos + vec3(0.001)) * sin(route * 3.14159) * 0.26 * aRandom * uMotion;
 
     vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
     gl_PointSize = aSize * uPixelRatio * 500.0 / -mvPos.z;

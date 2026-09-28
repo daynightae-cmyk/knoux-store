@@ -1,137 +1,82 @@
 import Link from 'next/link';
-import { pageMetadata } from '@/lib/metadata';
 import { PageIntro } from '@/components/PageIntro';
-import { businessSolutions } from '@/data/solutions';
+import { SignalRail } from '@/components/DivisionShell';
+import { DivisionBridge, NextLink } from '@/components/blocks';
+import { pageMetadata } from '@/lib/metadata';
+import { TrackOnView } from '@/components/TrackOnView';
+import { MissionPath } from '@/components/SpatialExperiences';
+import { SolutionMissionRows } from '@/components/SpecialistArchives';
 
 export const metadata = pageMetadata(
-  'Cross-Division Solutions',
-  'Integrated enterprise packages: Start a Business, Launch a Product, High-Throughput Online Store, Digitize Operations, and Academy Platform.',
-  '/solutions'
+  'Solutions',
+  'KNOuX solutions by business need: start a business, launch a product, build a store, digitise operations, create a portal, promote a local business, build an academy, modernise a website.',
+  '/solutions',
 );
 
 export default function SolutionsPage() {
   return (
-    <main>
+    <main id="main-content">
+      <TrackOnView event={{ type: 'division_opened', division: 'solutions', route: '/solutions' }} />
       <PageIntro
         index="06"
         label="Solutions"
-        title="Cross-Division Business Solutions"
-        italic="Objective-first packages uniting software, web systems, creative craft, and growth."
-        description="Complex business transformations cannot be solved by a single discipline. Our solutions integrate brand identity, edge web engineering, server-side acquisition, and native desktop software into turnkey institutional packages."
+        title="Start from"
+        italic="the need."
+        description="You should not have to know which internal department serves you. Every solution below is assembled from the same registries the divisions publish."
       />
-
-      {/* Solutions Master List */}
-      <section className="section-shell solutions-master-section">
-        <div className="section-header-split">
+      <SignalRail division="solutions" path="/solutions" />
+      <section
+        className="shell"
+        style={{ paddingTop: 'clamp(70px, 8vw, 130px)', paddingBottom: 'clamp(70px, 8vw, 130px)' }}
+      >
+        <div className="block-head">
           <div>
-            <p className="eyebrow">INTEGRATED PACKAGES</p>
-            <h2>Turnkey Institutional Blueprints</h2>
+            <span className="label label--signal">MISSION NAVIGATION</span>
+            <h2 className="block-head__title">Follow the need.</h2>
           </div>
-          <p className="section-statement">
-            Each solution is delivered as a coordinated sprint with deterministic milestones, eliminating coordination friction between separate agencies, developers, and media buyers.
+          <p className="block-head__aside">
+            Move through real business objectives. Each station resolves into documented systems and services.
           </p>
         </div>
+        <MissionPath />
+      </section>
 
-        <div className="solutions-stack">
-          {businessSolutions.map((sol, index) => (
-            <article key={sol.id} className="solution-card">
-              <div className="solution-card-header">
-                <div className="sol-badge">
-                  <span className="sol-code">SOL-SYS-0{index + 1}</span>
-                  <span className="sol-category">{sol.category.toUpperCase()}</span>
-                </div>
-                <div className="sol-divisions">
-                  {sol.integratedDivisions.map((div) => (
-                    <span key={div} className="sol-div-pill">{div}</span>
-                  ))}
-                </div>
-              </div>
+      <SolutionMissionRows />
 
-              <div className="solution-card-body">
-                <div className="sol-title-block">
-                  <h3 className="sol-title">{sol.title}</h3>
-                  <p className="sol-tagline">{sol.tagline}</p>
-                  <p className="sol-overview">{sol.overview}</p>
-
-                  <div className="sol-target">
-                    <span className="section-micro-label">TARGET PROFILE</span>
-                    <p>{sol.targetProfile}</p>
-                  </div>
-
-                  <div className="sol-impact-row">
-                    {sol.expectedImpact.map((imp, impIdx) => (
-                      <div key={impIdx} className="impact-box">
-                        <span className="impact-metric">{imp.metric}</span>
-                        <span className="impact-label">{imp.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Included Components Breakdown */}
-                <div className="sol-components-block">
-                  <span className="section-micro-label">INTEGRATED DIVISION DELIVERABLES</span>
-                  <div className="sol-div-list">
-                    {sol.includedComponents.map((comp, compIdx) => (
-                      <div key={compIdx} className="comp-item">
-                        <h4 className="comp-division-title">{comp.division}</h4>
-                        <ul>
-                          {comp.items.map((item, itemIdx) => (
-                            <li key={itemIdx}>{item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Phased Roadmap Strip */}
-              <div className="solution-roadmap">
-                <span className="section-micro-label">EXECUTION SPRINT ROADMAP</span>
-                <div className="roadmap-phases-grid">
-                  {sol.roadmap.map((phase) => (
-                    <div key={phase.phase} className="phase-card">
-                      <div className="phase-top">
-                        <span className="phase-num">PHASE {phase.phase}</span>
-                        <span className="phase-duration">{phase.duration}</span>
-                      </div>
-                      <h5>{phase.title}</h5>
-                      <p>{phase.details}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="solution-card-footer">
-                <Link
-                  href={`/contact?scope=solution&package=${sol.slug}`}
-                  className="button-primary"
-                >
-                  <span>COMMISSION {sol.title.toUpperCase()}</span>
-                  <span>↗</span>
-                </Link>
-                <Link href="/build" className="button-text">
-                  CUSTOMIZE IN COMPOSER <span>→</span>
-                </Link>
-              </div>
-            </article>
-          ))}
+      <section className="shell" style={{ paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
+        <div className="dev-state" data-reveal>
+          <p className="dev-state__mark">
+            <span className="dev-state__pulse" aria-hidden="true" />
+            <span className="label label--signal">HOW THESE ARE BUILT</span>
+          </p>
+          <h2>Nothing here is a package price.</h2>
+          <p>
+            A solution is a starting position, not a quotation. Its core layers are what that objective usually
+            requires; its optional layers are what sometimes does. You are not expected to need all of it, and the
+            Composer will show you which parts a stated need actually resolves to.
+          </p>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 26 }}>
+            <Link href="/build" className="action action--primary">
+              Open the Composer
+              <span className="action-arrow" aria-hidden="true">↗</span>
+            </Link>
+            <Link href="/contact?requestType=solution" className="action">
+              Describe your situation
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Outro Callout */}
-      <section className="page-outro section-shell">
-        <p className="eyebrow">CUSTOM COMBINATIONS</p>
-        <h2>Do not see your exact requirement listed?</h2>
-        <div className="outro-actions">
-          <Link href="/build" className="button-primary">
-            <span>SYNTHESIZE IN KNOuX COMPOSER</span>
-            <span>↗</span>
-          </Link>
-          <Link href="/contact" className="button-text">
-            REQUEST CUSTOM CONSULTATION <span>→</span>
-          </Link>
+      <section className="shell" style={{ paddingBottom: 'clamp(80px, 9vw, 150px)' }}>
+        <DivisionBridge
+          label="ACROSS DIVISIONS"
+          title="Prefer to describe it in your own words?"
+          body="The Composer reads a plain description of the problem and resolves it against the same registries these solutions are built from. It will not estimate price, duration or outcome."
+          href="/build"
+          action="Tell us what you need"
+        />
+        <div style={{ marginTop: 60 }}>
+          <NextLink label="Next division" name="Composer" href="/build" />
         </div>
       </section>
     </main>
