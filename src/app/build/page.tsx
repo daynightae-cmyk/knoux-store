@@ -1,13 +1,25 @@
 import { Suspense } from 'react';
 import { PageIntro } from '@/components/PageIntro';
-import { Composer } from '@/components/Composer';
 import { NextLink } from '@/components/blocks';
 import { pageMetadata } from '@/lib/metadata';
 import { TrackOnView } from '@/components/TrackOnView';
+import { KnouxBuildWorkspace } from '@/components/build/workspace/KnouxBuildWorkspace';
+
+/**
+ * The Composer reads `useSearchParams()` for its preset deep-link, which makes
+ * a statically prerendered route bail out to client-side rendering for the whole
+ * subtree. The workspace would then ship no server-rendered markup at all.
+ *
+ * Rendering this route per request is the fix that keeps the Composer
+ * untouched, which the closure brief requires. `/build` is an interactive
+ * workspace rather than a prerendered brochure, so a per-request render costs
+ * nothing that matters.
+ */
+export const dynamic = 'force-dynamic';
 
 export const metadata = pageMetadata(
-  'KNOuX Composer',
-  'Describe what you need and assemble a KNOuX stack from software, WordPress, web engineering, growth and creative. Deterministic matching against the KNOuX registries.',
+  'KNOuX Build OS',
+  'An engineering workspace inside KNOuX. Compile a specification from the registries, inspect real source, preview a real runtime, and read the verification state of the deployment you are looking at.',
   '/build',
 );
 
@@ -17,14 +29,14 @@ export default function BuildPage() {
       <TrackOnView event={{ type: 'division_opened', division: 'composer', route: '/build' }} />
       <PageIntro
         index="07"
-        label="Composer"
-        title="Tell us what"
-        italic="you need."
-        description="A deterministic intent engine over the KNOuX registries. It resolves what you wrote into a stack of real products, services and systems. It never estimates price, delivery or outcome."
+        label="Build OS"
+        title="KNOuX opens into"
+        italic="an engineering machine."
+        description="The Composer is the genesis layer and is preserved unchanged. Around it: a deterministic specification reader, real source inspection, a live preview of this deployment, the project topology read from disk, and a verification ledger that will not call an unverified thing green."
       />
-      <div className="shell" style={{ paddingTop: 'clamp(40px, 5vw, 80px)', paddingBottom: 'clamp(80px, 9vw, 150px)' }}>
+      <div style={{ paddingBottom: 'clamp(60px, 8vw, 120px)' }}>
         <Suspense fallback={<div style={{ minHeight: 420 }} />}>
-          <Composer />
+          <KnouxBuildWorkspace />
         </Suspense>
       </div>
       <div className="shell" style={{ paddingBottom: 'clamp(80px, 9vw, 150px)' }}>
