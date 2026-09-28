@@ -117,6 +117,7 @@ export type BuildIntent = {
 // ---------------------------------------------------------------------------
 
 export type WorkspaceSurface =
+  | 'overview'
   | 'genesis'
   | 'code'
   | 'preview'

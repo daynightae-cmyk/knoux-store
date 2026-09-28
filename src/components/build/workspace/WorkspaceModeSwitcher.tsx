@@ -16,6 +16,7 @@ type Mode = {
  * entry point rather than a mode the user is locked into.
  */
 export const WORKSPACE_MODES: readonly Mode[] = [
+  { id: 'overview', label: 'Overview', requires: null, glyph: 'overview' },
   { id: 'genesis', label: 'Deck', requires: null, glyph: 'deck' },
   { id: 'code', label: 'Code', requires: 'project.files', glyph: 'code' },
   { id: 'preview', label: 'Preview', requires: 'preview.live', glyph: 'preview' },
@@ -32,6 +33,7 @@ function Glyph({ name }: { name: string }) {
   return (
     <svg className="bo-rail__glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       {name === 'deck' && <><path d="M2 4h12M2 8h8M2 12h5" {...common} /></>}
+      {name === 'overview' && <><circle cx="8" cy="8" r="5.5" {...common} /><path d="M8 2.5v11M2.5 8h11" {...common} /></>}
       {name === 'code' && <><path d="M6 4L2 8l4 4M10 4l4 4-4 4" {...common} /></>}
       {name === 'preview' && <><rect x="2" y="3" width="12" height="10" {...common} /><path d="M2 6h12" {...common} /></>}
       {name === 'terminal' && <><rect x="2" y="3" width="12" height="10" {...common} /><path d="M5 7l2 2-2 2M9 11h3" {...common} /></>}

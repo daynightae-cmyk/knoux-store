@@ -40,6 +40,8 @@ import type { WorkspaceSurface } from '@/lib/build/types';
 
 function renderSurface(surface: WorkspaceSurface) {
   switch (surface) {
+    case 'overview':
+      return <CommandDeck onCompile={() => {}} />;
     case 'genesis':
       return <CommandDeck onCompile={() => {}} />;
     case 'code':

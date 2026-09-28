@@ -16,6 +16,7 @@
  * projection the state carries contains environment variable *names* only.
  */
 
+import { clamp01 } from './spatial';
 import type {
   BuildCapability,
   BuildIntent,
@@ -75,6 +76,16 @@ export type BuildWorkspaceState = {
     selectedRoute: string | null;
     selectedEntityId: string | null;
     selectedDiagnosticId: string | null;
+    /**
+     * Normalised spatial stage progress, 0..1, owned by the workspace.
+     *
+     * This is bounded and deliberately independent of document scroll. The
+     * reference prototype drove its timeline from a 6000vh scroll length; that
+     * is a gimmick and is rejected. Here the spine owns the value and the page
+     * scroll is never hijacked.
+     */
+    stageProgress: number;
+    stageId: string;
   };
   intent: BuildIntent | null;
   runtime: RuntimeProcess;
@@ -154,7 +165,7 @@ export const initialBuildState: BuildWorkspaceState = {
   project: null,
   graph: null,
   workspace: {
-    activeSurface: 'genesis',
+    activeSurface: 'overview',
     secondarySurface: null,
     splitMode: 'single',
     selectedFilePath: null,
@@ -162,6 +173,8 @@ export const initialBuildState: BuildWorkspaceState = {
     selectedRoute: null,
     selectedEntityId: null,
     selectedDiagnosticId: null,
+    stageProgress: 0,
+    stageId: 'intent',
   },
   intent: null,
   runtime: { status: 'unavailable', pid: null, port: null, url: null, command: null, startedAt: null, blocker: null },
@@ -209,6 +222,8 @@ export type BuildAction =
   | { type: 'file/close'; path: string }
   | { type: 'file/draft'; path: string; draft: string | null; line?: number; column?: number }
   | { type: 'route/select'; route: string | null }
+  | { type: 'stage/progress'; progress: number }
+  | { type: 'stage/select'; stageId: string; progress: number }
   | { type: 'entity/select'; id: string | null }
   | { type: 'diagnostic/select'; id: string | null }
   | { type: 'ai/mode'; mode: SenshialMode }
@@ -340,6 +355,20 @@ export function buildReducer(state: BuildWorkspaceState, action: BuildAction): B
       };
     case 'route/select':
       return { ...state, workspace: { ...state.workspace, selectedRoute: action.route } };
+    case 'stage/progress':
+      return {
+        ...state,
+        workspace: { ...state.workspace, stageProgress: clamp01(action.progress) },
+      };
+    case 'stage/select':
+      return {
+        ...state,
+        workspace: {
+          ...state.workspace,
+          stageProgress: clamp01(action.progress),
+          stageId: action.stageId,
+        },
+      };
     case 'entity/select':
       return { ...state, workspace: { ...state.workspace, selectedEntityId: action.id } };
     case 'diagnostic/select':
