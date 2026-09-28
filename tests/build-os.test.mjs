@@ -59,8 +59,11 @@ const router = load('src/lib/build/model-router.ts');
 const verification = load('src/lib/build/verification.ts');
 const diagnostics = load('src/lib/build/diagnostics.ts');
 const { tokenize, clampLine } = load('src/lib/build/tokenizer.ts');
+// The workspace store imports the spatial helpers for stage-progress clamping.
+const spatial = load('src/lib/build/spatial.ts');
 const { buildReducer, initialBuildState, capabilityResolutions, dirtyFiles } = load(
   'src/lib/build/workspace-state.ts',
+  { './spatial': spatial },
 );
 
 /* ------------------------------------------------------------------- intent */
@@ -386,11 +389,14 @@ test('line clamping never goes out of range', () => {
 test('the reducer starts empty and honest', () => {
   const state = initialBuildState;
   assert.equal(state.status, 'idle');
-  assert.equal(state.workspace.activeSurface, 'genesis');
+  // The spatial overview is the entry point; the Composer is reached through it.
+  assert.equal(state.workspace.activeSurface, 'overview');
+  assert.equal(state.workspace.stageProgress, 0);
   assert.equal(state.intent, null);
   assert.equal(state.project, null);
   assert.equal(state.executions.length, 0);
   assert.equal(state.terminal.sessions.length, 0);
+  assert.equal(state.verification, null);
 });
 
 test('single mode never keeps a secondary surface', () => {

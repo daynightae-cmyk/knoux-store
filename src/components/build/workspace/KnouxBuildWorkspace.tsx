@@ -36,6 +36,7 @@ import { BuildWorkspaceHeader } from './BuildWorkspaceHeader';
 import { WorkspaceCanvas } from './WorkspaceCanvas';
 import { WorkspaceStatusRail } from './WorkspaceStatusRail';
 import { CommandDeck } from './CommandDeck';
+import { SpatialWorkspace } from '../spatial/SpatialWorkspace';
 import './build-os.css';
 
 const BuildStateContext = createContext<{
@@ -214,7 +215,9 @@ export function KnouxBuildWorkspace() {
         <div className="bo-body">
           <WorkspaceModeSwitcher />
           <div className="bo-canvas">
-            {state.workspace.activeSurface === 'genesis' ? (
+            {state.workspace.activeSurface === 'overview' ? (
+              <SpatialWorkspace />
+            ) : state.workspace.activeSurface === 'genesis' ? (
               <CommandDeck onCompile={compile} />
             ) : (
               <WorkspaceCanvas />

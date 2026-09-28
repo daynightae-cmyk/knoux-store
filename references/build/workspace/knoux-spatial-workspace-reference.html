@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>KNOuX Build OS — Spatial Workspace Reference</title>
+<meta name="theme-color" content="#050506">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scrollbar-width:none;background:#050506}
+::-webkit-scrollbar{width:0;height:0}
+body{background:#050506;color:#f3f1ec;font-family:Inter,Arial,sans-serif;overflow-x:hidden}
+button{font:inherit;color:inherit}
+#scroll-space{height:900vh;position:relative}
+#stage{position:fixed;inset:0;overflow:hidden;background:radial-gradient(circle at 52% 48%,rgba(124,92,255,.07),transparent 27%),linear-gradient(#050506,#070709)}
+#grid{position:absolute;inset:0;opacity:.28;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(circle at center,#000 20%,transparent 80%)}
+canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#topbar{position:absolute;left:0;right:0;top:0;height:68px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;padding:0 48px;z-index:8;background:rgba(5,5,6,.78);backdrop-filter:blur(14px)}
+.brand{font-weight:700;letter-spacing:-.03em}.brand-dot{color:#9d7cff}
+.nav{margin-left:auto;display:flex;gap:26px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#aaa}
+#hud{position:absolute;left:48px;bottom:46px;z-index:7;max-width:520px}
+.eyebrow{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#9d7cff;margin-bottom:14px}
+#phase-index{font-size:clamp(72px,9vw,132px);line-height:.82;letter-spacing:-.07em;font-weight:650;font-variant-numeric:tabular-nums}
+#phase-name{font-family:Georgia,serif;font-style:italic;color:#c8c4c6;font-size:clamp(30px,4.2vw,64px);line-height:1;margin-top:10px}
+#metrics{display:flex;gap:34px;margin-top:24px;flex-wrap:wrap}
+.metric{min-width:110px}.label{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#666;margin-bottom:5px}
+.value{font-size:15px;color:#e5e2de;font-variant-numeric:tabular-nums}
+#event{position:absolute;right:90px;top:50%;transform:translateY(-50%);z-index:7;width:min(340px,28vw)}
+#event .category{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#777;margin-bottom:10px}
+#event h2{font-size:24px;line-height:1.1;font-weight:500;margin-bottom:12px}
+#event p{font-size:13px;line-height:1.65;color:#929093}
+#timeline{position:absolute;right:28px;top:20%;height:60%;width:3px;z-index:9;cursor:pointer}
+#timeline:before{content:"";position:absolute;left:-16px;right:-16px;top:-10px;bottom:-10px}
+.track{position:absolute;inset:0;background:rgba(255,255,255,.09)}
+#fill{position:absolute;left:0;top:0;width:100%;height:0;background:linear-gradient(#a78bfa,#f5f3ef)}
+#indicator{position:absolute;left:50%;top:0;width:11px;height:11px;border:1px solid #fff;border-radius:50%;background:#08080a;transform:translate(-50%,-50%);box-shadow:0 0 18px rgba(167,139,250,.5)}
+.tick{position:absolute;left:50%;width:5px;height:5px;background:#57545b;border-radius:50%;transform:translate(-50%,-50%);transition:.25s}
+.tick.passed{background:#b39cff;box-shadow:0 0 10px rgba(179,156,255,.5)}
+.tick.active{transform:translate(-50%,-50%) scale(2);background:#fff}
+.endpoint{position:absolute;right:13px;color:#555;font-size:9px;letter-spacing:.12em}.endpoint.top{top:-5px}.endpoint.bottom{bottom:-5px}
+#core{position:absolute;left:52%;top:49%;width:min(38vw,560px);aspect-ratio:1;transform:translate(-50%,-50%);z-index:4;pointer-events:none}
+.ring{position:absolute;inset:11%;border-radius:50%;border:1px solid rgba(174,153,255,.18);animation:spin 24s linear infinite}
+.ring:nth-child(2){inset:22%;border-style:dashed;animation-duration:18s;animation-direction:reverse}
+.ring:nth-child(3){inset:33%;animation-duration:12s}
+.mark{position:absolute;left:50%;top:50%;width:70px;height:70px;transform:translate(-50%,-50%) rotate(45deg);border:1px solid rgba(255,255,255,.8);box-shadow:0 0 40px rgba(144,111,255,.2)}
+.mark:before,.mark:after{content:"";position:absolute;background:#f7f4ef;border-radius:50%;box-shadow:0 0 18px rgba(255,255,255,.6)}
+.mark:before{width:9px;height:9px;left:12px;top:12px}.mark:after{width:7px;height:7px;right:11px;bottom:11px}
+#ghost-label{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(130px,21vw,330px);font-weight:700;letter-spacing:-.07em;color:rgba(255,255,255,.018);white-space:nowrap;pointer-events:none;z-index:2}
+#rail{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);display:flex;gap:8px;z-index:8}
+.rail-btn{border:1px solid rgba(255,255,255,.1);background:rgba(12,12,14,.72);padding:8px 11px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#777}
+.rail-btn.active{border-color:rgba(180,157,255,.55);color:#eee;background:rgba(125,92,255,.12)}
+#hint{position:absolute;left:50%;top:90px;transform:translateX(-50%);z-index:7;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#555}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:800px){
+#topbar{padding:0 20px}.nav{display:none}#hud{left:20px;right:42px;bottom:24px}
+#phase-index{font-size:64px}#phase-name{font-size:34px}#event{left:20px;right:52px;top:110px;width:auto;transform:none}
+#event p{display:none}#core{left:52%;top:48%;width:82vw}#timeline{right:13px;top:24%;height:42%}
+#metrics{gap:18px}.metric{min-width:86px}#rail{display:none}
+}
+@media(prefers-reduced-motion:reduce){.ring{animation:none!important}}
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="grid"></div>
+<canvas id="particles"></canvas>
+<div id="topbar"><div class="brand"><span class="brand-dot">•</span> KNOuX / BUILD OS</div>
+<div class="nav"><span>CODE</span><span>PREVIEW</span><span>TERMINAL</span><span>SYSTEM</span><span>TESTS</span><span>RELEASE</span></div></div>
+<div id="hint">Scroll or scrub the execution spine</div>
+<div id="ghost-label">BUILD</div>
+<div id="core"><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="mark"></div></div>
+<section id="hud">
+<div class="eyebrow">Build intelligence / live project state</div>
+<div id="phase-index">01</div>
+<div id="phase-name">Intent</div>
+<div id="metrics">
+<div class="metric"><div class="label">Branch</div><div class="value" id="branch">feat/knoux-build-os</div></div>
+<div class="metric"><div class="label">Verification</div><div class="value" id="verification">NOT RUN</div></div>
+<div class="metric"><div class="label">Runtime</div><div class="value" id="runtime">IDLE</div></div>
+</div>
+</section>
+<aside id="event">
+<div class="category" id="category">PROJECT GENESIS</div>
+<h2 id="title">Translate intent into a real project specification.</h2>
+<p id="desc">The timeline is not decorative. Each stage represents a real engineering state and must resolve to evidence from the repository, runtime, tests, CI or deployment.</p>
+</aside>
+<div id="timeline">
+<div class="track"></div><div id="fill"></div><div id="indicator"></div>
+<span class="endpoint top">INTENT</span><span class="endpoint bottom">LIVE</span>
+</div>
+<div id="rail">
+<button class="rail-btn active">Overview</button><button class="rail-btn">Code</button>
+<button class="rail-btn">Preview</button><button class="rail-btn">Terminal</button><button class="rail-btn">Git</button>
+</div>
+</div>
+<div id="scroll-space"></div>
+<script>
+const phases=[
+{id:'01',name:'Intent',cat:'PROJECT GENESIS',title:'Translate intent into a real project specification.',desc:'Resolve product type, stack, capabilities, integrations and unresolved constraints before mutation.'},
+{id:'02',name:'Architecture',cat:'PROJECT CORTEX',title:'See the system before changing it.',desc:'Routes, components, APIs, data, AI, tests and deployment become an inspectable evidence-backed topology.'},
+{id:'03',name:'Build',cat:'EXECUTION',title:'Move from specification into controlled implementation.',desc:'Changes flow through capability-aware adapters and explicit permissions instead of hidden mutation.'},
+{id:'04',name:'Runtime',cat:'LIVE PREVIEW',title:'Run the actual product and inspect real behavior.',desc:'Preview, browser diagnostics and runtime process state are sourced from a reachable runtime, never simulated.'},
+{id:'05',name:'Verify',cat:'REALITY LEDGER',title:'Turn claims into evidence.',desc:'Lint, types, tests, build, runtime and accessibility remain separate states. Unknown never becomes PASS.'},
+{id:'06',name:'Git',cat:'SOURCE CONTROL',title:'Know exactly what changed and where it exists.',desc:'Local, committed, pushed, CI-verified, merged and deployed are distinct engineering states.'},
+{id:'07',name:'Release',cat:'DELIVERY',title:'Promote only verified work.',desc:'The release cockpit closes the loop from branch to PR, CI, merge, production and final SHA.'}
+];
+const timeline=document.getElementById('timeline');
+const fill=document.getElementById('fill');
+const indicator=document.getElementById('indicator');
+const phaseIndex=document.getElementById('phase-index');
+const phaseName=document.getElementById('phase-name');
+const category=document.getElementById('category');
+const title=document.getElementById('title');
+const desc=document.getElementById('desc');
+const ghost=document.getElementById('ghost-label');
+phases.forEach((p,i)=>{
+const t=document.createElement('div');
+t.className='tick';
+t.style.top=(i/(phases.length-1)*100)+'%';
+t.dataset.i=i;
+timeline.appendChild(t);
+});
+const ticks=[...document.querySelectorAll('.tick')];
+let target=0;
+let drag=false;
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function setProgress(p){
+target=clamp(p,0,1);
+const idx=Math.round(target*(phases.length-1));
+const phase=phases[idx];
+phaseIndex.textContent=phase.id;
+phaseName.textContent=phase.name;
+category.textContent=phase.cat;
+title.textContent=phase.title;
+desc.textContent=phase.desc;
+ghost.textContent=phase.name.toUpperCase();
+fill.style.height=(target*100)+'%';
+indicator.style.top=(target*100)+'%';
+ticks.forEach((t,i)=>{
+t.classList.toggle('passed',i<=idx);
+t.classList.toggle('active',i===idx);
+});
+}
+window.addEventListener('scroll',()=>{
+const max=document.documentElement.scrollHeight-innerHeight;
+setProgress(max?scrollY/max:0);
+},{passive:true});
+function scrub(y){
+const rect=timeline.getBoundingClientRect();
+setProgress((y-rect.top)/rect.height);
+const max=document.documentElement.scrollHeight-innerHeight;
+scrollTo({top:target*max,behavior:'auto'});
+}
+timeline.addEventListener('pointerdown',e=>{
+drag=true;
+timeline.setPointerCapture(e.pointerId);
+scrub(e.clientY);
+});
+timeline.addEventListener('pointermove',e=>{if(drag)scrub(e.clientY)});
+timeline.addEventListener('pointerup',()=>drag=false);
+const canvas=document.getElementById('particles');
+const ctx=canvas.getContext('2d');
+let W=0,H=0,DPR=1,time=0,last=performance.now(),hidden=false;
+const points=Array.from({length:120},(_,i)=>({
+a:(i*2.399963229728653)%6.28318530718,
+r:.08+((i*37)%100)/125,
+s:.4+((i*17)%8)/10
+}));
+function resize(){
+DPR=Math.min(devicePixelRatio||1,1.5);
+W=innerWidth;H=innerHeight;
+canvas.width=W*DPR;canvas.height=H*DPR;
+ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+addEventListener('resize',resize);
+document.addEventListener('visibilitychange',()=>hidden=document.hidden);
+resize();
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function draw(now){
+requestAnimationFrame(draw);
+if(hidden)return;
+const dt=Math.min((now-last)/1000,.05);last=now;
+if(!reduce)time+=dt;
+ctx.clearRect(0,0,W,H);
+const cx=W*.52,cy=H*.49,scale=Math.min(W,H)*.36;
+for(let i=0;i<points.length;i++){
+const p=points[i],spin=reduce?0:time*(.015+(i%7)*.001);
+const a=p.a+spin+target*.8,rr=scale*p.r*(.7+target*.25);
+const x=cx+Math.cos(a)*rr,y=cy+Math.sin(a*1.13)*rr*.58;
+const alpha=.05+((i%9)/9)*.18;
+ctx.beginPath();
+ctx.fillStyle='rgba(187,165,255,'+alpha+')';
+ctx.arc(x,y,p.s,0,Math.PI*2);ctx.fill();
+}
+}
+setProgress(0);
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>

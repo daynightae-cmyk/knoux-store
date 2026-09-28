@@ -11,6 +11,20 @@
  * rail, and the middle is deliberately allowed to be empty.
  */
 
+/* Essential state must exist in DOM, not only on a canvas. */
+.bo-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 .build-os {
   /* Derived from the global primitives. Declared once, used everywhere. */
   --bo-line-faint: color-mix(in srgb, var(--line) 55%, transparent);

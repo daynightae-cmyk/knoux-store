@@ -1,0 +1,694 @@
+/*
+ * KNOuX Build OS — spatial stage.
+ *
+ * The accepted Hero remains the visual ancestor: deep black, graphite,
+ * off-white, platinum, restrained violet, technical editorial type, thin
+ * precision lines and large negative space. This layer composes the workspace
+ * as one instrument rather than a grid of widgets.
+ *
+ * The architecture is a fixed stage that grows to hold its zones. Nothing here
+ * is a card wall; the only bordered blocks are the evidence facts, which are
+ * a definition list.
+ */
+
+.sp-stage {
+  position: relative;
+  /* A real instrument needs room. This is the stage's own height, not a
+     scroll gimmick, and the page below it still scrolls normally. */
+  min-height: clamp(560px, 86vh, 940px);
+  background:
+    radial-gradient(ellipse 120% 80% at 52% 46%, #0d0c11 0%, #08090a 62%, #060607 100%);
+  border-top: 1px solid var(--bo-line);
+  border-bottom: 1px solid var(--bo-line);
+  overflow: hidden;
+  isolation: isolate;
+  /* The architectural substrate, deliberately faint. */
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--bo-line) 26%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--bo-line) 18%, transparent) 1px, transparent 1px);
+  background-size: 96px 96px;
+}
+
+/* ---------------------------------------------------------------- ghost */
+
+.sp-ghost {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--serif);
+  font-size: clamp(72px, 15vw, 210px);
+  line-height: 0.8;
+  letter-spacing: -0.05em;
+  color: transparent;
+  /* Outlined, not filled, and faint enough to stay atmosphere. The core is the
+     subject of the centre; the word is the room it sits in. */
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--bo-ink-4) 15%, transparent);
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  white-space: nowrap;
+  transition: opacity 620ms ease;
+}
+
+/* --------------------------------------------------------------- topbar */
+
+.sp-topbar {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 22px;
+  border-bottom: 1px solid var(--bo-line-faint);
+  background: color-mix(in srgb, #0a0b0d 72%, transparent);
+  backdrop-filter: blur(3px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.sp-topbar::-webkit-scrollbar {
+  display: none;
+}
+
+.sp-topbar__mark {
+  font-family: var(--bo-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--bo-ink);
+  white-space: nowrap;
+}
+
+.sp-topbar__sep {
+  width: 1px;
+  height: 14px;
+  background: var(--bo-line);
+  flex: none;
+}
+
+.sp-topbar__fact {
+  font-family: var(--bo-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bo-ink-4);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- centre */
+
+.sp-centre {
+  position: absolute;
+  /* Inset from the top so the ghost word and the core share the middle band
+     without the core sitting under the context bar. */
+  inset: 56px 0 62px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* The core is presentation only and must never eat a click. */
+  pointer-events: none;
+}
+
+.sp-core {
+  position: relative;
+  width: min(760px, 74vw);
+  height: min(760px, 74vw);
+  max-height: 78vh;
+}
+
+.sp-core__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sp-core__legend {
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  transform: translateX(-50%);
+}
+
+.sp-core__posture {
+  font-family: var(--bo-mono);
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  color: var(--bo-ink-4);
+}
+
+.sp-core__posture[data-posture='active'] { color: var(--bo-green); }
+.sp-core__posture[data-posture='fractured'] { color: var(--bo-red); }
+.sp-core__posture[data-posture='assembled'] { color: var(--bo-violet-soft); }
+.sp-core__posture[data-posture='holding'] { color: var(--bo-ink-3); }
+.sp-core__posture[data-posture='idle'] { color: var(--bo-ink-4); }
+
+/* --------------------------------------------------------------- overlay */
+
+.sp-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 330px);
+  grid-template-rows: 1fr;
+  /* The right padding reserves the spine's own column, so the evidence panel
+     can never be overlapped or clipped by it. */
+  padding: 20px 74px 62px 20px;
+  pointer-events: none;
+}
+
+.sp-overlay > * {
+  pointer-events: auto;
+}
+
+/* ----------------------------------------------------------------- HUD */
+
+.sp-hud {
+  grid-column: 1;
+  align-self: end;
+  justify-self: start;
+  max-width: min(520px, 46vw);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* The ghost word sits behind the centre, so the HUD needs its own ground to
+     stay legible against it rather than fighting it with opacity. */
+  padding: 18px 20px 18px 0;
+  background: linear-gradient(90deg, color-mix(in srgb, #060607 88%, transparent) 40%, transparent);
+}
+
+.sp-hud__eyebrow {
+  font-family: var(--bo-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--bo-violet);
+}
+
+.sp-hud__index {
+  font-family: var(--bo-mono);
+  font-size: clamp(56px, 7vw, 104px);
+  line-height: 0.82;
+  letter-spacing: -0.06em;
+  color: var(--bo-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.sp-hud__name {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(26px, 3.4vw, 46px);
+  line-height: 1;
+  color: var(--bo-ink-2);
+  margin: 0;
+}
+
+.sp-hud__metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 30px;
+  margin-top: 6px;
+}
+
+.sp-hud__metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 96px;
+}
+
+.sp-hud__value {
+  font-family: var(--bo-mono);
+  font-size: 13px;
+  color: var(--bo-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.sp-hud__value[data-tone='violet'] { color: var(--bo-violet-soft); }
+.sp-hud__value[data-tone='green'] { color: var(--bo-green); }
+.sp-hud__value[data-tone='amber'] { color: var(--bo-amber); }
+.sp-hud__value[data-tone='red'] { color: var(--bo-red); }
+.sp-hud__value[data-tone='dim'] { color: var(--bo-ink-4); }
+
+.sp-hud__note {
+  font-family: var(--bo-mono);
+  font-size: 9.5px;
+  line-height: 1.7;
+  letter-spacing: 0.06em;
+  color: var(--bo-ink-4);
+  max-width: 46ch;
+  margin: 2px 0 0;
+}
+
+/* ------------------------------------------------------------- evidence */
+
+.sp-evidence {
+  grid-column: 2;
+  justify-self: end;
+  align-self: center;
+  width: 100%;
+  max-width: 330px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 0 18px 20px;
+  border-left: 1px solid var(--bo-line);
+  /* The evidence sits over the ghost word, so it carries its own ground. */
+  background: linear-gradient(270deg, color-mix(in srgb, #060607 86%, transparent) 55%, transparent);
+}
+
+.sp-evidence__category {
+  font-family: var(--bo-mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--bo-ink-4);
+}
+
+.sp-evidence__title {
+  font-size: 19px;
+  line-height: 1.18;
+  font-weight: 400;
+  color: var(--bo-ink);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.sp-evidence__desc {
+  font-size: 12.5px;
+  line-height: 1.68;
+  color: var(--bo-ink-3);
+  margin: 0;
+}
+
+.sp-evidence__foot {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--bo-line-faint);
+}
+
+.sp-evidence__source {
+  font-family: var(--bo-mono);
+  font-size: 9.5px;
+  color: var(--bo-ink-4);
+  overflow-wrap: anywhere;
+}
+
+.sp-evidence__facts {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  gap: 0;
+  margin: 4px 0 0;
+  border-top: 1px solid var(--bo-line-faint);
+}
+
+.sp-evidence__facts dt {
+  font-family: var(--bo-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bo-ink-4);
+  padding: 6px 12px 6px 0;
+  border-bottom: 1px solid var(--bo-line-faint);
+  white-space: nowrap;
+}
+
+.sp-evidence__facts dd {
+  margin: 0;
+  font-family: var(--bo-mono);
+  font-size: 10.5px;
+  color: var(--bo-ink-2);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--bo-line-faint);
+  overflow-wrap: anywhere;
+}
+
+/* ----------------------------------------------------------------- spine */
+
+.sp-spine {
+  position: absolute;
+  right: 18px;
+  top: 56px;
+  bottom: 70px;
+  z-index: 5;
+  display: flex;
+  align-items: stretch;
+}
+
+.sp-spine__track {
+  position: relative;
+  width: 34px;
+  cursor: pointer;
+  touch-action: none;
+  outline-offset: 6px;
+}
+
+.sp-spine__trackline,
+.sp-spine__fill {
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 2px;
+}
+
+.sp-spine__trackline {
+  background: var(--bo-line);
+}
+
+.sp-spine__fill {
+  background: linear-gradient(180deg, var(--bo-violet) 0%, var(--bo-violet-soft) 100%);
+  height: 0;
+}
+
+.sp-spine__tick {
+  position: absolute;
+  left: 0;
+  transform: translateY(-50%);
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  color: var(--bo-ink-4);
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.sp-spine__dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1px solid var(--bo-line-bright);
+  background: var(--bg);
+  flex: none;
+  transition: background 220ms ease, border-color 220ms ease, transform 220ms ease;
+}
+
+.sp-spine__label {
+  position: absolute;
+  right: 40px;
+  white-space: nowrap;
+  font-family: var(--bo-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  color: var(--bo-ink-2);
+  pointer-events: none;
+}
+
+.sp-spine__tick:hover .sp-spine__label,
+.sp-spine__tick:focus-visible .sp-spine__label,
+.sp-spine__tick[data-active='true'] .sp-spine__label {
+  opacity: 1;
+}
+
+.sp-spine__tick[data-past='true'] .sp-spine__dot {
+  background: var(--bo-violet-dim);
+  border-color: var(--bo-violet-dim);
+}
+
+.sp-spine__tick[data-active='true'] .sp-spine__dot {
+  background: var(--bo-violet);
+  border-color: var(--bo-violet);
+  transform: scale(1.35);
+}
+
+.sp-spine__tick[data-active='true'] .sp-spine__label {
+  color: var(--bo-ink);
+}
+
+/* A stage whose capability is missing stays reachable but says so. */
+.sp-spine__tick[data-available='false'] .sp-spine__dot {
+  border-style: dashed;
+  border-color: var(--bo-amber);
+}
+
+.sp-spine__indicator {
+  position: absolute;
+  left: 11px;
+  width: 11px;
+  height: 11px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: var(--bo-ink);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--bo-violet) 30%, transparent);
+  pointer-events: none;
+  transition: top 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* ------------------------------------------------------------------ rail */
+
+.sp-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border-top: 1px solid var(--bo-line-faint);
+  background: color-mix(in srgb, #0a0b0d 82%, transparent);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.sp-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.sp-rail__btn {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-right: 1px solid var(--bo-line-faint);
+  color: var(--bo-ink-4);
+  font-family: var(--bo-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 13px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 46px;
+  transition: color 180ms ease, background 180ms ease;
+}
+
+.sp-rail__btn:hover {
+  color: var(--bo-ink-2);
+  background: color-mix(in srgb, var(--bo-violet) 7%, transparent);
+}
+
+.sp-rail__btn[aria-current='true'] {
+  color: var(--bo-ink);
+  background: color-mix(in srgb, var(--bo-violet) 12%, transparent);
+  box-shadow: inset 0 2px 0 var(--bo-violet);
+}
+
+.sp-rail__open {
+  appearance: none;
+  margin-left: auto;
+  background: none;
+  border: 0;
+  border-left: 1px solid var(--bo-line-bright);
+  color: var(--bo-ink-2);
+  font-family: var(--bo-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 13px 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 46px;
+  transition: color 180ms ease, background 180ms ease;
+}
+
+.sp-rail__open:hover {
+  color: var(--bo-ink);
+  background: color-mix(in srgb, var(--bo-violet) 16%, transparent);
+}
+
+/* -------------------------------------------------------------- domains */
+
+.sp-domains {
+  position: absolute;
+  left: 22px;
+  top: 22px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: flex-start;
+  max-width: 132px;
+}
+
+.sp-domains__btn {
+  appearance: none;
+  background: color-mix(in srgb, #0a0b0d 62%, transparent);
+  border: 1px solid var(--bo-line);
+  color: var(--bo-ink-4);
+  font-family: var(--bo-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  padding: 6px 9px;
+  cursor: pointer;
+  min-height: 28px;
+  width: 100%;
+  text-align: left;
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.sp-domains__btn:hover:not(:disabled) {
+  color: var(--bo-ink-2);
+  border-color: var(--bo-line-bright);
+}
+
+.sp-domains__btn[aria-pressed='true'] {
+  color: var(--bo-ink);
+  border-color: color-mix(in srgb, var(--bo-violet) 55%, transparent);
+  background: color-mix(in srgb, var(--bo-violet) 13%, transparent);
+}
+
+.sp-domains__btn:disabled {
+  color: color-mix(in srgb, var(--bo-ink-4) 42%, transparent);
+  border-style: dashed;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------ responsive */
+
+@media (max-width: 1180px) {
+  .sp-stage {
+    min-height: auto;
+  }
+  .sp-overlay {
+    position: relative;
+    inset: auto;
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    padding: 18px 16px 74px;
+    gap: 18px;
+  }
+  .sp-centre {
+    position: relative;
+    min-height: 340px;
+  }
+  .sp-core {
+    width: min(420px, 84vw);
+    height: min(420px, 84vw);
+  }
+  .sp-hud {
+    grid-column: 1;
+    max-width: none;
+  }
+  .sp-evidence {
+    grid-column: 1;
+    justify-self: stretch;
+    max-width: none;
+    border-left: 0;
+    border-top: 1px solid var(--bo-line);
+    padding: 16px 0 0;
+  }
+  .sp-spine {
+    position: static;
+    transform: none;
+    height: auto;
+    justify-content: flex-start;
+    padding: 4px 0 12px;
+  }
+  .sp-spine__track {
+    width: 100%;
+    height: 54px;
+  }
+  .sp-spine__trackline,
+  .sp-spine__fill {
+    left: 0;
+    right: 0;
+    top: 25px;
+    bottom: auto;
+    width: auto;
+    height: 3px !important;
+  }
+  .sp-spine__tick {
+    top: auto !important;
+    bottom: 0;
+    left: auto;
+    transform: none;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 2px;
+  }
+  .sp-spine__tick:nth-of-type(1) { left: 0; }
+  .sp-spine__tick[data-active='true'] .sp-spine__label,
+  .sp-spine__tick:hover .sp-spine__label,
+  .sp-spine__tick:focus-visible .sp-spine__label {
+    opacity: 1;
+  }
+  .sp-spine__label {
+    position: static;
+    font-size: 8px;
+    letter-spacing: 0.08em;
+  }
+  .sp-spine__indicator {
+    display: none;
+  }
+  .sp-domains {
+    position: static;
+    transform: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .sp-ghost {
+    font-size: clamp(56px, 16vw, 150px);
+  }
+}
+
+@media (max-width: 620px) {
+  .sp-rail__btn {
+    padding: 12px 12px;
+    font-size: 8.5px;
+  }
+  .sp-rail__open {
+    padding: 12px 14px;
+    font-size: 8.5px;
+  }
+  .sp-hud__metrics {
+    gap: 8px 18px;
+  }
+  .sp-hud__metric {
+    min-width: 78px;
+  }
+  .sp-hud__value {
+    font-size: 11.5px;
+  }
+}
+
+@media (pointer: coarse) {
+  .sp-spine__tick,
+  .sp-rail__btn,
+  .sp-rail__open,
+  .sp-domains__btn {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-ghost {
+    transition: none;
+  }
+  .sp-spine__dot,
+  .sp-spine__indicator {
+    transition: none;
+  }
+}
