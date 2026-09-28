@@ -1,0 +1,219 @@
+'use client';
+
+/**
+ * Live preview.
+ *
+ * The only runtime that exists in the hosted product is the deployment itself,
+ * so the default target is its own origin. That is a real, reachable URL
+ * rendering real pages — not a screenshot and not a mock.
+ *
+ * The visual inspector reports only what a browser genuinely knows: tag, id,
+ * class list, box, computed styles, role and accessible name. Component-to-
+ * source mapping is reported as unavailable because no source map for React
+ * components exists in this build.
+ */
+
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
+import { Blocked, Chips, Empty, Pane, Section, StatusBadge } from '../workspace/Primitives';
+import type { PreviewViewport } from '@/lib/build/types';
+
+const VIEWPORTS: PreviewViewport[] = [
+  { id: 'desktop', label: 'DESKTOP', width: 1600, height: 1000 },
+  { id: 'laptop', label: 'LAPTOP', width: 1440, height: 900 },
+  { id: 'laptop-sm', label: '1366', width: 1366, height: 768 },
+  { id: 'tablet-l', label: '1024', width: 1024, height: 768 },
+  { id: 'tablet', label: 'TABLET', width: 768, height: 1024 },
+  { id: 'phone-lg', label: '430', width: 430, height: 932 },
+  { id: 'phone', label: '390', width: 390, height: 844 },
+  { id: 'phone-sm', label: '375', width: 375, height: 812 },
+];
+
+const ROUTES = ['/', '/about', '/work', '/products', '/build', '/engineering', '/contact'];
+
+type Inspected = {
+  tag: string;
+  id: string | null;
+  classes: string[];
+  box: { width: number; height: number; top: number; left: number };
+  role: string | null;
+  accessibleName: string | null;
+  styles: { property: string; value: string }[];
+};
+
+export function PreviewSurface() {
+  const { state, dispatch } = useBuildWorkspace();
+  const frame = useRef<HTMLIFrameElement>(null);
+  const [inspecting, setInspecting] = useState(false);
+  const [inspected, setInspected] = useState<Inspected | null>(null);
+
+  const origin = state.runtime.url;
+  const route = state.workspace.selectedRoute ?? '/';
+  const target = origin ? `${origin}${route}` : null;
+  const viewport = state.preview.viewport;
+
+  const onMessage = useCallback((event: MessageEvent) => {
+    if (event.origin !== window.location.origin) return;
+    const data = event.data as { type?: string; payload?: Inspected | null };
+    if (data?.type === 'knoux-build-inspect') setInspected(data.payload ?? null);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [onMessage]);
+
+  const startInspect = useCallback(() => {
+    setInspecting((value) => {
+      const next = !value;
+      if (next && origin) {
+        dispatch({ type: 'preview/url', url: `${origin}/__inspect${route}` });
+        setTimeout(() => dispatch({ type: 'preview/url', url: `${origin}${route}` }), 10);
+      }
+      return next;
+    });
+  }, [origin, route, dispatch]);
+
+  if (state.adapter.capabilities['preview.live'] !== 'available') {
+    return (
+      <Pane title="Preview">
+        <Blocked
+          title="NO ACTIVE RUNTIME"
+          body="No runtime URL is available in this environment, so there is nothing real to load."
+          requirement={state.adapter.blockers['preview.live']}
+        />
+      </Pane>
+    );
+  }
+
+  return (
+    <Pane
+      title="Preview"
+      meta={
+        <>
+          <span>{viewport.width}×{viewport.height}</span>
+          <StatusBadge status="available" label="LIVE" />
+        </>
+      }
+      actions={
+        <button
+          type="button"
+          className="bo-chip"
+          aria-pressed={inspecting}
+          onClick={startInspect}
+          title="Report the DOM facts a browser can confirm"
+        >
+          INSPECT
+        </button>
+      }
+    >
+      <div className="bo-splitbar">
+        <Chips
+          ariaLabel="Preview route"
+          options={ROUTES.map((item) => ({ id: item, label: item }))}
+          value={route}
+          onChange={(id) => dispatch({ type: 'route/select', route: id })}
+        />
+        <span style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+          <button
+            type="button"
+            className="bo-chip"
+            onClick={() => dispatch({ type: 'preview/refresh' })}
+            title="Reload the frame"
+          >
+            RELOAD
+          </button>
+        </span>
+      </div>
+      <div className="bo-splitbar">
+        <Chips
+          ariaLabel="Preview viewport"
+          options={VIEWPORTS.map((item) => ({ id: item.id, label: item.label }))}
+          value={viewport.id}
+          onChange={(id) => {
+            const found = VIEWPORTS.find((item) => item.id === id);
+            if (found) dispatch({ type: 'preview/viewport', viewport: found });
+          }}
+        />
+      </div>
+
+      <div className="bo-preview">
+        {target ? (
+          <div
+            className="bo-preview__frame"
+            style={{ width: Math.min(viewport.width, 100), height: Math.min(viewport.height, 620) }}
+          >
+            <iframe
+              key={`${target}-${state.preview.refreshKey}`}
+              ref={frame}
+              src={target}
+              title={`Live preview of ${route}`}
+              width={viewport.width}
+              height={viewport.height}
+              style={{ width: '100%', height: '100%' }}
+              sandbox="allow-same-origin allow-scripts allow-popups"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+        ) : (
+          <Empty title="NO ACTIVE RUNTIME" body="No reachable URL was reported for this environment." />
+        )}
+
+        <dl className="bo-kv" style={{ width: '100%' }}>
+          <dt>Runtime URL</dt>
+          <dd>{target ?? 'NONE'}</dd>
+          <dt>Source</dt>
+          <dd>The deployment itself. There is no separate dev server to start in the hosted product.</dd>
+          <dt>Viewport</dt>
+          <dd>
+            {viewport.width}×{viewport.height}
+          </dd>
+          <dt>Process control</dt>
+          <dd>
+            <StatusBadge status="blocked" label="BLOCKED" /> {state.runtime.blocker}
+          </dd>
+          <dt>Component source mapping</dt>
+          <dd>
+            <StatusBadge status="unavailable" label="UNAVAILABLE" /> No React component-to-source map exists in
+            this build, so the inspector reports DOM facts only and does not claim a line number.
+          </dd>
+        </dl>
+
+        {inspecting ? (
+          <Section label="Visual inspector">
+            {inspected ? (
+              <dl className="bo-kv">
+                <dt>Element</dt>
+                <dd>{inspected.tag}</dd>
+                <dt>Id</dt>
+                <dd>{inspected.id ?? 'NONE'}</dd>
+                <dt>Classes</dt>
+                <dd>{inspected.classes.length ? inspected.classes.join(' ') : 'NONE'}</dd>
+                <dt>Box</dt>
+                <dd>
+                  {Math.round(inspected.box.width)}×{Math.round(inspected.box.height)} at {Math.round(inspected.box.left)},
+                  {Math.round(inspected.box.top)}
+                </dd>
+                <dt>Role</dt>
+                <dd>{inspected.role ?? 'IMPLICIT'}</dd>
+                <dt>Accessible name</dt>
+                <dd>{inspected.accessibleName ?? 'NONE'}</dd>
+                {inspected.styles.map((style) => (
+                  <div key={style.property} style={{ display: 'contents' }}>
+                    <dt>{style.property}</dt>
+                    <dd>{style.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              <p className="bo-note">
+                Click an element inside the frame while inspection is armed. The frame reports only tag, id, classes,
+                box, computed styles, role and accessible name.
+              </p>
+            )}
+          </Section>
+        ) : null}
+      </div>
+    </Pane>
+  );
+}
