@@ -2,23 +2,6 @@
 
 import { useFormStatus } from 'react-dom';
 
-/**
- * External providers.
- *
- * Google and GitHub, and nothing else. Each is a named submit inside the
- * credentials form, so a press reaches the server action as a real request and
- * is answered through the same live region as the email path. There is no
- * second form, no second status region and no result invented in the browser.
- *
- * The buttons are never disabled. A disabled control is silent, and the honest
- * answer deserves to be heard. Their unavailable state is declared in markup and
- * in each control's accessible description, so the situation is already known
- * before anything is pressed, and it is never conveyed by colour alone.
- *
- * Icons are the providers' own marks, drawn inline. No icon font and no remote
- * asset is loaded to render them.
- */
-
 function GoogleIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -48,15 +31,12 @@ function ProviderButton({ provider, label }: { provider: 'google' | 'github'; la
       type="submit"
       name="provider"
       value={provider}
-      aria-describedby={`${provider}-state`}
+      aria-describedby="oauth-state"
       data-stagger={provider}
     >
       {provider === 'google' ? <GoogleIcon /> : <GitHubIcon />}
       <span className="auth-provider__label">{label}</span>
-      {/* Stated in text, so the state never depends on a style. */}
-      <span className="auth-provider__state" id={`${provider}-state`}>
-        Not connected
-      </span>
+      <span className="auth-provider__state">OAuth</span>
     </button>
   );
 }
@@ -75,21 +55,18 @@ export function ProviderButtons() {
         <ProviderButton provider="github" label="GitHub" />
       </div>
 
-      <p className="auth-providers__note">
-        Provider sign-in is not connected on this deployment. Pressing either control contacts no external account.
+      <p className="auth-providers__note" id="oauth-state">
+        Provider sign-in is handled by Supabase OAuth. KNOuX never receives the provider password.
       </p>
     </div>
   );
 }
 
-/** Primary action, reflecting the pending state of the form it belongs to. */
 export function AuthSubmit({ children, pendingLabel }: { children: string; pendingLabel: string }) {
   const { pending } = useFormStatus();
   return (
     <button className="auth-submit" type="submit" disabled={pending} data-stagger="submit">
       <span className="auth-submit__label">{pending ? pendingLabel : children}</span>
-      {/* Rendered only while the server is being asked, so the sweep means
-          something instead of running forever. */}
       {pending ? <span className="auth-submit__pulse" aria-hidden="true" /> : null}
     </button>
   );

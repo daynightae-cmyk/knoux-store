@@ -1,14 +1,17 @@
 'use server';
 
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 import {
+  authErrorMessage,
   isAuthConfigured,
-  unconfiguredProvider,
-  type AuthOutcome,
+  type OAuthProvider,
+  type PasswordResetInput,
   type SignInInput,
   type SignUpInput,
-  type PasswordResetInput,
 } from '@/lib/auth/provider';
 import {
+  PASSWORD_MINIMUM,
   hasErrors,
   normaliseEmail,
   validatePasswordReset,
@@ -16,23 +19,8 @@ import {
   validateSignUp,
   type FieldErrors,
 } from '@/lib/auth/validation';
-import { type AuthFormState } from '@/lib/auth/state';
-
-/**
- * Auth Server Actions.
- *
- * Credentials are captured, judged on the server, and then handed to the
- * provider contract. They are never logged, never echoed back, never stored and
- * never placed in a token. The password is read from the submission, handed
- * straight to the contract, and then goes out of scope.
- *
- * When no provider is configured every action resolves to `not-configured`.
- * The form keeps what the visitor typed and says so. It does not redirect, does
- * not clear, and does not pretend a session exists.
- *
- * The returned state type and its initial value live in `@/lib/auth/state`,
- * because a `'use server'` module may only export async functions.
- */
+import type { AuthFormState } from '@/lib/auth/state';
+import { createClient } from '@/lib/supabase/server';
 
 const NOT_CONFIGURED = 'Authentication is not connected on this deployment.';
 
@@ -41,56 +29,105 @@ function read(formData: FormData, name: string): string {
   return typeof value === 'string' ? value : '';
 }
 
-/** Named submit buttons carry the provider they represent. */
-function readProvider(formData: FormData): AuthFormState['provider'] {
+function readProvider(formData: FormData): OAuthProvider | null {
   const requested = read(formData, 'provider');
   return requested === 'google' || requested === 'github' ? requested : null;
 }
 
-/** Turns a contract outcome into the state the interface renders. */
-function fromOutcome(outcome: AuthOutcome, provider: AuthFormState['provider'] = null): AuthFormState {
-  if (outcome.status === 'not-configured') {
-    return { status: 'not-configured', errors: {}, message: NOT_CONFIGURED, provider };
-  }
-  return { status: 'idle', errors: {}, message: outcome.message, provider };
+function invalid(errors: FieldErrors, message = 'Check the highlighted fields.'): AuthFormState {
+  return { status: 'error', errors, message, provider: null };
 }
 
-function invalid(errors: FieldErrors, message: string): AuthFormState {
-  return { status: 'idle', errors, message, provider: null };
+function failure(message: string, provider: OAuthProvider | null = null): AuthFormState {
+  return { status: 'error', errors: {}, message, provider };
+}
+
+function success(message: string): AuthFormState {
+  return { status: 'success', errors: {}, message, provider: null };
+}
+
+async function authOrigin(): Promise<string> {
+  const incoming = await headers();
+  const origin = incoming.get('origin');
+  if (origin?.startsWith('http://') || origin?.startsWith('https://')) return origin;
+
+  const forwardedHost = incoming.get('x-forwarded-host');
+  const host = forwardedHost ?? incoming.get('host');
+  if (host) {
+    const protocol = incoming.get('x-forwarded-proto') ?? (host.includes('localhost') ? 'http' : 'https');
+    return `${protocol}://${host}`;
+  }
+
+  return process.env.NEXT_PUBLIC_SITE_URL ?? 'https://knoux.store';
 }
 
 export async function signInAction(_previous: AuthFormState, formData: FormData): Promise<AuthFormState> {
-  // The provider buttons submit the same form, so a press on Google is judged
-  // here and reported through the same live region as the credential path.
+  if (!isAuthConfigured()) {
+    return { status: 'not-configured', errors: {}, message: NOT_CONFIGURED, provider: readProvider(formData) };
+  }
+
   const provider = readProvider(formData);
+  const supabase = await createClient();
+
   if (provider) {
-    if (!isAuthConfigured()) {
-      return { status: 'not-configured', errors: {}, message: NOT_CONFIGURED, provider };
+    const origin = await authOrigin();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${origin}/auth/callback?next=/account`,
+      },
+    });
+
+    if (error || !data.url) {
+      return failure(authErrorMessage(error?.message ?? 'OAuth sign-in could not start.'), provider);
     }
-    return { status: 'not-configured', errors: {}, message: NOT_CONFIGURED, provider };
+
+    redirect(data.url);
   }
 
   const input: SignInInput = {
     email: read(formData, 'email'),
     password: read(formData, 'password'),
-    remember: read(formData, 'remember') === 'on',
   };
 
   const errors = validateSignIn(input);
-  if (hasErrors(errors)) {
-    return invalid(errors, 'Check the highlighted fields.');
-  }
+  if (hasErrors(errors)) return invalid(errors);
 
-  if (!isAuthConfigured()) {
-    return { status: 'not-configured', errors: {}, message: NOT_CONFIGURED, provider: null };
-  }
+  const { error } = await supabase.auth.signInWithPassword({
+    email: normaliseEmail(input.email),
+    password: input.password,
+  });
 
-  // A configured deployment reaches this seam; the adapter is swapped for the
-  // real provider call here.
-  return fromOutcome(await unconfiguredProvider.signIn({ ...input, email: normaliseEmail(input.email) }));
+  if (error) return failure(authErrorMessage(error.message));
+
+  redirect('/account');
 }
 
 export async function signUpAction(_previous: AuthFormState, formData: FormData): Promise<AuthFormState> {
+  const provider = readProvider(formData);
+
+  if (!isAuthConfigured()) {
+    return { status: 'not-configured', errors: {}, message: NOT_CONFIGURED, provider };
+  }
+
+  const supabase = await createClient();
+
+  if (provider) {
+    const origin = await authOrigin();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${origin}/auth/callback?next=/account`,
+      },
+    });
+
+    if (error || !data.url) {
+      return failure(authErrorMessage(error?.message ?? 'OAuth sign-up could not start.'), provider);
+    }
+
+    redirect(data.url);
+  }
+
   const input = {
     name: read(formData, 'name'),
     email: read(formData, 'email'),
@@ -99,36 +136,85 @@ export async function signUpAction(_previous: AuthFormState, formData: FormData)
   };
 
   const errors = validateSignUp(input);
-  if (hasErrors(errors)) {
-    return invalid(errors, 'Check the highlighted fields.');
-  }
-
-  if (!isAuthConfigured()) {
-    return { status: 'not-configured', errors: {}, message: NOT_CONFIGURED, provider: null };
-  }
+  if (hasErrors(errors)) return invalid(errors);
 
   const signUp: SignUpInput = {
     name: input.name.trim(),
     email: normaliseEmail(input.email),
     password: input.password,
   };
-  return fromOutcome(await unconfiguredProvider.signUp(signUp));
+
+  const origin = await authOrigin();
+  const { data, error } = await supabase.auth.signUp({
+    email: signUp.email,
+    password: signUp.password,
+    options: {
+      data: { full_name: signUp.name },
+      emailRedirectTo: `${origin}/auth/callback?next=/account`,
+    },
+  });
+
+  if (error) return failure(authErrorMessage(error.message));
+  if (data.session) redirect('/account');
+
+  return success('Account created. Check your email to confirm your address, then sign in.');
 }
 
 export async function requestPasswordResetAction(
   _previous: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
-  const input: PasswordResetInput = { email: read(formData, 'email') };
-
-  const errors = validatePasswordReset(input);
-  if (hasErrors(errors)) {
-    return invalid(errors, 'Check the highlighted field.');
-  }
-
   if (!isAuthConfigured()) {
     return { status: 'not-configured', errors: {}, message: NOT_CONFIGURED, provider: null };
   }
 
-  return fromOutcome(await unconfiguredProvider.requestPasswordReset({ email: normaliseEmail(input.email) }));
+  const input: PasswordResetInput = { email: read(formData, 'email') };
+  const errors = validatePasswordReset(input);
+  if (hasErrors(errors)) return invalid(errors, 'Check the highlighted field.');
+
+  const origin = await authOrigin();
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(normaliseEmail(input.email), {
+    redirectTo: `${origin}/auth/callback?next=/update-password`,
+  });
+
+  if (error) return failure(authErrorMessage(error.message));
+
+  return success('If an account exists for that address, a recovery email has been sent.');
+}
+
+export async function updatePasswordAction(
+  _previous: AuthFormState,
+  formData: FormData,
+): Promise<AuthFormState> {
+  if (!isAuthConfigured()) {
+    return { status: 'not-configured', errors: {}, message: NOT_CONFIGURED, provider: null };
+  }
+
+  const password = read(formData, 'password');
+  const confirmPassword = read(formData, 'confirmPassword');
+  const errors: FieldErrors<'password' | 'confirmPassword'> = {};
+
+  if (!password) errors.password = 'Choose a password.';
+  else if (password.length < PASSWORD_MINIMUM) errors.password = `Use at least ${PASSWORD_MINIMUM} characters.`;
+
+  if (!confirmPassword) errors.confirmPassword = 'Repeat your password.';
+  else if (password !== confirmPassword) errors.confirmPassword = 'Those passwords do not match.';
+
+  if (hasErrors(errors)) return invalid(errors);
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) return failure(authErrorMessage(error.message));
+
+  return success('Password updated. Your account is ready.');
+}
+
+export async function signOutAction(): Promise<void> {
+  if (isAuthConfigured()) {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+  }
+  redirect('/');
 }

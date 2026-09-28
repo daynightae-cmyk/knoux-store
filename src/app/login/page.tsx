@@ -1,20 +1,28 @@
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 import { AuthShell } from '@/components/auth/AuthShell';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { authRouteMetadata } from '@/data/auth';
+import { createClient } from '@/lib/supabase/server';
 
-/**
- * Sign in.
- *
- * A real, deep-linkable route. The page is public, as the whole headquarters
- * is: nothing here gates any other part of the site.
- */
 export const metadata: Metadata = authRouteMetadata('/login', 'Sign In', 'Access your KNOuX account.');
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string | string[] }>;
+}) {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+
+  if (data.user) redirect('/account');
+
+  const params = await searchParams;
+  const callbackError = params.error === 'oauth_callback';
+
   return (
     <AuthShell route="/login" labelledBy="login-heading">
-      <LoginForm />
+      <LoginForm callbackError={callbackError} />
     </AuthShell>
   );
 }

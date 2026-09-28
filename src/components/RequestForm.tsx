@@ -172,15 +172,26 @@ export function RequestForm() {
       });
       if (response.status === 503) {
         setStatus('unconfigured');
-        setMessage('No delivery service is configured on this deployment, so nothing was sent. Use the address below instead.');
+        setMessage('No request intake is configured on this deployment. Use the address below instead.');
         return;
       }
-      const receipt = await response.json() as { delivered?: boolean };
-      if (!response.ok || receipt.delivered !== true) throw new Error('The request could not be delivered.');
-      setStatus('sent');
-      setMessage('Request delivered.');
-      track({ type: 'request_submitted', requestType: type, itemCount: items.length, delivered: true });
-      form.reset();
+      const receipt = await response.json() as { stored?: boolean; delivered?: boolean };
+      if (!response.ok && response.status !== 202) throw new Error('The request could not be received.');
+      if (receipt.delivered === true) {
+        setStatus('sent');
+        setMessage('Request delivered.');
+        track({ type: 'request_submitted', requestType: type, itemCount: items.length, delivered: true });
+        form.reset();
+        return;
+      }
+      if (receipt.stored === true) {
+        setStatus('sent');
+        setMessage('Request received securely.');
+        track({ type: 'request_submitted', requestType: type, itemCount: items.length, delivered: false });
+        form.reset();
+        return;
+      }
+      throw new Error('The request could not be received.');
     } catch (error) {
       setStatus('error');
       setMessage(error instanceof Error ? error.message : 'The request could not be delivered.');
@@ -351,8 +362,8 @@ export function RequestForm() {
       </p>
 
       <p className="field__hint">
-        This form exists and is tested, but no delivery transport is configured on this deployment. Until one is,
-        the address above is the working route. That is stated here rather than shown as a success message.
+        This form only reports success after the request is durably received or externally delivered.
+        If intake is unavailable, use the address above instead.
         <button type="button" className="action action--ghost" style={{ fontSize: 9 }} onClick={() => router.push('/build')}>
           Or assemble a stack first
           <span className="action-arrow" aria-hidden="true">

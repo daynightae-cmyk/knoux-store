@@ -26,3 +26,9 @@ KNOuX_VISUAL_REFERENCES_MASTER.txt
 KNOuX_WORK_EXECUTION_PROMPT.txt
 New Text Document.txt
 public/knoux-particles.bin
+
+# Supabase local CLI/build artefacts.
+supabase/.temp/
+supabase/.seed-batches/
+supabase/content-registry.generated.json
+supabase/seed.generated.sql

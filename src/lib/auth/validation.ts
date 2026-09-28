@@ -6,10 +6,9 @@
  * honestly guarantee, nothing more: a malformed address is rejected, a name is
  * required, two passwords must match.
  *
- * The password rule is a length floor only. No identity provider has been
- * chosen, so composition rules would be the interface inventing a security
- * policy on the backend's behalf. When a provider is wired in, this constant is
- * the single place that changes.
+ * The password rule is a deliberate KNOuX length floor. Supabase Auth is the
+ * identity provider, but KNOuX does not invent extra composition rules beyond
+ * the policy it can enforce consistently in every credential flow.
  */
 
 export const PASSWORD_MINIMUM = 8;

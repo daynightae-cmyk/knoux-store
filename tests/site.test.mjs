@@ -7,7 +7,7 @@ import { root } from './helpers.mjs';
 
 const port = Number(process.env.KNOUX_TEST_PORT ?? 32219);
 const origin = `http://127.0.0.1:${port}`;
-const env = { ...process.env };
+const env = { ...process.env, KNOUX_TEST_DISABLE_EXTERNALS: '1' };
 if (process.env.KNOUX_TEST_NETWORK_SHIM) {
   env.NODE_OPTIONS = `--require=${process.env.KNOUX_TEST_NETWORK_SHIM}`;
 }

@@ -16,8 +16,11 @@ import { ChamberIdentity } from '@/components/auth/ChamberIdentity';
  * credentials are judged on the server and the answer comes back as state the
  * interface renders. Nothing about the outcome is decided in the browser.
  */
-export function LoginForm() {
-  const [state, formAction] = useActionState(signInAction, IDLE_STATE);
+export function LoginForm({ callbackError = false }: { callbackError?: boolean }) {
+  const initialState = callbackError
+    ? { ...IDLE_STATE, status: 'error' as const, message: 'Provider sign-in could not be completed. Please try again.' }
+    : IDLE_STATE;
+  const [state, formAction] = useActionState(signInAction, initialState);
 
   return (
     <form className="auth-form" action={formAction} noValidate>
@@ -47,17 +50,13 @@ export function LoginForm() {
       />
 
       <div className="auth-form__options" data-stagger="options">
-        <label className="checkbox auth-remember">
-          <input type="checkbox" name="remember" />
-          <span className="checkbox__mark" aria-hidden="true" />
-          <span>Keep me signed in</span>
-        </label>
+        <span className="auth-form__session-note">Secure session via Supabase</span>
         <Link className="auth-link" href="/forgot-password">
           Forgot password
         </Link>
       </div>
 
-      <AuthSubmit pendingLabel="Checkingâ€¦">Sign In</AuthSubmit>
+      <AuthSubmit pendingLabel="Checking…">Sign In</AuthSubmit>
 
       <AuthStatus state={state} />
 

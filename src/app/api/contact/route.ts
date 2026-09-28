@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { createClient as createSupabaseClient } from '@/lib/supabase/server';
+import { hasSupabaseConfig } from '@/lib/supabase/config';
 
 /**
  * Request intake.
@@ -7,9 +9,10 @@ import { NextResponse } from 'next/server';
  * engine, so a Composer stack, a WordPress goal and a direct contact all
  * arrive in the same shape.
  *
- * Delivery requires CONTACT_WEBHOOK_URL. Without it the endpoint returns 503
- * rather than pretending a message was received. No other transport, no
- * logging of message content, and no storage of submissions.
+ * A configured Supabase project stores validated submissions through a
+ * security-definer RPC guarded by database policy. CONTACT_WEBHOOK_URL remains
+ * optional delivery fan-out. The endpoint distinguishes durable storage from
+ * external delivery instead of reporting success for work that did not occur.
  */
 
 const MAX_ITEMS = 24;
@@ -85,10 +88,44 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Request fields are invalid.', delivered: false }, { status: 422 });
   }
 
+  let stored = false;
+  let requestId: string | null = null;
+
+  if (hasSupabaseConfig()) {
+    try {
+      const supabase = await createSupabaseClient();
+      const { data: id, error } = await supabase.rpc('submit_contact_request', {
+        p_name: payload.name,
+        p_email: payload.email,
+        p_message: payload.message,
+        p_company: payload.organisation || undefined,
+        p_request_type: payload.requestType,
+        p_source_path: payload.entryRoute,
+        p_metadata: {
+          selectedItems: payload.selectedItems,
+          preferredChannels: payload.preferredChannels,
+          budgetBand: payload.budgetBand,
+          timeline: payload.timeline,
+          sourceInput: payload.sourceInput,
+          source: 'knoux.store',
+        },
+      });
+      if (!error && typeof id === 'string') {
+        stored = true;
+        requestId = id;
+      }
+    } catch {
+      stored = false;
+    }
+  }
+
   const webhook = process.env.CONTACT_WEBHOOK_URL;
   if (!webhook) {
+    if (stored) {
+      return NextResponse.json({ ok: true, stored: true, delivered: false, requestId }, { status: 202 });
+    }
     return NextResponse.json(
-      { error: 'Request delivery is not configured on this deployment.', delivered: false },
+      { error: 'Request intake is not configured on this deployment.', stored: false, delivered: false },
       { status: 503 },
     );
   }
@@ -97,14 +134,20 @@ export async function POST(request: Request) {
     const response = await fetch(webhook, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...payload, source: 'knoux.store', receivedAt: new Date().toISOString() }),
+      body: JSON.stringify({ ...payload, requestId, source: 'knoux.store', receivedAt: new Date().toISOString() }),
       signal: AbortSignal.timeout(10000),
       cache: 'no-store',
     });
     if (!response.ok) throw new Error(`Upstream responded ${response.status}`);
-    return NextResponse.json({ ok: true, delivered: true });
+    return NextResponse.json({ ok: true, stored, delivered: true, requestId });
   } catch {
-    return NextResponse.json({ error: 'Delivery failed.', delivered: false }, { status: 502 });
+    if (stored) {
+      return NextResponse.json(
+        { ok: true, stored: true, delivered: false, requestId, warning: 'Stored, but external delivery failed.' },
+        { status: 202 },
+      );
+    }
+    return NextResponse.json({ error: 'Delivery failed.', stored: false, delivered: false }, { status: 502 });
   }
 }
 

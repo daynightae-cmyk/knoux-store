@@ -43,3 +43,16 @@ The connected in-app browser exposes viewport and visibility controls, but no to
 ## External services and release — BLOCKED / PENDING
 
 Auth remains truthfully unconfigured, contact delivery requires `CONTACT_WEBHOOK_URL`, and no analytics provider is connected. These are external setup limits outside this run. The earlier preview, route and Orb observations above were taken at `8d84219` and are retained as recorded history; they do not cover the reconciled HEAD. CI checks, the revised Vercel preview review, merge and the production-SHA verification must be recorded against the new push, and this record does not treat the pre-sprint live apex as the new release.
+
+
+## Supabase data + auth continuation — 2026-09-28
+
+A follow-on branch, `feat/supabase-content-registry`, starts from merged main `484bba7382b1c6d04735daa34f90954c1a15e45f`.
+
+The production Supabase project `KKNOUX STORE` (`cnkddxxhcfceokxzaaot`) now has the repository-backed database foundation and **260** seeded content rows. RLS is enabled on every public table. Generated database types are committed for the application layer. See `SUPABASE_AUTH_CLOSURE.md`.
+
+Authentication is no longer an external blocker on this branch. The application now uses Supabase Auth for email/password, Google/GitHub OAuth, PKCE callback exchange, SSR cookie sessions, profile creation, sign-out, recovery and password update. Automated tests deliberately set `KNOUX_TEST_DISABLE_EXTERNALS=1` so no test writes to the production Supabase project.
+
+Google OAuth configuration was completed manually in Google Cloud and Supabase: External / Testing audience, owner test user, Supabase callback, KNOuX Site URL and production/local redirect allow-list. A non-interactive live smoke against Supabase returned valid OAuth authorization URLs for both Google and GitHub.
+
+Current source evidence after this integration: TypeScript pass; production build pass with **65** generated routes/pages; test suite **59/59 pass**. A final physical browser OAuth round-trip remains pending before Google is published beyond its test audience.

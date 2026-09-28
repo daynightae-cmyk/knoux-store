@@ -6,7 +6,7 @@ import { signUpAction } from '@/lib/auth/actions';
 import { IDLE_STATE } from '@/lib/auth/state';
 import { AuthField } from '@/components/auth/AuthField';
 import { AuthStatus } from '@/components/auth/AuthStatus';
-import { AuthSubmit } from '@/components/auth/ProviderButtons';
+import { AuthSubmit, ProviderButtons } from '@/components/auth/ProviderButtons';
 import { ChamberIdentity } from '@/components/auth/ChamberIdentity';
 
 /**
@@ -51,9 +51,11 @@ export function RegisterForm() {
         error={state.errors.confirmPassword}
       />
 
-      <AuthSubmit pendingLabel="Checkingâ€¦">Create Account</AuthSubmit>
+      <AuthSubmit pendingLabel="Checking…">Create Account</AuthSubmit>
 
       <AuthStatus state={state} />
+
+      <ProviderButtons />
 
       <p className="auth-form__foot" data-stagger="foot">
         Already have an account?{' '}

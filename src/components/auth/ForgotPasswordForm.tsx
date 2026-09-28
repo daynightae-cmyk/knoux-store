@@ -10,11 +10,10 @@ import { AuthSubmit } from '@/components/auth/ProviderButtons';
 import { ChamberIdentity } from '@/components/auth/ChamberIdentity';
 
 /**
- * Password recovery.
+ * Password recovery through Supabase Auth.
  *
- * Deliberately does not say a message has been sent. No mail transport is
- * configured, so the action reports the deployment's real state and the page
- * never implies a recovery email is on its way.
+ * The result is deliberately non-enumerating: a successful request states that
+ * a message is sent only if an account exists for the address.
  */
 export function ForgotPasswordForm() {
   const [state, formAction] = useActionState(requestPasswordResetAction, IDLE_STATE);
@@ -31,7 +30,7 @@ export function ForgotPasswordForm() {
 
       <AuthField label="Email" name="email" type="email" autoComplete="email" error={state.errors.email} />
 
-      <AuthSubmit pendingLabel="Checkingâ€¦">Request Reset</AuthSubmit>
+      <AuthSubmit pendingLabel="Checking…">Request Reset</AuthSubmit>
 
       <AuthStatus state={state} />
 

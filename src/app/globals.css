@@ -2143,6 +2143,7 @@ html[data-chamber="armed"] .auth-panel.is-risen [data-stagger="foot"]{transition
 /* Errors are marked by a rule and a label, never by colour alone. */
 
 .auth-form__options{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.auth-form__session-note{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 .auth-remember{gap:9px;padding:6px 10px 6px 8px}
 .auth-remember .checkbox__mark{width:13px;height:13px;flex:none;border:1px solid var(--line-strong);position:relative;transition:border-color 180ms,background 180ms}
 .auth-remember .checkbox__mark::after{
@@ -2232,6 +2233,8 @@ html[data-chamber="armed"] .auth-panel.is-risen [data-stagger="foot"]{transition
 .auth-status{position:relative}
 .auth-status--unavailable{color:var(--text-dim)}
 .auth-status--error .auth-status__rule{background:#c98d7d}
+.auth-status--success .auth-status__rule{background:#78b7a2}
+.auth-status--success{color:var(--text-dim)}
 
 /* --- Providers -------------------------------------------------------- */
 .auth-divider{display:flex;align-items:center;gap:14px;margin:0}
@@ -3516,4 +3519,25 @@ html[data-chamber="armed"] .auth-panel.is-risen [data-stagger="foot"]{transition
   .software-field__record,
   .software-field__record::before,
   .software-field__record strong { transition: none; }
+}
+
+
+/* --- Authenticated account ------------------------------------------ */
+.account-page{min-height:72vh;padding-top:var(--header-h,72px)}
+.account-shell{padding-top:clamp(72px,9vw,150px);padding-bottom:clamp(90px,10vw,160px)}
+.account-kicker{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--dim);margin-bottom:34px}
+.account-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.8fr);gap:clamp(50px,7vw,120px);align-items:start}
+.account-title{font-size:clamp(42px,7vw,108px);line-height:.92;letter-spacing:-.06em;margin:14px 0 24px;max-width:8ch}
+.account-lede{max-width:560px;color:var(--muted);font-size:clamp(14px,1.35vw,18px);line-height:1.7}
+.account-card{border:1px solid var(--line);margin:0;background:rgba(255,255,255,.012)}
+.account-card>div{display:grid;grid-template-columns:120px minmax(0,1fr);gap:18px;padding:17px 20px;border-bottom:1px solid var(--line-soft)}
+.account-card>div:last-child{border-bottom:0}
+.account-card dt{font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.account-card dd{margin:0;color:var(--text-dim);overflow-wrap:anywhere}
+.account-mono{font-family:var(--mono);font-size:10px}
+.account-actions{margin-top:42px;display:flex;gap:16px}
+@media(max-width:780px){
+  .account-grid{grid-template-columns:1fr;gap:42px}
+  .account-title{font-size:clamp(44px,15vw,72px)}
+  .account-card>div{grid-template-columns:90px minmax(0,1fr)}
 }

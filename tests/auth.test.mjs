@@ -8,19 +8,16 @@ import { root } from './helpers.mjs';
 /**
  * The Arrival Chamber.
  *
- * These tests exist to hold two lines at once. The account routes must be real,
- * rendered, accessible, keyboard-operable interfaces. And because no identity
- * provider is configured, they must never claim otherwise: no session, no
- * token, no success, no simulated OAuth, and no wall in front of the public
- * headquarters.
- *
- * A change that makes the auth surface look finished by faking the backend is
- * exactly the failure this file is written to catch.
+ * These tests hold two lines at once. The account routes must be real,
+ * rendered, accessible and keyboard-operable, while the identity path must use
+ * the actual Supabase adapter rather than local token/session simulation.
+ * Automated route tests disable external writes, so they cannot mutate the live
+ * project while still verifying the production auth contract in source.
  */
 
 const port = Number(process.env.KNOUX_AUTH_TEST_PORT ?? 32231);
 const origin = `http://127.0.0.1:${port}`;
-const env = { ...process.env };
+const env = { ...process.env, KNOUX_TEST_DISABLE_EXTERNALS: '1' };
 const server = spawn(
   process.execPath,
   ['node_modules/next/dist/bin/next', 'start', '-p', String(port), '-H', '127.0.0.1'],
@@ -114,11 +111,14 @@ test('exactly Google and GitHub are offered, and neither is faked', async () => 
   const panel = login.slice(login.indexOf('class="auth-providers"'));
   assert.ok(!/sign in with (twitter|discord|apple|facebook)/i.test(panel), 'no unconnected provider may be advertised');
 
-  // The unavailable state is stated in text, so it is never conveyed by style
-  // alone, and the controls are real submissions rather than decorative buttons.
-  assert.match(login, /Not connected/, 'the unavailable provider state must be stated in the DOM');
-  assert.match(login, /aria-describedby="google-state"/, 'the Google control must describe its state');
-  assert.match(login, /aria-describedby="github-state"/, 'the GitHub control must describe its state');
+  // The controls are real submissions into the server action, and the page
+  // identifies Supabase OAuth as the transport without claiming provider passwords.
+  assert.match(login, /Supabase OAuth/, 'the provider transport must be stated in the DOM');
+  assert.equal(
+    (login.match(/aria-describedby="oauth-state"/g) || []).length,
+    2,
+    'both provider controls must share the visible OAuth explanation',
+  );
   assert.match(
     login,
     /class="auth-provider"[^>]*type="submit"[^>]*name="provider"/,
@@ -195,42 +195,38 @@ test('the public headquarters stays public', async () => {
   assert.ok(!/sign in to continue|authentication required/i.test(home), 'the homepage must not demand an account');
 });
 
-test('with no provider configured the contract reports that, and nothing else', () => {
+test('the auth contract is Supabase-backed and never invents session material', () => {
   const provider = readFileSync(join(authLibDir, 'provider.ts'), 'utf8');
   const actions = readFileSync(join(authLibDir, 'actions.ts'), 'utf8');
+  const serverClient = readFileSync(join(root, 'src', 'lib', 'supabase', 'server.ts'), 'utf8');
+  const callback = readFileSync(join(root, 'src', 'app', 'auth', 'callback', 'route.ts'), 'utf8');
 
-  // The only outcomes a real provider could produce are declared, and the
-  // unconfigured adapter resolves to exactly one of them.
-  assert.match(provider, /status: 'not-configured'/, 'the unconfigured adapter must return not-configured');
-  assert.match(provider, /function isAuthConfigured\(\): boolean \{\s*return false;/, 'environment signals alone must not report working auth');
-  // `success` is a legitimate member of the contract a real provider could
-  // satisfy. What must not exist is an unconfigured implementation claiming it,
-  // so the assertion is scoped to the adapter itself.
-  const adapter = provider.slice(provider.indexOf('export const unconfiguredProvider'));
-  assert.ok(adapter.length > 0, 'the unconfigured adapter must be declared');
-  assert.ok(
-    !/status: 'success'/.test(adapter),
-    'the unconfigured adapter must never return success',
-  );
-  assert.equal(
-    (adapter.match(/status: 'not-configured'/g) || []).length,
-    3,
-    'sign in, sign up and password reset must each report not-configured',
-  );
+  assert.match(provider, /hasSupabaseConfig/, 'auth readiness must come from the real Supabase configuration');
+  assert.match(serverClient, /createServerClient/, 'server auth must use the Supabase SSR client');
 
-  // Every credential action checks configuration before doing anything.
-  for (const action of ['signInAction', 'signUpAction', 'requestPasswordResetAction']) {
+  for (const action of [
+    'signInAction',
+    'signUpAction',
+    'requestPasswordResetAction',
+    'updatePasswordAction',
+    'signOutAction',
+  ]) {
     assert.match(actions, new RegExp(`function ${action}`), `${action} must exist`);
   }
-  const guarded = (actions.match(/isAuthConfigured\(\)/g) || []).length;
-  assert.ok(guarded >= 4, 'each action plus the provider branch must check configuration');
 
-  // No invented session material anywhere in the auth layer.
+  assert.match(actions, /signInWithPassword/, 'credential sign-in must reach Supabase Auth');
+  assert.match(actions, /signInWithOAuth/, 'provider sign-in must reach Supabase OAuth');
+  assert.match(actions, /\.auth\.signUp/, 'registration must reach Supabase Auth');
+  assert.match(actions, /resetPasswordForEmail/, 'recovery must use the provider mail flow');
+  assert.match(actions, /updateUser\(\{ password \}\)/, 'recovery must be able to set the new password');
+  assert.match(actions, /\.auth\.signOut\(\)/, 'logout must terminate the Supabase session');
+  assert.match(callback, /exchangeCodeForSession/, 'OAuth callbacks must exchange the code for a real session');
+  assert.match(callback, /safeNext/, 'OAuth callback redirects must be constrained to local paths');
+
   const source = `${readAuthSource()}\n${readAuthLib()}`;
   for (const banned of [
     'localStorage.setItem',
     'sessionStorage.setItem(\'token',
-    'jwt',
     'Bearer ',
     'service_role',
     'console.log',
@@ -238,13 +234,10 @@ test('with no provider configured the contract reports that, and nothing else', 
     assert.ok(!source.includes(banned), `the auth layer must not contain ${banned}`);
   }
 
-  // The only storage the chamber writes is its own arrival-visited flag, and
-  // only the choreography is allowed to write it. A credential, a token or a
-  // session marker in browser storage is exactly the fake auth this forbids.
   const writers = readdirSync(authDir)
     .filter((file) => (file.endsWith('.tsx') || file.endsWith('.ts')))
     .filter((file) => /sessionStorage|localStorage/.test(readFileSync(join(authDir, file), 'utf8')));
-  assert.deepEqual(writers, ['choreography.ts'], 'only the choreography may touch browser storage');
+  assert.deepEqual(writers, ['choreography.ts'], 'only arrival choreography may touch browser storage');
   const choreography = readFileSync(join(authDir, 'choreography.ts'), 'utf8');
   assert.match(choreography, /SEEN_KEY = 'knoux\.arrival\.seen'/, 'the stored key must be the arrival flag');
   assert.ok(!/localStorage/.test(choreography), 'the arrival flag must not outlive the session');
