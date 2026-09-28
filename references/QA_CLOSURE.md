@@ -1,10 +1,26 @@
 # Closure sprint QA evidence
 
-Date: 2026-09-28. Branch: `feat/final-experience-closure`. Starting feature HEAD for this continuation: `8d84219f700d477e5712a1daab0e450aa15deaa7`. Baseline `main`: `de6072446d3ee9034b35c61c81004b1f8`.
+Date: 2026-09-28. Branch: `feat/final-experience-closure`. Feature HEAD verified in this continuation: `9586f2cd75bdbe6db0c613eb3fe6ac578d6eecee` (merge of `4cc1e35` and `61ddcb1`). Baseline `main`: `de6072446d3ee9034b35c61c81004b1f8`.
+
+## Branch reconciliation — COMPLETE
+
+The branch had diverged from its remote by one commit in each direction from the shared base `8d84219f700d477e5712a1daab0e450aa15deaa7`: local `4cc1e35ee19ad1171439e21ad90b94e2bfeb56d7` (Home software field and preview QA closure) and remote `61ddcb1f6319623bda5f7ca2ed662fe5e4778c3c` (KNOuX Sentinel living companion). A normal non-destructive merge resolved it as `9586f2c`, with `4cc1e35` and `61ddcb1` retained as its two parents. No force push, no reset, and no commit was dropped.
+
+The overlap was limited to `src/app/globals.css` and `references/REFERENCE_IMPLEMENTATION_AUDIT.md`, and both sides survived. Against `61ddcb1`, the merge adds the 162 Home `globals.css` lines, the `HomeSoftwareField` serial and canonical-mark emblem, the Composer search-summary correction in `composer-rules.ts`, and the `QA_CLOSURE.md` and `SOFTWARE_FIELD_CLOSURE.md` revisions. Against `4cc1e35`, the merge adds the entire Sentinel surface (`KnouxSentinel.tsx`, `knoux-sentinel.css`, `knoux-sentinel.ts`, the sentinel test), the `layout.tsx` mount, the reduced `PointerField.tsx`, and the `LIVING_COMPANION_CLOSURE.md` update. `QA_CLOSURE.md` and `SOFTWARE_FIELD_CLOSURE.md` were never modified by the remote side, so no QA history was overwritten. The audit row for the living companion was rewritten to name `identity/KnouxSentinel.tsx` while the Home, Composer, About and Work rows kept their `4cc1e35` closure states.
+
+## Local production-build route sweep — COMPLETE
+
+`next start` was served on an isolated port and the sixteen closure routes were requested directly: `/`, `/about`, `/work`, `/products`, `/products/knoux-one`, `/engineering`, `/solutions`, `/web`, `/creative`, `/growth`, `/wordpress`, `/build`, `/contact`, `/login`, `/register` and `/forgot-password`. All returned HTTP 200 with the expected `<h1>`, `rel="canonical"` target, header and footer. All 59 unique internal links discovered across those pages resolved without a 4xx or 5xx, and all 28 unique `/_next/` assets returned 200. No broken asset reference was observed.
+
+`/build` serves the Composer subtree through Next's `BAILOUT_TO_CLIENT_SIDE_RENDERING` boundary because `Composer` reads `useSearchParams()`. This originates in `8ce417e`, predates this sprint, and `Composer.tsx`, `src/app/build/page.tsx` and `src/components/build/` are unchanged across the whole sprint, so it is not a reconciliation regression and the Composer was not modified.
+
+## Sentinel — verified, deliberately unchanged
+
+The Sentinel is treated as a temporary implementation pending the separate Grok authority, so it was checked for defects only and not redesigned, expanded or replaced. `KnouxSentinel` mounts once in `src/app/layout.tsx`; `motion/PointerField.tsx` is now only a re-export alias of it, so no duplicate listener implementation remains. Its stylesheet sets `pointer-events: none`, `position: fixed`, `contain: layout style` and a bounded 52×64 box, so it cannot intercept input or displace layout, and its root is `aria-hidden="true"`. It hides itself under `pointer: coarse` and, under `prefers-reduced-motion: reduce`, parks as a static bottom-right mark with transforms and animations disabled. Its unit tests are part of the 59-test pass. Pointer-follow, state-transition and performance behaviour still need a physical browser pass on the new deployment.
 
 ## Source gates — COMPLETE
 
-After the Home field and search-copy changes, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, and `git diff --check` exited 0. Build generated 62 static pages; tests passed 52/52. Lint has two existing `@next/next/no-img-element` warnings on dormant product logo branches, with zero errors. `npm ci` remains **PARTIAL**: Windows returned `EPERM` while unlinking the loaded Next SWC binary earlier in this sprint. `npm install --no-audit --no-fund` restored dependencies without changing the lockfile; that does not prove a clean install.
+At the reconciled HEAD, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` and `git diff --check` each exited 0. Build generated 62 static pages by Next.js 16.3.6. The test count is 59 rather than the 52 recorded before the Sentinel tests landed. Lint has two existing `@next/next/no-img-element` warnings on dormant product logo branches, with zero errors. `npm ci` remains **PARTIAL**: Windows returned `EPERM` while unlinking the loaded Next SWC binary earlier in this sprint. `npm install --no-audit --no-fund` restored dependencies without changing the lockfile; that does not prove a clean install.
 
 ## Authenticated PR preview — COMPLETE for inspected routes
 
@@ -26,4 +42,4 @@ The connected in-app browser exposes viewport and visibility controls, but no to
 
 ## External services and release — BLOCKED / PENDING
 
-Auth remains truthfully unconfigured, contact delivery requires `CONTACT_WEBHOOK_URL`, and no analytics provider is connected. These are external setup limits outside this run. CI checks, revised Vercel preview review, merge, and production-SHA verification must be updated after the next push; this record does not treat the pre-sprint live apex as the new release.
+Auth remains truthfully unconfigured, contact delivery requires `CONTACT_WEBHOOK_URL`, and no analytics provider is connected. These are external setup limits outside this run. The earlier preview, route and Orb observations above were taken at `8d84219` and are retained as recorded history; they do not cover the reconciled HEAD. CI checks, the revised Vercel preview review, merge and the production-SHA verification must be recorded against the new push, and this record does not treat the pre-sprint live apex as the new release.
