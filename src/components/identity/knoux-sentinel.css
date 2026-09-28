@@ -53,6 +53,121 @@
   opacity: 0.07;
 }
 
+/* The canonical mark reading. Particles are the brand's own geometry, so the
+   face is never empty decoration: it resolves from its silhouette inward. */
+.ks-mark {
+  transform-origin: 40px 42px;
+  transition: opacity 420ms ease;
+}
+
+.ks-mark__p {
+  fill: color-mix(in srgb, var(--ks-frame) 78%, #ffffff);
+  opacity: calc(0.2 + var(--cg) * 0.55);
+  animation: ks-mark-breathe 5.4s ease-in-out var(--cd) infinite;
+}
+
+.ks-mark__p--violet {
+  fill: var(--ks-accent);
+  opacity: calc(0.34 + var(--cg) * 0.5);
+  filter: drop-shadow(0 0 1.4px var(--ks-accent));
+}
+
+@keyframes ks-mark-breathe {
+  0%,
+  100% {
+    opacity: calc(0.18 + var(--cg) * 0.42);
+  }
+  50% {
+    opacity: calc(0.34 + var(--cg) * 0.66);
+  }
+}
+
+/* KNOuX Core, taken from the canonical dot path's real centroid. */
+.ks-core-halo {
+  opacity: 0.9;
+  animation: ks-core-pulse 3.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.ks-core {
+  fill: var(--ks-eye);
+  filter: drop-shadow(0 0 2.4px var(--ks-eye));
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes ks-core-pulse {
+  0%,
+  100% {
+    opacity: 0.62;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.14);
+  }
+}
+
+/* Capability states. The mark stays visible in every mode; the light changes. */
+.knoux-sentinel[data-capability='traversing'] .ks-mark {
+  opacity: 1;
+}
+
+.knoux-sentinel[data-capability='traversing'] .ks-orbit {
+  transform: rotate(14deg) scale(1.04);
+}
+
+.knoux-sentinel[data-capability='shipping'] .ks-mark {
+  opacity: 1;
+}
+
+.knoux-sentinel[data-capability='shipping'] .ks-core {
+  fill: color-mix(in srgb, var(--ks-eye) 60%, var(--ks-accent));
+}
+
+.knoux-sentinel[data-capability='shipping'] .ks-crystal {
+  fill: color-mix(in srgb, var(--ks-accent) 72%, #171320);
+}
+
+.knoux-sentinel[data-capability='guarding'] .ks-mark {
+  opacity: 0.72;
+}
+
+.knoux-sentinel[data-capability='guarding'] .ks-core {
+  fill: #f0d9c4;
+}
+
+.knoux-sentinel[data-capability='guarding'] .ks-frame {
+  stroke: #d9b48c;
+}
+
+.knoux-sentinel[data-capability='dormant'] .ks-mark {
+  opacity: 0.4;
+}
+
+.knoux-sentinel[data-capability='dormant'] .ks-core {
+  fill: #8d8a95;
+}
+
+.knoux-sentinel[data-state='blink'] .ks-core {
+  transform: scale(0.82);
+}
+
+.knoux-sentinel[data-state='look-left'] .ks-mark,
+.knoux-sentinel[data-state='look-right'] .ks-mark {
+  transform: translateX(var(--ks-mark-shift, 0px));
+  transition: transform 420ms ease;
+}
+
+.knoux-sentinel[data-state='look-left'] .ks-mark {
+  --ks-mark-shift: -0.7px;
+}
+
+.knoux-sentinel[data-state='look-right'] .ks-mark {
+  --ks-mark-shift: 0.7px;
+}
+
 .ks-crystal {
   fill: color-mix(in srgb, var(--ks-accent) 54%, #141218);
   stroke: var(--ks-frame);
@@ -85,6 +200,19 @@
   opacity: 0.82;
   animation: ks-drift var(--sd, 8s) ease-in-out infinite;
   animation-delay: var(--sdelay, 0s);
+}
+
+/* A shard is lit only when a real active registry record lights it. */
+.ks-shard[data-lit='true'] {
+  fill: color-mix(in srgb, var(--ks-accent) 34%, var(--ks-frame));
+  stroke: color-mix(in srgb, var(--ks-accent) 60%, #ffffff);
+  opacity: 0.94;
+  filter: drop-shadow(0 0 1.6px color-mix(in srgb, var(--ks-accent) 70%, transparent));
+}
+
+.ks-shard[data-lit='false'] {
+  opacity: 0.24;
+  stroke: #6d6875;
 }
 
 .ks-aura {
@@ -201,10 +329,23 @@
   .knoux-sentinel .ks-shard,
   .knoux-sentinel .ks-eye,
   .knoux-sentinel .ks-eyes,
-  .knoux-sentinel .ks-orbit {
+  .knoux-sentinel .ks-orbit,
+  .knoux-sentinel .ks-mark,
+  .knoux-sentinel .ks-mark__p,
+  .knoux-sentinel .ks-core,
+  .knoux-sentinel .ks-core-halo {
     transform: none !important;
     animation: none !important;
     transition: none;
+  }
+  .knoux-sentinel .ks-mark {
+    opacity: 0.92;
+  }
+  .knoux-sentinel .ks-mark__p {
+    opacity: calc(0.3 + var(--cg) * 0.55);
+  }
+  .knoux-sentinel .ks-core-halo {
+    opacity: 0.8;
   }
 }
 

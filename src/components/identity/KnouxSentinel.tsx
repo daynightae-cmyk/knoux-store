@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, type CSSProperties } from 'react';
+import { useEffect, useId, useRef, useSyncExternalStore, type CSSProperties } from 'react';
 import {
   BODY_DAMP,
   EYE_DAMP,
@@ -20,7 +20,33 @@ import {
   type SentinelMood,
   type SentinelVisual,
 } from './knoux-sentinel';
+import {
+  auraFor,
+  capabilityFor,
+  litShards,
+  sentinelCore,
+  sentinelMarkGlyph,
+  sentinelRegistry,
+} from './sentinel-capability';
 import './knoux-sentinel.css';
+
+/** Particle budget for the canonical mark reading inside the shell. */
+const GLYPH_BUDGET = 96;
+
+const noSubscription = () => () => {};
+
+/**
+ * False on the server and through hydration, true once the client takes over.
+ * Read through a store rather than an effect so the shell never triggers a
+ * cascading render.
+ */
+function useIsHydrated(): boolean {
+  return useSyncExternalStore(
+    noSubscription,
+    () => true,
+    () => false,
+  );
+}
 
 /**
  * Canonical KNOuX Sentinel.
@@ -28,12 +54,31 @@ import './knoux-sentinel.css';
  * One global listener owns pointer following, spatial-surface variables,
  * gaze, blink, sleep and semantic colour. Native cursor stays. No React
  * state on pointermove. No second WebGL scene. Shard orbits are CSS.
+ *
+ * The body is not decorated. Its interior is a deterministic particle reading
+ * of the canonical KNOuX mark, and the light it emits is counted from the real
+ * software and lab registries, so the Sentinel reports the state of the
+ * institution rather than an authored mood.
  */
 export function KnouxSentinel() {
   const root = useRef<HTMLSpanElement>(null);
   const eyes = useRef<SVGGElement>(null);
   const timeouts = useRef<number[]>([]);
   const uid = useId().replace(/:/g, '');
+
+  const registry = sentinelRegistry();
+  const core = sentinelCore();
+  const glyph = sentinelMarkGlyph(GLYPH_BUDGET);
+  const aura = auraFor(registry.shippedShare);
+  const lit = litShards(registry.counts.active);
+
+  /**
+   * The mark reading is pointer-driven decoration with no meaning without a
+   * pointer, so it is not serialised into the HTML or the RSC payload. The
+   * shell still renders on the server, so the Sentinel is present in the
+   * document before hydration and costs nothing when scripting is absent.
+   */
+  const hydrated = useIsHydrated();
 
   useEffect(() => {
     const node = root.current;
@@ -92,6 +137,7 @@ export function KnouxSentinel() {
       if (visual === next) return;
       visual = next;
       node.dataset.state = next;
+      node.dataset.capability = capabilityFor(next === 'sleep' ? 'sleep' : mood);
     };
 
     const paintVisual = () => {
@@ -337,12 +383,27 @@ export function KnouxSentinel() {
   }, []);
 
   return (
-    <span ref={root} className="knoux-sentinel" data-knoux-sentinel data-state="idle" aria-hidden="true">
+    <span
+      ref={root}
+      className="knoux-sentinel"
+      data-knoux-sentinel
+      data-state="idle"
+      data-capability="core"
+      data-shards={lit}
+      data-records={registry.total}
+      data-shipped={registry.shippedShare.toFixed(3)}
+      aria-hidden="true"
+    >
       <svg viewBox="0 0 80 100" focusable="false">
         <defs>
           <radialGradient id={`${uid}-aura`} cx="50%" cy="40%" r="48%">
-            <stop offset="0%" stopColor="white" stopOpacity="0.55" />
+            <stop offset="0%" stopColor="white" stopOpacity={aura} />
             <stop offset="100%" stopColor="white" stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id={`${uid}-core`} cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="var(--ks-eye)" stopOpacity="0.95" />
+            <stop offset="60%" stopColor="var(--ks-accent)" stopOpacity="0.45" />
+            <stop offset="100%" stopColor="var(--ks-accent)" stopOpacity="0" />
           </radialGradient>
         </defs>
         <ellipse className="ks-aura" cx="40" cy="42" rx="30" ry="32" fill={`url(#${uid}-aura)`} />
@@ -354,6 +415,7 @@ export function KnouxSentinel() {
               <g
                 key={index}
                 className="ks-shard"
+                data-lit={index < lit ? 'true' : 'false'}
                 style={
                   {
                     transformOrigin: `${cx}px ${cy}px`,
@@ -386,6 +448,28 @@ export function KnouxSentinel() {
             className="ks-face"
             d="M24.4 14.8 C19.4 14.8 17.6 17.6 17.6 23 L17.6 49 C17.6 55.2 21.8 59.6 28.6 63.4 L40 70 L51.4 63.4 C58.2 59.6 62.4 55.2 62.4 49 L62.4 23 C62.4 17.6 60.6 14.8 55.6 14.8 Z"
           />
+          {hydrated ? (
+            <g className="ks-mark">
+              {glyph.map((point, index) => (
+                <circle
+                  key={index}
+                  className={point.violet ? 'ks-mark__p ks-mark__p--violet' : 'ks-mark__p'}
+                  cx={point.x}
+                  cy={point.y}
+                  r={point.r}
+                  style={
+                    { '--cd': `${point.delay.toFixed(2)}s`, '--cg': point.contour.toFixed(2) } as CSSProperties
+                  }
+                />
+              ))}
+            </g>
+          ) : null}
+          {hydrated ? (
+            <>
+              <circle className="ks-core-halo" cx={core.x} cy={core.y} r={core.r} fill={`url(#${uid}-core)`} />
+              <circle className="ks-core" cx={core.x} cy={core.y} r={core.r * 0.3} />
+            </>
+          ) : null}
           <path className="ks-sheen" d="M26 16.5 C22 16.8 21 19 21 23 L21 30 C28 24 40 21 58 23 L58 23 C58 18.4 56.4 16.4 52 16.2 Z" />
           <g ref={eyes} className="ks-eyes">
             <path
