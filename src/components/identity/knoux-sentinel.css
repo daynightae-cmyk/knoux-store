@@ -1,0 +1,215 @@
+.knoux-sentinel {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 52px;
+  height: 64px;
+  z-index: 140;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity;
+  contain: layout style;
+  --ks-accent: #a18acb;
+  --ks-eye: #e8dff6;
+  --ks-frame: #d7d0dc;
+  --ks-face: #0b0c10;
+  --ks-eye-sy: 1;
+  --ks-glow: 0.4;
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.42)) drop-shadow(0 0 10px color-mix(in srgb, var(--ks-accent) 38%, transparent));
+  transition: opacity 280ms ease, filter 420ms ease;
+}
+
+.knoux-sentinel[data-ready='true'] {
+  opacity: 0.96;
+}
+
+.knoux-sentinel svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.ks-frame {
+  fill: color-mix(in srgb, var(--ks-frame) 22%, #1a1b20);
+  stroke: var(--ks-frame);
+  stroke-width: 1.7;
+  stroke-linejoin: round;
+}
+
+.ks-rim {
+  fill: none;
+  stroke: color-mix(in srgb, var(--ks-frame) 50%, #ffffff);
+  stroke-width: 0.55;
+  opacity: 0.62;
+}
+
+.ks-face {
+  fill: var(--ks-face);
+}
+
+.ks-sheen {
+  fill: #ffffff;
+  opacity: 0.07;
+}
+
+.ks-crystal {
+  fill: color-mix(in srgb, var(--ks-accent) 54%, #141218);
+  stroke: var(--ks-frame);
+  stroke-width: 0.65;
+  stroke-linejoin: round;
+}
+
+.ks-eyes {
+  transform-box: fill-box;
+}
+
+.ks-eye {
+  fill: var(--ks-eye);
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scaleY(var(--ks-eye-sy));
+  transition: transform 90ms linear;
+  filter: drop-shadow(0 0 1.8px var(--ks-eye));
+}
+
+.ks-orbit {
+  transform-origin: 40px 42px;
+  transition: transform 820ms ease;
+}
+
+.ks-shard {
+  fill: color-mix(in srgb, var(--ks-frame) 72%, #8a8490);
+  stroke: #9d96a4;
+  stroke-width: 0.4;
+  opacity: 0.82;
+  animation: ks-drift var(--sd, 8s) ease-in-out infinite;
+  animation-delay: var(--sdelay, 0s);
+}
+
+.ks-aura {
+  fill: var(--ks-accent);
+  opacity: calc(var(--ks-glow) * 0.15);
+}
+
+.knoux-sentinel[data-state='idle'] {
+  --ks-accent: #a18acb;
+  --ks-eye: #e8dff6;
+  --ks-frame: #cfc6d8;
+  --ks-glow: 0.4;
+}
+.knoux-sentinel[data-state='look-left'] {
+  --ks-accent: #d8d3de;
+  --ks-eye: #f5f2ea;
+  --ks-frame: #ece8f0;
+  --ks-glow: 0.26;
+}
+.knoux-sentinel[data-state='look-right'] {
+  --ks-accent: #8c8a90;
+  --ks-eye: #d2ced4;
+  --ks-frame: #b4b0b6;
+  --ks-glow: 0.2;
+}
+.knoux-sentinel[data-state='curious'] {
+  --ks-accent: #b8a4dc;
+  --ks-eye: #f3ebff;
+  --ks-eye-sy: 1.16;
+  --ks-glow: 0.48;
+}
+.knoux-sentinel[data-state='blink'] {
+  --ks-accent: #cdc6d2;
+  --ks-eye: #f1eee8;
+  --ks-frame: #d9d3df;
+  --ks-eye-sy: 0.12;
+  --ks-glow: 0.16;
+}
+.knoux-sentinel[data-state='focus'] {
+  --ks-accent: #6e5e8c;
+  --ks-eye: #cbbbe8;
+  --ks-eye-sy: 0.56;
+  --ks-glow: 0.3;
+}
+.knoux-sentinel[data-state='focus'] .ks-orbit {
+  transform: scale(0.92);
+}
+.knoux-sentinel[data-state='alert'] {
+  --ks-accent: #e3c27a;
+  --ks-eye: #f6e3b0;
+  --ks-frame: #e8d7a8;
+  --ks-glow: 0.5;
+}
+.knoux-sentinel[data-state='critical'] {
+  --ks-accent: #c98d7d;
+  --ks-eye: #efb5af;
+  --ks-frame: #e0b0a6;
+  --ks-glow: 0.5;
+}
+.knoux-sentinel[data-state='active'] {
+  --ks-accent: #7ec9b0;
+  --ks-eye: #d5f4ea;
+  --ks-frame: #b7ddd0;
+  --ks-glow: 0.46;
+}
+.knoux-sentinel[data-state='sleep'] {
+  --ks-accent: #6f5f8f;
+  --ks-eye: #b7a8cf;
+  --ks-eye-sy: 0.1;
+  --ks-glow: 0.14;
+}
+.knoux-sentinel[data-state='sleep'] .ks-orbit {
+  transform: scale(0.72);
+}
+.knoux-sentinel[data-state='sleep'] .ks-shard {
+  animation-duration: 16s;
+}
+
+.knoux-sentinel[data-scroll='fast'] {
+  opacity: 0.3;
+}
+
+@keyframes ks-drift {
+  0%,
+  100% {
+    transform: translate(var(--sx), var(--sy)) rotate(var(--sr));
+  }
+  50% {
+    transform: translate(calc(var(--sx) * -1.05), calc(var(--sy) * 0.35)) rotate(calc(var(--sr) + 7deg));
+  }
+}
+
+@media (pointer: coarse) {
+  .knoux-sentinel {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .knoux-sentinel,
+  .knoux-sentinel[data-ready='true'] {
+    left: auto;
+    top: auto;
+    right: 18px;
+    bottom: 18px;
+    width: 32px;
+    height: 40px;
+    opacity: 0.55;
+    transform: none !important;
+    will-change: auto;
+    transition: none;
+    filter: none;
+  }
+  .knoux-sentinel .ks-shard,
+  .knoux-sentinel .ks-eye,
+  .knoux-sentinel .ks-eyes,
+  .knoux-sentinel .ks-orbit {
+    transform: none !important;
+    animation: none !important;
+    transition: none;
+  }
+}
+
+@media (pointer: coarse) and (prefers-reduced-motion: reduce) {
+  .knoux-sentinel {
+    display: none;
+  }
+}
