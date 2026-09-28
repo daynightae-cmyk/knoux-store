@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { DeterministicSignature } from '@/components/DeterministicSignature';
 import { softwareProducts } from '@/data/software';
+import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
 
 /** An editorial reading of the same audited registry used by the full universe. */
 export function HomeSoftwareField() {
@@ -29,6 +30,10 @@ export function HomeSoftwareField() {
       <aside className="software-field__identity" aria-label="Focused product">
         <div className="software-field__top"><span>KN / SYSTEM FIELD</span><span>{selected.code}</span></div>
         <div className="software-field__visual" key={selected.id}>
+          <span className="software-field__serial" aria-hidden="true">{selected.index}</span>
+          <svg className="software-field__emblem" viewBox={`0 0 ${MARK_VIEW_BOX.width} ${MARK_VIEW_BOX.height}`} aria-hidden="true" focusable="false">
+            {MARK_PATHS.map((path) => <path key={path.id} d={path.d} />)}
+          </svg>
           <div className="software-field__reticle" aria-hidden="true" />
           <DeterministicSignature seed={active + 41} label={selected.code} />
         </div>
@@ -47,6 +52,7 @@ export function HomeSoftwareField() {
             href={`/products/${product.slug}`}
             className="software-field__record"
             data-software-index={index}
+            data-serial={product.index}
             data-active={active === index ? 'true' : 'false'}
             onMouseEnter={() => setActive(index)}
             onFocus={() => setActive(index)}

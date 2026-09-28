@@ -3358,3 +3358,165 @@ html[data-chamber="armed"] .auth-panel.is-risen [data-stagger="foot"]{transition
   .mp-pagination__pages a,
   .mp-pagination__pages span { min-width: 32px; height: 32px; padding: 0 7px; }
 }
+
+/* The Home software field reads as one illuminated system, with a typographic
+   index in its foreground. Product metadata and links still come from one registry. */
+.software-field {
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+  background: radial-gradient(ellipse at 34% 34%, #17121c 0%, #0a0a0d 48%, #08090a 80%);
+}
+.software-field__identity {
+  border-right: 0;
+  background: transparent;
+  isolation: isolate;
+}
+.software-field__identity::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(118deg, transparent 16%, #c5a2e408 46%, transparent 47%),
+    repeating-linear-gradient(90deg, transparent 0 119px, #ffffff05 120px, transparent 121px);
+  pointer-events: none;
+}
+.software-field__top,
+.software-field__visual,
+.software-field__caption { position: relative; z-index: 1; }
+.software-field__visual { min-height: 230px; overflow: hidden; }
+.software-field__visual .signature-field {
+  width: min(86%, 540px);
+  height: min(93%, 450px);
+  transform: scale(1.2);
+  opacity: .9;
+  mix-blend-mode: screen;
+}
+.software-field__emblem {
+  position: absolute;
+  width: 58%;
+  height: 78%;
+  inset: 7% auto auto 21%;
+  fill: #d2b4e8;
+  opacity: .07;
+  filter: blur(.7px);
+  pointer-events: none;
+}
+.software-field__serial {
+  position: absolute;
+  top: -6%;
+  left: 3%;
+  color: #bfa6d416;
+  font: 300 clamp(180px, 22vw, 340px)/1 var(--sans);
+  letter-spacing: -.11em;
+  pointer-events: none;
+}
+.software-field__reticle {
+  inset: 0;
+  border: 0;
+  clip-path: none;
+  background: radial-gradient(circle at 50% 51%, #bd9ed31c, transparent 38%),
+    linear-gradient(transparent 49.9%, #ffffff08 50%, transparent 50.1%);
+}
+.software-field__reticle::after { left: 50%; opacity: .35; }
+.software-field__caption { padding-bottom: clamp(24px, 3vw, 45px); }
+.software-field__caption h3 {
+  max-width: 10ch;
+  font-size: clamp(50px, 5vw, 84px);
+  line-height: .9;
+  text-wrap: balance;
+}
+.software-field__records {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 30px 0;
+  background: linear-gradient(90deg, #09090caa, #09090a22 48%, transparent);
+}
+.software-field__records::before {
+  content: "";
+  position: absolute;
+  top: 30px;
+  bottom: 30px;
+  left: 0;
+  width: 1px;
+  background: linear-gradient(transparent, #b79ccd5c 20%, #b79ccd5c 80%, transparent);
+  pointer-events: none;
+}
+.software-field__record {
+  min-height: 140px;
+  grid-template-columns: 60px minmax(0, 1fr) 24px;
+  padding: 20px clamp(22px, 3.6vw, 55px);
+  border-color: #ffffff0d;
+  background: transparent;
+  overflow: hidden;
+  transition: background .3s;
+}
+.software-field__record::before {
+  content: "";
+  position: absolute;
+  top: 20%;
+  bottom: 20%;
+  left: 0;
+  width: 2px;
+  background: #bda2d5;
+  box-shadow: 0 0 20px #ba94e09c;
+  opacity: 0;
+  transform: scaleY(.4);
+  transition: opacity .3s, transform .3s;
+}
+.software-field__record::after {
+  content: attr(data-serial);
+  position: absolute;
+  right: 9%;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #cfb7e10b;
+  font-size: clamp(85px, 9vw, 150px);
+  letter-spacing: -.13em;
+  pointer-events: none;
+}
+.software-field__record:hover,
+.software-field__record:focus-visible,
+.software-field__record[data-active=true] {
+  padding-left: clamp(22px, 3.6vw, 55px);
+  background: linear-gradient(90deg, #ac83d019 0%, #ac83d008 52%, transparent);
+}
+.software-field__record:hover::before,
+.software-field__record:focus-visible::before,
+.software-field__record[data-active=true]::before { opacity: 1; transform: scaleY(1); }
+.software-field__record strong {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(28px, 3vw, 50px);
+  color: #8a858f;
+  transition: color .3s, transform .3s, text-shadow .3s;
+}
+.software-field__record:hover strong,
+.software-field__record:focus-visible strong,
+.software-field__record[data-active=true] strong {
+  color: var(--text);
+  transform: translateX(6px);
+  text-shadow: 0 0 28px #b79ccd35;
+}
+.software-field__source { margin-top: auto; }
+@media (max-width: 760px) {
+  .software-field { grid-template-columns: 1fr; }
+  .software-field__identity { border-bottom: 1px solid var(--line); }
+  .software-field__visual { min-height: 230px; }
+  .software-field__serial { top: 0; font-size: clamp(120px, 45vw, 200px); }
+  .software-field__emblem { opacity: .045; }
+  .software-field__caption h3 { font-size: clamp(40px, 10vw, 60px); }
+  .software-field__records { padding: 0; }
+  .software-field__records::before { top: 0; bottom: 0; }
+  .software-field__record { min-height: 112px; grid-template-columns: 52px minmax(0, 1fr) 20px; padding: 18px 20px; }
+  .software-field__record:hover,
+  .software-field__record:focus-visible,
+  .software-field__record[data-active=true] { padding-left: 20px; }
+  .software-field__record strong { font-size: clamp(23px, 6vw, 32px); }
+  .software-field__record::after { font-size: 83px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .software-field__record,
+  .software-field__record::before,
+  .software-field__record strong { transition: none; }
+}
