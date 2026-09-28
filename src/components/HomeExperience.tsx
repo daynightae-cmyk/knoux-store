@@ -7,7 +7,7 @@ import { softwareProducts } from '@/data/software';
 import { QualityControl } from '@/components/QualityControl';
 import { RevealGroup } from '@/components/blocks';
 import { ArchitecturalMap, MissionPath } from '@/components/SpatialExperiences';
-import { UniverseConstellation } from '@/components/UniverseConstellation';
+import { HomeSoftwareField } from '@/components/HomeSoftwareField';
 
 const LivingParticleMark = dynamic(
   () => import('@/components/three/LivingParticleMark').then((m) => m.LivingParticleMark),
@@ -109,12 +109,11 @@ export function HomeExperience() {
               </h2>
             </div>
             <p className="block-index__statement">
-              {String(softwareProducts.length).padStart(2, '0')} audited systems. The field below resolves
-              them around the KNOuX core, and each one opens only the capability layer its own
-              repository publishes.
+              {String(softwareProducts.length).padStart(2, '0')} audited systems. Each record below opens a real
+              product dossier with its published capabilities, limits and repository evidence.
             </p>
           </div>
-          <UniverseConstellation />
+          <HomeSoftwareField />
           <div className="universe-foot">
             <span>{String(softwareProducts.length).padStart(2, '0')} VERIFIED SYSTEMS / ONE ENGINEERING PRACTICE</span>
             <Link href="/products">OPEN THE UNIVERSE ↗</Link>

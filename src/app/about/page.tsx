@@ -10,7 +10,7 @@ import { growthChannelsDetail, growthModules } from '@/data/growth';
 import { creativeDisciplines } from '@/data/services';
 import { solutions } from '@/data/solutions';
 import { capabilities } from '@/data/capabilities';
-import { ArchitecturalMap } from '@/components/SpatialExperiences';
+import { AboutLivingIdentity } from '@/components/AboutLivingIdentity';
 
 export const metadata = pageMetadata(
   'About',
@@ -30,34 +30,36 @@ export default function AboutPage() {
       />
 
       <section className="shell" style={{ paddingTop: 'clamp(50px, 6vw, 100px)', paddingBottom: 'clamp(80px, 9vw, 140px)' }}>
-        <div className="about-layout">
-          <div>
+        <div className="about-layout about-layout--living">
+          <div className="about-layout__narrative">
             <span className="label label--signal">POINT OF VIEW</span>
             <h2 className="about-heading">
               Make the complex
               <br />
               <em>feel considered.</em>
             </h2>
+            <div className="about-prose">
+              <p>
+                The quality of a digital system is found in the decisions that hold it together: what it claims, what
+                it leaves out, and whether those two stay consistent as it grows. That is why this site is organised
+                the way it is.
+              </p>
+              <p>
+                A product page that lists a capability nobody has verified is worse than no product page, because it
+                spends the reader&rsquo;s trust on a claim. So the software universe is built from an audit of
+                repositories, and every entry publishes the limits its own maintainers documented. KNOuX has no
+                first-party WordPress releases yet; the separate marketplace discovers work from the official
+                WordPress.org directories and credits its authors. The Work archive contains verified KNOuX product
+                and engineering case files, without invented client stories or outcomes.
+              </p>
+              <p>
+                Everything else on the site — the divisions, the composer, the search — runs on one entity model, one
+                motion grammar and one interaction language. A visitor can move from a WordPress goal to a web system
+                to a growth channel without the site changing character underneath them.
+              </p>
+            </div>
           </div>
-          <div className="about-prose">
-            <p>
-              The quality of a digital system is found in the decisions that hold it together: what it claims, what
-              it leaves out, and whether those two stay consistent as it grows. That is why this site is organised
-              the way it is.
-            </p>
-            <p>
-              A product page that lists a capability nobody has verified is worse than no product page, because it
-              spends the reader&rsquo;s trust on a claim. So the software universe is built from an audit of
-              repositories, and every entry publishes the limits its own maintainers documented. The WordPress
-              catalogue is empty because nothing has been released there. The work archive is empty because no case
-              study meets a standard that can be checked.
-            </p>
-            <p>
-              Everything else on the site — the divisions, the composer, the search — runs on one entity model, one
-              motion grammar and one interaction language. A visitor can move from a WordPress goal to a web system
-              to a growth channel without the site changing character underneath them.
-            </p>
-          </div>
+          <AboutLivingIdentity />
         </div>
       </section>
 
@@ -67,7 +69,6 @@ export default function AboutPage() {
           title={<>Eight wings,<br />one institution.</>}
           statement="Each division is a different discipline with its own registry. They share navigation, data model, motion grammar, search and request architecture."
         >
-          <ArchitecturalMap />
           <details className="evidence-disclosure"><summary>VIEW DIVISION REGISTRY</summary><div className="index-rows">
             {divisions.map((division) => (
               <IndexRow

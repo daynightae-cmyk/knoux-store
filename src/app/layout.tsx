@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { CommandPalette } from '@/components/CommandPalette';
-import { PointerField } from '@/components/motion/PointerField';
+import { KnouxLivingCompanion } from '@/components/motion/PointerField';
 import { motionTokens } from '@/lib/motion';
 import './globals.css';
 
@@ -44,7 +44,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {children}
         <SiteFooter />
         <CommandPalette />
-        <PointerField />
+        <KnouxLivingCompanion />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       </body>
     </html>
