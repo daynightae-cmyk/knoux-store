@@ -284,6 +284,21 @@ test('the contact endpoint never claims delivery without a configured service', 
   });
   assert.equal(invalid.status, 422, 'contact endpoint validates fields');
 
+  const honeypot = await fetch(origin + '/api/contact', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: 'Test User', email: 'test@example.com', message: 'A valid project request.', website: 'bot.example' }),
+  });
+  assert.equal(honeypot.status, 200, 'honeypot stays silent');
+  assert.equal((await honeypot.json()).delivered, false, 'a silent honeypot must never report delivery');
+
+  const shortMessage = await fetch(origin + '/api/contact', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: 'Test User', email: 'test@example.com', message: 'Too short' }),
+  });
+  assert.equal(shortMessage.status, 422, 'contact endpoint rejects short messages');
+
   if (!process.env.CONTACT_WEBHOOK_URL) {
     const valid = await fetch(origin + '/api/contact', {
       method: 'POST',

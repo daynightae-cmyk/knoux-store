@@ -37,26 +37,11 @@ export type PasswordResetInput = {
 };
 
 /**
- * Providers are detected from server-side environment only. The browser bundle
- * never sees these names, so a service-role key cannot be shipped to a client
- * by this module even if one is later added to the environment.
- */
-const PROVIDER_SIGNALS = [
-  'SUPABASE_URL',
-  'SUPABASE_ANON_KEY',
-  'NEXTAUTH_SECRET',
-  'AUTH_SECRET',
-  'CLERK_PUBLISHABLE_KEY',
-  'FIREBASE_API_KEY',
-] as const;
-
-/**
- * True only when a real identity provider has been configured for this
- * deployment. Read on the server; the result is passed to the client as a
- * plain boolean, never as the environment itself.
+ * No adapter is installed. An environment variable alone cannot establish
+ * authentication, so this remains false until a real adapter handles sessions.
  */
 export function isAuthConfigured(): boolean {
-  return PROVIDER_SIGNALS.some((name) => Boolean(process.env[name]));
+  return false;
 }
 
 /**

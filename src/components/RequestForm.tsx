@@ -175,7 +175,8 @@ export function RequestForm() {
         setMessage('No delivery service is configured on this deployment, so nothing was sent. Use the address below instead.');
         return;
       }
-      if (!response.ok) throw new Error('The request could not be delivered.');
+      const receipt = await response.json() as { delivered?: boolean };
+      if (!response.ok || receipt.delivered !== true) throw new Error('The request could not be delivered.');
       setStatus('sent');
       setMessage('Request delivered.');
       track({ type: 'request_submitted', requestType: type, itemCount: items.length, delivered: true });

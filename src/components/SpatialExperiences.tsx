@@ -45,9 +45,8 @@ export function ArchitecturalMap() {
  *
  * This stays on `/products`, where it is a secondary way through the registry.
  * The homepage's second block is not this. A carousel shows no relationship
- * between systems and no depth, so that block is now the constellation in
- * `UniverseConstellation`; this remains the linear reading of the same audited
- * data.
+ * between systems and no depth, so Home now uses an editorial system field.
+ * This remains a linear reading of the same audited data on /products.
  */
 export function ProjectRail() {
   const [index, setIndex] = useState(0);
