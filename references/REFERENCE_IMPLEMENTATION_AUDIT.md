@@ -22,7 +22,7 @@ The accepted Home arrival and canonical `LivingParticleMark` remain the visual a
 | About identity | `AboutLivingIdentity` and canonical `LivingParticleMark` | **COMPLETE** for authenticated preview desktop/mobile visual QA: a lazy mounted living mark stays within the identity frame and text distinguishes first-party releases, external discovery and real Work records. Device-mode simulation remains **PARTIAL**. |
 | Work specialist | `CaseFileArchive` | **COMPLETE** for authenticated preview desktop/mobile visual QA: fixed context and scrolling verified product records retain evidence hierarchy. Original Marlow Vance artifact was not found in the repository or supplied attachments. See `work/WORK_REFERENCE_TRACEABILITY.md`. |
 | Vaultex motion study | Site motion grammar and `motion/VAULTEX_CLOSURE.md` | Only interaction mechanics are adapted. Source branding, palette, fonts, cursor and CDN libraries are rejected. |
-| KNOuX Living Companion | `motion/PointerField.tsx` | Canonical mark SVG replaces the old dot in the single shared pointer listener. No additional WebGL context. |
+| KNOuX Living Companion | `identity/KnouxSentinel.tsx` | Original KNOuX Sentinel replaces the temporary mark-SVG follower. One global pointer listener. SVG + DOM + CSS. No additional WebGL context. |
 
 ## Delivery truth
 
