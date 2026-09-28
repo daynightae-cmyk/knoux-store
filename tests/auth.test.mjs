@@ -202,6 +202,7 @@ test('with no provider configured the contract reports that, and nothing else', 
   // The only outcomes a real provider could produce are declared, and the
   // unconfigured adapter resolves to exactly one of them.
   assert.match(provider, /status: 'not-configured'/, 'the unconfigured adapter must return not-configured');
+  assert.match(provider, /function isAuthConfigured\(\): boolean \{\s*return false;/, 'environment signals alone must not report working auth');
   // `success` is a legitimate member of the contract a real provider could
   // satisfy. What must not exist is an unconfigured implementation claiming it,
   // so the assertion is scoped to the adapter itself.
