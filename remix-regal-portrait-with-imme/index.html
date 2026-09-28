@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eng. Sadek Elgazar — Software Engineer &amp; Product Builder</title>
+<meta name="description" content="Eng. Sadek Elgazar — Software Engineer, Digital Product Builder and creator of KNOuX products across web, desktop, Android, AI integrations and production systems.">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #b89b5e;
+    --gold-light: #d8c48c;
+    --white: #f4f2ef;
+    --silver: #c9cbd1;
+    --violet: #a68cf0;
+    --violet-soft: #8a7ac0;
+    --deep-purple: #0d0a1a;
+    --black: #050308;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--silver);
+    font-family: 'Cinzel', serif;
+    overflow-x: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* ═══════════════ SCROLLBAR ═══════════════ */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--violet-soft); border-radius: 3px; }
+
+  /* ═══════════════ CANVAS BACKGROUND ═══════════════ */
+  #bg-canvas {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0; pointer-events: none;
+  }
+
+  /* ═══════════════ HERO SECTION ═══════════════ */
+  #hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  #hero-canvas {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+  }
+
+  .hero-content {
+    position: relative; z-index: 10;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+    width: 100%;
+  }
+
+  .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--violet);
+    opacity: 0.85;
+    margin-bottom: 22px;
+  }
+  .eyebrow::before { content: '● '; color: var(--violet); }
+
+  .portrait-frame {
+    position: relative;
+    width: 320px; height: 380px;
+    margin: 0 auto 30px;
+  }
+
+  .portrait-glow {
+    position: absolute; inset: -40px;
+    background: radial-gradient(ellipse, rgba(166,140,240,0.18) 0%, transparent 70%);
+    animation: pulseGlow 3.5s ease-in-out infinite;
+    border-radius: 50%;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.06); }
+  }
+
+  #portrait-canvas {
+    position: relative;
+    width: 100%; height: 100%;
+    z-index: 2;
+    display: block;
+  }
+
+  #portrait-source {
+    display: none;
+  }
+
+  .identity-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(2.1rem, 6.5vw, 4.2rem);
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    background: linear-gradient(135deg, var(--silver) 0%, var(--white) 30%, var(--violet) 60%, var(--silver) 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+    line-height: 1.1;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+
+  .identity-subtitle {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(0.85rem, 2vw, 1.05rem);
+    color: var(--violet);
+    letter-spacing: 0.25em;
+    margin: 14px 0 8px;
+    text-transform: uppercase;
+  }
+
+  .identity-copy {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.85rem, 1.6vw, 1rem);
+    color: rgba(201,203,209,0.75);
+    max-width: 480px;
+    margin: 10px auto 4px;
+    line-height: 1.7;
+  }
+
+  .identity-line2 {
+    font-size: 0.8rem;
+    color: rgba(201,203,209,0.5);
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+
+  .tech-line {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(166,140,240,0.6);
+    margin-top: 18px;
+  }
+
+  .divider {
+    width: 160px; height: 1px;
+    background: linear-gradient(to right, transparent, var(--violet-soft), transparent);
+    margin: 22px auto;
+    position: relative;
+  }
+  .divider::before {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--violet);
+    box-shadow: 0 0 8px rgba(166,140,240,0.8);
+  }
+
+  .scroll-hint {
+    margin-top: 30px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 8px;
+    opacity: 0.55;
+    animation: bounce 2.4s ease-in-out infinite;
+  }
+  .scroll-hint span { font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase; }
+  .scroll-hint svg { width: 18px; }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+
+  /* ═══════════════ SECTION SHARED ═══════════════ */
+  section { position: relative; z-index: 1; }
+
+  .section-header {
+    text-align: center;
+    padding: 60px 20px 20px;
+  }
+
+  .section-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.3rem, 3.6vw, 2rem);
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--silver), var(--white), var(--violet));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.12em;
+  }
+
+  .section-line {
+    width: 100px; height: 1px;
+    background: linear-gradient(to right, transparent, var(--violet-soft), transparent);
+    margin: 14px auto;
+  }
+
+  /* ═══════════════ GALLERY SECTION ═══════════════ */
+  #gallery {
+    padding: 20px 20px 80px;
+    background: linear-gradient(to bottom, transparent, rgba(20,15,35,0.4), transparent);
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 26px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .gallery-card {
+    position: relative;
+    border: 1px solid rgba(166,140,240,0.15);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.4s ease, border-color 0.4s ease;
+    background: rgba(13,10,20,0.8);
+  }
+
+  .gallery-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: var(--violet);
+  }
+
+  .card-visual {
+    width: 100%; height: 220px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at 30% 20%, rgba(166,140,240,0.12), transparent 60%), #0a0810;
+  }
+
+  .card-visual canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  .card-initials {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 3.2rem;
+    font-weight: 900;
+    color: rgba(244,242,239,0.08);
+    letter-spacing: 0.05em;
+    position: relative; z-index: 1;
+  }
+
+  .gallery-card-overlay {
+    position: relative;
+    display: flex; flex-direction: column;
+    padding: 22px 24px 26px;
+    background: rgba(8,6,14,0.9);
+    border-top: 1px solid rgba(166,140,240,0.12);
+  }
+
+  .card-theme {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--violet);
+    opacity: 0.85;
+    margin-bottom: 8px;
+  }
+
+  .card-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .card-desc {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: rgba(201,203,209,0.65);
+    font-family: 'Cinzel', serif;
+    margin-bottom: 10px;
+  }
+
+  .card-tech {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: rgba(166,140,240,0.55);
+    text-transform: uppercase;
+  }
+
+  .card-link {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--violet-soft);
+    margin-top: 8px;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(166,140,240,0.3);
+    width: fit-content;
+  }
+  .card-link:hover { color: var(--violet); border-color: var(--violet); }
+
+  /* Ornamental corners on cards */
+  .card-corner {
+    position: absolute;
+    width: 20px; height: 20px;
+    border-color: rgba(166,140,240,0.35);
+    border-style: solid;
+    pointer-events: none;
+    transition: border-color 0.4s ease;
+    z-index: 2;
+  }
+  .gallery-card:hover .card-corner { border-color: var(--violet); }
+  .card-corner.tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+  .card-corner.tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+
+  /* ═══════════════ PHILOSOPHY SECTION ═══════════════ */
+  #philosophy {
+    padding: 60px 20px 80px;
+    text-align: center;
+  }
+
+  .philosophy-stage {
+    position: relative;
+    max-width: 700px;
+    margin: 40px auto;
+    min-height: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #philosophy-canvas {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+
+  .philosophy-card {
+    position: relative; z-index: 5;
+    width: 260px;
+    perspective: 800px;
+  }
+
+  .philosophy-card-inner {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.15s ease;
+    padding: 40px 24px;
+    border: 1px solid rgba(166,140,240,0.2);
+    background: rgba(10,8,16,0.5);
+    backdrop-filter: blur(6px);
+  }
+
+  .philosophy-mark {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.4rem;
+    color: var(--violet);
+    opacity: 0.7;
+    margin-bottom: 18px;
+    display: block;
+  }
+
+  .philosophy-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.2rem, 3vw, 1.7rem);
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--silver), var(--white), var(--violet));
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+    letter-spacing: 0.08em;
+  }
+
+  .philosophy-copy {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.85rem, 1.8vw, 1rem);
+    color: rgba(201,203,209,0.7);
+    max-width: 480px;
+    margin: 16px auto 0;
+    line-height: 1.8;
+  }
+
+  .philosophy-close {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    color: var(--violet-soft);
+    margin-top: 24px;
+    line-height: 1.9;
+  }
+
+  /* ═══════════════ PRINCIPLES ═══════════════ */
+  #principles {
+    padding: 60px 20px 60px;
+    background: linear-gradient(to bottom, transparent, rgba(20,15,35,0.3), transparent);
+  }
+
+  .principles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 22px;
+    max-width: 950px;
+    margin: 40px auto 0;
+  }
+
+  .principle-card {
+    border: 1px solid rgba(166,140,240,0.12);
+    padding: 30px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    background: rgba(10,8,16,0.55);
+    transition: border-color 0.4s ease, transform 0.3s ease;
+    backdrop-filter: blur(4px);
+  }
+
+  .principle-card:hover { border-color: var(--violet); transform: translateY(-5px); }
+
+  .principle-icon {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.6rem;
+    display: block;
+    margin-bottom: 12px;
+    color: var(--violet);
+    opacity: 0.85;
+  }
+
+  .principle-value {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--white);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .principle-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(201,203,209,0.55);
+  }
+
+  .tech-micro {
+    text-align: center;
+    max-width: 700px;
+    margin: 50px auto 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: rgba(166,140,240,0.45);
+    line-height: 2.2;
+  }
+
+  /* ═══════════════ FINAL BANNER ═══════════════ */
+  #banner {
+    padding: 80px 20px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #banner::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 40%, rgba(166,140,240,0.08) 0%, transparent 70%);
+  }
+
+  .banner-content { position: relative; z-index: 2; }
+
+  .banner-mark {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--violet);
+    margin: 0 auto 24px;
+    box-shadow: 0 0 20px rgba(166,140,240,0.7);
+    animation: sealPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes sealPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(166,140,240,0.7); }
+    50% { transform: scale(1.4); box-shadow: 0 0 34px rgba(166,140,240,1); }
+  }
+
+  .banner-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.6rem, 5vw, 3rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--silver), var(--white), var(--violet));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.05em;
+    margin-bottom: 20px;
+  }
+
+  .banner-sub {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.95rem, 2vw, 1.2rem);
+    color: rgba(201,203,209,0.7);
+    max-width: 400px;
+    margin: 0 auto 20px;
+    line-height: 2;
+  }
+
+  .banner-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--violet);
+    margin-bottom: 8px;
+  }
+
+  .banner-tag2 {
+    font-family: 'Cinzel', serif;
+    font-style: italic;
+    font-size: 0.9rem;
+    color: rgba(201,203,209,0.5);
+    margin-bottom: 40px;
+  }
+
+  .contact-grid {
+    display: flex; flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px 28px;
+    max-width: 600px;
+    margin: 0 auto 30px;
+  }
+
+  .contact-item {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--silver);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(166,140,240,0.25);
+    padding-bottom: 3px;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+  .contact-item:hover { color: var(--violet); border-color: var(--violet); }
+
+  .signature {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    color: var(--white);
+    margin-top: 30px;
+  }
+
+  .meta-verified {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: rgba(166,140,240,0.5);
+    margin-top: 8px;
+    text-transform: uppercase;
+  }
+
+  footer {
+    text-align: center;
+    padding: 30px 20px 40px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: rgba(201,203,209,0.3);
+  }
+
+  /* ═══════════════ NOISE OVERLAY ═══════════════ */
+  .noise {
+    position: fixed; inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 256px 256px;
+  }
+
+  /* ═══════════════ SCROLL ANIMATIONS ═══════════════ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+
+  /* ═══════════════ VIGNETTE ═══════════════ */
+  .vignette {
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(5,3,8,0.6) 100%);
+    pointer-events: none; z-index: 0;
+  }
+
+  @media (max-width: 480px) {
+    .portrait-frame { width: 240px; height: 290px; }
+    .identity-title { letter-spacing: 0.05em; }
+  }
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+<div class="vignette"></div>
+<canvas id="bg-canvas"></canvas>
+
+<img id="portrait-source" src="assets/254654069.jpg" alt="" crossorigin="anonymous"/>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <span class="eyebrow">Engineering Digital Systems</span>
+
+    <div class="portrait-frame">
+      <div class="portrait-glow"></div>
+      <canvas id="portrait-canvas"></canvas>
+    </div>
+
+    <h1 class="identity-title">Sadek Elgazar</h1>
+    <p class="identity-subtitle">Software Engineer &amp; Digital Product Builder</p>
+    <p class="identity-copy">Building software, systems and digital products from interface to infrastructure.</p>
+    <p class="identity-copy identity-line2">From concept to production.</p>
+    <div class="divider"></div>
+    <span class="tech-line">Web • Desktop • Android • AI • Automation</span>
+
+    <div class="scroll-hint">
+      <span>Explore The Work</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SELECTED WORK ═══════════════ -->
+<section id="gallery">
+  <div class="section-header reveal">
+    <h2 class="section-title">Selected Work</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="gallery-grid" id="gallery-grid"></div>
+</section>
+
+<!-- ═══════════════ ENGINEERING PHILOSOPHY ═══════════════ -->
+<section id="philosophy">
+  <div class="section-header reveal">
+    <h2 class="section-title">Engineering Philosophy</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="philosophy-stage" id="philosophy-stage">
+    <canvas id="philosophy-canvas"></canvas>
+    <div class="philosophy-card" id="tilt-card">
+      <div class="philosophy-card-inner" id="tilt-inner">
+        <span class="philosophy-mark">{ }</span>
+        <h3 class="philosophy-title">Simple by Design</h3>
+        <p class="philosophy-copy">Complex systems should feel simple to the person using them.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="reveal">
+    <p class="philosophy-close">
+      The engineering can be difficult underneath — the experience should not be.<br><br>
+      Engineering complexity. Delivering simplicity.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════ ENGINEERING PRINCIPLES ═══════════════ -->
+<section id="principles">
+  <div class="section-header reveal">
+    <h2 class="section-title">Engineering Principles</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="principles-grid">
+    <div class="principle-card reveal reveal-delay-1">
+      <span class="principle-icon">&lt;/&gt;</span>
+      <span class="principle-value">01</span>
+      <span class="principle-label">Build Real Systems</span>
+    </div>
+    <div class="principle-card reveal reveal-delay-2">
+      <span class="principle-icon">✓</span>
+      <span class="principle-value">02</span>
+      <span class="principle-label">Verify Before Claiming</span>
+    </div>
+    <div class="principle-card reveal reveal-delay-3">
+      <span class="principle-icon">↻</span>
+      <span class="principle-value">03</span>
+      <span class="principle-label">Automate Repetition</span>
+    </div>
+    <div class="principle-card reveal reveal-delay-1">
+      <span class="principle-icon">◧</span>
+      <span class="principle-value">04</span>
+      <span class="principle-label">Design For The User</span>
+    </div>
+    <div class="principle-card reveal reveal-delay-2">
+      <span class="principle-icon">⇪</span>
+      <span class="principle-value">05</span>
+      <span class="principle-label">Ship With Evidence</span>
+    </div>
+    <div class="principle-card reveal reveal-delay-3">
+      <span class="principle-icon">∞</span>
+      <span class="principle-value">06</span>
+      <span class="principle-label">Iterate Without Destroying</span>
+    </div>
+  </div>
+
+  <p class="tech-micro reveal">
+    React · TypeScript · Next.js · Electron · Windows · Android · Supabase · PostgreSQL · GitHub · Vercel · PowerShell · UI/UX · AI Integrations · CI/CD · Automation · APIs
+  </p>
+</section>
+
+<!-- ═══════════════ CONTACT CTA ═══════════════ -->
+<section id="banner">
+  <div class="banner-content reveal">
+    <span class="banner-tag">Build • Solve • Scale</span>
+    <div class="banner-mark"></div>
+    <h2 class="banner-title">Let's Build Something Real.</h2>
+    <p class="banner-sub">Software.<br>Systems.<br>Products.<br>Automation.<br>Digital Experiences.</p>
+    <p class="banner-tag2">Ideas Today. Better Products Tomorrow.</p>
+
+    <div class="contact-grid">
+      <a class="contact-item" href="mailto:admin@knoux.store">admin@knoux.store</a>
+      <a class="contact-item" href="https://knoux.store" target="_blank" rel="noopener">knoux.store</a>
+      <a class="contact-item" href="https://wa.me/971503281920" target="_blank" rel="noopener">+971 50 328 1920</a>
+      <a class="contact-item" href="https://github.com/daynightae-cmyk" target="_blank" rel="noopener">github.com/daynightae-cmyk</a>
+      <span class="contact-item" style="cursor:default;">@knoux7</span>
+      <span class="contact-item" style="cursor:default;">Sadek Hamam Elgazar</span>
+      <span class="contact-item" style="cursor:default;">Abu Dhabi, UAE</span>
+    </div>
+
+    <p class="identity-copy" style="max-width:520px;">I build production-ready digital products across Web, Desktop and Android, combining modern software engineering, AI integrations, scalable backends, UI/UX and automated delivery workflows.</p>
+
+    <h3 class="signature">ENG SADEK ELGAZAR</h3>
+    <p class="meta-verified">Meta Verified</p>
+  </div>
+</section>
+
+<footer>KNOuX — Independent Digital Engineering</footer>
+
+<script src="gallery-data.js"></script>
+<script src="particle-portrait.js"></script>
+<script src="scene.js"></script>
+</body>
+</html>
