@@ -23,8 +23,8 @@ Every step run from a clean `npm ci`, in this order.
 | Build | `npm run build` | **exit 0** — no project-adapter trace warning |
 | Unit tests | `npm test` / `npm run test:coverage` | **198 / 198 pass**, 0 fail |
 | Coverage | `npm run test:coverage` | **exit 0** — 86.64% statements, 77.20% branches, 75.86% functions |
-| Browser suite | `npm run test:e2e` | **342 tests in progress at this revision** |
-| Automated a11y | (part of the above) | **99 axe assertions** across 33 routes × 3 device profiles, **0 critical or serious** |
+| Browser suite | `npm run test:e2e` | **342 / 342 pass**, 0 fail, 0 skip (26.2m, 1 worker) |
+| Automated a11y | (part of the above) | **96 axe assertions** across 32 routes × 3 device profiles, **0 critical or serious** |
 | Dependency audit | `npm audit --audit-level=high` | **0 vulnerabilities** |
 | Dead code | `npm run audit:dead` | **exit 0** — no unused files, dependencies, unlisted packages or unresolved imports |
 | SAST | CodeQL `javascript-typescript`, queries `security-and-quality` | Final head must be checked for alerts after CI completes |
@@ -38,9 +38,21 @@ The closure review then found four more defects and the code now addresses them:
 authenticated hosted sessions were rejected before lookup; global frame denial
 blocked same-origin product previews; a failed workspace fetch abandoned the
 remaining reads; and fresh rate-limit keys could exceed the 4096-entry cap.
-Targeted browser regressions for previews and failed fetches pass on all three
-device profiles. The full 342-test run and final CodeQL analysis are release
-gates, not inferred from the earlier run.
+Browser regressions for previews and failed fetches pass on all three device
+profiles, and the full 342-test run is green.
+
+Running that full run found two more defects, both in the tests rather than in
+the product, and both of the kind that report a pass or a failure that the run
+did not earn:
+
+| # | Defect | What it did | Fix |
+| --- | --- | --- | --- |
+| 10 | `api-boundary.spec.ts` still asserted `frame-ancestors 'none'` after the policy was relaxed to `'self'` | Failed 3× (once per profile) against a policy the feature required. The assertion was correct for the old site and wrong for this one | Assert the restriction, not a copied value: the directive must be present, must be `'self'`, must not be the open forms, and `X-Frame-Options` must be `SAMEORIGIN` |
+| 11 | The failed-fetch regression synchronised on a label that reads the same before and after the read pass | Passed 3× in isolation, failed 3× inside the full run. `ADAPTER STATE UNKNOWN` is the label on first paint, so the assertion could complete while only `/api/build/project` had been requested — the exact failure the test exists to catch | Wait for all three reads to be attempted and for the network to go idle, then assert. The race is gone, not retried |
+
+Both were reproduced before being changed. Defect 11's failure output is the
+evidence that the assertion, not the code, was at fault: `requested` contained
+`["/api/build/project"]` at the moment the test claimed the read had settled.
 
 ---
 
@@ -108,7 +120,7 @@ All reverified against source this pass, with behavioural tests, not source grep
 | F-05 | Test suite required the internet | **CLOSED** | Suite runs offline; a public host is refused by design |
 | F-06 | Contact form had no rate limit | **CLOSED** | **Found incomplete this pass** — the origin comparison used the internal origin (defect 6). Now fixed and covered |
 | F-07 | Turbopack whole-project trace warning | **CLOSED** | Build output clean |
-| F-17 | CI proved nothing about the browser | **CLOSED** | 333 browser assertions in the `browser` job |
+| F-17 | CI proved nothing about the browser | **CLOSED** | 342 browser assertions green in the `browser` job |
 
 `docs/BUILD_SECURITY_MODEL.md` documents the PUBLIC / AUTHENTICATED /
 LOCAL BRIDGE / SERVER boundaries, each traced to the file that enforces it.
@@ -188,3 +200,10 @@ Not defects; things a reader should not assume were done.
    recorded here so the decision is visible rather than buried in config.
 4. **Final CI and CodeQL results must be read at the exact pushed head.**
    Earlier green jobs do not validate later commits.
+5. **The browser suite is a per-process, single-worker, serialised run.** It
+   reports what one machine observed, not a guarantee about every machine. Two
+   runs on this machine disagreed once — an evidence capture and an axe pass
+   both failed on `browserContext.close: ENOENT … traces\….network` because a
+   second Playwright run deleted `e2e/.artifacts/` out from under the first.
+   The suite is not safe to run concurrently against one output directory, and
+   that is a property of the harness rather than a finding about the site.

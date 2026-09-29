@@ -250,10 +250,24 @@ test.describe('composition', () => {
       else await route.fulfill({ status: 503, body: '{}' });
     });
     await page.goto('/build/apps');
+
+    /**
+     * Synchronise on the reads, not on a label.
+     *
+     * The sidebar reads "ADAPTER STATE UNKNOWN" before the pass finishes and
+     * after it settles, so asserting on it first is a race this suite loses
+     * under load. The pass is only finished when all three reads have been
+     * attempted and nothing is in flight, and both are observable.
+     */
+    await expect.poll(() => requested.length, { timeout: 15_000 }).toBeGreaterThanOrEqual(3);
+    await page.waitForLoadState('networkidle');
+
+    for (const endpoint of ['/project', '/environment', '/git']) {
+      expect(requested, `a failed project read must not abandon ${endpoint}`).toContain(
+        `/api/build${endpoint}`,
+      );
+    }
     await expect(page.locator('.dev-sidebar__foot')).toContainText('ADAPTER STATE UNKNOWN');
-    expect(requested).toContain('/api/build/project');
-    expect(requested).toContain('/api/build/environment');
-    expect(requested).toContain('/api/build/git');
   });
 });
 
