@@ -22,7 +22,7 @@ export default async function PatternsPage({
   const patterns = await queryPatterns({ search: query.search, page: query.page, perPage: query.perPage });
 
   return (
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       <PageIntro
         index="WP-06"
         label="WordPress"

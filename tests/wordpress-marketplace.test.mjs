@@ -127,7 +127,7 @@ test('asset URLs are refused unless they are official WordPress hosts', () => {
   }
   assert.equal(external.isOfficialAssetHost('ps.w.org'), true);
   assert.equal(external.isOfficialAssetHost('example.com'), false);
-  assert.equal(external.isOfficialAssetHost('example.com'), false);
+  assert.equal(external.isOfficialAssetHost('anything.wordpress.org'), false);
 });
 
 test('a record with no identity is dropped rather than rendered', () => {
@@ -202,13 +202,16 @@ test('upstream failure degrades one section instead of failing the page', () => 
 
 /* ----------------------------------------------------------- proxy safety */
 
-test('the image proxy only serves official WordPress assets', () => {
+test('the image proxy delegates every decision to the asset policy', () => {
   const route = readFileSync(join(root, 'src/app/api/wp-image/route.ts'), 'utf8');
-  assert.match(route, /isOfficialAssetHost/, 'the proxy must apply the host allowlist');
-  assert.match(route, /protocol !== 'https:'/, 'the proxy must require https');
-  assert.match(route, /username \|\| target\.password/, 'the proxy must reject embedded credentials');
-  assert.match(route, /startsWith\('image\/'\)/, 'the proxy must only pass through images');
-  assert.match(route, /MAX_BYTES/, 'the proxy must bound the response size');
+  // The route is transport; the policy is where the rules live and where they
+  // are executed. Pinning the old inline implementation here would only freeze
+  // the refactor that moved the rules into a testable module.
+  assert.match(route, /checkAssetUrl/, 'the proxy must apply the host allowlist via the policy');
+  assert.match(route, /isAllowedImageType/, 'the proxy must only serve raster images via the policy');
+  assert.match(route, /readBounded/, 'the proxy must bound the response size while streaming');
+  assert.match(route, /redirect: 'manual'/, 'the proxy must follow redirects by hand');
+  assert.match(route, /MAX_REDIRECTS/, 'the proxy must bound the redirect chain');
   assert.match(route, /TIMEOUT_MS/, 'the proxy must time out');
   assert.ok(
     !/dangerouslySetInnerHTML/.test(route),

@@ -35,7 +35,7 @@ export function HomeExperience() {
   }, []);
 
   return (
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       {/* Protected arrival sequence */}
       <section className="arrival-rail" aria-label="KNOuX introduction">
         <div className="arrival-sticky">

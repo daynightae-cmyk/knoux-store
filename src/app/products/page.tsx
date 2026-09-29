@@ -19,7 +19,7 @@ export default function ProductsPage() {
   const families = new Set(softwareProducts.map((product) => product.family));
 
   return (
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       <PageIntro
         index="01"
         label="Software"

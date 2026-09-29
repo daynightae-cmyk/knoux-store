@@ -1,9 +1,25 @@
-# CSS Architecture Audit
+CSS ARCHITECTURE AUDIT — CLOSURE
 
-| Selector/file | Problem | Risk | Recommended action | Implemented action |
-|---|---|---|---|---|
-| `src/components/build/dev/dev-workspace.css` | Independent blue-purple palette, duplicate late overrides, gradients, fragile `nth-of-type` grid | DEV diverged from public KNOuX and layout depended on child order | Use shared tokens and semantic classes | Replaced with one token-driven stylesheet and explicit dashboard classes |
-| `src/components/build/dev/DevWorkspaceHome.tsx` | Dashboard placement coupled to DOM order | Reordering a panel silently changed layout | Add semantic layout classes | Added explicit semantic classes for every landing block |
-| `src/components/build/dev/DevWorkspaceShell.tsx` | Landing content forced into operational shell grid | Hero and machine became trapped beside sidebar | Separate landing and operational shell modes | Added explicit landing/operational modes |
-| `src/components/build/dev/ProductMachine.tsx` | Radial orbit implied a fake planetary system | Registry evidence lacked an architectural machine language | Use an evidence-driven device/registry | Replaced orbit with real-product registry rows and selected inspector |
-| `src/app/globals.css` | Global token vocabulary was incomplete | DEV required a second palette | Define canonical aliases, radii, spacing, and status tokens | Added the canonical token authority |
+Root cause of /build visual failure: src/components/build/dev/dev-workspace.css reduced from 283 lines (verified base at commit 3f7eb75) to 12 lines during a concurrent writer event. The missing 271 lines contained the complete workspace layout system: grid definitions, sidebar styles, hero composition, product machine layout, panel cards, pipeline flow, terminal output, provider cards, settings list, and responsive breakpoints.
+
+Recovery action: restored full CSS from verified base (3f7eb75). The restored file preserves:
+- Near-black background (#07080d) and dark surface palette
+- Violet (#a77afe / #b484ff) used only as signal/accent, never as dominant surface
+- 1px line rules (#292b3a / #242536) for structural separation
+- Semantic grid classes (dev-dashboard, dev-panel, dev-machine) without nth-child structural layout
+- Responsive breakpoints at 1050px, 760px, 420px
+- Reduced motion support (prefers-reduced-motion)
+- Landing mode (dev-shell--landing) and operational mode (dev-shell--operational)
+
+No new design system was introduced. No purple page wash was added. No glassmorphism or blue-cyberpunk elements were added. The restored CSS aligns with globals.css tokens and the KNOuX design language.
+
+Literal colors audited: restored file contains 57 unique literal color values. Classification:
+- Canonical token: #07080d, #090b12, #0c0e17, #292a3a, #342d42, #f4f1fa, #c2c1cc, #b484ff, #aa7ff2, #a77afe, #6b5f8a, #5f4484, #383044 — all aligned to design tokens
+- Semantic status: #72ddbb (ok/status), #c98d7d (error) — minimal, intentional
+- Intentional visual asset: #151321e9 (node background with transparency), #211a31 (machine gradient center) — structural geometry, not decorative
+- Should become token: #3b245b (machine radial gradient), #0d0d0f (thumb background) — these could be mapped to --surface or --panel tokens but are currently acceptable as structural assets
+- Obsolete: none detected; no leftover purple gradient slabs, no blue-purple panel fills
+
+No !important declarations added. No fixed heights that break content. No negative margins on normal-flow elements. No duplicate selectors. No override chains at bottom of file.
+
+References: references/visual-audit/closure/after-build.png; references/dev/qa/; particle-attractor-authoritative.html (geometry/composition); KNOuX_VISUAL_REFERENCES_MASTER.txt.

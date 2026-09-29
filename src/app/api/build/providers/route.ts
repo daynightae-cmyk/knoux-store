@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
-import { FsProjectAdapter } from '@/lib/build/project-adapter';
+import { NextResponse, type NextRequest } from 'next/server';
+import { createProjectAdapter } from '@/lib/build/adapter-factory';
+import { guardBuildApi } from '@/lib/build/api-guard';
 import { routeModel, taskClasses } from '@/lib/build/model-router';
 import { providerStatuses } from '@/lib/build/providers';
 import type { RoutingMode, TaskClass } from '@/lib/build/types';
@@ -15,8 +16,11 @@ const MODES: RoutingMode[] = ['manual', 'auto'];
  * call from this route. A provider with no credential is reported as
  * `unconfigured` with the variable that would enable it.
  */
-export async function GET(request: Request) {
-  const params = new URL(request.url).searchParams;
+export async function GET(request: NextRequest) {
+  const denied = await guardBuildApi(request, { scope: 'providers' });
+  if (denied) return denied;
+
+  const params = request.nextUrl.searchParams;
   const taskParam = params.get('task') ?? 'general';
   const modeParam = (params.get('mode') ?? 'auto') as RoutingMode;
   const task: TaskClass = (taskClasses() as string[]).includes(taskParam)
@@ -32,7 +36,7 @@ export async function GET(request: Request) {
 
   const routing = routeModel(task, mode, providers, manual);
 
-  const adapter = new FsProjectAdapter({ root: process.cwd(), environment: 'production', label: 'read-only' });
+  const adapter = createProjectAdapter();
   const execute = adapter.capabilities()['provider.execute'];
 
   return NextResponse.json(

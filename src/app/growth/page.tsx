@@ -15,7 +15,7 @@ export const metadata = pageMetadata(
 
 export default function GrowthPage() {
   return (
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       <TrackOnView event={{ type: 'division_opened', division: 'growth', route: '/growth' }} />
       <PageIntro
         index="04"

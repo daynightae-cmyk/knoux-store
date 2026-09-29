@@ -1,4 +1,10 @@
 import { NextResponse } from 'next/server';
+import {
+  checkDeclaredLength,
+  checkRequestOrigin,
+  intakeRateLimit,
+  readBoundedJson,
+} from '@/lib/contact/intake-guard';
 
 /**
  * Request intake.
@@ -10,6 +16,11 @@ import { NextResponse } from 'next/server';
  * Delivery requires CONTACT_WEBHOOK_URL. Without it the endpoint returns 503
  * rather than pretending a message was received. No other transport, no
  * logging of message content, and no storage of submissions.
+ *
+ * Abuse controls are applied in the order that costs the least to a legitimate
+ * caller: a cross-site browser request is refused before the body is read, an
+ * oversized body is refused before it is buffered, and the per-address ceiling
+ * is charged only once the request is otherwise going to be processed.
  */
 
 const MAX_ITEMS = 24;
@@ -42,23 +53,85 @@ function cleanText(value: unknown, max: number): string {
   return typeof value === 'string' ? value.trim().slice(0, max) : '';
 }
 
+function refuse(status: number, error: string, extra: Record<string, unknown> = {}) {
+  return NextResponse.json(
+    { error, delivered: false, ...extra },
+    { status, headers: { 'cache-control': 'no-store' } },
+  );
+}
+
+/**
+ * The origin this site is actually reached at.
+ *
+ * `new URL(request.url).origin` is the origin of whatever reached the server
+ * process, which behind a proxy, a container or a platform router is the
+ * *internal* origin — not the one the browser typed. Comparing an `Origin`
+ * header against it refuses every legitimate submission: the browser sent
+ * `https://knoux.store`, the process saw `http://localhost:3000`, and the
+ * honest visitor is told the endpoint is site-only. The forwarded headers are
+ * what the edge sets to describe the public request, so those are what the
+ * comparison has to use, with the URL origin as the fallback.
+ *
+ * The declared `host` is still only used to build a comparison value. Nothing
+ * is trusted from it beyond that: a forged `Origin` and a forged `Host` would
+ * have to agree with each other, and the `Sec-Fetch-Site` check is the
+ * browser-forged-header signal that this defence actually rests on.
+ */
+function publicOrigin(request: Request): string {
+  const headers = request.headers;
+  const host = headers.get('x-forwarded-host') ?? headers.get('host');
+  if (!host) return new URL(request.url).origin;
+
+  const forwardedProto = headers.get('x-forwarded-proto');
+  const proto =
+    forwardedProto ??
+    (host.startsWith('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https');
+
+  return `${proto}://${host}`;
+}
+
 export async function POST(request: Request) {
-  let data: unknown;
-  try {
-    data = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid request body.', delivered: false }, { status: 400 });
+  const ownOrigin = publicOrigin(request);
+
+  const origin = checkRequestOrigin(request.headers, ownOrigin);
+  if (!origin.ok) {
+    return refuse(403, 'This endpoint accepts submissions from the KNOuX site only.');
   }
 
+  const declared = checkDeclaredLength(request.headers);
+  if (!declared.ok) {
+    return refuse(413, 'Submission is larger than this endpoint accepts.');
+  }
+
+  const limit = intakeRateLimit(request);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: 'Too many submissions. Please try again shortly.', delivered: false },
+      {
+        status: 429,
+        headers: {
+          'cache-control': 'no-store',
+          'retry-after': String(limit.retryAfterSeconds ?? 60),
+        },
+      },
+    );
+  }
+
+  const body = await readBoundedJson(request);
+  if (!body.ok) {
+    return refuse(body.reason === 'body-too-large' ? 413 : 400, 'Invalid request body.');
+  }
+
+  const data = body.value;
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
-    return NextResponse.json({ error: 'Invalid request body.', delivered: false }, { status: 400 });
+    return refuse(400, 'Invalid request body.');
   }
 
   const fields = data as Record<string, unknown>;
 
   // Honeypot submissions are accepted silently so bots do not learn the rule.
   if (cleanText(fields.website, 200)) {
-    return NextResponse.json({ ok: true, delivered: false });
+    return NextResponse.json({ ok: true, delivered: false }, { headers: { 'cache-control': 'no-store' } });
   }
 
   const payload: Payload = {
@@ -82,15 +155,12 @@ export async function POST(request: Request) {
     payload.message.length < 10 ||
     payload.message.length > 4000
   ) {
-    return NextResponse.json({ error: 'Request fields are invalid.', delivered: false }, { status: 422 });
+    return refuse(422, 'Request fields are invalid.');
   }
 
   const webhook = process.env.CONTACT_WEBHOOK_URL;
   if (!webhook) {
-    return NextResponse.json(
-      { error: 'Request delivery is not configured on this deployment.', delivered: false },
-      { status: 503 },
-    );
+    return refuse(503, 'Request delivery is not configured on this deployment.');
   }
 
   try {
@@ -102,12 +172,18 @@ export async function POST(request: Request) {
       cache: 'no-store',
     });
     if (!response.ok) throw new Error(`Upstream responded ${response.status}`);
-    return NextResponse.json({ ok: true, delivered: true });
+    return NextResponse.json(
+      { ok: true, delivered: true },
+      { headers: { 'cache-control': 'no-store' } },
+    );
   } catch {
-    return NextResponse.json({ error: 'Delivery failed.', delivered: false }, { status: 502 });
+    return refuse(502, 'Delivery failed.');
   }
 }
 
 export async function GET() {
-  return NextResponse.json({ error: 'Method not allowed.' }, { status: 405 });
+  return NextResponse.json(
+    { error: 'Method not allowed.' },
+    { status: 405, headers: { 'cache-control': 'no-store' } },
+  );
 }

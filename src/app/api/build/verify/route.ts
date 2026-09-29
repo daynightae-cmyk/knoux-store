@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
-import { FsProjectAdapter } from '@/lib/build/project-adapter';
+import { NextResponse, type NextRequest } from 'next/server';
+import { createProjectAdapter } from '@/lib/build/adapter-factory';
+import { guardBuildApi } from '@/lib/build/api-guard';
 import { parseEslint, parseTestRunner, parseTypeScript } from '@/lib/build/diagnostics';
 import type { VerificationCheck } from '@/lib/build/types';
 
@@ -16,12 +17,21 @@ const TASKS = new Set(['lint', 'typecheck', 'test', 'build']);
  * the adapter builds the argument vector itself. There is no path from this
  * handler to `spawn` with caller-controlled arguments.
  *
- * It is refused entirely unless the deployment sets KNOUX_BUILD_ALLOW_VERIFY=1.
- * That is deliberate: even an allowlisted `npm run build` is expensive, and an
- * unauthenticated endpoint that can start builds is a denial-of-service vector.
- * The adapter additionally refuses to start a second run while one is active.
+ * Three independent conditions must all hold before anything runs:
+ *
+ *   1. a verified session, from the workspace boundary;
+ *   2. `KNOUX_BUILD_ALLOW_VERIFY=1` on the deployment;
+ *   3. the task name is on the four-item allowlist.
+ *
+ * Condition 1 is the security boundary. Condition 2 is an operator decision.
+ * Condition 3 bounds what a permitted caller can ask for. The adapter
+ * additionally refuses to start a second run while one is active, so a
+ * permitted caller still cannot fan the host out with concurrent builds.
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const denied = await guardBuildApi(request, { scope: 'verify' });
+  if (denied) return denied;
+
   if (process.env.KNOUX_BUILD_ALLOW_VERIFY !== '1') {
     return NextResponse.json(
       {
@@ -51,7 +61,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const adapter = new FsProjectAdapter({ root: process.cwd(), environment: 'production', label: 'verify' });
+  const adapter = createProjectAdapter({ label: 'Verification runner' });
 
   try {
     const snapshot = await adapter.runVerification(task);
@@ -68,8 +78,16 @@ export async function POST(request: Request) {
   }
 }
 
-/** GET reports whether the runner is on, so the UI never shows a dead button. */
-export async function GET() {
+/**
+ * GET reports whether the runner is on, so the UI never shows a dead button.
+ *
+ * It is behind the same boundary as the runner itself: whether a host can start
+ * an `npm run build` is not public information.
+ */
+export async function GET(request: NextRequest) {
+  const denied = await guardBuildApi(request, { scope: 'verify' });
+  if (denied) return denied;
+
   const enabled = process.env.KNOUX_BUILD_ALLOW_VERIFY === '1';
   const status: VerificationCheck = {
     id: 'runner', label: 'Verification runner', command: null, exitCode: null,

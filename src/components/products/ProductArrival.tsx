@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import { visualProfileFor, resolveProductLogo } from '@/data/product-visuals';
 import type { SoftwareProduct } from '@/data/software';
 
@@ -105,11 +106,14 @@ export function ProductArrival({ product, onComplete }: ProductArrivalProps) {
 
       <div className="product-arrival__copy">
         {logoPath && (
-          <img
+          <Image
             className="product-arrival__logo"
             src={logoPath}
             alt={`${product.name} logo`}
             aria-hidden="true"
+            width={48}
+            height={48}
+            unoptimized
           />
         )}
         {!logoPath && (

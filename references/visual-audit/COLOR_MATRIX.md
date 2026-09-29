@@ -1,27 +1,28 @@
-# KNOuX Color Matrix
+# Color matrix: measured production tokens
 
-Generated from the canonical runtime tokens in `src/app/globals.css`.
+The single `:root` in `src/app/globals.css` owns the palette. `/build` aliases it through `--dev-*`; it does not define another brand palette. Ratios below use WCAG 2.1 relative luminance and the actual token values in this branch.
 
-| Foreground | Background | Contrast | Usage | Result | Required fix |
-|---|---|---:|---|---|---|
-| `#f1eee8` (text) | `#08090a` (bg) | 17.21:1 | body copy | **PASS** | None |
-| `#b8b5b4` (text-dim) | `#08090a` (bg) | 9.78:1 | secondary copy | **PASS** | None |
-| `#9a9899` (muted) | `#08090a` (bg) | 6.95:1 | navigation | **PASS** | None |
-| `#f1eee8` (text) | `#16171a` (surface-2) | 15.48:1 | selected tab | **PASS** | None |
-| `#b8b5b4` (text-dim) | `#08090a` (bg) | 9.78:1 | form instructions | **PASS** | None |
-| `#08090a` (bg) | `#f1eee8` (text) | 17.21:1 | primary button | **PASS** | None |
-| `#f1eee8` (text) | `#101113` (surface) | 16.31:1 | input value | **PASS** | None |
-| `#9a9899` (muted) | `#101113` (surface) | 6.59:1 | placeholder | **PASS** | None |
-| `#f1eee8` (text) | `#16171a` (surface-2) | 15.48:1 | active nav | **PASS** | None |
-| `#a18acb` (violet) | `#08090a` (bg) | 6.66:1 | focus indicator | **PASS** | None |
-| `#a9d18e` (signal-green) | `#08090a` (bg) | 11.58:1 | measured success | **PASS** | None |
-| `#b8b5b4` (text-dim) | `#0d0e10` (panel) | 9.48:1 | table heading | **PASS** | None |
-| `#c2b5d8` (violet-soft) | `#08090a` (bg) | 10.34:1 | links | **PASS** | None |
-| `#6d6e70` (dim) | `#08090a` (bg) | 3.90:1 | nonessential disabled metadata | **FAIL** | Use text-dim or text for essential copy; reserve dim for decorative metadata. |
-| `#c98d7d` (signal-red) | `#08090a` (bg) | 7.20:1 | actual failure | **PASS** | None |
+| Use | Foreground | On `--bg` #08090a | On `--surface-2` #16171a | Decision |
+| --- | --- | ---: | ---: | --- |
+| Primary text | `--text` #f1eee8 | 17.21:1 | 15.48:1 | Normal text |
+| Secondary text | `--text-dim` #b8b5b4 | 9.78:1 | 8.80:1 | Normal text |
+| Metadata | `--muted` #9a9899 | 6.95:1 | 6.25:1 | Normal text |
+| Small labels and control borders | `--dim` #8a8c8f | 5.91:1 | 5.32:1 | Normal text and meaningful boundaries |
+| Focus / signal | `--violet` #a18acb | 6.66:1 | 5.99:1 | Focus and labels |
+| Decorative rule | `--line` #292a2d | 1.39:1 | 1.25:1 | Decoration only |
+| Decorative raised rule | `--line-strong` #3d3e43 | 1.87:1 | 1.68:1 | Decoration only |
 
-## Usage rules
+The faint line tokens are not sufficient for meaningful control boundaries. The `/build` intent field, text area, search and app filters now use `--dim` for their borders; keyboard focus uses `--violet`. The prior `--dim` value #6d6e70 was 3.90:1 on `--bg` and failed normal-text contrast.
 
-- `--dim` is limited to decorative, secondary, or disabled-like metadata.
-- Violet is a signal for selection, focus, and brand emphasis, not a surface fill.
-- Status colors are only used when the data reports a semantic status.
+## Screen occupancy sample
+
+For each curated 1440×900 first-viewport PNG, a pixel was classed as dark when its highest RGB channel was below 65, light when all channels exceeded 130, and violet when red exceeded green by 8%, blue exceeded green by 12%, and blue exceeded 70. This coarse classification checks for a purple surface takeover; it is not a substitute for element-level contrast or a full-page audit.
+
+| Capture | Dark | Violet | Light |
+| --- | ---: | ---: | ---: |
+| [`/build` gate](verified/desktop-build-gate.png) | 96.9% | <0.1% | 2.3% |
+| [`/build` workspace](verified/desktop-build-workspace.png) | 93.6% | 0.1% | 5.1% |
+| [`/growth`](verified/desktop-growth.png) | 96.4% | <0.1% | 2.8% |
+| [`/wordpress`](verified/desktop-wordpress.png) | 95.7% | <0.1% | 3.4% |
+
+The category percentages do not sum to 100% because midtone and other pixels remain unclassified. The samples cover only the visible first viewport.

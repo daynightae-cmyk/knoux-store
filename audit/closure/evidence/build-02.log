@@ -1,0 +1,112 @@
+
+> knoux-digital-headquarters@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.3.6 (Turbopack)
+Γ£ô Running next.config.mjs took 133ms
+node.exe : (node:3972) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of
+file:///D:/Knoux%20Store/src/lib/security/headers.ts is not specified and it doesn't parse as CommonJS.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ((node:3972) [MO...se as CommonJS.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\D:\Knoux Store\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  Creating an optimized production build ...
+(node:3972) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of
+file:///D:/Knoux%20Store/src/lib/security/headers.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\D:\Knoux Store\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Γ£ô Compiled successfully in 10.9s
+  Running TypeScript ...
+  Finished TypeScript in 12.1s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/60) ...
+  Generating static pages using 3 workers (15/60)
+  Generating static pages using 3 workers (30/60)
+  Generating static pages using 3 workers (45/60)
+Γ£ô Generating static pages using 3 workers (60/60) in 3.2s
+  Finalizing page optimization ...
+
+Route (app)                             Revalidate  Expire
+Γöî Γùï /
+Γö£ Γùï /_not-found
+Γö£ Γùï /about
+Γö£ ╞Æ /account
+Γö£ ╞Æ /api/build/environment
+Γö£ ╞Æ /api/build/file
+Γö£ ╞Æ /api/build/git
+Γö£ ╞Æ /api/build/project
+Γö£ ╞Æ /api/build/providers
+Γö£ ╞Æ /api/build/verify
+Γö£ ╞Æ /api/contact
+Γö£ ╞Æ /api/wp-image
+Γö£ ╞Æ /auth/callback
+Γö£ ╞Æ /build
+Γö£ ╞Æ /build/apps
+Γö£ ╞Æ /build/deployments
+Γö£ ╞Æ /build/docs
+Γö£ ╞Æ /build/pipeline
+Γö£ ╞Æ /build/powershell
+Γö£ ╞Æ /build/providers
+Γö£ ╞Æ /build/services
+Γö£ ╞Æ /build/settings
+Γö£ ╞Æ /build/terminal
+Γö£ Γùï /contact
+Γö£ Γùï /creative
+Γö£   /creative/[slug]
+Γöé Γö£ ΓùÅ /creative/brand-identity
+Γöé Γö£ ΓùÅ /creative/ui-ux
+Γöé Γö£ ΓùÅ /creative/art-direction
+Γöé Γöö ΓùÅ [+5 more paths]
+Γö£ Γùï /engineering
+Γö£ Γùï /forgot-password
+Γö£ Γùï /growth
+Γö£   /growth/[slug]
+Γöé Γö£ ΓùÅ /growth/google-ads
+Γöé Γö£ ΓùÅ /growth/meta-ads
+Γöé Γö£ ΓùÅ /growth/social
+Γöé Γöö ΓùÅ [+2 more paths]
+Γö£ Γùï /icon.svg
+Γö£ Γùï /labs
+Γö£ ╞Æ /login
+Γö£ Γùï /products
+Γö£   /products/[slug]
+Γöé Γö£ ΓùÅ /products/knoux-one
+Γöé Γö£ ΓùÅ /products/kforge
+Γöé Γö£ ΓùÅ /products/knoux-repair
+Γöé Γöö ΓùÅ [+4 more paths]
+Γö£ ╞Æ /register
+Γö£ Γùï /robots.txt
+Γö£ Γùï /sitemap.xml
+Γö£ Γùï /solutions
+Γö£   /solutions/[slug]
+Γöé Γö£ ΓùÅ /solutions/start-a-business
+Γöé Γö£ ΓùÅ /solutions/launch-a-new-product
+Γöé Γö£ ΓùÅ /solutions/build-an-online-store
+Γöé Γöö ΓùÅ [+5 more paths]
+Γö£ ╞Æ /update-password
+Γö£ Γùï /web
+Γö£   /web/[slug]
+Γöé Γö£ ΓùÅ /web/corporate-site
+Γöé Γö£ ΓùÅ /web/ecommerce
+Γöé Γö£ ΓùÅ /web/web-application
+Γöé Γöö ΓùÅ [+3 more paths]
+Γö£ Γùï /wordpress                                 15m      1y
+Γö£ ╞Æ /wordpress/blocks
+Γö£ ╞Æ /wordpress/patterns
+Γö£ ╞Æ /wordpress/plugins
+Γö£ Γùï /wordpress/solutions
+Γö£ Γùï /wordpress/starter-sites
+Γö£ ╞Æ /wordpress/themes
+Γöö Γùï /work
+
+
+Γùï  (Static)   prerendered as static content
+ΓùÅ  (SSG)      prerendered as static HTML (uses generateStaticParams)
+╞Æ  (Dynamic)  server-rendered on demand

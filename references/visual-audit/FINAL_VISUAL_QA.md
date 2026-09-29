@@ -1,67 +1,21 @@
-# Final Visual QA
+# Visual QA: production build review
 
-This pass targets the visual architecture closure brief. Representative sandbox captures were inspected at the live preview origin.
+This review uses the running `next start` build at 1440×900 and 390×844. The six curated captures in [`verified/`](verified/) were taken from this repository on 29 September 2026. The top-level `after-*.png` files under `closure/` are stale local files from another project; they are excluded from this report and from the pull request.
 
-## Route inventory
+| Surface | Direct observation | Evidence |
+| --- | --- | --- |
+| `/build` entry, desktop | Matte black field, off-white title and button, violet limited to small labels; intent input and Enter behavior retained | [`desktop-build-gate.png`](verified/desktop-build-gate.png) |
+| `/build` entry, 390px | Title and input fit; CTA stacks below the input | [`mobile-build-gate.png`](verified/mobile-build-gate.png) |
+| `/build` workspace, desktop | Hero spans the page; sidebar starts below it; composer, preview and three following panels occupy usable columns | [`desktop-build-workspace.png`](verified/desktop-build-workspace.png) |
+| `/build` workspace, 390px | Dashboard stacks in one column; intent, CTA and preview remain reachable | [`mobile-build-workspace.png`](verified/mobile-build-workspace.png) |
+| `/growth` | Editorial heading, dark neutral surfaces and section index render | [`desktop-growth.png`](verified/desktop-growth.png) |
+| `/wordpress` | Editorial heading and catalogue entry render | [`desktop-wordpress.png`](verified/desktop-wordpress.png) |
 
-| Route | Template family | Status |
-|---|---|---|
-| `/about` | App Router page | Audited; representative desktop capture recorded |
-| `/account` | App Router page | Audited; representative desktop capture recorded |
-| `/build/apps` | App Router page | Audited; representative desktop capture recorded |
-| `/build/deployments` | App Router page | Audited; representative desktop capture recorded |
-| `/build/docs` | App Router page | Audited; representative desktop capture recorded |
-| `/build` | App Router page | Audited; representative desktop capture recorded |
-| `/build/pipeline` | App Router page | Audited; representative desktop capture recorded |
-| `/build/powershell` | App Router page | Audited; representative desktop capture recorded |
-| `/build/providers` | App Router page | Audited; representative desktop capture recorded |
-| `/build/services` | App Router page | Audited; representative desktop capture recorded |
-| `/build/settings` | App Router page | Audited; representative desktop capture recorded |
-| `/build/terminal` | App Router page | Audited; representative desktop capture recorded |
-| `/contact` | App Router page | Audited; representative desktop capture recorded |
-| `/creative/[slug]` | App Router page | Audited; representative desktop capture recorded |
-| `/creative` | App Router page | Audited; representative desktop capture recorded |
-| `/engineering` | App Router page | Audited; representative desktop capture recorded |
-| `/forgot-password` | App Router page | Audited; representative desktop capture recorded |
-| `/growth/[slug]` | App Router page | Audited; representative desktop capture recorded |
-| `/growth` | App Router page | Audited; representative desktop capture recorded |
-| `/labs` | App Router page | Audited; representative desktop capture recorded |
-| `/login` | App Router page | Audited; representative desktop capture recorded |
-| `/` | App Router page | Audited; representative desktop capture recorded |
-| `/products/[slug]` | App Router page | Audited; representative desktop capture recorded |
-| `/products` | App Router page | Audited; representative desktop capture recorded |
-| `/register` | App Router page | Audited; representative desktop capture recorded |
-| `/solutions/[slug]` | App Router page | Audited; representative desktop capture recorded |
-| `/solutions` | App Router page | Audited; representative desktop capture recorded |
-| `/update-password` | App Router page | Audited; representative desktop capture recorded |
-| `/web/[slug]` | App Router page | Audited; representative desktop capture recorded |
-| `/web` | App Router page | Audited; representative desktop capture recorded |
-| `/wordpress/blocks` | App Router page | Audited; representative desktop capture recorded |
-| `/wordpress` | App Router page | Audited; representative desktop capture recorded |
-| `/wordpress/patterns` | App Router page | Audited; representative desktop capture recorded |
-| `/wordpress/plugins` | App Router page | Audited; representative desktop capture recorded |
-| `/wordpress/solutions` | App Router page | Audited; representative desktop capture recorded |
-| `/wordpress/starter-sites` | App Router page | Audited; representative desktop capture recorded |
-| `/wordpress/themes` | App Router page | Audited; representative desktop capture recorded |
-| `/work` | App Router page | Audited; representative desktop capture recorded |
+## Defects caught by inspecting the current build
 
-## Evidence captures
+- The earlier `after-build.png`, `after-growth.png` and `after-wordpress.png` showed an unrelated Arabic application or a 404. They could not support any KNOuX claim. This report points only to newly captured, checked images.
+- The `/build` entry had a large violet radial wash and a violet CTA. The entry now uses the canonical dark and text tokens, with violet as a small signal.
+- The desktop workspace composer was about 90px wide, while a large blank gap separated it from the preview. CSS targeted old `.dev-panel--composer` and `.dev-panel--preview` names; the current markup uses `.dev-dashboard__composer` and `.dev-dashboard__preview`. The selectors now match the markup. A Playwright assertion checks useful panel widths.
+- The sidebar project marker contained a garbled character sequence. It is now a single bullet.
 
-- `/build` desktop landing: `references/visual-audit/after/build-landing.webp`
-- `/build/settings` desktop operational shell: `references/visual-audit/after/build-settings.webp`
-
-## System checks
-
-- **Color:** one canonical neutral token system governs public and DEV surfaces.
-- **Typography:** existing sans/serif/mono families retained; no new font family introduced.
-- **Spacing:** DEV module rhythm uses 8–24px; public editorial rhythm remains unchanged.
-- **Grid:** landing dashboard uses explicit semantic grid classes; operational routes use remaining-width shell.
-- **Block vocabulary:** panels are limited to interaction, inspectors, previews, and configuration groups.
-- **Motion:** existing particle mechanics preserved; reduced-motion behavior retained.
-- **Accessibility:** focus-visible styles remain explicit; status uses text plus semantic styling.
-- **DEV/public relationship:** shared neutral surfaces, rules, typography, and violet signal; different density and composition.
-
-## Known limitations
-
-- Full screenshot/contact-sheet capture at all requested viewports still requires a browser runner.
-- External provider health and remote deployment state remain correctly unmeasured by the existing adapter.
+The six images are first-viewport evidence. They do not prove all lower-page sections, interactions, or WCAG conformance. The Playwright route matrix checks rendering and overflow across routes and sizes; its generated captures are uploaded as the CI `route-captures` artifact and are not committed wholesale.

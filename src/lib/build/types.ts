@@ -568,6 +568,11 @@ export type EnvironmentSignal = {
   present: boolean;
   scope: 'server-only' | 'public';
   purpose: string;
+  /**
+   * True when the *existence* of this variable is itself a disclosure. Only
+   * reported to an operator who has already passed the workspace boundary.
+   */
+  sensitive?: boolean;
 };
 
 // ---------------------------------------------------------------------------

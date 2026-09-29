@@ -18,7 +18,7 @@ export const metadata = pageMetadata(
 
 export default function CreativePage() {
   return (
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       <TrackOnView event={{ type: 'division_opened', division: 'creative', route: '/creative' }} />
       <PageIntro
         index="05"

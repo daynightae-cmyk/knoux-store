@@ -1,9 +1,9 @@
-import test, { after } from 'node:test';
+﻿import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { root } from './helpers.mjs';
+import { startServer, waitForServer } from './server.mjs';
 
 /**
  * The Arrival Chamber and its Supabase Auth boundary.
@@ -16,27 +16,10 @@ import { root } from './helpers.mjs';
 
 const port = Number(process.env.KNOUX_AUTH_TEST_PORT ?? 32231);
 const origin = `http://127.0.0.1:${port}`;
-const env = { ...process.env };
-const server = spawn(
-  process.execPath,
-  ['node_modules/next/dist/bin/next', 'start', '-p', String(port), '-H', '127.0.0.1'],
-  { env, stdio: 'ignore' },
-);
+const server = startServer({ port });
 after(() => server.kill());
 
-async function waitForServer() {
-  for (let attempt = 0; attempt < 140; attempt += 1) {
-    if (server.exitCode !== null) throw new Error(`Server exited with ${server.exitCode}`);
-    try {
-      const response = await fetch(origin);
-      if (response.ok) return;
-    } catch {
-      /* awaiting startup */
-    }
-    await new Promise((resolve) => setTimeout(resolve, 150));
-  }
-  throw new Error('Production server did not start');
-}
+const wait = () => waitForServer(server, origin);
 
 const AUTH_ROUTES = ['/login', '/register', '/forgot-password'];
 
@@ -53,7 +36,7 @@ const readAuthLib = () =>
     .join('\n');
 
 test('the three account routes render as real pages', async () => {
-  await waitForServer();
+  await wait();
 
   for (const path of AUTH_ROUTES) {
     const response = await fetch(origin + path);
@@ -78,7 +61,7 @@ test('the three account routes render as real pages', async () => {
 });
 
 test('no reference branding survives in the auth surface', async () => {
-  await waitForServer();
+  await wait();
 
   for (const path of AUTH_ROUTES) {
     const html = await (await fetch(origin + path)).text();
@@ -92,7 +75,7 @@ test('no reference branding survives in the auth surface', async () => {
 });
 
 test('exactly Google and GitHub are offered through the real provider action', async () => {
-  await waitForServer();
+  await wait();
 
   const login = await (await fetch(origin + '/login')).text();
   assert.match(login, /value="google"/, 'Google must be offered');
@@ -113,7 +96,7 @@ test('exactly Google and GitHub are offered through the real provider action', a
 });
 
 test('the auth surface is accessible and keyboard operable', async () => {
-  await waitForServer();
+  await wait();
 
   const login = await (await fetch(origin + '/login')).text();
 
@@ -145,7 +128,7 @@ test('the auth surface is accessible and keyboard operable', async () => {
 });
 
 test('the auth routes navigate to each other in both directions', async () => {
-  await waitForServer();
+  await wait();
 
   const login = await (await fetch(origin + '/login')).text();
   assert.match(login, /href="\/register"/, 'sign in must offer registration');
@@ -163,7 +146,7 @@ test('the auth routes navigate to each other in both directions', async () => {
 });
 
 test('account and password-update routes require a verified session', async () => {
-  await waitForServer();
+  await wait();
 
   for (const path of ['/account', '/update-password']) {
     const response = await fetch(origin + path, { redirect: 'manual' });
@@ -173,7 +156,7 @@ test('account and password-update routes require a verified session', async () =
 });
 
 test('the public headquarters stays public', async () => {
-  await waitForServer();
+  await wait();
 
   // Nothing in front of the institution requires an account, and no public
   // route redirects into the chamber.
@@ -207,7 +190,11 @@ test('Supabase Auth is wired through SSR, PKCE callback and real server actions'
   assert.match(actions, /updateUser\(\{ password:/, 'password recovery must finish with updateUser');
   assert.match(actions, /\.auth\.signOut\(/, 'logout must revoke the local Supabase session');
   assert.match(callback, /exchangeCodeForSession/, 'PKCE callback must exchange the authorization code');
-  assert.match(callback, /!value\.startsWith\('\/'\)|value\.startsWith\('\/\/'\)/, 'callback next path must reject external redirects');
+  // The redirect rule itself is proved by execution in
+  // tests/security-redirect.test.mjs, which runs the resolver against the
+  // bypass shapes. Asserting here that the source contains a particular
+  // prefix test only pins the previous vulnerable implementation.
+  assert.match(callback, /resolveRedirect\(/, 'callback next path must be judged by the shared resolver');
   assert.match(serverClient, /createServerClient/, 'server auth must use the SSR client');
   assert.match(proxyClient, /getClaims\(\)/, 'proxy must refresh and validate auth claims');
   assert.match(proxy, /updateSession\(request\)/, 'Next.js proxy must run the Supabase session refresh');
@@ -230,7 +217,7 @@ test('Supabase Auth is wired through SSR, PKCE callback and real server actions'
 });
 
 test('validation is shared, honest and does not invent a security policy', async () => {
-  await waitForServer();
+  await wait();
 
   const validation = readFileSync(join(authLibDir, 'validation.ts'), 'utf8');
   assert.match(validation, /export function validateSignIn/, 'sign-in must validate on the server');

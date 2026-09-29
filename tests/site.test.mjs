@@ -1,36 +1,16 @@
-import test, { after } from 'node:test';
+﻿import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { root } from './helpers.mjs';
+import { startServer, waitForServer } from './server.mjs';
 
 const port = Number(process.env.KNOUX_TEST_PORT ?? 32219);
 const origin = `http://127.0.0.1:${port}`;
-const env = { ...process.env };
-if (process.env.KNOUX_TEST_NETWORK_SHIM) {
-  env.NODE_OPTIONS = `--require=${process.env.KNOUX_TEST_NETWORK_SHIM}`;
-}
-const server = spawn(
-  process.execPath,
-  ['node_modules/next/dist/bin/next', 'start', '-p', String(port), '-H', '127.0.0.1'],
-  { env, stdio: 'ignore' },
-);
+const server = startServer({ port });
 after(() => server.kill());
 
-async function waitForServer() {
-  for (let attempt = 0; attempt < 140; attempt++) {
-    if (server.exitCode !== null) throw new Error(`Server exited with ${server.exitCode}`);
-    try {
-      const response = await fetch(origin);
-      if (response.ok) return;
-    } catch {
-      /* awaiting startup */
-    }
-    await new Promise((resolve) => setTimeout(resolve, 150));
-  }
-  throw new Error('Production server did not start');
-}
+const wait = () => waitForServer(server, origin);
 
 const ROUTES = [
   '/',
@@ -124,7 +104,7 @@ test('the protected arrival baseline is intact', () => {
 });
 
 test('production routes, deep links, sitemap and honest contact delivery', async () => {
-  await waitForServer();
+  await wait();
 
   for (const path of ROUTES) {
     const response = await fetch(origin + path);
@@ -168,7 +148,7 @@ test('production routes, deep links, sitemap and honest contact delivery', async
 });
 
 test('division pages render their registry honestly', async () => {
-  await waitForServer();
+  await wait();
 
   // The WordPress division now carries two layers. The protective intent of the
   // old assertion is kept in full: the KNOuX-owned registry must still report
@@ -218,7 +198,7 @@ test('division pages render their registry honestly', async () => {
 });
 
 test('searchable routes expose metadata and structured data', async () => {
-  await waitForServer();
+  await wait();
 
   for (const path of ['/', '/products', '/wordpress', '/web', '/growth', '/creative', '/solutions', '/build', '/about', '/contact', '/products/knoux-one', ...ROUTES.filter((route) => route.startsWith('/web/') || route.startsWith('/creative/'))]) {
     const html = await (await fetch(origin + path)).text();
@@ -231,7 +211,7 @@ test('searchable routes expose metadata and structured data', async () => {
 });
 
 test('sitemap and robots describe the real site', async () => {
-  await waitForServer();
+  await wait();
 
   const robots = await (await fetch(origin + '/robots.txt')).text();
   assert.match(robots, /Sitemap:/);
@@ -266,7 +246,7 @@ test('sitemap and robots describe the real site', async () => {
 });
 
 test('the contact endpoint never claims delivery without a configured service', async () => {
-  await waitForServer();
+  await wait();
 
   assert.equal((await fetch(origin + '/api/contact', { method: 'GET' })).status, 405, 'contact endpoint rejects other methods');
 

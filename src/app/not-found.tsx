@@ -3,7 +3,7 @@ import { primaryNavigation } from '@/data/navigation';
 
 export default function NotFound() {
   return (
-    <main className="not-found-wrap" id="main-content">
+    <main className="not-found-wrap" id="main-content" tabIndex={-1}>
       <span className="label label--signal">SYSTEM / 404</span>
       <h1>
         Not in the
