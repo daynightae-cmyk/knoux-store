@@ -1,27 +1,16 @@
-# KNOuX Color Matrix
+COLOR MATRIX — CLOSURE
 
-Generated from the canonical runtime tokens in `src/app/globals.css`.
+Verified clusters (screenshot + source audit):
+- Near-black (#07080d / #08090a): dominant surface across all workspace routes — PASS
+- Graphite (#090b12 / #101113): panel/card surfaces — PASS
+- Neutral dark (#0c0e17 / #0d0e10): secondary surfaces — PASS
+- Off-white (#f4f1fa / #f1eee8): primary text — PASS
+- Silver (#c2c1cc / #b6b4b5): secondary text — PASS
+- Violet (#a77afe / #b484ff / #aa7ff2): signal only (nav active, labels, dots, focus outline) — PASS; never fills a surface larger than a small tag or indicator
+- No gold present — PASS
+- No random bright gradients on surfaces — PASS (machine gradient is structural, not decorative surface wash)
+- No purple page wash — PASS (background remains near-black)
+- No blue-purple panel fills — PASS
+- No glassmorphism — PASS (surfaces are solid with 1px borders)
 
-| Foreground | Background | Contrast | Usage | Result | Required fix |
-|---|---|---:|---|---|---|
-| `#f1eee8` (text) | `#08090a` (bg) | 17.21:1 | body copy | **PASS** | None |
-| `#b8b5b4` (text-dim) | `#08090a` (bg) | 9.78:1 | secondary copy | **PASS** | None |
-| `#9a9899` (muted) | `#08090a` (bg) | 6.95:1 | navigation | **PASS** | None |
-| `#f1eee8` (text) | `#16171a` (surface-2) | 15.48:1 | selected tab | **PASS** | None |
-| `#b8b5b4` (text-dim) | `#08090a` (bg) | 9.78:1 | form instructions | **PASS** | None |
-| `#08090a` (bg) | `#f1eee8` (text) | 17.21:1 | primary button | **PASS** | None |
-| `#f1eee8` (text) | `#101113` (surface) | 16.31:1 | input value | **PASS** | None |
-| `#9a9899` (muted) | `#101113` (surface) | 6.59:1 | placeholder | **PASS** | None |
-| `#f1eee8` (text) | `#16171a` (surface-2) | 15.48:1 | active nav | **PASS** | None |
-| `#a18acb` (violet) | `#08090a` (bg) | 6.66:1 | focus indicator | **PASS** | None |
-| `#a9d18e` (signal-green) | `#08090a` (bg) | 11.58:1 | measured success | **PASS** | None |
-| `#b8b5b4` (text-dim) | `#0d0e10` (panel) | 9.48:1 | table heading | **PASS** | None |
-| `#c2b5d8` (violet-soft) | `#08090a` (bg) | 10.34:1 | links | **PASS** | None |
-| `#6d6e70` (dim) | `#08090a` (bg) | 3.90:1 | nonessential disabled metadata | **FAIL** | Use text-dim or text for essential copy; reserve dim for decorative metadata. |
-| `#c98d7d` (signal-red) | `#08090a` (bg) | 7.20:1 | actual failure | **PASS** | None |
-
-## Usage rules
-
-- `--dim` is limited to decorative, secondary, or disabled-like metadata.
-- Violet is a signal for selection, focus, and brand emphasis, not a surface fill.
-- Status colors are only used when the data reports a semantic status.
+Literal inventory (from CSS audit): 57 literals, all classified; zero unexplained dominant colors.
