@@ -1,6 +1,7 @@
 import { divisions, type DivisionId } from '@/lib/entities';
 import type { CapabilityDivisionId } from '@/data/capabilities';
 import { creativeDisciplines, findCreativeDiscipline, findWebSystem, webSystems } from '@/data/services';
+import { signalRoutes } from '@/data/signal';
 
 /**
  * Site navigation.
@@ -24,6 +25,7 @@ export const primaryNavigation: readonly NavItem[] = [
 ];
 
 export const institutionNavigation: readonly NavItem[] = [
+  { label: 'Signal', href: '/signal', code: 'SG' },
   { label: 'Labs', href: '/labs', code: '08' },
   { label: 'Work', href: '/work', code: '09' },
   { label: 'Engineering', href: '/engineering', code: '10' },
@@ -123,6 +125,7 @@ export function breadcrumbFor(path: string): Breadcrumb[] {
     creative: { label: 'Creative', href: '/creative' },
     solutions: { label: 'Solutions', href: '/solutions' },
     build: { label: 'Composer', href: null },
+    signal: { label: 'Signal', href: '/signal' },
     labs: { label: 'Labs', href: null },
     work: { label: 'Work', href: null },
     engineering: { label: 'Engineering', href: null },
@@ -150,6 +153,22 @@ export function breadcrumbFor(path: string): Breadcrumb[] {
     const discipline = findCreativeDiscipline(second);
     trail.push({ label: 'Creative', href: '/creative' });
     trail.push({ label: discipline?.title ?? second.replace(/-/g, ' '), href: null });
+    return trail;
+  }
+  if (first === 'signal') {
+    trail.push({ label: 'Signal', href: second ? '/signal' : null });
+    if (!second) return trail;
+
+    let currentPath = '/signal';
+    for (let index = 1; index < segments.length; index += 1) {
+      currentPath += `/${segments[index]}`;
+      const route = signalRoutes.find((item) => item.href === currentPath);
+      const isLast = index === segments.length - 1;
+      trail.push({
+        label: route?.label ?? segments[index].replace(/-/g, ' '),
+        href: isLast ? null : currentPath,
+      });
+    }
     return trail;
   }
 

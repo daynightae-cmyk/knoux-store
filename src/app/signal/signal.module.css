@@ -25,9 +25,13 @@
 .grid article:nth-child(odd){border-right:1px solid var(--line,#292a2d)}
 .grid h2{margin:22px 0 10px;font-size:24px;letter-spacing:-.035em}
 .grid p{color:#a9a6a2;line-height:1.6}
-.aliases{list-style:none;margin:18px 0 0;padding:0}
+.aliases,.mentions{list-style:none;margin:18px 0 0;padding:0}
 .aliases li,.reputation div{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line-soft,#1c1d20)}
 .aliases span,.reputation dt,.reputation dd{color:#9f9c98;font-size:11px}
+.mentions li{padding:11px 0;border-bottom:1px solid var(--line-soft,#1c1d20)}
+.mentions a{display:flex;justify-content:space-between;gap:14px;color:inherit;text-decoration:none}
+.mentions a span{color:#9f9c98;font-size:10px}
+.mentions p{margin:7px 0 0!important;font-size:11px}
 .reputation{margin:18px 0 0}
 .reputation dd{margin:0;text-transform:uppercase}
 .warning{color:#e3c27a!important}

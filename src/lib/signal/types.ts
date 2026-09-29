@@ -1,4 +1,4 @@
-export type SignalCountryCode = 'AE' | 'EG' | 'SA' | 'QA' | 'BH' | 'OM' | 'KW' | 'ZZ';
+export type SignalCountryCode = string;
 
 export type SignalLineType = 'mobile' | 'fixed' | 'voip' | 'unknown';
 
@@ -28,6 +28,13 @@ export type SignalPublicProfile = {
   communityAliasesEnabled: boolean;
 };
 
+export type SignalPublicMention = {
+  title: string;
+  url: string;
+  domain: string;
+  snippet: string | null;
+};
+
 export type SignalLookupPayload = {
   number: {
     e164: string;
@@ -38,6 +45,7 @@ export type SignalLookupPayload = {
   profile: SignalPublicProfile | null;
   aliases: SignalAlias[];
   reputation: Record<string, number>;
+  publicMentions: SignalPublicMention[];
 };
 
 export type SignalLookupResponse = {
@@ -51,6 +59,18 @@ export type SignalLookupResponse = {
   providers: {
     community: 'live' | 'unavailable';
     licensedIdentity: 'not_configured';
-    publicSearch: 'not_configured';
+    publicSearch: 'live' | 'error' | 'not_configured';
   };
+};
+
+export type SignalActivity = {
+  searchesTotal: number;
+  profileViewsTotal: number;
+  searches30d: number;
+  profileViews30d: number;
+  visibleViewers: Array<{
+    label: string;
+    viewCount: number;
+    lastViewedAt: string;
+  }>;
 };

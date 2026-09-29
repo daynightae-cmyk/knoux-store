@@ -26,3 +26,6 @@ KNOuX_VISUAL_REFERENCES_MASTER.txt
 KNOuX_WORK_EXECUTION_PROMPT.txt
 New Text Document.txt
 public/knoux-particles.bin
+
+# KNOuX Signal local server logs
+.signal-server.*

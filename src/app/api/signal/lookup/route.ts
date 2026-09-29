@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { clientAddress, rateLimit } from '@/lib/http/rate-limit';
 import { normalizeSignalPhone } from '@/lib/signal/phone';
+import { searchPublicPhoneMentions } from '@/lib/signal/providers/public-search';
 import type { SignalLookupPayload, SignalLookupResponse } from '@/lib/signal/types';
 import { createClient } from '@/lib/supabase/server';
 
@@ -52,12 +53,16 @@ export async function POST(request: Request) {
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc('signal_lookup_safe', {
-    p_phone: facts.e164,
-    p_country_code: facts.countryCode,
-    p_national_number: facts.nationalNumber,
-    p_line_type: facts.lineType,
-  });
+  const [storageResult, publicSearch] = await Promise.all([
+    supabase.rpc('signal_lookup_safe', {
+      p_phone: facts.e164,
+      p_country_code: facts.countryCode,
+      p_national_number: facts.nationalNumber,
+      p_line_type: facts.lineType,
+    }),
+    searchPublicPhoneMentions(facts.e164, facts.nationalNumber),
+  ]);
+  const { data, error } = storageResult;
 
   if (error) {
     return noStore({
@@ -73,18 +78,20 @@ export async function POST(request: Request) {
         profile: null,
         aliases: [],
         reputation: {},
+        publicMentions: publicSearch.mentions,
       },
       storage: { available: false, reason: 'Signal storage is not active on this deployment yet.' },
-      providers: { community: 'unavailable', licensedIdentity: 'not_configured', publicSearch: 'not_configured' },
+      providers: { community: 'unavailable', licensedIdentity: 'not_configured', publicSearch: publicSearch.status },
     });
   }
 
+  const payload = data as Omit<SignalLookupPayload, 'publicMentions'>;
   return noStore({
     ok: true,
     query: facts,
-    data: data as SignalLookupPayload,
+    data: { ...payload, publicMentions: publicSearch.mentions },
     storage: { available: true },
-    providers: { community: 'live', licensedIdentity: 'not_configured', publicSearch: 'not_configured' },
+    providers: { community: 'live', licensedIdentity: 'not_configured', publicSearch: publicSearch.status },
   });
 }
 

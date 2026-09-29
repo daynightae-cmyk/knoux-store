@@ -124,6 +124,23 @@ export function SignalLookupClient() {
             </article>
 
             <article>
+              <span className={styles.micro}>PUBLIC MENTIONS</span>
+              {result.data.publicMentions.length ? (
+                <ol className={styles.mentions}>
+                  {result.data.publicMentions.map((mention) => (
+                    <li key={mention.url}>
+                      <a href={mention.url} target="_blank" rel="noreferrer">
+                        <strong>{mention.title}</strong>
+                        <span>{mention.domain}</span>
+                      </a>
+                      {mention.snippet ? <p>{mention.snippet}</p> : null}
+                    </li>
+                  ))}
+                </ol>
+              ) : <p>No exact public-web mentions were returned by the configured search provider.</p>}
+            </article>
+
+            <article>
               <span className={styles.micro}>DATA STATE</span>
               <dl className={styles.reputation}>
                 <div><dt>Community graph</dt><dd>{result.providers.community}</dd></div>
