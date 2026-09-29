@@ -124,6 +124,27 @@ export function SignalLookupClient() {
             </article>
 
             <article>
+              <span className={styles.micro}>BUSINESS MATCHES</span>
+              {result.data.businessMatches.length ? (
+                <ol className={styles.mentions}>
+                  {result.data.businessMatches.map((match) => (
+                    <li key={`${match.sourceKey}:${match.name}:${match.sourceUrl ?? ''}`}>
+                      {match.sourceUrl ? (
+                        <a href={match.sourceUrl} target="_blank" rel="noreferrer">
+                          <strong>{match.name}</strong>
+                          <span>{match.sourceName}</span>
+                        </a>
+                      ) : (
+                        <div><strong>{match.name}</strong> · {match.sourceName}</div>
+                      )}
+                      <p>{[match.category, match.locality, match.countryCode].filter(Boolean).join(' · ') || 'Business identity match'}</p>
+                    </li>
+                  ))}
+                </ol>
+              ) : <p>No approved business-directory match is stored for this number yet.</p>}
+            </article>
+
+            <article>
               <span className={styles.micro}>PUBLIC MENTIONS</span>
               {result.data.publicMentions.length ? (
                 <ol className={styles.mentions}>

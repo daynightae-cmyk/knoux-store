@@ -35,6 +35,29 @@ export type SignalPublicMention = {
   snippet: string | null;
 };
 
+export type SignalBusinessMatch = {
+  name: string;
+  category: string | null;
+  countryCode: string | null;
+  locality: string | null;
+  sourceKey: string;
+  sourceName: string;
+  sourceUrl: string | null;
+  attributionRequired: boolean;
+};
+
+export type SignalSourceStatus = {
+  key: string;
+  name: string;
+  kind: string;
+  status: 'approved' | 'quarantined';
+  license: string | null;
+  homepage: string | null;
+  ingestionMode: string;
+  attributionRequired: boolean;
+  enabled: boolean;
+};
+
 export type SignalLookupPayload = {
   number: {
     e164: string;
@@ -46,6 +69,7 @@ export type SignalLookupPayload = {
   aliases: SignalAlias[];
   reputation: Record<string, number>;
   publicMentions: SignalPublicMention[];
+  businessMatches: SignalBusinessMatch[];
 };
 
 export type SignalLookupResponse = {

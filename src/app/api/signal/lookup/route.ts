@@ -53,16 +53,18 @@ export async function POST(request: Request) {
   }
 
   const supabase = await createClient();
-  const [storageResult, publicSearch] = await Promise.all([
+  const [storageResult, businessResult, publicSearch] = await Promise.all([
     supabase.rpc('signal_lookup_safe', {
       p_phone: facts.e164,
       p_country_code: facts.countryCode,
       p_national_number: facts.nationalNumber,
       p_line_type: facts.lineType,
     }),
+    supabase.rpc('signal_business_matches', { p_phone: facts.e164 }),
     searchPublicPhoneMentions(facts.e164, facts.nationalNumber),
   ]);
   const { data, error } = storageResult;
+  const businessMatches = businessResult.error ? [] : (businessResult.data ?? []);
 
   if (error) {
     return noStore({
@@ -79,17 +81,18 @@ export async function POST(request: Request) {
         aliases: [],
         reputation: {},
         publicMentions: publicSearch.mentions,
+        businessMatches,
       },
       storage: { available: false, reason: 'Signal storage is not active on this deployment yet.' },
       providers: { community: 'unavailable', licensedIdentity: 'not_configured', publicSearch: publicSearch.status },
     });
   }
 
-  const payload = data as Omit<SignalLookupPayload, 'publicMentions'>;
+  const payload = data as Omit<SignalLookupPayload, 'publicMentions' | 'businessMatches'>;
   return noStore({
     ok: true,
     query: facts,
-    data: { ...payload, publicMentions: publicSearch.mentions },
+    data: { ...payload, publicMentions: publicSearch.mentions, businessMatches },
     storage: { available: true },
     providers: { community: 'live', licensedIdentity: 'not_configured', publicSearch: publicSearch.status },
   });
