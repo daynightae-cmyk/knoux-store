@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 import type { VerificationStatus, CapabilityStatus } from '@/lib/build/types';
 
 /**
@@ -22,14 +22,38 @@ export function Pane({
   children: ReactNode;
   bodyClass?: string;
 }) {
+  /**
+   * The body is a scroll container (`overflow: auto` in `build-os.css`), and a
+   * scroll container that holds no focusable content cannot be scrolled from the
+   * keyboard — a mouse user can reach content below the fold and a keyboard user
+   * cannot. That is WCAG 2.1.1, and it is machine-detectable, so it was a
+   * `serious` axe failure rather than a matter of taste.
+   *
+   * It surfaced here because of a layout correction, not because anything about
+   * accessibility changed: the workspace dashboard was rearranged to match its
+   * approved reference, which moved the live preview into a row beside a taller
+   * panel and made its body overflow where it previously fit. A pane whose body
+   * happens not to scroll needs no tab stop, but a pane that does is
+   * unreachable without one. So the tab stop is stated here, on the element that
+   * scrolls, and named by the pane's own heading — which is the accessible name
+   * a screen-reader user needs in order to know what they have just scrolled into.
+   */
+  const titleId = useId();
+
   return (
     <section className="bo-pane">
       <div className="bo-pane__head">
-        <h3 className="bo-pane__title">{title}</h3>
+        <h3 className="bo-pane__title" id={titleId}>
+          {title}
+        </h3>
         {actions ? <div className="bo-pane__meta">{actions}</div> : null}
         {meta ? <div className="bo-pane__meta">{meta}</div> : null}
       </div>
-      <div className={`bo-pane__body${padded ? ' bo-pane__body--pad' : ''}${bodyClass ? ` ${bodyClass}` : ''}`}>
+      <div
+        className={`bo-pane__body${padded ? ' bo-pane__body--pad' : ''}${bodyClass ? ` ${bodyClass}` : ''}`}
+        tabIndex={0}
+        aria-labelledby={titleId}
+      >
         {children}
       </div>
     </section>

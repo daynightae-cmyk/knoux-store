@@ -67,11 +67,23 @@
 .dev-panel__head h2 span{color:#bb8dff;margin-right:5px}
 .dev-panel__head a{color:#b69ce2;white-space:nowrap;font-size:10px}
 .dev-panel__body{padding:11px}
-.dev-dashboard__composer{grid-column:1/9}
-.dev-dashboard__preview{grid-column:9/-1}
-.dev-dashboard__apps{grid-column:1/5}
-.dev-dashboard__providers{grid-column:5/10}
-.dev-dashboard__docs{grid-column:10/-1}
+/* The approved workspace reference (`references/dev/qa/02-dev-workspace.png`)
+   puts the composer and the provider list on the first row, and the registry,
+   the live preview and the documentation on the second:
+
+     row 1   composer (8)  providers (4)
+     row 2   apps (4)      preview (5)   docs (3)
+
+   The DOM order is composer, preview, apps, providers, docs, so column alone
+   cannot express this: an item given only a column is placed by the sparse
+   algorithm in the first row that still has room, which put the preview where
+   the providers belong and pushed everything after it down a row. Both axes are
+   therefore stated, and the placement stops depending on source order. */
+.dev-dashboard__composer{grid-column:1/9;grid-row:1}
+.dev-dashboard__providers{grid-column:9/-1;grid-row:1}
+.dev-dashboard__apps{grid-column:1/5;grid-row:2}
+.dev-dashboard__preview{grid-column:5/10;grid-row:2}
+.dev-dashboard__docs{grid-column:10/-1;grid-row:2}
 .dev-dashboard__build,.dev-dashboard__deployments,.dev-dashboard__powershell{grid-column:span 4}
 .dev-dashboard__status{grid-column:1/-1}
 .dev-compose textarea{resize:vertical;color:var(--text);background:var(--panel);border:1px solid var(--dim);border-radius:4px;width:100%;min-height:75px;padding:12px;font-size:13px}
@@ -138,6 +150,21 @@
 .dev-machine__detail dd,.dev-kv dd{color:#d9d5e2;overflow-wrap:anywhere;margin:0}
 .dev-machine__links,.dev-actions{flex-wrap:wrap;gap:8px;margin-top:18px;display:flex}
 .dev-machine__links a{color:#d2a9ff;border:1px solid #604874;border-radius:3px;padding:7px 8px;font-size:10px}
+/* The orbit's own header had no rules at all, so its two spans rendered as one
+   run of text — "KNOuX / PRODUCT SYSTEM07 REGISTERED" — and sat wherever the
+   flow put them. The reference carries the label at the left edge of the orbit
+   and the count at the right, which is what space-between across the top gives. */
+.dev-machine__device-head{color:#8d8a9e;justify-content:space-between;gap:16px;left:0;right:0;font:9px var(--font-mono,monospace);letter-spacing:.14em;position:absolute;top:0;display:flex}
+/* The registry is a positioning context for the nodes and nothing else; the
+   nodes themselves are absolutely placed from `--node-x` / `--node-y`. */
+.dev-machine__registry{position:static}
+/* One card height for every node. A name long enough to wrap — "RELEASE-
+   CANDIDATE" — used to make its card taller than the rest, and because the
+   cards are centred on their own position that read as a card pushed out of the
+   ring. The width is sized to hold the longest label in the registry on one
+   line, with the ellipsis as the safety net if the registry grows. */
+.dev-machine__node{width:110px;min-height:56px}
+.dev-machine__node strong,.dev-machine__node small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dev-route{min-height:80vh;padding:25px 0 60px}
 .dev-page-heading{padding:8px 4px 24px}
 .dev-page-heading h1{letter-spacing:-.06em;margin:8px 0 7px;font-size:clamp(30px,3.5vw,49px)}
