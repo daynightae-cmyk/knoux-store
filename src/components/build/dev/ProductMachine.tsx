@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, type CSSProperties } from 'react';
+import { useState } from 'react';
 import { softwareProducts } from '@/data/software';
 
 export function ProductMachine() {
@@ -11,29 +11,29 @@ export function ProductMachine() {
   return (
     <section className="dev-machine" aria-labelledby="machine-title">
       <div className="dev-machine__title">
-        <span className="dev-mini-label">PRODUCT UNIVERSE / REGISTRY EVIDENCE</span>
+        <span className="dev-mini-label">PRODUCT REGISTRY / EVIDENCE</span>
         <h2 id="machine-title">ONE CONNECTED <em>MACHINE.</em></h2>
-        <p>Select a product to inspect its repository evidence, scope and limits.</p>
+        <p>Select a real product to inspect its repository evidence, scope and limits.</p>
       </div>
       <div className="dev-machine__body">
         <div className="dev-machine__orbit" role="group" aria-label="KNOuX products">
-          <div className="dev-machine__core">
-            <strong>KNOuX</strong>
-            <span>PRODUCT SYSTEM / LIVE REGISTRY</span>
+          <div className="dev-machine__device-head"><span>KNOuX / PRODUCT SYSTEM</span><span>{softwareProducts.length.toString().padStart(2, '0')} REGISTERED</span></div>
+          <div className="dev-machine__core"><strong>KNOuX</strong><span>ENGINEERING INSTITUTION</span></div>
+          <div className="dev-machine__registry">
+            {softwareProducts.map((product) => (
+              <button
+                key={product.id}
+                type="button"
+                className={`dev-machine__node ${selectedId === product.id ? 'dev-machine__node--active' : ''}`}
+                onClick={() => setSelectedId(product.id)}
+                aria-pressed={selectedId === product.id}
+              >
+                <span>{product.code}</span>
+                <strong>{product.shortName}</strong>
+                <small>{product.status.toUpperCase()}</small>
+              </button>
+            ))}
           </div>
-          {softwareProducts.map((product) => (
-            <button
-              key={product.id}
-              type="button"
-              className={`dev-machine__node ${selectedId === product.id ? 'dev-machine__node--active' : ''}`}
-              style={{ '--node-x': 'auto', '--node-y': 'auto' } as CSSProperties}
-              onClick={() => setSelectedId(product.id)}
-              aria-pressed={selectedId === product.id}
-            >
-              <span>{product.code}</span>
-              <strong>{product.shortName}</strong>
-            </button>
-          ))}
         </div>
         <aside className="dev-machine__detail" aria-live="polite">
           <div className="dev-mini-label">SELECTED PRODUCT / {selected.code}</div>

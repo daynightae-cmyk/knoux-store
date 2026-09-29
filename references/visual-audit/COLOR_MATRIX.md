@@ -1,27 +1,27 @@
-# KNOuX Visual Audit — Color Matrix
+# KNOuX Color Matrix
 
-Calculated with the WCAG 2 relative-luminance formula against the canonical dark background `#08090a`.
+Generated from the canonical runtime tokens in `src/app/globals.css`.
 
-| Foreground | Background | Contrast ratio | Usage | Result | Required fix |
+| Foreground | Background | Contrast | Usage | Result | Required fix |
 |---|---|---:|---|---|---|
-| `#f1eee8` | `#08090a` | 17.25:1 | body / primary text | PASS | none |
-| `#b8b5b4` | `#08090a` | 9.86:1 | supporting copy / large metadata | PASS | none |
-| `#9a9899` | `#08090a` | 7.06:1 | secondary copy | PASS | none |
-| `#a18acb` | `#08090a` | 6.67:1 | violet signal / links | PASS | use as an accent only |
-| `#6d6e70` | `#08090a` | 3.91:1 | decorative / nonessential metadata | FAIL for normal body text | do not use for body copy, navigation, labels, forms, or critical status |
-| `#6d6e70` | `#101113` | 3.42:1 | decorative metadata on elevated surface | FAIL for normal text | use `--muted` or `--text-dim` instead |
-| `#f1eee8` | `#101113` | 15.56:1 | panel text | PASS | none |
-| `#b8b5b4` | `#101113` | 8.89:1 | panel support text | PASS | none |
-| `#a18acb` | `#101113` | 6.01:1 | active edge / signal | PASS | keep area occupancy restrained |
-| `#08090a` | `#f1eee8` | 17.25:1 | primary off-white action | PASS | prefer over violet slabs |
-| `#c2b5d8` | `#08090a` | 10.87:1 | soft violet signal text | PASS | use sparingly |
-| `#c98d7d` | `#08090a` | 7.14:1 | error state | PASS | pair with explicit label/rule |
-| `#a9d18e` | `#08090a` | 12.20:1 | success state | PASS | pair with explicit label/rule |
-| `#e3c27a` | `#08090a` | 13.41:1 | warning state | PASS | pair with explicit label/rule |
+| `#f1eee8` (text) | `#08090a` (bg) | 17.21:1 | body copy | **PASS** | None |
+| `#b8b5b4` (text-dim) | `#08090a` (bg) | 9.78:1 | secondary copy | **PASS** | None |
+| `#9a9899` (muted) | `#08090a` (bg) | 6.95:1 | navigation | **PASS** | None |
+| `#f1eee8` (text) | `#16171a` (surface-2) | 15.48:1 | selected tab | **PASS** | None |
+| `#b8b5b4` (text-dim) | `#08090a` (bg) | 9.78:1 | form instructions | **PASS** | None |
+| `#08090a` (bg) | `#f1eee8` (text) | 17.21:1 | primary button | **PASS** | None |
+| `#f1eee8` (text) | `#101113` (surface) | 16.31:1 | input value | **PASS** | None |
+| `#9a9899` (muted) | `#101113` (surface) | 6.59:1 | placeholder | **PASS** | None |
+| `#f1eee8` (text) | `#16171a` (surface-2) | 15.48:1 | active nav | **PASS** | None |
+| `#a18acb` (violet) | `#08090a` (bg) | 6.66:1 | focus indicator | **PASS** | None |
+| `#a9d18e` (signal-green) | `#08090a` (bg) | 11.58:1 | measured success | **PASS** | None |
+| `#b8b5b4` (text-dim) | `#0d0e10` (panel) | 9.48:1 | table heading | **PASS** | None |
+| `#c2b5d8` (violet-soft) | `#08090a` (bg) | 10.34:1 | links | **PASS** | None |
+| `#6d6e70` (dim) | `#08090a` (bg) | 3.90:1 | nonessential disabled metadata | **FAIL** | Use text-dim or text for essential copy; reserve dim for decorative metadata. |
+| `#c98d7d` (signal-red) | `#08090a` (bg) | 7.20:1 | actual failure | **PASS** | None |
 
-## Acceptance notes
+## Usage rules
 
-- Operational screens target approximately **85–92% neutral dark surfaces**, **5–10% neutral text/rules**, and **1–4% violet signaling**.
-- Active navigation uses a neutral fill plus a violet inset rule; it does not use a purple gradient.
-- `--dim` is reserved for decorative coordinates, disabled-like metadata, and nonessential micro-annotations.
-- Color is never the only state indicator: labels, borders, text, and structure remain present.
+- `--dim` is limited to decorative, secondary, or disabled-like metadata.
+- Violet is a signal for selection, focus, and brand emphasis, not a surface fill.
+- Status colors are only used when the data reports a semantic status.
