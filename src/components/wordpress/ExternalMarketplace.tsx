@@ -289,9 +289,19 @@ export function ExternalMarketplace({
                 ? ` of ${result.totalKnown ? result.totalPages.toLocaleString('en-US') : 'more'}`
                 : ''}
             </span>
-            <span>Source: WordPress.org</span>
           </>
         )}
+        {/*
+          The attribution is unconditional, and that is a correctness property
+          rather than a formatting one. This section *is* the WordPress.org
+          discovery layer whatever the upstream is doing, so a visitor must be
+          told where the layer comes from even when it is empty. Rendering it
+          only on success also made a static copy assertion depend on a live
+          third-party API, which is how an upstream outage turned into a failing
+          test rather than into a passing test about an honest unavailable
+          state.
+        */}
+        <span>Source: WordPress.org</span>
       </div>
 
       {isUnavailable ? (
