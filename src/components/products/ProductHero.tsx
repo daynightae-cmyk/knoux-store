@@ -72,7 +72,7 @@ export function ProductHero({ product, arrivalComplete }: ProductHeroProps) {
                 <dt>Version</dt>
                 <dd>
                   {product.version}
-                  {product.versionSource && <span style={{ color: '#6d6e70' }}> · {product.versionSource}</span>}
+                  {product.versionSource && <span style={{ color: 'var(--dim)' }}> · {product.versionSource}</span>}
                 </dd>
               </div>
             ) : null}

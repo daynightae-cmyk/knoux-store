@@ -1,4 +1,3 @@
-:root{--bg:#08090a;--surface:#101113;--surface-2:#16171a;--surface2:var(--surface-2);--panel:#0d0e10;--panel-2:#0b0c0e;--text:#f1eee8;--text-dim:#b8b5b4;--muted:#9a9899;--dim:#6d6e70;--line:#292a2d;--line-soft:#1c1d20;--line-strong:#3d3e43;--violet:#a18acb;--violet-soft:#c2b5d8;--violet-dim:#6f5f8f;--signal-green:#a9d18e;--signal-amber:#e3c27a;--signal-red:#c98d7d;--sans:Arial,Helvetica,sans-serif;--mono:ui-monospace,'SFMono-Regular','Cascadia Mono',Menlo,Consolas,monospace;--serif:Georgia,'Times New Roman',serif;--radius-0:0;--radius-xs:2px;--radius-sm:4px;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:48px;--space-8:64px;--space-9:96px;--space-10:128px}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased}::selection{background:#a18acb;color:#08090a}a{color:inherit;text-decoration:none}button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{cursor:wait;opacity:.65}a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--violet);outline-offset:4px}.skip-link{position:fixed;top:-80px;left:20px;background:var(--text);color:#000;padding:12px 18px;z-index:1000}.skip-link:focus{top:20px}em{font-family:var(--serif);font-weight:400;font-style:italic;color:#b8b5b4}h1,h2,h3,p{margin-top:0}.eyebrow{font-size:10px;letter-spacing:.19em;font-weight:600;color:var(--violet);line-height:1.6}.section-shell{padding-left:max(5.3vw,24px);padding-right:max(5.3vw,24px)}.text-link{font-size:11px;letter-spacing:.14em;font-weight:bold;border-bottom:1px solid var(--violet);padding-bottom:12px;display:inline-flex;gap:35px;color:var(--text);transition:color .2s}.text-link:hover{color:var(--violet)}
 .site-header{position:fixed;z-index:80;top:0;left:0;width:100%;height:78px;display:flex;align-items:center;justify-content:space-between;padding:0 max(5.3vw,24px);border-bottom:1px solid transparent;transition:background .3s,border-color .3s,backdrop-filter .3s}.site-header.is-scrolled{background:rgba(8,9,10,.89);border-color:var(--line);backdrop-filter:blur(20px)}.brand{display:flex;align-items:center;gap:10px;font-size:20px;letter-spacing:-.075em;font-weight:800;white-space:nowrap}.brand-dot{width:7px;height:7px;border-radius:50%;background:var(--violet);box-shadow:0 0 14px rgba(161,138,203,.75)}.brand-end{align-self:flex-start;margin-top:0;font-size:8px;letter-spacing:0}.desktop-nav{display:flex;gap:clamp(8px,1.1vw,20px);margin-left:clamp(16px,2.5vw,40px);min-width:0;flex-wrap:nowrap}.desktop-nav a,.header-search,.mobile-toggle{font-size:9.5px;text-transform:uppercase;letter-spacing:.12em;color:#b6b4b5;white-space:nowrap}.desktop-nav a{transition:color .2s}.desktop-nav a:hover,.desktop-nav a[aria-current=page]{color:var(--text)}.header-actions{display:flex;align-items:center}.header-search{display:flex;gap:18px;align-items:center;background:transparent;border:0;padding:12px 0;color:var(--text)}kbd{font:inherit;color:var(--dim);padding:5px 7px;border:1px solid var(--line);letter-spacing:0}.mobile-toggle{display:none;background:transparent;border:0;color:var(--text);gap:9px;align-items:center}.mobile-toggle span{font-size:22px;line-height:0}.mobile-panel{position:fixed;z-index:79;inset:0;background:#0a0b0d;padding:110px max(5.3vw,24px) 30px;display:flex;flex-direction:column;overflow:auto}.mobile-panel a{display:flex;align-items:center;gap:24px;padding:17px 0;border-bottom:1px solid var(--line);font-size:clamp(26px,7vw,55px);letter-spacing:-.04em}.mobile-panel a span:first-child{font-size:10px;letter-spacing:.1em;color:var(--violet);width:20px}.mobile-panel a span:last-child{font-size:22px;margin-left:auto;color:var(--muted)}
 .search-overlay{position:fixed;z-index:200;inset:0;background:rgba(0,0,0,.77);backdrop-filter:blur(12px);display:flex;align-items:flex-start;justify-content:center;padding:15vh 20px 20px}.search-dialog{width:min(680px,100%);background:#111214;border:1px solid #38393d;box-shadow:0 50px 130px #000}.search-field{display:flex;align-items:center;gap:16px;padding:20px 23px;border-bottom:1px solid var(--line)}.search-field span{font-size:30px;color:var(--violet)}.search-field input{flex:1;border:0;background:transparent;color:var(--text);outline:0!important;min-width:0}.search-field button{background:transparent;border:1px solid var(--line);color:var(--muted);font-size:10px;padding:6px}#search-results{max-height:45vh;overflow:auto;padding:10px}#search-results button{width:100%;display:flex;justify-content:space-between;align-items:center;text-align:left;background:transparent;border:0;color:var(--text);padding:14px 17px}#search-results button.selected,#search-results button:hover{background:#202025}#search-results strong,#search-results small{display:block}#search-results strong{font-size:14px;font-weight:500}#search-results small{color:var(--dim);font-size:11px;margin-top:5px}#search-results button>span:last-child{color:var(--violet)}.empty-search{color:var(--muted);padding:30px}.search-footer{display:flex;gap:18px;border-top:1px solid var(--line);padding:15px 25px;color:var(--dim);font-size:9px;letter-spacing:.12em}
@@ -60,7 +59,25 @@
    only as a signal.
    ========================================================== */
 
-/* --- Shared tokens ------------------------------------------------ */
+/* --- Shared tokens ------------------------------------------------
+   The single authority for the palette.
+
+   This block previously existed twice. The second one — readable, formatted and
+   therefore the one every later edit went into — silently redefined `--dim` and
+   `--violet-dim`, so a contrast fix applied to the first block changed nothing
+   at all and the site still rendered 3.9:1 text. A duplicate token block is not
+   a style problem; it is a correctness problem, because the effective value of
+   every token depends on which block wins, and nothing in the file says so.
+
+   There is now one `:root`. If a token is not here, it does not exist.
+
+   Contrast, measured with the WCAG 2.1 relative-luminance formula against the
+   darkest surface each token is used on (`--bg` #08090a through `--surface-2`
+   #16171a). The previous `--dim` #6d6e70 was 3.90:1 and `--violet-dim` #6f5f8f
+   was 3.52:1; both are below the 4.5:1 required of normal text, and both were
+   used for essential text — the division index label, nav metadata, form
+   definitions, and keyboard hints.
+   -------------------------------------------------------------------- */
 :root {
   --bg: #08090a;
   --surface: #101113;
@@ -70,12 +87,14 @@
   --text: #f1eee8;
   --text-dim: #b8b5b4;
   --muted: #9a9899;
-  --dim: #6d6e70;
+  /* 4.77:1 on --bg, 5.32:1 on --surface-2. The lowest-contrast text token. */
+  --dim: #8a8c8f;
   --line: #292a2d;
   --line-soft: #1c1d20;
   --line-strong: #3d3e43;
   --violet: #a18acb;
-  --violet-dim: #6f5f8f;
+  /* 5.02:1 on --bg. Violet stays a signal, and a signal nobody can read is not one. */
+  --violet-dim: #8b8ea3;
   --violet-soft: #c2b5d8;
   --signal-green: #a9d18e;
   --signal-amber: #e3c27a;
@@ -83,6 +102,24 @@
   --sans: Arial, Helvetica, sans-serif;
   --serif: Georgia, "Times New Roman", serif;
   --rail: 74px;
+  /* Alias kept for the one call site that predates the `--surface-2` rename. */
+  --surface2: var(--surface-2);
+  --signal-red: #c98d7d;
+  /* Radii stay at 0–4px: a system of technical rules, not of soft cards. */
+  --radius-0: 0;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  /* The spacing rhythm: 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 / 96 / 128. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
 }
 
 /* --- Layout primitives -------------------------------------------- */
@@ -112,6 +149,70 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--dim);
+}
+
+/* --- Product hero -------------------------------------------------
+   This block did not exist. `ProductHero.tsx` shipped a complete,
+   correct composition — crumb, code and status, title, tagline,
+   telemetry table, actions and a 3D scene — and none of it had a
+   single rule behind it.
+
+   The visible consequence was severe rather than subtle: the mark
+   `<svg viewBox="0 0 312 532">` carries no width or height, so with
+   no CSS it filled its block and rendered 1440 x 2455. The product
+   name was pushed two and a half viewports down the page, and every
+   `/products/[slug]` route opened on a black slab with a 12px
+   heading. The rest of the route — anatomy, dossier, related,
+   pager — was correctly styled, which is why the breakage was
+   isolated to the top of the page.
+
+   The composition below follows the same grammar as `.page-intro`
+   and `.detail-hero`: a thin technical rule, a monospace eyebrow, a
+   large editorial title, a restrained telemetry table, quiet
+   actions, and the scene as a stage rather than a fill. */
+.product-hero { padding: 130px max(5.3vw, 24px) clamp(50px, 6vw, 90px); }
+.product-hero .page-crumb { margin-bottom: clamp(30px, 4vw, 56px); }
+.product-hero__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(32px, 4vw, 56px); }
+.product-hero__meta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.product-hero__title {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 26px 0 0;
+  font-size: clamp(48px, 7.4vw, 116px);
+  line-height: 0.94;
+  letter-spacing: -0.075em;
+  font-weight: 400;
+}
+.product-hero__logo { width: 48px; height: 48px; flex: none; object-fit: contain; }
+/* The mark is a 312x532 wordmark. It is sized here, in CSS, so the
+   component keeps describing the mark by its aspect ratio alone. */
+.product-hero__mark { width: clamp(38px, 4.4vw, 68px); height: auto; flex: none; fill: currentColor; }
+.product-hero__tagline { margin: 22px 0 0; max-width: 46ch; font-size: clamp(15px, 1.3vw, 19px); line-height: 1.6; color: var(--muted); }
+.product-hero__telemetry {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1px;
+  margin: 44px 0 0;
+  background: var(--line-soft);
+  border: 1px solid var(--line-soft);
+}
+.product-hero__telemetry > div { background: var(--bg); padding: 16px 18px 18px; }
+.product-hero__telemetry dt { font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--dim); }
+.product-hero__telemetry dd { margin: 8px 0 0; font-size: 14px; line-height: 1.55; color: var(--text); }
+.product-hero__actions { display: flex; flex-wrap: wrap; gap: 26px; margin-top: 40px; }
+.product-hero__scene { min-width: 0; }
+.product-hero__scene canvas { display: block; width: 100%; height: auto; }
+
+@media (max-width: 900px) {
+  .product-hero { padding-top: 108px; }
+  .product-hero__telemetry { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .product-hero { padding-top: 96px; }
+  .product-hero__title { font-size: clamp(38px, 12vw, 62px); gap: 12px; }
+  .product-hero__telemetry { grid-template-columns: 1fr; }
+  .product-hero__actions { gap: 18px; }
 }
 
 /* --- Status marks ------------------------------------------------- */
@@ -336,7 +437,6 @@
   color: var(--text);
   font-size: clamp(13px, 1.15vw, 16px);
   padding: 17px 18px 17px 0;
-  outline: 0;
   letter-spacing: 0.01em;
 }
 .command-bar input::placeholder { color: var(--dim); }
@@ -637,7 +737,6 @@
   color: var(--text);
   font-size: 17px;
   padding: 20px 0;
-  outline: 0;
   letter-spacing: 0.01em;
 }
 .palette__field input::placeholder { color: var(--dim); }
@@ -690,13 +789,12 @@
   font-size: clamp(16px, 2vw, 26px);
   line-height: 1.42;
   padding: 18px 0 10px;
-  outline: 0;
   resize: none;
   letter-spacing: -0.02em;
   min-height: 130px;
   font-family: inherit;
 }
-.composer-input textarea::placeholder { color: #45464a; }
+  .composer-input textarea::placeholder { color: var(--dim); }
 .composer-input__foot { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 20px; margin-top: 12px; }
 .composer-presets { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
 .composer-presets > span { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.14em; color: var(--dim); margin-right: 4px; }
@@ -879,6 +977,11 @@
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .field { display: flex; flex-direction: column; gap: 9px; }
 .field > label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+/* `outline: 0` was here to hide the browser's own ring, but it also removed the
+   site's ring: this rule and the global `input:focus-visible` rule have the same
+   specificity, and this one is declared later, so it won. Every field on
+   /contact and /products was then focusable and invisible. The field keeps its
+   own bottom-rule emphasis, and focus is now shown by the shared ring. */
 .field input, .field textarea, .field select {
   background: transparent;
   border: 0;
@@ -886,7 +989,6 @@
   color: var(--text);
   font-size: 15px;
   padding: 12px 0;
-  outline: 0;
   width: 100%;
   border-radius: 0;
   font-family: inherit;
@@ -1645,8 +1747,8 @@
 .case-file-record[data-active="true"][data-visible="true"] .signature-field__trace{animation-play-state:running}
 .archive-context--engineering{min-height:calc(100vh - 126px)}
 .engineering-context-nav{display:flex;flex-direction:column;margin:24px 0;border-top:1px solid var(--line)}
-.engineering-context-nav a{display:grid;grid-template-columns:54px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--line-soft);font-size:11px;color:#8f8893;transition:padding-left var(--motion-response),color var(--motion-response)}
-.engineering-context-nav a span{font:8px var(--mono);letter-spacing:.12em;color:#796c84}
+.engineering-context-nav a{display:grid;grid-template-columns:54px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--line-soft);font-size:11px;color:var(--text-dim);transition:padding-left var(--motion-response),color var(--motion-response)}
+.engineering-context-nav a span{font:8px var(--mono);letter-spacing:.12em;color:var(--muted)}
 .engineering-context-nav a:hover,.engineering-context-nav a:focus-visible,.engineering-context-nav a[aria-current="true"]{color:var(--text);padding-left:7px}
 .engineering-context-nav a:focus-visible{outline:1px solid #74657f;outline-offset:4px}
 .engineering-dossiers{border-top:1px solid var(--line-strong)}
@@ -1683,13 +1785,13 @@
 .solution-mission-rows{border-top:1px solid var(--line-strong)}
 .solution-mission-row{position:relative;display:grid;grid-template-columns:54px minmax(0,1fr) 170px 70px 26px;gap:clamp(12px,2vw,30px);align-items:center;min-height:94px;padding:20px 0;border-bottom:1px solid var(--line);color:inherit;overflow:hidden}
 .solution-mission-row:focus-visible{outline:1px solid #796888;outline-offset:5px}
-.solution-mission-row__index{font:9px var(--mono);letter-spacing:.13em;color:#776d7e}
+  .solution-mission-row__index{font:9px var(--mono);letter-spacing:.13em;color:var(--violet-dim)}
 .solution-mission-row__body{display:flex;flex-direction:column;gap:8px;min-width:0}
 .solution-mission-row__body strong{font-size:clamp(24px,3vw,42px);font-weight:400;letter-spacing:-.055em;transition:transform var(--motion-response),color var(--motion-response)}
 .solution-mission-row__body>span{max-height:0;opacity:0;overflow:hidden;color:var(--muted);font-size:11.5px;line-height:1.55;transform:translateY(-4px);transition:max-height var(--motion-response),opacity var(--motion-response),transform var(--motion-response)}
 .solution-mission-row:hover .solution-mission-row__body strong,.solution-mission-row:focus-visible .solution-mission-row__body strong,.solution-mission-row[data-active="true"] .solution-mission-row__body strong{transform:translateX(9px);color:#f0edf2}
 .solution-mission-row:hover .solution-mission-row__body>span,.solution-mission-row:focus-visible .solution-mission-row__body>span,.solution-mission-row[data-active="true"] .solution-mission-row__body>span{max-height:76px;opacity:1;transform:none}
-.solution-mission-row__context{font:8px/1.5 var(--mono);letter-spacing:.11em;color:#77707d;text-align:right}
+  .solution-mission-row__context{font:8px/1.5 var(--mono);letter-spacing:.11em;color:var(--dim);text-align:right}
 .solution-mission-row__signal{display:flex;gap:4px;justify-content:center;align-items:center;height:26px}
 .solution-mission-row__signal i{display:block;width:2px;height:2px;border-radius:50%;background:#71677a;transition:width var(--motion-response),background var(--motion-response),box-shadow var(--motion-response)}
 .solution-mission-row:hover .solution-mission-row__signal i,.solution-mission-row:focus-visible .solution-mission-row__signal i,.solution-mission-row[data-active="true"] .solution-mission-row__signal i{width:14px;border-radius:1px;background:#a58cb9;box-shadow:0 0 12px #a18acb33}
@@ -3309,7 +3411,11 @@ html[data-chamber="armed"] .auth-panel.is-risen [data-stagger="foot"]{transition
   transition: color 180ms, border-color 180ms;
 }
 .mp-pagination__step:hover { color: var(--text); border-color: var(--line-strong); }
-.mp-pagination__step.is-disabled { color: #45464a; border-color: var(--line-soft); }
+  /* A disabled control still has to be readable. `#45464a` was 1.5:1 on the page
+     background, which is not "disabled" so much as invisible. `--dim` keeps it
+     legible while the reduced emphasis is carried by the border and the
+     `aria-disabled` state, not by making the label unreadable. */
+  .mp-pagination__step.is-disabled { color: var(--dim); border-color: var(--line-soft); }
 .mp-pagination__pages {
   list-style: none;
   margin: 0;

@@ -20,6 +20,21 @@ qa-*.png
 # its own node_modules and its own .next, none of which belong in this tree.
 /knoux-store/
 
+# Playwright run output: traces, screencasts, failure screenshots, reports.
+# Reproducible from `npm run test:e2e`; a trace.zip is megabytes of binary that
+# would otherwise be committed on every failing run.
+/e2e/.artifacts/
+
+# Ad-hoc verification scratch from closure work: throwaway screenshots and
+# server logs from manual one-off checks, superseded by the E2E evidence set.
+/audit/verify-now/
+
+# Local tool state.
+.autohand/
+
+# The user's own archive. Never tracked, never staged, never touched.
+/Knoux Store.rar
+
 scripts/
 *.py
 KNOuX_VISUAL_REFERENCES_MASTER.txt

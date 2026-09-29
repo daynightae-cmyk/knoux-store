@@ -35,7 +35,7 @@ export default async function AccountPage() {
     'KNOuX member';
 
   return (
-    <main id="main-content" className="account-page">
+    <main id="main-content" tabIndex={-1} className="account-page">
       <section className="account-shell" aria-labelledby="account-heading">
         <span className="eyebrow">KN / AUTH — LIVE SESSION</span>
         <h1 id="account-heading">{displayName}</h1>

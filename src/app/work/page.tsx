@@ -11,7 +11,7 @@ export const metadata = pageMetadata(
 
 export default function WorkPage() {
   return (
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       <PageIntro
         index="10"
         label="Work"

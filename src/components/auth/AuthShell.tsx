@@ -30,7 +30,7 @@ export function AuthShell({
   const phase = useArrivalChoreography();
 
   return (
-    <main id="main-content" className="chamber-page" data-route={route} data-phase={phase}>
+    <main id="main-content" tabIndex={-1} className="chamber-page" data-route={route} data-phase={phase}>
       <ChamberBoot />
       <AuthScene phase={phase} />
 

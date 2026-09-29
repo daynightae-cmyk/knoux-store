@@ -117,7 +117,7 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
           </p>
         </aside>
 
-        <main id="main-content" className="dev-shell__content">
+        <main id="main-content" tabIndex={-1} className="dev-shell__content">
           <div className="dev-crumb"><span>KN / DEV</span> / {current?.label ?? 'Workspace'}<span className="dev-crumb__right">{state.adapter.environment.toUpperCase()} · {state.adapter.label}</span></div>
           {children}
         </main>
