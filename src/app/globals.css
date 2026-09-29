@@ -215,6 +215,50 @@
   .product-hero__actions { gap: 18px; }
 }
 
+/* --- Product arrival ------------------------------------------------
+   The same omission as the hero: `ProductArrival` renders a full-bleed
+   transition — a canvas field, the mark, a stage label and a progress
+   rule — and had no rules at all.
+
+   The visible consequence was the same shape of bug. The mark `<svg
+   viewBox="0 0 312 532">` filled its block at 1440x2455, and because
+   the overlay was `position: static` in normal flow it did not overlay
+   the page, it *displaced* it: every `/products/[slug]` route carried a
+   2649px slab above the hero that the visitor had to scroll past before
+   reaching any content.
+
+   It is a transition layer, so it is fixed, out of flow, and centred. */
+.product-arrival {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  overflow: hidden;
+}
+.product-arrival__field { position: absolute; inset: 0; }
+.product-arrival__canvas { display: block; width: 100%; height: 100%; }
+.product-arrival__copy {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  text-align: center;
+  padding: 0 max(5.3vw, 24px);
+}
+.product-arrival__logo { width: 48px; height: 48px; object-fit: contain; }
+.product-arrival__mark { width: clamp(56px, 6vw, 92px); height: auto; fill: var(--text); opacity: 0.9; }
+.product-arrival__verb { font-size: clamp(28px, 4vw, 54px); line-height: 1; letter-spacing: -0.05em; }
+.product-arrival__sub { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); }
+.product-arrival__progress { width: min(240px, 60vw); height: 1px; background: var(--line); overflow: hidden; }
+.product-arrival__progress > span { display: block; height: 100%; background: var(--violet); transition: width 120ms linear; }
+
+@media (prefers-reduced-motion: reduce) {
+  .product-arrival__progress > span { transition: none; }
+}
+
 /* --- Status marks ------------------------------------------------- */
 .mark {
   font-family: var(--mono);
