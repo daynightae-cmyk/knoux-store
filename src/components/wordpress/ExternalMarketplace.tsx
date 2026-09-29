@@ -244,6 +244,13 @@ export function ExternalMarketplace({
         </div>
 
         <div className="finder-controls">
+          {/*
+            These are links, not toggles. `aria-pressed` belongs to `role="button"`,
+            and a link that navigates has no pressed state to report, so announcing
+            one both fails `aria-allowed-attr` and tells a screen reader the wrong
+            thing about navigation. The current choice in a set of links is
+            `aria-current`, which is what the surrounding link grammar uses.
+          */}
           <div className="finder-chips" role="group" aria-label="Result ordering">
             <span className="finder-chips__label">Sort</span>
             {(Object.keys(SORT_LABEL) as MarketplaceSort[]).map((option) => (
@@ -251,7 +258,7 @@ export function ExternalMarketplace({
                 key={option}
                 className={`tag tag--button ${query.sort === option ? 'is-active' : ''}`}
                 href={pageHref(basePath, { ...query, sort: option }, 1)}
-                aria-pressed={query.sort === option}
+                aria-current={query.sort === option ? 'true' : undefined}
               >
                 {SORT_LABEL[option]}
               </Link>
@@ -264,7 +271,7 @@ export function ExternalMarketplace({
                 key={choice}
                 className={`tag tag--button ${query.perPage === choice ? 'is-active' : ''}`}
                 href={pageHref(basePath, { ...query, perPage: choice }, 1)}
-                aria-pressed={query.perPage === choice}
+                aria-current={query.perPage === choice ? 'true' : undefined}
               >
                 {choice}
               </Link>
@@ -289,9 +296,19 @@ export function ExternalMarketplace({
                 ? ` of ${result.totalKnown ? result.totalPages.toLocaleString('en-US') : 'more'}`
                 : ''}
             </span>
-            <span>Source: WordPress.org</span>
           </>
         )}
+        {/*
+          The attribution is unconditional, and that is a correctness property
+          rather than a formatting one. This section *is* the WordPress.org
+          discovery layer whatever the upstream is doing, so a visitor must be
+          told where the layer comes from even when it is empty. Rendering it
+          only on success also made a static copy assertion depend on a live
+          third-party API, which is how an upstream outage turned into a failing
+          test rather than into a passing test about an honest unavailable
+          state.
+        */}
+        <span>Source: WordPress.org</span>
       </div>
 
       {isUnavailable ? (

@@ -35,7 +35,7 @@ export function ProductExperience({
   };
 
   return (
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       <TrackOnView event={{ type: 'product_opened', id: product.id, slug: product.slug }} />
 
       {showArrival && (

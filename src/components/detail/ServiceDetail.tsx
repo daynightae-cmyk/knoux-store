@@ -235,7 +235,7 @@ function DetailFrame({
   children: React.ReactNode;
 }) {
   return (
-    <main id="main-content" className={styles.page} data-division={division}>
+    <main id="main-content" tabIndex={-1} className={styles.page} data-division={division}>
       <div className={styles.hero}>
         <div className={styles.heroInner}>
           <Breadcrumb path={`/${division}/${slug}`} />

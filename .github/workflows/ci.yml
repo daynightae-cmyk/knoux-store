@@ -1,19 +1,146 @@
 name: Verification
+
+# One workflow, three jobs, and a deliberate split of what blocks a merge from
+# what merely informs.
+#
+# `verify` is the merge gate: install, lint, typecheck, build, unit tests,
+# coverage, dependency audit and dead-code analysis. It must be green before a
+# change lands, and it runs on every push and pull request.
+#
+# `browser` proves the things a build cannot: that the routes render, that they
+# do not overflow at any supported width, and that an automated accessibility
+# pass finds no violation on the representative surfaces. It runs against a
+# production build, not a dev server.
+#
+# `sast` is CodeQL. It is GitHub's own static analysis for JavaScript and
+# TypeScript and needs no extra tool to be trustworthy. It is reported
+# separately from `verify` because its findings arrive as alerts rather than as
+# a job status, and a red alert must not be mistaken for a red build.
+
 on:
   push:
-    branches: [main, feat/digital-headquarters]
+    branches: [main]
   pull_request:
+  workflow_dispatch:
+
+# A stale run for the same ref is worthless once the commit moves on.
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Least privilege by default. Each job that needs more says so explicitly, and
+# nothing needs more here: the gate reads the repository and nothing else.
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
   verify:
+    name: Lint, types, build, tests, coverage, audit
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # Pinned to a commit, not a tag. A tag is a mutable pointer, and this
+      # workflow runs with the repository's token; a moved tag would be someone
+      # else's code executing here.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '24'
+          node-version-file: .nvmrc
           cache: npm
+
       - run: npm ci
-      - run: npm run lint
-      - run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Production build
+        run: npm run build
+
+      - name: Unit and integration tests
+        run: npm test
+
+      - name: Coverage
+        run: npm run test:coverage
+
+      - name: Dependency audit
+        run: npm run audit:deps
+
+      - name: Dead code and dependency graph
+        run: npm run audit:dead
+
+      - name: Upload coverage summary
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: coverage-summary
+          path: coverage/coverage-summary.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+  browser:
+    name: Routes, responsive geometry and automated accessibility
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # Assertions run against a production build. A dev server compiles routes
+      # on demand, serves unbundled modules and adds HMR, so it cannot be used
+      # to claim anything about what a visitor receives.
       - run: npm run build
-      - run: npm test
+
+      - name: Install the browser
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end, responsive and accessibility checks
+        run: npm run test:e2e
+
+      - name: Upload visual evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: route-captures
+          path: references/visual-audit/closure/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  sast:
+    name: CodeQL static analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      # Required for the security-events API. Scoped to this repository only.
+      security-events: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Initialise CodeQL
+        uses: github/codeql-action/init@60168efe1c415ce0f5521ea06d5c2062adbeed1b # v3.28.17
+        with:
+          languages: javascript-typescript
+          queries: security-and-quality
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@60168efe1c415ce0f5521ea06d5c2062adbeed1b # v3.28.17
+        with:
+          category: /language:javascript-typescript

@@ -82,10 +82,116 @@ type EnvironmentResponse = {
 
 type GitResponse = { git: NonNullable<BuildWorkspaceState['git']> };
 
-async function getJson<T>(url: string): Promise<T> {
-  const response = await fetch(url, { cache: 'no-store' });
-  if (!response.ok) throw new Error(`${url} responded ${response.status}`);
-  return (await response.json()) as T;
+/**
+ * One fetch pass, shared by both providers below.
+ *
+ * These two components used to carry near-identical copies of this logic, which
+ * is the same copy-paste shape that produced F-14: the copies drift, and the
+ * drift is invisible until one of them lies. There is one function now.
+ *
+ * A 401 is not treated as a failure. It is the workspace boundary answering,
+ * and it is reported as `access: 'refused'` so the interface can say what is
+ * true — this deployment is real, and reading it requires an account — instead
+ * of rendering an empty panel that looks like a bug.
+ */
+type FactResult<T> = { ok: true; value: T } | { ok: false; refused: boolean };
+
+async function getJson<T>(url: string): Promise<FactResult<T>> {
+  try {
+    const response = await fetch(url, { cache: 'no-store' });
+    if (response.status === 401 || response.status === 403) return { ok: false, refused: true };
+    if (!response.ok) return { ok: false, refused: false };
+    return { ok: true, value: (await response.json()) as T };
+  } catch {
+    return { ok: false, refused: false };
+  }
+}
+
+const UNREADABLE_GIT: NonNullable<BuildWorkspaceState['git']> = {
+  available: false,
+  branch: null,
+  headSha: null,
+  originMainSha: null,
+  dirty: false,
+  ahead: null,
+  behind: null,
+  files: [],
+  commits: [],
+  blocker: 'Git state could not be read on this deployment.',
+};
+
+export async function readWorkspaceFacts(
+  dispatch: (action: BuildAction) => void,
+  isCancelled: () => boolean,
+): Promise<void> {
+  let refused = false;
+
+  const project = await getJson<ProjectResponse>('/api/build/project');
+  if (isCancelled()) return;
+  if (!project.ok) {
+    refused = refused || project.refused;
+    dispatch({
+      type: 'status/error',
+      error: project.refused
+        ? 'This deployment is read behind a KNOuX account. Sign in to inspect the project, its Git state and its environment.'
+        : 'The project snapshot could not be read on this deployment. Every surface below is therefore showing an unknown state rather than an assumed one.',
+    });
+  } else {
+    dispatch({
+      type: 'adapter/resolved',
+      adapter: project.value.adapter.id,
+      label: project.value.adapter.label,
+      environment: project.value.adapter.environment,
+      capabilities: project.value.adapter.capabilities,
+      blockers: project.value.adapter.blockers,
+    });
+    dispatch({
+      type: 'project/resolved',
+      project: {
+        id: project.value.snapshot.name,
+        name: project.value.snapshot.name,
+        root: project.value.snapshot.root,
+        type: 'unknown',
+        framework: project.value.snapshot.framework,
+        packageManager: project.value.snapshot.packageManager,
+        currentBranch: null,
+        headSha: null,
+      },
+      graph: project.value.snapshot.graph,
+    });
+  }
+
+  const environment = await getJson<EnvironmentResponse>('/api/build/environment');
+  if (isCancelled()) return;
+  if (environment.ok) {
+    dispatch({ type: 'environment/resolved', signals: environment.value.signals, fetchedAt: new Date().toISOString() });
+    dispatch({ type: 'providers/resolved', providers: environment.value.providers });
+    dispatch({
+      type: 'runtime/resolved',
+      runtime: {
+        // The deployed site is the only runtime that exists, and it is
+        // serving. No process here is startable or stoppable.
+        status: 'running',
+        pid: null,
+        port: null,
+        url: typeof window === 'undefined' ? null : window.location.origin,
+        command: null,
+        startedAt: null,
+        blocker: 'This deployment is itself the runtime. It cannot supervise processes.',
+      },
+    });
+  } else {
+    refused = refused || environment.refused;
+    dispatch({ type: 'environment/resolved', signals: [], fetchedAt: '' });
+  }
+
+  const git = await getJson<GitResponse>('/api/build/git');
+  if (isCancelled()) return;
+  if (!git.ok) refused = refused || git.refused;
+  dispatch({ type: 'git/resolved', git: git.ok ? git.value.git : UNREADABLE_GIT });
+
+  dispatch({ type: 'access/set', access: refused ? 'refused' : 'granted' });
+  dispatch({ type: 'status/ready' });
 }
 
 export function KnouxBuildWorkspace() {
@@ -101,88 +207,7 @@ export function KnouxBuildWorkspace() {
 
     dispatch({ type: 'status/loading' });
 
-    void (async () => {
-      try {
-        const project = await getJson<ProjectResponse>('/api/build/project');
-        if (cancelled) return;
-        dispatch({
-          type: 'adapter/resolved',
-          adapter: project.adapter.id,
-          label: project.adapter.label,
-          environment: project.adapter.environment,
-          capabilities: project.adapter.capabilities,
-          blockers: project.adapter.blockers,
-        });
-        dispatch({
-          type: 'project/resolved',
-          project: {
-            id: project.snapshot.name,
-            name: project.snapshot.name,
-            root: project.snapshot.root,
-            type: 'unknown',
-            framework: project.snapshot.framework,
-            packageManager: project.snapshot.packageManager,
-            currentBranch: null,
-            headSha: null,
-          },
-          graph: project.snapshot.graph,
-        });
-      } catch {
-        if (!cancelled) {
-          dispatch({
-            type: 'status/error',
-            error: 'The project snapshot could not be read on this deployment. Every surface below is therefore showing an unknown state rather than an assumed one.',
-          });
-        }
-      }
-
-      try {
-        const environment = await getJson<EnvironmentResponse>('/api/build/environment');
-        if (cancelled) return;
-        dispatch({
-          type: 'environment/resolved',
-          signals: environment.signals,
-          fetchedAt: new Date().toISOString(),
-        });
-        dispatch({ type: 'providers/resolved', providers: environment.providers });
-        dispatch({
-          type: 'runtime/resolved',
-          runtime: {
-            // The deployed site is the only runtime that exists, and it is
-            // serving. No process here is startable or stoppable.
-            status: 'running',
-            pid: null,
-            port: null,
-            url: typeof window === 'undefined' ? null : window.location.origin,
-            command: null,
-            startedAt: null,
-            blocker: 'This deployment is itself the runtime. It cannot supervise processes.',
-          },
-        });
-      } catch {
-        if (!cancelled) {
-          dispatch({ type: 'environment/resolved', signals: [], fetchedAt: '' });
-        }
-      }
-
-      try {
-        const git = await getJson<GitResponse>('/api/build/git');
-        if (!cancelled) dispatch({ type: 'git/resolved', git: git.git });
-      } catch {
-        if (!cancelled) {
-          dispatch({
-            type: 'git/resolved',
-            git: {
-              available: false, branch: null, headSha: null, originMainSha: null, dirty: false,
-              ahead: null, behind: null, files: [], commits: [],
-              blocker: 'Git state could not be read on this deployment.',
-            },
-          });
-        }
-      }
-
-      if (!cancelled) dispatch({ type: 'status/ready' });
-    })();
+    void readWorkspaceFacts(dispatch, () => cancelled);
 
     return () => {
       cancelled = true;
@@ -236,34 +261,7 @@ export function BuildStateProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     dispatch({ type: 'status/loading' });
-    void (async () => {
-      try {
-        const project = await getJson<ProjectResponse>('/api/build/project');
-        if (!cancelled) {
-          dispatch({ type: 'adapter/resolved', adapter: project.adapter.id, label: project.adapter.label, environment: project.adapter.environment, capabilities: project.adapter.capabilities, blockers: project.adapter.blockers });
-          dispatch({ type: 'project/resolved', project: { id: project.snapshot.name, name: project.snapshot.name, root: project.snapshot.root, type: 'unknown', framework: project.snapshot.framework, packageManager: project.snapshot.packageManager, currentBranch: null, headSha: null }, graph: project.snapshot.graph });
-        }
-      } catch {
-        if (!cancelled) dispatch({ type: 'status/error', error: 'Project snapshot unavailable on this deployment.' });
-      }
-      try {
-        const environment = await getJson<EnvironmentResponse>('/api/build/environment');
-        if (!cancelled) {
-          dispatch({ type: 'environment/resolved', signals: environment.signals, fetchedAt: new Date().toISOString() });
-          dispatch({ type: 'providers/resolved', providers: environment.providers });
-          dispatch({ type: 'runtime/resolved', runtime: { status: 'running', pid: null, port: null, url: window.location.origin, command: null, startedAt: null, blocker: 'This deployment cannot supervise processes.' } });
-        }
-      } catch {
-        if (!cancelled) dispatch({ type: 'environment/resolved', signals: [], fetchedAt: '' });
-      }
-      try {
-        const git = await getJson<GitResponse>('/api/build/git');
-        if (!cancelled) dispatch({ type: 'git/resolved', git: git.git });
-      } catch {
-        if (!cancelled) dispatch({ type: 'git/resolved', git: { available: false, branch: null, headSha: null, originMainSha: null, dirty: false, ahead: null, behind: null, files: [], commits: [], blocker: 'Git state could not be read.' } });
-      }
-      if (!cancelled) dispatch({ type: 'status/ready' });
-    })();
+    void readWorkspaceFacts(dispatch, () => cancelled);
     return () => { cancelled = true; };
   }, []);
 

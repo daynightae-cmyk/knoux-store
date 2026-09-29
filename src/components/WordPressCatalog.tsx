@@ -80,7 +80,7 @@ export async function WordPressCategoryPage({
     : null;
 
   return (
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       <PageIntro
         index={meta.index}
         label="WordPress"

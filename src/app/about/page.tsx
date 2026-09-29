@@ -20,7 +20,7 @@ export const metadata = pageMetadata(
 
 export default function AboutPage() {
   return (
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       <PageIntro
         index="11"
         label="About"
