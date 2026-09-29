@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Particleify Particle Attractor</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+    }
+  }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    body { background: #0b0713; }
+    canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+    #error {
+      position: fixed; left: 50%; bottom: 24px; z-index: 10; display: none;
+      width: min(460px, calc(100% - 32px)); transform: translateX(-50%);
+      border: 1px solid rgba(248, 113, 113, .3); background: rgba(0, 0, 0, .88);
+      padding: 14px 18px; color: #fecaca; font: 13px/1.6 ui-monospace, monospace;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particle-canvas" role="img" aria-label="Interactive particle lettering"></canvas>
+  <div id="error" role="alert"></div>
+  <script type="module">
+    import * as THREE from 'three';
+
+    const CONFIG = {"text":"KNOuX","hoverText":"DEV","hoverEnabled":true,"morphDuration":0.55,"fontFamily":"Arial Black, Arial, sans-serif","fontWeight":900,"particleCount":28000,"particleSize":1.6,"sizeVariation":2.4,"interactionMode":"repel","interactionRadius":5.5,"interactionForce":1.9,"friction":0.84,"returnSpeed":0.1,"turbulence":0.2,"driftSpeed":0.7,"sceneScale":0.91,"color":"#d8d4d4","backgroundColor":"#0b0713","paused":false,"seed":40};
+    const VERTEX_SHADER = "\n  attribute float aSize;\n  uniform float uPixelRatio;\n  void main() {\n    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n    gl_PointSize = aSize * uPixelRatio;\n  }\n";
+    const FRAGMENT_SHADER = "\n  uniform vec3 uColor;\n  void main() {\n    vec2 point = gl_PointCoord - vec2(0.5);\n    float distanceToCenter = length(point);\n    if (distanceToCenter > 0.5) discard;\n    float halo = smoothstep(0.5, 0.08, distanceToCenter);\n    float core = smoothstep(0.24, 0.0, distanceToCenter);\n    gl_FragColor = vec4(uColor, halo * (0.38 + core * 0.62));\n  }\n";
+    const canvas = document.getElementById('particle-canvas');
+    const errorElement = document.getElementById('error');
+
+    function showError(message) {
+      errorElement.textContent = message;
+      errorElement.style.display = 'block';
+    }
+
+    function random(seed) {
+      let value = seed >>> 0;
+      return function () {
+        value += 0x6d2b79f5;
+        let result = value;
+        result = Math.imul(result ^ (result >>> 15), result | 1);
+        result ^= result + Math.imul(result ^ (result >>> 7), result | 61);
+        return ((result ^ (result >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: false, alpha: false, powerPreference: 'high-performance' });
+    } catch (error) {
+      showError('WebGL could not start in this browser.');
+      throw error;
+    }
+
+    renderer.setClearColor(CONFIG.backgroundColor);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-50, 50, 50, -50, 0.1, 10);
+    camera.position.z = 2;
+    const geometry = new THREE.BufferGeometry();
+    const material = new THREE.ShaderMaterial({
+      vertexShader: VERTEX_SHADER,
+      fragmentShader: FRAGMENT_SHADER,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.NormalBlending,
+      uniforms: {
+        uPixelRatio: { value: renderer.getPixelRatio() },
+        uColor: { value: new THREE.Color(CONFIG.color) }
+      }
+    });
+    scene.add(new THREE.Points(geometry, material));
+
+    let buffers = null;
+    let width = 1;
+    let height = 1;
+    let worldWidth = 100;
+    let elapsed = 0;
+    let lastTime = 0;
+    let pointerActive = false;
+    let hoverLatched = false;
+    let morph = 0;
+    const pointer = new THREE.Vector2(9999, 9999);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    function sampleText(context, value, maskWidth, maskHeight) {
+      context.clearRect(0, 0, maskWidth, maskHeight);
+      const lines = value.split(/\n/).slice(0, 2);
+      const maxTextWidth = maskWidth * 0.88;
+      const maxTextHeight = maskHeight * 0.72;
+      let fontSize = Math.min(560 / Math.max(1, lines.length), 540);
+      for (let attempt = 0; attempt < 24; attempt += 1) {
+        context.font = CONFIG.fontWeight + ' ' + fontSize + 'px ' + CONFIG.fontFamily;
+        const measuredWidth = Math.max.apply(null, lines.map(function (line) {
+          return context.measureText(line || ' ').width;
+        }));
+        if (measuredWidth <= maxTextWidth && fontSize * lines.length * 1.02 <= maxTextHeight) break;
+        fontSize *= 0.91;
+      }
+      context.font = CONFIG.fontWeight + ' ' + fontSize + 'px ' + CONFIG.fontFamily;
+      const lineHeight = fontSize * 0.94;
+      lines.forEach(function (line, index) {
+        context.fillText(line, maskWidth / 2, maskHeight / 2 + (index - (lines.length - 1) / 2) * lineHeight);
+      });
+
+      const pixels = context.getImageData(0, 0, maskWidth, maskHeight).data;
+      const candidates = [];
+      let minX = maskWidth;
+      let maxX = 0;
+      let minY = maskHeight;
+      let maxY = 0;
+      for (let y = 1; y < maskHeight; y += 2) {
+        for (let x = 1; x < maskWidth; x += 2) {
+          if (pixels[(y * maskWidth + x) * 4 + 3] > 72) {
+            candidates.push(y * maskWidth + x);
+            minX = Math.min(minX, x);
+            maxX = Math.max(maxX, x);
+            minY = Math.min(minY, y);
+            maxY = Math.max(maxY, y);
+          }
+        }
+      }
+      return { candidates: candidates, minX: minX, maxX: maxX, minY: minY, maxY: maxY };
+    }
+
+    function buildParticles() {
+      if (width < 2 || height < 2) return;
+      const maskWidth = 1200;
+      const maskHeight = 760;
+      const mask = document.createElement('canvas');
+      mask.width = maskWidth;
+      mask.height = maskHeight;
+      const context = mask.getContext('2d', { willReadFrequently: true });
+      if (!context) {
+        showError('Particle text could not be prepared in this browser.');
+        return;
+      }
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.fillStyle = '#ffffff';
+
+      const idleShape = sampleText(context, CONFIG.text.trim().slice(0, 16) || 'A', maskWidth, maskHeight);
+      const hoverShape = sampleText(context, CONFIG.hoverText.trim().slice(0, 18) || 'PARTICLE', maskWidth, maskHeight);
+      if (!idleShape.candidates.length || !hoverShape.candidates.length) {
+        showError('No particles were found for this text and font.');
+        return;
+      }
+
+      const targetCount = width < 768 ? Math.min(CONFIG.particleCount, Math.round(CONFIG.particleCount * 0.52)) : CONFIG.particleCount;
+      const positions = new Float32Array(targetCount * 3);
+      const idleHomes = new Float32Array(targetCount * 3);
+      const hoverHomes = new Float32Array(targetCount * 3);
+      const velocities = new Float32Array(targetCount * 3);
+      const phases = new Float32Array(targetCount);
+      const sizes = new Float32Array(targetCount);
+      const seeded = random(CONFIG.seed);
+      worldWidth = 100 * (width / height);
+
+      function shapeTransform(shape, maxWidth, maxHeight) {
+        return {
+          centerX: (shape.minX + shape.maxX) / 2,
+          centerY: (shape.minY + shape.maxY) / 2,
+          scale: Math.min(
+            (worldWidth * maxWidth * CONFIG.sceneScale) / Math.max(1, shape.maxX - shape.minX),
+            (100 * maxHeight * CONFIG.sceneScale) / Math.max(1, shape.maxY - shape.minY)
+          )
+        };
+      }
+
+      const idleTransform = shapeTransform(idleShape, 0.78, 0.78);
+      const hoverTransform = shapeTransform(hoverShape, 0.9, 0.62);
+      for (let index = 0; index < targetCount; index += 1) {
+        const idleSample = idleShape.candidates[Math.floor(seeded() * idleShape.candidates.length)];
+        const hoverSample = hoverShape.candidates[Math.floor(seeded() * hoverShape.candidates.length)];
+        const idleX = idleSample % maskWidth;
+        const idleY = Math.floor(idleSample / maskWidth);
+        const hoverX = hoverSample % maskWidth;
+        const hoverY = Math.floor(hoverSample / maskWidth);
+        const i3 = index * 3;
+        idleHomes[i3] = (idleX - idleTransform.centerX) * idleTransform.scale + (seeded() - 0.5) * 0.08;
+        idleHomes[i3 + 1] = (idleTransform.centerY - idleY) * idleTransform.scale + (seeded() - 0.5) * 0.08;
+        idleHomes[i3 + 2] = (seeded() - 0.5) * 0.8;
+        hoverHomes[i3] = (hoverX - hoverTransform.centerX) * hoverTransform.scale + (seeded() - 0.5) * 0.08;
+        hoverHomes[i3 + 1] = (hoverTransform.centerY - hoverY) * hoverTransform.scale + (seeded() - 0.5) * 0.08;
+        hoverHomes[i3 + 2] = (seeded() - 0.5) * 0.5;
+        positions[i3] = (seeded() - 0.5) * worldWidth * 1.35;
+        positions[i3 + 1] = (seeded() - 0.5) * 135;
+        positions[i3 + 2] = idleHomes[i3 + 2];
+        phases[index] = seeded() * Math.PI * 2;
+        sizes[index] = CONFIG.particleSize * (0.48 + Math.pow(seeded(), 2.4) * CONFIG.sizeVariation);
+      }
+
+      buffers = { positions: positions, idleHomes: idleHomes, hoverHomes: hoverHomes, velocities: velocities, phases: phases, count: targetCount };
+      morph = 0;
+      hoverLatched = false;
+      const positionAttribute = new THREE.BufferAttribute(positions, 3);
+      positionAttribute.setUsage(THREE.DynamicDrawUsage);
+      geometry.setAttribute('position', positionAttribute);
+      geometry.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1));
+      geometry.setDrawRange(0, targetCount);
+      errorElement.style.display = 'none';
+    }
+
+    function resize() {
+      const nextWidth = Math.max(1, Math.round(window.innerWidth));
+      const nextHeight = Math.max(1, Math.round(window.innerHeight));
+      const aspectChanged = Math.abs(nextWidth / nextHeight - width / height) > 0.025;
+      width = nextWidth;
+      height = nextHeight;
+      worldWidth = 100 * (width / height);
+      camera.left = -worldWidth / 2;
+      camera.right = worldWidth / 2;
+      camera.top = 50;
+      camera.bottom = -50;
+      camera.updateProjectionMatrix();
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(width, height, false);
+      material.uniforms.uPixelRatio.value = renderer.getPixelRatio();
+      if (!buffers || aspectChanged) buildParticles();
+    }
+
+    function movePointer(event) {
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = ((event.clientX - rect.left) / rect.width - 0.5) * worldWidth;
+      pointer.y = (0.5 - (event.clientY - rect.top) / rect.height) * 100;
+      pointerActive = true;
+    }
+
+    function leavePointer() {
+      pointerActive = false;
+      hoverLatched = false;
+      pointer.set(9999, 9999);
+    }
+
+    canvas.addEventListener('pointermove', movePointer);
+    canvas.addEventListener('pointerleave', leavePointer);
+    canvas.addEventListener('pointerup', function (event) {
+      if (event.pointerType === 'touch') leavePointer();
+    });
+    canvas.addEventListener('pointercancel', leavePointer);
+    window.addEventListener('resize', resize);
+
+    function render(now) {
+      requestAnimationFrame(render);
+      if (document.hidden) return;
+      const dt = Math.min((now - (lastTime || now)) / 1000, 0.04);
+      lastTime = now;
+
+      if (buffers && CONFIG.hoverEnabled && pointerActive && !hoverLatched) {
+        let nearIdleShape = false;
+        const hoverThresholdSquared = Math.pow(Math.max(4.5, CONFIG.interactionRadius), 2);
+        for (let index = 0; index < buffers.count; index += 36) {
+          const i3 = index * 3;
+          const deltaX = pointer.x - buffers.idleHomes[i3];
+          const deltaY = pointer.y - buffers.idleHomes[i3 + 1];
+          if (deltaX * deltaX + deltaY * deltaY < hoverThresholdSquared) {
+            nearIdleShape = true;
+            break;
+          }
+        }
+        if (nearIdleShape && morph >= 0.96) hoverLatched = true;
+        const target = nearIdleShape ? 1 : 0;
+        const change = dt / CONFIG.morphDuration;
+        morph = target > morph ? Math.min(target, morph + change) : Math.max(target, morph - change);
+      } else if (buffers && CONFIG.hoverEnabled && hoverLatched && pointerActive) {
+        morph = Math.min(1, morph + dt / CONFIG.morphDuration);
+      } else {
+        morph = Math.max(0, morph - dt / CONFIG.morphDuration);
+      }
+      const easedMorph = morph * morph * (3 - 2 * morph);
+
+      if (buffers && !reducedMotion.matches) {
+        elapsed += dt * CONFIG.driftSpeed;
+        const frameScale = dt * 60;
+        const frictionFactor = Math.pow(CONFIG.friction, frameScale);
+        const returnFactor = 1 - Math.pow(1 - CONFIG.returnSpeed, frameScale);
+        const direction = CONFIG.interactionMode === 'attract' ? 1 : -1;
+
+        for (let index = 0; index < buffers.count; index += 1) {
+          const i3 = index * 3;
+          const phase = buffers.phases[index];
+          const idleX = buffers.idleHomes[i3];
+          const idleY = buffers.idleHomes[i3 + 1];
+          const homeX = idleX + (buffers.hoverHomes[i3] - idleX) * easedMorph + Math.sin(elapsed * 1.2 + phase) * CONFIG.turbulence;
+          const homeY = idleY + (buffers.hoverHomes[i3 + 1] - idleY) * easedMorph + Math.cos(elapsed * 1.08 + phase * 1.3) * CONFIG.turbulence;
+          let x = buffers.positions[i3];
+          let y = buffers.positions[i3 + 1];
+          let velocityX = buffers.velocities[i3];
+          let velocityY = buffers.velocities[i3 + 1];
+
+          if (pointerActive) {
+            const deltaX = pointer.x - x;
+            const deltaY = pointer.y - y;
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            if (distance < CONFIG.interactionRadius && distance > 0.001) {
+              const falloff = 1 - distance / CONFIG.interactionRadius;
+              const force = falloff * falloff * CONFIG.interactionForce * 0.14 * frameScale * direction;
+              velocityX += (deltaX / distance) * force;
+              velocityY += (deltaY / distance) * force;
+            }
+          }
+
+          velocityX *= frictionFactor;
+          velocityY *= frictionFactor;
+          x += velocityX * frameScale;
+          y += velocityY * frameScale;
+          x += (homeX - x) * returnFactor;
+          y += (homeY - y) * returnFactor;
+          buffers.velocities[i3] = velocityX;
+          buffers.velocities[i3 + 1] = velocityY;
+          buffers.positions[i3] = x;
+          buffers.positions[i3 + 1] = y;
+        }
+        geometry.attributes.position.needsUpdate = true;
+      } else if (buffers) {
+        buffers.positions.set(buffers.idleHomes);
+        geometry.attributes.position.needsUpdate = true;
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    resize();
+    Promise.resolve(document.fonts && document.fonts.ready).then(buildParticles);
+    requestAnimationFrame(render);
+  </script>
+</body>
+</html>

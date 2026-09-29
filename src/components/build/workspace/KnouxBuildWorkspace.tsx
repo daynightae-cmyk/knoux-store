@@ -233,6 +233,44 @@ export function KnouxBuildWorkspace() {
 export type { BuildWorkspaceState };
 export function BuildStateProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(buildReducer, initialBuildState);
+  useEffect(() => {
+    let cancelled = false;
+    dispatch({ type: 'status/loading' });
+    void (async () => {
+      try {
+        const project = await getJson<ProjectResponse>('/api/build/project');
+        if (!cancelled) {
+          dispatch({ type: 'adapter/resolved', adapter: project.adapter.id, label: project.adapter.label, environment: project.adapter.environment, capabilities: project.adapter.capabilities, blockers: project.adapter.blockers });
+          dispatch({ type: 'project/resolved', project: { id: project.snapshot.name, name: project.snapshot.name, root: project.snapshot.root, type: 'unknown', framework: project.snapshot.framework, packageManager: project.snapshot.packageManager, currentBranch: null, headSha: null }, graph: project.snapshot.graph });
+        }
+      } catch {
+        if (!cancelled) dispatch({ type: 'status/error', error: 'Project snapshot unavailable on this deployment.' });
+      }
+      try {
+        const environment = await getJson<EnvironmentResponse>('/api/build/environment');
+        if (!cancelled) {
+          dispatch({ type: 'environment/resolved', signals: environment.signals, fetchedAt: new Date().toISOString() });
+          dispatch({ type: 'providers/resolved', providers: environment.providers });
+          dispatch({ type: 'runtime/resolved', runtime: { status: 'running', pid: null, port: null, url: window.location.origin, command: null, startedAt: null, blocker: 'This deployment cannot supervise processes.' } });
+        }
+      } catch {
+        if (!cancelled) dispatch({ type: 'environment/resolved', signals: [], fetchedAt: '' });
+      }
+      try {
+        const git = await getJson<GitResponse>('/api/build/git');
+        if (!cancelled) dispatch({ type: 'git/resolved', git: git.git });
+      } catch {
+        if (!cancelled) dispatch({ type: 'git/resolved', git: { available: false, branch: null, headSha: null, originMainSha: null, dirty: false, ahead: null, behind: null, files: [], commits: [], blocker: 'Git state could not be read.' } });
+      }
+      if (!cancelled) dispatch({ type: 'status/ready' });
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    if (state.ai.providers.length === 0) return;
+    dispatch({ type: 'routing/resolved', routing: routeModel(state.ai.task, state.ai.routingMode, state.ai.providers, { providerId: state.ai.providerId ?? '', modelId: state.ai.modelId ?? '' }) });
+  }, [state.ai.task, state.ai.routingMode, state.ai.providers, state.ai.providerId, state.ai.modelId]);
   const value = useMemo(() => ({ state, dispatch }), [state]);
   return <BuildStateContext.Provider value={value}>{children}</BuildStateContext.Provider>;
 }

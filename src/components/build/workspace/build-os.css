@@ -775,9 +775,12 @@
   border: 1px solid var(--bo-line);
   background: #000;
   overflow: hidden;
-  max-width: 100%;
   position: relative;
+  transform-origin: top left;
 }
+
+.bo-preview__stage { width: 100%; display: flex; justify-content: center; overflow: hidden; }
+.bo-preview__scaled { flex: none; }
 
 .bo-preview__frame iframe {
   display: block;

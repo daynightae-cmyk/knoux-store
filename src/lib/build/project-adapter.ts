@@ -469,6 +469,15 @@ export class FsProjectAdapter implements ProjectAdapter {
   }
 
   async readFile(relative: string): Promise<{ content: string; language: string; bytes: number; lines: number } | null> {
+    // This API is public. Only repository source and documentation are
+    // inspectable; a guessed path must never turn it into an env-file reader.
+    const requested = relative.replace(/\\/g, '/');
+    const segments = requested.split('/');
+    if (segments.some((segment) => segment.startsWith('.'))) return null;
+    const allowed = requested.startsWith('src/') || requested.startsWith('tests/') ||
+      (requested.startsWith('references/') && requested.endsWith('.md')) ||
+      ['README.md', 'package.json', 'tsconfig.json', 'next.config.ts', 'AGENTS.md'].includes(requested);
+    if (!allowed) return null;
     // Containment: resolve, then require the result to stay inside the root.
     const resolved = path.resolve(this.root, relative);
     const prefix = this.root.endsWith(path.sep) ? this.root : `${this.root}${path.sep}`;
@@ -476,6 +485,8 @@ export class FsProjectAdapter implements ProjectAdapter {
     if (resolved.includes(`${path.sep}node_modules${path.sep}`)) return null;
     if (resolved.includes(`${path.sep}.git${path.sep}`)) return null;
     try {
+      const actual = await fs.realpath(resolved);
+      if (!actual.startsWith(prefix)) return null;
       const stat = await fs.stat(resolved);
       if (!stat.isFile()) return null;
       if (stat.size > MAX_FILE_BYTES) return null;
