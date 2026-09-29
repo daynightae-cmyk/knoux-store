@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
-import { FsProjectAdapter } from '@/lib/build/project-adapter';
+import { NextResponse, type NextRequest } from 'next/server';
+import { createProjectAdapter } from '@/lib/build/adapter-factory';
+import { guardBuildApi } from '@/lib/build/api-guard';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,8 +11,11 @@ export const dynamic = 'force-dynamic';
  * reach `git push`. Mutation requires a build service that holds credentials,
  * which is a separate system by design.
  */
-export async function GET() {
-  const adapter = new FsProjectAdapter({ root: process.cwd(), environment: 'production', label: 'read-only' });
+export async function GET(request: NextRequest) {
+  const denied = await guardBuildApi(request, { scope: 'git' });
+  if (denied) return denied;
+
+  const adapter = createProjectAdapter();
   const git = await adapter.gitSnapshot();
   return NextResponse.json(
     { git, writeCapability: adapter.capabilities()['git.write'], blocker: adapter.blockerFor('git.write') },

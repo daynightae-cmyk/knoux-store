@@ -33,12 +33,17 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
   const [navOpen, setNavOpen] = useState(false);
 
   const current = DEV_DESTINATIONS.find((item) => isCurrent(pathname, item.href));
+  // Access is a fact about this deployment, not a loading artefact. Saying
+  // "adapter online" while every read was refused would be the interface
+  // claiming a connection it does not have.
   const adapterLabel =
-    state.status === 'ready'
-      ? 'ADAPTER ONLINE'
-      : state.status === 'loading'
-        ? 'READING PROJECT'
-        : 'ADAPTER STATE UNKNOWN';
+    state.access === 'refused'
+      ? 'SIGN IN TO OPERATE'
+      : state.status === 'ready'
+        ? 'ADAPTER ONLINE'
+        : state.status === 'loading'
+          ? 'READING PROJECT'
+          : 'ADAPTER STATE UNKNOWN';
 
   const isLanding = pathname === '/build';
 
@@ -104,7 +109,11 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
           <p className="dev-sidebar__foot">
             {adapterLabel}
             <br />
-            {state.project ? state.project.name : 'PROJECT UNAVAILABLE'}
+            {state.project
+              ? state.project.name
+              : state.access === 'refused'
+                ? 'PROJECT WITHHELD'
+                : 'PROJECT UNAVAILABLE'}
           </p>
         </aside>
 

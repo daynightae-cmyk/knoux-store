@@ -113,6 +113,16 @@ export type BuildWorkspaceState = {
   failures: FailureRecord[];
   status: 'idle' | 'loading' | 'ready' | 'error';
   error: string | null;
+  /**
+   * Whether this deployment let this visitor read the workspace.
+   *
+   * `refused` is a real state, not an error to swallow. On a public deployment
+   * an anonymous visitor sees the KNOuX DEV identity and the product machine,
+   * while the project inventory, the Git metadata and the environment presence
+   * sit behind a sign-in. Saying so plainly is the honest rendering; an empty
+   * panel that merely looks broken is not.
+   */
+  access: 'unknown' | 'granted' | 'refused';
 };
 
 /**
@@ -199,12 +209,14 @@ export const initialBuildState: BuildWorkspaceState = {
   failures: [],
   status: 'idle',
   error: null,
+  access: 'unknown',
 };
 
 export type BuildAction =
   | { type: 'status/loading' }
   | { type: 'status/ready' }
   | { type: 'status/error'; error: string }
+  | { type: 'access/set'; access: BuildWorkspaceState['access'] }
   | { type: 'adapter/resolved'; adapter: ProjectAdapter['id']; label: string; environment: EnvironmentName; capabilities: Record<BuildCapability, CapabilityStatus>; blockers: Partial<Record<BuildCapability, string>> }
   | { type: 'project/resolved'; project: ProjectIdentity; graph: ProjectGraph }
   | { type: 'git/resolved'; git: GitSnapshot }
@@ -252,6 +264,8 @@ export function buildReducer(state: BuildWorkspaceState, action: BuildAction): B
       return { ...state, status: 'ready', error: null };
     case 'status/error':
       return { ...state, status: 'error', error: action.error };
+    case 'access/set':
+      return { ...state, access: action.access };
     case 'adapter/resolved':
       return {
         ...state,

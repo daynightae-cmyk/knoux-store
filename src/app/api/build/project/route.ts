@@ -1,39 +1,20 @@
-import { NextResponse } from 'next/server';
-import { FsProjectAdapter } from '@/lib/build/project-adapter';
-import type { BuildCapability, EnvironmentName } from '@/lib/build/types';
+import { NextResponse, type NextRequest } from 'next/server';
+import { ADAPTER_ID, createProjectAdapter } from '@/lib/build/adapter-factory';
+import { guardBuildApi, withShortCache } from '@/lib/build/api-guard';
+import type { BuildCapability } from '@/lib/build/types';
 
 export const dynamic = 'force-dynamic';
 
-const ADAPTER_ID = 'knoux-fs-readonly';
+export async function GET(request: NextRequest) {
+  const denied = await guardBuildApi(request, { scope: 'project' });
+  if (denied) return denied;
 
-/**
- * Environment is derived from the deployment, never from a request parameter.
- * A caller must not be able to ask "is this local mode?" and get an answer that
- * changes what the API will do.
- */
-function environment(): EnvironmentName {
-  if (process.env.VERCEL_ENV === 'production') return 'production';
-  if (process.env.VERCEL_ENV === 'preview') return 'preview';
-  return 'local';
-}
-
-function adapter() {
-  return new FsProjectAdapter({
-    root: process.cwd(),
-    environment: environment(),
-    label:
-      environment() === 'production'
-        ? 'Read-only production checkout'
-        : environment() === 'preview'
-          ? 'Read-only preview checkout'
-          : 'Read-only local checkout',
-  });
-}
-
-export async function GET() {
   try {
-    const instance = adapter();
-    const snapshot = await instance.snapshot();
+    const instance = createProjectAdapter();
+    const snapshot = await withShortCache(
+      `project:${instance.environment}:${instance.root}`,
+      () => instance.snapshot(),
+    );
     const capabilities = instance.capabilities();
     const blockers: Partial<Record<BuildCapability, string>> = {};
     for (const capability of Object.keys(capabilities) as BuildCapability[]) {
@@ -42,12 +23,18 @@ export async function GET() {
     }
     return NextResponse.json(
       {
-        adapter: { id: ADAPTER_ID, label: instance.label, environment: instance.environment, capabilities, blockers },
+        adapter: {
+          id: ADAPTER_ID,
+          label: instance.label,
+          environment: instance.environment,
+          capabilities,
+          blockers,
+        },
         snapshot,
       },
       { headers: { 'cache-control': 'no-store' } },
     );
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         error: 'project-introspection-failed',
