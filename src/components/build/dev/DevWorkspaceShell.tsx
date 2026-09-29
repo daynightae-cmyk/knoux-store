@@ -40,8 +40,10 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
         ? 'READING PROJECT'
         : 'ADAPTER STATE UNKNOWN';
 
+  const isLanding = pathname === '/build';
+
   return (
-    <div className="dev-shell">
+    <div className={`dev-shell ${isLanding ? 'dev-shell--landing' : 'dev-shell--operational'}`}>
       <div className="dev-shell__top">
         <div className="dev-shell__identity"><span className="dev-dot" />KNOuX <strong>DEV</strong></div>
         <div className="dev-shell__descriptor">KN / DEV — {current?.code ?? '000'} · {state.adapter.environment.toUpperCase()} · {state.adapter.label}</div>
