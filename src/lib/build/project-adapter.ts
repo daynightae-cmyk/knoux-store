@@ -179,7 +179,14 @@ export class FsProjectAdapter implements ProjectAdapter {
   readonly id = 'knoux-fs-readonly';
   readonly label: string;
   readonly environment: EnvironmentName;
-  private readonly root: string;
+  /**
+   * The resolved checkout root.
+   *
+   * Public because the project snapshot already publishes it verbatim, so
+   * keeping it private here would only mean a caller had to re-derive the same
+   * value. It is a path, not a credential.
+   */
+  readonly root: string;
 
   constructor(options: AdapterOptions) {
     this.root = path.resolve(options.root);
@@ -322,7 +329,7 @@ export class FsProjectAdapter implements ProjectAdapter {
       name: manifest.name ?? path.basename(this.root),
       root: this.root,
       framework: dependencies.some((d) => d.name === 'next') ? `next@${dependencies.find((d) => d.name === 'next')?.version ?? '?'}` : null,
-      packageManager: await this.detectPackageManager(),
+      packageManager: this.detectPackageManager(),
       scripts: Object.entries(manifest.scripts ?? {}).map(([name, command]) => ({ name, command })),
       dependencies,
       files: files.sort((a, b) => a.path.localeCompare(b.path)),
@@ -334,16 +341,24 @@ export class FsProjectAdapter implements ProjectAdapter {
     };
   }
 
-  private async detectPackageManager(): Promise<string | null> {
-    for (const lock of ['pnpm-lock.yaml', 'yarn.lock', 'package-lock.json', 'bun.lockb']) {
-      try {
-        await fs.access(path.join(this.root, lock));
-        return lock.split('-')[0] === 'package' ? 'npm' : lock.replace('-lock.yaml', '').replace('.lock', '');
-      } catch {
-        continue;
-      }
-    }
-    return null;
+  /**
+   * The package manager that owns this checkout.
+   *
+   * This used to be a second, asynchronous copy of `detectLockSync` — the same
+   * four probes, expressed with `fs.access`, reached from a different method.
+   * Two copies of one probe is one too many, and the async one is the copy
+   * that made Turbopack trace the entire project into the server output: the
+   * path is built from a constructor argument, so static analysis cannot bound
+   * it and conservatively includes everything.
+   *
+   * There is now one implementation, and it is synchronous. The check runs
+   * once per snapshot over four `existsSync` calls, so there was never a reason
+   * for it to be async, and the synchronous form is the shape the bundler can
+   * reason about. This removes the warning at its cause rather than silencing
+   * it.
+   */
+  private detectPackageManager(): string | null {
+    return detectLockSync(this.root);
   }
 
   /** The Cortex graph. Every node cites the file it was derived from. */
@@ -600,7 +615,7 @@ export class FsProjectAdapter implements ProjectAdapter {
       );
     }
 
-    const packageManager = (await this.detectPackageManager()) ?? 'npm';
+    const packageManager = this.detectPackageManager() ?? 'npm';
     const args = packageManager === 'npm' ? ['run', script] : ['run', script];
     const started = Date.now();
     activeVerification = script;

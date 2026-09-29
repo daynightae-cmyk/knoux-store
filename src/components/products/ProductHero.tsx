@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { ProductScene } from './ProductScene';
 import { resolveProductLogo } from '@/data/product-visuals';
 import type { SoftwareProduct } from '@/data/software';
@@ -34,7 +35,14 @@ export function ProductHero({ product, arrivalComplete }: ProductHeroProps) {
           <h1 id="product-title" className="product-hero__title" style={{ opacity: arrivalComplete ? 1 : 0, transform: arrivalComplete ? 'none' : 'translateY(20px)', transition: 'opacity 0.8s ease 0.1s, transform 0.9s cubic-bezier(0.16,0.84,0.34,1) 0.1s' }}>
             {logoPath ? (
               <>
-                <img src={logoPath} alt={`${product.name} logo`} className="product-hero__logo" />
+                <Image
+                  src={logoPath}
+                  alt={`${product.name} logo`}
+                  className="product-hero__logo"
+                  width={48}
+                  height={48}
+                  unoptimized
+                />
                 {product.shortName}
               </>
             ) : (
