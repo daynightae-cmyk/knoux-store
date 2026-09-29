@@ -44,13 +44,25 @@ type Inspected = {
 export function PreviewSurface() {
   const { state, dispatch } = useBuildWorkspace();
   const frame = useRef<HTMLIFrameElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
+  const [availableWidth, setAvailableWidth] = useState(0);
   const [inspecting, setInspecting] = useState(false);
   const [inspected, setInspected] = useState<Inspected | null>(null);
 
   const origin = state.runtime.url;
   const route = state.workspace.selectedRoute ?? '/';
   const target = origin ? `${origin}${route}` : null;
+  const livePreviewCapability = state.adapter.capabilities['preview.live'];
   const viewport = state.preview.viewport;
+  const scale = Math.min(1, (availableWidth || viewport.width) / viewport.width, 620 / viewport.height);
+
+  useEffect(() => {
+    const element = stage.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) => setAvailableWidth(entry.contentRect.width));
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [target, livePreviewCapability]);
 
   const onMessage = useCallback((event: MessageEvent) => {
     if (event.origin !== window.location.origin) return;
@@ -139,21 +151,22 @@ export function PreviewSurface() {
 
       <div className="bo-preview">
         {target ? (
-          <div
-            className="bo-preview__frame"
-            style={{ width: Math.min(viewport.width, 100), height: Math.min(viewport.height, 620) }}
-          >
-            <iframe
-              key={`${target}-${state.preview.refreshKey}`}
-              ref={frame}
-              src={target}
-              title={`Live preview of ${route}`}
-              width={viewport.width}
-              height={viewport.height}
-              style={{ width: '100%', height: '100%' }}
-              sandbox="allow-same-origin allow-scripts allow-popups"
-              referrerPolicy="no-referrer"
-            />
+          <div className="bo-preview__stage" ref={stage}>
+            <div className="bo-preview__scaled" style={{ width: viewport.width * scale, height: viewport.height * scale }}>
+              <div className="bo-preview__frame" style={{ width: viewport.width, height: viewport.height, transform: `scale(${scale})` }}>
+                <iframe
+                  key={`${target}-${state.preview.refreshKey}`}
+                  ref={frame}
+                  src={target}
+                  title={`Live preview of ${route}`}
+                  width={viewport.width}
+                  height={viewport.height}
+                  style={{ width: viewport.width, height: viewport.height }}
+                  sandbox="allow-same-origin allow-scripts allow-popups"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+            </div>
           </div>
         ) : (
           <Empty title="NO ACTIVE RUNTIME" body="No reachable URL was reported for this environment." />

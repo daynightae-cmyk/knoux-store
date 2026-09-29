@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AGENT.OS — AGENTIC ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --white: #ffffff; --black: #000000; --gray1: #111111;
+      --gray2: #1a1a1a; --gray3: #333333; --gray4: #666666;
+      --gray5: #999999; --mono: 'Inter', sans-serif;
+    }
+    html, body { width:100%; height:100%; background:var(--black); color:var(--white); font-family:var(--mono); overflow:hidden; -webkit-font-smoothing:antialiased; }
+
+    #root { position:fixed; inset:0; z-index:0; }
+    #root canvas { display:block; }
+
+    /* connector line canvas */
+    #line-canvas { position:fixed; inset:0; z-index:8; pointer-events:none; }
+
+    /* NAV */
+    #nav { position:fixed; top:0; left:0; right:0; z-index:10; display:flex; align-items:center; justify-content:space-between; padding:20px 36px; border-bottom:1px solid rgba(255,255,255,0.06); }
+    #nav-logo { display:flex; align-items:center; gap:10px; }
+    #nav-logo-mark { width:18px; height:18px; border:1.5px solid rgba(255,255,255,0.5); transform:rotate(45deg); }
+    #nav-logo-text { font-size:11px; font-weight:700; letter-spacing:0.28em; text-transform:uppercase; }
+    #nav-links { display:flex; gap:32px; list-style:none; }
+    #nav-links li a { font-size:10px; font-weight:500; letter-spacing:0.18em; text-transform:uppercase; color:var(--gray4); text-decoration:none; transition:color .2s; }
+    #nav-links li a:hover { color:var(--white); }
+    #nav-status { display:flex; align-items:center; gap:8px; font-size:9px; font-weight:500; letter-spacing:0.2em; text-transform:uppercase; color:var(--gray4); }
+    #nav-status-dot { width:5px; height:5px; border-radius:50%; background:var(--white); animation:pulse 2.4s ease-in-out infinite; }
+
+    /* LEFT PANEL */
+    #left-panel { position:fixed; top:50%; left:36px; transform:translateY(-50%); z-index:10; display:flex; flex-direction:column; gap:6px; }
+    .nav-item { display:flex; align-items:center; gap:12px; cursor:pointer; padding:8px 0; transition:opacity .2s; opacity:.28; text-decoration:none; }
+    .nav-item:hover { opacity:1; }
+    .nav-item .num { font-size:8px; font-weight:700; letter-spacing:.12em; color:var(--gray4); min-width:20px; }
+    .nav-item .tick { width:16px; height:1px; background:var(--gray3); transition:width .3s, background .2s; }
+    .nav-item:hover .tick { width:26px; background:var(--white); }
+    .nav-item .label { font-size:9px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--white); }
+
+    /* RIGHT PANEL */
+    #right-panel { position:fixed; top:50%; right:36px; transform:translateY(-50%); z-index:10; display:flex; flex-direction:column; align-items:flex-end; gap:20px; }
+    .data-block { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
+    .data-label { font-size:8px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; color:var(--gray3); }
+    .data-value { font-size:11px; font-weight:700; letter-spacing:.1em; color:var(--gray5); font-variant-numeric:tabular-nums; }
+
+    /* BOTTOM BAR */
+    #bottom-bar { position:fixed; bottom:0; left:0; right:0; z-index:10; display:flex; align-items:center; justify-content:space-between; padding:16px 36px; border-top:1px solid rgba(255,255,255,0.06); }
+    #bottom-left { display:flex; align-items:center; gap:16px; }
+    .status-dot { width:5px; height:5px; border-radius:50%; background:var(--white); animation:pulse 2.4s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.6)} }
+    #bottom-bar .hint { font-size:9px; font-weight:400; letter-spacing:.14em; text-transform:uppercase; color:var(--gray3); }
+    #bottom-right { font-size:9px; font-weight:400; letter-spacing:.12em; color:var(--gray3); }
+
+    /* HERO TITLE */
+    #hero-title { position:fixed; bottom:58px; left:36px; z-index:10; pointer-events:none; }
+    #hero-title h1 { font-size:clamp(32px,6vw,82px); font-weight:900; letter-spacing:-.04em; line-height:.92; color:var(--white); mix-blend-mode:difference; }
+    #hero-title h1 span { display:block; color:transparent; -webkit-text-stroke:1px rgba(255,255,255,.18); }
+    #hero-title .sub { margin-top:8px; font-size:8px; font-weight:400; letter-spacing:.26em; text-transform:uppercase; color:var(--gray4); max-width:340px; line-height:1.6; }
+
+    /* TOOLTIP */
+    #tooltip { position:fixed; z-index:20; pointer-events:none; opacity:0; transform:translate(-50%,-130%) scale(.9); transition:opacity .18s,transform .18s; background:var(--gray1); border:1px solid rgba(255,255,255,.1); padding:5px 11px; white-space:nowrap; }
+    #tooltip.show { opacity:1; transform:translate(-50%,-130%) scale(1); }
+    #tooltip span { font-size:9px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--white); }
+
+    /* OVERLAY PANEL */
+    #overlay { position:fixed; top:0; right:0; width:min(500px,100vw); height:100vh; z-index:30; background:rgba(4,4,4,0.96); border-left:1px solid rgba(255,255,255,0.08); backdrop-filter:blur(24px) saturate(.7); -webkit-backdrop-filter:blur(24px) saturate(.7); transform:translateX(100%); transition:transform .55s cubic-bezier(.77,0,.18,1); display:flex; flex-direction:column; overflow:hidden; }
+    #overlay.visible { transform:translateX(0); }
+
+    #ov-header { padding:28px 36px 20px; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; position:relative; }
+    #ov-close { position:absolute; top:24px; right:24px; background:none; border:1px solid rgba(255,255,255,.12); color:var(--gray4); font-family:var(--mono); font-size:8px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; padding:6px 12px; cursor:pointer; transition:color .2s,border-color .2s; }
+    #ov-close:hover { color:var(--white); border-color:var(--white); }
+    #ov-label { font-size:8px; font-weight:700; letter-spacing:.26em; text-transform:uppercase; color:var(--gray3); margin-bottom:10px; }
+    #ov-title { font-size:clamp(22px,3.5vw,38px); font-weight:900; letter-spacing:-.02em; line-height:1; color:var(--white); }
+
+    #ov-scroll { flex:1; overflow-y:auto; padding:24px 36px; scrollbar-width:thin; scrollbar-color:var(--gray3) transparent; }
+    #ov-scroll::-webkit-scrollbar { width:3px; }
+    #ov-scroll::-webkit-scrollbar-thumb { background:var(--gray3); }
+
+    /* Panel inner content styles */
+    .pnl-section-label { font-size:8px; font-weight:700; letter-spacing:.26em; text-transform:uppercase; color:var(--gray3); margin-bottom:10px; }
+    .agent-table { display:flex; flex-direction:column; gap:1px; border:1px solid rgba(255,255,255,.06); }
+    .agent-header { background:rgba(255,255,255,.03) !important; }
+    .agent-row { display:grid; grid-template-columns:90px 1fr 52px 46px 40px; gap:8px; align-items:center; padding:7px 10px; border-bottom:1px solid rgba(255,255,255,.04); font-size:9px; transition:background .15s; }
+    .agent-row:hover:not(.agent-header) { background:rgba(255,255,255,.03); }
+    .agent-header span { font-size:8px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--gray3); }
+    .mono-id { font-size:9px; font-weight:500; letter-spacing:.04em; color:var(--gray5); font-family:monospace; }
+    .task-cell { font-size:9px; font-weight:400; color:var(--gray4); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .num-cell { font-size:9px; font-weight:700; color:var(--gray5); letter-spacing:.04em; font-variant-numeric:tabular-nums; }
+    .status-badge { font-size:8px; font-weight:700; letter-spacing:.12em; padding:2px 5px; border:1px solid; display:inline-flex; align-items:center; justify-content:center; }
+    .badge-run  { color:#fff; border-color:rgba(255,255,255,.35); }
+    .badge-wait { color:var(--gray4); border-color:rgba(255,255,255,.1); }
+    .badge-pend { color:var(--gray5); border-color:rgba(255,255,255,.18); }
+
+    .alloc-bars { display:flex; flex-direction:column; gap:8px; }
+    .alloc-row { display:grid; grid-template-columns:100px 1fr 36px; gap:10px; align-items:center; }
+    .alloc-label { font-size:8px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--gray4); }
+    .alloc-bar-track { height:2px; background:rgba(255,255,255,.08); position:relative; overflow:hidden; }
+    .alloc-bar-fill { height:100%; background:rgba(255,255,255,.55); transition:width .6s ease; }
+    .alloc-val { font-size:9px; font-weight:700; color:var(--gray5); text-align:right; font-variant-numeric:tabular-nums; }
+
+    .contract-list { display:flex; flex-direction:column; gap:1px; border:1px solid rgba(255,255,255,.06); }
+    .contract-row { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.04); transition:background .15s; }
+    .contract-row:hover { background:rgba(255,255,255,.03); }
+    .contract-name { font-size:9px; font-weight:700; letter-spacing:.1em; color:var(--white); }
+    .contract-hash { font-size:8px; font-weight:400; letter-spacing:.06em; color:var(--gray4); font-family:monospace; margin-top:2px; }
+
+    .terminal-block { background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06); padding:12px; font-family:monospace; font-size:9px; line-height:1.7; color:var(--gray5); max-height:180px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--gray3) transparent; }
+    .terminal-block::-webkit-scrollbar { width:2px; }
+    .terminal-line { opacity:.75; transition:opacity .3s; }
+    .terminal-line:last-of-type { opacity:1; color:var(--gray5); }
+    .term-warn { color:#ff6b6b; opacity:1 !important; }
+    .terminal-cursor { display:inline-block; animation:blink 1s step-end infinite; color:var(--white); }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    #ov-footer { padding:18px 36px; border-top:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
+    #ov-cta { display:inline-flex; align-items:center; gap:10px; font-size:9px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--white); border:1px solid rgba(255,255,255,.18); padding:12px 20px; cursor:pointer; transition:background .2s,border-color .2s; background:none; font-family:var(--mono); width:100%; justify-content:center; margin-bottom:16px; }
+    #ov-cta:hover { background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.4); }
+    #ov-meta { display:flex; justify-content:space-between; }
+    .ov-meta-item { display:flex; flex-direction:column; gap:3px; }
+    .ov-meta-label { font-size:7px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; color:var(--gray3); }
+    .ov-meta-val { font-size:10px; font-weight:700; letter-spacing:.08em; color:var(--gray4); }
+
+    /* SCANLINES */
+    #scanlines { position:fixed; inset:0; z-index:5; pointer-events:none; background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.03) 3px,rgba(0,0,0,.03) 4px); }
+
+    @media (max-width:600px) {
+      #left-panel { left:16px; } #right-panel { display:none; }
+      #nav { padding:14px 16px; } #bottom-bar { padding:12px 16px; }
+      #hero-title { left:16px; } #overlay { padding:0; width:100vw; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="root"></div>
+<canvas id="line-canvas"></canvas>
+<div id="scanlines"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div id="nav-logo">
+    <div id="nav-logo-mark"></div>
+    <div id="nav-logo-text">Agent.OS</div>
+  </div>
+  <ul id="nav-links">
+    <li><a href="#">Dashboard</a></li>
+    <li><a href="#">Fleet</a></li>
+    <li><a href="#">Settings</a></li>
+  </ul>
+  <div id="nav-status">
+    <div id="nav-status-dot"></div>
+    <span>Systems Nominal</span>
+  </div>
+</nav>
+
+<!-- LEFT PANEL -->
+<div id="left-panel">
+  <a class="nav-item" href="#" data-node="0">
+    <span class="num">01</span><div class="tick"></div><span class="label">System Core</span>
+  </a>
+  <a class="nav-item" href="#" data-node="1">
+    <span class="num">02</span><div class="tick"></div><span class="label">Task Ledger</span>
+  </a>
+  <a class="nav-item" href="#" data-node="2">
+    <span class="num">03</span><div class="tick"></div><span class="label">Fleet Metrics</span>
+  </a>
+</div>
+
+<!-- RIGHT PANEL -->
+<div id="right-panel">
+  <div class="data-block">
+    <div class="data-label">Frame</div>
+    <div class="data-value" id="fps-counter">—</div>
+  </div>
+  <div class="data-block">
+    <div class="data-label">Agents Live</div>
+    <div class="data-value" id="agent-count">005</div>
+  </div>
+  <div class="data-block">
+    <div class="data-label">TX / min</div>
+    <div class="data-value" id="tx-count">—</div>
+  </div>
+  <div class="data-block">
+    <div class="data-label">Uptime</div>
+    <div class="data-value">99.97%</div>
+  </div>
+</div>
+
+<!-- HERO TITLE -->
+<div id="hero-title">
+  <h1>AGENT<span>.OS</span></h1>
+  <div class="sub">Autonomous Infrastructure<br>&amp; Agentic ERP Deployment</div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div id="bottom-bar">
+  <div id="bottom-left">
+    <div class="status-dot"></div>
+    <span class="hint">Select a node to inspect cluster</span>
+  </div>
+  <div id="bottom-right">WebGL 2.0 · Three.js r183 · Agent.OS v2.4.1</div>
+</div>
+
+<!-- TOOLTIP -->
+<div id="tooltip"><span id="tooltip-text"></span></div>
+
+<!-- OVERLAY PANEL -->
+<div id="overlay">
+  <div id="ov-header">
+    <button id="ov-close">✕ CLOSE</button>
+    <div id="ov-label"></div>
+    <div id="ov-title"></div>
+  </div>
+  <div id="ov-scroll">
+    <div id="ov-content"></div>
+  </div>
+  <div id="ov-footer">
+    <button id="ov-cta"></button>
+    <div id="ov-meta"></div>
+  </div>
+</div>
+
+<script type="module" src="index.js"></script>
+<script>
+  // FPS
+  let lastT = performance.now(), frames = 0;
+  const fpsCtr = document.getElementById('fps-counter');
+  (function loop(t) {
+    frames++;
+    if (t - lastT >= 1000) { fpsCtr.textContent = frames + ' fps'; frames = 0; lastT = t; }
+    requestAnimationFrame(loop);
+  })(performance.now());
+
+  // TX ticker
+  const txEl = document.getElementById('tx-count');
+  setInterval(() => { txEl.textContent = (Math.floor(Math.random()*180)+120).toLocaleString(); }, 1400);
+
+  // Tooltip follow
+  const tooltip = document.getElementById('tooltip');
+  document.addEventListener('mousemove', e => {
+    tooltip.style.left = e.clientX + 'px';
+    tooltip.style.top  = e.clientY + 'px';
+  });
+
+  // Left nav → node click
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.addEventListener('click', e => {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent('nav-click', { detail: { index: parseInt(el.dataset.node) } }));
+    });
+  });
+</script>
+</body>
+</html>
