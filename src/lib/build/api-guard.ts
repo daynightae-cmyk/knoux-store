@@ -1,7 +1,7 @@
 ﻿/**
  * The workspace guard — transport only.
  *
- * The decision itself lives in `access-policy.ts`, which has no imports and is
+ * The decision itself lives in `deployment.ts`, which has no imports and is
  * therefore executable in a test. This file does the part that needs a
  * framework: it turns a decision into an HTTP response, and it verifies a
  * Supabase session.
@@ -16,13 +16,13 @@
  */
 
 import { NextResponse } from 'next/server';
-import { BUILD_API_DENIED, DENIAL_MESSAGE, evaluateBuildAccess } from './deployment';
+import { BUILD_API_DENIED, DENIAL_MESSAGE, authorizeBuildAccess, evaluateBuildAccess } from './deployment';
 import { clientAddress, rateLimit } from '../http/rate-limit';
 
 type SessionLookup = () => Promise<{ id: string } | null>;
 
 async function defaultSessionLookup(): Promise<{ id: string } | null> {
-  // Imported lazily so the policy in `access-policy` can be exercised without
+  // Imported lazily so the policy in `deployment` can be exercised without
   // pulling in the Supabase client and its `cookies()` requirement.
   const { createClient } = await import('../supabase/server');
   const supabase = await createClient();
@@ -58,11 +58,7 @@ export async function guardBuildApi(
       { status: 401, headers: { 'cache-control': 'no-store' } },
     );
 
-  if (!access.allowed) {
-    return refuse(access.message);
-  }
-
-  if (access.reason === 'local-checkout' || access.reason === 'explicitly-public') {
+  if (access.allowed) {
     return null;
   }
 
@@ -76,11 +72,12 @@ export async function guardBuildApi(
     user = null;
   }
 
-  if (!user) {
+  const authorized = authorizeBuildAccess(env, user?.id ?? null);
+  if (!authorized.allowed || authorized.reason !== 'authenticated') {
     return refuse(DENIAL_MESSAGE);
   }
 
-  const limit = rateLimit(`${options.scope}:${user.id}:${clientAddress(request.headers)}`);
+  const limit = rateLimit(`${options.scope}:${authorized.userId}:${clientAddress(request.headers)}`);
   if (!limit.allowed) {
     return NextResponse.json(
       {

@@ -137,6 +137,30 @@ test.describe('responsive geometry', () => {
  * this reports.
  */
 test.describe('composition', () => {
+  test('the workspace dashboard panels occupy their intended columns', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.addInitScript(() => {
+      sessionStorage.setItem('knoux-dev-entry-intent', 'Build a product workspace');
+    });
+    await page.goto('/build', { waitUntil: 'load' });
+    await expect(page.locator('.dev-entry')).toHaveCount(0);
+
+    const widths = await page.evaluate(() => {
+      const dashboard = document.querySelector('.dev-dashboard');
+      const composer = document.querySelector('.dev-dashboard__composer');
+      const preview = document.querySelector('.dev-dashboard__preview');
+      return {
+        dashboard: dashboard?.getBoundingClientRect().width ?? 0,
+        composer: composer?.getBoundingClientRect().width ?? 0,
+        preview: preview?.getBoundingClientRect().width ?? 0,
+      };
+    });
+
+    expect(widths.dashboard).toBeGreaterThan(800);
+    expect(widths.composer, 'the intent panel must span most of the workspace').toBeGreaterThan(widths.dashboard * 0.5);
+    expect(widths.preview, 'the preview must have a useful reading width').toBeGreaterThan(widths.dashboard * 0.25);
+  });
+
   test('desktop content uses a meaningful share of the viewport', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
 
@@ -207,6 +231,29 @@ test.describe('composition', () => {
       expect(body, `${route} must not replay the entry gate`).not.toContain('WHAT ARE YOU HERE TO BUILD');
       await expect(page.locator('.dev-shell--operational, .dev-shell'), { message: route }).toHaveCount(1);
     }
+  });
+
+  test('the product preview renders a same-origin page inside its frame', async ({ page }) => {
+    await page.goto('/build/apps');
+    await page.getByRole('button', { name: 'PREVIEW' }).click();
+    const frame = page.frameLocator('.dev-app-preview iframe');
+    await expect(frame.locator('h1')).toBeVisible();
+    await expect(frame.locator('html')).toHaveAttribute('lang', 'en');
+  });
+
+  test('a failed project fetch still settles the workspace read', async ({ page }) => {
+    const requested: string[] = [];
+    await page.route('**/api/build/**', async (route) => {
+      const path = new URL(route.request().url()).pathname;
+      requested.push(path);
+      if (path.endsWith('/project')) await route.abort();
+      else await route.fulfill({ status: 503, body: '{}' });
+    });
+    await page.goto('/build/apps');
+    await expect(page.locator('.dev-sidebar__foot')).toContainText('ADAPTER STATE UNKNOWN');
+    expect(requested).toContain('/api/build/project');
+    expect(requested).toContain('/api/build/environment');
+    expect(requested).toContain('/api/build/git');
   });
 });
 

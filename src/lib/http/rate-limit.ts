@@ -36,12 +36,13 @@ export type LimitOptions = {
 
 export type LimitResult = { allowed: boolean; remaining: number; retryAfterSeconds: number };
 
-function evict(now: number, windowMs: number): void {
-  if (buckets.size < MAX_BUCKETS) return;
+function hasCapacity(now: number, windowMs: number): boolean {
+  if (buckets.size < MAX_BUCKETS) return true;
   for (const [key, bucket] of buckets) {
-    if (bucket.hits.every((hit) => now - hit > windowMs)) buckets.delete(key);
-    if (buckets.size < MAX_BUCKETS) return;
+    if (bucket.blockedUntil <= now && bucket.hits.every((hit) => now - hit > windowMs)) buckets.delete(key);
+    if (buckets.size < MAX_BUCKETS) return true;
   }
+  return false;
 }
 
 export function rateLimit(key: string, options: LimitOptions = {}): LimitResult {
@@ -50,7 +51,11 @@ export function rateLimit(key: string, options: LimitOptions = {}): LimitResult 
   const blockMs = options.blockMs ?? BLOCK_MS;
   const now = options.now ?? Date.now();
 
-  evict(now, windowMs);
+  // At capacity, a new claimed address is refused rather than replacing a
+  // recent bucket and giving that caller a fresh allowance on their next hit.
+  if (!buckets.has(key) && !hasCapacity(now, windowMs)) {
+    return { allowed: false, remaining: 0, retryAfterSeconds: Math.max(1, Math.ceil(windowMs / 1000)) };
+  }
   const bucket = buckets.get(key) ?? { hits: [], blockedUntil: 0 };
 
   if (bucket.blockedUntil > now) {

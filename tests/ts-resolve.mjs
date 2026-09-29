@@ -28,6 +28,9 @@ const SUFFIXES = ['', '.ts', '.tsx', '.mts', '/index.ts', '/index.tsx'];
 const ALIAS_PREFIX = '@/';
 
 export async function resolve(specifier, context, nextResolve) {
+  // Next's package exposes server.js to Node ESM; application source uses the
+  // bundler-friendly next/server spelling. Exercise the real guard in tests.
+  if (specifier === 'next/server') return nextResolve('next/server.js', context);
   try {
     return await nextResolve(specifier, context);
   } catch (cause) {

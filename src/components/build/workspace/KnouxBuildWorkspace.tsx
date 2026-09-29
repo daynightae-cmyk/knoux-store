@@ -97,10 +97,14 @@ type GitResponse = { git: NonNullable<BuildWorkspaceState['git']> };
 type FactResult<T> = { ok: true; value: T } | { ok: false; refused: boolean };
 
 async function getJson<T>(url: string): Promise<FactResult<T>> {
-  const response = await fetch(url, { cache: 'no-store' });
-  if (response.status === 401 || response.status === 403) return { ok: false, refused: true };
-  if (!response.ok) return { ok: false, refused: false };
-  return { ok: true, value: (await response.json()) as T };
+  try {
+    const response = await fetch(url, { cache: 'no-store' });
+    if (response.status === 401 || response.status === 403) return { ok: false, refused: true };
+    if (!response.ok) return { ok: false, refused: false };
+    return { ok: true, value: (await response.json()) as T };
+  } catch {
+    return { ok: false, refused: false };
+  }
 }
 
 const UNREADABLE_GIT: NonNullable<BuildWorkspaceState['git']> = {
@@ -160,7 +164,6 @@ export async function readWorkspaceFacts(
   const environment = await getJson<EnvironmentResponse>('/api/build/environment');
   if (isCancelled()) return;
   if (environment.ok) {
-    refused = refused || false;
     dispatch({ type: 'environment/resolved', signals: environment.value.signals, fetchedAt: new Date().toISOString() });
     dispatch({ type: 'providers/resolved', providers: environment.value.providers });
     dispatch({
@@ -178,11 +181,13 @@ export async function readWorkspaceFacts(
       },
     });
   } else {
+    refused = refused || environment.refused;
     dispatch({ type: 'environment/resolved', signals: [], fetchedAt: '' });
   }
 
   const git = await getJson<GitResponse>('/api/build/git');
   if (isCancelled()) return;
+  if (!git.ok) refused = refused || git.refused;
   dispatch({ type: 'git/resolved', git: git.ok ? git.value.git : UNREADABLE_GIT });
 
   dispatch({ type: 'access/set', access: refused ? 'refused' : 'granted' });

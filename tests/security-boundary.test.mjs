@@ -21,7 +21,8 @@ const {
   buildSecurityHeaders,
 } = (await loadTypeScript('../src/lib/security/headers.ts'));
 
-const { evaluateBuildAccess, BUILD_API_DENIED } = (await loadTypeScript('../src/lib/build/deployment.ts'));
+const { evaluateBuildAccess, authorizeBuildAccess, BUILD_API_DENIED } = (await loadTypeScript('../src/lib/build/deployment.ts'));
+const { guardBuildApi } = (await loadTypeScript('../src/lib/build/api-guard.ts'));
 const { clientAddress, rateLimit, resetRateLimits } = (await loadTypeScript('../src/lib/http/rate-limit.ts'));
 
 const { resolveDeploymentEnvironment } = (await loadTypeScript('../src/lib/build/deployment.ts'));
@@ -60,6 +61,7 @@ test('every required security header is present in production', () => {
     assert.ok(map[required], `production must send ${required}`);
   }
   assert.equal(map['x-content-type-options'], 'nosniff');
+  assert.equal(map['x-frame-options'], 'SAMEORIGIN');
   assert.match(map['strict-transport-security'], /max-age=\d{7,}/);
 });
 
@@ -70,7 +72,7 @@ test('HSTS is withheld on a development server, which is served over http', () =
   assert.equal(map['strict-transport-security'], undefined);
 });
 
-test('the CSP forbids plugins, framing and cross-origin form posts', () => {
+test('the CSP forbids plugins, cross-origin framing and form posts', () => {
   const csp = buildContentSecurityPolicy({ isDevelopment: false });
   const directive = (name) => {
     const found = csp.split(';').map((part) => part.trim()).find((part) => part.startsWith(`${name} `) || part === name);
@@ -79,7 +81,7 @@ test('the CSP forbids plugins, framing and cross-origin form posts', () => {
   };
 
   assert.equal(directive('object-src'), "object-src 'none'");
-  assert.equal(directive('frame-ancestors'), "frame-ancestors 'none'");
+  assert.equal(directive('frame-ancestors'), "frame-ancestors 'self'");
   assert.equal(directive('base-uri'), "base-uri 'self'");
   assert.equal(directive('form-action'), "form-action 'self'");
   assert.equal(directive('default-src'), "default-src 'self'");
@@ -176,6 +178,38 @@ test('a public deployment refuses an anonymous workspace read', () => {
   assert.match(access.message, /Sign in/i);
 });
 
+test('a verified hosted session may read the workspace', () => {
+  for (const VERCEL_ENV of ['production', 'preview']) {
+    const env = { VERCEL_ENV };
+    assert.equal(authorizeBuildAccess(env, null).allowed, false);
+    assert.deepEqual(authorizeBuildAccess(env, 'verified-user'), {
+      allowed: true, reason: 'authenticated', userId: 'verified-user',
+    });
+  }
+});
+
+test('the HTTP guard checks hosted sessions before refusing access', async () => {
+  resetRateLimits();
+  const request = new Request('https://knoux.store/api/build/project');
+  for (const VERCEL_ENV of ['production', 'preview']) {
+    let calls = 0;
+    const options = { scope: `project-${VERCEL_ENV}`, env: { VERCEL_ENV } };
+    const allowed = await guardBuildApi(request, {
+      ...options,
+      session: async () => { calls += 1; return { id: 'verified-user' }; },
+    });
+    assert.equal(allowed, null, `${VERCEL_ENV} must accept a verified user`);
+    assert.equal(calls, 1);
+
+    const refused = await guardBuildApi(request, { ...options, session: async () => null });
+    assert.equal(refused?.status, 401);
+    assert.equal((await refused.json()).error, BUILD_API_DENIED);
+    const unavailable = await guardBuildApi(request, { ...options, session: async () => { throw new Error('offline'); } });
+    assert.equal(unavailable?.status, 401);
+  }
+  resetRateLimits();
+});
+
 test('a local checkout stays usable without an account', () => {
   // Requiring a sign-in to read your own machine would be security theatre.
   const access = evaluateBuildAccess({ VERCEL_ENV: 'development' });
@@ -251,6 +285,18 @@ test('the client address is treated as a bucket key, never as identity', () => {
   assert.equal(clientAddress(new Headers()), 'unknown');
   // An unbounded header must not become an unbounded map key.
   assert.equal(clientAddress(new Headers({ 'x-forwarded-for': 'a'.repeat(5000) })).length, 64);
+});
+
+test('a spray of fresh addresses cannot grow the rate-limit map without bound', () => {
+  resetRateLimits();
+  for (let i = 0; i < 4100; i += 1) {
+    assert.equal(rateLimit(`spray-${i}`, { max: 1, now: 3_000_000 }).allowed, i < 4096);
+  }
+  // Existing callers keep their budget; a sprayed key must not reset it.
+  assert.equal(rateLimit('spray-0', { max: 1, now: 3_000_000 }).allowed, false);
+  assert.equal(rateLimit('spray-4099', { max: 1, now: 3_000_000 }).allowed, false);
+  assert.equal(rateLimit('spray-4099', { max: 1, now: 3_060_001 }).allowed, true);
+  resetRateLimits();
 });
 
 /* ================================================================== F-04 */
