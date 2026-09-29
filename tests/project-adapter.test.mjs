@@ -167,3 +167,14 @@ test('a directory is refused even when its path is allowlisted', async (t) => {
   const adapter = new FsProjectAdapter({ root: base, environment: 'local', label: 'test' });
   assert.equal(await adapter.readFile('src/lib'), null, 'a directory is not a readable file');
 });
+
+test('an in-checkout symlink cannot cross the readable-file allowlist', async (t) => {
+  const { base, elsewhere } = makeTree();
+  t.after(() => { rmSync(base, { recursive: true, force: true }); rmSync(elsewhere, { recursive: true, force: true }); });
+  symlinkSync(join(base, '.env'), join(base, 'src', 'lib', 'hidden.ts'));
+  symlinkSync(join(base, 'server.key'), join(base, 'src', 'lib', 'key.ts'));
+
+  const adapter = new FsProjectAdapter({ root: base, environment: 'local', label: 'test' });
+  assert.equal(await adapter.readFile('src/lib/hidden.ts'), null);
+  assert.equal(await adapter.readFile('src/lib/key.ts'), null);
+});

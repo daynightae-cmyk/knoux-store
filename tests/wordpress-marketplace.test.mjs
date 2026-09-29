@@ -127,7 +127,7 @@ test('asset URLs are refused unless they are official WordPress hosts', () => {
   }
   assert.equal(external.isOfficialAssetHost('ps.w.org'), true);
   assert.equal(external.isOfficialAssetHost('example.com'), false);
-  assert.equal(external.isOfficialAssetHost('example.com'), false);
+  assert.equal(external.isOfficialAssetHost('anything.wordpress.org'), false);
 });
 
 test('a record with no identity is dropped rather than rendered', () => {

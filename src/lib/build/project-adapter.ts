@@ -15,7 +15,7 @@
  * Server-only. Nothing in this module may be imported by a client component.
  */
 
-import { promises as fs, existsSync } from 'node:fs';
+import { promises as fs, existsSync, constants } from 'node:fs';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import {
@@ -49,6 +49,14 @@ const ANY_DEPTH_SKIP = new Set(['.git', '.next', '.vercel', '.traycer', '.turbo'
 const MAX_FILE_BYTES = 512 * 1024;
 const MAX_FILES = 4000;
 const GIT_TIMEOUT_MS = 8000;
+
+function isReadableProjectPath(relative: string): boolean {
+  const segments = relative.split('/');
+  if (segments.some((segment) => !/^[A-Za-z0-9_@().\[\]-]+$/.test(segment) || segment.startsWith('.'))) return false;
+  return relative.startsWith('src/') || relative.startsWith('tests/') ||
+    (relative.startsWith('references/') && relative.endsWith('.md')) ||
+    ['README.md', 'package.json', 'tsconfig.json', 'next.config.ts', 'next.config.mjs', 'AGENTS.md'].includes(relative);
+}
 
 /** At most one verification task may be in flight across the whole process. */
 let activeVerification: string | null = null;
@@ -484,15 +492,10 @@ export class FsProjectAdapter implements ProjectAdapter {
   }
 
   async readFile(relative: string): Promise<{ content: string; language: string; bytes: number; lines: number } | null> {
-    // This API is public. Only repository source and documentation are
-    // inspectable; a guessed path must never turn it into an env-file reader.
+    // Only repository source and documentation are inspectable; a guessed
+    // path must never turn this into an env-file reader.
     const requested = relative.replace(/\\/g, '/');
-    const segments = requested.split('/');
-    if (segments.some((segment) => segment.startsWith('.'))) return null;
-    const allowed = requested.startsWith('src/') || requested.startsWith('tests/') ||
-      (requested.startsWith('references/') && requested.endsWith('.md')) ||
-      ['README.md', 'package.json', 'tsconfig.json', 'next.config.ts', 'AGENTS.md'].includes(requested);
-    if (!allowed) return null;
+    if (!isReadableProjectPath(requested)) return null;
 
     // Containment: resolve, then require the result to stay inside the root.
     const resolved = path.resolve(this.root, requested);
@@ -514,18 +517,29 @@ export class FsProjectAdapter implements ProjectAdapter {
        */
       const actual = await fs.realpath(resolved);
       if (!this.isInsideRoot(actual)) return null;
+      // A link can remain inside the checkout while crossing the source
+      // allowlist (for example src/alias.ts -> ../../.env).
+      const actualRelative = path.relative(this.root, actual).split(path.sep).join('/');
+      if (!isReadableProjectPath(actualRelative)) return null;
 
-      const stat = await fs.stat(actual);
-      if (!stat.isFile()) return null;
-      if (stat.size > MAX_FILE_BYTES) return null;
-
-      const content = await fs.readFile(actual, 'utf8');
-      return {
-        content,
-        language: languageOf(requested),
-        bytes: stat.size,
-        lines: content.length === 0 ? 0 : content.split('\n').length,
-      };
+      // A file descriptor binds the size check and read to the same inode.
+      // O_NOFOLLOW also refuses a final-component symlink swapped in after
+      // realpath. On platforms without that flag, the descriptor still avoids
+      // the stat-then-read race.
+      const handle = await fs.open(actual, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+      try {
+        const stat = await handle.stat();
+        if (!stat.isFile() || stat.size > MAX_FILE_BYTES) return null;
+        const content = await handle.readFile('utf8');
+        return {
+          content,
+          language: languageOf(requested),
+          bytes: stat.size,
+          lines: content.length === 0 ? 0 : content.split('\n').length,
+        };
+      } finally {
+        await handle.close();
+      }
     } catch {
       return null;
     }

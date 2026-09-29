@@ -162,7 +162,7 @@ export function toOfficialAssetUrl(input: unknown): string | undefined {
 /** True when the host is an official WordPress asset host we are allowed to load from. */
 export function isOfficialAssetHost(hostname: string): boolean {
   const host = hostname.toLowerCase();
-  return OFFICIAL_ASSET_HOSTS.includes(host) || host.endsWith('.wordpress.org');
+  return OFFICIAL_ASSET_HOSTS.includes(host);
 }
 
 /**

@@ -37,6 +37,18 @@ const CACHE_SECONDS = 60 * 60 * 24;
 /** Enough hops for a CDN; few enough that a cycle still terminates. */
 const MAX_REDIRECTS = 3;
 
+function officialOrigin(hostname: string): string | null {
+  switch (hostname) {
+    case 'ps.w.org': return 'https://ps.w.org';
+    case 'ts.w.org': return 'https://ts.w.org';
+    case 's.w.org': return 'https://s.w.org';
+    case 'downloads.wordpress.org': return 'https://downloads.wordpress.org';
+    case 'images.wordpress.org': return 'https://images.wordpress.org';
+    case 'wordpress.org': return 'https://wordpress.org';
+    default: return null;
+  }
+}
+
 export const dynamic = 'force-dynamic';
 
 function refuse(reason: AssetRejection, message: string): Response {
@@ -60,18 +72,14 @@ async function resolveAllowedTarget(start: URL): Promise<Response | AssetRejecti
     const check = checkAssetUrl(current.toString());
     if (!check.ok) return check.reason;
 
-    /**
-     * The URL that is fetched is the one that was validated.
-     *
-     * `checkAssetUrl` parses the candidate and returns that parsed `URL`, so
-     * fetching `check.value` rather than re-serialising `current` means the
-     * bytes requested are the bytes that passed the scheme, userinfo and
-     * host-allowlist checks. Re-serialising a separate local leaves a gap
-     * between what was checked and what is sent — small, but it is exactly the
-     * gap this function exists to close, and it is why the request is written
-     * this way rather than the shorter one.
-     */
-    const target = check.value;
+    // Select the authority from fixed literals, then copy only the path and
+    // query from the checked URL. A user supplied URL cannot supply the host,
+    // scheme or port to fetch, even through a redirect.
+    const origin = officialOrigin(check.value.hostname);
+    if (!origin) return 'host-not-allowed';
+    const target = new URL(origin);
+    target.pathname = check.value.pathname;
+    target.search = check.value.search;
 
     let response: Response;
     try {
@@ -93,7 +101,7 @@ async function resolveAllowedTarget(start: URL): Promise<Response | AssetRejecti
 
     let next: URL;
     try {
-      next = new URL(location, current);
+      next = new URL(location, target);
     } catch {
       return 'malformed';
     }
