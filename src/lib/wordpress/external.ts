@@ -166,6 +166,33 @@ export function isOfficialAssetHost(hostname: string): boolean {
 }
 
 /**
+ * An official asset URL that this origin is actually able to render.
+ *
+ * `toOfficialAssetUrl` answers "is this an official host over https", which is
+ * necessary and not sufficient. The image proxy serves raster types only, and
+ * refuses SVG with a 415 on purpose: an SVG delivered from this origin runs
+ * script on this origin, and host allowlisting does not change that.
+ *
+ * The WordPress.org plugin API publishes `icons['2x']` as an SVG for a
+ * substantial share of the directory, and preferring the 2x entry therefore
+ * selected an asset that could never load. Measured on /wordpress/plugins:
+ * every plugin whose chosen icon ended in `.svg` rendered a broken image at
+ * 106px beside 54px neighbours, and every one ending in `.png` rendered
+ * correctly — the same list, split exactly along the file extension.
+ *
+ * So an icon is only carried when it is a raster the proxy will accept. This
+ * is a property of our own serving decision, not a claim about WordPress.org.
+ */
+const RASTER_ASSET_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif'];
+
+export function toRenderableAssetUrl(input: unknown): string | undefined {
+  const url = toOfficialAssetUrl(input);
+  if (!url) return undefined;
+  const path = new URL(url).pathname.toLowerCase();
+  return RASTER_ASSET_EXTENSIONS.some((extension) => path.endsWith(extension)) ? url : undefined;
+}
+
+/**
  * Shortens a source field to a scannable length.
  *
  * Only used where a source publishes one long description and no short one,
