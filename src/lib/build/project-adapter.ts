@@ -493,28 +493,54 @@ export class FsProjectAdapter implements ProjectAdapter {
       (requested.startsWith('references/') && requested.endsWith('.md')) ||
       ['README.md', 'package.json', 'tsconfig.json', 'next.config.ts', 'AGENTS.md'].includes(requested);
     if (!allowed) return null;
+
     // Containment: resolve, then require the result to stay inside the root.
-    const resolved = path.resolve(this.root, relative);
-    const prefix = this.root.endsWith(path.sep) ? this.root : `${this.root}${path.sep}`;
-    if (resolved !== this.root && !resolved.startsWith(prefix)) return null;
+    const resolved = path.resolve(this.root, requested);
+    if (!this.isInsideRoot(resolved)) return null;
     if (resolved.includes(`${path.sep}node_modules${path.sep}`)) return null;
     if (resolved.includes(`${path.sep}.git${path.sep}`)) return null;
+
     try {
+      /**
+       * Every filesystem call below is made against `actual`, not `resolved`.
+       *
+       * `resolved` is what the path *claims*; `actual` is where it points once
+       * symlinks are followed. A link inside `src/` pointing at `/etc/passwd`
+       * passes every textual check above and has a `resolved` that is inside the
+       * root, so the realpath is what decides — and once it has decided, the
+       * path that is read is the one that was proved safe. Reading `resolved`
+       * instead would validate one path and open another, which is the gap
+       * this whole function exists to close.
+       */
       const actual = await fs.realpath(resolved);
-      if (!actual.startsWith(prefix)) return null;
-      const stat = await fs.stat(resolved);
+      if (!this.isInsideRoot(actual)) return null;
+
+      const stat = await fs.stat(actual);
       if (!stat.isFile()) return null;
       if (stat.size > MAX_FILE_BYTES) return null;
-      const content = await fs.readFile(resolved, 'utf8');
+
+      const content = await fs.readFile(actual, 'utf8');
       return {
         content,
-        language: languageOf(relative),
+        language: languageOf(requested),
         bytes: stat.size,
         lines: content.length === 0 ? 0 : content.split('\n').length,
       };
     } catch {
       return null;
     }
+  }
+
+  /**
+   * Whether an absolute path is the root or lies inside it.
+   *
+   * Named and used for both the pre-symlink and post-symlink checks so the
+   * rule is stated once. The trailing separator matters: without it
+   * `D:\app-evil` would satisfy a `startsWith('D:\app')` test.
+   */
+  private isInsideRoot(candidate: string): boolean {
+    const prefix = this.root.endsWith(path.sep) ? this.root : `${this.root}${path.sep}`;
+    return candidate === this.root || candidate.startsWith(prefix);
   }
 
   async gitSnapshot(): Promise<GitSnapshot> {

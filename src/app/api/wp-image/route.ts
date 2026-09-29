@@ -60,9 +60,22 @@ async function resolveAllowedTarget(start: URL): Promise<Response | AssetRejecti
     const check = checkAssetUrl(current.toString());
     if (!check.ok) return check.reason;
 
+    /**
+     * The URL that is fetched is the one that was validated.
+     *
+     * `checkAssetUrl` parses the candidate and returns that parsed `URL`, so
+     * fetching `check.value` rather than re-serialising `current` means the
+     * bytes requested are the bytes that passed the scheme, userinfo and
+     * host-allowlist checks. Re-serialising a separate local leaves a gap
+     * between what was checked and what is sent — small, but it is exactly the
+     * gap this function exists to close, and it is why the request is written
+     * this way rather than the shorter one.
+     */
+    const target = check.value;
+
     let response: Response;
     try {
-      response = await fetch(current.toString(), {
+      response = await fetch(target.toString(), {
         redirect: 'manual',
         signal: AbortSignal.timeout(TIMEOUT_MS),
         headers: { Accept: 'image/*,*/*;q=0.8' },
