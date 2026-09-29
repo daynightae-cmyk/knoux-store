@@ -40,7 +40,6 @@ interface Measurement {
   transferredScriptBytes: number;
   decodedScriptBytes: number;
   largestResources: { url: string; bytes: number }[];
-  threeLoaded: boolean;
   /** Whether the route actually rendered a WebGL surface. */
   ownsCanvas: boolean;
   requestCount: number;
@@ -109,7 +108,6 @@ async function measure(page: import('@playwright/test').Page, route: string): Pr
     transferredScriptBytes: scripts.reduce((sum, script) => sum + (script.transferred || script.decoded), 0),
     decodedScriptBytes: scripts.reduce((sum, script) => sum + script.decoded, 0),
     largestResources: bySize,
-    threeLoaded: scripts.some((script) => /three|react-three/i.test(script.url)),
     ownsCanvas: await page.evaluate(() => document.querySelectorAll('canvas').length > 0),
     requestCount,
     horizontalOverflow: paints.overflow,
@@ -151,9 +149,19 @@ test.describe('performance', () => {
       const measurement = await measure(page, route);
       results.push(measurement);
 
-      const budget = measurement.threeLoaded && measurement.ownsCanvas
-        ? SCRIPT_BUDGET_BYTES * 2
-        : SCRIPT_BUDGET_BYTES;
+      /**
+       * The budget is derived from what the page rendered, not from a list of
+       * routes someone typed.
+       *
+       * The previous version also tried to detect three.js by matching the
+       * chunk URL against `/three|react-three/`. A production chunk is named
+       * by content hash — the one that matters here is `0j2l0w73kdknw.js` — so
+       * the test never detected it, never granted the exemption, and reported
+       * the homepage as over budget while the homepage was legitimately
+       * showing its 3D mark. Matching a build artefact by name is not a
+       * measurement. A canvas in the rendered document is.
+       */
+      const budget = measurement.ownsCanvas ? SCRIPT_BUDGET_BYTES * 2 : SCRIPT_BUDGET_BYTES;
       expect(
         measurement.transferredScriptBytes,
         `${route} shipped ${(measurement.transferredScriptBytes / 1024).toFixed(0)} KB of script, over the ${(
@@ -164,8 +172,8 @@ test.describe('performance', () => {
       ).toBeLessThanOrEqual(budget);
 
       /**
-       * The exemption above is granted for shipping 3D, so it is paired with
-       * the assertion that 3D only ships where it is used.
+       * And the exemption is paired with the assertion that 3D only ships where
+       * it is used.
        *
        * A hand-maintained list of heavy routes is a list that goes stale: a
        * route becomes exempt because someone typed its name, and a regression
@@ -177,7 +185,7 @@ test.describe('performance', () => {
       if (!measurement.ownsCanvas) {
         expect(
           measurement.transferredScriptBytes,
-          `${route} ships three.js but renders no 3D surface. A 3D bundle on a page with no canvas ` +
+          `${route} is over the script budget but renders no 3D surface. Weight on a page with no canvas ` +
             `is a prefetch or a static import that should have been a lazy boundary.`,
         ).toBeLessThanOrEqual(SCRIPT_BUDGET_BYTES);
       }
@@ -191,7 +199,7 @@ test.describe('performance', () => {
           `lcp=${result.largestContentfulPaint?.toFixed(0) ?? 'n/a'}ms ` +
           `dcl=${result.domContentLoaded.toFixed(0)}ms load=${result.load.toFixed(0)}ms ` +
           `script=${(result.transferredScriptBytes / 1024).toFixed(0)}KB ` +
-          `three=${result.threeLoaded} canvas=${result.ownsCanvas} requests=${result.requestCount}`,
+          `canvas=${result.ownsCanvas} requests=${result.requestCount}`,
       );
     }
   });
