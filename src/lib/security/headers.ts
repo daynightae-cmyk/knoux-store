@@ -69,9 +69,9 @@ export function buildContentSecurityPolicy(options: HeaderPolicyOptions): string
     // A form may only post to this origin, which also covers the server
     // actions behind it.
     ['form-action', ["'self'"]],
-    // Clickjacking defence. X-Frame-Options is set alongside this for the
-    // browsers that still honour it rather than `frame-ancestors`.
-    ['frame-ancestors', ["'none'"]],
+    // Product previews are framed by this origin. Foreign origins remain
+    // blocked; X-Frame-Options mirrors this for older browsers.
+    ['frame-ancestors', ["'self'"]],
   ];
 
   // A development page is served over plain http on localhost; telling the
@@ -87,7 +87,7 @@ export function buildSecurityHeaders(options: HeaderPolicyOptions): Header[] {
   const headers: Header[] = [
     { key: 'Content-Security-Policy', value: buildContentSecurityPolicy(options) },
     { key: 'X-Content-Type-Options', value: 'nosniff' },
-    { key: 'X-Frame-Options', value: 'DENY' },
+    { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
     { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
     {
       key: 'Permissions-Policy',

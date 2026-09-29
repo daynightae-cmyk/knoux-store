@@ -59,7 +59,7 @@ Two things are deliberately public and should stay that way:
 `src/lib/security/headers.ts` builds and emits:
 
 `Content-Security-Policy`, `X-Content-Type-Options: nosniff`,
-`X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`,
+`X-Frame-Options: SAMEORIGIN`, `Referrer-Policy`, `Permissions-Policy`,
 `X-DNS-Prefetch-Control`, `Cross-Origin-Opener-Policy`,
 `Cross-Origin-Resource-Policy`, and `Strict-Transport-Security` outside
 development when a canonical origin is known. `poweredByHeader` is disabled in

@@ -113,6 +113,8 @@ export type BuildAccess =
 export function evaluateBuildAccess(
   env: Record<string, string | undefined> = process.env,
 ): BuildAccess {
+  // This is the anonymous policy. Hosted users are checked separately after
+  // the server verifies their session.
   if (env.KNOUX_BUILD_PUBLIC === '1') {
     return { allowed: true, reason: 'explicitly-public' };
   }
@@ -133,4 +135,15 @@ export function requiresSession(
   env: Record<string, string | undefined> = process.env,
 ): boolean {
   return !evaluateBuildAccess(env).allowed;
+}
+
+/** Apply the verified server session after the anonymous deployment policy. */
+export function authorizeBuildAccess(
+  env: Record<string, string | undefined>,
+  userId: string | null,
+): BuildAccess {
+  const anonymous = evaluateBuildAccess(env);
+  if (anonymous.allowed) return anonymous;
+  if (userId) return { allowed: true, reason: 'authenticated', userId };
+  return anonymous;
 }

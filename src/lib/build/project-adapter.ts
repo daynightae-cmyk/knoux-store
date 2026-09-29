@@ -497,24 +497,24 @@ export class FsProjectAdapter implements ProjectAdapter {
     const requested = relative.replace(/\\/g, '/');
     if (!isReadableProjectPath(requested)) return null;
 
-    // Containment: resolve, then require the result to stay inside the root.
-    const resolved = path.resolve(this.root, requested);
-    if (!this.isInsideRoot(resolved)) return null;
-    if (resolved.includes(`${path.sep}node_modules${path.sep}`)) return null;
-    if (resolved.includes(`${path.sep}.git${path.sep}`)) return null;
-
     try {
-      /**
-       * Every filesystem call below is made against `actual`, not `resolved`.
-       *
-       * `resolved` is what the path *claims*; `actual` is where it points once
-       * symlinks are followed. A link inside `src/` pointing at `/etc/passwd`
-       * passes every textual check above and has a `resolved` that is inside the
-       * root, so the realpath is what decides — and once it has decided, the
-       * path that is read is the one that was proved safe. Reading `resolved`
-       * instead would validate one path and open another, which is the gap
-       * this whole function exists to close.
-       */
+      // Walk only the named directories. The request selects an existing
+      // directory entry by equality; it never supplies bytes to path.join.
+      // This costs one readdir per segment rather than a project-wide scan.
+      let resolved = this.root;
+      const segments = requested.split('/');
+      for (const [index, segment] of segments.entries()) {
+        const entries = await fs.readdir(resolved, { withFileTypes: true });
+        const entry = entries.find((item) => item.name === segment);
+        if (!entry || entry.isSymbolicLink()) return null;
+        if (index < segments.length - 1 && !entry.isDirectory()) return null;
+        if (index === segments.length - 1 && !entry.isFile()) return null;
+        resolved = path.join(resolved, entry.name);
+      }
+
+      // The directory walk rejects symlinks at every segment. Realpath and
+      // the second allowlist check remain as defence if a directory entry
+      // changes during the walk. Read only the canonical path that passed.
       const actual = await fs.realpath(resolved);
       if (!this.isInsideRoot(actual)) return null;
       // A link can remain inside the checkout while crossing the source

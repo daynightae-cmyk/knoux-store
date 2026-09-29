@@ -39,7 +39,7 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
   const adapterLabel =
     state.access === 'refused'
       ? 'SIGN IN TO OPERATE'
-      : state.status === 'ready'
+      : state.status === 'ready' && state.project
         ? 'ADAPTER ONLINE'
         : state.status === 'loading'
           ? 'READING PROJECT'

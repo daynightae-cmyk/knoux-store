@@ -7,7 +7,7 @@ build of this branch. Where something was not run, it says so.
 | --- | --- |
 | Baseline `main` | `ad38dd1c7747aef686a95d791281b8a665685979` |
 | Feature branch | `feat/global-production-closure` |
-| Commits ahead of `main` | 15 |
+| Review target | Pull request #12, `feat/global-production-closure` into `main` |
 
 ---
 
@@ -21,18 +21,26 @@ Every step run from a clean `npm ci`, in this order.
 | Lint | `npm run lint` | **exit 0** — 0 errors, 0 warnings |
 | Types | `npm run typecheck` | **exit 0** |
 | Build | `npm run build` | **exit 0** — no project-adapter trace warning |
-| Unit tests | `npm test` | **189 / 189 pass**, 0 fail |
-| Coverage | `npm run test:coverage` | **exit 0** — 87.38% statements, 76.32% branches, 78.84% functions |
-| Browser suite | `npm run test:e2e` | **333 / 333 pass** |
+| Unit tests | `npm test` / `npm run test:coverage` | **198 / 198 pass**, 0 fail |
+| Coverage | `npm run test:coverage` | **exit 0** — 86.64% statements, 77.20% branches, 75.86% functions |
+| Browser suite | `npm run test:e2e` | **342 tests in progress at this revision** |
 | Automated a11y | (part of the above) | **99 axe assertions** across 33 routes × 3 device profiles, **0 critical or serious** |
 | Dependency audit | `npm audit --audit-level=high` | **0 vulnerabilities** |
 | Dead code | `npm run audit:dead` | **exit 0** — no unused files, dependencies, unlisted packages or unresolved imports |
-| SAST | CodeQL `javascript-typescript`, queries `security-and-quality` | Runs in CI; results arrive as alerts, not as a job status |
+| SAST | CodeQL `javascript-typescript`, queries `security-and-quality` | Final head must be checked for alerts after CI completes |
 | Whitespace | `git diff --check` | clean |
 
 The browser suite ran against `next start -p 3311 -H 127.0.0.1` with
 `VERCEL_ENV=production`, so the workspace boundary answered as a deployment
 answers rather than as a developer's machine would.
+
+The closure review then found four more defects and the code now addresses them:
+authenticated hosted sessions were rejected before lookup; global frame denial
+blocked same-origin product previews; a failed workspace fetch abandoned the
+remaining reads; and fresh rate-limit keys could exceed the 4096-entry cap.
+Targeted browser regressions for previews and failed fetches pass on all three
+device profiles. The full 342-test run and final CodeQL analysis are release
+gates, not inferred from the earlier run.
 
 ---
 
@@ -93,9 +101,9 @@ All reverified against source this pass, with behavioural tests, not source grep
 
 | ID | Finding | Status | Evidence |
 | --- | --- | --- | --- |
-| F-01 | No CSP / HSTS / nosniff / frame protection | **CLOSED** | `src/lib/security/headers.ts`; 100% covered by unit tests |
+| F-01 | No CSP / HSTS / nosniff / frame protection | **CLOSED** | `src/lib/security/headers.ts`; same-origin frames permitted for live previews, foreign framing blocked |
 | F-02 | OAuth open redirect via backslash forms | **CLOSED** | `tests/security-redirect.test.mjs` — 97.5% lines |
-| F-03 | Anonymous access to `/api/build/*` | **CLOSED** | Refused in this run: 401 on `project`, `file`, `git`, `environment`, `verify` |
+| F-03 | Anonymous access to `/api/build/*` | **CLOSED** | Anonymous hosted reads return 401; a verified hosted session can proceed |
 | F-04 | WordPress proxy served same-origin SVG | **CLOSED** | SVG refused in this run: 415 `Upstream content type is not a permitted raster image (svg)` |
 | F-05 | Test suite required the internet | **CLOSED** | Suite runs offline; a public host is refused by design |
 | F-06 | Contact form had no rate limit | **CLOSED** | **Found incomplete this pass** — the origin comparison used the internal origin (defect 6). Now fixed and covered |
@@ -146,8 +154,9 @@ Measured by the browser suite, not read from CSS.
 - **Dead space:** the largest vertical band containing nothing is measured per
   route. Worst case is now **130px** on a 900px viewport. `/products/knoux-one`
   was 2463px before the hero was styled.
-- **Evidence:** every route at every width captured to
-  `references/visual-audit/closure/` — 363 screenshots from the final run.
+- **Evidence:** six reviewed, current-build captures are committed under
+  `references/visual-audit/verified/`. The broad Playwright captures are CI
+  artifacts, excluded from Git.
 
 ---
 
@@ -158,7 +167,7 @@ Measured by the browser suite, not read from CSS.
 | `docs/BUILD_SECURITY_MODEL.md` | The four access boundaries, each traced to enforcing code |
 | `references/visual-audit/ACCESSIBILITY_CLOSURE.md` | What axe found, what manual keyboard testing measured, and what was **not** verified |
 | `tests/design-tokens.test.mjs` | The colour-authority regression test |
-| `references/visual-audit/closure/` | 363 route screenshots across the responsive matrix |
+| `references/visual-audit/verified/` | Six curated screenshots from the current production build |
 | `e2e/.artifacts/` | Playwright run output — **gitignored**, not committed |
 
 ---
@@ -177,5 +186,5 @@ Not defects; things a reader should not assume were done.
    `universePalette`, two motion prototypes, `ProductSceneBase`, and two auth
    modules. Deleting someone's work is not a dead-code sweep's job. They are
    recorded here so the decision is visible rather than buried in config.
-4. **Fifteen commits are unpushed** at the time of writing; the PR and CI
-   results follow.
+4. **Final CI and CodeQL results must be read at the exact pushed head.**
+   Earlier green jobs do not validate later commits.
