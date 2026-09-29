@@ -1,0 +1,300 @@
+version: "1.1.0"
+last_review: "2026-09-29"
+
+global:
+  user_agent: "KNOuX-Signal/1.1 lawful-data-ingestion"
+  rate_limit_rps: 2
+  timeout_seconds: 120
+  max_retries: 5
+  chunk_size_bytes: 65536
+  base_dir: "data/signal/raw"
+  processed_dir: "data/signal/processed"
+  manifests_dir: "data/signal/manifests"
+
+sources:
+  - id: google_libphonenumber
+    name: "Google libphonenumber"
+    status: APPROVED
+    enabled: true
+    priority: 1
+    countries: [GLOBAL]
+    publisher: "Google LLC"
+    license: "Apache-2.0"
+    license_url: "https://www.apache.org/licenses/LICENSE-2.0"
+    source_url: "https://github.com/google/libphonenumber"
+    mode: library
+    contains:
+      telecom_metadata: true
+      phone_business: false
+      phone_person: false
+
+  - id: wikidata_phones
+    name: "Wikidata official phone statements"
+    status: APPROVED
+    enabled: false
+    priority: 1
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    publisher: "Wikimedia Foundation"
+    license: "CC0-1.0"
+    license_url: "https://creativecommons.org/publicdomain/zero/1.0/"
+    source_url: "https://query.wikidata.org/sparql"
+    mode: api
+    contains:
+      phone_business: true
+      phone_person: true
+      phone_alias: false
+    notes: "Disabled until bounded SPARQL ingestion and privacy review are complete."
+
+  - id: openstreetmap
+    name: "OpenStreetMap public places"
+    status: APPROVED
+    enabled: false
+    priority: 1
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    publisher: "OpenStreetMap Foundation"
+    license: "ODbL-1.0"
+    license_url: "https://opendatacommons.org/licenses/odbl/1-0/"
+    source_url: "https://www.openstreetmap.org"
+    mode: overpass
+    contains:
+      phone_business: true
+      phone_person: false
+    notes: "Enable only for bounded business/place queries with attribution."
+
+  - id: itu_numbering
+    name: "ITU numbering plans"
+    status: APPROVED
+    enabled: false
+    priority: 3
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    publisher: "International Telecommunication Union"
+    source_url: "https://www.itu.int"
+    mode: document
+    contains:
+      telecom_metadata: true
+    notes: "Reference documents only until reuse terms and extraction are verified."
+
+  - id: dubai_pulse_ded_commerce
+    name: "Dubai Pulse DED commerce"
+    status: APPROVED
+    enabled: false
+    priority: 1
+    countries: [AE]
+    publisher: "Dubai Pulse / Dubai DED"
+    source_url: "https://www.dubaipulse.gov.ae"
+    mode: grant
+    contains:
+      phone_business: true
+      phone_person: false
+    notes: "Official dataset; account and grant required."
+
+  - id: wathq_commercial_register
+    name: "Wathq commercial register"
+    status: APPROVED
+    enabled: false
+    priority: 1
+    countries: [SA]
+    publisher: "Wathq / Saudi Ministry of Commerce"
+    source_url: "https://wathq.sa"
+    mode: api
+    contains:
+      phone_business: true
+      phone_person: false
+    notes: "Authenticated API/token required."
+
+  - id: oman_business_platform
+    name: "Oman Business Platform"
+    status: APPROVED
+    enabled: false
+    priority: 2
+    countries: [OM]
+    publisher: "Oman MoCIIP"
+    source_url: "https://business.gov.om"
+    mode: manual
+    contains:
+      phone_business: true
+      phone_person: false
+    notes: "Official verification source; no automated API is assumed."
+
+  - id: mcc_mnc_org
+    name: "MCC/MNC global network codes"
+    status: QUARANTINED
+    enabled: false
+    priority: 3
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    publisher: "mcc-mnc.org"
+    source_url: "https://mcc-mnc.org"
+    mode: bulk
+    quarantine_reason: "Reuse/license evidence must be retained before production download."
+    contains:
+      telecom_metadata: true
+
+  - id: opencorporates
+    name: "OpenCorporates"
+    status: QUARANTINED
+    enabled: false
+    priority: 2
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    publisher: "OpenCorporates"
+    source_url: "https://opencorporates.com"
+    mode: api
+    quarantine_reason: "Commercial reuse/API terms must be explicitly confirmed for KNOuX Signal."
+    contains:
+      phone_business: true
+      phone_person: false
+
+  - id: hlr_validation_commercial
+    name: "Commercial HLR / number validation"
+    status: QUARANTINED
+    enabled: false
+    priority: 2
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    mode: api
+    quarantine_reason: "Provider contract, privacy scope and transfer terms required."
+    contains:
+      telecom_metadata: true
+
+  - id: tellows_reputation
+    name: "Tellows reputation"
+    status: QUARANTINED
+    enabled: false
+    priority: 4
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    source_url: "https://www.tellows.com"
+    mode: api
+    quarantine_reason: "Do not scrape; licensed/API access only."
+    contains:
+      reputation: true
+
+  - id: gsma_camara_open_gateway
+    name: "GSMA CAMARA / Open Gateway network APIs"
+    status: QUARANTINED
+    enabled: false
+    priority: 3
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    publisher: "CAMARA / participating operators"
+    source_url: "https://camaraproject.org"
+    mode: api
+    quarantine_reason: "Operator or approved aggregator partnership required; no universal target-market endpoint is assumed."
+    contains:
+      telecom_metadata: true
+
+  - id: spamcalls_reputation
+    name: "SpamCalls community reputation"
+    status: QUARANTINED
+    enabled: false
+    priority: 4
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    mode: api
+    quarantine_reason: "Licensed/API access only after terms are verified; never scrape."
+    contains:
+      reputation: true
+
+  - id: infobelpro_egypt
+    name: "InfobelPRO Egypt company data"
+    status: QUARANTINED
+    enabled: false
+    priority: 2
+    countries: [EG]
+    publisher: "InfobelPRO"
+    source_url: "https://www.infobelpro.com"
+    mode: api
+    quarantine_reason: "Paid commercial contract required before ingestion."
+    contains:
+      phone_business: true
+      phone_person: false
+
+  - id: signzy_kyc_uae
+    name: "Signzy KYC/KYB APIs"
+    status: QUARANTINED
+    enabled: false
+    priority: 4
+    countries: [AE]
+    publisher: "Signzy"
+    source_url: "https://www.signzy.com"
+    mode: api
+    quarantine_reason: "Consent, permitted purpose, contract and privacy review required; not a public reverse-lookup source."
+    contains:
+      phone_business: true
+      phone_person: true
+
+  - id: kyc_chain_egypt
+    name: "Egypt KYC provider integration"
+    status: QUARANTINED
+    enabled: false
+    priority: 4
+    countries: [EG]
+    mode: api
+    quarantine_reason: "Provider authority, permitted purpose and commercial terms must be independently verified."
+    contains:
+      phone_person: true
+
+  - id: dubizzle_listings
+    name: "Dubizzle public listings"
+    status: QUARANTINED
+    enabled: false
+    priority: 5
+    countries: [AE]
+    publisher: "Dubizzle"
+    source_url: "https://www.dubizzle.com"
+    mode: none
+    quarantine_reason: "Public visibility is not bulk-reuse permission; no automated ingestion without explicit permission."
+    contains:
+      phone_business: true
+      phone_person: true
+
+  - id: opensooq_listings
+    name: "OpenSooq public listings"
+    status: QUARANTINED
+    enabled: false
+    priority: 5
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    publisher: "OpenSooq"
+    source_url: "https://www.opensooq.com"
+    mode: none
+    quarantine_reason: "Public visibility is not bulk-reuse permission; no automated ingestion without explicit permission."
+    contains:
+      phone_business: true
+      phone_person: true
+
+  - id: citc_regulatory_docs
+    name: "Saudi regulatory numbering documents"
+    status: QUARANTINED
+    enabled: false
+    priority: 4
+    countries: [SA]
+    mode: document
+    quarantine_reason: "Government document reuse rights require explicit verification before automated ingestion."
+    contains:
+      telecom_metadata: true
+
+  - id: wikipedia_numbering
+    name: "Wikipedia numbering articles"
+    status: QUARANTINED
+    enabled: false
+    priority: 5
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    publisher: "Wikimedia community"
+    source_url: "https://www.wikipedia.org"
+    mode: manual
+    quarantine_reason: "Secondary reference only; do not use as an authoritative numbering source."
+    contains:
+      telecom_metadata: true
+
+  - id: truecaller_copied_data
+    name: "Copied Truecaller/Getcontact data"
+    status: REJECTED
+    enabled: false
+    rejection_reason: "Proprietary/private data must not be copied or ingested."
+
+  - id: leaked_contact_lists
+    name: "Leaked or breached contact lists"
+    status: REJECTED
+    enabled: false
+    rejection_reason: "Never ingest leaked, breached or unlawfully obtained personal data."
+
+  - id: yellow_pages_private
+    name: "Unauthorized directory scraping"
+    status: REJECTED
+    enabled: false
+    rejection_reason: "No automated scraping without explicit reuse permission."
