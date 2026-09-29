@@ -74,11 +74,26 @@ test.describe('transport headers over HTTP', () => {
 
     const csp = headers['content-security-policy'];
     expect(csp).toContain("object-src 'none'");
-    expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toContain("base-uri 'self'");
     expect(csp).toContain("form-action 'self'");
     // Development-only escape hatches must not reach a production response.
     expect(csp, 'production must not allow unsafe-eval').not.toContain('unsafe-eval');
+
+    /**
+     * Framing is restricted, not forbidden.
+     *
+     * The workspace previews are this origin's own pages in an iframe, so
+     * `frame-ancestors 'none'` was correct policy for a different site and a
+     * broken feature for this one. What must hold is that no foreign origin may
+     * frame us, so the assertion is on the restriction itself rather than on a
+     * value copied from an earlier revision: the directive has to be present,
+     * it has to be `'self'`, and it must not be the open forms.
+     */
+    expect(csp, 'a response must state a framing policy').toContain('frame-ancestors');
+    expect(csp).toContain("frame-ancestors 'self'");
+    expect(csp, 'framing must not be open to any origin').not.toMatch(/frame-ancestors[^;]*(\*|'none' https:)/);
+    // X-Frame-Options mirrors it for browsers that predate CSP framing.
+    expect(headers['x-frame-options'], 'framing must not be denied outright — the preview needs it').toBe('SAMEORIGIN');
   });
 
   test('a refused workspace response carries the policy too', async ({ request }) => {

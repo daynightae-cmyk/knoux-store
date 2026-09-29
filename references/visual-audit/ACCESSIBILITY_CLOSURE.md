@@ -22,7 +22,7 @@ Blocking impact: `critical` and `serious`.
 
 | Run | Result |
 | --- | --- |
-| Final, 33 routes × 3 profiles | 99 axe assertions, 0 blocking violations |
+| Final, 32 routes × 3 profiles | 96 axe assertions, 0 blocking violations |
 
 Reproduce with `npm run test:e2e`.
 
@@ -139,7 +139,7 @@ Stated plainly, because the absence is otherwise indistinguishable from a pass.
 
 ## Status
 
-**Automated: complete.** 99 axe assertions across 33 routes and 3 device
+**Automated: complete.** 96 axe assertions across 32 routes and 3 device
 profiles, no critical or serious violation, run against a production build.
 
 **Manual keyboard: complete for what it covers.** Skip link, tab order, focus
