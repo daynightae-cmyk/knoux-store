@@ -42,11 +42,24 @@ export async function guardBuildApi(
   const env = options.env ?? process.env;
   const access = evaluateBuildAccess(env);
 
-  if (!access.allowed) {
-    return NextResponse.json(
-      { error: access.code, message: access.message, scope: options.scope },
-      { status: access.status, headers: { 'cache-control': 'no-store' } },
+  /**
+   * One refusal, one shape.
+   *
+   * There are two ways to be refused — the deployment demands a session and
+   * there is none, or the deployment demands a session and the identity
+   * provider could not confirm one — and they are the same answer to the
+   * caller. Returning two different bodies for one condition would make the
+   * response a signal about the server's internals rather than about the
+   * caller, and would let a client branch on which path it took.
+   */
+  const refuse = (message: string) =>
+    NextResponse.json(
+      { error: BUILD_API_DENIED, message, scope: options.scope, authenticated: false },
+      { status: 401, headers: { 'cache-control': 'no-store' } },
     );
+
+  if (!access.allowed) {
+    return refuse(access.message);
   }
 
   if (access.reason === 'local-checkout' || access.reason === 'explicitly-public') {
@@ -64,10 +77,7 @@ export async function guardBuildApi(
   }
 
   if (!user) {
-    return NextResponse.json(
-      { error: BUILD_API_DENIED, message: DENIAL_MESSAGE, scope: options.scope, authenticated: false },
-      { status: 401, headers: { 'cache-control': 'no-store' } },
-    );
+    return refuse(DENIAL_MESSAGE);
   }
 
   const limit = rateLimit(`${options.scope}:${user.id}:${clientAddress(request.headers)}`);
