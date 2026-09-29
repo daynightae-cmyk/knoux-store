@@ -52,10 +52,15 @@ export type SignalSourceStatus = {
   kind: string;
   status: 'approved' | 'quarantined';
   license: string | null;
+  publisher: string | null;
   homepage: string | null;
+  licenseUrl: string | null;
   ingestionMode: string;
   attributionRequired: boolean;
   enabled: boolean;
+  priority: number;
+  accessRequirement: string | null;
+  contains: Record<string, boolean>;
 };
 
 export type SignalLookupPayload = {

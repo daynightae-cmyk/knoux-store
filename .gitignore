@@ -29,3 +29,13 @@ public/knoux-particles.bin
 
 # KNOuX Signal local server logs
 .signal-server.*
+
+# KNOuX Signal ingestion pipeline is tracked; other legacy scripts remain ignored.
+!/scripts/
+/scripts/*
+!/scripts/signal/
+!/scripts/signal/**
+!/scripts/signal/*.py
+.venv-signal/
+__pycache__/
+*.pyc
