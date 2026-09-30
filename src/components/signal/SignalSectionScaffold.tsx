@@ -1,6 +1,11 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { signalChildren, signalRoute, type SignalRouteId } from '@/data/signal';
+import {
+  signalChildren,
+  signalRoute,
+  signalRoutes,
+  type SignalRouteId,
+} from '@/data/signal';
 import styles from '@/app/signal/signal.module.css';
 
 type SignalSectionScaffoldProps = {
@@ -9,32 +14,60 @@ type SignalSectionScaffoldProps = {
   children?: ReactNode;
 };
 
+const LOCAL_IDS: readonly SignalRouteId[] = [
+  'lookup',
+  'my-number',
+  'watchlist',
+  'business',
+  'settings',
+];
+
 export function SignalSectionScaffold({ routeId, note, children }: SignalSectionScaffoldProps) {
   const route = signalRoute(routeId);
   if (!route) return null;
   const childRoutes = signalChildren(routeId);
+  const localRoutes = signalRoutes.filter((item) => LOCAL_IDS.includes(item.id));
 
   return (
     <main id="main-content" className={styles.page} data-signal-route={route.id}>
-      <section className={styles.hero} aria-labelledby="signal-section-title">
-        <div className={styles.kicker}>{route.code} / KNOuX SIGNAL</div>
-        <h1 id="signal-section-title">{route.label}</h1>
-        <p>{route.description}</p>
-        {note ? <p>{note}</p> : null}
+      <section className={styles.management} aria-labelledby="signal-section-title">
+        <nav className={styles.localNav} aria-label="Signal">
+          <Link href="/signal" className={styles.signalHomeLink}>KNOuX SIGNAL</Link>
+          <div>
+            {localRoutes.map((item) => (
+              <Link
+                key={item.id}
+                href={item.href}
+                data-current={item.id === route.id || item.id === route.parent ? 'true' : undefined}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        </nav>
+
+        <header className={styles.managementHeader}>
+          <div>
+            <span className={styles.kicker}>{route.code} / SIGNAL MANAGEMENT</span>
+            <h1 id="signal-section-title">{route.label}</h1>
+          </div>
+          <p>{route.description}</p>
+        </header>
+
+        {note ? <p className={styles.managementNote}>{note}</p> : null}
+
         {childRoutes.length ? (
-          <nav aria-label={route.label + ' sections'}>
-            <ul>
-              {childRoutes.map((child) => (
-                <li key={child.id}>
-                  <Link href={child.href}>
-                    {child.code} · {child.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          <nav className={styles.childNav} aria-label={route.label + ' sections'}>
+            {childRoutes.map((child) => (
+              <Link key={child.id} href={child.href}>
+                <span>{child.code}</span>
+                <strong>{child.label}</strong>
+              </Link>
+            ))}
           </nav>
         ) : null}
-        {children}
+
+        {children ? <div className={styles.managementBody}>{children}</div> : null}
       </section>
     </main>
   );
