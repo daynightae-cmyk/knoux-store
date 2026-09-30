@@ -21,7 +21,12 @@ export default defineConfig([
     '.next*/**',
     'out/**',
     'next-env.d.ts',
-    'node_modules/**',
+    // `node_modules*/` rather than `node_modules/`: a dependency tree that has
+    // been moved aside and not yet deleted -- a half-finished `npm ci`, a
+    // side-by-side install for comparison -- matches neither the default ignore
+    // nor a literal `node_modules/`, and linting the copy reports tens of
+    // thousands of problems that belong to nothing in this repository.
+    'node_modules*/**',
     '.qa-*/**',
     'qa-*.png',
     '.lint-report.json',

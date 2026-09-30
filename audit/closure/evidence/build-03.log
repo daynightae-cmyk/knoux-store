@@ -1,4 +1,4 @@
-﻿
+
 > knoux-digital-headquarters@0.1.0 build
 > next build
 
@@ -11,9 +11,9 @@
   Finished TypeScript in 10.6s ...
   Collecting page data using 3 workers ...
   Generating static pages using 3 workers (0/60) ...
-  Generating static pages using 3 workers (15/60) 
-  Generating static pages using 3 workers (30/60) 
-  Generating static pages using 3 workers (45/60) 
+  Generating static pages using 3 workers (15/60)
+  Generating static pages using 3 workers (30/60)
+  Generating static pages using 3 workers (45/60)
 Γ£ô Generating static pages using 3 workers (60/60) in 3.2s
   Finalizing page optimization ...
 
@@ -94,4 +94,3 @@ Route (app)                             Revalidate  Expire
 Γùï  (Static)   prerendered as static content
 ΓùÅ  (SSG)      prerendered as static HTML (uses generateStaticParams)
 ╞Æ  (Dynamic)  server-rendered on demand
-

@@ -37,6 +37,18 @@ const CACHE_SECONDS = 60 * 60 * 24;
 /** Enough hops for a CDN; few enough that a cycle still terminates. */
 const MAX_REDIRECTS = 3;
 
+function officialOrigin(hostname: string): string | null {
+  switch (hostname) {
+    case 'ps.w.org': return 'https://ps.w.org';
+    case 'ts.w.org': return 'https://ts.w.org';
+    case 's.w.org': return 'https://s.w.org';
+    case 'downloads.wordpress.org': return 'https://downloads.wordpress.org';
+    case 'images.wordpress.org': return 'https://images.wordpress.org';
+    case 'wordpress.org': return 'https://wordpress.org';
+    default: return null;
+  }
+}
+
 export const dynamic = 'force-dynamic';
 
 function refuse(reason: AssetRejection, message: string): Response {
@@ -60,9 +72,18 @@ async function resolveAllowedTarget(start: URL): Promise<Response | AssetRejecti
     const check = checkAssetUrl(current.toString());
     if (!check.ok) return check.reason;
 
+    // Select the authority from fixed literals, then copy only the path and
+    // query from the checked URL. A user supplied URL cannot supply the host,
+    // scheme or port to fetch, even through a redirect.
+    const origin = officialOrigin(check.value.hostname);
+    if (!origin) return 'host-not-allowed';
+    const target = new URL(origin);
+    target.pathname = check.value.pathname;
+    target.search = check.value.search;
+
     let response: Response;
     try {
-      response = await fetch(current.toString(), {
+      response = await fetch(target.toString(), {
         redirect: 'manual',
         signal: AbortSignal.timeout(TIMEOUT_MS),
         headers: { Accept: 'image/*,*/*;q=0.8' },
@@ -80,7 +101,7 @@ async function resolveAllowedTarget(start: URL): Promise<Response | AssetRejecti
 
     let next: URL;
     try {
-      next = new URL(location, current);
+      next = new URL(location, target);
     } catch {
       return 'malformed';
     }

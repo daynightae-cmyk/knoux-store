@@ -60,8 +60,38 @@ function refuse(status: number, error: string, extra: Record<string, unknown> = 
   );
 }
 
+/**
+ * The origin this site is actually reached at.
+ *
+ * `new URL(request.url).origin` is the origin of whatever reached the server
+ * process, which behind a proxy, a container or a platform router is the
+ * *internal* origin — not the one the browser typed. Comparing an `Origin`
+ * header against it refuses every legitimate submission: the browser sent
+ * `https://knoux.store`, the process saw `http://localhost:3000`, and the
+ * honest visitor is told the endpoint is site-only. The forwarded headers are
+ * what the edge sets to describe the public request, so those are what the
+ * comparison has to use, with the URL origin as the fallback.
+ *
+ * The declared `host` is still only used to build a comparison value. Nothing
+ * is trusted from it beyond that: a forged `Origin` and a forged `Host` would
+ * have to agree with each other, and the `Sec-Fetch-Site` check is the
+ * browser-forged-header signal that this defence actually rests on.
+ */
+function publicOrigin(request: Request): string {
+  const headers = request.headers;
+  const host = headers.get('x-forwarded-host') ?? headers.get('host');
+  if (!host) return new URL(request.url).origin;
+
+  const forwardedProto = headers.get('x-forwarded-proto');
+  const proto =
+    forwardedProto ??
+    (host.startsWith('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https');
+
+  return `${proto}://${host}`;
+}
+
 export async function POST(request: Request) {
-  const ownOrigin = new URL(request.url).origin;
+  const ownOrigin = publicOrigin(request);
 
   const origin = checkRequestOrigin(request.headers, ownOrigin);
   if (!origin.ok) {

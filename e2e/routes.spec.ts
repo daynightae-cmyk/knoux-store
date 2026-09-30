@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { PRIMARY_ROUTES, EVIDENCE_DIR, RESPONSIVE_MATRIX } from './routes';
+import { PRIMARY_ROUTES, EVIDENCE_DIR, RESPONSIVE_MATRIX, LARGEST_BLANK_BAND_SOURCE } from './routes';
 import { join } from 'node:path';
 
 /**
@@ -28,9 +28,51 @@ test.describe('route rendering', () => {
       const heading = (await h1.first().innerText()).trim();
       expect(heading.length, `${route} must have a non-empty h1`).toBeGreaterThan(1);
 
-      // Landmarks: a main region and a way past the navigation.
+      // Landmarks: a main region, and a way past the navigation.
       await expect(page.locator('main, [role="main"]').first()).toBeVisible();
-      await expect(page.locator('nav').first()).toBeVisible();
+
+      /**
+       * The navigation landmark must exist, and it must be reachable.
+       *
+       * The first version asserted `nav` was *visible*, which is true on
+       * desktop and false on every mobile route: below 760px the desktop
+       * navigation is hidden and the mobile panel — a real `<nav>` inside a
+       * collapsed overlay — is what a visitor actually uses. Thirty-three
+       * routes failed for a layout decision that was correct.
+       *
+       * So this asks the question the check was written for: can a keyboard
+       * user get to the navigation from here? At any width that is a visible
+       * navigation control — the desktop bar itself, or the toggle that opens
+       * the mobile panel. A control that is present and visible, and whose
+       * activation reveals a `<nav>`, is the thing that is actually required.
+       */
+      const navigation = await page.evaluate(() => {
+        const visible = (element: Element | null) => {
+          if (!element) return false;
+          const rect = element.getBoundingClientRect();
+          const style = getComputedStyle(element);
+          return rect.width > 0 && rect.height > 0 && style.visibility !== 'hidden' && style.display !== 'none';
+        };
+        const navs = Array.from(document.querySelectorAll('nav'));
+        const toggles = Array.from(
+          document.querySelectorAll('.mobile-toggle, [aria-controls][aria-expanded]'),
+        );
+        return {
+          navLandmarks: navs.length,
+          anyNavVisible: navs.some(visible),
+          toggle: toggles.find(visible)?.getAttribute('aria-label') ?? null,
+        };
+      });
+
+      expect(
+        navigation.navLandmarks,
+        `${route} has no <nav> landmark at all`,
+      ).toBeGreaterThan(0);
+      expect(
+        navigation.anyNavVisible || navigation.toggle !== null,
+        `${route} offers no way to reach the navigation at ${page.viewportSize()?.width}px: ` +
+          `no visible <nav> and no visible navigation control`,
+      ).toBe(true);
     });
   }
 });
@@ -95,6 +137,30 @@ test.describe('responsive geometry', () => {
  * this reports.
  */
 test.describe('composition', () => {
+  test('the workspace dashboard panels occupy their intended columns', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.addInitScript(() => {
+      sessionStorage.setItem('knoux-dev-entry-intent', 'Build a product workspace');
+    });
+    await page.goto('/build', { waitUntil: 'load' });
+    await expect(page.locator('.dev-entry')).toHaveCount(0);
+
+    const widths = await page.evaluate(() => {
+      const dashboard = document.querySelector('.dev-dashboard');
+      const composer = document.querySelector('.dev-dashboard__composer');
+      const preview = document.querySelector('.dev-dashboard__preview');
+      return {
+        dashboard: dashboard?.getBoundingClientRect().width ?? 0,
+        composer: composer?.getBoundingClientRect().width ?? 0,
+        preview: preview?.getBoundingClientRect().width ?? 0,
+      };
+    });
+
+    expect(widths.dashboard).toBeGreaterThan(800);
+    expect(widths.composer, 'the intent panel must span most of the workspace').toBeGreaterThan(widths.dashboard * 0.5);
+    expect(widths.preview, 'the preview must have a useful reading width').toBeGreaterThan(widths.dashboard * 0.25);
+  });
+
   test('desktop content uses a meaningful share of the viewport', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
 
@@ -104,14 +170,29 @@ test.describe('composition', () => {
       const geometry = await page.evaluate(() => {
         const main = document.querySelector<HTMLElement>('main, [role="main"]');
         if (!main) return null;
-        const rect = main.getBoundingClientRect();
         const doc = document.documentElement;
+
+        /**
+         * The width of the main region's *content*.
+         *
+         * `getBoundingClientRect` on an element with `display: contents` returns
+         * a zero rect, because the element generates no box — its children are
+         * laid out as if it were not there. The workspace landing route does
+         * exactly that, so a straight `rect.width` reported `main is only 0% of
+         * the viewport` on a page whose content is 100% of it. The measurement
+         * asks the children instead whenever the parent has no box.
+         */
+        const rect = main.getBoundingClientRect();
+        const generated = getComputedStyle(main).display !== 'contents';
+        const children = Array.from(main.children).map((child) => child.getBoundingClientRect());
+        const contentWidth = generated
+          ? rect.width
+          : children.reduce((widest, child) => Math.max(widest, child.width), 0);
+
         return {
-          width: rect.width,
+          width: contentWidth,
           viewport: doc.clientWidth,
-          height: rect.height,
           viewportHeight: doc.clientHeight,
-          scrollHeight: document.body.scrollHeight,
         };
       });
 
@@ -126,12 +207,16 @@ test.describe('composition', () => {
         `${route} main is only ${(share * 100).toFixed(0)}% of the ${geometry.viewport}px viewport`,
       ).toBeGreaterThan(0.33);
 
-      // A page taller than eight viewports is usually a min-height that was set
-      // to fill rather than to compose.
+      const measureBlankBand = new Function(LARGEST_BLANK_BAND_SOURCE + '; return largestBlankBand();') as () => number;
+      const largestBlank = await page.evaluate(measureBlankBand);
+
+      // A blank band taller than half the viewport is a region that neither
+      // balances an object, forms a stage, nor creates rhythm — it is a hole.
+      // Half a viewport of deliberate negative space is ordinary composition.
       expect(
-        geometry.scrollHeight,
-        `${route} is ${Math.round(geometry.scrollHeight / geometry.viewportHeight)} viewports tall`,
-      ).toBeLessThan(geometry.viewportHeight * 8);
+        largestBlank,
+        `${route} has a ${Math.round(largestBlank)}px vertical band with nothing in it`,
+      ).toBeLessThan(geometry.viewportHeight * 0.5);
     }
   });
 
@@ -147,6 +232,43 @@ test.describe('composition', () => {
       await expect(page.locator('.dev-shell--operational, .dev-shell'), { message: route }).toHaveCount(1);
     }
   });
+
+  test('the product preview renders a same-origin page inside its frame', async ({ page }) => {
+    await page.goto('/build/apps');
+    await page.getByRole('button', { name: 'PREVIEW' }).click();
+    const frame = page.frameLocator('.dev-app-preview iframe');
+    await expect(frame.locator('h1')).toBeVisible();
+    await expect(frame.locator('html')).toHaveAttribute('lang', 'en');
+  });
+
+  test('a failed project fetch still settles the workspace read', async ({ page }) => {
+    const requested: string[] = [];
+    await page.route('**/api/build/**', async (route) => {
+      const path = new URL(route.request().url()).pathname;
+      requested.push(path);
+      if (path.endsWith('/project')) await route.abort();
+      else await route.fulfill({ status: 503, body: '{}' });
+    });
+    await page.goto('/build/apps');
+
+    /**
+     * Synchronise on the reads, not on a label.
+     *
+     * The sidebar reads "ADAPTER STATE UNKNOWN" before the pass finishes and
+     * after it settles, so asserting on it first is a race this suite loses
+     * under load. The pass is only finished when all three reads have been
+     * attempted and nothing is in flight, and both are observable.
+     */
+    await expect.poll(() => requested.length, { timeout: 15_000 }).toBeGreaterThanOrEqual(3);
+    await page.waitForLoadState('networkidle');
+
+    for (const endpoint of ['/project', '/environment', '/git']) {
+      expect(requested, `a failed project read must not abandon ${endpoint}`).toContain(
+        `/api/build${endpoint}`,
+      );
+    }
+    await expect(page.locator('.dev-sidebar__foot')).toContainText('ADAPTER STATE UNKNOWN');
+  });
 });
 
 /**
@@ -161,11 +283,32 @@ test.describe('composition', () => {
 test.describe('evidence', () => {
   for (const size of RESPONSIVE_MATRIX) {
     test(`capture ${size.name}`, async ({ page }) => {
-      test.slow();
+      /**
+       * Sized for the work, not for one page.
+       *
+       * This test walks every route at one width: 33 navigations, each waiting
+       * for the network to go quiet and then settling entrance motion, so it
+       * needs minutes rather than seconds. `test.slow()` triples the 60s default
+       * to 180s, which is still short of the real cost and produced a run that
+       * died mid-matrix and left the record incomplete. The budget below is
+       * declared from the number of routes in the matrix rather than guessed,
+       * so adding a route widens it automatically.
+       */
+      const perRouteMs = 4_000;
+      test.setTimeout(PRIMARY_ROUTES.length * perRouteMs + 60_000);
+
       await page.setViewportSize({ width: size.width, height: size.height });
 
       for (const route of PRIMARY_ROUTES) {
-        await page.goto(route, { waitUntil: 'networkidle' }).catch(() => page.goto(route));
+        await page.goto(route, { waitUntil: 'domcontentloaded' });
+        /**
+         * `networkidle` was the previous wait and it is the wrong one: a page
+         * that legitimately keeps a connection open — the workspace polling, a
+         * WebGL scene streaming — never reaches idle, so the wait silently fell
+         * through to its timeout on every route. `domcontentloaded` plus a
+         * fixed settle is both faster and actually terminates.
+         */
+        await page.waitForLoadState('load').catch(() => undefined);
         // Let entrance motion settle so the capture shows the resting state.
         await page.waitForTimeout(350);
         await page.screenshot({

@@ -65,7 +65,12 @@ test.describe('automated accessibility', () => {
  */
 test.describe('non-visual equivalents', () => {
   test('every canvas is accompanied by the state it depicts', async ({ page }) => {
-    await page.goto('/build', { waitUntil: 'networkidle' }).catch(() => page.goto('/build'));
+    // `networkidle` was the previous wait and it never resolves here: the
+    // workspace keeps connections open, so every run of this test spent its
+    // whole 60s budget in `goto` and then failed on a timeout rather than on
+    // anything about the canvas. `load` plus a settle is what was meant.
+    await page.goto('/build', { waitUntil: 'load' });
+    await page.waitForTimeout(1200);
 
     const canvases = await page.locator('canvas').count();
     if (canvases === 0) {

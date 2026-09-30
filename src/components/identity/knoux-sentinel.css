@@ -151,7 +151,12 @@
   --ks-glow: 0.46;
 }
 .knoux-sentinel[data-state='sleep'] {
-  --ks-accent: #6f5f8f;
+  /* The sleeping state dims the accent. This is a scene-local scale, not a
+     palette entry, so it mirrors `--violet-dim` at the value that token now
+     holds rather than the one it held when this was written. A CSS variable
+     is available here — this file is loaded into the same document as
+     `globals.css` — so it reads the token directly. */
+  --ks-accent: var(--violet-dim, #8b8ea3);
   --ks-eye: #b7a8cf;
   --ks-eye-sy: 0.1;
   --ks-glow: 0.14;

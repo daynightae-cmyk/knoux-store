@@ -21,7 +21,7 @@ export default async function WordPressPage() {
   const [plugins, themes] = await Promise.all([featuredPlugins(6), featuredThemes(6)]);
 
   return (
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       <TrackOnView event={{ type: 'division_opened', division: 'wordpress', route: '/wordpress' }} />
       <PageIntro
         index="02"
@@ -64,7 +64,7 @@ export default async function WordPressPage() {
               {pillar.categoryRoute ? (
                 <span className="pillar__link">SEE {pillar.label.toUpperCase()} CATALOGUE</span>
               ) : (
-                <span className="pillar__link" style={{ color: '#6d6e70' }}>
+                <span className="pillar__link" style={{ color: 'var(--dim)' }}>
                   PERFORMED AS A SERVICE
                 </span>
               )}

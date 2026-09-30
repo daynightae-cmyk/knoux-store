@@ -19,7 +19,7 @@
  * allowlist like anything else.
  */
 
-import { isOfficialAssetHost } from './external.ts';
+import { OFFICIAL_ASSET_HOSTS } from './external.ts';
 
 /**
  * Formats that cannot execute.
@@ -91,9 +91,10 @@ export function checkAssetUrl(
   if (parsed.username || parsed.password) {
     return { ok: false, reason: 'credentials', status: 400 };
   }
-  if (!isOfficialAssetHost(parsed.hostname)) {
+  if (!OFFICIAL_ASSET_HOSTS.includes(parsed.hostname)) {
     return { ok: false, reason: 'host-not-allowed', status: 403 };
   }
+  if (parsed.port) return { ok: false, reason: 'host-not-allowed', status: 403 };
   return { ok: true, value: parsed };
 }
 

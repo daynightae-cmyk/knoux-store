@@ -125,7 +125,7 @@ function MatrixGroup({ group, items }: { group: string; items: Capability[] }) {
         <tr key={capability.id}>
           <th scope="row">
             {capability.label}
-            <span style={{ display: 'block', fontSize: 10.5, color: '#6d6e70', marginTop: 3 }}>
+            <span style={{ display: 'block', fontSize: 10.5, color: 'var(--dim)', marginTop: 3 }}>
               {capability.searchTerms.slice(0, 3).join(' / ')}
             </span>
           </th>

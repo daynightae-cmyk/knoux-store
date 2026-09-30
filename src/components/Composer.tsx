@@ -340,7 +340,7 @@ export function Composer() {
                               </p>
                               <p className="assembly__item-note">
                                 {entry.entity.summary}
-                                <span className="mono" style={{ display: 'block', color: '#6d6e70', fontSize: 9.5, marginTop: 4, letterSpacing: '0.1em' }}>
+                                <span className="mono" style={{ display: 'block', color: 'var(--dim)', fontSize: 9.5, marginTop: 4, letterSpacing: '0.1em' }}>
                                   MATCH: {entry.reason.toUpperCase()}
                                 </span>
                               </p>

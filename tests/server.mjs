@@ -54,16 +54,29 @@ export async function waitForServer(child, origin, { attempts = 200, delayMs = 1
   throw new Error('Production server did not start in time');
 }
 
-/** Strips markup so an assertion is about the sentence a visitor reads. */
+/**
+ * Strips markup so an assertion is about the sentence a visitor reads.
+ *
+ * Entities are decoded in one pass, and only once. Decoding them in sequence —
+ * `&amp;` first, then `&lt;` — is a double-unescape: `&amp;lt;` in the document
+ * becomes `&lt;` after the first rule and then `<` after the second, so a
+ * literal `&lt;` in the page is asserted as if it were markup. One pass with one
+ * alternation cannot re-interpret its own output.
+ */
 export function visibleText(html) {
   return html
     .replace(/<!--[\s\S]*?-->/g, ' ')
     .replace(/<[^>]+>/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#x27;|&#39;/g, "'")
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
+    .replace(/&(amp|quot|#x27|#39|lt|gt);/g, (_, entity) => {
+      switch (entity) {
+        case 'amp': return '&';
+        case 'quot': return '"';
+        case '#x27':
+        case '#39': return "'";
+        case 'lt': return '<';
+        default: return '>';
+      }
+    })
     .replace(/\s+/g, ' ')
     .trim();
 }

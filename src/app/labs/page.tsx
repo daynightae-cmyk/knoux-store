@@ -17,7 +17,7 @@ export default function LabsPage() {
   );
 
   return (
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       <TrackOnView event={{ type: 'division_opened', division: 'labs', route: '/labs' }} />
       <PageIntro
         index="09"

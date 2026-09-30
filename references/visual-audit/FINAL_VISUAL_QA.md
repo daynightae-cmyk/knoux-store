@@ -1,68 +1,21 @@
-FINAL VISUAL QA — CLOSURE EVIDENCE
+# Visual QA: production build review
 
-Every primary route audited (desktop viewport 1440x900 unless noted):
+This review uses the running `next start` build at 1440×900 and 390×844. The six curated captures in [`verified/`](verified/) were taken from this repository on 29 September 2026. The top-level `after-*.png` files under `closure/` are stale local files from another project; they are excluded from this report and from the pull request.
 
-Route: / — PASS
-Reference family: Editorial Hero + System Map + Index Rows
-Desktop: full-width architecture preserved; large editorial type; clean asymmetry; particle identity present
-Tablet: responsive (media max-width: 760px); mobile recomposed
-Mobile: 430x932 — navigation collapses to mobile toggle; hero scales; no horizontal overflow
-Token compliance: PASS
-Geometry: PASS (no dead space >35% unexplained)
-Responsive: PASS
-Accessibility: automated axe configured; manual keyboard verified; reduced motion honored
-Known issues: none critical
-Evidence: audit/live/home.png; references/visual-audit/closure/after-home.png
+| Surface | Direct observation | Evidence |
+| --- | --- | --- |
+| `/build` entry, desktop | Matte black field, off-white title and button, violet limited to small labels; intent input and Enter behavior retained | [`desktop-build-gate.png`](verified/desktop-build-gate.png) |
+| `/build` entry, 390px | Title and input fit; CTA stacks below the input | [`mobile-build-gate.png`](verified/mobile-build-gate.png) |
+| `/build` workspace, desktop | Hero spans the page; sidebar starts below it; composer, preview and three following panels occupy usable columns | [`desktop-build-workspace.png`](verified/desktop-build-workspace.png) |
+| `/build` workspace, 390px | Dashboard stacks in one column; intent, CTA and preview remain reachable | [`mobile-build-workspace.png`](verified/mobile-build-workspace.png) |
+| `/growth` | Editorial heading, dark neutral surfaces and section index render | [`desktop-growth.png`](verified/desktop-growth.png) |
+| `/wordpress` | Editorial heading and catalogue entry render | [`desktop-wordpress.png`](verified/desktop-wordpress.png) |
 
-Route: /build (workspace landing) — PASS (restored)
-Reference family: Operational Workspace + Product Machine + Particle Hero
-Desktop: sidebar 224px + content flexible; hero radial gradient preserved; machine layout with ring/node/core/detail preserved
-Tablet: sidebar collapses to 185px; dashboard grid adapts (span 6 / span 4 adjustments)
-Mobile: 430x932 — sidebar hidden behind toggle; dashboard stacks vertically; hero min-height 330px; machine body stacks to single column
-Token compliance: PASS (neutral dark + violet signal only)
-Geometry: PASS (primary content >35% viewport; machine ring and nodes centered; no dead space)
-Responsive: PASS
-Accessibility: PASS (focus-visible outline #cba8ff; aria-current on active nav links; reduced motion removes animation)
-Known issues: E2E automated suite needs persistent server (see FINAL_CLOSURE_REPORT.md remaining findings)
-Evidence: audit/live/build.png (before — broken 12-line CSS); references/visual-audit/closure/after-build.png (after — full 283-line CSS restored)
+## Defects caught by inspecting the current build
 
-Route: /build/* nested (pipeline, apps, services, docs, terminal, powershell, providers, settings, deployments) — PASS (design consistent)
-Geometry preserved: pipeline 6-column flow; apps grid; providers 2-column; terminal console; settings list
-No new card-nesting or layout redesign introduced.
-Evidence: build verified through workspace shell component
+- The earlier `after-build.png`, `after-growth.png` and `after-wordpress.png` showed an unrelated Arabic application or a 404. They could not support any KNOuX claim. This report points only to newly captured, checked images.
+- The `/build` entry had a large violet radial wash and a violet CTA. The entry now uses the canonical dark and text tokens, with violet as a small signal.
+- The desktop workspace composer was about 90px wide, while a large blank gap separated it from the preview. CSS targeted old `.dev-panel--composer` and `.dev-panel--preview` names; the current markup uses `.dev-dashboard__composer` and `.dev-dashboard__preview`. The selectors now match the markup. A Playwright assertion checks useful panel widths.
+- The sidebar project marker contained a garbled character sequence. It is now a single bullet.
 
-Route: /growth — PASS
-Reference family: Editorial + Technical Dossier + Process/Steps + System Index
-Desktop: 2-column grid preserved; content uses full width; no narrow left strip (previous failure caused by deleted workspace CSS affecting global shell — fixed by restoration)
-Geometry: block-head with title + aside; index-rows; registry; budget section
-Responsive: PASS (stack > * spacing preserved; media breakpoints intact)
-Evidence: audit/live/growth.png; references/visual-audit/closure/after-growth.png
-
-Route: /wordpress — PASS
-Reference family: Registry/Table + Technical Dossier
-Desktop: marketplace cards; unavailable state shown truthfully; no fake metrics
-Geometry: registry row grid (id, name, purpose, type, arrow); pillar cards; goal flow
-Responsive: PASS (1fr / 1fr stacks to single column at mobile)
-Evidence: audit/live/wordpress.png; references/visual-audit/closure/after-wordpress.png
-
-Route: /about — PASS (design system consistent with public editorial surface)
-Route: /contact — PASS (form plane preserved; neutral dark; no purple app look)
-Route: /account / /login / /register / /forgot-password / /update-password — PASS (auth surfaces inherit KNOuX material; no unrelated blue glassmorphism)
-Route: /products / /creative / /engineering / /work / /labs / /solutions / /web — PASS (strong page-specific architecture preserved; no homogenization into dashboard cards)
-
-Mobile sidebar overlap: verified — sidebar opens as overlay; content not obscured by persistent sidebar (mobile toggle hides sidebar by default)
-Preview scaling: workspace preview scales to viewport width; 390px viewport uses 390px logical iframe; no 100px strip
-Floating assistant/mascot collisions: no persistent floating assistant blocks controls
-
-Total routes audited: all primary routes listed in execution prompt + nested workspace routes + auth + public editorial
-Desktop: all verified by source/component review
-Tablet: verified by responsive breakpoints in CSS (1050, 760, 420) and component media queries
-Mobile: verified for /build, /growth, /wordpress by actual rendering; others verified by design consistency
-
-PASS/FAIL SUMMARY:
-WordPress: PASS
-Growth: PASS
-KNOuX DEV (/build): PASS
-Color system: PASS
-Dead space: PASS
-Overflow: PASS
+The six images are first-viewport evidence. They do not prove all lower-page sections, interactions, or WCAG conformance. The Playwright route matrix checks rendering and overflow across routes and sizes; its generated captures are uploaded as the CI `route-captures` artifact and are not committed wholesale.

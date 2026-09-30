@@ -15,7 +15,7 @@ export const metadata = pageMetadata(
 
 export default function WebPage() {
   return (
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       <TrackOnView event={{ type: 'division_opened', division: 'web', route: '/web' }} />
       <PageIntro
         index="03"

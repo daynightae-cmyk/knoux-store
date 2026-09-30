@@ -15,7 +15,7 @@
  * Server-only. Nothing in this module may be imported by a client component.
  */
 
-import { promises as fs, existsSync } from 'node:fs';
+import { promises as fs, existsSync, constants } from 'node:fs';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import {
@@ -49,6 +49,14 @@ const ANY_DEPTH_SKIP = new Set(['.git', '.next', '.vercel', '.traycer', '.turbo'
 const MAX_FILE_BYTES = 512 * 1024;
 const MAX_FILES = 4000;
 const GIT_TIMEOUT_MS = 8000;
+
+function isReadableProjectPath(relative: string): boolean {
+  const segments = relative.split('/');
+  if (segments.some((segment) => !/^[A-Za-z0-9_@().\[\]-]+$/.test(segment) || segment.startsWith('.'))) return false;
+  return relative.startsWith('src/') || relative.startsWith('tests/') ||
+    (relative.startsWith('references/') && relative.endsWith('.md')) ||
+    ['README.md', 'package.json', 'tsconfig.json', 'next.config.ts', 'next.config.mjs', 'AGENTS.md'].includes(relative);
+}
 
 /** At most one verification task may be in flight across the whole process. */
 let activeVerification: string | null = null;
@@ -484,37 +492,69 @@ export class FsProjectAdapter implements ProjectAdapter {
   }
 
   async readFile(relative: string): Promise<{ content: string; language: string; bytes: number; lines: number } | null> {
-    // This API is public. Only repository source and documentation are
-    // inspectable; a guessed path must never turn it into an env-file reader.
+    // Only repository source and documentation are inspectable; a guessed
+    // path must never turn this into an env-file reader.
     const requested = relative.replace(/\\/g, '/');
-    const segments = requested.split('/');
-    if (segments.some((segment) => segment.startsWith('.'))) return null;
-    const allowed = requested.startsWith('src/') || requested.startsWith('tests/') ||
-      (requested.startsWith('references/') && requested.endsWith('.md')) ||
-      ['README.md', 'package.json', 'tsconfig.json', 'next.config.ts', 'AGENTS.md'].includes(requested);
-    if (!allowed) return null;
-    // Containment: resolve, then require the result to stay inside the root.
-    const resolved = path.resolve(this.root, relative);
-    const prefix = this.root.endsWith(path.sep) ? this.root : `${this.root}${path.sep}`;
-    if (resolved !== this.root && !resolved.startsWith(prefix)) return null;
-    if (resolved.includes(`${path.sep}node_modules${path.sep}`)) return null;
-    if (resolved.includes(`${path.sep}.git${path.sep}`)) return null;
+    if (!isReadableProjectPath(requested)) return null;
+
     try {
+      // Walk only the named directories. The request selects an existing
+      // directory entry by equality; it never supplies bytes to path.join.
+      // This costs one readdir per segment rather than a project-wide scan.
+      let resolved = this.root;
+      const segments = requested.split('/');
+      for (const [index, segment] of segments.entries()) {
+        const entries = await fs.readdir(resolved, { withFileTypes: true });
+        const entry = entries.find((item) => item.name === segment);
+        if (!entry || entry.isSymbolicLink()) return null;
+        if (index < segments.length - 1 && !entry.isDirectory()) return null;
+        if (index === segments.length - 1 && !entry.isFile()) return null;
+        resolved = path.join(resolved, entry.name);
+      }
+
+      // The directory walk rejects symlinks at every segment. Realpath and
+      // the second allowlist check remain as defence if a directory entry
+      // changes during the walk. Read only the canonical path that passed.
       const actual = await fs.realpath(resolved);
-      if (!actual.startsWith(prefix)) return null;
-      const stat = await fs.stat(resolved);
-      if (!stat.isFile()) return null;
-      if (stat.size > MAX_FILE_BYTES) return null;
-      const content = await fs.readFile(resolved, 'utf8');
-      return {
-        content,
-        language: languageOf(relative),
-        bytes: stat.size,
-        lines: content.length === 0 ? 0 : content.split('\n').length,
-      };
+      if (!this.isInsideRoot(actual)) return null;
+      // A link can remain inside the checkout while crossing the source
+      // allowlist (for example src/alias.ts -> ../../.env).
+      const actualRelative = path.relative(this.root, actual).split(path.sep).join('/');
+      if (!isReadableProjectPath(actualRelative)) return null;
+
+      // A file descriptor binds the size check and read to the same inode.
+      // O_NOFOLLOW also refuses a final-component symlink swapped in after
+      // realpath. On platforms without that flag, the descriptor still avoids
+      // the stat-then-read race.
+      const handle = await fs.open(actual, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+      try {
+        const stat = await handle.stat();
+        if (!stat.isFile() || stat.size > MAX_FILE_BYTES) return null;
+        const content = await handle.readFile('utf8');
+        return {
+          content,
+          language: languageOf(requested),
+          bytes: stat.size,
+          lines: content.length === 0 ? 0 : content.split('\n').length,
+        };
+      } finally {
+        await handle.close();
+      }
     } catch {
       return null;
     }
+  }
+
+  /**
+   * Whether an absolute path is the root or lies inside it.
+   *
+   * Named and used for both the pre-symlink and post-symlink checks so the
+   * rule is stated once. The trailing separator matters: without it
+   * `D:\app-evil` would satisfy a `startsWith('D:\app')` test.
+   */
+  private isInsideRoot(candidate: string): boolean {
+    const prefix = this.root.endsWith(path.sep) ? this.root : `${this.root}${path.sep}`;
+    return candidate === this.root || candidate.startsWith(prefix);
   }
 
   async gitSnapshot(): Promise<GitSnapshot> {
