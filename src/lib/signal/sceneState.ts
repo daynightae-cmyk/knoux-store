@@ -22,14 +22,6 @@ export type SignalVisualMode =
   | 'resolved'
   | 'sparse';
 
-export type LookupOutcome =
-  | { kind: 'result' }
-  | { kind: 'partial'; failedStages: string[] }
-  | { kind: 'not_found' }
-  | { kind: 'opted_out' }
-  | { kind: 'rate_limited' }
-  | { kind: 'error'; message: string };
-
 export function visualModeForPhase(phase: SignalPhase): SignalVisualMode {
   switch (phase) {
     case 'ready':
@@ -70,23 +62,3 @@ export function phaseStatusCopy(phase: SignalPhase): string {
   }
 }
 
-const ALLOWED: Record<SignalPhase, readonly SignalPhase[]> = {
-  idle: ['input', 'ready', 'resetting'],
-  input: ['idle', 'validating', 'ready', 'submitting'],
-  validating: ['input', 'ready'],
-  ready: ['input', 'submitting', 'searching', 'resetting'],
-  submitting: ['searching', 'rate_limited', 'error'],
-  searching: ['resolving', 'partial', 'result', 'not_found', 'opted_out', 'rate_limited', 'error'],
-  resolving: ['partial', 'result', 'not_found', 'error'],
-  partial: ['resetting', 'input', 'ready'],
-  result: ['resetting', 'input', 'ready'],
-  not_found: ['resetting', 'input', 'ready'],
-  opted_out: ['resetting', 'input', 'ready'],
-  rate_limited: ['resetting', 'input', 'ready', 'submitting', 'searching'],
-  error: ['resetting', 'input', 'ready', 'submitting', 'searching'],
-  resetting: ['idle', 'input', 'ready'],
-};
-
-export function canTransition(from: SignalPhase, to: SignalPhase): boolean {
-  return ALLOWED[from]?.includes(to) ?? false;
-}
