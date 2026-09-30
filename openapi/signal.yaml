@@ -1,0 +1,177 @@
+openapi: 3.1.0
+info:
+  title: KNOuX Signal API
+  version: 1.1.0
+  description: Truthful public/server API contract for the current KNOuX Signal implementation.
+servers:
+  - url: https://knoux.store
+paths:
+  /api/signal/lookup:
+    post:
+      summary: Normalize and resolve supported evidence for a phone number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhoneQuery'
+      responses:
+        '200':
+          description: Lookup completed, including legitimate empty-evidence results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LookupResponse'
+        '413': { description: Request body too large }
+        '422': { description: Invalid phone number }
+        '429': { description: Rate limit exceeded }
+  /api/signal/sources:
+    get:
+      summary: List public approved/quarantined Signal source metadata
+      responses:
+        '200':
+          description: Source registry
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, sources]
+                properties:
+                  ok: { type: boolean, const: true }
+                  sources:
+                    type: array
+                    items: { $ref: '#/components/schemas/SourceStatus' }
+        '503': { description: Source registry unavailable }
+  /api/signal/report:
+    post:
+      summary: Submit an authenticated reputation report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/PhoneQuery'
+                - type: object
+                  required: [category]
+                  properties:
+                    category:
+                      type: string
+                      enum: [spam, scam, sales, harassment, safe_business, other]
+      responses:
+        '200': { description: Report recorded }
+        '401': { description: Authentication required }
+        '422': { description: Invalid phone/category }
+        '429': { description: Report rate limit exceeded }
+        '503': { description: Report storage unavailable }
+  /api/signal/claim:
+    post:
+      summary: Claim a verified phone number for the signed-in user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PhoneQuery' }
+      responses:
+        '200': { description: Claim recorded }
+        '401': { description: Authentication required }
+        '409': { description: Number not verified for user, already claimed, or storage unavailable }
+        '422': { description: Invalid phone number }
+  /api/signal/activity:
+    post:
+      summary: Retrieve owner-only aggregate activity for a claimed/verified number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PhoneQuery' }
+      responses:
+        '200': { description: Aggregate activity returned }
+        '401': { description: Authentication required }
+        '403': { description: Verified owner required }
+        '422': { description: Invalid phone number }
+        '503': { description: Activity storage unavailable }
+components:
+  schemas:
+    PhoneQuery:
+      type: object
+      required: [query]
+      additionalProperties: false
+      properties:
+        query:
+          type: string
+          maxLength: 80
+          examples: ['+971501234567']
+        country:
+          type: [string, 'null']
+          maxLength: 3
+          examples: [AE]
+    PhoneFacts:
+      type: object
+      required: [input, valid, e164, countryCode, nationalNumber, lineType]
+      properties:
+        input: { type: string }
+        valid: { type: boolean }
+        e164: { type: [string, 'null'] }
+        countryCode: { type: string }
+        nationalNumber: { type: [string, 'null'] }
+        lineType: { type: string, enum: [mobile, fixed, voip, unknown] }
+        reason: { type: string }
+    LookupData:
+      type: object
+      required: [number, profile, aliases, reputation, publicMentions, businessMatches]
+      properties:
+        number:
+          type: object
+          required: [e164, countryCode, nationalNumber, lineType]
+          properties:
+            e164: { type: string }
+            countryCode: { type: string }
+            nationalNumber: { type: string }
+            lineType: { type: string }
+        profile: { type: [object, 'null'], additionalProperties: true }
+        aliases: { type: array, items: { type: object, additionalProperties: true } }
+        reputation: { type: object, additionalProperties: { type: integer } }
+        publicMentions: { type: array, items: { type: object, additionalProperties: true } }
+        businessMatches: { type: array, items: { type: object, additionalProperties: true } }
+    LookupResponse:
+      type: object
+      required: [ok, query, data, storage, providers]
+      properties:
+        ok: { type: boolean }
+        query: { $ref: '#/components/schemas/PhoneFacts' }
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/LookupData'
+            - type: 'null'
+        storage:
+          type: object
+          required: [available]
+          properties:
+            available: { type: boolean }
+            reason: { type: string }
+        providers:
+          type: object
+          required: [community, licensedIdentity, publicSearch]
+          properties:
+            community: { type: string, enum: [live, unavailable] }
+            licensedIdentity: { type: string, enum: [not_configured] }
+            publicSearch: { type: string, enum: [live, error, not_configured] }
+    SourceStatus:
+      type: object
+      required: [key, name, kind, status, attributionRequired, enabled, priority, contains]
+      properties:
+        key: { type: string }
+        name: { type: string }
+        kind: { type: string }
+        status: { type: string, enum: [approved, quarantined] }
+        license: { type: [string, 'null'] }
+        publisher: { type: [string, 'null'] }
+        homepage: { type: [string, 'null'] }
+        licenseUrl: { type: [string, 'null'] }
+        ingestionMode: { type: string }
+        attributionRequired: { type: boolean }
+        enabled: { type: boolean }
+        priority: { type: integer }
+        accessRequirement: { type: [string, 'null'] }
+        contains: { type: object, additionalProperties: { type: boolean } }
