@@ -1,0 +1,275 @@
+CONTINUE THE EXISTING KNOuX STORE PROJECT.
+
+PROJECT ROOT:
+D:\Knoux Store
+
+MISSION:
+Implement a production-grade KNOuX / THE ORIGIN ROOM as the opening experience of /about.
+
+THIS IS EXECUTION, NOT PLANNING.
+DO NOT START FROM SCRATCH.
+DO NOT REDESIGN UNRELATED PAGES.
+DO NOT REPLACE THE ACCEPTED KNOuX IDENTITY.
+DO NOT COPY THE SOURCE ROOM LITERALLY.
+
+KNOWN HANDOFF MAIN SHA:
+28387cef020ec6947c13989b83e5206a80343cf7
+
+Refresh reality before editing:
+git status
+git branch --show-current
+git rev-parse HEAD
+git fetch origin --prune
+git rev-parse origin/main
+git worktree list --porcelain
+
+Do not reset/discard/overwrite work.
+If safe, create:
+feat/about-origin-room
+
+READ COMPLETELY:
+references/about/LIVING_IDENTITY_CLOSURE.md
+references/about/KNOuX_ABOUT_ORIGIN_ROOM_AUTHORITY.md
+references/about/quiet-room-specialist-reference.html
+references/about/quiet-room-scene-mechanics-reference.md
+src/app/about/page.tsx
+src/components/AboutLivingIdentity.tsx
+src/components/three/LivingParticleMark.tsx
+src/lib/knouxMark.ts
+src/app/globals.css
+package.json
+
+REFERENCE ROLE:
+Use the Quiet Room only for immersive entry, camera staging, layered lighting,
+raycast/focus behavior, contextual object panel and spatial exploration.
+
+DO NOT COPY:
+Omma branding, bedroom content, timer, prize/game/question flow, radio,
+guitar, source photos, source GLBs, source audio, gold/brown palette,
+Argentina clock, Vite config, external fonts, or hidden-cursor behavior.
+
+SOURCE TRUTH:
+The reference Begin button calls beginExploration() and removes the opening overlay.
+Its lamp is already ON before Begin.
+KNOuX must deliberately improve this:
+ENTER KNOuX must trigger a REAL lighting awakening from near darkness.
+
+TARGET SEQUENCE:
+
+DARKNESS
+→ SIGNAL
+→ ENTER KNOuX
+→ CANONICAL LIVING MARK ASSEMBLES
+→ PLATINUM/SILVER/VIOLET LIGHT EXPANDS FROM THE MARK
+→ GRAPHITE ARCHITECTURE EMERGES
+→ FIVE SEMANTIC OBJECTS BECOME DISCOVERABLE
+→ SELECT / FOCUS
+→ CONTEXT PANEL
+→ RETURN
+
+PRE-ENTRY:
+Almost black.
+Faint architecture only.
+Semantic DOM copy:
+KNOuX
+THE ORIGIN ROOM
+Built, not claimed.
+[ ENTER KNOuX ]
+
+ENTER must be a real accessible button.
+No autoplay audio.
+No user trap.
+Reduced motion must reveal a stable final state quickly.
+
+AWAKENING:
+On Enter, fade the veil, assemble the LivingParticleMark, ramp actual scene lights
+from near-zero, progressively reveal architecture, then enable object interaction.
+Normal-motion target: roughly 1.4–2.2 seconds.
+No white flash, huge bloom, neon explosion or generic SaaS gradient.
+
+PALETTE:
+deep black
+graphite
+off-white
+silver
+platinum
+restrained muted violet
+
+NO gold/orange/red/rainbow/cyberpunk.
+
+The canonical LivingParticleMark is the visual power source.
+Do not invent another logo/orb.
+Canonical geometry stays in src/lib/knouxMark.ts.
+
+PREFER ONE WEBGL CONTEXT.
+If needed, refactor the particle field into a reusable scene-level component
+while preserving the existing LivingParticleMark public behavior, quality tiers,
+fallback SVG, deterministic geometry, reduced-motion and current consumers.
+Do not leave two heavyweight fullscreen WebGL contexts just for convenience.
+
+ROOM ARCHITECTURE:
+Do NOT build a bedroom reskin.
+Build a native KNOuX architectural engineering chamber from lightweight primitives:
+black/graphite studio, workbench, archive, schematics plane, monolith, negative space.
+No external 3D downloads unless absolutely necessary.
+Existing Three/R3F stack is already available.
+
+FIVE SEMANTIC ANCHORS MAXIMUM:
+
+01 LIVING MARK — WHO WE ARE
+02 WORKBENCH / TERMINAL — WHAT WE BUILD
+03 ARCHIVE / RECORDS — VERIFIED WORK
+04 BLUEPRINT / SCHEMATICS — HOW WE BUILD
+05 FOUNDER SIGNATURE / MONOLITH — FOUNDER
+
+FOUNDER:
+Sadek Elgazar
+Founder & Software Developer — KNOuX
+
+CONTENT MUST BE TRUE.
+Derive divisions/capabilities/work from current registries.
+Do not invent clients, ROI, team size, years, downloads, revenue, awards,
+accuracy percentages, testimonials or outcomes.
+
+FOCUS INTERACTION:
+idle camera
+→ restrained hover/focus affordance
+→ select object
+→ camera glides to target
+→ contextual KNOuX panel
+→ Back/Escape returns home
+
+No free-fly navigation.
+No rollercoaster camera.
+No motion-sickness behavior.
+
+Provide keyboard and touch equivalents.
+Essential information must remain semantic DOM, never Canvas-only.
+
+OBJECT PANEL:
+matte near-black / graphite / thin silver border / off-white hierarchy /
+restrained violet signal accent / compact mono metadata.
+Show index, title, concise truthful statement, optional real route, and Back.
+No glassmorphism soup.
+
+PAGE STRUCTURE:
+Origin Room is the OPENING EXPERIENCE, not the whole About page.
+After it, preserve/refine the existing semantic About content:
+Point of View, divisions registry, truthful countable state,
+Build/Contact continuation and Engineering next link.
+Do not permanently lock body scrolling.
+Avoid duplicate About/KNOuX headings immediately below the room.
+
+PERFORMANCE:
+adaptive DPR
+low geometry complexity
+no unnecessary post-processing
+no runtime CDN
+no external fonts
+no unnecessary GLBs
+one coordinated frame loop
+pause/reduce offscreen and document.hidden
+dispose resources/listeners
+no React setState per pointermove
+use existing quality system
+preserve LivingParticleMark budgets
+no Math.random() for branded spatial layout
+
+ACCESSIBILITY:
+keyboard reachability
+visible focus
+real buttons/links
+Escape/back
+no hover-only essential actions
+reduced motion
+screen-reader semantic anchors
+Canvas decorative details aria-hidden
+WebGL fallback
+touch-safe targets
+contrast
+
+WEBGL FALLBACK:
+show a dignified static canonical KNOuX identity plus the full semantic About page.
+
+RESPONSIVE QA:
+1600x1000
+1440x900
+1366x768
+1024x768
+768x1024
+430x932
+390x844
+375x812
+
+Mobile is a re-composition, not desktop shrunk.
+Reduce scene complexity/camera travel/particles and expose touch-friendly anchor controls.
+No overflow, clipped Canvas, hidden controls or offscreen panel.
+
+EXPECTED CHANGE AREA MAY INCLUDE:
+src/app/about/page.tsx
+src/components/AboutOriginRoom.tsx
+src/components/about/*
+src/components/three/*
+src/app/globals.css
+targeted tests
+references/about/* closure note
+
+DO NOT modify unrelated backends, auth, contact, Signal or global branding.
+Do not add a dependency unless the current Three/R3F stack is genuinely insufficient.
+
+VISUAL QA LOOP:
+RENDER → INSPECT → CORRECT.
+Reject first-pass output if it reads as:
+video game room, bedroom reskin, generic 3D portfolio, purple neon SaaS,
+museum, tech demo, or static logo in a box.
+
+TEST GATES:
+npm run lint
+npm run typecheck
+npm test
+npm run build
+git diff --check
+
+Capture real exit codes.
+Do not call PASS for commands not run.
+Separate introduced failures from baseline/external failures and fix all introduced failures.
+
+DELIVERY:
+Commit only focused About changes.
+Push feat/about-origin-room.
+Open PR to main.
+Inspect actual CI.
+Merge only when green and mergeable under repository policy.
+Then verify exact final main SHA and production /about.
+
+FINAL REPORT:
+starting SHA
+feature SHA
+PR
+CI
+merge SHA
+final main SHA
+production state
+desktop/mobile QA
+accessibility
+performance
+tests
+
+Classify each area only as:
+COMPLETE — verified
+PARTIAL — verification missing
+BLOCKED — real external blocker
+UNCHANGED — intentionally preserved
+
+START NOW.
+DO NOT RETURN A PLAN.
+DO NOT FAKE CLOSURE.
+BUILD THE REAL ORIGIN ROOM.
+
+ENTER KNOuX must cause a real awakening:
+the canonical Living Mark wakes,
+its light reveals the architecture,
+and the visitor can inspect the institution.
+
+Same KNOuX DNA.
+Different function.
