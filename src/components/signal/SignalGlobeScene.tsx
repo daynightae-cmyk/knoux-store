@@ -5,7 +5,17 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { qualityEvent, type QualityTier } from '@/components/QualityControl';
-import { seededUnit } from '@/lib/signal/seeded';
+import {
+  ATLAS_GRID,
+  ATLAS_ROWS,
+  buildIconAtlas,
+} from '@/lib/signal/iconAtlas';
+import {
+  fibonacciSphere,
+  hashString,
+  mulberry32,
+  seededUnit,
+} from '@/lib/signal/seeded';
 import type { SignalVisualMode } from '@/lib/signal/sceneState';
 import styles from '@/app/signal/signal.module.css';
 
@@ -15,182 +25,223 @@ const BUDGETS = {
   low: { inner: 180, outer: 72 },
   reduced: { inner: 140, outer: 48 },
 } as const;
-
-const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 const INNER_RADIUS = 2;
 const OUTER_RADIUS = 2.35;
+const ATLAS_CELLS = ATLAS_GRID * ATLAS_ROWS;
 
-type GlobeNode = {
-  sprite: THREE.Sprite;
-  material: THREE.SpriteMaterial;
-  base: THREE.Vector3;
-  radius: number;
-  phase: number;
-  speed: number;
-  amount: number;
-  scale: number;
-  outer: boolean;
-};
+const VERTEX_SHADER = /* glsl */ `
+attribute vec2 aCell;
+attribute float aScale;
+attribute float aPhase;
+attribute float aAlpha;
+attribute float aActive;
 
-function createGlyphTexture(kind: number) {
-  const size = 64;
-  const data = new Uint8Array(size * size * 4);
-  for (let py = 0; py < size; py += 1) {
-    for (let px = 0; px < size; px += 1) {
-      const x = (px + 0.5) / size - 0.5;
-      const y = (py + 0.5) / size - 0.5;
-      const ax = Math.abs(x);
-      const ay = Math.abs(y);
-      const radial = Math.sqrt(x * x + y * y);
-      let distance = 1;
-      if (kind === 0) distance = Math.abs(radial - 0.28);
-      if (kind === 1) distance = Math.min(ax, ay) + Math.max(0, Math.max(ax, ay) - 0.31);
-      if (kind === 2) distance = Math.abs(ax + ay - 0.34);
-      if (kind === 3) distance = Math.abs(Math.max(ax, ay) - 0.29);
-      const edge = kind === 1 ? 0.055 : 0.045;
-      const alpha = THREE.MathUtils.clamp(1 - distance / edge, 0, 1);
-      const offset = (py * size + px) * 4;
-      data[offset] = 244;
-      data[offset + 1] = 242;
-      data[offset + 2] = 248;
-      data[offset + 3] = Math.round(alpha * 235);
-    }
-  }
-  const texture = new THREE.DataTexture(data, size, size, THREE.RGBAFormat);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.magFilter = THREE.LinearFilter;
-  texture.minFilter = THREE.LinearFilter;
-  texture.needsUpdate = true;
-  return texture;
+uniform float uTime;
+uniform float uContract;
+uniform float uExpand;
+uniform float uPulse;
+uniform float uPulseKey;
+uniform float uReduced;
+uniform float uDpr;
+
+varying vec2 vCell;
+varying float vAlpha;
+varying float vActive;
+
+void main() {
+  vec3 base = position;
+  float breath = sin(uTime * 0.34 + aPhase) * 0.018 * (1.0 - uReduced);
+  vec3 fieldPos = base * (1.0 + breath);
+
+  float bucket = floor(fract(aPhase / 6.28318530718) * 13.0);
+  float reacts = 1.0 - step(0.5, abs(bucket - uPulseKey));
+  fieldPos += normalize(base + 0.0001)
+    * uPulse
+    * reacts
+    * 0.052
+    * (1.0 - uReduced);
+
+  fieldPos *= (1.0 - uContract * 0.08);
+  fieldPos *= (1.0 + uExpand * 0.028);
+
+  vec4 mv = modelViewMatrix * vec4(fieldPos, 1.0);
+  float depth = smoothstep(9.0, 2.4, -mv.z);
+  float sizeBoost = 1.0 + aActive * 0.28 + reacts * uPulse * 0.18;
+
+  gl_PointSize = aScale * 0.32 * sizeBoost * uDpr
+    * (300.0 / max(0.1, -mv.z));
+  gl_Position = projectionMatrix * mv;
+
+  vCell = aCell;
+  vAlpha = aAlpha * (0.42 + 0.58 * depth);
+  vActive = aActive;
 }
+`;
 
-function makeLayer(
-  count: number,
-  radius: number,
-  outer: boolean,
-  textures: THREE.Texture[],
-  offset = 0,
-) {
-  const nodes: GlobeNode[] = [];
-  for (let index = 0; index < count; index += 1) {
-    const y = 1 - (index / Math.max(1, count - 1)) * 2;
-    const radiusAtY = Math.sqrt(Math.max(0, 1 - y * y));
-    const theta = GOLDEN_ANGLE * index + offset;
-    const x = Math.cos(theta) * radiusAtY;
-    const z = Math.sin(theta) * radiusAtY;
-    const material = new THREE.SpriteMaterial({
-      map: textures[(index + (outer ? 2 : 0)) % textures.length],
-      transparent: true,
-      opacity: outer ? 0.44 : 0.82,
-      depthWrite: false,
-      color: new THREE.Color(0xf1efeb),
-    });
-    const sprite = new THREE.Sprite(material);
-    const scale = outer ? 0.11 + seededUnit(index, 13) * 0.09 : 0.15 + seededUnit(index, 7) * 0.11;
-    sprite.scale.setScalar(scale);
-    sprite.position.set(x * radius, y * radius, z * radius);
-    nodes.push({
-      sprite, material, base: new THREE.Vector3(x, y, z), radius,
-      phase: seededUnit(index, outer ? 43 : 29) * Math.PI * 2,
-      speed: (outer ? 0.18 : 0.26) + seededUnit(index, 61) * 0.36,
-      amount: (outer ? 0.008 : 0.012) + seededUnit(index, 79) * 0.025,
-      scale, outer,
-    });
-  }
-  return nodes;
+const FRAGMENT_SHADER = /* glsl */ `
+uniform sampler2D uAtlas;
+uniform vec2 uGrid;
+
+varying vec2 vCell;
+varying float vAlpha;
+varying float vActive;
+
+void main() {
+  vec2 uv = gl_PointCoord;
+  uv.y = 1.0 - uv.y;
+  vec2 cellUv = (vCell + uv) / uGrid;
+  float alpha = texture2D(uAtlas, cellUv).a * vAlpha;
+  if (alpha < 0.015) discard;
+
+  vec3 base = vec3(0.92, 0.91, 0.94);
+  vec3 activeColor = vec3(0.76, 0.69, 0.88);
+  vec3 color = mix(base, activeColor, vActive);
+
+  gl_FragColor = vec4(color, alpha);
 }
+`;
 
-function SignalField({
-  inner,
-  outer,
-  reduced,
-  evidenceCount,
-  mode,
-  inputSignal,
-}: {
+type FieldProps = {
   inner: number;
   outer: number;
   reduced: boolean;
   evidenceCount: number;
   mode: SignalVisualMode;
   inputSignal: number;
-}) {
-  const field = useMemo(() => {
-    const textures = [0, 1, 2, 3].map(createGlyphTexture);
-    const nodes = [
-      ...makeLayer(inner, INNER_RADIUS, false, textures),
-      ...makeLayer(outer, OUTER_RADIUS, true, textures, 0.5),
-    ];
-    return { nodes, textures };
-  }, [inner, outer]);
+};
 
-  const groupRef = useRef<THREE.Group>(null);
-  const nodesRef = useRef(field.nodes);
-  const typingPulse = useRef(0);
+function buildGeometry(inner: number, outer: number) {
+  const total = inner + outer;
+  const geometry = new THREE.BufferGeometry();
+  const positions = new Float32Array(total * 3);
+  const cells = new Float32Array(total * 2);
+  const scales = new Float32Array(total);
+  const phases = new Float32Array(total);
+  const alphas = new Float32Array(total);
+  const active = new Float32Array(total);
+
+  const innerPositions = fibonacciSphere(inner, INNER_RADIUS, hashString('signal-inner'));
+  const outerPositions = fibonacciSphere(outer, OUTER_RADIUS, hashString('signal-outer'));
+  positions.set(innerPositions, 0);
+  positions.set(outerPositions, inner * 3);
+  const random = mulberry32(hashString('knoux-signal-atlas'));
+
+  for (let index = 0; index < total; index += 1) {
+    const isOuter = index >= inner;
+    const cell = Math.floor(random() * ATLAS_CELLS);
+    cells[index * 2] = cell % ATLAS_GRID;
+    cells[index * 2 + 1] = Math.floor(cell / ATLAS_GRID);
+    scales[index] = isOuter
+      ? 0.62 + random() * 0.34
+      : 0.86 + random() * 0.46;
+    phases[index] = random() * Math.PI * 2;
+    alphas[index] = isOuter
+      ? 0.32 + random() * 0.26
+      : 0.62 + random() * 0.32;
+    active[index] = 0;
+  }
+
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute('aCell', new THREE.BufferAttribute(cells, 2));
+  geometry.setAttribute('aScale', new THREE.BufferAttribute(scales, 1));
+  geometry.setAttribute('aPhase', new THREE.BufferAttribute(phases, 1));
+  geometry.setAttribute('aAlpha', new THREE.BufferAttribute(alphas, 1));
+  geometry.setAttribute('aActive', new THREE.BufferAttribute(active, 1));
+
+  return geometry;
+}
+
+function SignalPointField({
+  inner,
+  outer,
+  reduced,
+  evidenceCount,
+  mode,
+  inputSignal,
+}: FieldProps) {
+  const group = useRef<THREE.Group>(null);
+  const materialRef = useRef<THREE.ShaderMaterial>(null);
+  const geometry = useMemo(() => buildGeometry(inner, outer), [inner, outer]);
+  const atlas = useMemo(() => buildIconAtlas(), []);
+  const uniforms = useMemo(() => ({
+    uAtlas: { value: atlas.texture },
+    uGrid: { value: new THREE.Vector2(ATLAS_GRID, ATLAS_ROWS) },
+    uTime: { value: 0 },
+    uContract: { value: 0 },
+    uExpand: { value: 0 },
+    uPulse: { value: 0 },
+    uPulseKey: { value: 0 },
+    uReduced: { value: reduced ? 1 : 0 },
+    uDpr: { value: Math.min(window.devicePixelRatio || 1, 1.5) },
+  }), [atlas.texture, reduced]);
+
   useEffect(() => {
-    nodesRef.current = field.nodes;
-  }, [field.nodes]);
+    const active = geometry.getAttribute('aActive') as THREE.BufferAttribute;
+    const total = inner + outer;
+    const budget = Math.min(
+      Math.max(0, evidenceCount * 4),
+      Math.floor(total * 0.18),
+    );
+    for (let index = 0; index < total; index += 1) {
+      const enabled = budget > 0
+        && seededUnit(index, 101) < budget / total;
+      active.setX(index, enabled ? 1 : 0);
+    }
+    active.needsUpdate = true;
+  }, [evidenceCount, geometry, inner, outer]);
+
   useEffect(() => {
-    if (inputSignal > 0) typingPulse.current = 1;
+    if (inputSignal <= 0 || !materialRef.current) return;
+    materialRef.current.uniforms.uPulse.value = 1;
+    materialRef.current.uniforms.uPulseKey.value = inputSignal % 13;
   }, [inputSignal]);
 
-  useEffect(() => {
-    const total = field.nodes.length;
-    const activeBudget = Math.min(Math.max(0, evidenceCount * 4), Math.floor(total * 0.18));
-    field.nodes.forEach((node, index) => {
-      const active = activeBudget > 0 && seededUnit(index, 101) < activeBudget / total;
-      node.material.color.set(active ? 0xcbbbe8 : 0xf1efeb);
-      node.material.opacity = active ? 1 : node.outer ? 0.42 : 0.78;
-      node.sprite.scale.setScalar(node.scale * (active ? 1.34 : 1));
-      node.sprite.userData.active = active;
-    });
-  }, [evidenceCount, field]);
-
   useEffect(() => () => {
-    field.nodes.forEach((node) => node.material.dispose());
-    field.textures.forEach((texture) => texture.dispose());
-  }, [field]);
+    geometry.dispose();
+    atlas.dispose();
+  }, [atlas, geometry]);
 
-  useFrame((state) => {
-    if (!groupRef.current) return;
-    const elapsed = state.clock.elapsedTime;
-    const targetScale = mode === 'searching' ? 0.92 : mode === 'resolved' ? 1.03 : mode === 'sparse' ? 0.96 : 1;
-    const scale = THREE.MathUtils.lerp(groupRef.current.scale.x, targetScale, reduced ? 0.16 : 0.06);
-    groupRef.current.scale.setScalar(scale);
-    if (reduced) return;
+  useFrame((state, delta) => {
+    const material = materialRef.current;
+    if (!material) return;
+    const frameUniforms = material.uniforms;
+    frameUniforms.uTime.value = state.clock.elapsedTime;
 
-    const rotationSpeed = mode === 'searching' ? 0.13 : mode === 'resolved' ? 0.035 : 0.08;
-    groupRef.current.rotation.y = elapsed * rotationSpeed;
-    typingPulse.current *= 0.9;
-    nodesRef.current.forEach((node, index) => {
-      const floatFactor = mode === 'searching' ? 0.45 : 1;
-      const float = Math.sin(elapsed * node.speed + node.phase) * node.amount * floatFactor;
-      const reacts = inputSignal > 0 && index % 13 === inputSignal % 13;
-      const attraction = reacts ? typingPulse.current * 0.055 : 0;
-      const currentRadius = node.radius + float - attraction;
-      node.sprite.position.set(
-        node.base.x * currentRadius,
-        node.base.y * currentRadius,
-        node.base.z * currentRadius,
-      );
-      if (node.sprite.userData.active) {
-        const pulse = 1 + Math.sin(elapsed * 1.8 + node.phase) * 0.07;
-        node.sprite.scale.setScalar(node.scale * 1.34 * pulse);
-      }
-    });
+    const searching = mode === 'searching' ? 1 : 0;
+    const expanded = mode === 'resolved' ? 1 : 0;
+    const sparse = mode === 'sparse' ? 0.35 : 0;
+    const easing = 1 - Math.pow(0.001, delta);
+
+    frameUniforms.uContract.value += (
+      Math.max(searching, sparse) - frameUniforms.uContract.value
+    ) * easing * 0.72;
+    frameUniforms.uExpand.value += (
+      expanded - frameUniforms.uExpand.value
+    ) * easing * 0.55;
+    frameUniforms.uPulse.value *= Math.pow(0.018, delta);
+
+    if (!group.current || reduced) return;
+    const speed = mode === 'searching'
+      ? 0.13
+      : mode === 'resolved'
+        ? 0.035
+        : 0.08;
+    group.current.rotation.y += delta * speed;
   });
 
   return (
-    <>
-      <group ref={groupRef}>
-        {field.nodes.map((node, index) => (
-          <primitive key={index} object={node.sprite} />
-        ))}
-      </group>
-      <ambientLight intensity={0.72} />
-      <directionalLight position={[15, 10, 20]} intensity={1.35} />
-      <pointLight position={[0, 0, 0]} intensity={0.36} distance={6} color="#9277c7" />
-    </>
+    <group ref={group}>
+      <points geometry={geometry}>
+        <shaderMaterial
+          ref={materialRef}
+          vertexShader={VERTEX_SHADER}
+          fragmentShader={FRAGMENT_SHADER}
+          transparent
+          depthWrite={false}
+          uniforms={uniforms}
+        />
+      </points>
+    </group>
   );
 }
 
@@ -218,17 +269,23 @@ export function SignalGlobeScene({
         setQuality(saved as QualityTier);
       }
     };
-    const onQuality = (event: Event) => setQuality((event as CustomEvent<QualityTier>).detail);
+    const onQuality = (event: Event) => {
+      setQuality((event as CustomEvent<QualityTier>).detail);
+    };
     const onVisibility = () => setVisible(!document.hidden);
     const observer = new IntersectionObserver(
-      (entries) => setVisible((entries[0]?.isIntersecting ?? false) && !document.hidden),
+      (entries) => {
+        setVisible((entries[0]?.isIntersecting ?? false) && !document.hidden);
+      },
       { threshold: 0.01 },
     );
 
     const probeTimer = window.setTimeout(() => {
       try {
         const probe = document.createElement('canvas');
-        setSupported(Boolean(probe.getContext('webgl2') ?? probe.getContext('webgl')));
+        setSupported(Boolean(
+          probe.getContext('webgl2') ?? probe.getContext('webgl'),
+        ));
       } catch {
         setSupported(false);
       }
@@ -239,6 +296,7 @@ export function SignalGlobeScene({
     motion.addEventListener('change', syncMotion);
     window.addEventListener(qualityEvent, onQuality);
     document.addEventListener('visibilitychange', onVisibility);
+
     return () => {
       window.clearTimeout(probeTimer);
       motion.removeEventListener('change', syncMotion);
@@ -248,9 +306,16 @@ export function SignalGlobeScene({
     };
   }, []);
 
-  const cores = typeof navigator !== 'undefined' ? navigator.hardwareConcurrency || 8 : 8;
-  const tier: Exclude<QualityTier, 'auto'> =
-    quality === 'auto' ? (cores <= 4 ? 'low' : cores >= 12 ? 'high' : 'balanced') : quality;
+  const cores = typeof navigator !== 'undefined'
+    ? navigator.hardwareConcurrency || 8
+    : 8;
+  const tier: Exclude<QualityTier, 'auto'> = quality === 'auto'
+    ? cores <= 4
+      ? 'low'
+      : cores >= 12
+        ? 'high'
+        : 'balanced'
+    : quality;
   const budget = reduced ? BUDGETS.reduced : BUDGETS[tier];
 
   return (
@@ -258,16 +323,23 @@ export function SignalGlobeScene({
       {supported === false ? <div className={styles.globeFallback} /> : null}
       {supported ? (
         <Canvas
-          camera={{ position: [0, 0, 5.5], fov: 75, near: 0.1, far: 1000 }}
+          camera={{
+            position: [0, 0, 5.5],
+            fov: 75,
+            near: 0.1,
+            far: 1000,
+          }}
           dpr={tier === 'high' ? [1, 1.5] : [1, 1.15]}
           frameloop={visible ? (reduced ? 'demand' : 'always') : 'never'}
           gl={{
             antialias: tier !== 'low',
             alpha: true,
-            powerPreference: tier === 'low' ? 'low-power' : 'high-performance',
+            powerPreference: tier === 'low'
+              ? 'low-power'
+              : 'high-performance',
           }}
         >
-          <SignalField
+          <SignalPointField
             inner={budget.inner}
             outer={budget.outer}
             reduced={reduced}
