@@ -15,7 +15,8 @@ The presentation has been brought to production closure as the **KNOuX System Fi
 2. Built a deterministic spatial SVG topology navigator around the canonical KNOuX core.
 3. Coordinates derived strictly from the seven audited `softwareProducts` (`topology: { orbit, angleDeg }`).
 4. Quadratic Bézier signal trajectories connect Core to each node; active trajectory illuminates in muted lavender (`#c5a2e4`), secondary trajectories illuminate related systems via `relatedIds`.
-5. Accessible keyboard navigation: every SVG node and editorial record is focusable and participate in Tab order.
+5. Accessible architecture: The spatial SVG is truly decorative and pointer-interactive (`aria-hidden="true"`, `focusable="false"` with no interactive descendant controls), leaving screen-reader and keyboard Tab navigation cleanly to the synchronized semantic DOM records and dossier links.
 6. The compact System Dossier resolves dynamically on focus/hover/scroll and links to `/products/[slug]`.
 7. Zero additional WebGL contexts: preserves the page's graphics budget for the protected Home Particle Hero.
-8. Verified at 1600×1000, 1440×900, 1366×768, 1024×768, 768×1024, 430×932, 390×844, 375×812: 0px overflow, 0 errors, full mobile and reduced-motion resilience.
+8. Truthful status presentation: The System Dossier renders registry-derived status directly (`{product.status.replace(/-/g, ' ').toUpperCase()}`), honestly reporting `ACTIVE` or `RELEASE CANDIDATE` without promotion.
+9. Verified at 1600×1000, 1440×900, 1366×768, 1024×768, 768×1024, 430×932, 390×844, 375×812: 0px overflow, 0 errors, full mobile and reduced-motion resilience.

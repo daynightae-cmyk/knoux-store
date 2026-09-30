@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { softwareProducts } from '@/data/software';
 import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
@@ -92,6 +93,7 @@ function SystemFieldSVG({
   onEngage: (i: number) => void;
   onDisengage: () => void;
 }) {
+  const router = useRouter();
   const hasActive = active >= 0;
 
   return (
@@ -190,54 +192,54 @@ function SystemFieldSVG({
         const isReceded = hasActive && !isActive && !isRelated;
 
         return (
-          <a
+          <g
             key={product.id}
-            href={`/products/${product.slug}`}
-            className="sys-field__node-link"
-            aria-label={`${product.index} ${product.name} — ${product.discipline} — ${product.status}`}
+            transform={`translate(${x},${y})`}
+            className={[
+              'sys-field__node',
+              isActive ? 'sys-field__node--active' : '',
+              isRelated ? 'sys-field__node--related' : '',
+              isReceded ? 'sys-field__node--receded' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            onMouseEnter={() => onEngage(i)}
+            onMouseLeave={onDisengage}
+            onClick={() => {
+              if (active === i) {
+                router.push(`/products/${product.slug}`);
+              } else {
+                onEngage(i);
+              }
+            }}
+            style={{ cursor: 'pointer' }}
           >
-            <g
-              transform={`translate(${x},${y})`}
-              className={[
-                'sys-field__node',
-                isActive ? 'sys-field__node--active' : '',
-                isRelated ? 'sys-field__node--related' : '',
-                isReceded ? 'sys-field__node--receded' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-              onMouseEnter={() => onEngage(i)}
-              onMouseLeave={onDisengage}
-              onFocus={() => onEngage(i)}
-              onBlur={onDisengage}
+            {/* Hit area (invisible, larger than visible node) */}
+            <circle r={32} fill="transparent" />
+
+            {/* Node ring */}
+            <circle r={9} className="sys-field__node-ring" />
+            {/* Active pulse ring */}
+            {isActive && (
+              <circle r={15} className="sys-field__node-pulse" />
+            )}
+
+            {/* Label — positioned above/below based on angle */}
+            <text
+              dy={POSITIONS[i].y < CY - 20 ? -20 : POSITIONS[i].y > CY + 20 ? 22 : 14}
+              textAnchor="middle"
+              className="sys-field__node-label"
             >
-              {/* Hit area (invisible, larger than visible node) */}
-              <circle r={32} fill="transparent" />
-
-              {/* Node ring */}
-              <circle r={9} className="sys-field__node-ring" />
-              {/* Active pulse ring */}
-              {isActive && (
-                <circle r={15} className="sys-field__node-pulse" />
-              )}
-
-              {/* Label — positioned above/below based on angle */}
-              <text
-                dy={POSITIONS[i].y < CY - 20 ? -20 : POSITIONS[i].y > CY + 20 ? 22 : 14}
-                textAnchor="middle"
-                className="sys-field__node-label"
-              >
-                {product.shortName}
-              </text>
-              <text
-                dy={POSITIONS[i].y < CY - 20 ? -30 : POSITIONS[i].y > CY + 20 ? 33 : -8}
-                textAnchor="middle"
-                className="sys-field__node-code"
-              >
-                {product.code}
-              </text>
-            </g>
-          </a>
+              {product.shortName}
+            </text>
+            <text
+              dy={POSITIONS[i].y < CY - 20 ? -30 : POSITIONS[i].y > CY + 20 ? 33 : -8}
+              textAnchor="middle"
+              className="sys-field__node-code"
+            >
+              {product.code}
+            </text>
+          </g>
         );
       })}
     </svg>
@@ -253,7 +255,9 @@ function SystemDossier({ active }: { active: number }) {
   return (
     <div className={`sys-field__dossier ${hasActive ? 'sys-field__dossier--visible' : ''}`} aria-live="polite" aria-atomic="true">
       <div className="sys-field__dossier-top">
-        <span className="sys-field__dossier-index">{product.index} / VERIFIED SYSTEM</span>
+        <span className="sys-field__dossier-index">
+          {product.index} / {product.status.replace(/-/g, ' ').toUpperCase()}
+        </span>
         <span className="sys-field__dossier-code">{product.code}</span>
       </div>
       <h3 className="sys-field__dossier-name">{product.name}</h3>
