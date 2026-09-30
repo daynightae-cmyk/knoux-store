@@ -1,0 +1,1132 @@
+CONTINUE THE EXISTING KNOuX STORE PROJECT.
+
+EXECUTION WORKTREE:
+D:\Knoux Store-worktrees\product-cinematic-v2
+
+AUTHORITATIVE FEATURE BRANCH:
+feat/product-cinematic-v2
+
+REFERENCE BASELINE COMMIT:
+07f29ad46aa5fd923c42d8f215059914456b65f7
+
+MISSION:
+Upgrade the existing dynamic individual product page system at:
+
+/products/[slug]
+
+into a production-grade cinematic single-product experience inspired by the supplied VOID reference and motion study.
+
+THIS PAGE IS FOR ONE SELECTED PRODUCT ONLY.
+
+A click from the Home KNOuX System Field must navigate to the selected product's route:
+
+/products/<slug>
+
+Examples:
+
+KForge
+-> /products/kforge
+
+KNOuX REC
+-> /products/knoux-rec
+
+KNOuX ONE
+-> /products/knoux-one
+
+The SAME dynamic page engine is reused for every product.
+Do NOT create one hard-coded page per product.
+
+THIS IS EXECUTION, NOT PLANNING.
+DO NOT START FROM SCRATCH.
+DO NOT TOUCH THE ACTIVE ABOUT WORKTREE.
+DO NOT TOUCH THE HOME SYSTEM FIELD WORKTREE.
+DO NOT REDESIGN THE /products INDEX.
+DO NOT INVENT PRODUCT FACTS.
+DO NOT COPY VOID LITERALLY.
+NO FAKE CLOSURE.
+
+==================================================
+0 — VERIFY REALITY
+==================================================
+
+cd "D:\Knoux Store-worktrees\product-cinematic-v2"
+
+Run:
+
+git status
+git branch --show-current
+git rev-parse HEAD
+git fetch origin --prune
+git rev-parse origin/main
+git log -8 --oneline --decorate
+git worktree list --porcelain
+
+Expected branch:
+
+feat/product-cinematic-v2
+
+Reference baseline must be present in history:
+
+07f29ad46aa5fd923c42d8f215059914456b65f7
+
+If path or branch differs:
+STOP before editing.
+
+DO NOT reset or modify:
+
+D:\Knoux Store
+
+DO NOT modify:
+
+D:\Knoux Store-worktrees\home-system-field
+
+Those worktrees belong to separate active features.
+
+==================================================
+1 — READ AUTHORITIES COMPLETELY
+==================================================
+
+Read:
+
+references/products/KNOuX-product-page-cinematic-reference.md
+references/products/KNOuX-product-cinematic-profiles.reference.ts
+references/products/KNOuX-product-system-anatomy-constellation-reference.md
+references/products/VOID_SINGLE_PRODUCT_REFERENCE.md
+references/products/VOID_SINGLE_PRODUCT_VIDEO_MOTION_REFERENCE.md
+references/products/KNOuX_PRODUCT_DETAIL_V2_AUTHORITY.md
+
+Then inspect current runtime completely:
+
+src/app/products/[slug]/page.tsx
+src/components/products/ProductExperience.tsx
+src/components/products/ProductArrival.tsx
+src/components/products/ProductHero.tsx
+src/components/products/ProductScene.tsx
+src/components/products/ProductBlocks.tsx
+src/components/products/RelatedSystems.tsx
+src/components/products/ProductPager.tsx
+src/components/products/anatomy/*
+src/data/product-visuals.ts
+src/data/software.ts
+src/lib/knouxMark.ts
+src/components/QualityControl.tsx
+src/app/globals.css
+package.json
+
+Also inspect browser output for at least:
+- /products/knoux-one
+- /products/kforge
+- /products/knoux-rec
+
+Do not trust historical prompts when current code proves otherwise.
+
+==================================================
+2 — PRESERVE THE CORRECT ARCHITECTURE
+==================================================
+
+The existing architecture is already fundamentally correct:
+
+dynamic route:
+src/app/products/[slug]/page.tsx
+
+single reusable experience:
+ProductExperience
+
+product truth:
+softwareProducts / software.ts
+
+visual variation:
+productVisualProfiles / product-visuals.ts
+
+DO NOT replace this with:
+
+KForgePage.tsx
+RecPage.tsx
+RepairPage.tsx
+etc.
+
+NO duplicated pages.
+
+The route receives ONE product.
+The cinematic narrative belongs to THAT product only.
+
+Related products may appear near the end as navigation,
+but they must not compete with the selected product's story.
+
+==================================================
+3 — SOURCE REFERENCE ROLE
+==================================================
+
+The VOID source and video are specialized choreography references.
+
+TAKE:
+
+- full-screen cinematic product arrival
+- one persistent visual world
+- scroll-driven scene transformation
+- long sticky narrative chapters
+- object -> particles -> traversal -> surface progression
+- sparse editorial typography
+- cinematic negative space
+- section indicator
+- subtle grain if it fits KNOuX
+- controlled pointer parallax
+- restrained local magnetic response
+- smooth continuity between chapters
+
+DO NOT COPY:
+
+- VOID branding
+- VOID text
+- amber
+- bright blue
+- Google Fonts
+- CDN scripts
+- source cursor hiding
+- fake loader percentage
+- Math.random loading progress
+- generic icosahedron identity
+- decorative crystals with no product meaning
+- generic tunnel identical across all products
+- giant artificial scroll spectacle
+- fake technical language
+
+==================================================
+4 — THE PRODUCT PAGE MUST READ AS ONE PRODUCT
+==================================================
+
+At any time the primary identity is the selected product.
+
+Example KForge page:
+
+KFORGE is the hero.
+KFORGE geometry drives the scene.
+KFORGE capabilities drive the narrative.
+KFORGE evidence drives the evidence chapter.
+
+Do NOT show all software systems in the main body.
+
+Do NOT recreate the Home System Field on product routes.
+
+Do NOT turn individual pages into a product carousel.
+
+Related systems belong only near closing/navigation.
+
+==================================================
+5 — SHARED CINEMATIC CHAPTER ENGINE
+==================================================
+
+Build one reusable chapter architecture.
+
+Recommended semantic chapters:
+
+00 / ARRIVAL
+
+01 / PRODUCT
+
+02 / SYSTEM REVEAL
+
+03 / CAPABILITY FLOW
+
+04 / EVIDENCE SURFACE
+
+05 / CONTINUE
+
+The same chapter grammar is shared by all products.
+
+The scene language changes by product.visualProfile.
+
+==================================================
+6 — 00 / ARRIVAL
+==================================================
+
+Keep or improve ProductArrival.
+
+Arrival must be product-aware:
+
+product.shortName
+product.name
+product.code
+product.family
+verified local logo when available
+canonical KNOuX mark otherwise
+visualProfile motif
+
+NO fake percentage.
+
+NO random loading progress.
+
+NO fake:
+"booting AI core"
+"neural sync"
+"systems nominal"
+
+If no real measurable asset loading exists,
+use a short deterministic cinematic identity transition.
+
+Suggested feeling:
+
+QUIET KNOuX FIELD
+-> CURRENT PRODUCT SIGNAL
+-> PRODUCT MOTIF RESOLVES
+-> HERO CONTINUES FROM SAME GEOMETRY
+
+Arrival and hero must feel continuous.
+
+Reduced motion:
+skip long choreography.
+
+Do not replay unnecessarily on every rerender.
+
+==================================================
+7 — 01 / PRODUCT HERO
+==================================================
+
+Use selected product only.
+
+Must expose truthful:
+
+product.code
+product.family
+product.status
+product.name / shortName
+product.tagline
+product.platform
+product.version if declared
+product.discipline
+product.license if declared
+
+Real actions only:
+
+Repository
+Declared URL if present
+Request access/contact
+
+The product-specific scene is the dominant visual object.
+
+Typography remains KNOuX editorial,
+not VOID typography copied directly.
+
+==================================================
+8 — ONE PERSISTENT VISUAL WORLD
+==================================================
+
+Prefer continuity instead of unrelated canvases/scenes per block.
+
+Audit existing implementation first.
+
+Target feeling:
+
+hero object
+-> deconstructs
+-> exposes architecture
+-> becomes capability pathway
+-> resolves into evidence surface
+-> closes into stable final composition
+
+Where practical,
+one product scene should respond to normalized chapter/scroll progress.
+
+Do NOT create a WebGLRenderer for every chapter.
+
+Do NOT stack multiple expensive canvases while offscreen.
+
+If existing components require separation,
+coordinate them carefully and prove combined performance.
+
+==================================================
+9 — PRODUCT-SPECIFIC MOTIFS
+==================================================
+
+Use existing productVisualProfiles.
+
+KNOuX ONE
+motif:
+system-nucleus
+
+Hero:
+modular Windows intelligence nucleus
+
+System reveal:
+service shells separate into layers
+
+Capability flow:
+service paths / operating planes
+
+Evidence surface:
+verified modules + evidence boundaries
+
+KFORGE
+motif:
+repository-topology
+
+Hero:
+engineering/repository topology
+
+System reveal:
+branch graph opens
+
+Capability flow:
+dependency paths / build pipeline traces
+
+Evidence surface:
+repository/evidence nodes
+
+KNOuX Repair
+motif:
+diagnostic-rings
+
+Hero:
+diagnostic instrument
+
+System reveal:
+rings separate into bounded sectors
+
+Capability flow:
+scan -> isolate -> resolve
+
+Evidence surface:
+tools / limits / evidence
+
+DO NOT invent PC health numbers.
+
+KNOuX SmartOrganizer
+motif:
+file-clusters
+
+Hero:
+scattered deterministic file field
+
+System reveal:
+clusters organize
+
+Capability flow:
+files move through organization paths
+
+Evidence surface:
+storage bands / capabilities / limits
+
+KNOuX REC
+motif:
+capture-timeline
+
+Hero:
+capture frame + signal
+
+System reveal:
+capture frame resolves into timeline
+
+Capability flow:
+timeline / waveform lanes
+
+Evidence surface:
+capture capabilities and limits
+
+KNOuX X
+motif:
+media-spectrum
+
+Hero:
+playback/signal nucleus
+
+System reveal:
+ring opens into spectral bands
+
+Capability flow:
+playback / subtitle / timeline tracks
+
+Evidence surface:
+media capabilities / stack / limits
+
+KNOuX Clipboard AI
+motif:
+guarded-clipboard
+
+Hero:
+guarded clipboard object
+
+System reveal:
+inspection boundary opens
+
+Capability flow:
+item ingress -> inspection -> bounded route
+
+Evidence surface:
+privacy boundaries / limitations / evidence
+
+Never show a state like blocked/allowed
+unless supported by actual product facts.
+
+==================================================
+10 — 02 / SYSTEM REVEAL
+==================================================
+
+Translate VOID's dissolve chapter into real system explanation.
+
+Use:
+
+product.statement
++
+ProductSystemAnatomy
++
+visualProfile geometry
+
+The visual object may dissolve/reconfigure,
+but the transformation must expose the selected product's architecture.
+
+No decorative particle dissolve just because it looks cool.
+
+The animation must answer:
+
+"What is this system made of?"
+
+==================================================
+11 — 03 / CAPABILITY FLOW
+==================================================
+
+Translate VOID's tunnel/traverse mechanic into a PRODUCT flow.
+
+Do not build the same literal ring tunnel for every product.
+
+The traversal should use the selected motif.
+
+Examples:
+
+KForge:
+move through repository/dependency traces.
+
+REC:
+move across capture/timeline lanes.
+
+Repair:
+move through diagnostic sectors.
+
+SmartOrganizer:
+move through organization/storage pathways.
+
+Capabilities must come only from:
+
+product.capabilities
+
+Do not invent process stages.
+
+Use motion to organize existing facts,
+not manufacture technical claims.
+
+==================================================
+12 — 04 / EVIDENCE SURFACE
+==================================================
+
+Translate VOID's surface chapter into the factual engineering layer.
+
+Must expose:
+
+product.capabilities
+product.limitations
+product.technologies
+product.evidence
+product.searchTerms where still useful
+repository
+live URL if declared
+
+Do NOT turn evidence into decorative glass cards.
+
+Prefer:
+architectural planes
+evidence rows
+technical markers
+thin system panels
+data surfaces
+
+Every fact remains readable in semantic DOM.
+
+Canvas may support the visual hierarchy,
+never replace factual content.
+
+==================================================
+13 — 05 / CLOSING
+==================================================
+
+End the selected product's story cleanly.
+
+Possible content:
+
+product name
+short closing statement grounded in the product
+Repository
+Declared URL
+Request access
+RelatedSystems
+Previous / Next product navigation
+
+Do NOT end with generic:
+"Begin the journey"
+
+Use a real action.
+
+Related products should be clearly secondary.
+
+==================================================
+14 — SCROLL CHOREOGRAPHY
+==================================================
+
+The supplied reference uses long sticky chapters and GSAP ScrollTrigger.
+
+DO NOT add GSAP automatically.
+
+Current package.json does not make the source CDN stack authoritative.
+
+First determine whether:
+CSS
+IntersectionObserver
+native scroll progress
+requestAnimationFrame
+R3F useFrame
+
+can implement the choreography cleanly.
+
+Add a dependency only if genuinely justified.
+
+DO NOT use CDN scripts.
+
+NO scroll hijacking.
+
+Native scroll must remain available.
+
+Recommended desktop chapter depth may be cinematic,
+but avoid gratuitous 250vh sections if they do not add information.
+
+Mobile chapters should be much shorter.
+
+==================================================
+15 — SCROLL PROGRESS ARCHITECTURE
+==================================================
+
+Use one normalized product experience state where practical.
+
+Example concept:
+
+arrivalProgress
+heroProgress
+revealProgress
+capabilityProgress
+evidenceProgress
+closingProgress
+
+Drive scene uniforms/transforms from refs,
+not React setState on every frame.
+
+Avoid reading layout repeatedly in the render loop.
+
+Use passive scroll handling / observers
+and a coordinated animation loop.
+
+==================================================
+16 — CURRENT TECHNICAL ISSUES TO AUDIT
+==================================================
+
+Do not blindly preserve implementation problems.
+
+Inspect and correct where relevant:
+
+ProductArrival currently drives visual progress with frequent state updates.
+Avoid React render churn for animation-only progress.
+
+ProductHero contains inline KNOuX path data.
+Prefer canonical geometry from:
+
+src/lib/knouxMark.ts
+
+Do not create multiple divergent copies of the KNOuX mark.
+
+Audit every ProductScene for:
+
+resource disposal
+visibility pause
+reduced motion
+deterministic layout
+DPR control
+canvas count
+pointer event cost
+
+==================================================
+17 — VISUAL DNA
+==================================================
+
+Use only the accepted KNOuX system:
+
+deep black
+graphite
+off-white
+silver
+platinum
+muted lavender signal
+
+NO:
+amber
+gold
+orange
+bright blue
+rainbow
+cyberpunk neon
+generic purple gradients
+
+The reference's amber/blue is NOT KNOuX authority.
+
+Use violet sparingly as energy/signal.
+
+==================================================
+18 — TYPOGRAPHY / EDITORIAL COMPOSITION
+==================================================
+
+Take the reference's confidence:
+
+large thin editorial titles
+asymmetry
+negative space
+small technical labels
+sticky narrative placement
+
+But use existing KNOuX font system.
+
+No Google Font dependency copied from source.
+
+Avoid center-aligning every chapter.
+
+Let text position respond to scene composition.
+
+==================================================
+19 — SECTION INDICATOR
+==================================================
+
+A restrained progress/chapter indicator is allowed.
+
+It may display:
+
+01
+02
+03
+04
+05
+
+or KNOuX chapter labels.
+
+It must:
+
+be keyboard-safe
+not block content
+not become a fake navigation system
+hide/simplify on mobile
+respect reduced motion
+
+A thin overall reading progress signal is optional.
+
+==================================================
+20 — POINTER / CURSOR
+==================================================
+
+Do NOT globally set cursor:none.
+
+Do not replace native pointer semantics.
+
+Subtle local pointer response is allowed:
+
+scene parallax
+node attraction
+magnetic CTA movement
+
+Only when:
+
+fine pointer exists
+reduced motion is false
+
+Never make basic interaction depend on custom cursor rendering.
+
+==================================================
+21 — GRAIN
+==================================================
+
+A very subtle film grain is optional.
+
+If used:
+
+very low opacity
+pointer-events none
+cheap rendering
+no huge animated data URI churn
+
+Do not let grain reduce text legibility.
+
+==================================================
+22 — PERFORMANCE
+==================================================
+
+Production requirements:
+
+adaptive DPR
+quality-tier support
+no unnecessary antialias cost
+pause scene when page/scene hidden
+document.hidden handling
+reduced-motion handling
+resource disposal
+deterministic geometry
+no Math.random identity layout
+no per-frame React state
+no per-frame DOM query loops
+no runtime CDN
+no external font dependency
+no renderer per section
+
+Test on modest integrated GPU assumptions.
+
+Do not optimize only one section.
+
+Measure full individual product journey.
+
+==================================================
+23 — ACCESSIBILITY
+==================================================
+
+Essential content remains DOM.
+
+Verify:
+
+semantic h1/h2 structure
+breadcrumb
+keyboard actions
+visible focus
+real anchors/buttons
+reduced motion
+screen reader reading order
+contrast
+touch
+no hover-only facts
+WebGL fallback
+
+If WebGL fails:
+the product dossier remains fully usable.
+
+==================================================
+24 — RESPONSIVE
+==================================================
+
+Verify at least:
+
+1600x1000
+1440x900
+1366x768
+1024x768
+768x1024
+430x932
+390x844
+375x812
+
+Mobile is NOT the desktop cinematic page scaled smaller.
+
+Mobile:
+
+shorter chapters
+simpler geometry
+less depth
+lower particle budgets
+no complex pointer behavior
+stable vertical reading
+actions easy to tap
+evidence remains readable
+
+No:
+horizontal overflow
+clipped titles
+offscreen controls
+canvas blocking touch scroll
+giant sticky dead zones
+
+==================================================
+25 — DATA / ROUTE INVARIANTS
+==================================================
+
+Every product page must still be generated from:
+
+softwareProducts
+
+generateStaticParams remains truthful.
+
+Metadata remains product-specific.
+
+No duplicate business facts in visual profiles.
+
+No hard-coded list of slugs inside presentation logic
+when the registry can provide them.
+
+Every Home System Field node can safely use:
+
+/products/<slug>
+
+and land on the correct single-product experience.
+
+==================================================
+26 — IMPLEMENTATION BOUNDARY
+==================================================
+
+Expected change areas may include:
+
+src/components/products/ProductExperience.tsx
+src/components/products/ProductArrival.tsx
+src/components/products/ProductHero.tsx
+src/components/products/ProductScene.tsx
+src/components/products/ProductBlocks.tsx
+src/components/products/anatomy/*
+src/data/product-visuals.ts
+src/app/globals.css
+targeted tests
+references/products/* closure
+
+Potential new reusable components:
+
+ProductCinematicStage
+ProductChapter
+ProductSceneController
+ProductProgress
+ProductEvidenceSurface
+
+Names are suggestions only.
+
+Do NOT modify:
+
+Home System Field feature
+About feature
+auth
+Signal
+Build
+Contact backend
+unrelated pages
+
+==================================================
+27 — PRESERVE VERIFIED WORK
+==================================================
+
+Do not delete existing:
+ProductSystemAnatomy
+product-specific scene components
+visual profiles
+related navigation
+evidence rendering
+
+unless you have proven a replacement that preserves their functionality.
+
+Refactor and integrate.
+Do not restart.
+
+==================================================
+28 — VISUAL QA LOOP
+==================================================
+
+Capture current baseline first for:
+
+/products/knoux-one
+/products/kforge
+/products/knoux-rec
+
+Then:
+
+IMPLEMENT
+-> RUN
+-> CAPTURE
+-> INSPECT
+-> CORRECT
+-> CAPTURE AGAIN
+
+Check all product slugs,
+not only KForge.
+
+At minimum visually inspect every canonical product at desktop
+and representative products on mobile.
+
+==================================================
+29 — ACCEPTANCE VISUAL TEST
+==================================================
+
+Reject the implementation if:
+
+all products still look identical
+all products become unrelated microsites
+VOID is merely recolored violet
+the page shows multiple projects as primary content
+the scene has no relationship to product facts
+animations obscure evidence
+scrolling feels trapped
+mobile becomes a giant blank sticky canvas
+Hero and evidence feel like separate templates
+
+Accept only if:
+
+same KNOuX institution
++
+distinct product personality
++
+one selected product
++
+continuous cinematic chapters
++
+truthful dossier
++
+usable performance
+
+==================================================
+30 — TEST GATES
+==================================================
+
+Run and record REAL exit codes:
+
+npm run lint
+npm run typecheck
+npm test
+npm run build
+git diff --check
+
+Run browser/runtime QA.
+
+Check:
+
+console errors
+hydration
+route changes between slugs
+back/forward navigation
+arrival replay behavior
+scroll position
+reduced motion
+WebGL fallback
+desktop
+mobile
+touch
+keyboard
+repository links
+declared live URLs
+contact route
+related systems
+previous/next
+
+Classify failures:
+
+INTRODUCED
+PRE-EXISTING
+EXTERNAL
+
+Fix all INTRODUCED failures.
+
+Do not report PASS for an unrun gate.
+
+==================================================
+31 — DELIVERY
+==================================================
+
+Stay on:
+
+feat/product-cinematic-v2
+
+Commit ONLY product-detail work.
+
+Push the SAME branch.
+
+Open PR to main.
+
+Wait for actual CI.
+
+Do not merge because local build passed.
+
+After green CI and mergeable state,
+follow repository policy.
+
+Post-merge verify:
+
+merge SHA
+final main SHA
+deployment
+each /products/[slug] route
+desktop
+mobile
+console
+runtime interaction
+
+Do not claim production COMPLETE while deployment is pending.
+
+==================================================
+32 — FINAL REPORT
+==================================================
+
+Return evidence:
+
+STARTING SHA
+WORKTREE
+BRANCH
+FEATURE HEAD SHA
+CHANGED FILES
+PRODUCT SLUGS VERIFIED
+LINT
+TYPECHECK
+TESTS
+BUILD
+DIFF CHECK
+BROWSER QA
+PR
+CI
+MERGE SHA
+FINAL MAIN SHA
+PRODUCTION STATE
+
+Classify:
+
+Architecture
+Single-product correctness
+Functionality
+Visual Fidelity
+Product differentiation
+Accessibility
+Performance
+Release Readiness
+
+ONLY:
+
+COMPLETE — verified
+PARTIAL — implementation exists but proof missing
+BLOCKED — real external blocker
+UNCHANGED — intentionally preserved
+
+NO fake percentages.
+NO "should work".
+NO "basically done".
+NO screenshots-only PASS.
+
+==================================================
+FINAL DIRECTIVE
+==================================================
+
+START NOW.
+
+DO NOT RETURN A PLAN.
+
+DO NOT ASK FOR NORMAL IMPLEMENTATION PERMISSION.
+
+DO NOT CREATE SEPARATE HARD-CODED PAGES FOR EACH PRODUCT.
+
+DO NOT SHOW ALL PRODUCTS AS THE PAGE'S MAIN CONTENT.
+
+DO NOT COPY VOID.
+
+DO NOT REBUILD THE WEBSITE.
+
+DO NOT TOUCH OTHER ACTIVE WORKTREES.
+
+DO NOT FAKE CLOSURE.
+
+BUILD ONE PRODUCTION DYNAMIC PRODUCT EXPERIENCE:
+
+/products/[slug]
+
+ONE SELECTED PRODUCT PER PAGE.
+
+SAME CINEMATIC ENGINE.
+REAL DATA.
+DIFFERENT PRODUCT MOTIF.
+CONTINUOUS KNOuX VISUAL WORLD.
