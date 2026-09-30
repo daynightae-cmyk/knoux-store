@@ -3796,17 +3796,7 @@ html[data-chamber="armed"] .auth-panel.is-risen [data-stagger="foot"]{transition
   filter: drop-shadow(0 0 12px rgba(197, 162, 228, 0.35));
 }
 
-/* System Node Links & Elements */
-.sys-field__node-link {
-  text-decoration: none;
-  outline: none;
-}
-
-.sys-field__node-link:focus-visible .sys-field__node-ring {
-  outline: 2px solid var(--violet);
-  outline-offset: 4px;
-}
-
+/* System Node Elements */
 .sys-field__node {
   cursor: pointer;
   transition: transform 0.3s cubic-bezier(0.16, 0.84, 0.34, 1), opacity 0.35s ease;
