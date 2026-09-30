@@ -1,0 +1,1008 @@
+CONTINUE THE EXISTING KNOuX STORE PROJECT.
+
+EXECUTION WORKTREE:
+D:\Knoux Store-worktrees\wordpress-ecosystem-v2
+
+AUTHORITATIVE FEATURE BRANCH:
+feat/wordpress-ecosystem-v2
+
+MISSION:
+Transform the existing /wordpress division into a production-grade
+KNOuX WEB ECOSYSTEM:
+
+DOMAIN SEARCH
++
+HOSTING / MANAGED INFRASTRUCTURE
++
+MASSIVE WORDPRESS.ORG LIBRARY
++
+KNOuX WORDPRESS ENGINEERING SERVICES
++
+ONE COHERENT CINEMATIC KNOuX EXPERIENCE.
+
+THIS IS AN EXECUTION TASK.
+DO NOT RETURN A PLAN.
+DO NOT START FROM SCRATCH.
+DO NOT DELETE VERIFIED MARKETPLACE WORK.
+DO NOT INVENT DOMAIN AVAILABILITY.
+DO NOT INVENT HOSTING PRICES OR SPECS.
+DO NOT TOUCH OTHER ACTIVE WORKTREES.
+NO FAKE CLOSURE.
+
+==================================================
+0 — REALITY REFRESH
+==================================================
+
+cd "D:\Knoux Store-worktrees\wordpress-ecosystem-v2"
+
+Run:
+
+git status
+git branch --show-current
+git rev-parse HEAD
+git fetch origin --prune
+git rev-parse origin/main
+git log -10 --oneline --decorate
+git worktree list --porcelain
+
+Expected branch:
+feat/wordpress-ecosystem-v2
+
+Do not reset or overwrite work.
+
+Do NOT modify:
+D:\Knoux Store
+D:\Knoux Store-worktrees\home-system-field
+D:\Knoux Store-worktrees\product-cinematic-v2
+
+Those are separate active features.
+
+==================================================
+1 — READ AUTHORITIES
+==================================================
+
+Read completely:
+
+references/wordpress/KNOuX-wordpress-live-marketplace-reference.md
+references/wordpress/KNOuX_WORDPRESS_ECOSYSTEM_V2_REFERENCE.md
+references/wordpress/KNOuX_DOMAIN_HOSTING_PROVIDER_ARCHITECTURE.md
+references/wordpress/KNOuX_WORDPRESS_ECOSYSTEM_V2_AUTHORITY.md
+
+Then inspect current runtime:
+
+src/app/wordpress/page.tsx
+src/app/wordpress/plugins/page.tsx
+src/app/wordpress/themes/page.tsx
+src/app/wordpress/blocks/page.tsx
+src/app/wordpress/patterns/page.tsx
+src/app/wordpress/starter-sites/page.tsx
+src/app/wordpress/solutions/page.tsx
+src/components/WordPressCatalog.tsx
+src/components/wordpress/ExternalMarketplace.tsx
+src/components/wordpress/ExternalItemCard.tsx
+src/components/wordpress/FirstPartyRail.tsx
+src/data/wordpress.ts
+src/lib/wordpress/wordpress-org.ts
+src/app/api/wp-image/route.ts
+src/app/globals.css
+next.config.ts
+package.json
+
+Search the repository for:
+domain
+hosting
+registrar
+WHMCS
+Cloudflare
+Namecheap
+
+Do not assume a live provider exists.
+Use repository evidence.
+
+==================================================
+2 — CURRENT REALITY TO PRESERVE
+==================================================
+
+The existing WordPress implementation is NOT empty boilerplate.
+
+It already has:
+- official live WordPress.org data
+- Plugins discovery
+- Themes discovery
+- Blocks discovery
+- Patterns discovery
+- search
+- sorting
+- pagination
+- source attribution
+- image proxy behavior
+- first-party/external separation
+- truthful KNOuX Releases count
+- KNOuX operating services
+
+PRESERVE THIS.
+
+Do not replace real data with mock content for visual polish.
+
+src/data/wordpress.ts remains first-party KNOuX truth.
+
+If wordPressItems.length is 0:
+show 0.
+
+Do not manufacture a KNOuX theme/plugin library.
+
+==================================================
+3 — SPECIALIST VISUAL REFERENCES
+==================================================
+
+Use these external references only for their assigned roles:
+
+VESPER CINEMATIC
+https://www.framer.com/marketplace/templates/vesper-cinematic/
+
+ROLE:
+visual atmosphere
+dark editorial composition
+cinematic section motion
+negative space
+premium 3D moments
+
+HOSTERFRAME
+https://www.framer.com/marketplace/templates/hosterframe/
+
+ROLE:
+domain search UX
+hosting information architecture
+domain/hosting customer journey
+WHMCS-compatible mental model
+
+ORBIS
+https://www.framer.com/marketplace/templates/orbis/
+
+ROLE:
+premium marketplace/product presentation
+motion-driven selection
+
+LUNEFLOW
+https://webflow.com/templates/html/luneflow-marketing-website-template
+
+ROLE:
+large modular CMS/library architecture
+scalable catalogue navigation
+
+DO NOT COPY:
+branding
+copy
+assets
+fonts
+color palettes
+exact layouts
+commercial template source.
+
+The final product must be native KNOuX.
+
+==================================================
+4 — TARGET INFORMATION ARCHITECTURE
+==================================================
+
+Rebuild /wordpress around this hierarchy:
+
+00 / CINEMATIC HERO
+
+01 / DOMAIN FINDER
+
+02 / HOSTING / INFRASTRUCTURE
+
+03 / WORDPRESS LIBRARY
+
+04 / BUILD & OPERATE
+
+05 / LAUNCH / COMPOSE
+
+06 / EVIDENCE / PROVENANCE
+
+Keep routes for detailed catalogue exploration.
+
+The page should feel like one connected web operating ecosystem.
+
+==================================================
+5 — HERO
+==================================================
+
+Internal page identity:
+
+KNOuX WEB ECOSYSTEM
+
+Suggested editorial copy direction:
+
+KN / WORDPRESS ECOSYSTEM
+
+BUILD YOUR
+WEB PRESENCE.
+
+Domain.
+Hosting.
+WordPress.
+One system.
+
+Do not hardcode this exact copy if current KNOuX editorial conventions
+support a stronger equivalent.
+
+The hero scene should communicate:
+
+DOMAIN
+→ INFRASTRUCTURE
+→ WORDPRESS CORE
+→ THEMES / PLUGINS / BLOCKS / PATTERNS
+→ OPERATIONS
+
+Avoid:
+generic globe
+generic laptop mockup
+hosting server clipart
+floating pricing cards
+WordPress logo pasted into a hero.
+
+Use KNOuX geometry and motion grammar.
+
+==================================================
+6 — DOMAIN FINDER
+==================================================
+
+Build a major Domain Finder surface.
+
+Input must accept:
+- bare brand phrase
+- valid domain candidate
+- TLD selection/suggestions
+
+Possible TLD shortcuts:
+.com
+.ae
+.net
+.org
+.dev
+.store
+
+But actual supported extensions must come from provider capability
+when provider-backed checking is active.
+
+Normalize input safely.
+
+Domain results may show ONLY provider-backed facts:
+
+domain
+availability
+premium state
+registration price
+renewal price
+currency
+provider/source
+check timestamp
+reason/unsupported state
+
+DO NOT fake:
+AVAILABLE
+TAKEN
+AED price
+discount
+premium status.
+
+==================================================
+7 — PROVIDER ABSTRACTION
+==================================================
+
+Create a server-only provider boundary.
+
+Suggested interface:
+
+DomainProvider
+
+search()
+check()
+suggest()
+
+Do not expose provider secrets to the browser.
+
+The architecture must allow a future/current provider such as:
+
+Cloudflare Registrar API
+Namecheap API
+WHMCS-backed registrar integration
+
+Do not hardwire one unless current environment/config proves it is configured.
+
+If no provider is configured:
+
+render the complete premium Domain Finder UX,
+but return a truthful:
+
+LIVE AVAILABILITY PROVIDER NOT CONFIGURED
+
+state.
+
+Offer:
+REQUEST DOMAIN SETUP
+or
+CONTACT KNOuX
+
+rather than fake results.
+
+A syntactic/domain-name suggestion engine may exist,
+but it must be labeled as suggestions,
+not availability.
+
+==================================================
+8 — OFFICIAL DOMAIN PROVIDER REFERENCES
+==================================================
+
+Cloudflare official docs:
+
+https://developers.cloudflare.com/registrar/registrar-api/
+https://developers.cloudflare.com/api/resources/registrar/methods/check/
+
+Cloudflare Search is discovery.
+The real-time Check endpoint is the authoritative pre-registration check.
+
+Namecheap official docs:
+
+https://www.namecheap.com/support/api/methods/domains/check/
+
+WHMCS official docs:
+
+https://developers.whmcs.com/domain-registrars/availability-checks
+https://developers.whmcs.com/api
+
+Use official provider contracts only.
+
+No scraping registrar websites.
+
+==================================================
+9 — DOMAIN SEARCH UX
+==================================================
+
+Design it as an instrument,
+not a normal form dropped into a section.
+
+Suggested visual hierarchy:
+
+FIND YOUR DOMAIN
+
+[ yourbrand________________ ] [.COM ▼] [ SEARCH ↗ ]
+
+Then result field:
+
+knoux.com
+AVAILABLE
+<verified registration price>
+<verified renewal price>
+[ SELECT ]
+
+knoux.dev
+UNAVAILABLE
+
+knoux.store
+PREMIUM
+<verified pricing>
+
+But render these states ONLY from real provider responses.
+
+Use:
+loading state
+empty state
+unconfigured state
+upstream error
+unsupported TLD
+invalid input.
+
+Never map provider failure to "unavailable".
+
+==================================================
+10 — HOSTING / INFRASTRUCTURE
+==================================================
+
+Create a visually rich hosting/infrastructure section.
+
+Internal visual idea:
+
+KNOuX INFRASTRUCTURE RACK
+
+Not a generic 3-column SaaS pricing table.
+
+Possible spatial/services organization:
+
+WORDPRESS START
+BUSINESS
+COMMERCE
+MANAGED KNOuX
+
+These are UX categories only until backed by real offers.
+
+Do not publish them as purchasable plans with specs/prices
+unless source data proves them.
+
+==================================================
+11 — HOSTING DATA MODES
+==================================================
+
+Support two truthful modes.
+
+MODE A — LIVE COMMERCE PROVIDER
+
+When a real provider/WHMCS integration exists:
+show verified:
+plan name
+resource limits
+price
+currency
+billing period
+renewal terms
+management boundary
+purchase/order route
+
+MODE B — KNOuX SERVICE MODE
+
+When no live provider exists:
+show real engineering services only.
+
+Existing truthful services include:
+Install & Configuration
+Migration
+Maintenance
+Performance
+Security
+Backup & Recovery
+Headless & Decoupled
+
+You may group these into hosting/infrastructure journeys,
+but do not invent CPU/RAM/storage/uptime/pricing.
+
+==================================================
+12 — WORDPRESS LIBRARY
+==================================================
+
+This must become the huge visual centerpiece.
+
+Use the EXISTING official WordPress.org adapters.
+
+Do not fetch the entire ecosystem at once.
+
+The library must make all discoverable content feel large through:
+- category architecture
+- search
+- filters
+- pagination
+- editorial rails
+- large visual theme previews
+- dense plugin indexes
+- featured/popular/recent views supported by upstream
+- curated lenses based on real query semantics
+
+Core categories:
+
+PLUGINS
+THEMES
+BLOCKS
+PATTERNS
+
+Separate:
+
+KNOuX RELEASES
+
+==================================================
+13 — LIBRARY VISUAL MODES
+==================================================
+
+Do not render every item as the same card.
+
+THEMES:
+visual gallery / screenshot wall / editorial masonry.
+
+PLUGINS:
+compact metadata-rich registry:
+icon
+name
+author
+description
+rating
+active installs if returned
+compatibility
+last updated
+source.
+
+BLOCKS:
+compact component directory.
+
+PATTERNS:
+safe preview / visual tile where supported.
+
+KNOuX RELEASES:
+separate institutional rail,
+never mixed with WordPress.org ownership.
+
+==================================================
+14 — COMMAND SEARCH
+==================================================
+
+Create a strong unified WordPress library search surface.
+
+Examples:
+Search themes, plugins, blocks and patterns...
+Search by capability, author or keyword...
+
+But preserve existing route-specific search URLs
+and browser Back/Forward behavior.
+
+A unified search may route visitors into category-specific results
+rather than downloading all categories into one client bundle.
+
+==================================================
+15 — FILTERS / LENSES
+==================================================
+
+Support only filters that can be backed by real source metadata.
+
+Possible lenses:
+Plugins
+Themes
+Blocks
+Patterns
+Popular
+Updated
+Featured
+Author
+Tags
+Compatibility
+
+Starter-site vertical filters may remain for first-party future content.
+
+Do NOT create fake:
+Arabic Ready
+Elementor
+WooCommerce
+RTL
+Premium
+etc.
+
+unless the corresponding source metadata/query actually supports them.
+
+==================================================
+16 — SOURCE PROVENANCE
+==================================================
+
+Every external item must remain clearly attributed:
+
+SOURCE: WORDPRESS.ORG
+
+Never:
+- recolor third-party logos into KNOuX marks
+- imply KNOuX ownership
+- present active installs as KNOuX users
+- present WordPress.org ratings as KNOuX ratings.
+
+KNOuX can offer implementation/configuration/maintenance
+around third-party items.
+
+Keep the legal/trust boundary visible.
+
+==================================================
+17 — VISUAL SYSTEM
+==================================================
+
+Use KNOuX only:
+
+deep black
+graphite
+off-white
+silver
+platinum
+muted lavender as restrained signal
+
+NO:
+hosting blue
+gold
+orange
+rainbow categories
+generic neon
+bright gradient background.
+
+Use:
+thin architecture
+large negative space
+technical metadata
+editorial type
+controlled 3D depth
+precise motion.
+
+The visual should feel like:
+a premium digital archive + infrastructure command center.
+
+==================================================
+18 — MOTION
+==================================================
+
+Motion should help orientation.
+
+Allowed:
+cinematic reveals
+subtle parallax
+library focus expansion
+infrastructure rack response
+domain result transitions
+scroll-linked chapter change
+slow signal paths.
+
+Avoid:
+constant noisy motion
+scroll hijacking
+all cards floating
+spinning servers
+giant particle soup.
+
+Respect:
+prefers-reduced-motion.
+
+==================================================
+19 — PERFORMANCE
+==================================================
+
+This page already performs live external data reads.
+
+Do not make it heavy for visual spectacle.
+
+Requirements:
+- bounded WordPress.org requests
+- caching/revalidation
+- request dedupe
+- lazy images
+- image proxy preservation
+- no full-catalogue preload
+- no runtime CDN
+- no external fonts
+- adaptive visual budgets
+- pause 3D/motion offscreen
+- document.hidden handling
+- no React state per frame
+- no per-frame DOM queries
+- no unbounded animated thumbnails.
+
+==================================================
+20 — ACCESSIBILITY
+==================================================
+
+Verify:
+semantic h1/h2
+real forms
+real labels
+keyboard search
+keyboard library items
+visible focus
+touch
+screen reader source attribution
+live-region search state where appropriate
+reduced motion
+contrast
+no hover-only information.
+
+Domain results must announce state changes correctly.
+
+Library remains usable without animation/WebGL.
+
+==================================================
+21 — RESPONSIVE
+==================================================
+
+Verify:
+
+1600x1000
+1440x900
+1366x768
+1024x768
+768x1024
+430x932
+390x844
+375x812
+
+Mobile:
+- hero simplified
+- Domain Finder remains immediate
+- Hosting becomes readable vertical/rail layout
+- WordPress library remains fast
+- fewer simultaneous visual previews
+- no giant sticky blank zones
+- normal vertical scrolling.
+
+==================================================
+22 — ROUTE STRATEGY
+==================================================
+
+/wordpress
+= ecosystem landing / command center
+
+/wordpress/plugins
+= plugin directory
+
+/wordpress/themes
+= theme directory
+
+/wordpress/blocks
+= block directory
+
+/wordpress/patterns
+= pattern directory
+
+/wordpress/starter-sites
+= honest first-party/future starter sites
+
+/wordpress/solutions
+= composed KNOuX service/bundle surface.
+
+Do not put the entire directory on /wordpress.
+
+The overview should preview and route deeper.
+
+==================================================
+23 — EXISTING COMPONENTS
+==================================================
+
+Reuse/refactor rather than delete:
+
+ExternalMarketplace
+ExternalItemCard
+FirstPartyRail
+WordPressGoalIndex
+official WordPress.org adapters
+wp-image proxy.
+
+Potential new components:
+
+WordPressEcosystemHero
+DomainFinder
+DomainResultField
+HostingRack
+WordPressLibraryGateway
+WordPressLibraryRail
+EcosystemComposer
+
+Names are suggestions only.
+
+==================================================
+24 — DOMAIN / HOSTING SERVER SECURITY
+==================================================
+
+If implementing provider adapters:
+
+- secrets server-only
+- env validation
+- never serialize keys to client
+- validate/normalize query input
+- bounded batch sizes
+- rate-limit public availability endpoint where appropriate
+- provider timeout
+- graceful error states
+- no secret logging
+- authoritative re-check before registration/purchase.
+
+Do not implement destructive/purchase/register actions
+unless explicitly supported and authorized.
+
+This feature is discovery/selection first.
+
+==================================================
+25 — HONEST DELIVERY STATE
+==================================================
+
+It is acceptable for this PR to ship:
+
+A visually complete Domain Finder
++
+provider adapter contract
++
+truthful "provider not configured" runtime state
+
+if no real registrar credentials exist.
+
+That is better than fake availability.
+
+Likewise for hosting:
+visual infrastructure section may ship in service mode
+without fake purchasable plans.
+
+==================================================
+26 — VISUAL QA LOOP
+==================================================
+
+Capture current /wordpress baseline.
+
+Then:
+
+IMPLEMENT
+→ RUN
+→ CAPTURE
+→ INSPECT
+→ CORRECT
+→ CAPTURE AGAIN
+
+Inspect:
+
+hero
+domain finder
+provider-unconfigured state
+live provider state if available
+hosting/service mode
+WordPress library gateway
+theme previews
+plugin listings
+blocks/patterns
+provenance
+mobile
+loading
+upstream WordPress.org failure
+reduced motion.
+
+Do not accept first render.
+
+==================================================
+27 — REJECT CONDITIONS
+==================================================
+
+Reject if the result is:
+
+a HosterFrame clone
+a blue hosting template
+a wall of pricing cards
+a generic WordPress landing page
+three columns of identical cards
+fake domain availability
+fake hosting plans
+WordPress.org with KNOuX ownership implied
+dark + violet + cards = "premium".
+
+==================================================
+28 — TEST GATES
+==================================================
+
+Run with real exit codes:
+
+npm run lint
+npm run typecheck
+npm test
+npm run build
+git diff --check
+
+Run browser QA.
+
+Verify:
+console
+hydration
+/wordpress
+/plugins
+/themes
+/blocks
+/patterns
+/starter-sites
+/solutions
+search query params
+pagination
+Back/Forward
+WordPress.org unavailable state
+domain unconfigured/provider state
+mobile
+keyboard
+reduced motion.
+
+Classify failures:
+
+INTRODUCED
+PRE-EXISTING
+EXTERNAL
+
+Fix all introduced failures.
+
+Do not report PASS for unrun commands.
+
+==================================================
+29 — DELIVERY
+==================================================
+
+Stay on:
+
+feat/wordpress-ecosystem-v2
+
+Commit only WordPress ecosystem work.
+
+Push same branch.
+Open PR to main.
+Wait for actual CI.
+
+Do not merge because local build passed.
+
+After green CI and mergeable state,
+follow repository merge policy.
+
+Post-merge verify:
+merge SHA
+final main SHA
+production deployment
+/wordpress runtime
+directory routes
+domain finder state
+mobile
+console.
+
+==================================================
+30 — FINAL REPORT
+==================================================
+
+Return:
+
+STARTING SHA
+WORKTREE
+BRANCH
+FEATURE HEAD SHA
+CHANGED FILES
+DOMAIN PROVIDER STATE
+HOSTING PROVIDER STATE
+WORDPRESS.ORG STATE
+LINT
+TYPECHECK
+TESTS
+BUILD
+DIFF CHECK
+BROWSER QA
+PR
+CI
+MERGE SHA
+FINAL MAIN SHA
+PRODUCTION STATE
+
+Classify:
+
+Architecture
+Domain Finder
+Hosting
+WordPress Library
+Functionality
+Visual Fidelity
+Accessibility
+Performance
+Release Readiness
+
+ONLY:
+
+COMPLETE — verified
+PARTIAL — implementation exists but proof missing
+BLOCKED — real external blocker
+UNCHANGED — intentionally preserved
+
+NO fake percentages.
+NO "should work".
+NO screenshots-only PASS.
+
+==================================================
+FINAL DIRECTIVE
+==================================================
+
+START EXECUTION NOW.
+
+DO NOT RETURN A PLAN.
+DO NOT ASK FOR NORMAL IMPLEMENTATION PERMISSION.
+DO NOT REBUILD THE SITE.
+DO NOT DELETE VERIFIED WORDPRESS.ORG WORK.
+DO NOT INVENT DOMAIN OR HOSTING DATA.
+DO NOT TOUCH OTHER ACTIVE WORKTREES.
+DO NOT FAKE CLOSURE.
+
+BUILD:
+
+KNOuX WEB ECOSYSTEM
+
+A cinematic KNOuX-native WordPress division
+that combines:
+
+real domain discovery when a provider is configured,
+truthful hosting/infrastructure pathways,
+a massive live WordPress.org discovery library,
+and real KNOuX engineering services
+
+without compromising provenance, performance or truth.
