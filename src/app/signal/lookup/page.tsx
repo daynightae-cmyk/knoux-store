@@ -1,13 +1,11 @@
 import type { Metadata } from 'next';
-import { SignalLookupClient } from '@/components/signal/SignalLookupClient';
-import { SignalSectionScaffold } from '@/components/signal/SignalSectionScaffold';
+import { SignalExperience } from '@/components/signal/SignalExperience';
 
-export const metadata: Metadata = { title: 'Signal Lookup' };
+export const metadata: Metadata = {
+  title: 'Signal Lookup',
+  alternates: { canonical: 'https://knoux.store/signal/lookup' },
+};
 
 export default function SignalLookupPage() {
-  return (
-    <SignalSectionScaffold routeId="lookup">
-      <SignalLookupClient />
-    </SignalSectionScaffold>
-  );
+  return <SignalExperience context="SG-01 / LOOKUP" />;
 }
