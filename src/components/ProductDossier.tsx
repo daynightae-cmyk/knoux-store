@@ -53,7 +53,7 @@ export function ProductDossier({
               <dt>Version</dt>
               <dd>
                 {product.version}
-                {product.versionSource ? <span style={{ color: '#6d6e70' }}> · {product.versionSource}</span> : null}
+                {product.versionSource ? <span style={{ color: 'var(--dim)' }}> · {product.versionSource}</span> : null}
               </dd>
             </div>
           ) : null}

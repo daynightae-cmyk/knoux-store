@@ -21,13 +21,23 @@ export const UNIVERSE_PALETTE = {
   platinum: '#e6e2da',
   silver: '#b8b5b4',
   muted: '#9a9899',
-  dim: '#6d6e70',
+  /**
+   * Matches `--dim` in `globals.css`.
+   *
+   * The two must stay equal. This map is a mirror of the token set for code
+   * that draws to a canvas, where a CSS variable is not available — and it had
+   * drifted: the token was raised to `#8a8c8f` to clear 4.5:1 on the page
+   * background, and this copy stayed at the old `#6d6e70` (3.90:1). Anything
+   * rendering this map as text then failed contrast while the same colour
+   * beside it in HTML passed.
+   */
+  dim: '#8a8c8f',
   graphite: '#17171a',
   line: '#292a2d',
   connector: '#51455b',
   violet: '#a18acb',
   violetSoft: '#c2b5d8',
-  violetDeep: '#6f5f8f',
+  violetDeep: '#8b8ea3',
 } as const;
 
 export type UniverseNodePalette = keyof typeof UNIVERSE_PALETTE;

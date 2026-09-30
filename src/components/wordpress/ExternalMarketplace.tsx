@@ -244,6 +244,13 @@ export function ExternalMarketplace({
         </div>
 
         <div className="finder-controls">
+          {/*
+            These are links, not toggles. `aria-pressed` belongs to `role="button"`,
+            and a link that navigates has no pressed state to report, so announcing
+            one both fails `aria-allowed-attr` and tells a screen reader the wrong
+            thing about navigation. The current choice in a set of links is
+            `aria-current`, which is what the surrounding link grammar uses.
+          */}
           <div className="finder-chips" role="group" aria-label="Result ordering">
             <span className="finder-chips__label">Sort</span>
             {(Object.keys(SORT_LABEL) as MarketplaceSort[]).map((option) => (
@@ -251,7 +258,7 @@ export function ExternalMarketplace({
                 key={option}
                 className={`tag tag--button ${query.sort === option ? 'is-active' : ''}`}
                 href={pageHref(basePath, { ...query, sort: option }, 1)}
-                aria-pressed={query.sort === option}
+                aria-current={query.sort === option ? 'true' : undefined}
               >
                 {SORT_LABEL[option]}
               </Link>
@@ -264,7 +271,7 @@ export function ExternalMarketplace({
                 key={choice}
                 className={`tag tag--button ${query.perPage === choice ? 'is-active' : ''}`}
                 href={pageHref(basePath, { ...query, perPage: choice }, 1)}
-                aria-pressed={query.perPage === choice}
+                aria-current={query.perPage === choice ? 'true' : undefined}
               >
                 {choice}
               </Link>

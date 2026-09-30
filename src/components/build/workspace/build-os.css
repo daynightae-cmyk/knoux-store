@@ -324,6 +324,17 @@
   overflow: auto;
 }
 
+/* The pane body carries `tabindex="0"` so a keyboard user can scroll it (see
+   `Pane` in `Primitives.tsx`). It has to say so visibly: the global focus rule
+   names only `a`, `button`, `input`, `textarea` and `select`, so a div made
+   focusable by attribute gets no ring from it — which is the same invisible
+   focus stop this project already fixed once. Inset, because the body is
+   scrollable and an outset ring would be clipped by its own overflow. */
+.bo-pane__body:focus-visible {
+  outline: 2px solid var(--violet);
+  outline-offset: -2px;
+}
+
 .bo-pane__body--pad {
   padding: 18px;
 }

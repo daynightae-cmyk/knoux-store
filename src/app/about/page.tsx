@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { PageIntro } from '@/components/PageIntro';
 import { NextLink, SystemIndex, IndexRow } from '@/components/blocks';
 import { pageMetadata } from '@/lib/metadata';
 import { divisions } from '@/lib/entities';
@@ -10,7 +9,7 @@ import { growthChannelsDetail, growthModules } from '@/data/growth';
 import { creativeDisciplines } from '@/data/services';
 import { solutions } from '@/data/solutions';
 import { capabilities } from '@/data/capabilities';
-import { AboutLivingIdentity } from '@/components/AboutLivingIdentity';
+import { AboutOriginRoom } from '@/components/AboutOriginRoom';
 
 export const metadata = pageMetadata(
   'About',
@@ -20,17 +19,11 @@ export const metadata = pageMetadata(
 
 export default function AboutPage() {
   return (
-    <main id="main-content">
-      <PageIntro
-        index="11"
-        label="About"
-        title="An institution,"
-        italic="not a catalogue."
-        description="KNOuX is organised as a headquarters with internal divisions rather than as a shop with product pages. The distinction decides what gets built."
-      />
+    <main id="main-content" tabIndex={-1}>
+      <AboutOriginRoom />
 
-      <section className="shell" style={{ paddingTop: 'clamp(50px, 6vw, 100px)', paddingBottom: 'clamp(80px, 9vw, 140px)' }}>
-        <div className="about-layout about-layout--living">
+      <section id="about-point-of-view" className="shell" style={{ paddingTop: 'clamp(50px, 6vw, 100px)', paddingBottom: 'clamp(80px, 9vw, 140px)' }}>
+        <div className="about-origin-narrative">
           <div className="about-layout__narrative">
             <span className="label label--signal">POINT OF VIEW</span>
             <h2 className="about-heading">
@@ -59,7 +52,6 @@ export default function AboutPage() {
               </p>
             </div>
           </div>
-          <AboutLivingIdentity />
         </div>
       </section>
 

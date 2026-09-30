@@ -9,12 +9,57 @@ import { DevEmpty, DevPageHeading, DevPanel } from './DevUI';
 const stages = ['Source', 'Dependencies', 'Build', 'Tests', 'Package', 'Deploy'];
 const checks = ['lint', 'typecheck', 'build', 'test'];
 
+type RunnerState = { enabled: boolean; status: VerificationCheck };
+
+/**
+ * The runner read must not assume a shape it was not given.
+ *
+ * `GET /api/build/verify` answers 200 with a runner state or 401 with the
+ * workspace boundary's refusal, which carries a `message` and no `status`. Storing
+ * the refusal as runner state and then reading `runner.status.evidence` threw on
+ * every production deployment, so the pipeline route rendered Next's error
+ * boundary instead of this page — a crash caused by the security boundary working
+ * correctly. The refusal is a fact to show, not a shape to assume.
+ */
+function readRunnerState(payload: unknown): RunnerState | null {
+  if (typeof payload !== 'object' || payload === null) return null;
+  const candidate = payload as { enabled?: unknown; status?: unknown };
+  if (typeof candidate.enabled !== 'boolean' || typeof candidate.status !== 'object' || candidate.status === null) {
+    return null;
+  }
+  return candidate as RunnerState;
+}
+
 export function BuildPipelinePage() {
   const { state, dispatch } = useBuildWorkspace();
-  const [runner, setRunner] = useState<{ enabled: boolean; status: VerificationCheck } | null>(null);
+  const [runner, setRunner] = useState<RunnerState | null>(null);
   const [running, setRunning] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  useEffect(() => { void fetch('/api/build/verify', { cache: 'no-store' }).then((response) => response.json()).then(setRunner).catch(() => setError('Runner state could not be read.')); }, []);
+  useEffect(() => {
+    let cancelled = false;
+    void fetch('/api/build/verify', { cache: 'no-store' })
+      .then(async (response) => ({ ok: response.ok, payload: await response.json() }))
+      .then(({ ok, payload }) => {
+        if (cancelled) return;
+        const parsed = readRunnerState(payload);
+        if (parsed) {
+          setRunner(parsed);
+          return;
+        }
+        // The boundary refused, or the host said something this page does not
+        // understand. Either way the runner is not available, and the reason the
+        // server gave is the reason shown.
+        const message =
+          typeof (payload as { message?: unknown })?.message === 'string'
+            ? (payload as { message: string }).message
+            : 'The verification runner is not available on this deployment.';
+        setError(ok ? message : `${message} The runner is unavailable.`);
+      })
+      .catch(() => {
+        if (!cancelled) setError('Runner state could not be read.');
+      });
+    return () => { cancelled = true; };
+  }, []);
   async function run(task: string) {
     if (!runner?.enabled || running) return;
     setRunning(task); setError(null);

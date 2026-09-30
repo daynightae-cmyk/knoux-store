@@ -12,6 +12,10 @@
  */
 import { readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { softwareProducts } from '@/data/software';
+import { solutions } from '@/data/solutions';
+import { growthChannelsDetail } from '@/data/growth';
+import { creativeDisciplines, webSystems } from '@/data/services';
 
 export const APP_DIR = join(process.cwd(), 'src', 'app');
 
@@ -71,22 +75,51 @@ function walk(dir: string, out: string[]): void {
   }
 }
 
-/** A representative slug per dynamic segment, taken from the repo's own data. */
+/**
+ * A representative slug per dynamic segment, read from the repository's own
+ * data rather than typed here.
+ *
+ * A hard-coded sample is a guess: `/growth/knoux-one` is a 404, and a 404 in
+ * this suite is indistinguishable from a genuinely broken route, so a guess
+ * either produces false failures or, worse, gets "fixed" by deleting the
+ * assertion. Every dynamic route family derives its slugs from exactly one
+ * module, and that module is also what `generateStaticParams` uses, so the
+ * sample is a real published route by construction.
+ */
 const SEGMENT_SAMPLES: Record<string, string> = {
-  slug: 'knoux-one',
-};
+  creative: creativeDisciplines[0]?.slug,
+  growth: growthChannelsDetail[0]?.slug,
+  products: softwareProducts[0]?.slug,
+  solutions: solutions[0]?.slug,
+  web: webSystems[0]?.slug,
+} as Record<string, string>;
+
+/**
+ * Every dynamic segment on this site is named `[slug]`, so the sample has to be
+ * chosen by family rather than by segment name. A family with no sample is a
+ * family this suite cannot honestly claim to cover, so it is a loud failure
+ * rather than a route string containing `undefined`.
+ */
+function resolveDynamic(route: string): string {
+  const segments = route.split('/');
+  const family = segments.filter(Boolean)[0];
+  if (!segments.some((segment) => segment.startsWith('['))) return route;
+
+  const sample = SEGMENT_SAMPLES[family];
+  if (!sample) {
+    throw new Error(
+      `No real slug is registered for /${family}. Add its data module to SEGMENT_SAMPLES ` +
+        `so the suite covers a published route rather than an invented one.`,
+    );
+  }
+  return segments.map((segment) => (segment.startsWith('[') ? sample : segment)).join('/');
+}
 
 export function publicRoutes(): string[] {
   const found: string[] = [];
   walk(APP_DIR, found);
   return found
-    .map((route) =>
-      route
-        .split('/')
-        .map((segment) => (segment.startsWith('[') ? SEGMENT_SAMPLES.slug : segment))
-        .join('/')
-        .replace(/\/\/$/, '/'),
-    )
+    .map((route) => resolveDynamic(route).replace(/\/\/$/, '/'))
     .filter((route) => {
       const base = '/' + route.split('/').filter(Boolean)[0];
       return PUBLIC_PREFIXES.some((prefix) => base === prefix);
@@ -97,6 +130,67 @@ export function publicRoutes(): string[] {
 
 /** Routes a browser visitor is expected to land on directly. */
 export const PRIMARY_ROUTES = publicRoutes();
+
+/**
+ * The largest uninterrupted vertical band on the page that contains nothing.
+ *
+ * This is injected into the page by `routes.spec.ts`. It is a function rather
+ * than a constant because the measurement is only meaningful against a rendered
+ * document, and it has to run inside the browser to see computed style.
+ *
+ * A band counts as occupied when any element crossing it renders text, is a
+ * media or form element, or paints a background, border or image. The previous
+ * check was a proxy — "a page taller than eight viewports" — and it was wrong in
+ * both directions: `/creative` is ten viewports of real, dense, correctly
+ * composed content, and a page that filled 4000px with an empty `min-height`
+ * would have been eight viewports of nothing. Measuring the empty band catches
+ * the failure the check was written for and stops punishing the pages that do
+ * the opposite.
+ *
+ * Exported as source text so the intent travels with the measurement.
+ */
+export const LARGEST_BLANK_BAND_SOURCE = `
+function largestBlankBand() {
+  const docHeight = document.documentElement.scrollHeight;
+  if (docHeight === 0) return 0;
+  const occupied = new Uint8Array(docHeight);
+
+  for (const element of document.querySelectorAll('body *')) {
+    const style = getComputedStyle(element);
+    if (element.offsetParent === null && style.position !== 'fixed') continue;
+
+    const rect = element.getBoundingClientRect();
+    if (rect.height < 2 || rect.width < 2) continue;
+
+    const hasText = Array.from(element.childNodes).some(
+      (node) => node.nodeType === 3 && node.textContent.trim().length > 0,
+    );
+    const isMedia = /^(IMG|CANVAS|SVG|VIDEO|INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(element.tagName);
+    const hasPaint =
+      (style.backgroundColor && style.backgroundColor !== 'rgba(0, 0, 0, 0)') ||
+      style.borderTopWidth !== '0px' ||
+      style.backgroundImage !== 'none';
+
+    if (!hasText && !isMedia && !hasPaint) continue;
+
+    const top = Math.max(0, Math.round(rect.top + window.scrollY));
+    const bottom = Math.min(docHeight, Math.round(rect.bottom + window.scrollY));
+    for (let y = top; y < bottom; y += 1) occupied[y] = 1;
+  }
+
+  let longest = 0;
+  let run = 0;
+  for (let y = 0; y < docHeight; y += 1) {
+    if (occupied[y] === 1) {
+      run = 0;
+    } else {
+      run += 1;
+      if (run > longest) longest = run;
+    }
+  }
+  return longest;
+}
+`;
 
 /** The widths the responsive claim is made about. */
 export const VIEWPORTS = {

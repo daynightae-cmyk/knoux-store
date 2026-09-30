@@ -27,7 +27,6 @@ test('an official host over https is accepted', () => {
     'https://s.w.org/images/core/button.svg.png',
     'https://downloads.wordpress.org/plugin/akismet.zip'.replace('.zip', '.png'),
     'https://images.wordpress.org/banner.webp',
-    'https://anything.wordpress.org/path/image.png',
   ]) {
     const decision = checkAssetUrl(candidate);
     assert.equal(decision.ok, true, `${candidate} must be accepted`);
@@ -40,6 +39,8 @@ test('a non-allowlisted host is refused', () => {
     'https://ps.w.org.evil.com/image.png',
     'https://notps.w.org/image.png',
     'https://localhost/image.png',
+    'https://anything.wordpress.org/path/image.png',
+    'https://ps.w.org:8443/image.png',
   ]) {
     const decision = checkAssetUrl(candidate);
     assert.equal(decision.ok, false, `${candidate} must be refused`);

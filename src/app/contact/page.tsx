@@ -14,7 +14,7 @@ const CONTACT_EMAIL = 'knouxio@zohomail.com';
 
 export default function ContactPage() {
   return (
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       <PageIntro
         index="08"
         label="Contact"

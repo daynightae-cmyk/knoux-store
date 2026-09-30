@@ -1,13 +1,35 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ProductAnatomyScene } from './ProductAnatomyScene';
 import { ProductAnatomyPanel } from './ProductAnatomyPanel';
 import { ProductAnatomyIndex } from './ProductAnatomyIndex';
 import { deriveProductAnatomy, deriveProductAnatomyEdges } from '@/data/product-anatomy-data';
 import { computeProductAnatomyLayout } from '@/data/product-anatomy-layout';
 import { visualProfileFor } from '@/data/product-visuals';
 import type { SoftwareProduct } from '@/data/software';
+
+/**
+ * The 3D scene is a lazy boundary, not a static import.
+ *
+ * This route is linked from the home page, the work archive and the product
+ * index, and Next.js prefetches a linked route's client bundle on viewport
+ * entry. With a static import, three.js — a 905 KB chunk — was fetched by
+ * anyone who merely scrolled a page containing a product link, on a route that
+ * renders no 3D at all. That is the F-13 finding in its real form: not that the
+ * bundle is large, but that it arrives at visitors who will never see a canvas.
+ *
+ * The scene already waits for `visible`, driven by an IntersectionObserver, so
+ * it was never painted before it was in view. Loading it on the same condition
+ * costs nothing a visitor could see and removes the weight from every prefetch.
+ */
+const ProductAnatomyScene = dynamic(
+  () => import('./ProductAnatomyScene').then((module) => module.ProductAnatomyScene),
+  {
+    ssr: false,
+    loading: () => <div className="product-anatomy-scene__fallback" role="status">Loading the interactive view…</div>,
+  },
+);
 
 export function ProductSystemAnatomy({ product }: { product: SoftwareProduct }) {
   const profile = visualProfileFor(product.slug);

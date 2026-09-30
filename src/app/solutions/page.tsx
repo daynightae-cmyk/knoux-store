@@ -15,7 +15,7 @@ export const metadata = pageMetadata(
 
 export default function SolutionsPage() {
   return (
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       <TrackOnView event={{ type: 'division_opened', division: 'solutions', route: '/solutions' }} />
       <PageIntro
         index="06"
