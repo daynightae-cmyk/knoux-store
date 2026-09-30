@@ -5,10 +5,6 @@ import {
 } from 'libphonenumber-js/max';
 import type { SignalLineType, SignalPhoneFacts } from './types';
 
-export const SIGNAL_PREFERRED_COUNTRIES = Object.freeze([
-  'AE', 'EG', 'SA', 'QA', 'BH', 'OM', 'KW',
-] as const);
-
 function mapLineType(type: string | undefined): SignalLineType {
   switch (type) {
     case 'MOBILE': return 'mobile';
