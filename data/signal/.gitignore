@@ -1,0 +1,8 @@
+raw/**
+processed/**
+manifests/**
+logs/**
+!raw/.gitkeep
+!processed/.gitkeep
+!manifests/.gitkeep
+!logs/.gitkeep
