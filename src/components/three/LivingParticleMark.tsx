@@ -41,6 +41,7 @@ uniform float uArrival;
 uniform float uTransition;
 uniform float uMorph;
 uniform float uMotion;
+uniform float uAwake;
 
 uniform vec3 uMouse3D;
 uniform float uMouseActive;
@@ -123,7 +124,7 @@ void main() {
     // keeps dark negative space instead of reading as a filled surface.
     vAlpha = (0.86 + 0.14 * (1.0 - smoothstep(0.0, 14.0, -mvPos.z)))
            * (0.42 + 0.58 * aContour)
-           * (0.15 + 0.85 * travel);
+           * (0.15 + 0.85 * travel) * uAwake;
 }`;
 
 const fragmentShader = /* glsl */ `
@@ -147,13 +148,14 @@ const VIOLET = new THREE.Color(0.5, 0.3, 0.94);
 const OVERDRIVE = 2.15;
 const LIFT = 0.16;
 
-function ParticleField({
+export function LivingParticleField({
   budget,
   progress,
   reduced,
   pointer,
   hovering,
   onSettled,
+  awake = true,
 }: {
   budget: number;
   progress: number;
@@ -161,6 +163,7 @@ function ParticleField({
   pointer: React.RefObject<THREE.Vector3>;
   hovering: React.RefObject<number>;
   onSettled: () => void;
+  awake?: boolean;
 }) {
   const settled = useRef(false);
 
@@ -231,6 +234,7 @@ function ParticleField({
           uTransition: { value: 0 },
           uMorph: { value: 0 },
           uMotion: { value: reduced ? 0 : 1 },
+          uAwake: { value: 0 },
           uMouse3D: { value: new THREE.Vector3(999, 999, 0) },
           uMouseActive: { value: 0 },
         },
@@ -255,7 +259,8 @@ function ParticleField({
       uniforms.uPixelRatio.value = pixelRatio.current;
     }
     uniforms.uTime.value = state.clock.elapsedTime;
-    uniforms.uArrival.value = THREE.MathUtils.damp(uniforms.uArrival.value, 1, reduced ? 40 : 1.6, step);
+    uniforms.uArrival.value = THREE.MathUtils.damp(uniforms.uArrival.value, awake ? 1 : 0, reduced ? 40 : 2.3, step);
+    uniforms.uAwake.value = THREE.MathUtils.damp(uniforms.uAwake.value, awake ? 1 : 0, reduced ? 40 : 2.5, step);
     uniforms.uTransition.value = THREE.MathUtils.damp(uniforms.uTransition.value, progress, 2.4, step);
     uniforms.uMorph.value = uniforms.uTransition.value;
     uniforms.uMotion.value = THREE.MathUtils.damp(uniforms.uMotion.value, reduced ? 0 : 1, 4, step);
@@ -397,7 +402,7 @@ export function LivingParticleMark({ progress = 0, onSettled }: LivingParticleMa
           frameloop={visible ? (reduced ? 'demand' : 'always') : 'never'}
           gl={{ antialias: false, alpha: true, depth: false, stencil: false, powerPreference: tier === 'low' ? 'low-power' : 'high-performance' }}
         >
-          <ParticleField
+          <LivingParticleField
             budget={budget}
             progress={progress}
             reduced={reduced}
