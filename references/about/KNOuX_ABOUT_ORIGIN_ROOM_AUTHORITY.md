@@ -7,7 +7,7 @@ It is NOT global design authority and must NOT override the accepted KNOuX visua
 ## Source artifacts
 - references/about/quiet-room-specialist-reference.html
 - references/about/quiet-room-scene-mechanics-reference.md
-- User-supplied full scene.js source was inspected during reference capture.
+- references/about/quiet-room-source-scene.full-source.txt — FULL 5,942-line user-supplied scene source, preserved read-only for direct implementation study.
 
 IMPORTANT:
 The full scene logic is now available for behavior study.
@@ -25,7 +25,7 @@ Verified source behavior:
 Read before editing:
 - references/about/LIVING_IDENTITY_CLOSURE.md
 - src/app/about/page.tsx
-- src/components/AboutLivingIdentity.tsx
+- src/components/AboutOriginRoom.tsx
 - src/components/three/LivingParticleMark.tsx
 - src/lib/knouxMark.ts
 - src/app/globals.css
@@ -62,11 +62,12 @@ Before entry:
 - no timer, no game framing
 After entry:
 - the space wakes progressively
-- first meaningful light originates from the canonical LivingParticleMark
-- platinum / silver / off-white / muted violet illumination
+- the desk lamp is the first meaningful physical light source, matching the user's reference intent
+- platinum / silver / off-white illumination spreads from the lamp across the workbench and room
 - architectural objects emerge gradually
-- subtle particles wake gently
-- the mark feels like the institution's power source
+- the canonical LivingParticleMark assembles after the lamp begins revealing the space
+- muted violet remains a restrained KNOuX signal accent, not the main room light
+- the mark becomes the institutional identity inside the room rather than a giant replacement for the room
 
 Desired sequence:
 DARKNESS
