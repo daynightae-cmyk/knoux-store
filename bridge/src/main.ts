@@ -17,6 +17,7 @@ import { AuditLog } from './audit.js';
 import { SessionManager } from './pty/session.js';
 import { ProcessRegistry } from './proc/registry.js';
 import { BridgeServer } from './server.js';
+import { createControlPlaneWorker, controlPlaneUrlFromEnv } from './control-plane.js';
 import { createHash, randomInt } from 'node:crypto';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
@@ -195,6 +196,36 @@ async function cmdStart(): Promise<void> {
 
   await server.listen(config.port, config.host);
 
+  let controlPlane: ReturnType<typeof createControlPlaneWorker> | null = null;
+  const controlPlaneUrl = controlPlaneUrlFromEnv();
+  if (controlPlaneUrl) {
+    controlPlane = createControlPlaneWorker({
+      baseUrl: controlPlaneUrl,
+      bridgeId,
+      version: VERSION,
+      identity,
+      config,
+      onIssuerTrust: (fingerprint, publicKey) => {
+        trustedIssuers.set(fingerprint, publicKey);
+        saveTrustedIssuers(trustedIssuers);
+      },
+      onAudit: (action, outcome, detail) => {
+        audit.append({
+          action,
+          actor: 'control-plane',
+          target: bridgeId,
+          outcome,
+          detail,
+          approvalId: null,
+        });
+      },
+    });
+    controlPlane.start();
+    console.log('  Control plane: ' + controlPlaneUrl + ' (outbound-only)');
+  } else {
+    console.log('  Control plane: disabled (set KNOUX_CONTROL_PLANE_URL to enable)');
+  }
+
   audit.append({
     action: 'bridge.start',
     actor: 'system',
@@ -222,6 +253,7 @@ async function cmdStart(): Promise<void> {
       approvalId: null,
     });
     persistPairing();
+    if (controlPlane) await controlPlane.stop();
     processes.stopAll();
     sessions.dispose();
     await server.close();

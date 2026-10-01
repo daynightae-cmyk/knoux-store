@@ -37,6 +37,7 @@ qa-*.png
 
 scripts/
 *.py
+!/gateway/*.py
 KNOuX_VISUAL_REFERENCES_MASTER.txt
 KNOuX_WORK_EXECUTION_PROMPT.txt
 New Text Document.txt
@@ -74,3 +75,8 @@ node_modules*/
 /bridge/ptydll.mjs
 /bridge/ptyloop.mjs
 /bridge/tapout.txt
+
+# KNOuX Store MCP Gateway local artifacts
+gateway/.venv/
+gateway/__pycache__/
+gateway/*.pyc
