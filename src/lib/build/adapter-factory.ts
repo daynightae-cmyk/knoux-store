@@ -1,14 +1,16 @@
 /**
- * The single construction site for the read-only project adapter.
+ * The single construction site for the project adapter.
  *
- * The environment is not a parameter. It is derived, in `environment.ts`, from
- * the deployment — which is the property the previous per-route construction
- * lacked, where one route derived it and four hard-coded `'production'`.
+ * Returns a BridgeProjectAdapter when a paired bridge exists and the access
+ * policy allows, otherwise the read-only FsProjectAdapter. The environment is
+ * derived only via `resolveDeploymentEnvironment()` — never from request input.
  *
  * Server-only. This module reads `process.env` and the filesystem.
  */
 
 import { FsProjectAdapter } from './project-adapter';
+import { BridgeProjectAdapter } from './bridge-adapter';
+import type { Handshake } from './bridge-protocol';
 import {
   ENVIRONMENT_LABELS,
   environmentLabel,
@@ -16,8 +18,10 @@ import {
   resolveDeploymentEnvironment,
 } from './deployment';
 import type { EnvironmentName } from './deployment';
+import type { ProjectAdapter } from './types';
 
 export const ADAPTER_ID = 'knoux-fs-readonly';
+export const BRIDGE_ADAPTER_ID = 'knoux-bridge';
 
 export {
   ENVIRONMENT_LABELS,
@@ -27,13 +31,39 @@ export {
 };
 export type { EnvironmentName };
 
+export interface CreateAdapterOptions {
+  root?: string;
+  env?: Record<string, string | undefined>;
+  label?: string;
+  /** When a bridge is paired, the cached handshake. */
+  bridgeHandshake?: Handshake | null;
+  /** When the handshake was last measured. */
+  bridgeHandshakeMeasuredAt?: number | null;
+  /** Whether the bridge is reachable. */
+  bridgeReachable?: boolean;
+  /** Last error from the bridge. */
+  bridgeError?: string | null;
+}
+
 export function createProjectAdapter(
-  options: { root?: string; env?: Record<string, string | undefined>; label?: string } = {},
-): FsProjectAdapter {
+  options: CreateAdapterOptions = {},
+): ProjectAdapter {
   const environment = resolveDeploymentEnvironment(options.env ?? process.env);
-  return new FsProjectAdapter({
-    root: options.root ?? process.cwd(),
-    environment,
-    label: options.label ?? ENVIRONMENT_LABELS[environment],
-  });
+  const root = options.root ?? process.cwd();
+  const label = options.label ?? ENVIRONMENT_LABELS[environment];
+
+  // Use the bridge adapter when a bridge is paired and reachable.
+  if (options.bridgeHandshake && options.bridgeReachable) {
+    return new BridgeProjectAdapter({
+      root,
+      environment,
+      label,
+      handshake: options.bridgeHandshake,
+      handshakeMeasuredAt: options.bridgeHandshakeMeasuredAt ?? null,
+      bridgeReachable: options.bridgeReachable,
+      bridgeError: options.bridgeError ?? null,
+    });
+  }
+
+  return new FsProjectAdapter({ root, environment, label });
 }

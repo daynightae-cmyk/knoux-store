@@ -61,3 +61,16 @@ coverage/
 
 # A dependency tree moved aside by an interrupted or partial npm ci.
 node_modules*/
+
+# The bridge is its own npm package, so it carries its own build output and its own
+# installed tree. Only its source, tests and manifests belong in this repository.
+/bridge/dist/
+/bridge/node_modules/
+
+# Ad-hoc PTY diagnostics written while investigating a hanging terminal test: a spawn
+# probe, two manual driver loops and the raw TAP dump. Reproducible by hand and not
+# part of the suite.
+/bridge/probe.mjs
+/bridge/ptydll.mjs
+/bridge/ptyloop.mjs
+/bridge/tapout.txt
