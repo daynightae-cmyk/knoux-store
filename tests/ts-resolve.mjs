@@ -17,7 +17,8 @@
  */
 
 import { existsSync } from 'node:fs';
-import { dirname, resolve as resolvePath } from 'node:path';
+import { dirname, join as joinPath, resolve as resolvePath } from 'node:path';
+import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = resolvePath(dirname(fileURLToPath(import.meta.url)), '..');
@@ -27,10 +28,39 @@ const SUFFIXES = ['', '.ts', '.tsx', '.mts', '/index.ts', '/index.tsx'];
 /** `@/lib/foo` means `src/lib/foo`. */
 const ALIAS_PREFIX = '@/';
 
+/**
+ * The `server-only` marker's no-op half.
+ *
+ * Resolved by path rather than by specifier, because the package's `exports` map
+ * deliberately exposes only `.` — the two halves are selected by condition, not
+ * by subpath. The main entry is located to find the package directory, and the
+ * sibling `empty.js` is pointed at directly.
+ */
+const SERVER_ONLY_EMPTY = (() => {
+  const require = createRequire(import.meta.url);
+  const entry = dirname(require.resolve('server-only'));
+  return pathToFileURL(joinPath(entry, 'empty.js')).href;
+})();
+
 export async function resolve(specifier, context, nextResolve) {
   // Next's package exposes server.js to Node ESM; application source uses the
   // bundler-friendly next/server spelling. Exercise the real guard in tests.
   if (specifier === 'next/server') return nextResolve('next/server.js', context);
+  // `server-only` is a marker package, not a runtime dependency. It throws on
+  // import unless the bundler resolved it under the `react-server` export
+  // condition, which Next.js sets and a bare test runner does not.
+  //
+  // Without this, any test that executes a server-only module — the registrar
+  // adapters, for one — dies on the marker's own error before reaching a single
+  // assertion, and the only way to "fix" it would be to delete the marker from
+  // production source. That would remove the guard that stops a credential
+  // being imported into a client bundle, which is the one thing the marker is
+  // for.
+  //
+  // So the marker's no-op half is selected here, which is exactly what a server
+  // context does. The security property itself is asserted structurally, by a
+  // test that reads the source.
+  if (specifier === 'server-only') return { url: SERVER_ONLY_EMPTY, shortCircuit: true };
   try {
     return await nextResolve(specifier, context);
   } catch (cause) {
