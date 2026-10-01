@@ -90,7 +90,21 @@ jobs:
   browser:
     name: Routes, responsive geometry and automated accessibility
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # Sized from what the suite actually costs, not from a round number.
+    #
+    # This was 25 minutes against a suite that takes 32.4 minutes locally on a
+    # warm build with a real GPU. A job that is killed at its own timeout
+    # reports `exit code 1` with no failing assertion and still uploads its
+    # 198 MB evidence artifact, because the upload is `if: always()`. That is
+    # indistinguishable from a real failure in the run list, so the timeout
+    # cannot be the thing that reports it.
+    #
+    # The budget is 3x the measured cost: `fullyParallel: false, workers: 1`
+    # means the three viewport projects run in series, `routes.spec.ts` is the
+    # slow file in all three (9.2m / 8.7m / 6.2m), and the evidence pass takes
+    # 33 screenshots per width. GitHub runners are slower than the workstation
+    # that produced those numbers, and `next start` is cold here.
+    timeout-minutes: 90
     permissions:
       contents: read
     steps:

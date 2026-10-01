@@ -136,8 +136,26 @@ export function EcosystemHero() {
           Domain. Hosting. WordPress. <span>One system.</span>
         </p>
 
-        <div className="eco-hero__stack" role="img" aria-label="The KNOuX web ecosystem: domain, then infrastructure, then WordPress core, then themes, plugins, blocks and patterns, then operations.">
-          <ol className="eco-hero__layers">
+        {/*
+          The stack is a list of links, so it is exposed as a list of links.
+
+          `role="img"` on an element containing real anchors made the browser
+          expose a single image node whose focusable descendants assistive
+          technology cannot reliably reach — axe reports `nested-interactive`,
+          and it is a real defect rather than a rule artefact: a keyboard user
+          tabbing this stack is activating links the accessibility tree claims
+          are not there.
+
+          The descriptive label moves onto the ordered list, which already
+          announces layer one through five, so the summary survives without the
+          subtree lying about what it is. The outer div keeps both class names
+          the stylesheet positions against and carries no role.
+        */}
+        <div className="eco-hero__stack">
+          <ol
+            className="eco-hero__layers"
+            aria-label="The KNOuX web ecosystem: domain, then infrastructure, then WordPress core, then themes, plugins, blocks and patterns, then operations."
+          >
             {CHAPTERS.map((entry, index) => (
               <li key={entry.id} className="eco-hero__layer" data-index={index}>
                 <a href={entry.href} className="eco-hero__layer-link">

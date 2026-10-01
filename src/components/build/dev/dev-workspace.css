@@ -326,3 +326,9 @@
   .dev-entry__field button { min-height: 42px; }
   .dev-entry__foot { flex-direction: column; gap: 5px; bottom: 18px; }
 }
+
+/* The hero field is a Canvas 2D surface, not a react-three-fiber one, so the
+   canvas needs the same box treatment `.mark-canvas` has on the homepage. It
+   fills its positioned parent, and its backing store is sized in script from
+   the parent's measured rect at a capped DPR. */
+.dev-hero__canvas canvas { position: absolute; inset: 0; z-index: 2; display: block; }
