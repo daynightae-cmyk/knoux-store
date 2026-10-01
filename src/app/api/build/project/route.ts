@@ -11,8 +11,10 @@ export async function GET(request: NextRequest) {
 
   try {
     const instance = createProjectAdapter();
+    // The cache key identifies the snapshot; the root itself is already in the
+    // payload, so it need not appear in a shared key.
     const snapshot = await withShortCache(
-      `project:${instance.environment}:${instance.root}`,
+      `project:${instance.environment}:${instance.id}`,
       () => instance.snapshot(),
     );
     const capabilities = instance.capabilities();

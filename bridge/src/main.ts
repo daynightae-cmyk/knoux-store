@@ -336,11 +336,29 @@ async function cmdDoctor(): Promise<void> {
   console.log('');
   console.log('Metrics sample:');
   const { sampleMetrics } = await import('./metrics.js');
+  // System CPU and network rates are differences between two readings, so the
+  // first sample cannot produce them. Take a second so `doctor` reports what
+  // the bridge actually measures rather than an empty first reading.
   const m = sampleMetrics(config.root);
-  console.log(`  cpu:            ${m.cpuPercent ?? 'null'}% (process), ${m.systemCpuPercent ?? 'null'}% (system)`);
-  console.log(`  memory:         ${Math.round(m.memoryUsedBytes / 1048576)} MiB / ${Math.round(m.memoryTotalBytes / 1048576)} MiB`);
-  console.log(`  disk free:      ${m.diskFreeBytes === null ? 'null' : `${Math.round(m.diskFreeBytes / 1048576)} MiB`}`);
-  console.log(`  network rx/tx:  ${m.networkRxBytesPerSec ?? 'null'} / ${m.networkTxBytesPerSec ?? 'null'} B/s`);
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  const second = sampleMetrics(config.root);
+  const measured = {
+    ...second,
+    cpuPercent: m.cpuPercent ?? second.cpuPercent,
+    systemCpuPercent: second.systemCpuPercent ?? m.systemCpuPercent,
+  };
+  // A percentage or a rate that could not be measured prints as "not measured"
+  // rather than as a zero, which would read as a healthy idle machine.
+  const percent = (value: number | null): string => (value === null ? 'not measured' : `${value}%`);
+  const mib = (bytes: number | null): string => (bytes === null ? 'not measured' : `${Math.round(bytes / 1048576)} MiB`);
+  const rate = (bytes: number | null): string => (bytes === null ? 'not measured' : `${bytes} B/s`);
+  console.log(`  cpu:            ${percent(measured.cpuPercent)} (process), ${percent(measured.systemCpuPercent)} (system)`);
+  console.log(`  memory:         ${mib(measured.memoryUsedBytes)} / ${mib(measured.memoryTotalBytes)}`);
+  console.log(`  disk free:      ${mib(measured.diskFreeBytes)}`);
+  console.log(`  network rx/tx:  ${rate(measured.networkRxBytesPerSec)} / ${rate(measured.networkTxBytesPerSec)}`);
+  if (measured.systemCpuPercent === null || measured.networkRxBytesPerSec === null) {
+    console.log('                    (a value that could not be measured stays "not measured", never 0)');
+  }
   console.log('');
   console.log(`Trust store:     ${loadTrustedIssuers().size} issuer(s)`);
   console.log(`Hash of config:  ${createHash('sha256').update(JSON.stringify(config)).digest('hex').slice(0, 16)}`);
