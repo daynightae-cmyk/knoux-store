@@ -58,8 +58,7 @@ export function PowerShellPage() {
   const [session, setSession] = useState<TerminalSessionInfo | null>(null);
   const [exit, setExit] = useState<TerminalExit | null>(null);
   const [stats, setStats] = useState<TerminalStats | null>(null);
-  const [cols, setCols] = useState(80);
-  const [rows, setRows] = useState(24);
+
   const [timings, setTimings] = useState<TerminalTimings | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -149,7 +148,7 @@ export function PowerShellPage() {
           },
           onError: (_code, message) => setError(message),
         },
-        { createSocket: (url) => new WebSocket(url), setTimeout: window.setTimeout, clearTimeout: window.clearTimeout as any, now: Date.now }
+        { createSocket: (url) => new WebSocket(url) }
       );
     }
 
