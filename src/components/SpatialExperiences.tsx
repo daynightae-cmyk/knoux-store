@@ -1,15 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useRef, useState, type CSSProperties } from 'react';
+
 import { softwareProducts } from '@/data/software';
 import { solutions } from '@/data/solutions';
 import { divisions } from '@/lib/entities';
 import { growthChannelsDetail } from '@/data/growth';
 import { webSystems } from '@/data/services';
 
-import { labExperiments } from '@/data/software';
 import { AtelierLab } from '@/components/creative/AtelierLab';
+import { ExperimentChamberV2 } from '@/components/labs/ExperimentChamberV2';
+
 
 
 
@@ -117,21 +119,7 @@ export function MaterialLab() {
 }
 
 
+/** ExperimentChamber is now the full Science Lab SDF Dot-Matrix instrument */
 export function ExperimentChamber() {
-  const [active, setActive] = useState(0);
-  useEffect(() => {
-    const selectFromHash = () => {
-      const index = labExperiments.findIndex((entry) => `#${entry.id}` === window.location.hash);
-      if (index >= 0) setActive(index);
-    };
-    selectFromHash();
-    window.addEventListener('hashchange', selectFromHash);
-    return () => window.removeEventListener('hashchange', selectFromHash);
-  }, []);
-  const experiment = labExperiments[active];
-  return <div className="experiment-chamber spatial-surface" data-spatial>
-    <div className="experiment-chamber__field" aria-hidden="true"><span className="experiment-chamber__ring" /><span className="experiment-chamber__seed" /><span className="experiment-chamber__axis" /><small>PROTOTYPE FIELD / NOT A RELEASE</small></div>
-    <div className="experiment-chamber__body"><span className="label label--signal">EXPERIMENT {String(active + 1).padStart(2, '0')} / {experiment.status.toUpperCase()}</span><h3>{experiment.name}</h3><p>{experiment.statement}</p><div className="experiment-chamber__evidence"><small>EVIDENCE</small>{experiment.evidence}</div><a href={experiment.repository} target="_blank" rel="noopener noreferrer" className="action">INSPECT REPOSITORY <span className="action-arrow">↗</span></a></div>
-    <div className="experiment-chamber__selector" role="group" aria-label="Choose a lab experiment">{labExperiments.map((entry, index) => <button id={entry.id} key={entry.id} type="button" onClick={() => setActive(index)} aria-pressed={active === index} className={active === index ? 'is-active' : ''}>{entry.code}<span>{entry.name}</span></button>)}</div>
-  </div>;
+  return <ExperimentChamberV2 />;
 }
