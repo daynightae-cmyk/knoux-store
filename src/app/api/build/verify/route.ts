@@ -63,6 +63,15 @@ export async function POST(request: NextRequest) {
 
   const adapter = createProjectAdapter({ label: 'Verification runner' });
 
+  // runVerification is optional on the adapter type; the FsProjectAdapter
+  // provides it. Without it there is nothing to run.
+  if (typeof adapter.runVerification !== 'function') {
+    return NextResponse.json(
+      { error: 'verification-unavailable', message: 'This deployment has no verification runner.' },
+      { status: 409 },
+    );
+  }
+
   try {
     const snapshot = await adapter.runVerification(task);
     const check = snapshot.checks[0];

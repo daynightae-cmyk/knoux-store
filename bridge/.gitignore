@@ -1,0 +1,12 @@
+# Build output — compiled from src, never edited.
+dist/
+
+# Dependencies — installed with `npm install` in this directory.
+node_modules/
+
+# Local configuration. This file is committed as an example; a developer's copy
+# may point at a different root, and a pairing code must never be committed.
+bridge.config.local.json
+
+# Generated during pairing.
+*.pending-codes.json
