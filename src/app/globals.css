@@ -5384,3 +5384,33 @@ html[data-chamber="armed"] .auth-panel.is-risen [data-stagger="foot"]{transition
 .related-card h3 { font-size: clamp(18px, 2vw, 26px); letter-spacing: -0.04em; font-weight: 400; margin: 0; }
 .related-card p { font-size: 13px; line-height: 1.6; color: var(--muted); margin: 0; flex: 1; }
 .related-card__cta { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; color: var(--violet); margin-top: 8px; }
+
+/* Scene canvas fill */
+.product-scene__canvas { display: block; width: 100%; height: 100%; }
+
+/* Responsive scene height: on mobile, give the scene a fixed height since it can't stretch */
+@media (max-width: 1023px) {
+  .product-hero__scene { min-height: 340px; }
+  .product-hero__scene canvas, .product-hero__scene .product-scene { height: 340px; }
+}
+
+/* Dossier section headings */
+.dossier__section > h2 { font-size: clamp(26px, 3vw, 40px); letter-spacing: -0.06em; font-weight: 400; margin: 12px 0 10px; }
+.dossier__section > .label { display: block; margin-bottom: 20px; }
+
+/* Action link styling */
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text);
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  transition: color 0.2s, border-color 0.2s;
+}
+.action:hover { color: var(--violet); border-color: rgba(161,138,203,0.5); }
+.action-arrow { color: var(--violet); }
