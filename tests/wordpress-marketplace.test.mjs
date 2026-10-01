@@ -107,6 +107,8 @@ test('markup, entities and protocol-relative URLs are normalised', () => {
     'https://ts.w.org/wp-content/themes/x/screenshot.png',
   );
   assert.equal(external.toOfficialAssetUrl('https://ps.w.org/a/icon.svg'), 'https://ps.w.org/a/icon.svg');
+  assert.equal(external.toOfficialRasterAssetUrl('https://ps.w.org/a/icon.png'), 'https://ps.w.org/a/icon.png');
+  assert.equal(external.toOfficialRasterAssetUrl('https://ps.w.org/a/icon.svg'), undefined);
 });
 
 test('asset URLs are refused unless they are official WordPress hosts', () => {

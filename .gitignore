@@ -30,6 +30,25 @@ public/knoux-particles.bin
 # KNOuX Signal local server logs
 .signal-server.*
 
+# Build, lint and typecheck provenance written by the ad-hoc proof scripts, plus the
+# QA harness and smoke fixtures they drive. Each run overwrites its own files, so they
+# are evidence of one local run rather than source. The harness scripts are regenerated
+# by hand when a check needs to change.
+.signal-*.log
+.signal-*.code
+.signal-*.err
+.signal-*.cmd
+.signal-*.ps1
+.signal-*.mjs
+.signal-normalize-smoke.*
+
+# Screenshots and QA result JSON from manual visual passes. Reproducible from the
+# running server; the PNG pattern above already covers the images.
+/audit/
+
+# Supabase CLI scratch (link state, cached project ids).
+/supabase/.temp/
+
 # KNOuX Signal ingestion pipeline is tracked; other legacy scripts remain ignored.
 !/scripts/
 /scripts/*
