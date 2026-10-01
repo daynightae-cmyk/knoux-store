@@ -16,7 +16,6 @@ export function CaptureTimelineScene({
   className,
 }: CaptureTimelineSceneProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const randomRef = useRef(() => seeded(seed));
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -24,7 +23,7 @@ export function CaptureTimelineScene({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const rand = randomRef.current();
+    const rand = seeded(seed);
     const layers = buildLayers(rand);
     let width = 0;
     let height = 0;
@@ -33,6 +32,9 @@ export function CaptureTimelineScene({
     let frame = 0;
     let time = 0;
     let assembly = 0;
+    let lastTs = 0;
+    // Disk write progress (incremental, deterministic)
+    let diskProgress = 0;
 
     const layout = () => {
       ratio = Math.min(2, window.devicePixelRatio || 1);
@@ -48,131 +50,182 @@ export function CaptureTimelineScene({
       ctx.fillStyle = '#08090a';
       ctx.fillRect(0, 0, width, height);
 
-      assembly = Math.min(1, assembly + dt * 0.22);
+      assembly = Math.min(1, assembly + dt * 0.2);
 
       const cx = width * 0.5;
       const cy = height * 0.5;
-      // Draw field stars
-      for (const star of layers.stars) {
-        const calm = 1 - assembly * 0.4;
-        const x = star.x * width + star.driftX * t * width * 1000 * calm;
-        const y = star.y * height + star.driftY * t * height * 1000 * calm;
-        const twinkle = star.amplitude * Math.sin(t * star.speed + star.phase);
-        const alpha = Math.max(0.02, Math.min(1, star.alpha + twinkle));
-        if (alpha <= 0.03) continue;
+      const scale = Math.min(width, height);
 
+      // Star field (very sparse)
+      for (const star of layers.stars) {
+        const calm = 1 - assembly * 0.55;
+        const sx = star.x * width + star.driftX * t * width * 400 * calm;
+        const sy = star.y * height + star.driftY * t * height * 400 * calm;
+        const tw = star.amplitude * Math.sin(t * star.speed + star.phase);
+        const alpha = Math.max(0.01, Math.min(0.4, star.alpha + tw));
+        if (alpha <= 0.02) continue;
         ctx.beginPath();
-        ctx.arc(x, y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = star.violet
-          ? `rgba(190,168,224,${alpha})`
-          : `rgba(226,224,231,${alpha})`;
+        ctx.arc(sx, sy, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(226,224,231,${alpha})`;
         ctx.fill();
       }
 
-      // Capture corners (framing)
-      if (assembly > 0.1) {
-        const frameAssembly = Math.min(1, assembly / 0.5);
-        const size = Math.min(width, height) * 0.35 * (0.5 + frameAssembly * 0.5);
-        const cornerSize = size * 0.12;
+      // CAPTURE FRAME CORNERS — violet, the primary visual signature
+      if (assembly > 0.08) {
+        const frameA = Math.min(1, assembly / 0.45);
+        const eased = frameA * frameA * (3 - 2 * frameA);
+        const size = scale * 0.32 * (0.5 + eased * 0.5);
+        const cornerLen = size * 0.18;
+        const alpha = 0.55 * eased;
 
         const corners = [
-          { x: cx - size, y: cy - size },
-          { x: cx + size, y: cy - size },
-          { x: cx - size, y: cy + size },
-          { x: cx + size, y: cy + size },
+          { x: cx - size, y: cy - size * 0.7 },
+          { x: cx + size, y: cy - size * 0.7 },
+          { x: cx - size, y: cy + size * 0.7 },
+          { x: cx + size, y: cy + size * 0.7 },
         ];
 
-        for (const corner of corners) {
-          const alpha = 0.4 * frameAssembly;
-          ctx.strokeStyle = `rgba(161,138,203,${alpha})`;
-          ctx.lineWidth = 2;
+        ctx.strokeStyle = `rgba(161,138,203,${alpha})`;
+        ctx.lineWidth = 2;
+
+        for (const c of corners) {
+          const sx2 = c.x < cx ? 1 : -1;
+          const sy2 = c.y < cy ? 1 : -1;
+
+          // Vertical arm
           ctx.beginPath();
-          ctx.moveTo(corner.x, corner.y + cornerSize);
-          ctx.lineTo(corner.x, corner.y);
-          ctx.lineTo(corner.x + cornerSize, corner.y);
+          ctx.moveTo(c.x, c.y);
+          ctx.lineTo(c.x, c.y + sy2 * cornerLen);
           ctx.stroke();
+          // Horizontal arm
           ctx.beginPath();
-          ctx.moveTo(corner.x + (corner.x < cx ? size : -size), corner.y);
-          ctx.lineTo(corner.x + (corner.x < cx ? size : -size), corner.y + cornerSize);
-          ctx.lineTo(corner.x + (corner.x < cx ? size : -size) - cornerSize * (corner.x < cx ? 1 : -1), corner.y + cornerSize);
+          ctx.moveTo(c.x, c.y);
+          ctx.lineTo(c.x + sx2 * cornerLen, c.y);
           ctx.stroke();
         }
+
+        // Subtle frame boundary (very low alpha)
+        ctx.beginPath();
+        ctx.rect(cx - size, cy - size * 0.7, size * 2, size * 1.4);
+        ctx.strokeStyle = `rgba(161,138,203,${0.06 * eased})`;
+        ctx.lineWidth = 0.7;
+        ctx.stroke();
       }
 
-      // Timeline lanes
-      if (assembly > 0.25) {
-        const laneAssembly = Math.min(1, (assembly - 0.25) / 0.5);
+      // TIMELINE LANES — 3 lanes, grows left-to-right as assembly proceeds
+      if (assembly > 0.22) {
+        const laneA = Math.min(1, (assembly - 0.22) / 0.5);
+        const easedLane = laneA * laneA * (3 - 2 * laneA);
+        const laneWidth = Math.min(width * 0.38, scale * 0.44) * easedLane;
         const laneCount = 3;
-        for (let l = 0; l < laneCount; l++) {
-          const ly = cy - 40 + l * 40;
-          const lw = Math.min(width, height) * 0.5 * laneAssembly;
 
+        for (let l = 0; l < laneCount; l++) {
+          const ly = cy - 30 + l * 30;
+          const alpha = (0.12 - l * 0.02) * easedLane;
+
+          // Lane line
           ctx.beginPath();
-          ctx.moveTo(cx - lw, ly);
-          ctx.lineTo(cx + lw, ly);
-          ctx.strokeStyle = `rgba(161,138,203,${0.1 * laneAssembly})`;
-          ctx.lineWidth = 1;
+          ctx.moveTo(cx - laneWidth, ly);
+          ctx.lineTo(cx + laneWidth, ly);
+          ctx.strokeStyle = `rgba(161,138,203,${alpha})`;
+          ctx.lineWidth = 0.8;
           ctx.stroke();
 
-          // Timeline markers
-          if (laneAssembly > 0.6) {
-            for (let m = 0; m < 8; m++) {
-              const mx = cx - lw + (m / 7) * lw * 2;
-              const markerAssembly = Math.max(0, Math.min(1, (laneAssembly - m * 0.08) / 0.8));
-              if (markerAssembly < 0.2) continue;
-              const alpha = 0.5 * markerAssembly;
+          // Timecode markers (every 1/8 of lane width)
+          if (easedLane > 0.6) {
+            const markerCount = 8;
+            for (let m = 0; m <= markerCount; m++) {
+              const mx = cx - laneWidth + (m / markerCount) * laneWidth * 2;
+              const markerA = Math.max(0, Math.min(1, (easedLane - m * 0.06) / 0.7));
+              if (markerA < 0.2) continue;
+              const majorMark = m % 2 === 0;
               ctx.beginPath();
-              ctx.arc(mx, ly, 2, 0, Math.PI * 2);
-              ctx.fillStyle = `rgba(232,229,238,${alpha})`;
-              ctx.fill();
+              ctx.moveTo(mx, ly - (majorMark ? 4 : 2));
+              ctx.lineTo(mx, ly + (majorMark ? 4 : 2));
+              ctx.strokeStyle = `rgba(232,229,238,${(majorMark ? 0.4 : 0.2) * markerA})`;
+              ctx.lineWidth = majorMark ? 1 : 0.6;
+              ctx.stroke();
             }
           }
         }
       }
 
-      // Waveform ribbon
+      // WAVEFORM RIBBON — 3 overlapping channels (WASAPI multi-channel audio)
       if (assembly > 0.4) {
-        const waveAssembly = Math.min(1, (assembly - 0.4) / 0.4);
-        const waveWidth = Math.min(width, height) * 0.45;
-        const amplitude = 15 * waveAssembly;
+        const waveA = Math.min(1, (assembly - 0.4) / 0.38);
+        const waveWidth = scale * 0.38;
+        const waveY = cy + scale * 0.06;
 
-        ctx.beginPath();
-        for (let x = -waveWidth; x <= waveWidth; x += 2) {
-          const wx = cx + x;
-          const wy = cy + Math.sin((x / waveWidth) * Math.PI * 4 + t * 2) * amplitude * waveAssembly;
-          if (x === -waveWidth) ctx.moveTo(wx, wy);
-          else ctx.lineTo(wx, wy);
+        const channels = [
+          { freq: 4.2, amp: 18, phase: 0, alpha: 0.55, color: [161, 138, 203] },
+          { freq: 7.1, amp: 11, phase: 1.1, alpha: 0.35, color: [200, 180, 230] },
+          { freq: 2.8, amp: 8, phase: 2.4, alpha: 0.2, color: [232, 229, 238] },
+        ];
+
+        for (const ch of channels) {
+          ctx.beginPath();
+          const steps = 60;
+          for (let xi = 0; xi <= steps; xi++) {
+            const xFrac = xi / steps;
+            const wx = cx - waveWidth + xFrac * waveWidth * 2;
+            const wy = waveY + Math.sin(xFrac * Math.PI * ch.freq + t * 1.8 + ch.phase) * ch.amp * waveA;
+            if (xi === 0) ctx.moveTo(wx, wy);
+            else ctx.lineTo(wx, wy);
+          }
+          const [cr, cg, cb] = ch.color;
+          ctx.strokeStyle = `rgba(${cr},${cg},${cb},${ch.alpha * waveA})`;
+          ctx.lineWidth = ch.amp > 15 ? 1.8 : 1;
+          ctx.stroke();
         }
-        ctx.strokeStyle = `rgba(169,209,142,${0.5 * waveAssembly})`; // signal-green for waveform
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        // Waveform glow
-        ctx.strokeStyle = `rgba(169,209,142,${0.15 * waveAssembly})`;
-        ctx.lineWidth = 6;
-        ctx.stroke();
       }
 
-      // Recording indicator (central)
+      // DISK WRITE INDICATOR — incremental bar (references disk-backed recording)
       if (assembly > 0.6) {
-        const recAssembly = Math.min(1, (assembly - 0.6) * 3);
-        const pulse = 1 + Math.sin(t * 4) * 0.15 * recAssembly;
+        const diskA = Math.min(1, (assembly - 0.6) * 3);
+        diskProgress = Math.min(1, diskProgress + dt * 0.12); // grows slowly
+
+        const barY = cy + scale * 0.28;
+        const barMaxW = scale * 0.28;
+        const barH = 3;
+
+        // Background track
         ctx.beginPath();
-        ctx.arc(cx, cy, 8 * pulse, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(239,68,68,${0.6 * recAssembly})`; // Red for recording
+        ctx.roundRect(cx - barMaxW / 2, barY - barH / 2, barMaxW, barH, 1);
+        ctx.fillStyle = `rgba(161,138,203,${0.08 * diskA})`;
         ctx.fill();
 
-        // Outer ring
-        ctx.strokeStyle = `rgba(239,68,68,${0.4 * recAssembly})`;
-        ctx.lineWidth = 2;
+        // Fill
+        ctx.beginPath();
+        ctx.roundRect(cx - barMaxW / 2, barY - barH / 2, barMaxW * diskProgress, barH, 1);
+        ctx.fillStyle = `rgba(161,138,203,${0.4 * diskA})`;
+        ctx.fill();
+      }
+
+      // RECORDING INDICATOR — violet pulsing (NOT a red dot — authority says no fake status)
+      if (assembly > 0.7) {
+        const recA = Math.min(1, (assembly - 0.7) * 4);
+        const pulse = 1 + Math.sin(t * 3.5) * 0.1 * recA;
+        const rx = cx + scale * 0.3;
+        const ry = cy - scale * 0.28;
+
+        ctx.beginPath();
+        ctx.arc(rx, ry, 5 * pulse, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(161,138,203,${0.5 * recA})`;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(rx, ry, 10 * pulse, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(161,138,203,${0.2 * recA})`;
+        ctx.lineWidth = 1;
         ctx.stroke();
       }
     };
 
     const tick = (timestamp: number) => {
       if (!running) return;
-      const dt = Math.min(0.05, (timestamp - time) / 1000);
-      time = timestamp;
+      const dt = Math.min(0.05, (timestamp - lastTs) / 1000);
+      lastTs = timestamp;
+      time = timestamp / 1000;
       draw(time, dt);
       frame = requestAnimationFrame(tick);
     };
@@ -180,29 +233,17 @@ export function CaptureTimelineScene({
     const start = () => {
       if (running || reduced) return;
       running = true;
-      time = performance.now();
+      lastTs = performance.now();
       frame = requestAnimationFrame(tick);
     };
 
-    const stop = () => {
-      running = false;
-      cancelAnimationFrame(frame);
-    };
-
-    const onResize = () => {
-      layout();
-      if (reduced) draw(0, 0);
-    };
-
-    const onVisibility = () => {
-      if (document.hidden) stop();
-      else start();
-    };
+    const stop = () => { running = false; cancelAnimationFrame(frame); };
+    const onResize = () => { layout(); if (reduced) draw(0, 0); };
+    const onVisibility = () => { if (document.hidden) stop(); else start(); };
 
     layout();
-    if (reduced) {
-      draw(0, 0);
-    } else {
+    if (reduced) { assembly = 1; diskProgress = 0.6; draw(0, 0); }
+    else {
       window.addEventListener('resize', onResize);
       document.addEventListener('visibilitychange', onVisibility);
       start();
@@ -230,35 +271,23 @@ function seeded(seed: number) {
 interface Star {
   x: number; y: number; radius: number; alpha: number;
   amplitude: number; speed: number; phase: number;
-  layer: 'far' | 'mid' | 'near'; violet: boolean;
   driftX: number; driftY: number;
 }
 
 function buildLayers(rand: () => number) {
   const stars: Star[] = [];
-  const layers: { layer: 'far' | 'mid' | 'near'; share: number; radius: number; alpha: number; twinkle: number }[] = [
-    { layer: 'far', share: 0.56, radius: 0.5, alpha: 0.3, twinkle: 0.16 },
-    { layer: 'mid', share: 0.33, radius: 0.85, alpha: 0.55, twinkle: 0.24 },
-    { layer: 'near', share: 0.11, radius: 1.35, alpha: 0.82, twinkle: 0.3 },
-  ];
-  const VIOLET_RATIO = 0.05;
-  const count = 90;
-  for (const plan of layers) {
-    const total = Math.max(1, Math.round(count * plan.share));
-    for (let i = 0; i < total; i++) {
-      stars.push({
-        x: rand(), y: Math.sqrt(rand()),
-        radius: (plan.radius * (0.7 + rand() * 0.6)) / 1.6,
-        alpha: plan.alpha * (0.6 + rand() * 0.4),
-        amplitude: plan.twinkle * (0.5 + rand()),
-        speed: 0.9 + rand() * 0.95,
-        phase: rand() * Math.PI * 2,
-        layer: plan.layer,
-        violet: rand() < VIOLET_RATIO,
-        driftX: (rand() - 0.5) * 0.0016,
-        driftY: (rand() - 0.5) * 0.0011,
-      });
-    }
+  const count = 50;
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: rand(), y: rand(),
+      radius: 0.25 + rand() * 0.5,
+      alpha: 0.06 + rand() * 0.14,
+      amplitude: 0.03 + rand() * 0.08,
+      speed: 0.6 + rand() * 0.7,
+      phase: rand() * Math.PI * 2,
+      driftX: (rand() - 0.5) * 0.0007,
+      driftY: (rand() - 0.5) * 0.0005,
+    });
   }
   return { stars };
 }
