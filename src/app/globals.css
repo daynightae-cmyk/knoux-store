@@ -1853,6 +1853,68 @@
 .material-lab[data-scene] .material-lab__layer{border-color:#62596a;background:linear-gradient(140deg,#ffffff08,#0000 58%)}
 .material-lab__index button:focus-visible{outline:1px solid #9b86ad;outline-offset:3px;color:#f1ebf4}
 .material-lab__focus{position:relative;z-index:2}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ATELIER LAB — KNOuX Creative / Digital Atelier V2
+   3-column: index | material field | specification
+═══════════════════════════════════════════════════════════════════ */
+.atelier-lab{display:grid;grid-template-columns:220px 1fr 340px;min-height:680px;background:linear-gradient(125deg,#0f0d12,#09090c 58%);border:1px solid #1e1b24;position:relative}
+
+/* LEFT — discipline index */
+.atelier-lab__index{display:flex;flex-direction:column;border-right:1px solid #1e1b24;padding:36px 0;overflow-y:auto;scrollbar-width:none}
+.atelier-lab__index::-webkit-scrollbar{display:none}
+.atelier-lab__index-label{font:8px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:#5a5262;padding:0 20px 20px;display:block}
+.atelier-lab__item{display:flex;flex-direction:column;align-items:flex-start;gap:3px;background:transparent;border:0;border-left:2px solid transparent;color:#9e96a5;padding:12px 20px;cursor:pointer;text-align:left;transition:border-color .2s,color .2s,background .2s;font-size:12px;font-weight:400;min-height:44px}
+.atelier-lab__item small{font:8px var(--mono);letter-spacing:.12em;color:#8c8296;transition:color .2s}
+.atelier-lab__item:hover,.atelier-lab__item.is-active{color:#e8e0ef;border-left-color:#a18acb;background:#a18acb08}
+.atelier-lab__item:hover small,.atelier-lab__item.is-active small{color:#a18acb}
+.atelier-lab__item:focus-visible{outline:1px solid #9b86ad;outline-offset:-2px;color:#f1ebf4}
+.atelier-lab__item.is-active{font-weight:500}
+
+/* CENTER — Canvas 2D material field */
+.atelier-lab__field{position:relative;border-right:1px solid #1e1b24;overflow:hidden;background:#08090b}
+.atelier-lab__canvas{display:block;width:100%;height:100%;min-height:680px}
+.atelier-lab__field-label{position:absolute;bottom:16px;left:18px;font:8px var(--mono);letter-spacing:.16em;color:#433d49;pointer-events:none;user-select:none}
+
+/* RIGHT — specification panel */
+.atelier-lab__spec{padding:44px 36px 44px 36px;display:flex;flex-direction:column;gap:0;animation:atelierSpecIn .35s cubic-bezier(.16,.84,.34,1) both}
+@keyframes atelierSpecIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.atelier-lab__spec h3{font-size:clamp(28px,2.6vw,42px);letter-spacing:-.055em;line-height:1;font-weight:400;margin:14px 0 18px;color:#ede8f3}
+.atelier-lab__statement{font-size:13px;line-height:1.72;color:var(--muted);max-width:44ch;margin-bottom:24px}
+.atelier-lab__section{margin-bottom:20px}
+.atelier-lab__section h4{font:8px var(--mono);letter-spacing:.16em;color:#a18acb;margin-bottom:10px}
+.atelier-lab__section ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:7px}
+.atelier-lab__section li{font-size:12px;line-height:1.55;color:#a39aab;padding-left:14px;position:relative}
+.atelier-lab__section li::before{content:'—';position:absolute;left:0;color:#5a4f62;font-size:10px}
+.atelier-lab__spec .action{margin-top:auto;align-self:flex-start}
+
+/* Responsive */
+@media(max-width:1100px){
+  .atelier-lab{grid-template-columns:180px 1fr 280px}
+  .atelier-lab__spec{padding:32px 24px}
+}
+@media(max-width:860px){
+  .atelier-lab{grid-template-columns:1fr;min-height:0}
+  .atelier-lab__index{flex-direction:row;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;border-right:0;border-bottom:1px solid #1e1b24;padding:0;scroll-snap-type:x mandatory}
+  .atelier-lab__index-label{display:none}
+  .atelier-lab__item{min-width:130px;flex-direction:row;align-items:center;gap:8px;padding:14px 16px;border-left:0;border-bottom:2px solid transparent;scroll-snap-align:start}
+  .atelier-lab__item:hover,.atelier-lab__item.is-active{border-left-color:transparent;border-bottom-color:#a18acb}
+  .atelier-lab__field{border-right:0;border-bottom:1px solid #1e1b24}
+  .atelier-lab__canvas{min-height:320px}
+  .atelier-lab__spec{padding:28px 22px 36px}
+}
+@media(max-width:480px){
+  .atelier-lab__canvas{min-height:240px}
+  .atelier-lab__item{min-width:110px;font-size:11px}
+  .atelier-lab__spec h3{font-size:28px}
+}
+
+/* Reduced motion — no RAF, no animations */
+@media(prefers-reduced-motion:reduce){
+  .atelier-lab__spec{animation:none}
+  .atelier-lab__item{transition:none}
+}
+
 @media(max-width:980px){
  .archive-shell{grid-template-columns:minmax(220px,31%) minmax(0,69%);gap:34px}
  .case-file-record{grid-template-columns:1fr;gap:22px}
