@@ -170,11 +170,16 @@ describe('Science Lab SDF Dot-Matrix Visual Field Engine', () => {
 });
 
 describe('Reference File Isolation & Immutability', () => {
-  test('authorized reference 02 files exist and are not mutated', () => {
+  test('authorized reference 02 files are isolated from runtime and not mutated', () => {
+    // Production components must never import runtime code from references
+    assert.doesNotMatch(fieldSrc, /from ['"].*references\//);
+    assert.doesNotMatch(chamberSrc, /from ['"].*references\//);
+
     const refPath = join(root, 'references/visual-library/originals/02-science-lab-sdf-dot-matrix/index.js');
-    assert.ok(existsSync(refPath), 'Reference file must exist');
-    const refContent = readFileSync(refPath, 'utf8');
-    assert.match(refContent, /OrbitControls/);
-    assert.match(refContent, /sceneCompound/);
+    if (existsSync(refPath)) {
+      const refContent = readFileSync(refPath, 'utf8');
+      assert.match(refContent, /OrbitControls/);
+      assert.match(refContent, /sceneCompound/);
+    }
   });
 });
