@@ -87,13 +87,13 @@ describe('ExperimentChamber Component Architecture', () => {
     assert.match(chamberSrc, /aria-label="Choose a lab experiment"/);
   });
 
-  test('SpatialExperiences.tsx delegates ExperimentChamber to ExperimentChamberV2', () => {
-    assert.match(spatialSrc, /import \{ ExperimentChamberV2 \} from '@\/components\/labs\/ExperimentChamberV2'/);
-    assert.match(spatialSrc, /export function ExperimentChamber\(\)\s*\{\s*return <ExperimentChamberV2 \/>;\s*\}/);
+  test('Labs page imports ExperimentChamberV2 directly so Three.js stays route-local', () => {
+    assert.doesNotMatch(spatialSrc, /ExperimentChamberV2/);
+    assert.match(labsPageSrc, /import \{ ExperimentChamberV2 \} from '@\/components\/labs\/ExperimentChamberV2'/);
+    assert.match(labsPageSrc, /<ExperimentChamberV2 \/>/);
   });
 
-  test('labs/page.tsx still renders ExperimentChamber and disclosures', () => {
-    assert.match(labsPageSrc, /<ExperimentChamber \/>/);
+  test('labs/page.tsx preserves experiment disclosures', () => {
     assert.match(labsPageSrc, /VIEW EXPERIMENT EVIDENCE/);
     assert.match(labsPageSrc, /VIEW UNPUBLISHED REPOSITORIES/);
   });

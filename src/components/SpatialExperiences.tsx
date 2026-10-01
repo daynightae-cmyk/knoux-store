@@ -10,7 +10,6 @@ import { growthChannelsDetail } from '@/data/growth';
 import { webSystems } from '@/data/services';
 
 import { AtelierLab } from '@/components/creative/AtelierLab';
-import { ExperimentChamberV2 } from '@/components/labs/ExperimentChamberV2';
 
 
 
@@ -116,10 +115,4 @@ export function SignalField() {
 /** MaterialLab is now the full AtelierLab — re-exported for backward compat */
 export function MaterialLab() {
   return <AtelierLab />;
-}
-
-
-/** ExperimentChamber is now the full Science Lab SDF Dot-Matrix instrument */
-export function ExperimentChamber() {
-  return <ExperimentChamberV2 />;
 }

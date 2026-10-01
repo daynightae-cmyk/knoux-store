@@ -3,7 +3,7 @@ import { DivisionBridge, NextLink } from '@/components/blocks';
 import { pageMetadata } from '@/lib/metadata';
 import { labExperiments, repositoryLedger, softwareProducts } from '@/data/software';
 import { TrackOnView } from '@/components/TrackOnView';
-import { ExperimentChamber } from '@/components/SpatialExperiences';
+import { ExperimentChamberV2 } from '@/components/labs/ExperimentChamberV2';
 
 export const metadata = pageMetadata(
   'Labs',
@@ -43,7 +43,7 @@ export default function LabsPage() {
           </p>
         </div>
 
-        <ExperimentChamber />
+        <ExperimentChamberV2 />
         <details className="evidence-disclosure"><summary>VIEW EXPERIMENT EVIDENCE</summary><div className="index-rows" style={{ marginTop: 34 }}>
           {labExperiments.map((lab) => (
             <article key={lab.id} className="lab-row">
