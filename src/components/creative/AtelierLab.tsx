@@ -539,7 +539,6 @@ export function AtelierLab() {
         <canvas
           ref={canvasRef}
           className="atelier-lab__canvas"
-          role="img"
           aria-hidden="true"
         />
         <span className="atelier-lab__field-label">

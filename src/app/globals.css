@@ -1864,8 +1864,8 @@
 .atelier-lab__index{display:flex;flex-direction:column;border-right:1px solid #1e1b24;padding:36px 0;overflow-y:auto;scrollbar-width:none}
 .atelier-lab__index::-webkit-scrollbar{display:none}
 .atelier-lab__index-label{font:8px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:#5a5262;padding:0 20px 20px;display:block}
-.atelier-lab__item{display:flex;flex-direction:column;align-items:flex-start;gap:3px;background:transparent;border:0;border-left:2px solid transparent;color:#7a737f;padding:12px 20px;cursor:pointer;text-align:left;transition:border-color .2s,color .2s,background .2s;font-size:12px;font-weight:400;min-height:44px}
-.atelier-lab__item small{font:8px var(--mono);letter-spacing:.12em;color:#564e5d;transition:color .2s}
+.atelier-lab__item{display:flex;flex-direction:column;align-items:flex-start;gap:3px;background:transparent;border:0;border-left:2px solid transparent;color:#9e96a5;padding:12px 20px;cursor:pointer;text-align:left;transition:border-color .2s,color .2s,background .2s;font-size:12px;font-weight:400;min-height:44px}
+.atelier-lab__item small{font:8px var(--mono);letter-spacing:.12em;color:#8c8296;transition:color .2s}
 .atelier-lab__item:hover,.atelier-lab__item.is-active{color:#e8e0ef;border-left-color:#a18acb;background:#a18acb08}
 .atelier-lab__item:hover small,.atelier-lab__item.is-active small{color:#a18acb}
 .atelier-lab__item:focus-visible{outline:1px solid #9b86ad;outline-offset:-2px;color:#f1ebf4}
