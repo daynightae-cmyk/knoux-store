@@ -17,9 +17,18 @@
  *   - Synchronizes selection with URL hash (#lab-quill, #lab-crypt)
  */
 
+import dynamic from 'next/dynamic';
 import { useEffect, useState, useCallback } from 'react';
 import { labExperiments } from '@/data/software';
-import { LabMaterialField } from './LabMaterialField';
+
+// Keep Three.js behind a client-only lazy boundary. Next.js may prefetch the
+// /labs route from global navigation; a static import here would make that
+// prefetch download the full WebGL runtime on unrelated routes such as
+// /products even though no lab surface is mounted there.
+const LabMaterialField = dynamic(
+  () => import('./LabMaterialField').then((module) => module.LabMaterialField),
+  { ssr: false },
+);
 
 export function ExperimentChamberV2() {
   const [active, setActive] = useState(0);
