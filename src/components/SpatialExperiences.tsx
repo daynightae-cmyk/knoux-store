@@ -6,9 +6,12 @@ import { softwareProducts } from '@/data/software';
 import { solutions } from '@/data/solutions';
 import { divisions } from '@/lib/entities';
 import { growthChannelsDetail } from '@/data/growth';
-import { creativeDisciplines, webSystems } from '@/data/services';
-import { DeterministicSignature } from '@/components/DeterministicSignature';
+import { webSystems } from '@/data/services';
+
 import { labExperiments } from '@/data/software';
+import { AtelierLab } from '@/components/creative/AtelierLab';
+
+
 
 const divisionPoints = [
   [13, 22], [38, 16], [76, 20], [88, 43],
@@ -108,11 +111,11 @@ export function SignalField() {
   return <div className="signal-field spatial-surface" data-spatial><div className="signal-field__core"><small>BUSINESS<br />OBJECTIVE</small><span /></div><div className="signal-field__channels" role="group" aria-label="Growth channels">{growthChannelsDetail.map((entry, index) => <button key={entry.id} type="button" className={active === index ? 'is-active' : ''} onClick={() => setActive(index)} onFocus={() => setActive(index)} onMouseEnter={() => setActive(index)} aria-pressed={active === index}><small>{entry.code}</small><strong>{entry.name}</strong></button>)}</div><div className="signal-field__readout" key={channel.id}><span className="label label--signal">ACTIVE SIGNAL / {channel.index}</span><h3>{channel.name}</h3><p>{channel.statement}</p><dl><div><dt>INPUT</dt><dd>{channel.prerequisites[0]}</dd></div><div><dt>OUTPUT</dt><dd>{channel.outputs[0]}</dd></div></dl><Link href={`/growth/${channel.slug}`} className="action">OPEN CHANNEL <span className="action-arrow">↗</span></Link></div></div>;
 }
 
+/** MaterialLab is now the full AtelierLab — re-exported for backward compat */
 export function MaterialLab() {
-  const [active, setActive] = useState(0);
-  const discipline = creativeDisciplines[active];
-  return <div className="material-lab spatial-surface" data-spatial data-scene={discipline.slug}><div className="material-lab__layers" aria-hidden="true"><span className="material-lab__layer material-lab__layer--a" /><span className="material-lab__layer material-lab__layer--b" /><span className="material-lab__layer material-lab__layer--c" /><span className="material-lab__cross">K / MATERIAL STUDY</span><DeterministicSignature seed={active + 91} label={discipline.code} compact /></div><div className="material-lab__index" role="group" aria-label="Creative disciplines">{creativeDisciplines.map((entry, index) => <button key={entry.id} type="button" className={active === index ? 'is-active' : ''} onClick={() => setActive(index)} onFocus={() => setActive(index)} onMouseEnter={() => setActive(index)} aria-pressed={active === index}><small>{String(index + 1).padStart(2, '0')}</small>{entry.title}</button>)}</div><div className="material-lab__focus"><span className="label label--signal">MATERIAL {String(active + 1).padStart(2, '0')} / {discipline.code}</span><h3>{discipline.title}</h3><p>{discipline.statement}</p><span className="mono">DELIVERABLES / {discipline.deliverables.slice(0, 3).join(' · ')}</span><Link href={`#${discipline.slug}`} className="action">READ SPECIFICATION <span className="action-arrow">↓</span></Link></div></div>;
+  return <AtelierLab />;
 }
+
 
 export function ExperimentChamber() {
   const [active, setActive] = useState(0);
