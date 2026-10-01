@@ -38,15 +38,29 @@ export function ProductExperience({
     <main id="main-content" tabIndex={-1}>
       <TrackOnView event={{ type: 'product_opened', id: product.id, slug: product.slug }} />
 
+      {/* 00 / ARRIVAL */}
       {showArrival && (
         <ProductArrival product={product} onComplete={handleArrivalComplete} />
       )}
 
-      <ProductHero product={product} arrivalComplete={arrivalComplete} />
-      <ProductSystemAnatomy key={product.id} product={product} />
+      {/* 01 / PRODUCT */}
+      <div data-chapter="01-product">
+        <ProductHero product={product} arrivalComplete={arrivalComplete} />
+      </div>
+
+      {/* 02 / SYSTEM REVEAL */}
+      <div data-chapter="02-system-reveal">
+        <ProductSystemAnatomy key={product.id} product={product} />
+      </div>
+
+      {/* 03 / CAPABILITY FLOW + 04 / EVIDENCE SURFACE */}
       <ProductBlocks product={product} />
-      <RelatedSystems related={related} />
-      <ProductPager previous={previous} next={next} />
+
+      {/* 05 / CONTINUE */}
+      <div data-chapter="05-continue">
+        <RelatedSystems related={related} />
+        <ProductPager previous={previous} next={next} />
+      </div>
     </main>
   );
 }
