@@ -179,7 +179,14 @@ export class BridgeServer {
 
     this.wss = new WebSocketServer({ noServer: true });
     this.http.on('upgrade', (req, socket, head) => {
+      // An upgraded socket is detached from the HTTP server's connection
+      // bookkeeping: it is no longer an HTTP request/response connection, so
+      // the 'connection' listener above does not track it. Add it here or a
+      // live terminal holds the server open forever, because an upgraded socket
+      // is not one http.close() knows how to drain.
+      this.sockets.add(socket);
       socket.on('close', () => this.sockets.delete(socket));
+
       this.wss.handleUpgrade(req, socket, head, (ws) => {
         this.handleWebSocket(ws, req);
       });

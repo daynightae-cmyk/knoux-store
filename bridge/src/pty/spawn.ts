@@ -76,6 +76,118 @@ export function buildLaunchArgs(profile: BridgeProfile, loadProfile?: boolean): 
   return args;
 }
 
+/**
+ * Release the ConPTY input socket that node-pty leaves open.
+ *
+ * node-pty 1.1.0, `lib/windowsPtyAgent.js`, `WindowsPtyAgent.kill()`:
+ *
+ *   if (this._useConpty) {
+ *     if (!this._useConptyDll) {
+ *       this._inSocket.readable  = false;      // line 138
+ *       this._outSocket.readable = false;      // line 139
+ *       this._getConsoleProcessList().then(...)
+ *       this._ptyNative.kill(...)
+ *       this._conoutSocketWorker.dispose();
+ *     } else {
+ *       this._inSocket.destroy();              // line 155 — the other branch does this
+ *       ...
+ *     }
+ *   }
+ *
+ * The inSocket is a `net.Socket` built from an fd opened on the ConPTY `conin`
+ * named pipe (`fs.openSync(term.conin, 'w')`). Setting `.readable = false` does
+ * not close it. So in the default path exactly one libuv handle per session
+ * survives `kill()`, writable and never closed. It is not reclaimed when the
+ * process exits, and a bridge that opens and closes sessions over a day as a
+ * service accumulates one per session for the life of the process.
+ *
+ * The `useConptyDll` branch closes it; this branch does not. The socket is
+ * reachable at `_agent.inSocket` and is a documented-enough internal that
+ * destroying it after `kill()` is the only supported way to release it. Measured
+ * with `process._getActiveHandles()`: one survivor before, zero after, with
+ * output and exit delivery unaffected.
+ *
+ * Every access is guarded. If a future node-pty closes the socket itself, or
+ * renames the field, this becomes a no-op rather than a crash.
+ */
+export function releaseConptyInputSocket(ptyProcess: unknown): boolean {
+  if (process.platform !== 'win32') return false;
+
+  const agent = (ptyProcess as { _agent?: { inSocket?: { destroyed?: boolean; destroy?: () => void } } } | null)?._agent;
+  const socket = agent?.inSocket;
+  if (!socket || typeof socket.destroy !== 'function') return false;
+  if (socket.destroyed === true) return false;
+
+  try {
+    socket.destroy();
+    return true;
+  } catch {
+    // The handle was already gone. Nothing to release.
+    return false;
+  }
+}
+
+/**
+ * Close the ConPTY drain worker that node-pty can leave behind.
+ *
+ * `ConoutConnection` (lib/windowsConoutConnection.js) runs a Worker thread per
+ * session to drain the ConPTY output pipe: draining it on the main thread
+ * deadlocks against `ClosePseudoConsole`. Its `dispose()` schedules
+ * `worker.terminate()` one second out and returns immediately:
+ *
+ *   ConoutConnection.prototype.dispose = function () {
+ *     if (!this._useConptyDll && this._isDisposed) return;
+ *     this._isDisposed = true;
+ *     this._drainDataAndClose();     // setTimeout(_destroySocket, FLUSH_DATA_INTERVAL)
+ *   };
+ *
+ * `WindowsPtyAgent.kill()` does call dispose(), so the worker is normally reaped a
+ * second later. Not always. A session whose shell exits on its own runs
+ * `_flushDataAndCleanUp` instead, and a session torn down by `taskkill` can reach
+ * dispose() after the pipe is already broken; in both cases that timer never
+ * completes and the Worker — with the `MessagePort` handle that represents it —
+ * survives for the life of the process.
+ *
+ * Measured with `process._getActiveHandles()`: the terminal suite finishes with
+ * 2 orphaned MessagePorts that never drain, and closing them takes the count to
+ * zero and lets the process exit naturally. For a bridge meant to run as a service
+ * that is two worker threads per unclean shutdown, indefinitely.
+ *
+ * This reaches into node-pty's internals, which is not its API, and is guarded
+ * accordingly: if a future version reaps the worker itself or renames the field,
+ * this is a no-op rather than a crash.
+ */
+export function releaseConptyDrainWorker(ptyProcess: unknown): boolean {
+  if (process.platform !== 'win32') return false;
+
+  const worker = (ptyProcess as {
+    _agent?: {
+      _conoutSocketWorker?: {
+        _worker?: { port?: { close?: () => void; unref?: () => void } };
+      };
+    };
+  } | null)?._agent?._conoutSocketWorker?._worker;
+
+  const port = worker?.port;
+  if (!port || typeof port.close !== 'function') return false;
+
+  try {
+    port.close();
+    // A closed port must not be the thing holding the event loop open.
+    port.unref?.();
+    return true;
+  } catch {
+    // Already closed. Nothing to release.
+    return false;
+  }
+}
+
+/** Release every node-pty handle this session owns. Safe to call more than once. */
+function releasePtyHandles(ptyProcess: unknown): void {
+  releaseConptyInputSocket(ptyProcess);
+  releaseConptyDrainWorker(ptyProcess);
+}
+
 /** Spawn a PTY session. */
 export function spawnPty(options: SpawnOptions): PtyInstance {
   const env = buildPtyEnv(options.sessionId);
@@ -90,6 +202,8 @@ export function spawnPty(options: SpawnOptions): PtyInstance {
     useConpty: true,
   });
 
+  let released = false;
+
   return {
     pid: ptyProcess.pid,
     write: (data) => ptyProcess.write(data),
@@ -97,13 +211,16 @@ export function spawnPty(options: SpawnOptions): PtyInstance {
     pause: () => ptyProcess.pause(),
     resume: () => ptyProcess.resume(),
     kill: (signal) => {
-      // node-pty owns a native ConPTY (Windows) or pty (POSIX) handle. That
-      // handle is only released by ptyProcess.kill(); killing the OS process
-      // alone leaves the native handle open, which keeps the bridge process
-      // alive at shutdown. Both are required.
+      // Idempotent: kill() can be reached from a session reap, an unpair and a
+      // shutdown. Only the first call does work.
+      if (released) return;
+      released = true;
+
+      // Kill the process tree before touching the pty. A shell's children
+      // outlive it, and ConPTY's own cleanup enumerates them; on Windows
+      // `taskkill /T` is the reliable way to take the whole tree down.
       try {
         if (process.platform === 'win32') {
-          // Kill the whole process tree first — a shell's children outlive it.
           execFileSync('taskkill', ['/T', '/F', '/PID', String(ptyProcess.pid)], {
             stdio: 'ignore',
             windowsHide: true,
@@ -116,17 +233,30 @@ export function spawnPty(options: SpawnOptions): PtyInstance {
           }
         }
       } catch {
-        // taskkill can fail if the process already exited. Killing the pty
-        // below still releases the handle.
+        // taskkill fails if the process already exited. The pty cleanup below
+        // still releases our own handles either way.
       }
 
+      // node-pty owns the native ConPTY handle. ptyProcess.kill() is what
+      // releases it, so it must be called even when taskkill already succeeded.
       try {
         ptyProcess.kill(signal ?? (process.platform === 'win32' ? undefined : 'SIGKILL'));
       } catch {
-        // Already exited; nothing to release.
+        // Already exited; the handle cleanup below still runs.
       }
+
+      // node-pty's own kill() leaves two ConPTY handles open on Windows: the
+      // input socket and, when the drain worker cannot finish its own cleanup,
+      // its worker thread. Close both, or every session costs this process
+      // handles that only exit can reclaim.
+      releasePtyHandles(ptyProcess);
     },
     onData: (callback) => ptyProcess.onData(callback),
-    onExit: (callback) => ptyProcess.onExit(({ exitCode, signal }) => callback(exitCode, signal)),
+    onExit: (callback) => ptyProcess.onExit(({ exitCode, signal }) => {
+      // The shell exited on its own, so kill() was never called and nothing has
+      // released the handles. Do it here, on the path node-pty took instead.
+      releasePtyHandles(ptyProcess);
+      callback(exitCode, signal);
+    }),
   };
 }
