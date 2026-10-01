@@ -41,6 +41,17 @@ export interface PtyInstance {
   kill(signal?: string): void;
   onData(callback: (data: string) => void): void;
   onExit(callback: (exitCode: number, signal?: number) => void): void;
+
+  /**
+   * The underlying node-pty process, for diagnostics only.
+   *
+   * The ConPTY cleanup helpers need it, and the compatibility contract test
+   * needs to assert that the private shape they reach for is still the shape
+   * this node-pty version has. Nothing on the serving path should read this:
+   * it exposes node-pty internals with no stability guarantee. Typed `unknown`
+   * so that using it requires a deliberate cast.
+   */
+  readonly native: unknown;
 }
 
 /** Build the environment for the PTY — allowlisted only. */
@@ -149,9 +160,12 @@ export function releaseConptyInputSocket(ptyProcess: unknown): boolean {
  * survives for the life of the process.
  *
  * Measured with `process._getActiveHandles()`: the terminal suite finishes with
- * 2 orphaned MessagePorts that never drain, and closing them takes the count to
- * zero and lets the process exit naturally. For a bridge meant to run as a service
- * that is two worker threads per unclean shutdown, indefinitely.
+ * 2 orphaned MessagePorts that never drain, and terminating the worker takes the
+ * count to zero and lets the process exit naturally. For a bridge meant to run as
+ * a service that is two worker threads per unclean shutdown, indefinitely.
+ *
+ * `terminate()` and `unref()` are Worker API, so the only private part is the
+ * path to the Worker and to the socket whose close must gate the call.
  *
  * This reaches into node-pty's internals, which is not its API, and is guarded
  * accordingly: if a future version reaps the worker itself or renames the field,
@@ -160,24 +174,51 @@ export function releaseConptyInputSocket(ptyProcess: unknown): boolean {
 export function releaseConptyDrainWorker(ptyProcess: unknown): boolean {
   if (process.platform !== 'win32') return false;
 
-  const worker = (ptyProcess as {
+  const agent = (ptyProcess as {
     _agent?: {
+      outSocket?: { destroyed?: boolean; readyState?: string; once?: (e: string, f: () => void) => void };
       _conoutSocketWorker?: {
-        _worker?: { port?: { close?: () => void; unref?: () => void } };
+        _worker?: { terminate?: () => Promise<number>; unref?: () => void };
       };
     };
-  } | null)?._agent?._conoutSocketWorker?._worker;
+  } | null)?._agent;
 
-  const port = worker?.port;
-  if (!port || typeof port.close !== 'function') return false;
+  const worker = agent?._conoutSocketWorker?._worker;
+  const outSocket = agent?.outSocket;
+  if (!worker || typeof worker.terminate !== 'function' || !outSocket) return false;
+
+  const terminate = (): void => {
+    try {
+      // terminate() resolves with the worker exit code. Nothing awaits it: this
+      // runs on the teardown path, and an unhandled rejection from a worker that
+      // is already gone would be worse than the leak it prevents. The call is
+      // still what releases the handle.
+      void Promise.resolve(worker.terminate?.()).catch(() => { /* already exited */ });
+      worker.unref?.();
+    } catch {
+      // Already terminated.
+    }
+  };
 
   try {
-    port.close();
-    // A closed port must not be the thing holding the event loop open.
-    port.unref?.();
+    // Ordering matters. The worker publishes the ConPTY output pipe as a named
+    // pipe that `outSocket` connects to; terminating the worker first leaves that
+    // connect with nothing to reach, and the failure surfaces later as an
+    // uncaught ENOENT for `\\.\pipe\conpty-*-out-worker`.
+    //
+    // So terminate only once the socket the worker feeds has closed. When it has
+    // already closed, nothing can be waiting on the pipe any more and this runs
+    // inline; otherwise it runs from the socket's own close event.
+    const socketClosed = outSocket.destroyed === true || outSocket.readyState === 'closed';
+    if (socketClosed) {
+      terminate();
+    } else if (typeof outSocket.once === 'function') {
+      outSocket.once('close', terminate);
+    } else {
+      return false;
+    }
     return true;
   } catch {
-    // Already closed. Nothing to release.
     return false;
   }
 }
@@ -206,6 +247,7 @@ export function spawnPty(options: SpawnOptions): PtyInstance {
 
   return {
     pid: ptyProcess.pid,
+    native: ptyProcess,
     write: (data) => ptyProcess.write(data),
     resize: (cols, rows) => ptyProcess.resize(cols, rows),
     pause: () => ptyProcess.pause(),
