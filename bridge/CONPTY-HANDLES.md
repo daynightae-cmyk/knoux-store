@@ -163,12 +163,92 @@ The other four suites — `policy`, `ticket`, `session`, `config`, `server` — 
 without it and exit naturally. `server.test.mjs` spawns real child processes for
 `proc:*` and `exec:*` and exits cleanly in 9 s.
 
+## The version this depends on, and the guard that enforces it
+
+`bridge/package.json` pins `"node-pty": "1.1.0"` exactly. The cleanup helpers
+reach into `_agent.inSocket` and `_agent._conoutSocketWorker._worker`, which are
+**not** part of node-pty's public API. A `^` range would let a patch release land
+underneath a workaround that was written by reading one version's source.
+
+Those paths are private internals of a guarded compatibility workaround. They may
+change in any node-pty release without notice, and node-pty offers no deprecation
+or version contract for them.
+
+### Runtime versus test
+
+The split is deliberate, and the two halves fail differently on purpose.
+
+**Runtime stays defensive.** `releaseConptyInputSocket` and
+`releaseConptyDrainWorker` use optional chaining, existence checks and `try/catch`.
+If node-pty's internals move, they become no-ops and a bridge keeps serving. A
+dependency change must never crash a running bridge.
+
+**Tests fail loud.** `test/node-pty-contract.test.mjs` asserts that the private
+shape the workaround depends on is still the shape this node-pty version has. A
+missing field is a failure, never a skip:
+
+```
+node-pty internal compatibility contract changed; review the KNOuX ConPTY
+cleanup workaround before upgrading node-pty.
+```
+
+A silent no-op in the runtime helper would otherwise let the original leak return
+with every test still green. Verified by mutating the compiled helper to read
+`inSocketRenamed` and `_RENAMED`: 5 of 11 tests fail, including both release
+assertions and the multi-session leak regression. Widening the declared range back
+to `^1.1.0` fails the pin assertion on its own.
+
+The suite is Windows-only as a whole, since the workaround is ConPTY-specific. The
+POSIX path uses `process.kill(-pid)` and a pty(3) handle and needs no workaround.
+That skip is declared on the `describe`, not per assertion.
+
+### NODE-PTY UPGRADE GATE
+
+Before changing the node-pty version, in order. Do not skip a step; each catches a
+failure the others cannot.
+
+1. **Read the new implementation.** Open `lib/windowsPtyAgent.js` and
+   `lib/windowsConoutConnection.js` in the new version. Confirm `kill()` still has
+   a branch that sets `_inSocket.readable = false` without destroying it, and that
+   `ConoutConnection.dispose()` still defers `worker.terminate()` on a timer.
+   If either leak is fixed upstream, the workaround for it must be deleted, not
+   left in place over a fixed library.
+2. **Check the private paths.** Confirm `_agent.inSocket`, `_agent.outSocket` and
+   `_agent._conoutSocketWorker._worker` exist with the same meaning.
+3. **Run the contract test.** `node --test test/node-pty-contract.test.mjs`. It
+   asserts the declared pin, the installed version, the lockfile version, each
+   private path, each helper's release behaviour, and the multi-session leak
+   regression. It must pass on the new version with the pin updated in both
+   `package.json` and `package-lock.json`.
+4. **Run the leak regression specifically.** The contract test's six-session case
+   must end at 0 foreign sockets. A pin bump that reintroduces the accumulation
+   shows up here and nowhere else.
+5. **Verify output still flows.** A pty must still deliver shell output. A
+   workaround that closes the input socket too eagerly breaks writes, and the leak
+   tests would not notice.
+6. **Verify exit events still fire.** Both paths: an explicit `kill()`, and a shell
+   that exits on its own. The self-exit path is what exercises the `onExit`
+   wrapper, which is the only cleanup that path gets.
+7. **Verify resize and write.** `resize` must not throw on a live pty, and `write`
+   must still reach the shell after the workaround has run once.
+8. **Verify reconnect and detach.** Run `node --test
+   test/terminal.test.mjs`. The detach and resume tests keep a session alive past
+   its harness `close()`, which is where a too-eager cleanup would surface as a
+   dead shell rather than a failed assertion.
+9. **Verify `BridgeServer.close()` completes.** With a live upgraded socket, the
+   server must close rather than hang on the drain sweep.
+10. **Only then accept the upgrade.** Update the pin, the lockfile, and the
+    `EXPECTED_NODE_PTY_VERSION` constant in the contract test together. A version
+    bump with the constant left stale is a red test, which is the intended
+    outcome.
+
 ## Reproducing
 
 ```bash
 cd bridge
 npx tsc
 node --test --test-reporter=tap test/terminal.test.mjs   # hangs before the fix
+node --test --test-reporter=tap test/node-pty-contract.test.mjs
 ```
 
 The original measurement used `process._getActiveHandles()` and
