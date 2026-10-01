@@ -38,9 +38,16 @@ export function ProductBlocks({ product }: ProductBlocksProps) {
                 {product.capabilities.map((item, index) => (
                   <li key={item}>
                     <div className="capability-card">
-                      <span className="capability-card__index" aria-hidden="true">
-                        {String(index + 1).padStart(2, '0')}
-                      </span>
+                      <svg
+                        className="capability-card__index"
+                        aria-hidden="true"
+                        focusable="false"
+                        viewBox="0 0 100 70"
+                      >
+                        <text x="50" y="58" textAnchor="middle" fill="currentColor">
+                          {String(index + 1).padStart(2, '0')}
+                        </text>
+                      </svg>
                       <p className="capability-card__text">{item}</p>
                     </div>
                   </li>
