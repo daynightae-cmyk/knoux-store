@@ -24,7 +24,7 @@
 .dev-sidebar__projects{border-top:1px solid #282635;gap:12px;padding:15px 9px;display:grid}
 .dev-mini-label{color:#a5a0b8}
 .dev-sidebar__projects a{color:#aaa8b8;text-overflow:ellipsis;white-space:nowrap;font-size:11px;overflow:hidden}
-.dev-sidebar__projects a:before{content:"•";color:var(--violet);margin-right:10px}
+.dev-sidebar__projects a:before{content:"â€¢";color:var(--violet);margin-right:10px}
 .dev-sidebar__foot{font:9px var(--font-mono,monospace);letter-spacing:.08em;color:#a0a1b3;border-top:1px solid #242533;margin-top:auto;padding:12px 9px}
 .dev-status-dot{background:#6fddba;border-radius:50%;width:6px;height:6px;margin-right:7px;display:inline-block}
 .dev-shell__content{min-width:0;padding:0 18px 60px}
@@ -96,8 +96,8 @@
 .dev-list>a:hover,.dev-list>button:hover,.dev-list--selected{background:var(--surface-2)!important}
 /* A list row is a flex line, so each child needs `min-width: 0` before it is
    allowed to shrink below its content width. Without it a repository path such
-   as `references/QA_CLOSURE.md` — which carries no break opportunity under the
-   default `word-break: normal` — sets the row's minimum width and pushes the
+   as `references/QA_CLOSURE.md` â€” which carries no break opportunity under the
+   default `word-break: normal` â€” sets the row's minimum width and pushes the
    whole document sideways at 430px. The two properties are both required:
    `min-width` lets the flex child shrink, `overflow-wrap` gives the path
    somewhere to break. */
@@ -151,15 +151,15 @@
 .dev-machine__links,.dev-actions{flex-wrap:wrap;gap:8px;margin-top:18px;display:flex}
 .dev-machine__links a{color:#d2a9ff;border:1px solid #604874;border-radius:3px;padding:7px 8px;font-size:10px}
 /* The orbit's own header had no rules at all, so its two spans rendered as one
-   run of text — "KNOuX / PRODUCT SYSTEM07 REGISTERED" — and sat wherever the
+   run of text â€” "KNOuX / PRODUCT SYSTEM07 REGISTERED" â€” and sat wherever the
    flow put them. The reference carries the label at the left edge of the orbit
    and the count at the right, which is what space-between across the top gives. */
 .dev-machine__device-head{color:#8d8a9e;justify-content:space-between;gap:16px;left:0;right:0;font:9px var(--font-mono,monospace);letter-spacing:.14em;position:absolute;top:0;display:flex}
 /* The registry is a positioning context for the nodes and nothing else; the
    nodes themselves are absolutely placed from `--node-x` / `--node-y`. */
 .dev-machine__registry{position:static}
-/* One card height for every node. A name long enough to wrap — "RELEASE-
-   CANDIDATE" — used to make its card taller than the rest, and because the
+/* One card height for every node. A name long enough to wrap â€” "RELEASE-
+   CANDIDATE" â€” used to make its card taller than the rest, and because the
    cards are centred on their own position that read as a card pushed out of the
    ring. The width is sized to hold the longest label in the registry on one
    line, with the ellipsis as the safety net if the registry grows. */
@@ -332,3 +332,25 @@
    fills its positioned parent, and its backing store is sized in script from
    the parent's measured rect at a capped DPR. */
 .dev-hero__canvas canvas { position: absolute; inset: 0; z-index: 2; display: block; }
+/* Terminal page: setup form, live mount, toolbar, facts. */
+.dev-terminal-setup{display:grid;gap:10px;padding:12px 0}
+.dev-field{display:grid;gap:5px;font-size:10px;color:#8d8da2}
+.dev-field>span{letter-spacing:.12em}
+.dev-field select,.dev-field input,.dev-terminal-find input{color:#d9d8e3;background:#0a0a10;border:1px solid #2a2c3f;border-radius:3px;min-height:32px;padding:6px 9px;font:11px var(--font-mono,monospace)}
+.dev-field select:focus-visible,.dev-field input:focus-visible,.dev-terminal-find input:focus-visible,.dev-button:focus-visible,.dev-terminal-toolbar button:focus-visible{outline:2px solid #7dd3fc;outline-offset:1px}
+.dev-button{color:#0a0a10;background:#7dd3fc;border:0;border-radius:3px;min-height:34px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer}
+.dev-button:disabled{opacity:.45;cursor:not-allowed}
+.dev-error{color:#f0a3a3;font-size:11px}
+.dev-terminal-mount{min-height:300px;background:#0a0a0f;border:1px solid #23283a;border-radius:3px;overflow:hidden}
+.dev-terminal-mount:focus-visible{outline:2px solid #7dd3fc;outline-offset:1px}
+.dev-terminal-mount .xterm{padding:8px}
+.dev-terminal-toolbar,.dev-terminal-find{align-items:center;gap:8px;flex-wrap:wrap;display:flex;padding-top:8px;font:10px var(--font-mono,monospace);color:#8d8da2}
+.dev-terminal-toolbar button,.dev-terminal-find button{color:var(--text);background:var(--surface-2);border:1px solid var(--line-strong);border-radius:3px;padding:6px 9px;font-size:10px;cursor:pointer}
+.dev-terminal-toolbar button:disabled,.dev-terminal-find button:disabled{opacity:.45;cursor:not-allowed}
+.dev-terminal-steps{padding:8px 0}
+.dev-facts{display:grid;gap:0;margin:0}
+.dev-facts__row{border-bottom:1px solid #292a39;justify-content:space-between;gap:8px;padding:7px 0;font-size:11px;display:flex}
+.dev-facts__row:last-child{border-bottom:0}
+.dev-facts__row dt{color:#8d8da2;margin:0}
+.dev-facts__row dd{color:#d9d8e3;margin:0;overflow-wrap:anywhere;text-align:right}
+@media (max-width:760px){.dev-terminal-toolbar{font-size:9px}}
