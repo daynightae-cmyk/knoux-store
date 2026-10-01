@@ -21,7 +21,6 @@ import type { EnvironmentName } from './deployment';
 import type { ProjectAdapter } from './types';
 
 export const ADAPTER_ID = 'knoux-fs-readonly';
-export const BRIDGE_ADAPTER_ID = 'knoux-bridge';
 
 export {
   ENVIRONMENT_LABELS,

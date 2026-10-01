@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { guardBuildApi, resolveBuildOwnerId } from '@/lib/build/api-guard';
-import { BridgeClient, parseExecStream } from '@/lib/build/bridge-client';
-import { loadBridgeConfig } from '@/lib/build/bridge-config';
+import { parseExecStream } from '@/lib/build/bridge-client';
+import { bridgeClient, loadBridgeConfig } from '@/lib/build/bridge-config';
 import { mintTicket, scopesForAction } from '@/lib/build/bridge-tickets';
 import { parseEslint, parseTestRunner, parseTypeScript } from '@/lib/build/diagnostics';
 
@@ -72,11 +72,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const client = new BridgeClient({
-    endpoint: config.endpoint,
-    signingKey: config.keys.privateKeyPem,
-    timeoutMs: 300_000,
-  });
+  const client = bridgeClient(config, { timeoutMs: 300_000 });
 
   const token = mintTicket(
     {
