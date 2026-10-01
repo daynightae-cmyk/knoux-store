@@ -16,7 +16,6 @@ export function DiagnosticRingsScene({
   className,
 }: DiagnosticRingsSceneProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const randomRef = useRef(() => seeded(seed));
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -24,7 +23,7 @@ export function DiagnosticRingsScene({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const rand = randomRef.current();
+    const rand = seeded(seed);
     const layers = buildLayers(rand);
     let width = 0;
     let height = 0;
@@ -33,7 +32,11 @@ export function DiagnosticRingsScene({
     let frame = 0;
     let time = 0;
     let assembly = 0;
-    let scanPhase = 0;
+    let lastTs = 0;
+    // Which ring the scan is on (cycles 0 → 2 → 0)
+    let scanRingIdx = 0;
+    let scanAngle = 0;
+    let scanTimer = 0;
 
     const layout = () => {
       ratio = Math.min(2, window.devicePixelRatio || 1);
@@ -49,114 +52,164 @@ export function DiagnosticRingsScene({
       ctx.fillStyle = '#08090a';
       ctx.fillRect(0, 0, width, height);
 
-      assembly = Math.min(1, assembly + dt * 0.2);
-      scanPhase = (scanPhase + dt * 0.5) % (Math.PI * 2);
+      assembly = Math.min(1, assembly + dt * 0.18);
 
       const cx = width * 0.5;
       const cy = height * 0.5;
-      const px = pointer.active ? pointer.x : cx;
-      const py = pointer.active ? pointer.y : cy;
+      const scale = Math.min(width, height) * 0.42;
 
-      // Draw field stars
+      // Star field (very sparse for this dense scene)
       for (const star of layers.stars) {
-        const calm = 1 - assembly * 0.3;
-        const x = star.x * width + star.driftX * t * width * 1000 * calm;
-        const y = star.y * height + star.driftY * t * height * 1000 * calm;
-        const twinkle = star.amplitude * Math.sin(t * star.speed + star.phase);
-        const alpha = Math.max(0.02, Math.min(1, star.alpha + twinkle));
-        if (alpha <= 0.03) continue;
-
+        const calm = 1 - assembly * 0.5;
+        const sx = star.x * width + star.driftX * t * width * 500 * calm;
+        const sy = star.y * height + star.driftY * t * height * 500 * calm;
+        const tw = star.amplitude * Math.sin(t * star.speed + star.phase);
+        const alpha = Math.max(0.01, Math.min(0.4, star.alpha + tw));
+        if (alpha <= 0.02) continue;
         ctx.beginPath();
-        ctx.arc(x, y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = star.violet
-          ? `rgba(190,168,224,${alpha})`
-          : `rgba(226,224,231,${alpha})`;
+        ctx.arc(sx, sy, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(226,224,231,${alpha})`;
         ctx.fill();
       }
 
-      // Draw diagnostic rings
-      const ringCount = 5;
-      for (let r = 0; r < ringCount; r++) {
-        const ringAssembly = Math.max(0, Math.min(1, (assembly - r * 0.15) / 0.7));
+      // Update scan sweep (per ring, cycles through rings)
+      if (assembly > 0.3) {
+        scanTimer += dt;
+        const SWEEP_SPEED = 1.8; // radians/sec
+        scanAngle += dt * SWEEP_SPEED;
+        if (scanAngle >= Math.PI * 2) {
+          scanAngle -= Math.PI * 2;
+          scanRingIdx = (scanRingIdx + 1) % 3;
+        }
+      }
+
+      // Three diagnostic rings — each represents a risk class
+      // Ring 0 (inner): READ_ONLY tools
+      // Ring 1 (mid): SAFE_CLEANUP tools
+      // Ring 2 (outer): SYSTEM_REPAIR tools
+      const ringDefs = [
+        { radiusFactor: 0.24, sectorCount: 8, color: [161, 138, 203], label: 'READ_ONLY', alpha: 0.1 },
+        { radiusFactor: 0.46, sectorCount: 12, color: [169, 209, 142], label: 'SAFE_CLEANUP', alpha: 0.08 },
+        { radiusFactor: 0.72, sectorCount: 18, color: [161, 138, 203], label: 'SYSTEM_REPAIR', alpha: 0.06 },
+      ];
+
+      for (let r = 0; r < 3; r++) {
+        const ringAssembly = Math.max(0, Math.min(1, (assembly - r * 0.2) / 0.65));
         if (ringAssembly <= 0) continue;
 
         const eased = ringAssembly * ringAssembly * (3 - 2 * ringAssembly);
-        const baseRadius = 30 + r * 35;
-        const radius = baseRadius * (0.3 + eased * 0.9);
+        const def = ringDefs[r];
+        const [cr, cg, cb] = def.color;
+        const radius = scale * def.radiusFactor * (0.3 + eased * 0.9);
 
-        // Ring scan arc
-        const scanStart = scanPhase - Math.PI / 3;
-        const scanEnd = scanPhase + Math.PI / 3;
-        const scanProgress = ringAssembly;
-
+        // Base ring
         ctx.beginPath();
         ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(161,138,203,${0.08 * eased})`;
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = `rgba(${cr},${cg},${cb},${def.alpha * eased})`;
+        ctx.lineWidth = 0.8;
         ctx.stroke();
 
-        // Active scan arc
-        if (scanProgress > 0.3) {
-          const scanAlpha = 0.4 * scanProgress * Math.abs(Math.sin(scanPhase * 2));
-          ctx.beginPath();
-          ctx.arc(cx, cy, radius, scanStart, scanEnd);
-          ctx.strokeStyle = `rgba(169,209,142,${scanAlpha})`; // signal-green for scan
-          ctx.lineWidth = 2;
-          ctx.stroke();
-        }
+        // Sector dots on ring
+        if (eased > 0.4) {
+          for (let s = 0; s < def.sectorCount; s++) {
+            const angle = (s / def.sectorCount) * Math.PI * 2;
+            const sAssembly = Math.max(0, Math.min(1, (eased - s * (0.7 / def.sectorCount)) / 0.6));
+            if (sAssembly < 0.1) continue;
 
-        // Tool sectors on rings
-        if (eased > 0.5) {
-          const sectorCount = 6 + r * 2;
-          for (let s = 0; s < sectorCount; s++) {
-            const angle = (s / sectorCount) * Math.PI * 2;
-            const sectorAssembly = Math.max(0, Math.min(1, (ringAssembly - s * 0.05) / 0.8));
-            if (sectorAssembly < 0.2) continue;
-
-            const sa = sectorAssembly * sectorAssembly;
-            const sx = cx + Math.cos(angle) * radius;
-            const sy = cy + Math.sin(angle) * radius;
+            const sx2 = cx + Math.cos(angle) * radius;
+            const sy2 = cy + Math.sin(angle) * radius;
 
             // Pointer influence
-            const dx = sx - px, dy = sy - py;
+            const dx = sx2 - (pointer.active ? pointer.x : cx);
+            const dy = sy2 - (pointer.active ? pointer.y : cy);
             const dist = Math.sqrt(dx * dx + dy * dy);
-            const influence = pointer.active ? Math.max(0, 1 - dist / 150) * 0.2 : 0;
-            const fx = sx + (dx / (dist || 1)) * influence * 15;
-            const fy = sy + (dy / (dist || 1)) * influence * 15;
+            const infl = pointer.active ? Math.max(0, 1 - dist / 140) * 0.15 : 0;
+            const fx = sx2 + (dx / (dist || 1)) * infl * 10;
+            const fy = sy2 + (dy / (dist || 1)) * infl * 10;
 
-            const sr = 3 + sectorAssembly * 4;
+            // Fault sector: sectors 2-3 on ring 1 (SAFE_CLEANUP) = amber
+            const isFault = r === 1 && (s === 2 || s === 3);
+            const isResolved = isFault && assembly > 0.75;
+
+            let dotColor: string;
+            if (isResolved) {
+              dotColor = `rgba(169,209,142,${0.55 * sAssembly})`;
+            } else if (isFault) {
+              const faultPulse = 0.3 + 0.3 * Math.sin(t * 4 + s);
+              dotColor = `rgba(200,170,100,${faultPulse * sAssembly})`;
+            } else {
+              dotColor = `rgba(${cr},${cg},${cb},${0.35 * sAssembly})`;
+            }
+
+            const dotR = 2.5 + sAssembly * 1.5;
             ctx.beginPath();
-            ctx.arc(fx, fy, sr, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(232,229,238,${0.4 * sa})`;
+            ctx.arc(fx, fy, dotR, 0, Math.PI * 2);
+            ctx.fillStyle = dotColor;
             ctx.fill();
           }
         }
+
+        // Scan arc — only on the active scan ring
+        if (scanRingIdx === r && assembly > 0.3) {
+          const sweepSpan = Math.PI / 2.5;
+          const arcA = Math.min(1, (assembly - 0.3) * 2);
+          ctx.beginPath();
+          ctx.arc(cx, cy, radius, scanAngle - sweepSpan / 2, scanAngle + sweepSpan / 2);
+          const [scr, scg, scb] = def.color;
+          ctx.strokeStyle = `rgba(${scr},${scg},${scb},${0.45 * arcA * eased})`;
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+
+          // Scan head glow
+          const hx = cx + Math.cos(scanAngle) * radius;
+          const hy = cy + Math.sin(scanAngle) * radius;
+          const grad = ctx.createRadialGradient(hx, hy, 0, hx, hy, 12);
+          grad.addColorStop(0, `rgba(${scr},${scg},${scb},${0.5 * arcA})`);
+          grad.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.beginPath();
+          ctx.arc(hx, hy, 12, 0, Math.PI * 2);
+          ctx.fillStyle = grad;
+          ctx.fill();
+        }
       }
 
-      // Central diagnostic core
-      if (assembly > 0.4) {
-        const coreAssembly = Math.min(1, (assembly - 0.4) * 2);
-        const pulse = 1 + Math.sin(t * 1.8) * 0.06 * coreAssembly;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 14 * pulse, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(169,209,142,${0.15 * coreAssembly})`;
-        ctx.fill();
+      // Outer boundary arcs (3 rotating partial arcs = DESTRUCTIVE boundary)
+      if (assembly > 0.65) {
+        const outerA = Math.min(1, (assembly - 0.65) * 3);
+        const outerRadius = scale * 0.9;
+        for (let a = 0; a < 3; a++) {
+          const arcAngle = (a / 3) * Math.PI * 2 + t * 0.18;
+          ctx.beginPath();
+          ctx.arc(cx, cy, outerRadius, arcAngle, arcAngle + 0.5);
+          ctx.strokeStyle = `rgba(161,138,203,${0.1 * outerA})`;
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+      }
 
-        ctx.strokeStyle = `rgba(169,209,142,${0.35 * coreAssembly})`;
+      // Central diagnostic core — 18 micro rings (service categories)
+      if (assembly > 0.2) {
+        const coreA = Math.min(1, (assembly - 0.2) * 2);
+        const pulse = 1 + Math.sin(t * 2.2) * 0.05 * coreA;
+        const coreR = 10 * pulse;
+
+        // Inner fill
+        ctx.beginPath();
+        ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(169,209,142,${0.12 * coreA})`;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(169,209,142,${0.4 * coreA})`;
         ctx.lineWidth = 1;
         ctx.stroke();
-      }
 
-      // Bounded scan arcs (outer diagnostic boundary)
-      if (assembly > 0.6) {
-        const outerAssembly = Math.min(1, (assembly - 0.6) * 2.5);
-        for (let a = 0; a < 3; a++) {
-          const arcAngle = a * Math.PI * 2 / 3 + t * 0.3;
-          const arcRadius = Math.min(width, height) * 0.45;
+        // Micro concentric rings representing 18 service categories
+        for (let i = 0; i < 4; i++) {
+          const mr = coreR * (1.5 + i * 0.6);
+          const ma = Math.max(0, coreA - i * 0.18);
           ctx.beginPath();
-          ctx.arc(cx, cy, arcRadius, arcAngle - 0.4, arcAngle + 0.4);
-          ctx.strokeStyle = `rgba(161,138,203,${0.12 * outerAssembly})`;
-          ctx.lineWidth = 1.5;
+          ctx.arc(cx, cy, mr, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(161,138,203,${0.12 * ma})`;
+          ctx.lineWidth = 0.5;
           ctx.stroke();
         }
       }
@@ -164,8 +217,9 @@ export function DiagnosticRingsScene({
 
     const tick = (timestamp: number) => {
       if (!running) return;
-      const dt = Math.min(0.05, (timestamp - time) / 1000);
-      time = timestamp;
+      const dt = Math.min(0.05, (timestamp - lastTs) / 1000);
+      lastTs = timestamp;
+      time = timestamp / 1000;
       draw(time, dt);
       frame = requestAnimationFrame(tick);
     };
@@ -173,29 +227,17 @@ export function DiagnosticRingsScene({
     const start = () => {
       if (running || reduced) return;
       running = true;
-      time = performance.now();
+      lastTs = performance.now();
       frame = requestAnimationFrame(tick);
     };
 
-    const stop = () => {
-      running = false;
-      cancelAnimationFrame(frame);
-    };
-
-    const onResize = () => {
-      layout();
-      if (reduced) draw(0, 0);
-    };
-
-    const onVisibility = () => {
-      if (document.hidden) stop();
-      else start();
-    };
+    const stop = () => { running = false; cancelAnimationFrame(frame); };
+    const onResize = () => { layout(); if (reduced) draw(0, 0); };
+    const onVisibility = () => { if (document.hidden) stop(); else start(); };
 
     layout();
-    if (reduced) {
-      draw(0, 0);
-    } else {
+    if (reduced) { assembly = 1; draw(0, 0); }
+    else {
       window.addEventListener('resize', onResize);
       document.addEventListener('visibilitychange', onVisibility);
       start();
@@ -223,35 +265,23 @@ function seeded(seed: number) {
 interface Star {
   x: number; y: number; radius: number; alpha: number;
   amplitude: number; speed: number; phase: number;
-  layer: 'far' | 'mid' | 'near'; violet: boolean;
   driftX: number; driftY: number;
 }
 
 function buildLayers(rand: () => number) {
   const stars: Star[] = [];
-  const layers: { layer: 'far' | 'mid' | 'near'; share: number; radius: number; alpha: number; twinkle: number }[] = [
-    { layer: 'far', share: 0.56, radius: 0.5, alpha: 0.3, twinkle: 0.16 },
-    { layer: 'mid', share: 0.33, radius: 0.85, alpha: 0.55, twinkle: 0.24 },
-    { layer: 'near', share: 0.11, radius: 1.35, alpha: 0.82, twinkle: 0.3 },
-  ];
-  const VIOLET_RATIO = 0.05;
-  const count = 80;
-  for (const plan of layers) {
-    const total = Math.max(1, Math.round(count * plan.share));
-    for (let i = 0; i < total; i++) {
-      stars.push({
-        x: rand(), y: Math.sqrt(rand()),
-        radius: (plan.radius * (0.7 + rand() * 0.6)) / 1.6,
-        alpha: plan.alpha * (0.6 + rand() * 0.4),
-        amplitude: plan.twinkle * (0.5 + rand()),
-        speed: 0.9 + rand() * 0.95,
-        phase: rand() * Math.PI * 2,
-        layer: plan.layer,
-        violet: rand() < VIOLET_RATIO,
-        driftX: (rand() - 0.5) * 0.0016,
-        driftY: (rand() - 0.5) * 0.0011,
-      });
-    }
+  const count = 55;
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: rand(), y: rand(),
+      radius: 0.3 + rand() * 0.55,
+      alpha: 0.08 + rand() * 0.18,
+      amplitude: 0.04 + rand() * 0.1,
+      speed: 0.6 + rand() * 0.7,
+      phase: rand() * Math.PI * 2,
+      driftX: (rand() - 0.5) * 0.0008,
+      driftY: (rand() - 0.5) * 0.0006,
+    });
   }
   return { stars };
 }
