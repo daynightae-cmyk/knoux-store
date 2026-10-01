@@ -61,3 +61,18 @@ test('semantic topology contains no Math.random call', () => {
     assert.doesNotMatch(readFileSync(join(root, file), 'utf8'), /Math\.random\s*\(/);
   }
 });
+
+test('ProductScene pointer tracking is zero-render and passes live coordinates without state thrash', () => {
+  const source = readFileSync(join(root, 'src/components/products/ProductScene.tsx'), 'utf8');
+  // Must use useRef for stable pointer tracking across RAF frames
+  assert.match(source, /pointerRef\s*=\s*useRef\(\{\s*x:\s*0,\s*y:\s*0,\s*active:\s*false\s*\}\)/);
+  // onMove must update ref in-place without triggering React setState
+  assert.doesNotMatch(source, /onMove[\s\S]*?set[A-Z]\w*\(/);
+  // Pointer coordinates must be written directly to the ref
+  assert.match(source, /pointerRef\.current\.x\s*=/);
+  assert.match(source, /pointerRef\.current\.y\s*=/);
+  // Must pass live pointerRef.current directly to renderScene
+  assert.match(source, /renderScene\([^)]*pointerRef\.current\)/);
+  // Must not recreate or pass stale snapshot state
+  assert.doesNotMatch(source, /pointerSnapshot/);
+});
