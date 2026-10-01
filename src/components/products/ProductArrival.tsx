@@ -16,6 +16,17 @@ function slugToSeed(slug: string): number {
   return hash >>> 0;
 }
 
+/** Simple seeded LCG pseudo-random generator. */
+function makePrng(seed: number) {
+  let s = seed >>> 0;
+  return () => {
+    s = Math.imul(s ^ (s >>> 16), 0x45d9f3b);
+    s = Math.imul(s ^ (s >>> 16), 0x45d9f3b);
+    s ^= s >>> 16;
+    return (s >>> 0) / 0xffffffff;
+  };
+}
+
 interface ProductArrivalProps {
   product: SoftwareProduct;
   onComplete: () => void;
@@ -26,27 +37,25 @@ export function ProductArrival({ product, onComplete }: ProductArrivalProps) {
   const logoPath = resolveProductLogo(product.slug);
   const seed = slugToSeed(product.slug);
   const [stage, setStage] = useState(0);
-  const [progress, setProgress] = useState(0);
   const stageRef = useRef(0);
   const reducedRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const progressAnimRef = useRef<number>(0);
-  const rafRef = useRef<number | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  /* --- cleanup on unmount ------------------------------------------ */
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
     reducedRef.current = media.matches;
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
+  /* --- staged deterministic reveal --------------------------------- */
   useEffect(() => {
     if (reducedRef.current) {
       stageRef.current = TOTAL_STAGES;
       setStage(TOTAL_STAGES);
-      setProgress(1);
       onComplete();
       return;
     }
@@ -56,7 +65,6 @@ export function ProductArrival({ product, onComplete }: ProductArrivalProps) {
       stageRef.current = nextStage;
       setStage(nextStage);
       if (nextStage >= TOTAL_STAGES) {
-        setProgress(1);
         onComplete();
         return;
       }
@@ -64,23 +72,74 @@ export function ProductArrival({ product, onComplete }: ProductArrivalProps) {
       timerRef.current = setTimeout(() => advanceStage(nextStage + 1), duration);
     };
 
-    const animateProgress = () => {
-      const target = stageRef.current / TOTAL_STAGES;
-      progressAnimRef.current += (target - progressAnimRef.current) * 0.12;
-      setProgress(progressAnimRef.current);
-      if (stageRef.current < TOTAL_STAGES || Math.abs(progressAnimRef.current - 1) > 0.001) {
-        rafRef.current = requestAnimationFrame(animateProgress);
-      }
-    };
-
-    rafRef.current = requestAnimationFrame(animateProgress);
     timerRef.current = setTimeout(() => advanceStage(1), STAGE_DURATION * 1.2);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [product.slug, onComplete]);
+
+  /* --- ambient particle field (canvas) ----------------------------- */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const PARTICLE_COUNT = 60;
+    const rand = makePrng(seed);
+
+    type Particle = { x: number; y: number; r: number; opacity: number; speed: number };
+    let particles: Particle[] = [];
+    let raf: number;
+    let mounted = true;
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+
+    const initParticles = () => {
+      particles = Array.from({ length: PARTICLE_COUNT }, () => ({
+        x: rand() * canvas.width,
+        y: rand() * canvas.height,
+        r: 0.5 + rand() * 1.5,
+        opacity: 0.04 + rand() * 0.1,
+        speed: 0.08 + rand() * 0.14,
+      }));
+    };
+    initParticles();
+
+    const draw = () => {
+      if (!mounted) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const p of particles) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(161,138,203,${p.opacity})`;
+        ctx.fill();
+        // Drift upward slowly and wrap
+        p.y -= p.speed;
+        if (p.y < -4) p.y = canvas.height + 4;
+      }
+      raf = requestAnimationFrame(draw);
+    };
+
+    raf = requestAnimationFrame(draw);
+
+    const ro = new ResizeObserver(() => {
+      resize();
+      initParticles();
+    });
+    ro.observe(canvas);
+
+    return () => {
+      mounted = false;
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, [seed]);
 
   const stages = [
     { label: 'KNOuX', sub: 'Institutional field' },
@@ -101,7 +160,7 @@ export function ProductArrival({ product, onComplete }: ProductArrivalProps) {
       style={{ '--arrival-seed': seed.toString() } as React.CSSProperties}
     >
       <div className="product-arrival__field" aria-hidden="true">
-        <canvas className="product-arrival__canvas" />
+        <canvas ref={canvasRef} className="product-arrival__canvas" />
       </div>
 
       <div className="product-arrival__copy">
@@ -131,9 +190,6 @@ export function ProductArrival({ product, onComplete }: ProductArrivalProps) {
         )}
         <div className="product-arrival__verb">{currentStage.label}</div>
         <div className="product-arrival__sub">{currentStage.sub}</div>
-        <div className="product-arrival__progress" aria-hidden="true">
-          <span style={{ width: `${progress * 100}%` }} />
-        </div>
       </div>
     </div>
   );

@@ -16,7 +16,6 @@ export function MediaSpectrumScene({
   className,
 }: MediaSpectrumSceneProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const randomRef = useRef(() => seeded(seed));
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -24,7 +23,7 @@ export function MediaSpectrumScene({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const rand = randomRef.current();
+    const rand = seeded(seed);
     const layers = buildLayers(rand);
     let width = 0;
     let height = 0;
@@ -33,6 +32,7 @@ export function MediaSpectrumScene({
     let frame = 0;
     let time = 0;
     let assembly = 0;
+    let lastTs = 0;
 
     const layout = () => {
       ratio = Math.min(2, window.devicePixelRatio || 1);
@@ -52,127 +52,174 @@ export function MediaSpectrumScene({
 
       const cx = width * 0.5;
       const cy = height * 0.5;
-      // Draw field stars
-      for (const star of layers.stars) {
-        const calm = 1 - assembly * 0.3;
-        const x = star.x * width + star.driftX * t * width * 1000 * calm;
-        const y = star.y * height + star.driftY * t * height * 1000 * calm;
-        const twinkle = star.amplitude * Math.sin(t * star.speed + star.phase);
-        const alpha = Math.max(0.02, Math.min(1, star.alpha + twinkle));
-        if (alpha <= 0.03) continue;
+      const scale = Math.min(width, height) * 0.42;
 
+      // Sparse star field
+      for (const star of layers.stars) {
+        const calm = 1 - assembly * 0.4;
+        const sx = star.x * width + star.driftX * t * width * 500 * calm;
+        const sy = star.y * height + star.driftY * t * height * 500 * calm;
+        const tw = star.amplitude * Math.sin(t * star.speed + star.phase);
+        const alpha = Math.max(0.01, Math.min(0.45, star.alpha + tw));
+        if (alpha <= 0.02) continue;
         ctx.beginPath();
-        ctx.arc(x, y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = star.violet
-          ? `rgba(190,168,224,${alpha})`
-          : `rgba(226,224,231,${alpha})`;
+        ctx.arc(sx, sy, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(190,168,224,${alpha})`;
         ctx.fill();
       }
 
-      // Playback ring
-      if (assembly > 0.15) {
-        const ringAssembly = Math.min(1, (assembly - 0.15) / 0.5);
-        const radius = Math.min(width, height) * 0.22 * (0.4 + ringAssembly * 0.8);
+      // PLAYBACK RING — outer (main boundary) + inner (decode indicator)
+      if (assembly > 0.12) {
+        const ringA = Math.min(1, (assembly - 0.12) / 0.5);
+        const eased = ringA * ringA * (3 - 2 * ringA);
+        const outerR = scale * 0.36 * (0.4 + eased * 0.8);
+        const innerR = scale * 0.24 * (0.4 + eased * 0.8);
 
+        // Outer ring
         ctx.beginPath();
-        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(161,138,203,${0.25 * ringAssembly})`;
-        ctx.lineWidth = 1.5;
+        ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(161,138,203,${0.22 * eased})`;
+        ctx.lineWidth = 1.2;
         ctx.stroke();
 
-        // Progress arc
-        if (ringAssembly > 0.4) {
-          const progress = (t * 0.08) % 1;
-          const progressEnd = Math.PI * 2 * progress;
+        // Inner decode ring
+        ctx.beginPath();
+        ctx.arc(cx, cy, innerR, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(161,138,203,${0.14 * eased})`;
+        ctx.lineWidth = 0.7;
+        ctx.stroke();
+
+        // Progress arc on outer ring
+        if (eased > 0.4) {
+          const progress = (t * 0.07) % 1;
           ctx.beginPath();
-          ctx.arc(cx, cy, radius, -Math.PI / 2, -Math.PI / 2 + progressEnd);
-          ctx.strokeStyle = `rgba(169,209,142,${0.6 * ringAssembly})`;
-          ctx.lineWidth = 3;
+          ctx.arc(cx, cy, outerR, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress);
+          ctx.strokeStyle = `rgba(169,209,142,${0.6 * eased})`;
+          ctx.lineWidth = 2.5;
           ctx.lineCap = 'round';
           ctx.stroke();
         }
 
-        // Ring markers (time markers)
-        if (ringAssembly > 0.6) {
+        // Ring markers (12 time markers on outer ring)
+        if (eased > 0.55) {
           for (let m = 0; m < 12; m++) {
             const angle = (m / 12) * Math.PI * 2 - Math.PI / 2;
-            const mx = cx + Math.cos(angle) * radius;
-            const my = cy + Math.sin(angle) * radius;
-            const markerAssembly = Math.max(0, Math.min(1, (ringAssembly - m * 0.05) / 0.6));
-            if (markerAssembly < 0.2) continue;
+            const mx = cx + Math.cos(angle) * outerR;
+            const my = cy + Math.sin(angle) * outerR;
+            const mA = Math.max(0, Math.min(1, (eased - m * 0.04) / 0.55));
+            if (mA < 0.15) continue;
+            const isMajor = m % 3 === 0;
             ctx.beginPath();
-            ctx.arc(mx, my, 2, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(232,229,238,${0.5 * markerAssembly})`;
+            ctx.arc(mx, my, isMajor ? 2.2 : 1.2, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(232,229,238,${(isMajor ? 0.45 : 0.22) * mA})`;
             ctx.fill();
           }
         }
       }
 
-      // Spectral bands (equalizer-style)
-      if (assembly > 0.3) {
-        const specAssembly = Math.min(1, (assembly - 0.3) / 0.5);
-        const bandCount = 32;
-        const bandWidth = (Math.min(width, height) * 0.5) / bandCount;
-        const maxHeight = Math.min(width, height) * 0.35;
+      // EQUALIZER — 10-band (real EQ, not 32 random bands)
+      if (assembly > 0.28) {
+        const specA = Math.min(1, (assembly - 0.28) / 0.48);
+        const bandCount = 10;
+        const totalW = scale * 0.42;
+        const bandW = totalW / bandCount;
+        const maxH = scale * 0.28;
+        const eqY = cy + scale * 0.18;
 
         for (let b = 0; b < bandCount; b++) {
-          const bx = cx - (bandCount / 2) * bandWidth + b * bandWidth + bandWidth / 2;
-          const bandPhase = b * 0.4 + t * 1.5;
-          const height = (0.2 + 0.8 * (0.5 + 0.5 * Math.sin(bandPhase))) * maxHeight * specAssembly;
-          const by = cy + Math.min(width, height) * 0.15;
+          const bx = cx - totalW / 2 + b * bandW + bandW / 2;
+          // Each band has a frequency characteristic (seeded, not random)
+          const freq = layers.eqBands[b];
+          const liveH = (0.15 + 0.85 * (0.5 + 0.5 * Math.sin(t * freq + b * 0.6))) * maxH * specA;
 
-          const alpha = 0.3 + 0.5 * Math.sin(bandPhase);
-          const hue = 270 + (b / bandCount) * 60; // Violet to blue spectrum
-          ctx.fillStyle = `hsla(${hue}, 60%, 60%, ${0.4 * alpha * specAssembly})`;
-          ctx.fillRect(bx - bandWidth * 0.35, by - height, bandWidth * 0.7, height);
+          // Bar
+          ctx.fillStyle = `rgba(161,138,203,${0.35 * specA})`;
+          ctx.fillRect(bx - bandW * 0.32, eqY - liveH, bandW * 0.64, liveH);
+
+          // Peak marker (decays slowly)
+          const peakH = liveH * 1.1;
+          ctx.fillStyle = `rgba(178,150,214,${0.55 * specA})`;
+          ctx.fillRect(bx - bandW * 0.32, eqY - peakH - 2, bandW * 0.64, 1.5);
         }
       }
 
-      // Subtitle/time tracks (lower area)
+      // SUBTITLE TRACKS — below the EQ
       if (assembly > 0.55) {
-        const trackAssembly = Math.min(1, (assembly - 0.55) / 0.35);
+        const trackA = Math.min(1, (assembly - 0.55) / 0.35);
         const trackCount = 2;
+        const trackW = scale * 0.4;
+
         for (let tr = 0; tr < trackCount; tr++) {
-          const ty = cy + Math.min(width, height) * 0.2 + tr * 25;
-          const tw = Math.min(width, height) * 0.45 * trackAssembly;
+          const ty = cy + scale * 0.28 + tr * 22;
+          const tw = trackW * trackA;
 
           ctx.beginPath();
           ctx.moveTo(cx - tw, ty);
           ctx.lineTo(cx + tw, ty);
-          ctx.strokeStyle = `rgba(161,138,203,${0.15 * trackAssembly})`;
+          ctx.strokeStyle = `rgba(161,138,203,${0.1 * trackA})`;
           ctx.lineWidth = 1;
           ctx.stroke();
 
-          // Subtitle segments
-          if (trackAssembly > 0.5) {
-            for (let s = 0; s < 6; s++) {
-              const sx = cx - tw + (s / 5) * tw * 2;
-              const segAssembly = Math.max(0, Math.min(1, (trackAssembly - s * 0.1) / 0.7));
-              if (segAssembly < 0.2) continue;
+          // Subtitle segment blocks (variable width = different subtitle lengths)
+          if (trackA > 0.45) {
+            const segWidths = layers.subtitleSegments[tr] ?? [];
+            let segX = cx - tw;
+            for (let s = 0; s < segWidths.length; s++) {
+              const sw = segWidths[s] * tw * 0.35;
+              const segA = Math.max(0, Math.min(1, (trackA - s * 0.12) / 0.7));
+              if (segA < 0.15 || segX + sw > cx + tw) break;
               ctx.beginPath();
-              ctx.roundRect(sx - 15, ty - 8, 30, 16, 4);
-              ctx.fillStyle = `rgba(232,229,238,${0.25 * segAssembly})`;
+              ctx.roundRect(segX + 3, ty - 6, sw, 12, 3);
+              ctx.fillStyle = `rgba(161,138,203,${0.18 * segA})`;
               ctx.fill();
+              ctx.strokeStyle = `rgba(161,138,203,${0.25 * segA})`;
+              ctx.lineWidth = 0.6;
+              ctx.stroke();
+              segX += sw + 8;
             }
           }
         }
       }
 
-      // Central playhead indicator
-      if (assembly > 0.7) {
-        const centerAssembly = Math.min(1, (assembly - 0.7) * 4);
-        const pulse = 1 + Math.sin(t * 3) * 0.08 * centerAssembly;
+      // Pointer influence on ring center
+      if (assembly > 0.4 && pointer.active) {
+        const ringA = Math.min(1, (assembly - 0.12) / 0.5);
+        const outerR = scale * 0.36 * (0.4 + ringA * 0.8);
+        const dx = pointer.x - cx;
+        const dy = pointer.y - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < outerR * 1.5) {
+          const parallaxX = (dx / (outerR * 1.5)) * 6;
+          const parallaxY = (dy / (outerR * 1.5)) * 6;
+          // Slight ring shift
+          ctx.beginPath();
+          ctx.arc(cx + parallaxX, cy + parallaxY, outerR * 0.08, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(161,138,203,${0.15 * ringA})`;
+          ctx.fill();
+        }
+      }
+
+      // Central playhead
+      if (assembly > 0.68) {
+        const cA = Math.min(1, (assembly - 0.68) * 4);
+        const pulse = 1 + Math.sin(t * 3.2) * 0.07 * cA;
         ctx.beginPath();
-        ctx.arc(cx, cy, 6 * pulse, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(169,209,142,${0.5 * centerAssembly})`;
+        ctx.arc(cx, cy, 5 * pulse, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(169,209,142,${0.55 * cA})`;
         ctx.fill();
+        ctx.beginPath();
+        ctx.arc(cx, cy, 10 * pulse, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(169,209,142,${0.2 * cA})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
       }
     };
 
     const tick = (timestamp: number) => {
       if (!running) return;
-      const dt = Math.min(0.05, (timestamp - time) / 1000);
-      time = timestamp;
+      const dt = Math.min(0.05, (timestamp - lastTs) / 1000);
+      lastTs = timestamp;
+      time = timestamp / 1000;
       draw(time, dt);
       frame = requestAnimationFrame(tick);
     };
@@ -180,29 +227,17 @@ export function MediaSpectrumScene({
     const start = () => {
       if (running || reduced) return;
       running = true;
-      time = performance.now();
+      lastTs = performance.now();
       frame = requestAnimationFrame(tick);
     };
 
-    const stop = () => {
-      running = false;
-      cancelAnimationFrame(frame);
-    };
-
-    const onResize = () => {
-      layout();
-      if (reduced) draw(0, 0);
-    };
-
-    const onVisibility = () => {
-      if (document.hidden) stop();
-      else start();
-    };
+    const stop = () => { running = false; cancelAnimationFrame(frame); };
+    const onResize = () => { layout(); if (reduced) draw(0, 0); };
+    const onVisibility = () => { if (document.hidden) stop(); else start(); };
 
     layout();
-    if (reduced) {
-      draw(0, 0);
-    } else {
+    if (reduced) { assembly = 1; draw(0, 0); }
+    else {
       window.addEventListener('resize', onResize);
       document.addEventListener('visibilitychange', onVisibility);
       start();
@@ -230,35 +265,42 @@ function seeded(seed: number) {
 interface Star {
   x: number; y: number; radius: number; alpha: number;
   amplitude: number; speed: number; phase: number;
-  layer: 'far' | 'mid' | 'near'; violet: boolean;
   driftX: number; driftY: number;
 }
 
 function buildLayers(rand: () => number) {
   const stars: Star[] = [];
-  const layers: { layer: 'far' | 'mid' | 'near'; share: number; radius: number; alpha: number; twinkle: number }[] = [
-    { layer: 'far', share: 0.56, radius: 0.5, alpha: 0.3, twinkle: 0.16 },
-    { layer: 'mid', share: 0.33, radius: 0.85, alpha: 0.55, twinkle: 0.24 },
-    { layer: 'near', share: 0.11, radius: 1.35, alpha: 0.82, twinkle: 0.3 },
-  ];
+  const count = 60;
   const VIOLET_RATIO = 0.08;
-  const count = 100;
-  for (const plan of layers) {
-    const total = Math.max(1, Math.round(count * plan.share));
-    for (let i = 0; i < total; i++) {
-      stars.push({
-        x: rand(), y: Math.sqrt(rand()),
-        radius: (plan.radius * (0.7 + rand() * 0.6)) / 1.6,
-        alpha: plan.alpha * (0.6 + rand() * 0.4),
-        amplitude: plan.twinkle * (0.5 + rand()),
-        speed: 0.9 + rand() * 0.95,
-        phase: rand() * Math.PI * 2,
-        layer: plan.layer,
-        violet: rand() < VIOLET_RATIO,
-        driftX: (rand() - 0.5) * 0.0016,
-        driftY: (rand() - 0.5) * 0.0011,
-      });
-    }
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: rand(), y: rand(),
+      radius: 0.3 + rand() * 0.65,
+      alpha: (rand() < VIOLET_RATIO ? 0.15 : 0.08) + rand() * 0.15,
+      amplitude: 0.05 + rand() * 0.1,
+      speed: 0.7 + rand() * 0.8,
+      phase: rand() * Math.PI * 2,
+      driftX: (rand() - 0.5) * 0.0009,
+      driftY: (rand() - 0.5) * 0.0007,
+    });
   }
-  return { stars };
+
+  // 10-band EQ — each band has a deterministic frequency characteristic
+  const eqBands: number[] = [];
+  for (let b = 0; b < 10; b++) {
+    // Frequency increases log-like from bass to treble
+    eqBands.push(0.8 + b * 0.35 + rand() * 0.3);
+  }
+
+  // Subtitle segment widths (2 tracks, variable segments)
+  const subtitleSegments: number[][] = [];
+  for (let tr = 0; tr < 2; tr++) {
+    const segs: number[] = [];
+    for (let s = 0; s < 5; s++) {
+      segs.push(0.4 + rand() * 0.8);
+    }
+    subtitleSegments.push(segs);
+  }
+
+  return { stars, eqBands, subtitleSegments };
 }

@@ -23,11 +23,15 @@ export function ProductScene({ product, className, height = 400 }: ProductSceneP
   const profile = visualProfileFor(product.slug);
   const motif = profile?.motif ?? 'system-nucleus';
   const seed = slugToSeed(product.slug);
+
   const [reduced, setReduced] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   );
-  const [pointer, setPointer] = useState({ x: 0, y: 0, active: false });
-  const canvasRef = useRef<HTMLDivElement>(null);
+
+  // Stable mutable pointer ref — avoids setState (and React re-renders) on mousemove.
+  // Scenes receive the stable object reference and read live coordinates inside their RAF loop.
+  const pointerRef = useRef({ x: 0, y: 0, active: false });
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -42,37 +46,48 @@ export function ProductScene({ product, className, height = 400 }: ProductSceneP
     if (!fine.matches) return;
 
     const onMove = (e: PointerEvent) => {
-      if (!canvasRef.current) return;
-      const rect = canvasRef.current.getBoundingClientRect();
-      setPointer({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-        active: true,
-      });
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      pointerRef.current.x = e.clientX - rect.left;
+      pointerRef.current.y = e.clientY - rect.top;
+      pointerRef.current.active = true;
+    };
+
+    const onEnter = (e: PointerEvent) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      pointerRef.current.x = e.clientX - rect.left;
+      pointerRef.current.y = e.clientY - rect.top;
+      pointerRef.current.active = true;
     };
 
     const onLeave = () => {
-      setPointer({ x: 0, y: 0, active: false });
+      pointerRef.current.x = 0;
+      pointerRef.current.y = 0;
+      pointerRef.current.active = false;
     };
 
-    const canvas = canvasRef.current;
-    canvas?.addEventListener('pointermove', onMove);
-    canvas?.addEventListener('pointerleave', onLeave);
+    const el = containerRef.current;
+    el?.addEventListener('pointermove', onMove, { passive: true });
+    el?.addEventListener('pointerenter', onEnter);
+    el?.addEventListener('pointerleave', onLeave);
     return () => {
-      canvas?.removeEventListener('pointermove', onMove);
-      canvas?.removeEventListener('pointerleave', onLeave);
+      el?.removeEventListener('pointermove', onMove);
+      el?.removeEventListener('pointerenter', onEnter);
+      el?.removeEventListener('pointerleave', onLeave);
     };
   }, [reduced]);
 
   return (
     <div
-      ref={canvasRef}
+      ref={containerRef}
       className={`product-scene ${className ?? ''}`}
       style={{ height, width: '100%' }}
       aria-hidden="true"
       data-motif={motif}
     >
-      {renderScene(motif, seed, reduced, pointer)}
+      {/* eslint-disable-next-line react-hooks/refs */}
+      {renderScene(motif, seed, reduced, pointerRef.current)}
     </div>
   );
 }
