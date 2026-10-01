@@ -5114,8 +5114,11 @@ html[data-chamber="armed"] .auth-panel.is-risen [data-stagger="foot"]{transition
    and would otherwise set the caption in the value's display size. */
 .eco-ledger dd.eco-ledger__note { font-size: 11.5px; line-height: 1.62; letter-spacing: normal; color: var(--muted); margin-bottom: 0; }
 /* A file path is a fact about provenance, so it is set in the same monospace the
-   ledger already uses for its labels rather than left as literal punctuation. */
-.eco-ledger code { font-family: var(--mono); font-size: 10.5px; color: var(--text); word-break: break-all; }
+   ledger already uses for its labels rather than left as literal punctuation.
+   `overflow-wrap: anywhere` breaks only when the cell genuinely cannot fit it,
+   and prefers a path separator; `word-break: break-all` would split the filename
+   mid-word at every width. */
+.eco-ledger code { font-family: var(--mono); font-size: 10.5px; color: var(--text); overflow-wrap: anywhere; }
 
 /* --- Responsive -------------------------------------------------
    Mobile is its own composition, not a narrower desktop. The rack
