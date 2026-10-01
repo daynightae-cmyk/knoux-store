@@ -198,8 +198,8 @@
   border: 1px solid var(--line-soft);
 }
 .product-hero__telemetry > div { background: var(--bg); padding: 16px 18px 18px; }
-.product-hero__telemetry dt { font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--dim); }
-.product-hero__telemetry dd { margin: 8px 0 0; font-size: 14px; line-height: 1.55; color: var(--text); }
+.product-hero__telemetry dt { font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #9b99a3; }
+.product-hero__telemetry dd { margin: 8px 0 0; font-size: 14px; line-height: 1.55; color: #d8d6df; }
 .product-hero__actions { display: flex; flex-wrap: wrap; gap: 26px; margin-top: 40px; }
 .product-hero__scene { min-width: 0; align-self: stretch; }
 .product-hero__scene canvas, .product-hero__scene .product-scene { display: block; width: 100%; height: 100%; min-height: 400px; }
@@ -1443,7 +1443,7 @@
 
 /* Reduced motion */
 @media(prefers-reduced-motion:reduce){
-  .experiment-chamber__selector button{transition:none}
+  .experiment-chamber--v2__selector button{transition:none}
 }
 
 .wordpress-axes{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #3b3540;border-bottom:1px solid #3b3540;background:linear-gradient(180deg,#131017,#0b0c0e)}
