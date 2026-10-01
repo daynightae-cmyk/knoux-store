@@ -326,3 +326,26 @@
   .dev-entry__field button { min-height: 42px; }
   .dev-entry__foot { flex-direction: column; gap: 5px; bottom: 18px; }
 }
+
+/* Terminal page: setup form, live mount, toolbar, facts. */
+.dev-terminal-setup{display:grid;gap:10px;padding:12px 0}
+.dev-field{display:grid;gap:5px;font-size:10px;color:#8d8da2}
+.dev-field>span{letter-spacing:.12em}
+.dev-field select,.dev-field input,.dev-terminal-find input{color:#d9d8e3;background:#0a0a10;border:1px solid #2a2c3f;border-radius:3px;min-height:32px;padding:6px 9px;font:11px var(--font-mono,monospace)}
+.dev-field select:focus-visible,.dev-field input:focus-visible,.dev-terminal-find input:focus-visible,.dev-button:focus-visible,.dev-terminal-toolbar button:focus-visible{outline:2px solid #7dd3fc;outline-offset:1px}
+.dev-button{color:#0a0a10;background:#7dd3fc;border:0;border-radius:3px;min-height:34px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer}
+.dev-button:disabled{opacity:.45;cursor:not-allowed}
+.dev-error{color:#f0a3a3;font-size:11px}
+.dev-terminal-mount{min-height:300px;background:#0a0a0f;border:1px solid #23283a;border-radius:3px;overflow:hidden}
+.dev-terminal-mount:focus-visible{outline:2px solid #7dd3fc;outline-offset:1px}
+.dev-terminal-mount .xterm{padding:8px}
+.dev-terminal-toolbar,.dev-terminal-find{align-items:center;gap:8px;flex-wrap:wrap;display:flex;padding-top:8px;font:10px var(--font-mono,monospace);color:#8d8da2}
+.dev-terminal-toolbar button,.dev-terminal-find button{color:var(--text);background:var(--surface-2);border:1px solid var(--line-strong);border-radius:3px;padding:6px 9px;font-size:10px;cursor:pointer}
+.dev-terminal-toolbar button:disabled,.dev-terminal-find button:disabled{opacity:.45;cursor:not-allowed}
+.dev-terminal-steps{padding:8px 0}
+.dev-facts{display:grid;gap:0;margin:0}
+.dev-facts__row{border-bottom:1px solid #292a39;justify-content:space-between;gap:8px;padding:7px 0;font-size:11px;display:flex}
+.dev-facts__row:last-child{border-bottom:0}
+.dev-facts__row dt{color:#8d8da2;margin:0}
+.dev-facts__row dd{color:#d9d8e3;margin:0;overflow-wrap:anywhere;text-align:right}
+@media (max-width:760px){.dev-terminal-toolbar{font-size:9px}}
