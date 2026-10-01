@@ -16,7 +16,7 @@ import { createServer, type Server as HttpServer, type IncomingMessage, type Ser
 import type { Duplex } from 'node:stream';
 import { randomUUID, createHash, createPublicKey } from 'node:crypto';
 import { dirname, resolve } from 'node:path';
-import { readdirSync, statSync, readFileSync, writeFileSync, renameSync, existsSync, mkdirSync, unlinkSync, rmSync } from 'node:fs';
+import { readdirSync, statSync, readFileSync, writeFileSync, renameSync, existsSync, mkdirSync, unlinkSync, rmSync, openSync, fstatSync, readSync, closeSync } from 'node:fs';
 import { hostname } from 'node:os';
 import { spawn, execFileSync, type ChildProcess } from 'node:child_process';
 import { WebSocketServer, WebSocket } from 'ws';
@@ -585,8 +585,18 @@ export class BridgeServer {
       }
       entries.sort((a, b) => (a.type === b.type ? a.name.localeCompare(b.name) : a.type === 'directory' ? -1 : 1));
       json(res, 200, { entries, path: resolved.relative });
-    } catch (err) {
-      error(res, 404, 'fs-unavailable', redactError(err));
+    } catch {
+      // No exception text reaches the client. The redacted reason is recorded
+      // in the audit log below, never in the response.
+      this.options.audit.append({
+        action: 'fs.list',
+        actor: 'ticket',
+        target: resolved.relative!,
+        outcome: 'failure',
+        detail: 'listing failed',
+        approvalId: null,
+      });
+      error(res, 404, 'fs-unavailable', 'The directory could not be listed.');
     }
   }
 
@@ -614,21 +624,36 @@ export class BridgeServer {
       return;
     }
 
+    // Open first, then stat the open descriptor. A statSync followed by a
+    // separate readFileSync is a TOCTOU window: the path can be swapped for a
+    // different file — or a pipe that never ends — between the two calls. The
+    // descriptor pins the file the checks were made against.
+    let fd: number | null = null;
     try {
-      const stat = statSync(absolute);
+      fd = openSync(absolute, 'r');
+      const stat = fstatSync(fd);
       if (!stat.isFile()) {
-        error(res, 400, 'not-a-file', 'That path is not a file.');
+        error(res, 400, 'not-a-file', 'That path is not a regular file.');
         return;
       }
       if (stat.size > MAX_READ_BYTES) {
         error(res, 413, 'file-too-large', `The file exceeds the ${MAX_READ_BYTES / 1024} KB read limit.`);
         return;
       }
-      const content = readFileSync(absolute, 'utf8');
+      // Read exactly the measured size from the same descriptor. A file that
+      // grows concurrently cannot turn this into an unbounded read.
+      const buffer = Buffer.alloc(stat.size);
+      let offset = 0;
+      while (offset < stat.size) {
+        const read = readSync(fd, buffer, offset, stat.size - offset, offset);
+        if (read === 0) break;
+        offset += read;
+      }
+      const content = buffer.subarray(0, offset).toString('utf8');
       const result: FsReadResult = {
         content,
         language: languageOf(filePath),
-        bytes: stat.size,
+        bytes: offset,
         lines: content.length === 0 ? 0 : content.split('\n').length,
         hash: sha256(content),
       };
@@ -637,12 +662,26 @@ export class BridgeServer {
         actor: 'ticket',
         target: resolved.relative!,
         outcome: 'success',
-        detail: `${stat.size} bytes`,
+        detail: `${offset} bytes`,
         approvalId: null,
       });
       json(res, 200, result);
-    } catch (err) {
-      error(res, 404, 'not-found', redactError(err));
+    } catch {
+      // No exception text reaches the client. The audit log below is the only
+      // place a failure reason is recorded, and even there it is redacted.
+      this.options.audit.append({
+        action: 'fs.read',
+        actor: 'ticket',
+        target: filePath.slice(0, 200),
+        outcome: 'failure',
+        detail: 'read failed',
+        approvalId: null,
+      });
+      error(res, 404, 'not-found', 'No such file.');
+    } finally {
+      if (fd !== null) {
+        try { closeSync(fd); } catch { /* already closed */ }
+      }
     }
   }
 
@@ -841,7 +880,17 @@ export class BridgeServer {
         blocker: null,
       };
       json(res, 200, snapshot);
-    } catch (err) {
+    } catch {
+      // The blocker reports that git failed, not how. Exception text — which
+      // for a git failure routinely includes paths — stays in the audit log.
+      this.options.audit.append({
+        action: 'git.status',
+        actor: 'ticket',
+        target: root,
+        outcome: 'failure',
+        detail: 'git status failed',
+        approvalId: null,
+      });
       json(res, 200, {
         available: false,
         branch: null,
@@ -849,7 +898,7 @@ export class BridgeServer {
         dirty: false,
         files: [],
         commits: [],
-        blocker: redactError(err),
+        blocker: 'Git status is unavailable for this workspace.',
       } satisfies GitSnapshot);
     }
   }
@@ -857,8 +906,16 @@ export class BridgeServer {
   private handleGitLog(res: ServerResponse, root: string): void {
     try {
       json(res, 200, { commits: this.readCommits(root, 20) });
-    } catch (err) {
-      json(res, 200, { commits: [], blocker: redactError(err) });
+    } catch {
+      this.options.audit.append({
+        action: 'git.log',
+        actor: 'ticket',
+        target: root,
+        outcome: 'failure',
+        detail: 'git log failed',
+        approvalId: null,
+      });
+      json(res, 200, { commits: [], blocker: 'Git history is unavailable for this workspace.' });
     }
   }
 
@@ -896,7 +953,7 @@ export class BridgeServer {
       const args = body?.create
         ? ['checkout', '-b', name]
         : ['checkout', name];
-      const output = git(args, root);
+      git(args, root);
       const branch = git(['rev-parse', '--abbrev-ref', 'HEAD'], root);
       this.options.audit.append({
         action: body?.create ? 'git.branch.create' : 'git.branch.checkout',
@@ -906,7 +963,9 @@ export class BridgeServer {
         detail: `now on ${branch}`,
         approvalId: null,
       });
-      json(res, 200, { ok: true, branch, output: output.slice(0, 2000) });
+      // The response carries the measured branch, not git's raw stdout, which
+      // can name paths the client was never shown.
+      json(res, 200, { ok: true, branch });
     } catch (err) {
       this.options.audit.append({
         action: 'git.branch.failure',
@@ -916,7 +975,7 @@ export class BridgeServer {
         detail: redactError(err),
         approvalId: null,
       });
-      error(res, 409, 'git-failed', redactError(err));
+      error(res, 409, 'git-failed', 'The branch operation failed.');
     }
   }
 
@@ -1440,7 +1499,6 @@ function languageOf(path: string): string {
     case 'svg': return 'svg';
     case 'yml': case 'yaml': return 'yaml';
     case 'html': case 'htm': return 'html';
-    case 'css': return 'css';
     case 'sh': case 'ps1': return 'shell';
     default: return 'text';
   }

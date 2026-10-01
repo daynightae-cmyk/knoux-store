@@ -142,9 +142,10 @@ export class ProcessRegistry extends EventEmitter {
         windowsHide: true,
       });
     } catch (err) {
-      const detail = err instanceof Error ? err.message : 'spawn failed';
-      this.onAudit?.('proc.start', name, 'failure', detail);
-      return { ok: false, reason: `Could not start "${name}": ${detail}` };
+      // The spawn error text stays in the audit log. The caller gets a generic
+      // reason: exception text routinely names paths and environment details.
+      this.onAudit?.('proc.start', name, 'failure', err instanceof Error ? err.message : 'spawn failed');
+      return { ok: false, reason: `The process "${name}" could not be started.` };
     }
 
     p.child = child;
