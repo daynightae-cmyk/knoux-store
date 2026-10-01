@@ -36,7 +36,6 @@ export function DiagnosticRingsScene({
     // Which ring the scan is on (cycles 0 → 2 → 0)
     let scanRingIdx = 0;
     let scanAngle = 0;
-    let scanTimer = 0;
 
     const layout = () => {
       ratio = Math.min(2, window.devicePixelRatio || 1);
@@ -74,7 +73,6 @@ export function DiagnosticRingsScene({
 
       // Update scan sweep (per ring, cycles through rings)
       if (assembly > 0.3) {
-        scanTimer += dt;
         const SWEEP_SPEED = 1.8; // radians/sec
         scanAngle += dt * SWEEP_SPEED;
         if (scanAngle >= Math.PI * 2) {
