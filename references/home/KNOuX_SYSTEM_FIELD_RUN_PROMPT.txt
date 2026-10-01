@@ -1,0 +1,569 @@
+CONTINUE THE EXISTING KNOuX STORE PROJECT.
+
+EXECUTION WORKTREE:
+D:\Knoux Store-worktrees\home-system-field
+
+AUTHORITATIVE FEATURE BRANCH:
+feat/home-system-field-map
+
+REFERENCE BASELINE COMMIT:
+1eb3548aa15cc74c8152385f8708e772409f17b6
+
+TARGET:
+Transform ONLY Home block
+02 / SOFTWARE UNIVERSE
+into the production KNOuX SYSTEM FIELD.
+
+THIS IS AN EXECUTION TASK.
+DO NOT RETURN A PLAN.
+DO NOT START FROM SCRATCH.
+DO NOT TOUCH THE ACTIVE ABOUT WORKTREE.
+DO NOT REDESIGN THE PROTECTED HOME HERO.
+DO NOT REDESIGN /products.
+DO NOT INVENT DATA.
+DO NOT FAKE CLOSURE.
+
+==================================================
+0 — VERIFY EXACT WORKTREE
+==================================================
+
+cd "D:\Knoux Store-worktrees\home-system-field"
+
+Run:
+
+git status
+git branch --show-current
+git rev-parse HEAD
+git rev-parse origin/main
+git log -5 --oneline --decorate
+git worktree list --porcelain
+
+Expected branch:
+feat/home-system-field-map
+
+Expected reference baseline:
+1eb3548aa15cc74c8152385f8708e772409f17b6
+
+If branch/path differs:
+STOP before editing and report the mismatch.
+
+Do NOT switch or reset:
+D:\Knoux Store
+
+That root currently belongs to separate About work.
+
+==================================================
+1 — READ ALL AUTHORITIES
+==================================================
+
+Read completely:
+
+references/home/SOFTWARE_FIELD_CLOSURE.md
+references/home/KNOuX_SYSTEM_FIELD_SOURCE_REFERENCE.md
+references/home/KNOuX_SYSTEM_FIELD_VIDEO_MOTION_REFERENCE.md
+references/home/KNOuX_SYSTEM_FIELD_AUTHORITY.md
+references/home/KNOuX_SYSTEM_FIELD_IMPLEMENTATION_PROMPT.txt
+
+Then inspect:
+
+src/components/HomeExperience.tsx
+src/components/HomeSoftwareField.tsx
+src/components/ProductUniverse.tsx
+src/data/software
+src/lib/knouxMark.ts
+src/components/three/LivingParticleMark.tsx
+src/components/QualityControl.tsx
+src/app/globals.css
+package.json
+
+Do not modify code until you understand:
+- protected Home Hero
+- existing HomeSoftwareField fallback/truth model
+- ProductUniverse separation
+- softwareProducts schema
+- current KNOuX quality system
+
+==================================================
+2 — REFERENCE ROLE
+==================================================
+
+The supplied Three.js scene and motion study are interaction references only.
+
+TAKE:
+- central core
+- spatial system nodes
+- curved signal paths
+- subtle orbital/parallax motion
+- focused module behavior
+- side system dossier
+- cinematic negative space
+- depth
+- pointer/focus selection
+
+REJECT:
+- Atul Verma identity
+- student/achievement framing
+- avatar
+- graduation cap
+- exam scores
+- gold/orange/cyan/green/magenta palette
+- biography text ring
+- barcode decoration
+- source navigation
+- Google Fonts
+- CDN import map
+- uncontrolled OrbitControls
+- fake metrics
+- literal source layout
+
+==================================================
+3 — FINAL CONCEPT
+==================================================
+
+NAME:
+KNOuX SYSTEM FIELD
+
+ROLE:
+Home cinematic navigator for REAL verified KNOuX systems.
+
+CENTER:
+canonical KNOuX Core / Living Mark geometry.
+
+AROUND THE CORE:
+real softwareProducts.
+
+CONNECTIONS:
+core paths + relatedIds where useful.
+
+READOUT:
+truthful focused System Dossier.
+
+This is NOT:
+a card carousel,
+a solar system toy,
+a game,
+a generic 3D portfolio.
+
+==================================================
+4 — DATA AUTHORITY
+==================================================
+
+ALL nodes derive from:
+softwareProducts
+
+Use real fields only:
+index
+code
+name
+shortName
+discipline
+family
+status
+platform
+tagline
+slug
+relatedIds
+topology
+
+Each node routes to:
+/products/[slug]
+
+NO duplicate hard-coded catalogue.
+NO fake users/downloads/ROI/clients/awards/scores/revenue.
+
+Use dynamic registry length.
+Never hardcode system count.
+
+==================================================
+5 — CORE
+==================================================
+
+Use canonical KNOuX geometry from:
+src/lib/knouxMark.ts
+
+Do not invent a new logo.
+Do not replace it with a sphere/orb.
+
+If a scene-native mark is needed,
+reuse the canonical geometry or refactor a safe reusable mark renderer.
+
+Do NOT create another heavyweight full-screen WebGL context
+if it can be avoided.
+
+==================================================
+6 — LAYOUT
+==================================================
+
+Build deterministic spatial topology.
+
+Prefer existing product.topology metadata.
+
+Do not use Math.random() for branded placement.
+
+Nodes should occupy multiple spatial depths/radii only when readable.
+
+Text must remain camera-facing and legible.
+
+The core stays visually dominant without becoming giant.
+
+==================================================
+7 — MOTION
+==================================================
+
+Adapt the video concept, NOT its literal speed.
+
+IDLE:
+- very slow orbital breathing
+- subtle parallax
+- restrained depth drift
+
+FOCUS:
+- damp/pause orbit
+- selected node moves slightly into readable position
+- selected core path brightens
+- related paths illuminate secondarily
+- unrelated nodes recede
+- dossier updates
+- labels remain stable
+
+EXIT:
+- Escape / pointer leave / Back returns smoothly
+
+NO:
+fast carousel
+constant aggressive camera spin
+rollercoaster movement
+user chasing moving labels
+
+==================================================
+8 — VISUAL DNA
+==================================================
+
+USE:
+deep black
+graphite
+off-white
+silver
+platinum
+muted lavender as signal
+
+NO:
+gold
+orange
+red
+rainbow nodes
+electric cyan
+generic neon
+bright gradients
+glass-card soup
+
+Nodes should feel like engineered KNOuX system modules.
+
+==================================================
+9 — NODE + DOSSIER
+==================================================
+
+AT REST NODE EXAMPLE:
+
+KN / 03
+KFORGE
+DEVELOPER SYSTEM
+
+Do not put paragraphs on every floating node.
+
+FOCUSED DOSSIER EXAMPLE:
+
+03 / VERIFIED SYSTEM
+
+KFORGE
+
+<real tagline>
+
+STATUS
+<real status>
+
+PLATFORM
+<real platform>
+
+FAMILY
+<real family>
+
+OPEN SYSTEM ↗
+
+All values come from the same softwareProducts object.
+
+==================================================
+10 — HOME VS PRODUCTS
+==================================================
+
+Home System Field:
+cinematic preview/navigation.
+
+ProductUniverse:
+full search/filter/topology/evidence explorer.
+
+Do NOT duplicate ProductUniverse on Home.
+Do NOT alter /products behavior except a tiny shared utility refactor if necessary.
+
+==================================================
+11 — ACCESSIBILITY
+==================================================
+
+Canvas/WebGL is enhancement, not the only navigation.
+
+Keyboard:
+- Tab reaches systems
+- focus syncs scene
+- Enter opens product
+- Escape clears focus
+
+Touch:
+- tap selects
+- tap action opens
+- no hover dependency
+
+Reduced motion:
+- freeze/heavily damp orbit
+- preserve focus and hierarchy
+
+WebGL unavailable:
+- preserve/refine semantic DOM product list
+- all systems remain navigable
+
+==================================================
+12 — PERFORMANCE
+==================================================
+
+The protected Home Hero is already GPU-heavy.
+
+Measure combined Hero + System Field.
+
+Requirements:
+- adaptive DPR
+- existing quality tiers
+- no unnecessary simultaneous heavy contexts
+- pause/reduce offscreen
+- pause/reduce document.hidden
+- cap geometry/particles
+- no per-frame React state
+- no per-frame DOM queries
+- cache interaction targets
+- dispose resources
+- no runtime CDN
+- no external fonts
+- no unnecessary GLBs
+- no giant post-processing stack
+
+==================================================
+13 — RESPONSIVE
+==================================================
+
+Verify:
+1600x1000
+1440x900
+1366x768
+1024x768
+768x1024
+430x932
+390x844
+375x812
+
+Mobile is NOT desktop shrunk.
+
+Use a shallower scene,
+fewer simultaneous labels,
+reduced motion,
+and a touch-friendly synchronized DOM rail/list.
+
+NO overflow.
+NO clipped nodes.
+NO offscreen dossier.
+NO unreadable labels.
+
+==================================================
+14 — IMPLEMENTATION BOUNDARY
+==================================================
+
+Expected changes may include:
+
+src/components/HomeSoftwareField.tsx
+src/components/home/*
+src/components/three/*
+src/components/HomeExperience.tsx
+src/app/globals.css
+targeted tests
+references/home/* closure
+
+DO NOT TOUCH:
+D:\Knoux Store active About worktree
+auth
+Signal
+Contact
+Build
+backend systems
+protected Home Hero identity
+
+Do not delete old fallback behavior until replacement fallback is proven.
+
+==================================================
+15 — VISUAL QA
+==================================================
+
+Capture baseline first.
+
+Then:
+IMPLEMENT
+→ RENDER
+→ INSPECT
+→ CORRECT
+→ RENDER AGAIN
+
+Inspect:
+- transition from Hero
+- KNOuX Core
+- node readability
+- idle motion
+- focused state
+- related paths
+- dossier
+- keyboard
+- pointer
+- touch
+- mobile
+- reduced motion
+- fallback
+- combined scroll/GPU behavior
+
+Reject if it looks like:
+Dark + purple + cards
+generic orbit carousel
+solar system gimmick
+game UI
+student portfolio
+floating dashboard
+
+==================================================
+16 — GATES
+==================================================
+
+Run with REAL exit codes:
+
+npm run lint
+npm run typecheck
+npm test
+npm run build
+git diff --check
+
+Run browser QA.
+
+Verify:
+console
+hydration
+WebGL warnings
+links
+keyboard
+touch
+reduced motion
+scroll
+Home Hero regression
+System Field performance
+
+Classify failures:
+INTRODUCED
+PRE-EXISTING
+EXTERNAL
+
+Fix all INTRODUCED failures.
+
+==================================================
+17 — DELIVERY
+==================================================
+
+Commit ONLY System Field changes on:
+
+feat/home-system-field-map
+
+Push the same branch.
+Open PR to main.
+
+Do not merge because local build passed.
+Wait for actual CI.
+
+After green CI and mergeable state,
+follow repository merge policy.
+
+Then verify:
+merge SHA
+final main SHA
+deployment
+production Home desktop/mobile
+console
+actual interaction
+
+==================================================
+18 — FINAL REPORT
+==================================================
+
+Return evidence:
+
+STARTING SHA
+WORKTREE
+BRANCH
+FEATURE HEAD SHA
+CHANGED FILES
+LINT
+TYPECHECK
+TESTS
+BUILD
+DIFF CHECK
+BROWSER QA
+PR
+CI
+MERGE SHA
+FINAL MAIN SHA
+PRODUCTION STATE
+
+Classify:
+
+Architecture
+Functionality
+Visual Fidelity
+Accessibility
+Performance
+Release Readiness
+
+ONLY:
+COMPLETE — verified
+PARTIAL — implemented but proof missing
+BLOCKED — real external blocker
+UNCHANGED — intentionally preserved
+
+NO fake percentages.
+NO "should work".
+NO "looks good" as proof.
+
+==================================================
+FINAL DIRECTIVE
+==================================================
+
+START NOW.
+
+DO NOT RETURN A PLAN.
+DO NOT ASK FOR NORMAL IMPLEMENTATION PERMISSION.
+DO NOT REBUILD THE HOME PAGE.
+DO NOT TOUCH THE PROTECTED HERO.
+DO NOT TOUCH THE ABOUT WORKTREE.
+DO NOT COPY THE SOURCE DESIGN.
+DO NOT FAKE COMPLETION.
+
+Build the real:
+
+KNOuX SYSTEM FIELD
+
+A living, readable map of real KNOuX systems
+around the canonical KNOuX core,
+with deterministic topology,
+restrained orbital motion,
+truthful registry data,
+real navigation,
+and production-grade fallbacks.
