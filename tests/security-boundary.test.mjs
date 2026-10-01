@@ -257,6 +257,36 @@ test('every workspace route asks the guard before touching the project', () => {
   }
 });
 
+test('every bridge route guards before identifying the owner, and never mints without both', () => {
+  for (const route of ['bridge/pair', 'bridge/status', 'bridge/ticket', 'exec']) {
+    const source = readFileSync(join(root, 'src', 'app', 'api', 'build', route, 'route.ts'), 'utf8');
+    const code = codeOnly(source);
+    assert.match(code, /guardBuildApi\(/, `/api/build/${route} must call the workspace guard`);
+    assert.match(code, /resolveBuildOwnerId\(/, `/api/build/${route} must resolve the owner`);
+    const guardAt = code.indexOf('guardBuildApi(');
+    const ownerAt = code.indexOf('resolveBuildOwnerId(');
+    assert.ok(
+      guardAt >= 0 && guardAt < ownerAt,
+      `/api/build/${route} must guard before identifying the owner`,
+    );
+  }
+});
+
+test('the ticket route mints terminal scope only, with a 60 second life', () => {
+  const source = readFileSync(join(root, 'src', 'app', 'api', 'build', 'bridge', 'ticket', 'route.ts'), 'utf8');
+  const code = codeOnly(source);
+  // String literals are stripped from `code`, so the scope names — the exact
+  // thing this test pins down — are asserted against the raw source.
+  assert.match(source, /scopesForAction\('terminal:open'\)/, 'the ticket must be terminal-scoped');
+  assert.doesNotMatch(source, /scopesForAction\('exec/, 'the ticket must not carry exec scope');
+  assert.doesNotMatch(source, /scopesForAction\('fs:/, 'the ticket must not carry filesystem scope');
+  // Lifetime is enforced by the minter, but the route must not ask for more.
+  assert.doesNotMatch(code, /ttlSeconds/, 'the route must not override the ticket lifetime');
+  // The signing key never appears here: minting takes the loaded keys, and the
+  // raw key material stays in the server-only loader.
+  assert.doesNotMatch(code, /KNOUX_BRIDGE_SIGNING_KEY/, 'the route must not touch key material');
+});
+
 test('the expensive project scan is cached rather than repeated per request', () => {
   const source = readFileSync(join(root, 'src', 'app', 'api', 'build', 'project', 'route.ts'), 'utf8');
   assert.match(source, /withShortCache\(/, 'the project snapshot must be served from a short cache');
