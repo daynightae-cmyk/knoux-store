@@ -217,7 +217,9 @@ export class FsProjectAdapter implements ProjectAdapter {
       // A verification runner may exist, but it is opt-in and allowlisted.
       'command.allowlisted': process.env.KNOUX_BUILD_ALLOW_VERIFY === '1' ? 'available' : 'blocked',
       'command.arbitrary': 'blocked',
+      // This class reads files. It starts no shell of any kind.
       'terminal.interactive': 'blocked',
+      'terminal.powershell': 'blocked',
       'runtime.manage': 'blocked',
       'git.read': readOnly,
       'git.write': 'blocked',
@@ -227,9 +229,17 @@ export class FsProjectAdapter implements ProjectAdapter {
       'database.read': 'unconfigured',
       'database.write': 'blocked',
       'provider.execute': 'unconfigured',
+      // Probing a provider needs credentials this adapter does not hold.
+      'provider.probe': 'unconfigured',
       'diagnostics.read': process.env.KNOUX_BUILD_ALLOW_VERIFY === '1' ? 'available' : 'blocked',
       'test.run': process.env.KNOUX_BUILD_ALLOW_VERIFY === '1' ? 'available' : 'blocked',
+      // Deployment is never triggered from this process.
       'deploy.trigger': 'blocked',
+      'deploy.history': 'unconfigured',
+      // Metrics are the bridge's measurement, not a filesystem read.
+      'metrics.read': 'blocked',
+      // No watcher is installed by this adapter.
+      'fs.watch': 'blocked',
     };
   }
 
