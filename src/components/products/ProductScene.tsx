@@ -28,14 +28,9 @@ export function ProductScene({ product, className, height = 400 }: ProductSceneP
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   );
 
-  // Use a ref for pointer — avoids setState (and therefore React re-render) on every mousemove.
-  // Scenes read pointerRef.current inside their RAF loop.
-  // We do a single stable useState object whose reference never changes — scenes receive the
-  // same object reference always and read its properties inside the RAF, not as React deps.
+  // Stable mutable pointer ref — avoids setState (and React re-renders) on mousemove.
+  // Scenes receive the stable object reference and read live coordinates inside their RAF loop.
   const pointerRef = useRef({ x: 0, y: 0, active: false });
-  // Expose a stable snapshot state ONLY on pointer enter/leave (2 renders total, not per frame)
-  const [pointerSnapshot, setPointerSnapshot] = useState({ x: 0, y: 0, active: false });
-
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,23 +48,23 @@ export function ProductScene({ product, className, height = 400 }: ProductSceneP
     const onMove = (e: PointerEvent) => {
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
-      // Write directly to the ref — no React state update, no re-render
-      pointerRef.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-        active: true,
-      };
+      pointerRef.current.x = e.clientX - rect.left;
+      pointerRef.current.y = e.clientY - rect.top;
+      pointerRef.current.active = true;
     };
 
-    const onEnter = () => {
-      // Only set state on enter to trigger a render that passes the new active=true
-      setPointerSnapshot({ ...pointerRef.current, active: true });
+    const onEnter = (e: PointerEvent) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      pointerRef.current.x = e.clientX - rect.left;
+      pointerRef.current.y = e.clientY - rect.top;
+      pointerRef.current.active = true;
     };
 
     const onLeave = () => {
-      pointerRef.current = { x: 0, y: 0, active: false };
-      // One state update to propagate the deactivation to scenes
-      setPointerSnapshot({ x: 0, y: 0, active: false });
+      pointerRef.current.x = 0;
+      pointerRef.current.y = 0;
+      pointerRef.current.active = false;
     };
 
     const el = containerRef.current;
@@ -91,7 +86,8 @@ export function ProductScene({ product, className, height = 400 }: ProductSceneP
       aria-hidden="true"
       data-motif={motif}
     >
-      {renderScene(motif, seed, reduced, pointerSnapshot)}
+      {/* eslint-disable-next-line react-hooks/refs */}
+      {renderScene(motif, seed, reduced, pointerRef.current)}
     </div>
   );
 }
