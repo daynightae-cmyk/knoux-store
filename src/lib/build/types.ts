@@ -24,6 +24,7 @@ export type BuildCapability =
   | 'command.allowlisted'
   | 'command.arbitrary'
   | 'terminal.interactive'
+  | 'terminal.powershell'
   | 'runtime.manage'
   | 'git.read'
   | 'git.write'
@@ -32,9 +33,13 @@ export type BuildCapability =
   | 'database.read'
   | 'database.write'
   | 'provider.execute'
+  | 'provider.probe'
   | 'diagnostics.read'
   | 'test.run'
-  | 'deploy.trigger';
+  | 'deploy.trigger'
+  | 'deploy.history'
+  | 'metrics.read'
+  | 'fs.watch';
 
 /**
  * Capability state. `blocked` and `unconfigured` are deliberately distinct:
