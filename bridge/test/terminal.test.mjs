@@ -1,3 +1,31 @@
+/**
+ * Terminal socket tests — real node-pty, real ConPTY, real WebSockets.
+ *
+ * This is the one suite in the package that runs with `--test-force-exit`, and
+ * the reason is specific rather than general.
+ *
+ * Every test here drives an actual ConPTY shell, so two node-pty 1.1.0 leaks
+ * would otherwise keep the event loop open forever. Both are fixed in
+ * `src/pty/spawn.ts` — `releaseConptyInputSocket` for the ConPTY `conin` pipe and
+ * `releaseConptyDrainWorker` for the worker that drains the output pipe — and
+ * `CONPTY-HANDLES.md` records the measurements.
+ *
+ * What is left is two `MessagePort` handles that belong to Conout workers whose
+ * `PtyInstance` was dropped before the worker could finish cleaning itself up.
+ * The `detach` and `resume` tests below do that on purpose: they keep a session
+ * alive past the harness's `close()` to prove the shell survives a browser
+ * refresh. Nothing holds a reference to those workers afterwards, and node-pty
+ * offers no supported way to reach them, so they cannot be released from here.
+ * They are per-suite rather than per-session, so the cost is bounded.
+ *
+ * The other five suites spawn no PTY, hold no orphaned handle, and run without
+ * `--test-force-exit` in `npm test`. If a future change makes one of them need
+ * it, that is a leak in our code and the flag will not be widened to hide it.
+ *
+ * These tests remain real: they use the shipped `node-pty` and a real ConPTY
+ * pseudoconsole. Nothing here is stubbed to make the suite pass.
+ */
+
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
@@ -324,10 +352,12 @@ test('a resume replays only the output the client missed', async () => {
     await first.waitFor(isReady);
     const sessionId = first.frames.find((f) => f.t === 'ready').sessionId;
 
-    // Produce output, note how far the client got, then drop the socket.
-    first.send({ t: 'input', d: 'echo FIRST_MARKER\r\n' });
-    await first.waitFor((frames) => frames.some((f) => f.t === 'output' && /FIRST_MARKER/.test(f.d)));
-    const lastSeq = Math.max(...first.frames.filter((f) => f.t === 'output').map((f) => f.seq));
+    // Let the banner finish so the frame boundary lands in a known place, then
+    // record how far the client has got.
+    await first.waitFor((frames) => frames.some((f) => f.t === 'output' && /Microsoft Windows/.test(f.d)));
+    await new Promise((r) => setTimeout(r, 300));
+    const seenSeqs = first.frames.filter((f) => f.t === 'output').map((f) => f.seq);
+    const lastSeq = Math.max(...seenSeqs);
 
     first.ws.terminate();
     await first.closed;
@@ -335,8 +365,8 @@ test('a resume replays only the output the client missed', async () => {
 
     // The shell produced more output while nobody was listening.
     const manager = h.sessions;
-    manager.write(sessionId, 'echo SECOND_MARKER\r\n');
-    await new Promise((r) => setTimeout(r, 600));
+    manager.write(sessionId, 'echo MISSED_AFTER_DETACH\r\n');
+    await new Promise((r) => setTimeout(r, 700));
 
     // Resume from the last seq the client actually saw.
     const second = connect(
@@ -352,9 +382,23 @@ test('a resume replays only the output the client missed', async () => {
       replay.frames.every((f) => f.t === 'output' && f.seq > lastSeq),
       'replay must contain only frames after the requested seq',
     );
-    const replayText = replay.frames.map((f) => f.d).join('');
-    assert.match(replayText, /SECOND_MARKER/);
-    assert.doesNotMatch(replayText, /FIRST_MARKER/, 'already-seen output must not be replayed');
+    // Every frame the client already saw is absent, and the seqs are contiguous
+    // from the resume point, so nothing between them was skipped.
+    const replaySeqs = replay.frames.map((f) => f.seq);
+    assert.deepEqual(
+      replaySeqs,
+      Array.from({ length: replaySeqs.length }, (_, i) => lastSeq + 1 + i),
+      'replay must be contiguous from the resume point with no gap and no repeat',
+    );
+    assert.ok(
+      replaySeqs.every((seq) => !seenSeqs.includes(seq)),
+      'no frame the client already saw may be replayed',
+    );
+    assert.match(
+      replay.frames.map((f) => f.d).join(''),
+      /MISSED_AFTER_DETACH/,
+      'the output produced while detached must be replayed',
+    );
 
     // The ready frame confirms this is the same shell.
     const ready = second.frames.find((f) => f.t === 'ready');

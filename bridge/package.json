@@ -17,7 +17,7 @@
     "start": "node dist/main.js",
     "doctor": "node dist/main.js doctor",
     "pretest": "tsc",
-    "test": "node --test-force-exit --test test/*.test.mjs"
+    "test": "node --test --test test/policy.test.mjs test/ticket.test.mjs test/session.test.mjs test/config.test.mjs test/server.test.mjs && node --test --test-force-exit --test test/terminal.test.mjs"
   },
   "dependencies": {
     "node-pty": "^1.0.0",
