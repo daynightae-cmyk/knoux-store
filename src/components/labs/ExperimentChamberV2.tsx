@@ -53,27 +53,27 @@ export function ExperimentChamberV2() {
       data-experiment={experiment.id}
     >
       {/* LEFT / CENTER: Scientific SDF Dot-Matrix Field */}
-      <div className="experiment-chamber__field" aria-hidden="true">
+      <div className="experiment-chamber--v2__field" aria-hidden="true">
         <LabMaterialField activeExperimentId={experiment.id} />
-        <small className="experiment-chamber__meta-note">
+        <small className="experiment-chamber--v2__meta-note">
           PROTOTYPE FIELD / NOT A RELEASE
         </small>
       </div>
 
       {/* RIGHT DOSSIER: Real Research Facts */}
-      <div className="experiment-chamber__body" key={experiment.id}>
+      <div className="experiment-chamber--v2__body" key={experiment.id}>
         <span className="label label--signal">
           EXPERIMENT {String(active + 1).padStart(2, '0')} / {experiment.status.toUpperCase()}
         </span>
         <h3>{experiment.name}</h3>
         <p>{experiment.statement}</p>
 
-        <div className="experiment-chamber__evidence">
+        <div className="experiment-chamber--v2__evidence">
           <small>EVIDENCE</small>
           <span>{experiment.evidence}</span>
         </div>
 
-        <div className="experiment-chamber__stack">
+        <div className="experiment-chamber--v2__stack">
           <small>STACK</small>
           <span>{experiment.stack}</span>
         </div>
@@ -90,7 +90,7 @@ export function ExperimentChamberV2() {
 
       {/* BOTTOM / EDGE SELECTOR */}
       <div
-        className="experiment-chamber__selector"
+        className="experiment-chamber--v2__selector"
         role="group"
         aria-label="Choose a lab experiment"
       >
