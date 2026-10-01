@@ -159,6 +159,13 @@ export function toOfficialAssetUrl(input: unknown): string | undefined {
   return parsed.toString();
 }
 
+export function toOfficialRasterAssetUrl(input: unknown): string | undefined {
+  const value = toOfficialAssetUrl(input);
+  if (!value) return undefined;
+  const parsed = new URL(value);
+  return /\.(?:png|jpe?g|gif|webp|avif)$/i.test(parsed.pathname) ? value : undefined;
+}
+
 /** True when the host is an official WordPress asset host we are allowed to load from. */
 export function isOfficialAssetHost(hostname: string): boolean {
   const host = hostname.toLowerCase();
