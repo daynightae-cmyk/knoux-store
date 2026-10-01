@@ -8,7 +8,6 @@ import { divisions } from '@/lib/entities';
 import { growthChannelsDetail } from '@/data/growth';
 import { creativeDisciplines, webSystems } from '@/data/services';
 import { DeterministicSignature } from '@/components/DeterministicSignature';
-import { wordPressItems } from '@/data/wordpress';
 import { labExperiments } from '@/data/software';
 
 const divisionPoints = [
@@ -79,21 +78,22 @@ export function MissionPath() {
   </div>;
 }
 
-const wordpressSlots = [
-  ['01', 'Themes', '/wordpress/themes', 'BUILD'],
-  ['02', 'Plugins', '/wordpress/plugins', 'EXTEND'],
-  ['03', 'Blocks', '/wordpress/blocks', 'BUILD'],
-  ['04', 'Starter Sites', '/wordpress/starter-sites', 'BUILD'],
-  ['05', 'Solutions', '/wordpress/solutions', 'COMPOSE'],
-] as const;
-
-export function EcosystemRack() {
-  return <div className="ecosystem-rack spatial-surface" data-spatial><div className="ecosystem-rack__spine"><span>WORDPRESS</span><small>OPEN WEB / KNOuX SYSTEMS</small></div><div className="ecosystem-rack__slots">{wordpressSlots.map(([code, label, href, family]) => {
-    const itemType: Record<string, string> = { Themes: 'theme', Plugins: 'plugin', Blocks: 'block', 'Starter Sites': 'starter-site', Solutions: 'bundle' };
-    const count = wordPressItems.filter((item) => item.type === itemType[label]).length;
-    return <Link key={href} href={href} className="ecosystem-rack__slot"><span>{code} / {family}</span><strong>{label}</strong><span className="ecosystem-rack__state">{count ? `${count} VERIFIED RELEASE${count === 1 ? '' : 'S'}` : 'REGISTRY READY / 0 RELEASES'}</span><i aria-hidden="true">↗</i></Link>;
-  })}</div></div>;
-}
+/*
+ * `EcosystemRack` was removed here rather than left unused.
+ *
+ * It was a five-slot rack of the WordPress category routes, rendered on
+ * /wordpress. The ecosystem restructure replaced that surface with
+ * `WordPressLibraryGateway`, which routes into the same four directories while
+ * also carrying the per-category presentation, the source provenance and the
+ * separate KNOuX Releases rail. Keeping both would have put two different
+ * category lists on one page, disagreeing about how many categories exist —
+ * this one counted five, the gateway counts the four official WordPress.org
+ * directories, which is the number a visitor can actually browse.
+ *
+ * The two routes this rack also linked, /wordpress/starter-sites and
+ * /wordpress/solutions, are still linked from /wordpress and still in the
+ * division subrail. Nothing became unreachable; a redundant second list did.
+ */
 
 export function SystemBlueprint() {
   const [active, setActive] = useState(0);
