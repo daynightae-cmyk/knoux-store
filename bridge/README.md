@@ -1,15 +1,35 @@
 # KNOuX Build Bridge
 
-The bridge is a separate, authenticated, locally-hosted Node service that owns the shell, filesystem, git credentials, and process supervision for the KNOuX DEV workspace. The hosted Next.js workspace talks to it through a signed, short-lived, least-privilege channel.
+The bridge is a local service that gives the DEV workspace real access to your
+machine: a shell, the filesystem under your workspace root, git, allowlisted
+verification tasks, and supervised processes.
 
-## Architecture
+It exists so that "build this for me" means something. A deployment on a server
+cannot run your project's tests against your local files, and it should not
+pretend to. The bridge runs on your machine, and the workspace talks to it.
 
-```
-Browser ←WSS (signed ticket)→ Bridge
-Browser ←HTTPS (cookies)→ Next.js BFF ←HTTPS + signed request→ Bridge
-```
+## What is real, and what is not
 
-The Next.js server never proxies the PTY stream. Terminal sessions go directly from the browser to the bridge over WebSocket, using a 60-second, single-use, Ed25519-signed ticket minted by the BFF.
+Every value the bridge reports was measured:
+
+- **Status.** `/v1/health` answers only because the process is running. A
+  reachable bridge is not a paired one, and the workspace distinguishes them.
+- **Capabilities.** The handshake lists the shell profiles this host actually
+  probed. `terminal` is true because a shell was found, not because terminals
+  are a product feature.
+- **Metrics.** CPU, memory, disk and network are sampled from the platform at
+  request time. A value that cannot be measured is `null`. It is never a
+  plausible-looking `0` standing in for something that was not read.
+- **Processes.** `proc:list` reports the state of a real child process. A
+  process that exited non-zero is `failed` with its real exit code. Logs are the
+  bytes the process actually wrote.
+- **Filesystem.** Reads and writes go to the path you asked for, inside the
+  configured root. Symlinks are resolved and re-checked; a link pointing out of
+  the root is refused.
+- **Git.** Branch, head and status come from `git`. In a directory that is not a
+  repository, the snapshot reports `available: false` and a blocker.
+
+If a capability is not there, the workspace shows it as blocked and says why.
 
 ## Install
 
@@ -19,122 +39,186 @@ npm install
 npm run build
 ```
 
-## Quick start
+## Pair
 
-### 1. Initialize the bridge identity
+Two steps, in this order.
 
-```bash
-npx knoux-bridge init
+**1. On this machine**, create the identity and note the code:
+
+```
+node dist/main.js init
 ```
 
-This generates an Ed25519 keypair in `~/.knoux/bridge/identity.json` (0600 permissions) and prints the public key fingerprint.
+It prints a bridge id, a fingerprint, and an eight-character pairing code that
+is valid for fifteen minutes and works once.
 
-### 2. Start the bridge
+**2. Configure the workspace** so it knows a bridge exists:
 
 ```bash
-npx knoux-bridge start
+KNOUX_BRIDGE_URL=http://127.0.0.1:7331
+KNOUX_BRIDGE_SIGNING_KEY=<a base64 32-byte Ed25519 seed, or a PKCS8 PEM>
 ```
 
-The bridge listens on `127.0.0.1:7331` by default. It refuses to listen on a non-loopback interface without TLS.
+Generate a seed:
 
-### 3. Pair from the DEV workspace
+```bash
+node -e "console.log(require('node:crypto').randomBytes(32).toString('base64'))"
+```
 
-1. Open `/build/settings` → "Connect bridge"
-2. Enter the bridge URL (e.g. `http://127.0.0.1:7331`) and the pairing code
-3. The BFF calls `POST /v1/pair` with the code and the web app's public key
-4. The bridge stores the web app public key as trusted issuer
-5. Verify the fingerprint matches what `knoux-bridge init` printed
+Both variables stay on the server. The seed is the identity that mints tickets,
+so it never leaves the deployment and never reaches a browser.
 
-### 4. Open a terminal
+**3. Start the bridge and pair it from the workspace** settings page, entering
+the code from step 1.
 
-Navigate to `/build/terminal`. The page requests a ticket from the BFF, connects to the bridge over WebSocket, and opens a real shell session.
+Pairing records the bridge's id and fingerprint. Compare the fingerprint the
+workspace shows against `node dist/main.js pair-status` — if they differ, you
+are not talking to the machine you think you are.
+
+## Run
+
+```
+node dist/main.js start
+```
+
+Commands:
+
+| Command | What it does |
+| --- | --- |
+| `init` | Create the identity and print a pairing code |
+| `start` | Run the server |
+| `pair-status` | Show identity, trusted issuers, pending codes |
+| `unpair` | Remove all trusted issuers and pending codes |
+| `doctor` | Probe this host and report what is actually available |
+| `install-service` | Print Windows service instructions |
+
+`doctor` is the honest answer to "what can this bridge do here":
+
+```
+$ node dist/main.js doctor
+KNOuX Bridge diagnostics
+=========================
+Platform:     win32 (x64)
+Node:         v24.19.0
+Root:         D:\Knoux Store
+Listen:       127.0.0.1:7331
+Identity:     present
+
+Shell profiles:
+  powershell: C:\Windows\...\powershell.exe (version 5.1...)
+  cmd: C:\Windows\System32\cmd.exe (version unknown)
+
+Network counters:
+  available (rx 91244123 B, tx 6102931 B cumulative)
+
+Metrics sample:
+  cpu:            3% (process), 12% (system)
+  memory:         8123 MiB / 31892 MiB
+  disk free:      51234 MiB
+  network rx/tx:  4410 / 1203 B/s
+```
 
 ## Configuration
 
-Create `bridge.config.json` in the working directory:
+`bridge.config.json` beside the compiled sources. `bridge.config.example.json` is
+the committed example; `bridge.config.local.json` overrides it and is ignored by
+git.
 
 ```json
 {
-  "root": "C:\\dev\\knoux-store",
+  "root": "..",
   "port": 7331,
   "host": "127.0.0.1",
-  "requireTls": true,
   "allowEnvWrite": false,
   "loadProfile": false,
   "limits": {
     "maxSessions": 3,
     "idleTimeoutMinutes": 30,
     "maxLifetimeHours": 8,
-    "scrollbackBytes": 262144,
     "detachTtlMinutes": 10
   },
   "allowlistedTasks": {
     "lint": ["npm", "run", "lint"],
-    "typecheck": ["npm", "run", "typecheck"],
-    "build": ["npm", "run", "build"],
-    "test": ["npm", "run", "test"]
+    "typecheck": ["npm", "run", "typecheck"]
   },
   "processProfiles": {
-    "dev": { "cmd": "npm", "args": ["run", "dev"], "port": 3000 },
-    "tunnel": { "cmd": "cloudflared", "args": ["tunnel", "run", "knoux-bridge"] }
+    "dev": { "cmd": "npm", "args": ["run", "dev"], "port": 3000 }
   }
 }
 ```
 
-## Tunnel modes
+Notes on what the validator actually enforces:
 
-The bridge needs a reachable URL for the browser to connect to. Three modes:
+- **`root` resolves against the config directory**, not the process working
+  directory, so starting the bridge from anywhere still points at the same tree.
+- **`allowEnvWrite: true` is required, as `true`,** to write `.env` files. A
+  string `"false"` is not a way to say no; it is not a way to say yes either.
+- **`allowlistedTasks` is replaced, not merged.** An empty object disables
+  execution entirely; a malformed one does the same rather than falling back to
+  the defaults. A configuration error must never be a privilege grant.
+- **`processProfiles` entries without a runnable command are dropped** at load,
+  so `proc:list` never advertises a process that cannot start.
+- **`loadProfile`** defaults to false: a shell starts without your PowerShell
+  profile, so what you see in the workspace is the shell and not your dotfiles.
 
-1. **localhost** — for local dev. The bridge listens on `127.0.0.1:7331`. The browser connects directly.
-2. **Cloudflare Tunnel / Tailscale Funnel / ngrok** — creates an HTTPS tunnel to a home PC. The bridge listens on localhost; the tunnel provides the public URL.
-3. **Private VPS** — the bridge runs on a VPS behind a reverse proxy with TLS. Set `host: "0.0.0.0"` and `requireTls: true`.
+The bridge refuses to bind anything but loopback. It speaks plain HTTP, and the
+security of the ticket scheme rests on the ticket never crossing a network.
 
-The bridge refuses to listen on a non-loopback interface without TLS or an explicit `--i-understand-the-risk` flag.
+## Security model
 
-## Security
+**Tickets.** The workspace mints an Ed25519-signed ticket per request. Each is
+audience-bound to this bridge's id, scoped to what the route needs, single-use,
+and valid for sixty seconds. The bridge checks, in order: size, shape,
+`alg`/`typ`, `kid` against its trust store, signature, issuer, audience,
+`iat`/`exp` against a lifetime ceiling, replay of `jti`, then scope. Any failure
+returns the same `403 invalid-ticket` with no detail, so the endpoint is not an
+oracle; the specific reason goes to the local audit log.
 
-- Tickets are Ed25519-signed JWTs with 60-second expiry, single-use jti, and scope enforcement.
-- The bridge verifies: size limit → parse → alg/typ allowlist → signature → aud → exp/iat (±5s skew) → jti unseen → scope → origin allowlist.
-- All filesystem paths are relative to the configured root. Absolute paths, traversal, symlinks outside root, and UNC paths are denied.
-- Writes to `.git/**`, bridge config, and `.env*` are denied by default.
-- The PTY environment is allowlisted — secrets are never forwarded.
-- Every privileged action is audited to a local append-only JSONL log.
+Ed25519 hashes internally, so both sides pass `null` where a digest argument
+would otherwise go. Passing `'sha256'` throws, which would silently refuse every
+valid ticket.
 
-## Windows service
+**Filesystem.** Paths are relative to `root`; absolute paths are refused. Every
+route re-checks containment after `realpath`, so a symlink or junction pointing
+out of the root is caught even though its lexical path is inside. `.git/**` and
+`bridge/**` are never reachable through the filesystem API, and `.env*` needs
+`allowEnvWrite`. Writes are atomic: a temporary file in the same directory,
+then a rename, so a reader never sees half a file.
 
-```bash
-npx knoux-bridge install-service
+**Exec.** The route accepts one of four task names. Each maps to an argv array in
+the bridge's own config and runs with `shell: false`. Nothing a caller writes can
+reach a command line, and there is no scope anywhere in the system for an
+arbitrary command.
+
+**Terminal.** The ticket is required on the socket. A session is capped, a
+disconnected session is retained for `detachTtlMinutes` so a browser refresh
+resumes the same shell rather than starting a new one, and a resume replays only
+the frames the client missed.
+
+**What is stored where.** The issuer private key never leaves the deployment and
+is never written to the database. The bridge keeps its identity and trust store
+under `~/.knoux/bridge`, and its audit log under `~/.knoux/bridge/audit`. The
+database stores fingerprints and timestamps only.
+
+## Tests
+
 ```
-
-This prints NSSM instructions. The service runs as the current user (not SYSTEM) so the shell has the owner's environment.
-
-## API
-
-All endpoints except `/v1/health` require a valid signed ticket (Bearer token).
-
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/v1/health` | Health check |
-| POST | `/v1/pair` | Pair with a new issuer |
-| POST | `/v1/unpair` | Remove all trusted issuers |
-| GET | `/v1/handshake` | Capabilities, host info, versions |
-| GET | `/v1/fs/list?path=` | List directory entries |
-| GET | `/v1/fs/read?path=` | Read file content |
-| POST | `/v1/fs/write` | Write file (atomic) |
-| GET | `/v1/git/status` | Git status |
-| GET | `/v1/git/log` | Git log |
-| POST | `/v1/exec/run` | Run allowlisted task (SSE) |
-| GET | `/v1/proc/list` | List supervised processes |
-| POST | `/v1/proc/start` | Start a supervised process |
-| POST | `/v1/proc/stop` | Stop a supervised process |
-| GET | `/v1/metrics` | System metrics sample |
-| GET | `/v1/logs?name=` | Tail process logs |
-| GET | `/v1/audit` | Read audit log |
-| WS | `/v1/terminal?ticket=&session=` | Terminal WebSocket |
-
-## Testing
-
-```bash
 cd bridge
 npm test
 ```
+
+148 tests over policy, tickets, sessions, config, the HTTP surface and the
+terminal socket. The socket tests spawn real shells, so the suite needs a working
+PTY and takes about eight seconds.
+
+## Known limits
+
+- **Sessions and process state are in memory.** A restarted bridge has no
+  sessions. `alive()` never claims otherwise.
+- **`fs.watch` does not exist.** The bridge polls; it does not watch the
+  filesystem. The workspace's capability list says `blocked` for it.
+- **Network rates need two samples.** The first `/v1/metrics` call returns
+  `null` for rx/tx because a rate is a difference and there is nothing to
+  difference against yet.
+- **`command.arbitrary` is permanently blocked.** Not unimplemented: there is no
+  scope that could grant it.

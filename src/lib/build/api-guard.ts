@@ -31,6 +31,27 @@ async function defaultSessionLookup(): Promise<{ id: string } | null> {
   return { id: data.user.id };
 }
 
+/**
+ * The authenticated owner's id, or null.
+ *
+ * `guardBuildApi` proves a session exists; this returns who it belongs to, for
+ * the routes that must scope their work to one owner (anything reading or
+ * writing owner-scoped rows, such as bridge pairing records).
+ *
+ * Returns null when there is no session or the identity provider cannot be
+ * reached — the same answer in both cases, so a caller cannot probe the provider.
+ */
+export async function resolveBuildOwnerId(
+  session: SessionLookup = defaultSessionLookup,
+): Promise<string | null> {
+  try {
+    const user = await session();
+    return user?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function guardBuildApi(
   request: Request,
   options: {

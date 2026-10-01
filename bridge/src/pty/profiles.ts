@@ -42,8 +42,40 @@ function probeVersion(command: string, args: string[]): string | null {
   }
 }
 
+/**
+ * Probe results are cached.
+ *
+ * Discovery runs `where`/`which` and then launches each shell to read its
+ * version, which costs hundreds of milliseconds. Doing that per WebSocket
+ * handshake or per HTTP request would make opening a terminal feel broken, so
+ * results are memoised for a short window. A shell installed while the bridge is
+ * running is picked up within the TTL — long enough to be invisible, short
+ * enough to not require a restart.
+ */
+const CACHE_TTL_MS = 60_000;
+
+let cachedProfiles: { at: number; value: BridgeProfile[] } | null = null;
+let cachedPolicy: { at: number; value: string | null } | null = null;
+let cachedPowerShell: { at: number; value: string | null } | null = null;
+
 /** Discover available shell profiles on this host. */
-export function discoverProfiles(): BridgeProfile[] {
+export function discoverProfiles(options: { fresh?: boolean } = {}): BridgeProfile[] {
+  if (!options.fresh && cachedProfiles && Date.now() - cachedProfiles.at < CACHE_TTL_MS) {
+    return cachedProfiles.value;
+  }
+  const value = probeProfiles();
+  cachedProfiles = { at: Date.now(), value };
+  return value;
+}
+
+/** Drop the memoised probes. Exported for tests. */
+export function resetProfileCache(): void {
+  cachedProfiles = null;
+  cachedPolicy = null;
+  cachedPowerShell = null;
+}
+
+function probeProfiles(): BridgeProfile[] {
   const profiles: BridgeProfile[] = [];
 
   if (IS_WINDOWS) {
@@ -108,6 +140,13 @@ export function discoverProfiles(): BridgeProfile[] {
 /** Get the PowerShell execution policy. */
 export function getExecutionPolicy(): string | null {
   if (!IS_WINDOWS) return null;
+  if (cachedPolicy && Date.now() - cachedPolicy.at < CACHE_TTL_MS) return cachedPolicy.value;
+  const value = probeExecutionPolicy();
+  cachedPolicy = { at: Date.now(), value };
+  return value;
+}
+
+function probeExecutionPolicy(): string | null {
   const psPath = where('powershell.exe') ?? where('pwsh.exe');
   if (!psPath) return null;
   try {
@@ -125,6 +164,13 @@ export function getExecutionPolicy(): string | null {
 /** Get the PowerShell version string. */
 export function getPowerShellVersion(): string | null {
   if (!IS_WINDOWS) return null;
+  if (cachedPowerShell && Date.now() - cachedPowerShell.at < CACHE_TTL_MS) return cachedPowerShell.value;
+  const value = probePowerShellVersion();
+  cachedPowerShell = { at: Date.now(), value };
+  return value;
+}
+
+function probePowerShellVersion(): string | null {
   const pwshPath = where('pwsh.exe') ?? where('pwsh');
   const psPath = where('powershell.exe') ?? where('powershell');
   const path = pwshPath ?? psPath;

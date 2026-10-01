@@ -1,0 +1,30 @@
+{
+  "root": "..",
+  "port": 7331,
+  "host": "127.0.0.1",
+  "requireTls": true,
+  "allowEnvWrite": false,
+  "loadProfile": false,
+  "limits": {
+    "maxSessions": 3,
+    "idleTimeoutMinutes": 30,
+    "maxLifetimeHours": 8,
+    "scrollbackBytes": 262144,
+    "detachTtlMinutes": 10,
+    "maxOutputBytesPerSec": 1048576,
+    "maxInputRatePerSec": 100
+  },
+  "allowlistedTasks": {
+    "lint": ["npm", "run", "lint"],
+    "typecheck": ["npm", "run", "typecheck"],
+    "test": ["npm", "run", "test"],
+    "build": ["npm", "run", "build"]
+  },
+  "processProfiles": {
+    "dev": {
+      "cmd": "npm",
+      "args": ["run", "dev"],
+      "port": 3000
+    }
+  }
+}
