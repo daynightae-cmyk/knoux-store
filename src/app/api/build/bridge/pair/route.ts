@@ -3,7 +3,7 @@ import { guardBuildApi, resolveBuildOwnerId } from '@/lib/build/api-guard';
 import { BridgeClient } from '@/lib/build/bridge-client';
 import { loadBridgeKeys } from '@/lib/build/bridge-keys';
 import { BridgeStore, type SupabaseLike } from '@/lib/build/bridge-store';
-import type { PairResponse } from '@/lib/build/bridge-protocol';
+import { validateHandshake, type PairResponse } from '@/lib/build/bridge-protocol';
 
 export const dynamic = 'force-dynamic';
 
@@ -92,6 +92,17 @@ export async function POST(request: NextRequest) {
 
   const paired = result.data as PairResponse;
 
+  // The code proves the bridge accepted us, not that the body kept its shape.
+  // The persisted bridgeId becomes every future ticket's audience, so a
+  // handshake that fails validation ends the request instead of the pairing.
+  const handshake = validateHandshake(paired.handshake);
+  if (!handshake || typeof paired.bridgeId !== 'string' || typeof paired.fingerprint !== 'string') {
+    return NextResponse.json(
+      { error: 'pair-failed', message: 'The bridge returned a pairing response that failed validation.' },
+      { status: 502 },
+    );
+  }
+
   // Record the pairing so tickets can be audience-bound to this bridge id.
   const { createClient } = await import('@/lib/supabase/server');
   // The store declares the query-builder slice it uses rather than the full client
@@ -121,7 +132,7 @@ export async function POST(request: NextRequest) {
     {
       bridgeId: paired.bridgeId,
       fingerprint: paired.fingerprint,
-      handshake: paired.handshake,
+      handshake,
       url: origin,
     },
     { headers: { 'cache-control': 'no-store' } },

@@ -14,6 +14,7 @@
 
 import type { BridgeClient, BridgeEndpoint } from './bridge-client';
 import { BridgeClient as Client } from './bridge-client';
+import { validateHandshake } from './bridge-protocol';
 import { loadBridgeKeys, type BridgeKeyPair } from './bridge-keys';
 import { BridgeStore, type BridgeRecord } from './bridge-store';
 
@@ -189,7 +190,11 @@ export async function measureBridgeStatus(
 
   const token = options.ticketFactory(config.endpoint.bridgeId);
   const handshake = await client.handshake(token);
-  if (!handshake.ok || !handshake.data) {
+  // The ticket proves who answered, not that the body kept its shape. A
+  // handshake that fails validation is treated like a refused one: reachable,
+  // but with no capabilities to report.
+  const valid = handshake.ok && handshake.data ? validateHandshake(handshake.data) : null;
+  if (!valid) {
     return {
       ...base,
       configured: true,
@@ -197,7 +202,7 @@ export async function measureBridgeStatus(
       reachable: true,
       bridgeId: health.data.bridgeId ?? config.endpoint.bridgeId,
       fingerprint: config.endpoint.fingerprint,
-      blocker: handshake.error ?? 'The bridge rejected the handshake ticket.',
+      blocker: handshake.error ?? 'The bridge returned a handshake that failed validation.',
     };
   }
 
@@ -205,10 +210,10 @@ export async function measureBridgeStatus(
     configured: true,
     paired: true,
     reachable: true,
-    bridgeId: handshake.data.bridgeId,
+    bridgeId: valid.bridgeId,
     fingerprint: config.endpoint.fingerprint,
-    capabilities: handshake.data.capabilities,
-    handshake: handshake.data,
+    capabilities: valid.capabilities,
+    handshake: valid,
     blocker: null,
   };
 }
