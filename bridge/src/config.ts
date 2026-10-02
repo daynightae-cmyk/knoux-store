@@ -20,6 +20,7 @@ export interface BridgeConfig {
   allowEnvWrite: boolean;
   /** Allow loading PowerShell profiles. */
   loadProfile: boolean;
+  allowProjectImport: boolean;
   limits: BridgeLimits;
   allowlistedTasks: Record<string, string[]>;
   processProfiles: Record<string, { cmd: string; args: string[]; port?: number }>;
@@ -32,6 +33,7 @@ const DEFAULT_CONFIG: BridgeConfig = {
   requireTls: true,
   allowEnvWrite: false,
   loadProfile: false,
+  allowProjectImport: false,
   limits: DEFAULT_LIMITS,
   allowlistedTasks: {
     lint: ['npm', 'run', 'lint'],
@@ -126,6 +128,7 @@ function validateConfig(raw: Record<string, unknown>, baseDir: string = process.
     requireTls: merged.requireTls !== false,
     allowEnvWrite: merged.allowEnvWrite === true,
     loadProfile: merged.loadProfile === true,
+    allowProjectImport: merged.allowProjectImport === true,
     limits: { ...DEFAULT_LIMITS, ...(isPlainObject(merged.limits) ? merged.limits as Partial<BridgeLimits> : {}) },
     allowlistedTasks,
     processProfiles,

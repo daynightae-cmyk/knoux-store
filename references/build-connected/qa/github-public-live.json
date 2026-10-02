@@ -1,0 +1,15 @@
+{
+  "measuredAt": "2026-10-02T19:48:54.028Z",
+  "source": "Real unauthenticated GitHub REST request; no mocked fetch",
+  "repository": {
+    "fullName": "daynightae-cmyk/knoux-store",
+    "url": "https://github.com/daynightae-cmyk/knoux-store",
+    "description": null,
+    "private": false,
+    "defaultBranch": "main",
+    "language": "TypeScript",
+    "updatedAt": "2026-10-02T19:25:03Z",
+    "latestCommit": "57a3fe0ba83fccf5c65c10a0c37f88c4cf763737",
+    "owner": "daynightae-cmyk"
+  }
+}

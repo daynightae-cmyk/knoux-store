@@ -610,7 +610,7 @@ export type SourceFileEntry = {
   path: string;
   language: string;
   bytes: number;
-  lines: number;
+  lines: number | null;
   /** Why this file is in the project view. */
   role: string;
 };

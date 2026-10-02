@@ -785,3 +785,25 @@ test('unpair removes trust, kills sessions and stops processes', async () => {
     assert.notEqual(h.processes.info('sleeper').status, 'running');
   } finally { await h.close(); }
 });
+test('project inspection endpoints require dedicated signed scopes and preserve the selected root', async () => {
+  const h = await harness();
+  try {
+    mkdirSync(join(h.root, 'project'));
+    writeFileSync(join(h.root, 'project/package.json'), JSON.stringify({ name: 'Selected project', scripts: { postinstall: 'DO_NOT_EXECUTE' } }));
+    assert.equal((await get(h, '/v1/project/inspect?project=project')).status, 401);
+    assert.equal((await get(h, '/v1/project/inspect?project=project', mint(h, ['metrics:read']))).status, 403);
+    const ticket = mint(h, ['fs:read']); const response = await get(h, '/v1/project/inspect?project=project', ticket);
+    assert.equal(response.status, 200); assert.equal((await response.json()).name, 'Selected project');
+    assert.equal((await get(h, '/v1/project/inspect?project=project', ticket)).status, 403);
+    assert.equal((await get(h, '/v1/project/inspect?project=../outside', mint(h, ['fs:read']))).status, 409);
+  } finally { await h.close(); }
+});
+test('tools and import refuse unrelated scopes, and import remains off without explicit trusted config', async () => {
+  const h = await harness();
+  try {
+    assert.equal((await get(h, '/v1/tools', mint(h, ['fs:read']))).status, 403);
+    assert.equal((await post(h, '/v1/project/import', { repository: 'https://github.com/example/project', destination: 'new' }, mint(h, ['fs:write']))).status, 403);
+    const response = await post(h, '/v1/project/import', { repository: 'https://github.com/example/project', destination: 'new' }, mint(h, ['project:import']));
+    assert.equal(response.status, 409); assert.equal(existsSync(join(h.root, 'new')), false);
+  } finally { await h.close(); }
+});

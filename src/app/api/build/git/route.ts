@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createProjectAdapter } from '@/lib/build/adapter-factory';
+import { requestProjectAdapter } from '@/lib/build/request-adapter';
 import { guardBuildApi } from '@/lib/build/api-guard';
 
 export const dynamic = 'force-dynamic';
@@ -15,8 +15,10 @@ export async function GET(request: NextRequest) {
   const denied = await guardBuildApi(request, { scope: 'git' });
   if (denied) return denied;
 
-  const adapter = createProjectAdapter();
-  const git = await adapter.gitSnapshot();
+  let adapter;
+  try { adapter = await requestProjectAdapter(request); } catch { return NextResponse.json({ message: 'Selected project is unavailable. Sign in and pair its bridge.' }, { status: 409 }); }
+  let git;
+  try { git = await adapter.gitSnapshot(); } catch { return NextResponse.json({ message: 'Git state could not be read from the selected adapter.' }, { status: 409 }); }
   return NextResponse.json(
     { git, writeCapability: adapter.capabilities()['git.write'], blocker: adapter.blockerFor('git.write') },
     { headers: { 'cache-control': 'no-store' } },
