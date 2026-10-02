@@ -112,8 +112,17 @@ export function classifyTarget(node: Element | null): {
   ) {
     return { mood: 'active', formCalm };
   }
+  if (node.closest('.build-composer-orb, .composer-intelligence, .composer-readout__stack, .assembly__items')) {
+    return { mood: 'active', formCalm };
+  }
+  if (node.closest('.palette__empty')) {
+    return { mood: 'alert', formCalm };
+  }
   if (node.closest('.button-primary, .action--primary, button[type="submit"], [data-cta]')) {
     return { mood: 'focus', formCalm };
+  }
+  if (node.closest('.palette__result, .composer-stage, .composer-disclosure, .composer-readout')) {
+    return { mood: 'curious', formCalm };
   }
   if (node.closest('a, [role="link"]')) {
     return { mood: 'curious', formCalm };
