@@ -35,6 +35,8 @@ import { redactError } from './redact.js';
 import { spawnPty } from './pty/spawn.js';
 import { discoverProfiles, getExecutionPolicy, getPowerShellVersion, isElevated, currentUser } from './pty/profiles.js';
 import { sampleMetrics } from './metrics.js';
+import { inspectProject, cloneProject, projectRoot } from './projects.js';
+import { detectTools } from './tools.js';
 
 const BRIDGE_VERSION = '0.1.0';
 
@@ -116,6 +118,7 @@ function buildHandshake(options: BridgeServerOptions): Handshake {
   const config = options.config;
   return {
     bridgeId: options.bridgeId,
+    projectImport: config.allowProjectImport && probeGit(),
     version: BRIDGE_VERSION,
     hostname: hostname(),
     platform: process.platform,
@@ -194,6 +197,10 @@ export class BridgeServer {
   }
 
   listen(port: number, host: string): Promise<{ port: number }> {
+    // Shell discovery belongs to startup. Running synchronous cold version
+    // probes during the first WebSocket upgrade can hold its opening handshake
+    // past the client timeout, even though the PTY itself is healthy.
+    discoverProfiles();
     return new Promise((resolveListen, rejectListen) => {
       const onError = (err: Error): void => rejectListen(err);
       this.http.once('error', onError);
@@ -344,7 +351,7 @@ export class BridgeServer {
         detail: redactError(err),
         approvalId: null,
       });
-      error(res, 500, 'internal-error', 'The request could not be completed.');
+      error(res, path.startsWith('/v1/project/') ? 409 : 500, 'internal-error', path.startsWith('/v1/project/') ? 'Selected project is unavailable or refused by the bridge path policy.' : 'The request could not be completed.');
     }
   }
 
@@ -358,6 +365,31 @@ export class BridgeServer {
     root: string,
   ): Promise<void> {
     switch (`${method} ${path}`) {
+      case 'GET /v1/project/inspect':
+        json(res, 200, await inspectProject(root, url.searchParams.get('project') ?? '.'));
+        return;
+      case 'GET /v1/project/git':
+        this.handleGitStatus(res, await projectRoot(root, url.searchParams.get('project') ?? '.'));
+        return;
+      case 'GET /v1/project/file':
+        this.handleFsRead(res, url, await projectRoot(root, url.searchParams.get('project') ?? '.'));
+        return;
+      case 'POST /v1/project/import': {
+        const body = await readJson<{ repository?: string; destination?: string }>(req, 8192);
+        if (!body || typeof body.repository !== 'string' || typeof body.destination !== 'string') { error(res, 400, 'invalid-body', 'Repository and destination required.'); return; }
+        try {
+          const snapshot = await cloneProject(root, body.repository, body.destination, this.options.config.allowProjectImport);
+          this.options.audit.append({ action: 'project.import', actor: claims.sub, target: body.destination, outcome: 'success', detail: body.repository, approvalId: null });
+          json(res, 200, snapshot);
+        } catch (cause) {
+          this.options.audit.append({ action: 'project.import', actor: claims.sub, target: body.destination.slice(0, 80), outcome: 'denied', detail: redactError(cause), approvalId: null });
+          error(res, 409, 'import-refused', cause instanceof Error && 'code' in cause && cause.code === 'EEXIST' ? 'Destination already exists. Choose a new folder; existing projects are never overwritten.' : redactError(cause));
+        }
+        return;
+      }
+      case 'GET /v1/tools':
+        json(res, 200, { tools: await detectTools() });
+        return;
       case 'GET /v1/handshake':
         json(res, 200, buildHandshake(this.options));
         return;
@@ -432,6 +464,10 @@ export class BridgeServer {
   }
 
   private scopeForPath(path: string): BridgeScope | null {
+    if (path === '/v1/project/inspect' || path === '/v1/project/file') return 'fs:read';
+    if (path === '/v1/project/git') return 'git:read';
+    if (path === '/v1/project/import') return 'project:import';
+    if (path === '/v1/tools') return 'tools:read';
     if (path === '/v1/handshake') return 'terminal:open';
     if (path === '/v1/fs/list' || path === '/v1/fs/read') return 'fs:read';
     if (path === '/v1/fs/write') return 'fs:write';

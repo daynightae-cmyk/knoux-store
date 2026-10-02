@@ -136,6 +136,7 @@ jobs:
           path: |
             references/visual-audit/closure/
             references/build-cinematic/qa/
+            references/build-connected/qa/
           if-no-files-found: ignore
           retention-days: 7
 

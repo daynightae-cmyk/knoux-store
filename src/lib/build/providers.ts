@@ -158,7 +158,7 @@ export function providerStatuses(
       models: definition.models,
       status: configured ? 'available' : 'unconfigured',
       reason: configured
-        ? 'A server-side credential is present. Execution is permitted.'
+        ? 'Server configuration is present. Connection health is unmeasured; model execution is not implemented.'
         : `No server configuration. Set ${definition.requiredEnv.join(' and ')} on the server to enable this provider. Values are never sent to the browser.`,
     };
   });
