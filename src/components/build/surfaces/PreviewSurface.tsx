@@ -8,12 +8,12 @@
  * rendering real pages — not a screenshot and not a mock.
  *
  * The visual inspector reports only what a browser genuinely knows: tag, id,
- * class list, box, computed styles, role and accessible name. Component-to-
+ * class list, box, computed styles, role and DOM label/text. Component-to-
  * source mapping is reported as unavailable because no source map for React
  * components exists in this build.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { Blocked, Chips, Empty, Pane, Section, StatusBadge } from '../workspace/Primitives';
 import type { PreviewViewport } from '@/lib/build/types';
@@ -41,13 +41,15 @@ type Inspected = {
   styles: { property: string; value: string }[];
 };
 
-export function PreviewSurface() {
+export function PreviewSurface({ cinematic = false }: { cinematic?: boolean }) {
   const { state, dispatch } = useBuildWorkspace();
   const frame = useRef<HTMLIFrameElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const [availableWidth, setAvailableWidth] = useState(0);
   const [inspecting, setInspecting] = useState(false);
   const [inspected, setInspected] = useState<Inspected | null>(null);
+  const [inspectorReady, setInspectorReady] = useState(false);
+  const [frameLoad, setFrameLoad] = useState(0);
 
   const origin = state.runtime.url;
   const route = state.workspace.selectedRoute ?? '/';
@@ -64,27 +66,30 @@ export function PreviewSurface() {
     return () => observer.disconnect();
   }, [target, livePreviewCapability]);
 
-  const onMessage = useCallback((event: MessageEvent) => {
-    if (event.origin !== window.location.origin) return;
-    const data = event.data as { type?: string; payload?: Inspected | null };
-    if (data?.type === 'knoux-build-inspect') setInspected(data.payload ?? null);
-  }, []);
-
   useEffect(() => {
-    window.addEventListener('message', onMessage);
-    return () => window.removeEventListener('message', onMessage);
-  }, [onMessage]);
-
-  const startInspect = useCallback(() => {
-    setInspecting((value) => {
-      const next = !value;
-      if (next && origin) {
-        dispatch({ type: 'preview/url', url: `${origin}/__inspect${route}` });
-        setTimeout(() => dispatch({ type: 'preview/url', url: `${origin}${route}` }), 10);
-      }
-      return next;
-    });
-  }, [origin, route, dispatch]);
+    if (!inspecting || !inspectorReady) return;
+    let document: Document | null = null;
+    try { document = frame.current?.contentDocument ?? null; } catch { return; }
+    if (!document) return;
+    const inspect = (event: MouseEvent) => {
+      const element = event.target as Element | null;
+      const view = document?.defaultView;
+      if (!element?.getBoundingClientRect || !view) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const box = element.getBoundingClientRect();
+      const style = view.getComputedStyle(element);
+      setInspected({
+        tag: element.tagName.toLowerCase(), id: element.id || null, classes: Array.from(element.classList),
+        box: { width: box.width, height: box.height, top: box.top, left: box.left },
+        role: element.getAttribute('role'),
+        accessibleName: element.getAttribute('aria-label') ?? element.textContent?.trim().slice(0, 160) ?? null,
+        styles: ['color', 'background-color', 'font-size', 'display', 'padding', 'border-radius'].map((property) => ({ property, value: style.getPropertyValue(property) })),
+      });
+    };
+    document.addEventListener('click', inspect, true);
+    return () => document?.removeEventListener('click', inspect, true);
+  }, [inspecting, inspectorReady, frameLoad]);
 
   if (state.adapter.capabilities['preview.live'] !== 'available') {
     return (
@@ -112,8 +117,9 @@ export function PreviewSurface() {
           type="button"
           className="bo-chip"
           aria-pressed={inspecting}
-          onClick={startInspect}
-          title="Report the DOM facts a browser can confirm"
+          onClick={() => setInspecting((value) => !value)}
+          disabled={!inspectorReady || state.adapter.capabilities['preview.inspect'] !== 'available'}
+          title={inspectorReady ? 'Report the DOM facts a browser can confirm' : 'Inspection requires a loaded same-origin preview'}
         >
           INSPECT
         </button>
@@ -133,14 +139,22 @@ export function PreviewSurface() {
             onClick={() => dispatch({ type: 'preview/refresh' })}
             title="Reload the frame"
           >
-            RELOAD
+            REFRESH
           </button>
         </span>
       </div>
+
+      {cinematic ? <details className="dev-preview-evidence">
+        <summary>More viewport sizes · current {viewport.width}×{viewport.height}</summary>
+        <Chips ariaLabel="Additional preview viewports" options={VIEWPORTS.filter((item) => !['desktop', 'tablet', 'phone'].includes(item.id)).map((item) => ({ id: item.id, label: item.label }))} value={viewport.id} onChange={(id) => {
+          const found = VIEWPORTS.find((item) => item.id === id);
+          if (found) dispatch({ type: 'preview/viewport', viewport: found });
+        }} />
+      </details> : null}
       <div className="bo-splitbar">
         <Chips
           ariaLabel="Preview viewport"
-          options={VIEWPORTS.map((item) => ({ id: item.id, label: item.label }))}
+          options={(cinematic ? VIEWPORTS.filter((item) => ['desktop', 'tablet', 'phone'].includes(item.id)) : VIEWPORTS).map((item) => ({ id: item.id, label: item.id === 'phone' && cinematic ? 'MOBILE' : item.label }))}
           value={viewport.id}
           onChange={(id) => {
             const found = VIEWPORTS.find((item) => item.id === id);
@@ -157,6 +171,13 @@ export function PreviewSurface() {
                 <iframe
                   key={`${target}-${state.preview.refreshKey}`}
                   ref={frame}
+                  onLoad={() => {
+                    let readable = false;
+                    try { readable = !!frame.current?.contentDocument?.body; } catch { /* Cross-origin documents cannot be inspected. */ }
+                    setInspectorReady(readable);
+                    setInspected(null);
+                    setFrameLoad((count) => count + 1);
+                  }}
                   src={target}
                   title={`Live preview of ${route}`}
                   width={viewport.width}
@@ -172,6 +193,8 @@ export function PreviewSurface() {
           <Empty title="NO ACTIVE RUNTIME" body="No reachable URL was reported for this environment." />
         )}
 
+        <details className="dev-preview-evidence" open={cinematic ? undefined : true}>
+        <summary>Runtime & preview evidence</summary>
         <dl className="bo-kv" style={{ width: '100%' }}>
           <dt>Runtime URL</dt>
           <dd>{target ?? 'NONE'}</dd>
@@ -191,6 +214,7 @@ export function PreviewSurface() {
             this build, so the inspector reports DOM facts only and does not claim a line number.
           </dd>
         </dl>
+        </details>
 
         {inspecting ? (
           <Section label="Visual inspector">
@@ -209,7 +233,7 @@ export function PreviewSurface() {
                 </dd>
                 <dt>Role</dt>
                 <dd>{inspected.role ?? 'IMPLICIT'}</dd>
-                <dt>Accessible name</dt>
+                <dt>DOM label / text</dt>
                 <dd>{inspected.accessibleName ?? 'NONE'}</dd>
                 {inspected.styles.map((style) => (
                   <div key={style.property} style={{ display: 'contents' }}>
@@ -221,7 +245,7 @@ export function PreviewSurface() {
             ) : (
               <p className="bo-note">
                 Click an element inside the frame while inspection is armed. The frame reports only tag, id, classes,
-                box, computed styles, role and accessible name.
+                box, computed styles, role and DOM label/text.
               </p>
             )}
           </Section>

@@ -174,7 +174,7 @@ export function TerminalPage() {
           cursorBlink: true,
           fontFamily: 'ui-monospace, "Cascadia Mono", Consolas, monospace',
           fontSize: 13,
-          theme: { background: '#0a0a0f', foreground: '#d8d8e0', cursor: '#7dd3fc' },
+          theme: { background: '#0a0a0f', foreground: '#d8d8e0', cursor: '#bdb0d6' },
         });
         const fit = new FitAddon();
         const links = new WebLinksAddon();
