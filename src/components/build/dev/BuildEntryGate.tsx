@@ -24,6 +24,8 @@ export function BuildEntryGate() {
   const [phase, setPhase] = useState<'closed' | 'open' | 'leaving'>('closed');
   const [value, setValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const gateClosed = phase === 'closed';
 
   const openGate = useCallback(() => {
     setValue('');
@@ -59,9 +61,33 @@ export function BuildEntryGate() {
   // The field only accepts pointer and keyboard input once the reveal has run.
   useEffect(() => {
     if (phase !== 'open') return;
-    const timer = window.setTimeout(() => inputRef.current?.focus(), 1500);
+    const timer = window.setTimeout(() => inputRef.current?.focus(), matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1500);
     return () => window.clearTimeout(timer);
   }, [phase]);
+
+  useEffect(() => {
+    if (gateClosed) return;
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const siblings: { element: HTMLElement; inert: boolean }[] = [];
+    let child: HTMLElement = dialog;
+    while (child.parentElement) {
+      for (const sibling of Array.from(child.parentElement.children)) {
+        if (sibling !== child && sibling instanceof HTMLElement) {
+          siblings.push({ element: sibling, inert: sibling.inert });
+          sibling.inert = true;
+        }
+      }
+      child = child.parentElement;
+      if (child === document.body) break;
+    }
+    return () => {
+      for (const sibling of siblings) sibling.element.inert = sibling.inert;
+      if (previous?.isConnected && previous !== document.body) previous.focus();
+      else document.getElementById('dev-intent-input')?.focus();
+    };
+  }, [gateClosed]);
 
   useEffect(() => {
     if (phase !== 'leaving') return;
@@ -99,6 +125,13 @@ export function BuildEntryGate() {
     // Escape must never dismiss a required intent. Only the pointer or Enter
     // can leave the gate.
     if (event.key === 'Escape') event.preventDefault();
+    if (event.key === 'Tab') {
+      const controls = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('input:not(:disabled), button:not(:disabled)') ?? []);
+      const first = controls[0];
+      const last = controls.at(-1);
+      if (event.shiftKey && document.activeElement === first) { last?.focus(); event.preventDefault(); }
+      else if (!event.shiftKey && document.activeElement === last) { first?.focus(); event.preventDefault(); }
+    }
   }, []);
 
   if (phase === 'closed') return null;
@@ -108,6 +141,7 @@ export function BuildEntryGate() {
   return (
     <div
       className="dev-entry"
+      ref={dialogRef}
       data-leaving={settled}
       onKeyDown={onKeyDown}
       role="dialog"
@@ -119,7 +153,7 @@ export function BuildEntryGate() {
 
       <div className="dev-entry__centre">
         <p className="dev-entry__eyebrow">KNOuX DEV / DIGITAL HEADQUARTERS</p>
-        <h1 id="dev-entry-title">What are you here to build?</h1>
+        <h2 id="dev-entry-title">What are you here to build?</h2>
         <p className="dev-entry__lede" id="dev-entry-lede">
           Describe the product, system, automation, service, or experience you want to create.
         </p>
@@ -138,7 +172,7 @@ export function BuildEntryGate() {
               tabIndex={settled ? -1 : 0}
               disabled={settled}
             />
-            <button type="submit" className="dev-btn dev-btn--primary" disabled={settled || !value.trim()}>
+            <button type="submit" className="dev-btn dev-btn--primary" disabled={settled} aria-disabled={settled || !value.trim()}>
               Enter workspace
             </button>
           </div>

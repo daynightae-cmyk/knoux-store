@@ -352,7 +352,7 @@ export function PowerShellPage() {
               <>
                 <DevEmpty title={bridge.blocker} body="PowerShell requires an active build bridge." />
                 <p className="dev-note" style={{ textAlign: 'center', marginTop: 24 }}>
-                  <Link href="/build/dev" className="action">
+                  <Link href="/build" className="action">
                     RETURN TO OVERVIEW <span className="action-arrow">↗</span>
                   </Link>
                 </p>

@@ -3,6 +3,7 @@ import { BuildStateProvider } from '@/components/build/workspace/KnouxBuildWorks
 import { DevWorkspaceShell } from '@/components/build/dev/DevWorkspaceShell';
 import '@/components/build/workspace/build-os.css';
 import '@/components/build/dev/dev-workspace.css';
+import '@/components/build/dev/dev-cinematic.css';
 
 export const dynamic = 'force-dynamic';
 
