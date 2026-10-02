@@ -17,7 +17,7 @@ import { labEntities, softwareProducts } from '@/data/software';
 import type { EntityStatus } from '@/lib/entities';
 
 /** The Sentinel shell's SVG viewBox, owned by `KnouxSentinel`. */
-export const SHELL_VIEW_BOX = { width: 80, height: 100 } as const;
+const SHELL_VIEW_BOX = { width: 80, height: 100 } as const;
 
 /**
  * The rectangle inside the shell face that the canonical mark is fitted to.
