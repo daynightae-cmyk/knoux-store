@@ -74,3 +74,11 @@ node_modules*/
 /bridge/ptydll.mjs
 /bridge/ptyloop.mjs
 /bridge/tapout.txt
+
+# The Build control inventory generator is a maintained audit entrypoint.
+!/scripts/build-controls.mjs
+/build-test-output.log
+/bridge/bridge-test-output.log
+
+/build-browser-output.log
+/bridge/bridge-focused-output.log

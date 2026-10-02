@@ -1,0 +1,497 @@
+{
+  "measuredAt": "2026-10-02T19:59:55.442Z",
+  "source": "Real production Next server in existing local read policy; no API interception",
+  "project": {
+    "name": "knoux-digital-headquarters",
+    "files": 1082,
+    "routes": 49,
+    "scripts": [
+      "dev",
+      "build",
+      "start",
+      "typecheck",
+      "lint",
+      "test",
+      "test:coverage",
+      "test:e2e",
+      "audit:deps",
+      "audit:dead",
+      "audit:controls",
+      "verify"
+    ]
+  },
+  "git": {
+    "available": true,
+    "branch": "feat/build-real-integrations-os",
+    "headSha": "28f8676dc65d90b51945cd664d4eaea449459210",
+    "dirty": true
+  },
+  "providers": {
+    "providers": [
+      {
+        "id": "openai",
+        "displayName": "OpenAI",
+        "configured": false,
+        "requiredEnv": [
+          "OPENAI_API_KEY"
+        ],
+        "capabilities": {
+          "text": true,
+          "vision": true,
+          "tools": true,
+          "structuredOutput": true,
+          "streaming": true
+        },
+        "models": [
+          {
+            "id": "gpt-4.1",
+            "provider": "openai",
+            "label": "GPT-4.1",
+            "contextWindow": 1047576,
+            "supportsVision": true,
+            "supportsTools": true,
+            "supportsStreaming": true,
+            "tags": [
+              "flagship",
+              "long-context",
+              "tools"
+            ]
+          },
+          {
+            "id": "gpt-4.1-mini",
+            "provider": "openai",
+            "label": "GPT-4.1 mini",
+            "contextWindow": 1047576,
+            "supportsVision": true,
+            "supportsTools": true,
+            "supportsStreaming": true,
+            "tags": [
+              "fast",
+              "cheap",
+              "tools"
+            ]
+          },
+          {
+            "id": "o4-mini",
+            "provider": "openai",
+            "label": "o4-mini",
+            "contextWindow": 200000,
+            "supportsVision": true,
+            "supportsTools": true,
+            "supportsStreaming": true,
+            "tags": [
+              "reasoning",
+              "debugging"
+            ]
+          }
+        ],
+        "status": "unconfigured",
+        "reason": "No server configuration. Set OPENAI_API_KEY on the server to enable this provider. Values are never sent to the browser."
+      },
+      {
+        "id": "anthropic",
+        "displayName": "Anthropic",
+        "configured": false,
+        "requiredEnv": [
+          "ANTHROPIC_API_KEY"
+        ],
+        "capabilities": {
+          "text": true,
+          "vision": true,
+          "tools": true,
+          "structuredOutput": true,
+          "streaming": true
+        },
+        "models": [
+          {
+            "id": "claude-sonnet-4",
+            "provider": "anthropic",
+            "label": "Claude Sonnet 4",
+            "contextWindow": 200000,
+            "supportsVision": true,
+            "supportsTools": true,
+            "supportsStreaming": true,
+            "tags": [
+              "flagship",
+              "long-context",
+              "tools"
+            ]
+          },
+          {
+            "id": "claude-opus-4",
+            "provider": "anthropic",
+            "label": "Claude Opus 4",
+            "contextWindow": 200000,
+            "supportsVision": true,
+            "supportsTools": true,
+            "supportsStreaming": true,
+            "tags": [
+              "deep-reasoning",
+              "architecture"
+            ]
+          },
+          {
+            "id": "claude-haiku-4",
+            "provider": "anthropic",
+            "label": "Claude Haiku 4",
+            "contextWindow": 200000,
+            "supportsVision": true,
+            "supportsTools": true,
+            "supportsStreaming": true,
+            "tags": [
+              "fast",
+              "cheap"
+            ]
+          }
+        ],
+        "status": "unconfigured",
+        "reason": "No server configuration. Set ANTHROPIC_API_KEY on the server to enable this provider. Values are never sent to the browser."
+      },
+      {
+        "id": "google",
+        "displayName": "Google",
+        "configured": false,
+        "requiredEnv": [
+          "GOOGLE_GENERATIVE_AI_API_KEY"
+        ],
+        "capabilities": {
+          "text": true,
+          "vision": true,
+          "tools": true,
+          "structuredOutput": true,
+          "streaming": true
+        },
+        "models": [
+          {
+            "id": "gemini-2.5-pro",
+            "provider": "google",
+            "label": "Gemini 2.5 Pro",
+            "contextWindow": 1048576,
+            "supportsVision": true,
+            "supportsTools": true,
+            "supportsStreaming": true,
+            "tags": [
+              "long-context",
+              "vision"
+            ]
+          },
+          {
+            "id": "gemini-2.5-flash",
+            "provider": "google",
+            "label": "Gemini 2.5 Flash",
+            "contextWindow": 1048576,
+            "supportsVision": true,
+            "supportsTools": true,
+            "supportsStreaming": true,
+            "tags": [
+              "fast",
+              "long-context"
+            ]
+          }
+        ],
+        "status": "unconfigured",
+        "reason": "No server configuration. Set GOOGLE_GENERATIVE_AI_API_KEY on the server to enable this provider. Values are never sent to the browser."
+      },
+      {
+        "id": "openrouter",
+        "displayName": "OpenRouter",
+        "configured": false,
+        "requiredEnv": [
+          "OPENROUTER_API_KEY"
+        ],
+        "capabilities": {
+          "text": true,
+          "vision": true,
+          "tools": true,
+          "structuredOutput": true,
+          "streaming": true
+        },
+        "models": [
+          {
+            "id": "openrouter/auto",
+            "provider": "openrouter",
+            "label": "Auto router",
+            "contextWindow": null,
+            "supportsVision": true,
+            "supportsTools": true,
+            "supportsStreaming": true,
+            "tags": [
+              "aggregate"
+            ]
+          }
+        ],
+        "status": "unconfigured",
+        "reason": "No server configuration. Set OPENROUTER_API_KEY on the server to enable this provider. Values are never sent to the browser."
+      },
+      {
+        "id": "groq",
+        "displayName": "Groq",
+        "configured": false,
+        "requiredEnv": [
+          "GROQ_API_KEY"
+        ],
+        "capabilities": {
+          "text": true,
+          "vision": false,
+          "tools": true,
+          "structuredOutput": true,
+          "streaming": true
+        },
+        "models": [
+          {
+            "id": "groq/llama-3.3-70b",
+            "provider": "groq",
+            "label": "Llama 3.3 70B",
+            "contextWindow": 131072,
+            "supportsVision": false,
+            "supportsTools": true,
+            "supportsStreaming": true,
+            "tags": [
+              "fast",
+              "cheap"
+            ]
+          }
+        ],
+        "status": "unconfigured",
+        "reason": "No server configuration. Set GROQ_API_KEY on the server to enable this provider. Values are never sent to the browser."
+      },
+      {
+        "id": "mistral",
+        "displayName": "Mistral",
+        "configured": false,
+        "requiredEnv": [
+          "MISTRAL_API_KEY"
+        ],
+        "capabilities": {
+          "text": true,
+          "vision": false,
+          "tools": true,
+          "structuredOutput": true,
+          "streaming": true
+        },
+        "models": [
+          {
+            "id": "mistral-large-latest",
+            "provider": "mistral",
+            "label": "Mistral Large",
+            "contextWindow": 131072,
+            "supportsVision": false,
+            "supportsTools": true,
+            "supportsStreaming": true,
+            "tags": [
+              "flagship",
+              "tools"
+            ]
+          }
+        ],
+        "status": "unconfigured",
+        "reason": "No server configuration. Set MISTRAL_API_KEY on the server to enable this provider. Values are never sent to the browser."
+      },
+      {
+        "id": "deepseek",
+        "displayName": "DeepSeek",
+        "configured": false,
+        "requiredEnv": [
+          "DEEPSEEK_API_KEY"
+        ],
+        "capabilities": {
+          "text": true,
+          "vision": false,
+          "tools": true,
+          "structuredOutput": true,
+          "streaming": true
+        },
+        "models": [
+          {
+            "id": "deepseek-chat",
+            "provider": "deepseek",
+            "label": "DeepSeek Chat",
+            "contextWindow": 65536,
+            "supportsVision": false,
+            "supportsTools": true,
+            "supportsStreaming": true,
+            "tags": [
+              "cheap",
+              "code"
+            ]
+          },
+          {
+            "id": "deepseek-reasoner",
+            "provider": "deepseek",
+            "label": "DeepSeek Reasoner",
+            "contextWindow": 65536,
+            "supportsVision": false,
+            "supportsTools": true,
+            "supportsStreaming": true,
+            "tags": [
+              "reasoning",
+              "debugging"
+            ]
+          }
+        ],
+        "status": "unconfigured",
+        "reason": "No server configuration. Set DEEPSEEK_API_KEY on the server to enable this provider. Values are never sent to the browser."
+      },
+      {
+        "id": "local",
+        "displayName": "OpenAI-compatible endpoint",
+        "configured": false,
+        "requiredEnv": [
+          "KNOUX_BUILD_LLM_ENDPOINT",
+          "KNOUX_BUILD_LLM_API_KEY"
+        ],
+        "capabilities": {
+          "text": true,
+          "vision": false,
+          "tools": true,
+          "structuredOutput": true,
+          "streaming": true
+        },
+        "models": [
+          {
+            "id": "local/default",
+            "provider": "local",
+            "label": "Configured endpoint",
+            "contextWindow": null,
+            "supportsVision": false,
+            "supportsTools": true,
+            "supportsStreaming": true,
+            "tags": [
+              "self-hosted"
+            ]
+          }
+        ],
+        "status": "unconfigured",
+        "reason": "No server configuration. Set KNOUX_BUILD_LLM_ENDPOINT and KNOUX_BUILD_LLM_API_KEY on the server to enable this provider. Values are never sent to the browser."
+      }
+    ],
+    "routing": {
+      "task": "general",
+      "mode": "auto",
+      "providerId": null,
+      "modelId": null,
+      "reason": [],
+      "status": "unavailable",
+      "blocker": "No AI provider is configured, so no model can be selected. Set one of the provider environment variables on the server. Routing will not guess a provider."
+    },
+    "executeCapability": "unconfigured",
+    "executeBlocker": "No AI provider credential is configured. See the Provider Center for the exact environment variable required.",
+    "taskClasses": [
+      "vision",
+      "long-context",
+      "test-repair",
+      "debugging",
+      "architecture",
+      "fast-edit",
+      "refactor",
+      "search",
+      "general"
+    ]
+  },
+  "integrations": {
+    "measuredAt": "2026-10-02T19:59:55.438Z",
+    "tools": [],
+    "toolsAvailable": false,
+    "providerProbeAllowed": false,
+    "bridgePairAllowed": false,
+    "bridgePairBlocker": "Sign in and configure the server signing key, loopback bridge URL and owner-scoped pairing store.",
+    "toolsBlocker": "Pair a trusted local bridge and explicitly detect tools. Hosted deployments cannot probe your machine.",
+    "secrets": {
+      "mode": "environment-only",
+      "writable": false,
+      "reason": "SECRET STORAGE NOT CONFIGURED. Configure a server-side encrypted vault with owner authorization and audit before saving credentials. Existing environment credentials are read only."
+    },
+    "deployment": {
+      "source": "unavailable",
+      "environment": null,
+      "url": null,
+      "sha": null,
+      "branch": null,
+      "deploymentId": null
+    },
+    "platforms": [
+      {
+        "id": "github",
+        "label": "GitHub",
+        "requirements": [
+          "KNOUX_BUILD_GITHUB_TOKEN (server only, repository metadata read scope). OAuth user connection is not installed."
+        ],
+        "facts": [
+          {
+            "name": "Public repository metadata",
+            "state": "available",
+            "detail": "GitHub REST API, subject to its rate limits; separate from local Git."
+          },
+          {
+            "name": "Private / organization repositories",
+            "state": "unconfigured",
+            "detail": "REQUIRES AUTHENTICATION"
+          },
+          {
+            "name": "Clone",
+            "state": "blocked",
+            "detail": "Requires paired bridge with project import enabled and an unused destination inside its configured root. Public repositories only."
+          }
+        ]
+      },
+      {
+        "id": "vercel",
+        "label": "Vercel",
+        "requirements": [
+          "History requires VERCEL_TOKEN, VERCEL_TEAM_ID, VERCEL_PROJECT_ID and a history adapter."
+        ],
+        "facts": [
+          {
+            "name": "Current deployment facts",
+            "state": "unconfigured",
+            "detail": "This runtime provides no Vercel deployment metadata."
+          },
+          {
+            "name": "Deployment history",
+            "state": "blocked",
+            "detail": "REQUIRES CREDENTIALS and history adapter. No history request has been made."
+          }
+        ]
+      },
+      {
+        "id": "supabase",
+        "label": "Supabase",
+        "requirements": [
+          "Public URL and publishable key; user session and RLS for data operations."
+        ],
+        "facts": [
+          {
+            "name": "Public client",
+            "state": "unconfigured",
+            "detail": "Configuration presence only. No values are exposed here."
+          },
+          {
+            "name": "Database read",
+            "state": "unmeasured",
+            "detail": "This integration center has not probed this capability."
+          },
+          {
+            "name": "Storage",
+            "state": "unmeasured",
+            "detail": "This integration center has not probed this capability."
+          },
+          {
+            "name": "Auth",
+            "state": "unmeasured",
+            "detail": "This integration center has not probed this capability."
+          },
+          {
+            "name": "Realtime",
+            "state": "unmeasured",
+            "detail": "This integration center has not probed this capability."
+          },
+          {
+            "name": "Admin write",
+            "state": "blocked",
+            "detail": "No elevated integration write path. A service credential never grants browser privileges."
+          }
+        ]
+      }
+    ]
+  }
+}

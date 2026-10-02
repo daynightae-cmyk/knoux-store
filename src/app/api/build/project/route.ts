@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { ADAPTER_ID, createProjectAdapter } from '@/lib/build/adapter-factory';
-import { guardBuildApi, withShortCache } from '@/lib/build/api-guard';
+import { requestProjectAdapter } from '@/lib/build/request-adapter';
+import { guardBuildApi, withShortCache, resolveBuildOwnerId } from '@/lib/build/api-guard';
 import type { BuildCapability } from '@/lib/build/types';
 
 export const dynamic = 'force-dynamic';
@@ -10,11 +10,11 @@ export async function GET(request: NextRequest) {
   if (denied) return denied;
 
   try {
-    const instance = createProjectAdapter();
+    const instance = await requestProjectAdapter(request);
     // The cache key identifies the snapshot; the root itself is already in the
     // payload, so it need not appear in a shared key.
     const snapshot = await withShortCache(
-      `project:${instance.environment}:${instance.id}`,
+      `project:${instance.environment}:${instance.id}:${request.nextUrl.searchParams.get('project') ? await resolveBuildOwnerId() : 'checkout'}:${request.nextUrl.searchParams.get('project') ?? ''}`,
       () => instance.snapshot(),
     );
     const capabilities = instance.capabilities();
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         adapter: {
-          id: ADAPTER_ID,
+          id: instance.id,
           label: instance.label,
           environment: instance.environment,
           capabilities,

@@ -1,0 +1,1462 @@
+[
+  {
+    "file": "src/components/build/dev/AppsPage.tsx",
+    "line": 21,
+    "tag": "Link",
+    "label": "<Link href={`/products/${product.slug}`}>OPEN PRODUCT PAGE ↗</Link>",
+    "handler": null,
+    "destination": "{`/products/${product.slug}`}",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/AppsPage.tsx",
+    "line": 36,
+    "tag": "button",
+    "label": "<button type=\"button\" key={project.path} onClick={() => dispatch({ type: 'project/activate', path: project.path, name: project.name })}>{project.name} · {project.path}</button>",
+    "handler": "{() => dispatch({ type: 'project/activate', path: project.path, name: project.name })}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/AppsPage.tsx",
+    "line": 36,
+    "tag": "input",
+    "label": "<label htmlFor=\"dev-app-search\">SEARCH PRODUCTS<input id=\"dev-app-search\" value={query} onChange={(event) => setQuery(event.target.value)} placeholder=\"Search applications…\" /></la",
+    "handler": "{(event) => setQuery(event.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/AppsPage.tsx",
+    "line": 36,
+    "tag": "select",
+    "label": "<select id=\"dev-app-family\" value={family} onChange={(event) => setFamily(event.target.value)}><option value=\"all\">All families</option>{families.map((item) => <option key={item}>{",
+    "handler": "{(event) => setFamily(event.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/AppsPage.tsx",
+    "line": 37,
+    "tag": "button",
+    "label": "<button type=\"button\" key={product.id} className={selected.id === product.id ? 'dev-list--selected' : ''} onClick={() => { setSelectedId(product.id); setTab('overview'); }}><span><",
+    "handler": "{() => { setSelectedId(product.id); setTab('overview'); }}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/AppsPage.tsx",
+    "line": 38,
+    "tag": "button",
+    "label": "<button type=\"button\" aria-pressed={tab === 'overview'} onClick={() => setTab('overview')}>OVERVIEW</button>",
+    "handler": "{() => setTab('overview')}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/AppsPage.tsx",
+    "line": 38,
+    "tag": "button",
+    "label": "<button type=\"button\" aria-pressed={tab === 'preview'} onClick={() => setTab('preview')}>PREVIEW</button>",
+    "handler": "{() => setTab('preview')}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/AppsPage.tsx",
+    "line": 38,
+    "tag": "Link",
+    "label": "<Link href={`/products/${selected.slug}`}>VIEW PRODUCT ↗</Link>",
+    "handler": null,
+    "destination": "{`/products/${selected.slug}`}",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/AppsPage.tsx",
+    "line": 38,
+    "tag": "a",
+    "label": "<a href={selected.repository} target=\"_blank\" rel=\"noreferrer\">OPEN REPOSITORY ↗</a>",
+    "handler": null,
+    "destination": "{selected.repository}",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/AppsPage.tsx",
+    "line": 38,
+    "tag": "a",
+    "label": "<a href={selected.liveUrl} target=\"_blank\" rel=\"noreferrer\">DECLARED PREVIEW ↗</a>",
+    "handler": null,
+    "destination": "{selected.liveUrl}",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/BuildEntryGate.tsx",
+    "line": 164,
+    "tag": "input",
+    "label": "<div className=\"dev-entry__field\"> <input id=\"dev-entry-input\" ref={inputRef} value={value} onChange={(event) => setValue(event.target.value)} placeholder=\"Describe your intent…\" a",
+    "handler": "{(event) => setValue(event.target.value)}",
+    "destination": null,
+    "disabled": "{settled}",
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/BuildEntryGate.tsx",
+    "line": 175,
+    "tag": "button",
+    "label": "<button type=\"submit\" className=\"dev-btn dev-btn--primary\" disabled={settled} aria-disabled={settled || !value.trim()}> Enter workspace </button>",
+    "handler": null,
+    "destination": null,
+    "disabled": "{settled}",
+    "type": "\"submit\""
+  },
+  {
+    "file": "src/components/build/dev/BuildPipelinePage.tsx",
+    "line": 68,
+    "tag": "button",
+    "label": "{verification.blocker(id) ?? runner?.status.evidence ?? 'Verification runner unavailable'}",
+    "handler": "{() => void run(id)}",
+    "destination": null,
+    "disabled": "{!runner?.enabled || !!verification.blocker(id)}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/DeploymentsPage.tsx",
+    "line": 9,
+    "tag": "a",
+    "label": "<a href={state.runtime.url} target=\"_blank\" rel=\"noreferrer\">{state.runtime.url} ↗</a>",
+    "handler": null,
+    "destination": "{state.runtime.url}",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DevUI.tsx",
+    "line": 52,
+    "tag": "button",
+    "label": "{tab.reason}",
+    "handler": "{() => onSelect(tab.id)}",
+    "destination": null,
+    "disabled": "{tab.disabled}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/DevUI.tsx",
+    "line": 102,
+    "tag": "Link",
+    "label": "<Link className=\"dev-card__more\" href={moreHref}> {more} → </Link>",
+    "handler": null,
+    "destination": "{moreHref}",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DevUI.tsx",
+    "line": 163,
+    "tag": "button",
+    "label": "{label}",
+    "handler": "{() => onChange(!checked)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/DevUI.tsx",
+    "line": 224,
+    "tag": "input",
+    "label": "<div className=\"dev-field\"> <span className=\"dev-field__icon\" aria-hidden=\"true\"> ⌕ </span> <label htmlFor={id} className=\"dev-visually-hidden\"> {label} </label> <input id={id} val",
+    "handler": "{(event) => onChange(event.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DevUI.tsx",
+    "line": 264,
+    "tag": "Link",
+    "label": "<Link href={href}>OPEN ↗</Link>",
+    "handler": null,
+    "destination": "{href}",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceHome.tsx",
+    "line": 43,
+    "tag": "button",
+    "label": "<button key={item} type=\"button\" aria-pressed={view === item} onClick={() => setView(item)}>{item.toUpperCase()}</button>",
+    "handler": "{() => setView(item)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceHome.tsx",
+    "line": 55,
+    "tag": "textarea",
+    "label": "<form className=\"dev-floating-compose\" onSubmit={compile}> <label className=\"dev-visually-hidden\" htmlFor=\"dev-intent-input\">Describe what you want to build</label> <textarea ref={",
+    "handler": "{(event) => setDraftOverride(event.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceHome.tsx",
+    "line": 57,
+    "tag": "button",
+    "label": "<button type=\"button\" onClick={() => setView('preview')}>PREVIEW</button>",
+    "handler": "{() => setView('preview')}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceHome.tsx",
+    "line": 57,
+    "tag": "Link",
+    "label": "<Link href=\"/build/pipeline\">VERIFY ↗</Link>",
+    "handler": null,
+    "destination": "\"/build/pipeline\"",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceHome.tsx",
+    "line": 58,
+    "tag": "Link",
+    "label": "\"Open project files\"",
+    "handler": null,
+    "destination": "\"/build/docs\"",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceHome.tsx",
+    "line": 58,
+    "tag": "Link",
+    "label": "\"Open terminal\"",
+    "handler": null,
+    "destination": "\"/build/terminal\"",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceHome.tsx",
+    "line": 58,
+    "tag": "button",
+    "label": "\"Compile intent\"",
+    "handler": null,
+    "destination": null,
+    "disabled": "{!draft.trim()}",
+    "type": "\"submit\""
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceHome.tsx",
+    "line": 61,
+    "tag": "button",
+    "label": "<button type=\"button\" key={item.label} onClick={() => { setDraftOverride(item.prompt); input.current?.focus(); }}>{item.label}</button>",
+    "handler": "{() => { setDraftOverride(item.prompt); input.current?.focus(); }}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceHome.tsx",
+    "line": 65,
+    "tag": "button",
+    "label": "<button type=\"button\" onClick={() => setView('registry')}>EXPLORE {facts.registryCount} PRODUCTS ↗</button>",
+    "handler": "{() => setView('registry')}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceHome.tsx",
+    "line": 67,
+    "tag": "Link",
+    "label": "<Link href=\"/login?next=%2Fbuild\">SIGN IN TO INSPECT ↗</Link>",
+    "handler": null,
+    "destination": "\"/login?next=%2Fbuild\"",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceShell.tsx",
+    "line": 66,
+    "tag": "Link",
+    "label": "\"KNOuX Store home\"",
+    "handler": null,
+    "destination": "\"/\"",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceShell.tsx",
+    "line": 66,
+    "tag": "button",
+    "label": "\"Open workspace navigation\"",
+    "handler": "{() => setNavOpen((open) => !open)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceShell.tsx",
+    "line": 68,
+    "tag": "button",
+    "label": "\"Close workspace navigation\"",
+    "handler": "{() => setNavOpen(false)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceShell.tsx",
+    "line": 70,
+    "tag": "Link",
+    "label": "\"KNOuX Store home\"",
+    "handler": null,
+    "destination": "\"/\"",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceShell.tsx",
+    "line": 70,
+    "tag": "button",
+    "label": "\"Close workspace navigation\"",
+    "handler": "{() => setNavOpen(false)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceShell.tsx",
+    "line": 71,
+    "tag": "button",
+    "label": "<button type=\"button\" className=\"dev-sidebar__action\" onClick={() => { setNavOpen(false); setUtility('launcher'); }}>New build <span aria-hidden=\"true\">↗</span></button>",
+    "handler": "{() => { setNavOpen(false); setUtility('launcher'); }}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceShell.tsx",
+    "line": 72,
+    "tag": "Link",
+    "label": "<Link key={item.href} href={item.href} className={`dev-nav-link ${pathname === item.href ? 'dev-nav-link--active' : ''}`} aria-current={pathname === item.href ? 'page' : undefined}",
+    "handler": "{() => setNavOpen(false)}",
+    "destination": "{item.href}",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceShell.tsx",
+    "line": 73,
+    "tag": "button",
+    "label": "\"Add or open project\"",
+    "handler": "{() => { setNavOpen(false); setUtility('launcher'); }}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceShell.tsx",
+    "line": 73,
+    "tag": "Link",
+    "label": "<Link key={product.id} href={`/build/apps?product=${product.slug}`} onClick={() => setNavOpen(false)}>{product.name}</Link>",
+    "handler": "{() => setNavOpen(false)}",
+    "destination": "{`/build/apps?product=${product.slug}`}",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceShell.tsx",
+    "line": 76,
+    "tag": "button",
+    "label": "<button type=\"button\" onClick={() => setUtility('palette')}>COMMANDS · Ctrl K</button>",
+    "handler": "{() => setUtility('palette')}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceShell.tsx",
+    "line": 76,
+    "tag": "button",
+    "label": "<button type=\"button\" onClick={() => setUtility('activity')}>ACTIVITY · {state.activity.length}</button>",
+    "handler": "{() => setUtility('activity')}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceShell.tsx",
+    "line": 76,
+    "tag": "Link",
+    "label": "<Link href=\"/build/pipeline\">{facts.verification}</Link>",
+    "handler": null,
+    "destination": "\"/build/pipeline\"",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceShell.tsx",
+    "line": 76,
+    "tag": "Link",
+    "label": "<Link href=\"/build/deployments\">DEPLOYMENT · {facts.deployment}</Link>",
+    "handler": null,
+    "destination": "\"/build/deployments\"",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DevWorkspaceShell.tsx",
+    "line": 76,
+    "tag": "Link",
+    "label": "<Link href=\"/build/providers\">{facts.provider}</Link>",
+    "handler": null,
+    "destination": "\"/build/providers\"",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DocsPage.tsx",
+    "line": 37,
+    "tag": "input",
+    "label": "<DevPanel title=\"Document index\"><label className=\"dev-search-label\" htmlFor=\"dev-doc-search\">SEARCH INDEX</label><input id=\"dev-doc-search\" className=\"dev-search\" value={query} on",
+    "handler": "{(event) => setQuery(event.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/DocsPage.tsx",
+    "line": 37,
+    "tag": "button",
+    "label": "<button type=\"button\" key={doc.path} className={selected.path === doc.path ? 'dev-list--selected' : ''} onClick={() => setSelectedPath(doc.path)}><span><strong>{doc.label}</strong>",
+    "handler": "{() => setSelectedPath(doc.path)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/PowerShellPage.tsx",
+    "line": 355,
+    "tag": "Link",
+    "label": "<Link href=\"/build\" className=\"action\"> RETURN TO OVERVIEW <span className=\"action-arrow\">↗</span> </Link>",
+    "handler": null,
+    "destination": "\"/build\"",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/PowerShellPage.tsx",
+    "line": 367,
+    "tag": "select",
+    "label": "\"PowerShell profile\"",
+    "handler": "{(event) => setProfile(event.target.value as ShellProfile | '')}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/PowerShellPage.tsx",
+    "line": 381,
+    "tag": "input",
+    "label": "\"Working directory, relative to the bridge root\"",
+    "handler": "{(event) => setCwd(event.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"text\""
+  },
+  {
+    "file": "src/components/build/dev/PowerShellPage.tsx",
+    "line": 394,
+    "tag": "button",
+    "label": "<button type=\"button\" className=\"dev-button\" onClick={() => void openSession()}> OPEN POWERSHELL </button>",
+    "handler": "{() => void openSession()}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/PowerShellPage.tsx",
+    "line": 433,
+    "tag": "button",
+    "label": "<button type=\"button\" onClick={clearTerminal} disabled={!live}>CLEAR</button>",
+    "handler": "{clearTerminal}",
+    "destination": null,
+    "disabled": "{!live}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/PowerShellPage.tsx",
+    "line": 434,
+    "tag": "button",
+    "label": "<button type=\"button\" onClick={() => void copySelection()} disabled={!live}>COPY SELECTION</button>",
+    "handler": "{() => void copySelection()}",
+    "destination": null,
+    "disabled": "{!live}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/PowerShellPage.tsx",
+    "line": 435,
+    "tag": "button",
+    "label": "\"Ctrl+Shift+Esc\"",
+    "handler": "{leaveTerminal}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/PowerShellPage.tsx",
+    "line": 444,
+    "tag": "button",
+    "label": "<button type=\"button\" onClick={closeSession}>CLOSE</button>",
+    "handler": "{closeSession}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/PowerShellPage.tsx",
+    "line": 446,
+    "tag": "button",
+    "label": "<button type=\"button\" onClick={reopen} disabled={busy}> {stage === 'exited' ? 'REOPEN' : 'RETRY'} </button>",
+    "handler": "{reopen}",
+    "destination": null,
+    "disabled": "{busy}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/PowerShellPage.tsx",
+    "line": 452,
+    "tag": "input",
+    "label": "\"Find in terminal output\"",
+    "handler": "{(event) => setFindQuery(event.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"search\""
+  },
+  {
+    "file": "src/components/build/dev/PowerShellPage.tsx",
+    "line": 459,
+    "tag": "button",
+    "label": "<button type=\"button\" disabled={!findQuery} onClick={() => { if (findQuery) searchRef.current?.findNext(findQuery); }} > NEXT </button>",
+    "handler": "{() => { if (findQuery) searchRef.current?.findNext(findQuery); }}",
+    "destination": null,
+    "disabled": "{!findQuery}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/PowerShellPage.tsx",
+    "line": 466,
+    "tag": "button",
+    "label": "<button type=\"button\" disabled={!findQuery} onClick={() => { if (findQuery) searchRef.current?.findPrevious(findQuery); }} > PREV </button>",
+    "handler": "{() => { if (findQuery) searchRef.current?.findPrevious(findQuery); }}",
+    "destination": null,
+    "disabled": "{!findQuery}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProductMachine.tsx",
+    "line": 59,
+    "tag": "button",
+    "label": "<button key={product.id} type=\"button\" style={orbitPosition(index, softwareProducts.length)} className={`dev-machine__node ${selectedId === product.id ? 'dev-machine__node--active'",
+    "handler": "{() => setSelectedId(product.id)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProductMachine.tsx",
+    "line": 85,
+    "tag": "Link",
+    "label": "<Link href={`/products/${selected.slug}`}>Product page ↗</Link>",
+    "handler": null,
+    "destination": "{`/products/${selected.slug}`}",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ProductMachine.tsx",
+    "line": 86,
+    "tag": "a",
+    "label": "<a href={selected.repository} target=\"_blank\" rel=\"noreferrer\">Repository ↗</a>",
+    "handler": null,
+    "destination": "{selected.repository}",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 47,
+    "tag": "button",
+    "label": "<button type=\"button\" key={tab} aria-pressed={mode === tab} onClick={() => setMode(tab)}>{tab === 'local' ? 'OPEN EXISTING PROJECT' : tab === 'github' ? 'IMPORT FROM GITHUB' : 'CON",
+    "handler": "{() => setMode(tab)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 48,
+    "tag": "input",
+    "label": "<label className=\"dev-input-label\">Project folder relative to trusted root<input value={root} onChange={(event) => setRoot(event.target.value)} /></label>",
+    "handler": "{(event) => setRoot(event.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 48,
+    "tag": "button",
+    "label": "{!local ? blocker : 'Inspect this project'}",
+    "handler": "{() => void action('inspect')}",
+    "destination": null,
+    "disabled": "{!local || busy || !root.trim()}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 48,
+    "tag": "Link",
+    "label": "<Link href=\"/build/settings\" onClick={onClose}>Bridge setup ↗</Link>",
+    "handler": "{onClose}",
+    "destination": "\"/build/settings\"",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 48,
+    "tag": "button",
+    "label": "<button type=\"button\" key={project.path} disabled={!local} onClick={() => { dispatch({ type: 'project/activate', path: project.path, name: project.name }); onClose(); }}>{project.n",
+    "handler": "{() => { dispatch({ type: 'project/activate', path: project.path, name: project.name }); onClose(); }}",
+    "destination": null,
+    "disabled": "{!local}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 48,
+    "tag": "input",
+    "label": "<label className=\"dev-input-label\">Public repository URL or owner/repository<input value={repository} onChange={(event) => { setRepository(event.target.value); setMetadata(null); s",
+    "handler": "{(event) => { setRepository(event.target.value); setMetadata(null); setApproved(false); }}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 48,
+    "tag": "button",
+    "label": "<button type=\"button\" disabled={!repository.trim() || busy} onClick={() => void action('resolve')}>RESOLVE REPOSITORY</button>",
+    "handler": "{() => void action('resolve')}",
+    "destination": null,
+    "disabled": "{!repository.trim() || busy}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 48,
+    "tag": "button",
+    "label": "\"Requires operator authentication and KNOUX_BUILD_GITHUB_TOKEN\"",
+    "handler": "{() => void action('list')}",
+    "destination": null,
+    "disabled": "{busy || !state.integrations?.platforms.find((p) => p.id === 'github')?.facts.some((f) => f.name.startsWith('Private') && f.state === 'configured')}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 49,
+    "tag": "input",
+    "label": "<label className=\"dev-input-label\">Search repositories<input value={search} onChange={(e) => setSearch(e.target.value)} /></label>",
+    "handler": "{(e) => setSearch(e.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 49,
+    "tag": "input",
+    "label": "<label className=\"dev-input-label\">Owner / organization<input value={ownerFilter} onChange={(e) => setOwnerFilter(e.target.value)} /></label>",
+    "handler": "{(e) => setOwnerFilter(e.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 49,
+    "tag": "select",
+    "label": "<select value={visibility} onChange={(e) => setVisibility(e.target.value)}><option value=\"all\">All</option><option value=\"public\">Public</option><option value=\"private\">Private</op",
+    "handler": "{(e) => setVisibility(e.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 49,
+    "tag": "button",
+    "label": "<button type=\"button\" key={r.fullName} onClick={() => { setRepository(r.fullName); setMetadata(r); setApproved(false); }}>{r.fullName} · {r.private ? 'PRIVATE' : 'PUBLIC'} · {r.lan",
+    "handler": "{() => { setRepository(r.fullName); setMetadata(r); setApproved(false); }}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 50,
+    "tag": "a",
+    "label": "<a href={metadata.url} target=\"_blank\" rel=\"noreferrer\">{metadata.fullName} ↗</a>",
+    "handler": null,
+    "destination": "{metadata.url}",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 50,
+    "tag": "input",
+    "label": "<label className=\"dev-input-label\">New folder inside trusted root<input value={destination} onChange={(e) => setDestination(e.target.value)} /></label>",
+    "handler": "{(e) => setDestination(e.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 50,
+    "tag": "input",
+    "label": "<label className=\"dev-check\"><input type=\"checkbox\" checked={approved} onChange={(e) => setApproved(e.target.checked)} />Approve public clone into this new folder. No install or sc",
+    "handler": "{(e) => setApproved(e.target.checked)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 50,
+    "tag": "button",
+    "label": "{metadata.private ? 'Private clone has no secure credential transport.' : !local ? blocker : !bridge?.handshake?.projectImport ? 'Set allowProjectImport=true on the bridge.' : 'Approve clone and choose an unused folder.'}",
+    "handler": "{() => void action('import')}",
+    "destination": null,
+    "disabled": "{!local || !bridge?.handshake?.projectImport || metadata.private || !approved || !/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/.test(destination) || busy}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProjectLauncher.tsx",
+    "line": 52,
+    "tag": "button",
+    "label": "\"GitHub OAuth client, callback and secure token vault are not configured.\"",
+    "handler": null,
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 29,
+    "tag": "button",
+    "label": "<button type=\"button\" key={item} aria-pressed={tab === item} onClick={() => setTab(item)}>{item}</button>",
+    "handler": "{() => setTab(item)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 30,
+    "tag": "button",
+    "label": "{state.access !== 'granted' ? 'Sign in to read integration facts.' : 'Read current server facts'}",
+    "handler": "{() => void refresh('facts')}",
+    "destination": null,
+    "disabled": "{busy || state.access !== 'granted'}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 31,
+    "tag": "button",
+    "label": "{provider.id !== 'openai' ? 'No connection probe adapter is installed for this provider.' : !provider.configured ? 'Set OPENAI_API_KEY server-side.' : 'Explicit models endpoint test; requires an allowlisted operator. No generation tokens.'}",
+    "handler": "{() => void refresh('probe')}",
+    "destination": null,
+    "disabled": "{provider.id !== 'openai' || !provider.configured || !state.integrations?.providerProbeAllowed || busy}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 31,
+    "tag": "button",
+    "label": "{secretBlocker}",
+    "handler": null,
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 31,
+    "tag": "summary",
+    "label": "<summary>Custom OpenAI-compatible provider metadata</summary>",
+    "handler": "native disclosure",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 31,
+    "tag": "input",
+    "label": "<label className=\"dev-input-label\">Display name<input value={custom.displayName} onChange={(e) => setCustom({ ...custom, displayName: e.target.value })} /></label>",
+    "handler": "{(e) => setCustom({ ...custom, displayName: e.target.value })}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 31,
+    "tag": "input",
+    "label": "<label className=\"dev-input-label\">Base URL<input value={custom.baseUrl} onChange={(e) => setCustom({ ...custom, baseUrl: e.target.value })} /></label>",
+    "handler": "{(e) => setCustom({ ...custom, baseUrl: e.target.value })}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 31,
+    "tag": "input",
+    "label": "<label className=\"dev-input-label\">Model IDs, comma separated<input value={custom.modelIds.join(',')} onChange={(e) => setCustom({ ...custom, modelIds: e.target.value.split(',').ma",
+    "handler": "{(e) => setCustom({ ...custom, modelIds: e.target.value.split(',').map((v) => v.trim()).filter(Boolean) })}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 31,
+    "tag": "input",
+    "label": "<label className=\"dev-input-label\">Non-secret header names<input value={custom.headerNames.join(',')} onChange={(e) => setCustom({ ...custom, headerNames: e.target.value.split(',')",
+    "handler": "{(e) => setCustom({ ...custom, headerNames: e.target.value.split(',').map((v) => v.trim()).filter(Boolean) })}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 31,
+    "tag": "input",
+    "label": "<label className=\"dev-check\"><input type=\"checkbox\" checked={custom.apiKeyRequired} onChange={(e) => setCustom({ ...custom, apiKeyRequired: e.target.checked })} />API key required<",
+    "handler": "{(e) => setCustom({ ...custom, apiKeyRequired: e.target.checked })}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 31,
+    "tag": "input",
+    "label": "<label className=\"dev-check\" key={name}><input type=\"checkbox\" checked={custom.capabilities.includes(name)} onChange={(e) => setCustom({ ...custom, capabilities: e.target.checked ?",
+    "handler": "{(e) => setCustom({ ...custom, capabilities: e.target.checked ? [...custom.capabilities, name] : custom.capabilities.filter((c) => c !== name) })}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 31,
+    "tag": "button",
+    "label": "<button type=\"button\" onClick={() => setMessage(validateCustomProvider(custom) ?? 'Metadata valid. Persistence and endpoint execution require a secure configured adapter. No connec",
+    "handler": "{() => setMessage(validateCustomProvider(custom) ?? 'Metadata valid. Persistence and endpoint execution require a secure configured adapter. No connection tested.')}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 31,
+    "tag": "button",
+    "label": "{secretBlocker}",
+    "handler": null,
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 31,
+    "tag": "Link",
+    "label": "<Link href=\"/build/deployments\">CURRENT DEPLOYMENT ↗</Link>",
+    "handler": null,
+    "destination": "\"/build/deployments\"",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 31,
+    "tag": "button",
+    "label": "{state.integrations?.toolsBlocker ?? 'Requires an authenticated paired bridge.'}",
+    "handler": "{() => void refresh('tools')}",
+    "destination": null,
+    "disabled": "{busy || !state.integrations?.toolsAvailable}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 31,
+    "tag": "button",
+    "label": "{secretBlocker}",
+    "handler": null,
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ProvidersPage.tsx",
+    "line": 31,
+    "tag": "Link",
+    "label": "<Link href=\"/build/docs?file=docs/build/INTEGRATION_SETUP.md\">SETUP INSTRUCTIONS ↗</Link>",
+    "handler": null,
+    "destination": "\"/build/docs?file=docs/build/INTEGRATION_SETUP.md\"",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/ServicesPage.tsx",
+    "line": 11,
+    "tag": "button",
+    "label": "<button type=\"button\" key={service.id} className={selectedId === service.id ? 'dev-list--selected' : ''} onClick={() => setSelectedId(service.id)}><span><strong>{service.title}</st",
+    "handler": "{() => setSelectedId(service.id)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/ServicesPage.tsx",
+    "line": 11,
+    "tag": "Link",
+    "label": "<Link href={`/web/${selected.slug}`}>VIEW SERVICE ↗</Link>",
+    "handler": null,
+    "destination": "{`/web/${selected.slug}`}",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/SettingsPage.tsx",
+    "line": 16,
+    "tag": "input",
+    "label": "<label><span><strong>Compact lists & rail</strong><small>Reduce navigation and list spacing.</small></span><input type=\"checkbox\" checked={prefs.compact} onChange={(e) => update({ ",
+    "handler": "{(e) => update({ ...prefs, compact: e.target.checked })}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "src/components/build/dev/SettingsPage.tsx",
+    "line": 17,
+    "tag": "input",
+    "label": "<label><span><strong>Show evidence detail</strong><small>Show application provenance rows.</small></span><input type=\"checkbox\" checked={prefs.showEvidence} onChange={(e) => update",
+    "handler": "{(e) => update({ ...prefs, showEvidence: e.target.checked })}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "src/components/build/dev/SettingsPage.tsx",
+    "line": 18,
+    "tag": "select",
+    "label": "<select value={prefs.motion} onChange={(e) => update({ ...prefs, motion: e.target.value === 'reduced' ? 'reduced' : 'auto' })}><option value=\"auto\">System preference</option><optio",
+    "handler": "{(e) => update({ ...prefs, motion: e.target.value === 'reduced' ? 'reduced' : 'auto' })}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/SettingsPage.tsx",
+    "line": 19,
+    "tag": "select",
+    "label": "<select value={prefs.density} onChange={(e) => update({ ...prefs, density: e.target.value === 'low' ? 'low' : 'balanced' })}><option value=\"balanced\">Balanced</option><option value",
+    "handler": "{(e) => update({ ...prefs, density: e.target.value === 'low' ? 'low' : 'balanced' })}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/SettingsPage.tsx",
+    "line": 20,
+    "tag": "select",
+    "label": "<select value={prefs.viewport} onChange={(e) => update({ ...prefs, viewport: e.target.value as WorkspacePreferences['viewport'] })}><option value=\"laptop\">Laptop · 1440</option><op",
+    "handler": "{(e) => update({ ...prefs, viewport: e.target.value as WorkspacePreferences['viewport'] })}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/SettingsPage.tsx",
+    "line": 21,
+    "tag": "input",
+    "label": "<label><span><strong>Wrap document text</strong><small>Read long source and documentation lines without scrolling.</small></span><input type=\"checkbox\" checked={prefs.editorWrap} o",
+    "handler": "{(e) => update({ ...prefs, editorWrap: e.target.checked })}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "src/components/build/dev/SettingsPage.tsx",
+    "line": 22,
+    "tag": "input",
+    "label": "<label><span><strong>Allow evidence exports</strong><small>Enable explicit Preview metadata downloads.</small></span><input type=\"checkbox\" checked={prefs.evidence} onChange={(e) =",
+    "handler": "{(e) => update({ ...prefs, evidence: e.target.checked })}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "src/components/build/dev/SettingsPage.tsx",
+    "line": 24,
+    "tag": "input",
+    "label": "<label className=\"dev-input-label\">Configured bridge URL<input value={url} onChange={(e) => setUrl(e.target.value)} placeholder=\"http://127.0.0.1:7331\" /></label>",
+    "handler": "{(e) => setUrl(e.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/SettingsPage.tsx",
+    "line": 24,
+    "tag": "input",
+    "label": "<label className=\"dev-input-label\">One-time pairing code<input autoComplete=\"off\" value={code} onChange={(e) => setCode(e.target.value)} /></label>",
+    "handler": "{(e) => setCode(e.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/SettingsPage.tsx",
+    "line": 24,
+    "tag": "button",
+    "label": "{state.integrations?.bridgePairBlocker ?? 'Sign in and configure the server bridge before pairing.'}",
+    "handler": "{() => void pair()}",
+    "destination": null,
+    "disabled": "{!state.integrations?.bridgePairAllowed || !url.trim() || !code.trim() || busy}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/TerminalPage.tsx",
+    "line": 335,
+    "tag": "Link",
+    "label": "<Link href=\"/build/settings\">CONNECT BRIDGE ↗</Link>",
+    "handler": null,
+    "destination": "\"/build/settings\"",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/TerminalPage.tsx",
+    "line": 345,
+    "tag": "select",
+    "label": "\"Shell profile\"",
+    "handler": "{(event) => setProfile(event.target.value as ShellProfile | '')}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/TerminalPage.tsx",
+    "line": 359,
+    "tag": "input",
+    "label": "\"Working directory, relative to the bridge root\"",
+    "handler": "{(event) => setCwd(event.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"text\""
+  },
+  {
+    "file": "src/components/build/dev/TerminalPage.tsx",
+    "line": 372,
+    "tag": "button",
+    "label": "<button type=\"button\" className=\"dev-button\" onClick={() => void openSession()}> OPEN SESSION </button>",
+    "handler": "{() => void openSession()}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/TerminalPage.tsx",
+    "line": 411,
+    "tag": "button",
+    "label": "<button type=\"button\" onClick={clearTerminal} disabled={!live}>CLEAR</button>",
+    "handler": "{clearTerminal}",
+    "destination": null,
+    "disabled": "{!live}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/TerminalPage.tsx",
+    "line": 412,
+    "tag": "button",
+    "label": "<button type=\"button\" onClick={() => void copySelection()} disabled={!live}>COPY SELECTION</button>",
+    "handler": "{() => void copySelection()}",
+    "destination": null,
+    "disabled": "{!live}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/TerminalPage.tsx",
+    "line": 413,
+    "tag": "button",
+    "label": "\"Ctrl+Shift+Esc\"",
+    "handler": "{leaveTerminal}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/TerminalPage.tsx",
+    "line": 422,
+    "tag": "button",
+    "label": "<button type=\"button\" onClick={closeSession}>CLOSE</button>",
+    "handler": "{closeSession}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/TerminalPage.tsx",
+    "line": 424,
+    "tag": "button",
+    "label": "<button type=\"button\" onClick={reopen} disabled={busy}> {stage === 'exited' ? 'REOPEN' : 'RETRY'} </button>",
+    "handler": "{reopen}",
+    "destination": null,
+    "disabled": "{busy}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/TerminalPage.tsx",
+    "line": 430,
+    "tag": "input",
+    "label": "\"Find in terminal output\"",
+    "handler": "{(event) => setFindQuery(event.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"search\""
+  },
+  {
+    "file": "src/components/build/dev/TerminalPage.tsx",
+    "line": 437,
+    "tag": "button",
+    "label": "<button type=\"button\" disabled={!findQuery} onClick={() => { if (findQuery) searchRef.current?.findNext(findQuery); }} > NEXT </button>",
+    "handler": "{() => { if (findQuery) searchRef.current?.findNext(findQuery); }}",
+    "destination": null,
+    "disabled": "{!findQuery}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/TerminalPage.tsx",
+    "line": 444,
+    "tag": "button",
+    "label": "<button type=\"button\" disabled={!findQuery} onClick={() => { if (findQuery) searchRef.current?.findPrevious(findQuery); }} > PREV </button>",
+    "handler": "{() => { if (findQuery) searchRef.current?.findPrevious(findQuery); }}",
+    "destination": null,
+    "disabled": "{!findQuery}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/WorkspaceDialog.tsx",
+    "line": 10,
+    "tag": "button",
+    "label": "{`Close ${title}`}",
+    "handler": "{onClose}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/WorkspaceUtilities.tsx",
+    "line": 18,
+    "tag": "input",
+    "label": "<label className=\"dev-input-label\">Search workspace commands<input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder=\"Search actions…\" /></label>",
+    "handler": "{(e) => setQuery(e.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/WorkspaceUtilities.tsx",
+    "line": 18,
+    "tag": "button",
+    "label": "{c.blocker ?? c.name}",
+    "handler": "{c.run}",
+    "destination": null,
+    "disabled": "{!!c.blocker}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 79,
+    "tag": "button",
+    "label": "{!ready ? 'Inspection requires a loaded same-origin document.' : 'Arm DOM inspection'}",
+    "handler": "{() => setInspecting((value) => !value)}",
+    "destination": null,
+    "disabled": "{!ready}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 80,
+    "tag": "button",
+    "label": "<button type=\"button\" key={item} aria-pressed={mode === item} onClick={() => setMode(item)}>{item}</button>",
+    "handler": "{() => setMode(item)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 81,
+    "tag": "button",
+    "label": "<button type=\"button\" className=\"bo-chip\" onClick={() => { setReady(false); dispatch({ type: 'preview/refresh' }); }}>REFRESH</button>",
+    "handler": "{() => { setReady(false); dispatch({ type: 'preview/refresh' }); }}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 83,
+    "tag": "summary",
+    "label": "<summary>Canvas dimensions, zoom & reference</summary>",
+    "handler": "native disclosure",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 83,
+    "tag": "input",
+    "label": "\"Preview width\"",
+    "handler": "{(e) => setDimensions({ ...dimensions, width: Number(e.target.value) })}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"number\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 83,
+    "tag": "input",
+    "label": "\"Preview height\"",
+    "handler": "{(e) => setDimensions({ ...dimensions, height: Number(e.target.value) })}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"number\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 83,
+    "tag": "button",
+    "label": "<button type=\"submit\">APPLY SIZE</button>",
+    "handler": null,
+    "destination": null,
+    "disabled": null,
+    "type": "\"submit\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 83,
+    "tag": "button",
+    "label": "<button type=\"button\" onClick={() => chooseViewport({ ...viewport, width: viewport.height, height: viewport.width, id: 'rotated', label: 'ROTATED' })}>SWAP ORIENTATION</button>",
+    "handler": "{() => chooseViewport({ ...viewport, width: viewport.height, height: viewport.width, id: 'rotated', label: 'ROTATED' })}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 83,
+    "tag": "button",
+    "label": "<button type=\"button\" aria-pressed={fit} onClick={() => setFit(true)}>FIT</button>",
+    "handler": "{() => setFit(true)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 83,
+    "tag": "button",
+    "label": "<button type=\"button\" onClick={() => { setFit(false); setZoom(1); }}>100%</button>",
+    "handler": "{() => { setFit(false); setZoom(1); }}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 83,
+    "tag": "input",
+    "label": "\"Preview zoom\"",
+    "handler": "{(e) => { setFit(false); setZoom(Number(e.target.value)); }}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"range\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 83,
+    "tag": "input",
+    "label": "<label className=\"dev-input-label\">Approved reference screenshot<input type=\"file\" accept=\"image/png,image/jpeg,image/webp\" onChange={(e) => { const file = e.target.files?.[0]; if ",
+    "handler": "{(e) => { const file = e.target.files?.[0]; if (!file) return; if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) { setMessage('Choose a PNG, JPEG or WebP smaller than 5 MB.'); return; } const reader = new FileReader(); reader.onload = () => { setGhost(String(reader.result)); setOpacity(0.5); }; reader.readAsDataURL(file); }}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"file\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 83,
+    "tag": "button",
+    "label": "{!ghost ? 'Load a reference screenshot first.' : 'Reference overlay opacity'}",
+    "handler": "{() => setOpacity(value)}",
+    "destination": null,
+    "disabled": "{!ghost}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 83,
+    "tag": "button",
+    "label": "{!ghost ? 'Load a reference screenshot first.' : 'CSS difference blend of the reference pixels and preview'}",
+    "handler": "{() => setDifference((v) => !v)}",
+    "destination": null,
+    "disabled": "{!ghost}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 83,
+    "tag": "input",
+    "label": "<label>Real baseline URL<input value={comparisonInput} onChange={(e) => setComparisonInput(e.target.value)} placeholder=\"Same-origin URL\" /></label>",
+    "handler": "{(e) => setComparisonInput(e.target.value)}",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 83,
+    "tag": "button",
+    "label": "<button type=\"submit\" disabled={!comparisonInput.trim()}>COMPARE URL</button>",
+    "handler": null,
+    "destination": null,
+    "disabled": "{!comparisonInput.trim()}",
+    "type": "\"submit\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 83,
+    "tag": "button",
+    "label": "\"No baseline selected\"",
+    "handler": "{() => setComparison(null)}",
+    "destination": null,
+    "disabled": "{!comparison}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 84,
+    "tag": "button",
+    "label": "<button type=\"button\" key={item} onClick={() => chooseRoute(item)} aria-pressed={route === item}><span>◌ {item}</span><small>{routeFacts[item] ?? 'NOT LOADED IN THIS SESSION'}</sma",
+    "handler": "{() => chooseRoute(item)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 86,
+    "tag": "button",
+    "label": "<button type=\"button\" className=\"bo-chip\" aria-pressed={syncScroll} onClick={() => setSyncScroll((v) => !v)}>SYNC SCROLL</button>",
+    "handler": "{() => setSyncScroll((v) => !v)}",
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 89,
+    "tag": "button",
+    "label": "\"Requires same-origin access\"",
+    "handler": "{() => { const doc = frame.current?.contentDocument; if (!doc) return; setA11y(Array.from(doc.querySelectorAll('h1,h2,h3,h4,h5,h6,main,nav,header,footer,[role],a[href],button,input,select,textarea,[tabindex]')).slice(0, 150).map((element) => ({ tag: element.tagName.toLowerCase(), role: domRole(element), name: domName(element) }))); }}",
+    "destination": null,
+    "disabled": "{!ready}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 90,
+    "tag": "button",
+    "label": "\"No captured messages\"",
+    "handler": "{() => setObservations([])}",
+    "destination": null,
+    "disabled": "{!observations.length}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 91,
+    "tag": "button",
+    "label": "{!ready ? 'A loaded same-origin document is required.' : !state.preferences.evidence ? 'Enable evidence exports in settings.' : 'Download measured metadata as JSON'}",
+    "handler": "{captureFacts}",
+    "destination": null,
+    "disabled": "{!ready || !state.preferences.evidence}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 91,
+    "tag": "button",
+    "label": "\"No authenticated bridge screenshot writer is installed. Browser metadata export does not capture pixels.\"",
+    "handler": null,
+    "destination": null,
+    "disabled": null,
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/surfaces/PreviewSurface.tsx",
+    "line": 93,
+    "tag": "summary",
+    "label": "<summary>Runtime & preview evidence</summary>",
+    "handler": "native disclosure",
+    "destination": null,
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/workspace/Primitives.tsx",
+    "line": 167,
+    "tag": "button",
+    "label": "<button key={option.id} type=\"button\" className=\"bo-chip\" aria-pressed={value === option.id} disabled={disabled || option.disabled} onClick={() => onChange(option.id)} > {option.la",
+    "handler": "{() => onChange(option.id)}",
+    "destination": null,
+    "disabled": "{disabled || option.disabled}",
+    "type": "\"button\""
+  }
+]

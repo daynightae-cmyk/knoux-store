@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { allEntities } from '@/data/composer-rules';
 import { divisionLabel, searchEntities, type DiscoverableEntity } from '@/lib/entities';
@@ -49,6 +49,7 @@ function rankFor(label: string): number {
 
 export function CommandPalette() {
   const router = useRouter();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
@@ -104,6 +105,8 @@ export function CommandPalette() {
     const onKey = (event: KeyboardEvent) => {
       const combo = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k';
       const slash = event.key === '/' && !isTypingTarget(event.target);
+      // The Build workspace owns Ctrl+K inside /build so only one modal can open.
+      if (combo && pathname.startsWith('/build')) return;
       if (combo || slash) {
         event.preventDefault();
         setOpen((current) => {
@@ -127,7 +130,7 @@ export function CommandPalette() {
       document.removeEventListener('keydown', onKey);
       window.removeEventListener(OPEN_EVENT, onRequest);
     };
-  }, [open, close]);
+  }, [open, close, pathname]);
 
   useEffect(() => {
     if (!open) return;

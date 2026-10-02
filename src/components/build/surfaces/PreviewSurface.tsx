@@ -1,256 +1,97 @@
 'use client';
-
-/**
- * Live preview.
- *
- * The only runtime that exists in the hosted product is the deployment itself,
- * so the default target is its own origin. That is a real, reachable URL
- * rendering real pages — not a screenshot and not a mock.
- *
- * The visual inspector reports only what a browser genuinely knows: tag, id,
- * class list, box, computed styles, role and DOM label/text. Component-to-
- * source mapping is reported as unavailable because no source map for React
- * components exists in this build.
- */
-
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
-import { Blocked, Chips, Empty, Pane, Section, StatusBadge } from '../workspace/Primitives';
+import { Blocked, Chips, Pane, Section } from '../workspace/Primitives';
+import { domName, domRole, observePreview, type PreviewObservation } from '@/lib/build/preview-instrumentation';
 import type { PreviewViewport } from '@/lib/build/types';
-
 const VIEWPORTS: PreviewViewport[] = [
-  { id: 'desktop', label: 'DESKTOP', width: 1600, height: 1000 },
-  { id: 'laptop', label: 'LAPTOP', width: 1440, height: 900 },
-  { id: 'laptop-sm', label: '1366', width: 1366, height: 768 },
-  { id: 'tablet-l', label: '1024', width: 1024, height: 768 },
-  { id: 'tablet', label: 'TABLET', width: 768, height: 1024 },
-  { id: 'phone-lg', label: '430', width: 430, height: 932 },
-  { id: 'phone', label: '390', width: 390, height: 844 },
-  { id: 'phone-sm', label: '375', width: 375, height: 812 },
+  { id: 'desktop', label: 'DESKTOP', width: 1600, height: 1000 }, { id: 'laptop', label: 'LAPTOP', width: 1440, height: 900 },
+  { id: 'laptop-sm', label: '1366', width: 1366, height: 768 }, { id: 'tablet-l', label: '1024', width: 1024, height: 768 },
+  { id: 'tablet', label: 'TABLET', width: 768, height: 1024 }, { id: 'phone-lg', label: '430', width: 430, height: 932 },
+  { id: 'phone', label: '390', width: 390, height: 844 }, { id: 'phone-sm', label: '375', width: 375, height: 812 },
 ];
-
-const ROUTES = ['/', '/about', '/work', '/products', '/build', '/engineering', '/contact'];
-
-type Inspected = {
-  tag: string;
-  id: string | null;
-  classes: string[];
-  box: { width: number; height: number; top: number; left: number };
-  role: string | null;
-  accessibleName: string | null;
-  styles: { property: string; value: string }[];
-};
-
+type Inspected = { tag: string; id: string; classes: string; role: string; name: string; box: string; styles: { property: string; value: string }[] };
+const MODES = ['LIVE PREVIEW', 'ROUTE ATLAS', 'RESPONSIVE LAB', 'ACCESSIBILITY', 'CONSOLE', 'EVIDENCE'];
 export function PreviewSurface({ cinematic = false }: { cinematic?: boolean }) {
   const { state, dispatch } = useBuildWorkspace();
-  const frame = useRef<HTMLIFrameElement>(null);
-  const stage = useRef<HTMLDivElement>(null);
+  const frame = useRef<HTMLIFrameElement>(null); const stage = useRef<HTMLDivElement>(null);
+  const sweepFrames = useRef<(HTMLIFrameElement | null)[]>([]);
   const [availableWidth, setAvailableWidth] = useState(0);
-  const [inspecting, setInspecting] = useState(false);
-  const [inspected, setInspected] = useState<Inspected | null>(null);
-  const [inspectorReady, setInspectorReady] = useState(false);
-  const [frameLoad, setFrameLoad] = useState(0);
-
-  const origin = state.runtime.url;
+  const [mode, setMode] = useState('LIVE PREVIEW'); const [inspecting, setInspecting] = useState(false);
+  const [inspected, setInspected] = useState<Inspected | null>(null); const [frameLoad, setFrameLoad] = useState(0);
+  const [ready, setReady] = useState(false); const [observations, setObservations] = useState<PreviewObservation[]>([]);
+  const [a11y, setA11y] = useState<{ tag: string; role: string; name: string }[] | null>(null);
+  const [routeFacts, setRouteFacts] = useState<Record<string, string>>({});
+  const [fit, setFit] = useState(true); const [zoom, setZoom] = useState(1);
+  const [dimensions, setDimensions] = useState({ width: 1440, height: 900 });
+  const [ghost, setGhost] = useState<string | null>(null); const [opacity, setOpacity] = useState(0.5); const [difference, setDifference] = useState(false);
+  const [comparison, setComparison] = useState<string | null>(null); const [comparisonInput, setComparisonInput] = useState('');
+  const [message, setMessage] = useState<string | null>(null); const [syncScroll, setSyncScroll] = useState(false); const [sweepLoad, setSweepLoad] = useState(0);
   const route = state.workspace.selectedRoute ?? '/';
-  const target = origin ? `${origin}${route}` : null;
-  const livePreviewCapability = state.adapter.capabilities['preview.live'];
+  const target = state.runtime.url && !state.projectRef ? `${state.runtime.url}${route}` : null;
   const viewport = state.preview.viewport;
-  const scale = Math.min(1, (availableWidth || viewport.width) / viewport.width, 620 / viewport.height);
-
+  const scale = fit ? Math.min(1, (availableWidth || viewport.width) / viewport.width, 620 / viewport.height) : zoom;
+  const routes = [...new Set(state.snapshot?.routes.map((r) => r.route) ?? [])].filter((r) => !r.includes('[') && !r.includes('*') && !/^\/build(?:\/|$)/.test(r) && !/^\/(?:login|register|reset-password|forgot-password)/.test(r)).sort();
   useEffect(() => {
-    const element = stage.current;
-    if (!element) return;
-    const observer = new ResizeObserver(([entry]) => setAvailableWidth(entry.contentRect.width));
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [target, livePreviewCapability]);
-
+    const node = stage.current; if (!node) return;
+    const observer = new ResizeObserver(([entry]) => setAvailableWidth(entry.contentRect.width)); observer.observe(node); return () => observer.disconnect();
+  }, [target, mode]);
   useEffect(() => {
-    if (!inspecting || !inspectorReady) return;
-    let document: Document | null = null;
-    try { document = frame.current?.contentDocument ?? null; } catch { return; }
-    if (!document) return;
+    if (!ready) return;
+    let view: Window | null = null; try { view = frame.current?.contentWindow ?? null; if (!view?.document.body) return; } catch { return; }
+    dispatch({ type: 'preview/console', consoleState: 'listening' });
+    const stop = observePreview(view, (entry) => setObservations((old) => [...old, { ...entry, id: Date.now() + old.length }].slice(-100)));
+    return () => { stop(); dispatch({ type: 'preview/console', consoleState: 'idle' }); };
+  }, [ready, frameLoad, dispatch]);
+  useEffect(() => {
+    if (!inspecting || !ready) return;
+    const doc = frame.current?.contentDocument; if (!doc) return;
+    let highlighted: HTMLElement | null = null; let originalOutline = '';
     const inspect = (event: MouseEvent) => {
-      const element = event.target as Element | null;
-      const view = document?.defaultView;
-      if (!element?.getBoundingClientRect || !view) return;
-      event.preventDefault();
-      event.stopPropagation();
-      const box = element.getBoundingClientRect();
-      const style = view.getComputedStyle(element);
-      setInspected({
-        tag: element.tagName.toLowerCase(), id: element.id || null, classes: Array.from(element.classList),
-        box: { width: box.width, height: box.height, top: box.top, left: box.left },
-        role: element.getAttribute('role'),
-        accessibleName: element.getAttribute('aria-label') ?? element.textContent?.trim().slice(0, 160) ?? null,
-        styles: ['color', 'background-color', 'font-size', 'display', 'padding', 'border-radius'].map((property) => ({ property, value: style.getPropertyValue(property) })),
-      });
+      const element = event.target as HTMLElement; if (!element?.getBoundingClientRect || !doc.defaultView) return;
+      event.preventDefault(); event.stopPropagation();
+      if (highlighted) highlighted.style.outline = originalOutline;
+      highlighted = element; originalOutline = element.style.outline; element.style.outline = '2px solid #b8afca';
+      const rect = element.getBoundingClientRect(); const style = doc.defaultView.getComputedStyle(element);
+      setInspected({ tag: element.tagName.toLowerCase(), id: element.id || 'NONE', classes: element.className || 'NONE', role: domRole(element), name: domName(element), box: `${Math.round(rect.width)}×${Math.round(rect.height)} at ${Math.round(rect.left)}, ${Math.round(rect.top)}`, styles: ['color', 'background-color', 'font-size', 'display', 'padding', 'margin', 'border-width', 'box-sizing', 'border-radius'].map((property) => ({ property, value: style.getPropertyValue(property) })) });
     };
-    document.addEventListener('click', inspect, true);
-    return () => document?.removeEventListener('click', inspect, true);
-  }, [inspecting, inspectorReady, frameLoad]);
-
-  if (state.adapter.capabilities['preview.live'] !== 'available') {
-    return (
-      <Pane title="Preview">
-        <Blocked
-          title="NO ACTIVE RUNTIME"
-          body="No runtime URL is available in this environment, so there is nothing real to load."
-          requirement={state.adapter.blockers['preview.live']}
-        />
-      </Pane>
-    );
+    doc.addEventListener('click', inspect, true); return () => { doc.removeEventListener('click', inspect, true); if (highlighted) highlighted.style.outline = originalOutline; };
+  }, [inspecting, ready, frameLoad]);
+  useEffect(() => {
+    if (!syncScroll || mode !== 'RESPONSIVE LAB') return;
+    const views = sweepFrames.current.flatMap((iframe) => { try { const view = iframe?.contentWindow; return view?.document.body ? [view] : []; } catch { return []; } });
+    let lock = false;
+    const handlers = views.map((view) => {
+      const handler = () => { if (lock) return; lock = true; const max = view.document.documentElement.scrollHeight - view.innerHeight; const fraction = max > 0 ? view.scrollY / max : 0; views.filter((other) => other !== view).forEach((other) => other.scrollTo(0, fraction * (other.document.documentElement.scrollHeight - other.innerHeight))); requestAnimationFrame(() => { lock = false; }); };
+      view.addEventListener('scroll', handler, { passive: true }); return () => view.removeEventListener('scroll', handler);
+    });
+    return () => handlers.forEach((stop) => stop());
+  }, [syncScroll, mode, sweepLoad]);
+  function chooseViewport(next: PreviewViewport) { dispatch({ type: 'preview/viewport', viewport: next }); dispatch({ type: 'activity/record', message: `Preview viewport: ${next.width}×${next.height}` }); }
+  function chooseRoute(next: string) { setReady(false); dispatch({ type: 'route/select', route: next }); dispatch({ type: 'activity/record', message: `Preview route selected: ${next}` }); }
+  function applyDimensions(event: FormEvent) { event.preventDefault(); if (dimensions.width >= 320 && dimensions.width <= 2560 && dimensions.height >= 320 && dimensions.height <= 1800) chooseViewport({ ...dimensions, id: 'custom', label: 'CUSTOM' }); }
+  function compare(event: FormEvent) { event.preventDefault(); try { const url = new URL(comparisonInput, window.location.origin); if (url.origin !== window.location.origin || /^\/build/.test(url.pathname)) throw new Error(); setComparison(url.href); setMessage('User-supplied baseline URL. Production status is not independently verified.'); } catch { setMessage('Comparison requires a real same-origin URL outside /build. Cross-origin framing is blocked by the site security policy.'); } }
+  function captureFacts() {
+    const evidence = { route, viewport, at: new Date().toISOString(), branch: state.git?.branch ?? null, sha: state.git?.headSha ?? null, document: ready ? 'same-origin loaded' : 'unavailable', observations, inspected, accessibility: a11y, screenshot: 'unavailable' };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(evidence, null, 2)], { type: 'application/json' })); const anchor = document.createElement('a'); anchor.href = url; anchor.download = `knoux-preview-${Date.now()}.json`; anchor.click(); URL.revokeObjectURL(url); dispatch({ type: 'activity/record', message: 'Preview evidence metadata exported' });
   }
-
-  return (
-    <Pane
-      title="Preview"
-      meta={
-        <>
-          <span>{viewport.width}×{viewport.height}</span>
-          <StatusBadge status="available" label="LIVE" />
-        </>
-      }
-      actions={
-        <button
-          type="button"
-          className="bo-chip"
-          aria-pressed={inspecting}
-          onClick={() => setInspecting((value) => !value)}
-          disabled={!inspectorReady || state.adapter.capabilities['preview.inspect'] !== 'available'}
-          title={inspectorReady ? 'Report the DOM facts a browser can confirm' : 'Inspection requires a loaded same-origin preview'}
-        >
-          INSPECT
-        </button>
-      }
-    >
-      <div className="bo-splitbar">
-        <Chips
-          ariaLabel="Preview route"
-          options={ROUTES.map((item) => ({ id: item, label: item }))}
-          value={route}
-          onChange={(id) => dispatch({ type: 'route/select', route: id })}
-        />
-        <span style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
-          <button
-            type="button"
-            className="bo-chip"
-            onClick={() => dispatch({ type: 'preview/refresh' })}
-            title="Reload the frame"
-          >
-            REFRESH
-          </button>
-        </span>
-      </div>
-
-      {cinematic ? <details className="dev-preview-evidence">
-        <summary>More viewport sizes · current {viewport.width}×{viewport.height}</summary>
-        <Chips ariaLabel="Additional preview viewports" options={VIEWPORTS.filter((item) => !['desktop', 'tablet', 'phone'].includes(item.id)).map((item) => ({ id: item.id, label: item.label }))} value={viewport.id} onChange={(id) => {
-          const found = VIEWPORTS.find((item) => item.id === id);
-          if (found) dispatch({ type: 'preview/viewport', viewport: found });
-        }} />
-      </details> : null}
-      <div className="bo-splitbar">
-        <Chips
-          ariaLabel="Preview viewport"
-          options={(cinematic ? VIEWPORTS.filter((item) => ['desktop', 'tablet', 'phone'].includes(item.id)) : VIEWPORTS).map((item) => ({ id: item.id, label: item.id === 'phone' && cinematic ? 'MOBILE' : item.label }))}
-          value={viewport.id}
-          onChange={(id) => {
-            const found = VIEWPORTS.find((item) => item.id === id);
-            if (found) dispatch({ type: 'preview/viewport', viewport: found });
-          }}
-        />
-      </div>
-
-      <div className="bo-preview">
-        {target ? (
-          <div className="bo-preview__stage" ref={stage}>
-            <div className="bo-preview__scaled" style={{ width: viewport.width * scale, height: viewport.height * scale }}>
-              <div className="bo-preview__frame" style={{ width: viewport.width, height: viewport.height, transform: `scale(${scale})` }}>
-                <iframe
-                  key={`${target}-${state.preview.refreshKey}`}
-                  ref={frame}
-                  onLoad={() => {
-                    let readable = false;
-                    try { readable = !!frame.current?.contentDocument?.body; } catch { /* Cross-origin documents cannot be inspected. */ }
-                    setInspectorReady(readable);
-                    setInspected(null);
-                    setFrameLoad((count) => count + 1);
-                  }}
-                  src={target}
-                  title={`Live preview of ${route}`}
-                  width={viewport.width}
-                  height={viewport.height}
-                  style={{ width: viewport.width, height: viewport.height }}
-                  sandbox="allow-same-origin allow-scripts allow-popups"
-                  referrerPolicy="no-referrer"
-                />
-              </div>
-            </div>
-          </div>
-        ) : (
-          <Empty title="NO ACTIVE RUNTIME" body="No reachable URL was reported for this environment." />
-        )}
-
-        <details className="dev-preview-evidence" open={cinematic ? undefined : true}>
-        <summary>Runtime & preview evidence</summary>
-        <dl className="bo-kv" style={{ width: '100%' }}>
-          <dt>Runtime URL</dt>
-          <dd>{target ?? 'NONE'}</dd>
-          <dt>Source</dt>
-          <dd>The deployment itself. There is no separate dev server to start in the hosted product.</dd>
-          <dt>Viewport</dt>
-          <dd>
-            {viewport.width}×{viewport.height}
-          </dd>
-          <dt>Process control</dt>
-          <dd>
-            <StatusBadge status="blocked" label="BLOCKED" /> {state.runtime.blocker}
-          </dd>
-          <dt>Component source mapping</dt>
-          <dd>
-            <StatusBadge status="unavailable" label="UNAVAILABLE" /> No React component-to-source map exists in
-            this build, so the inspector reports DOM facts only and does not claim a line number.
-          </dd>
-        </dl>
-        </details>
-
-        {inspecting ? (
-          <Section label="Visual inspector">
-            {inspected ? (
-              <dl className="bo-kv">
-                <dt>Element</dt>
-                <dd>{inspected.tag}</dd>
-                <dt>Id</dt>
-                <dd>{inspected.id ?? 'NONE'}</dd>
-                <dt>Classes</dt>
-                <dd>{inspected.classes.length ? inspected.classes.join(' ') : 'NONE'}</dd>
-                <dt>Box</dt>
-                <dd>
-                  {Math.round(inspected.box.width)}×{Math.round(inspected.box.height)} at {Math.round(inspected.box.left)},
-                  {Math.round(inspected.box.top)}
-                </dd>
-                <dt>Role</dt>
-                <dd>{inspected.role ?? 'IMPLICIT'}</dd>
-                <dt>DOM label / text</dt>
-                <dd>{inspected.accessibleName ?? 'NONE'}</dd>
-                {inspected.styles.map((style) => (
-                  <div key={style.property} style={{ display: 'contents' }}>
-                    <dt>{style.property}</dt>
-                    <dd>{style.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            ) : (
-              <p className="bo-note">
-                Click an element inside the frame while inspection is armed. The frame reports only tag, id, classes,
-                box, computed styles, role and DOM label/text.
-              </p>
-            )}
-          </Section>
-        ) : null}
-      </div>
-    </Pane>
-  );
+  if (state.adapter.capabilities['preview.live'] !== 'available' || !target) return <Pane title="Preview Studio"><Blocked title="NO ACTIVE RUNTIME" body={state.adapter.blockers['preview.live'] ?? 'No readable runtime URL is available. Sign in to inspect this deployment.'} requirement="A real preview runtime is required." /></Pane>;
+  return <Pane title="Preview Studio" meta={<span>{viewport.width}×{viewport.height} · {ready ? 'SAME-ORIGIN DOCUMENT LOADED' : 'LOAD UNMEASURED'}</span>} actions={<button className="bo-chip" type="button" aria-pressed={inspecting} disabled={!ready} title={!ready ? 'Inspection requires a loaded same-origin document.' : 'Arm DOM inspection'} onClick={() => setInspecting((value) => !value)}>INSPECT</button>}>
+    <div className="dev-preview-modes" role="group" aria-label="Preview studio tools">{MODES.map((item) => <button type="button" key={item} aria-pressed={mode === item} onClick={() => setMode(item)}>{item}</button>)}</div>
+    <div className="bo-splitbar"><Chips ariaLabel="Preview route" options={routes.map((item) => ({ id: item, label: item }))} value={route} onChange={chooseRoute} /><button type="button" className="bo-chip" onClick={() => { setReady(false); dispatch({ type: 'preview/refresh' }); }}>REFRESH</button></div>
+    <div className="dev-viewport-constellation"><Chips ariaLabel="Preview viewport" options={(cinematic ? VIEWPORTS.filter((v) => ['desktop', 'tablet', 'phone'].includes(v.id)) : VIEWPORTS).map((v) => ({ id: v.id, label: v.id === 'phone' && cinematic ? 'MOBILE' : v.label }))} value={viewport.id} onChange={(id) => { const found = VIEWPORTS.find((v) => v.id === id); if (found) chooseViewport(found); }} />{cinematic ? <Chips ariaLabel="Additional preview viewports" options={VIEWPORTS.filter((v) => !['desktop', 'tablet', 'phone'].includes(v.id)).map((v) => ({ id: v.id, label: `${v.width}` }))} value={viewport.id} onChange={(id) => { const found = VIEWPORTS.find((v) => v.id === id); if (found) chooseViewport(found); }} /> : null}</div>
+    <details className="dev-preview-evidence"><summary>Canvas dimensions, zoom & reference</summary><form className="dev-preview-dimensions" onSubmit={applyDimensions}><label>Width<input aria-label="Preview width" type="number" min={320} max={2560} value={dimensions.width} onChange={(e) => setDimensions({ ...dimensions, width: Number(e.target.value) })} /></label><label>Height<input aria-label="Preview height" type="number" min={320} max={1800} value={dimensions.height} onChange={(e) => setDimensions({ ...dimensions, height: Number(e.target.value) })} /></label><button type="submit">APPLY SIZE</button><button type="button" onClick={() => chooseViewport({ ...viewport, width: viewport.height, height: viewport.width, id: 'rotated', label: 'ROTATED' })}>SWAP ORIENTATION</button></form><div className="dev-actions"><button type="button" aria-pressed={fit} onClick={() => setFit(true)}>FIT</button><button type="button" onClick={() => { setFit(false); setZoom(1); }}>100%</button><label>Zoom<input aria-label="Preview zoom" type="range" min={0.25} max={1.5} step={0.05} value={zoom} onChange={(e) => { setFit(false); setZoom(Number(e.target.value)); }} /></label></div><label className="dev-input-label">Approved reference screenshot<input type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => { const file = e.target.files?.[0]; if (!file) return; if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) { setMessage('Choose a PNG, JPEG or WebP smaller than 5 MB.'); return; } const reader = new FileReader(); reader.onload = () => { setGhost(String(reader.result)); setOpacity(0.5); }; reader.readAsDataURL(file); }} /></label><div className="dev-actions">{[0, 0.25, 0.5, 0.75].map((value) => <button type="button" key={value} disabled={!ghost} title={!ghost ? 'Load a reference screenshot first.' : 'Reference overlay opacity'} aria-pressed={opacity === value} onClick={() => setOpacity(value)}>{value ? `${value * 100}%` : 'REFERENCE OFF'}</button>)}<button type="button" disabled={!ghost} title={!ghost ? 'Load a reference screenshot first.' : 'CSS difference blend of the reference pixels and preview'} aria-pressed={difference} onClick={() => setDifference((v) => !v)}>DIFFERENCE VIEW</button></div><form className="dev-preview-dimensions" onSubmit={compare}><label>Real baseline URL<input value={comparisonInput} onChange={(e) => setComparisonInput(e.target.value)} placeholder="Same-origin URL" /></label><button type="submit" disabled={!comparisonInput.trim()}>COMPARE URL</button><button type="button" disabled={!comparison} title="No baseline selected" onClick={() => setComparison(null)}>CLOSE COMPARISON</button></form></details>
+    {mode === 'ROUTE ATLAS' ? <section className="dev-route-atlas" aria-label="Route atlas">{routes.map((item) => <button type="button" key={item} onClick={() => chooseRoute(item)} aria-pressed={route === item}><span>◌ {item}</span><small>{routeFacts[item] ?? 'NOT LOADED IN THIS SESSION'}</small></button>)}</section> : null}
+    <div className="bo-preview"><div ref={stage} className="bo-preview__stage"><div className="bo-preview__scaled" style={{ width: viewport.width * scale, height: viewport.height * scale }}><div className="bo-preview__frame" style={{ width: viewport.width, height: viewport.height, transform: `scale(${scale})`, position: 'relative' }}><iframe key={`${target}-${state.preview.refreshKey}`} ref={frame} src={target} title={`Live preview of ${route}`} width={viewport.width} height={viewport.height} style={{ width: viewport.width, height: viewport.height }} sandbox="allow-same-origin allow-scripts allow-popups" referrerPolicy="no-referrer" onLoad={() => { let readable = false; try { const doc = frame.current?.contentDocument; readable = !!doc?.body && doc.location.origin === window.location.origin; } catch { /* browser origin restriction */ } setReady(readable); setFrameLoad((n) => n + 1); setInspected(null); setA11y(null); setObservations([]); setRouteFacts((old) => ({ ...old, [route]: readable ? 'SAME-ORIGIN LOADED · HTTP STATUS UNMEASURED' : 'INSPECTION BLOCKED BY ORIGIN POLICY' })); }} />{ghost && opacity > 0 ? <div className="dev-reference-ghost" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity, backgroundImage: `url(${ghost})`, backgroundSize: '100% 100%', mixBlendMode: difference ? 'difference' : 'normal' }} aria-label="Reference ghost overlay" /> : null}</div></div></div>
+      {mode === 'RESPONSIVE LAB' ? <Section label="Responsive sweep"><p className="bo-note">Three real same-origin documents. Route is synchronized; scroll synchronization uses relative document position.</p><button type="button" className="bo-chip" aria-pressed={syncScroll} onClick={() => setSyncScroll((v) => !v)}>SYNC SCROLL</button><span className="dev-tag">SYNC ROUTE · {route}</span><div className="dev-responsive-sweep">{[VIEWPORTS[1], VIEWPORTS[4], VIEWPORTS[6]].map((v, i) => <div key={`${v.id}-${state.preview.refreshKey}`}><strong>{v.label} · {v.width}</strong><div style={{ width: 260, height: v.height * (260 / v.width), position: 'relative', overflow: 'hidden' }}><iframe ref={(element) => { sweepFrames.current[i] = element; }} title={`Responsive sweep ${v.label}`} src={target} width={v.width} height={v.height} style={{ width: v.width, height: v.height, transform: `scale(${260 / v.width})`, transformOrigin: 'top left' }} sandbox="allow-same-origin allow-scripts" onLoad={() => setSweepLoad((n) => n + 1)} /></div></div>)}</div></Section> : null}
+      {comparison ? <Section label="User-supplied baseline comparison"><p className="bo-note">Current above · baseline below. Baseline production status is unverified.</p><iframe title="User-supplied comparison baseline" src={comparison} width="100%" height={400} sandbox="allow-same-origin allow-scripts" /></Section> : null}
+      {inspecting ? <Section label="DOM inspector">{inspected ? <dl className="bo-kv"><dt>Element</dt><dd>{inspected.tag}</dd><dt>Id</dt><dd>{inspected.id}</dd><dt>Classes</dt><dd>{inspected.classes}</dd><dt>Role</dt><dd>{inspected.role}</dd><dt>Accessible name approximation</dt><dd>{inspected.name || 'NONE'}</dd><dt>Box</dt><dd>{inspected.box}</dd>{inspected.styles.map((s) => <div key={s.property} style={{ display: 'contents' }}><dt>{s.property}</dt><dd>{s.value}</dd></div>)}</dl> : <p>Click an element in the loaded same-origin frame.</p>}<p className="bo-note">SOURCE MAPPING UNAVAILABLE · DOM facts only.</p></Section> : null}
+      {mode === 'ACCESSIBILITY' ? <Section label="Accessibility lens"><button type="button" className="bo-chip" disabled={!ready} title="Requires same-origin access" onClick={() => { const doc = frame.current?.contentDocument; if (!doc) return; setA11y(Array.from(doc.querySelectorAll('h1,h2,h3,h4,h5,h6,main,nav,header,footer,[role],a[href],button,input,select,textarea,[tabindex]')).slice(0, 150).map((element) => ({ tag: element.tagName.toLowerCase(), role: domRole(element), name: domName(element) }))); }}>READ SEMANTIC DOM</button><p className="bo-note">Heading hierarchy, landmarks and focusable candidates · accessible names are DOM approximations. Automated axe has not run here. No pass/fail is claimed.</p>{a11y?.map((item, i) => <div key={i} className="dev-semantic-row"><code>{item.tag}</code><span>{item.role}</span><span>{item.name || 'NAME UNDECLARED'}</span></div>)}</Section> : null}
+      {mode === 'CONSOLE' ? <Section label="Preview console & resource health"><p className="bo-note">{ready ? 'Listening since this document loaded. Earlier bootstrap messages and HTTP response codes are not observed.' : 'Same-origin console unavailable.'}</p><button type="button" className="bo-chip" disabled={!observations.length} title="No captured messages" onClick={() => setObservations([])}>CLEAR CAPTURED MESSAGES</button>{observations.length ? observations.map((entry, i) => <div key={`${entry.id}-${i}`} className="dev-console-line"><time>{entry.at}</time><strong>{entry.kind.toUpperCase()}</strong><span>{entry.message}</span></div>) : <p>No messages captured since instrumentation attached.</p>}</Section> : null}
+      {mode === 'EVIDENCE' ? <Section label="Evidence capture"><button type="button" className="bo-chip" disabled={!ready || !state.preferences.evidence} title={!ready ? 'A loaded same-origin document is required.' : !state.preferences.evidence ? 'Enable evidence exports in settings.' : 'Download measured metadata as JSON'} onClick={captureFacts}>EXPORT EVIDENCE METADATA</button><button type="button" className="bo-chip" disabled title="No authenticated bridge screenshot writer is installed. Browser metadata export does not capture pixels.">CAPTURE SCREENSHOT TO PROJECT</button><p className="bo-note">Branch, SHA, route, viewport and observed DOM facts. Screenshots need a trusted capture adapter and dedicated evidence directory.</p></Section> : null}
+      <div className="dev-preview-halo"><span>VIEWPORT · {viewport.width}×{viewport.height}</span><span>CONSOLE ERRORS OBSERVED · {observations.filter((o) => o.kind === 'error').length}</span><span>RESOURCE FAILURES OBSERVED · {observations.filter((o) => o.kind === 'resource').length}</span><span>A11Y · {a11y ? 'DOM READ · AUDIT NOT RUN' : 'NOT MEASURED'}</span></div>
+      <details className="dev-preview-evidence"><summary>Runtime & preview evidence</summary><dl className="bo-kv"><dt>Runtime URL</dt><dd>{target}</dd><dt>Source</dt><dd>This deployment itself, independently of imported project runtime state.</dd><dt>Inspection</dt><dd>{ready ? 'Same-origin document readable' : 'Unavailable until loaded'}</dd><dt>Component source mapping</dt><dd>SOURCE MAPPING UNAVAILABLE</dd><dt>Verification</dt><dd>{state.verification?.checks.map((c) => `${c.id}: ${c.status}`).join(', ') || 'NOT RUN'}</dd></dl></details>
+      {message ? <p role="status" className="bo-note">{message}</p> : null}
+    </div>
+  </Pane>;
 }

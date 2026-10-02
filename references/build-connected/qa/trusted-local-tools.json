@@ -1,0 +1,118 @@
+{
+  "measuredAt": "2026-10-02T19:48:56.012Z",
+  "source": "Explicit bridge detector executed on the authorized local workspace host; not a paired hosted UI connection",
+  "tools": [
+    {
+      "id": "opencode",
+      "label": "OpenCode",
+      "category": "agent",
+      "available": true,
+      "version": null,
+      "measuredAt": "2026-10-02T19:48:55.817Z"
+    },
+    {
+      "id": "codex",
+      "label": "Codex CLI",
+      "category": "agent",
+      "available": true,
+      "version": null,
+      "measuredAt": "2026-10-02T19:48:55.817Z"
+    },
+    {
+      "id": "claude",
+      "label": "Claude Code",
+      "category": "agent",
+      "available": true,
+      "version": null,
+      "measuredAt": "2026-10-02T19:48:55.817Z"
+    },
+    {
+      "id": "gemini",
+      "label": "Gemini CLI",
+      "category": "agent",
+      "available": true,
+      "version": null,
+      "measuredAt": "2026-10-02T19:48:55.817Z"
+    },
+    {
+      "id": "git",
+      "label": "Git",
+      "category": "runtime",
+      "available": true,
+      "version": "git version 2.55.0.windows.3",
+      "measuredAt": "2026-10-02T19:48:55.897Z"
+    },
+    {
+      "id": "node",
+      "label": "Node.js",
+      "category": "runtime",
+      "available": true,
+      "version": "v24.19.0",
+      "measuredAt": "2026-10-02T19:48:55.892Z"
+    },
+    {
+      "id": "npm",
+      "label": "npm",
+      "category": "runtime",
+      "available": true,
+      "version": null,
+      "measuredAt": "2026-10-02T19:48:55.791Z"
+    },
+    {
+      "id": "pnpm",
+      "label": "pnpm",
+      "category": "runtime",
+      "available": true,
+      "version": null,
+      "measuredAt": "2026-10-02T19:48:55.817Z"
+    },
+    {
+      "id": "yarn",
+      "label": "yarn",
+      "category": "runtime",
+      "available": true,
+      "version": null,
+      "measuredAt": "2026-10-02T19:48:55.817Z"
+    },
+    {
+      "id": "bun",
+      "label": "Bun",
+      "category": "runtime",
+      "available": true,
+      "version": null,
+      "measuredAt": "2026-10-02T19:48:55.817Z"
+    },
+    {
+      "id": "python",
+      "label": "Python",
+      "category": "runtime",
+      "available": true,
+      "version": "Python 3.13.15",
+      "measuredAt": "2026-10-02T19:48:55.876Z"
+    },
+    {
+      "id": "pwsh",
+      "label": "PowerShell",
+      "category": "runtime",
+      "available": true,
+      "version": "PowerShell 7.6.5",
+      "measuredAt": "2026-10-02T19:48:56.012Z"
+    },
+    {
+      "id": "docker",
+      "label": "Docker",
+      "category": "runtime",
+      "available": false,
+      "version": null,
+      "measuredAt": "2026-10-02T19:48:55.820Z"
+    },
+    {
+      "id": "java",
+      "label": "Java",
+      "category": "runtime",
+      "available": false,
+      "version": null,
+      "measuredAt": "2026-10-02T19:48:55.820Z"
+    }
+  ]
+}
