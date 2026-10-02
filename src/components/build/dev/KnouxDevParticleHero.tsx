@@ -217,10 +217,9 @@ export function KnouxDevParticleHero() {
     };
 
     const draw = (now: number) => {
-      frame = requestAnimationFrame(draw);
+      if (runningRef.current) frame = requestAnimationFrame(draw);
       const step = Math.min((now - last) / 1000, 0.05);
       last = now;
-      if (!runningRef.current) return;
       if (!width || !height) {
         resize();
         return;
@@ -254,8 +253,12 @@ export function KnouxDevParticleHero() {
         const dy = positions[i + 1] - pointerY;
         const distance = Math.sqrt(dx * dx + dy * dy) || 1;
         const repel = distance < PARTICLE.repelRadius ? (1 - distance / PARTICLE.repelRadius) * PARTICLE.force * step : 0;
-        velocities[i] = (velocities[i] + (homeX - positions[i]) * PARTICLE.returnSpeed + (dx / distance) * repel) * PARTICLE.friction;
-        velocities[i + 1] = (velocities[i + 1] + (homeY - positions[i + 1]) * PARTICLE.returnSpeed + (dy / distance) * repel) * PARTICLE.friction;
+        // A non-hovered pointer is at infinity. Infinity / infinity is NaN,
+        // even when multiplied by zero, and would erase the entire field.
+        const repelX = repel > 0 ? (dx / distance) * repel : 0;
+        const repelY = repel > 0 ? (dy / distance) * repel : 0;
+        velocities[i] = (velocities[i] + (homeX - positions[i]) * PARTICLE.returnSpeed + repelX) * PARTICLE.friction;
+        velocities[i + 1] = (velocities[i + 1] + (homeY - positions[i + 1]) * PARTICLE.returnSpeed + repelY) * PARTICLE.friction;
         positions[i] += velocities[i];
         positions[i + 1] += velocities[i + 1];
 
@@ -278,7 +281,7 @@ export function KnouxDevParticleHero() {
       cancelAnimationFrame(frame);
       window.removeEventListener('resize', onResize);
     };
-  }, []);
+  }, [visible, reduced]);
 
   return (
     <section

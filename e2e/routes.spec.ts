@@ -137,30 +137,21 @@ test.describe('responsive geometry', () => {
  * this reports.
  */
 test.describe('composition', () => {
-  test('the workspace dashboard panels occupy their intended columns', async ({ page }) => {
+  test('the Build canvas dominates the viewport and centers its composer', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.addInitScript(() => {
-      sessionStorage.setItem('knoux-dev-entry-intent', 'Build a product workspace');
-    });
+    await page.addInitScript(() => sessionStorage.setItem('knoux-dev-entry-intent', 'Build a web app'));
     await page.goto('/build', { waitUntil: 'load' });
     await expect(page.locator('.dev-entry')).toHaveCount(0);
-
-    const widths = await page.evaluate(() => {
-      const dashboard = document.querySelector('.dev-dashboard');
-      const composer = document.querySelector('.dev-dashboard__composer');
-      const preview = document.querySelector('.dev-dashboard__preview');
-      return {
-        dashboard: dashboard?.getBoundingClientRect().width ?? 0,
-        composer: composer?.getBoundingClientRect().width ?? 0,
-        preview: preview?.getBoundingClientRect().width ?? 0,
-      };
+    const geometry = await page.evaluate(() => {
+      const stage = document.querySelector('.dev-shell__stage')!.getBoundingClientRect();
+      const composer = document.querySelector('.dev-floating-compose')!.getBoundingClientRect();
+      return { stage: stage.width, composer: composer.width, offset: Math.abs(composer.x + composer.width / 2 - (stage.x + stage.width / 2)) };
     });
-
-    expect(widths.dashboard).toBeGreaterThan(800);
-    expect(widths.composer, 'the intent panel must span most of the workspace').toBeGreaterThan(widths.dashboard * 0.5);
-    expect(widths.preview, 'the preview must have a useful reading width').toBeGreaterThan(widths.dashboard * 0.25);
+    expect(geometry.stage).toBeGreaterThan(1440 * .8);
+    expect(geometry.composer).toBeGreaterThan(560);
+    expect(geometry.composer).toBeLessThan(650);
+    expect(geometry.offset).toBeLessThan(2);
   });
-
   test('desktop content uses a meaningful share of the viewport', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
 

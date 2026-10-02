@@ -1,127 +1,71 @@
 'use client';
 
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { softwareProducts } from '@/data/software';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
+import { workspaceFacts } from './workspace-facts';
+import { replayEntryGate } from './BuildEntryGate';
 
-/**
- * The DEV navigation contract. Order, labels and routes are fixed by the
- * approved reference; nothing here is generated from a menu registry.
- */
+const CosmicField = dynamic(() => import('./DevCosmicField').then((mod) => mod.DevCosmicField), { ssr: false });
+
 export const DEV_DESTINATIONS = [
-  { label: 'Dev Workspace', href: '/build', code: '001', icon: '◱' },
-  { label: 'Build', href: '/build/pipeline', code: '002', icon: '⚒' },
-  { label: 'Apps', href: '/build/apps', code: '003', icon: '⬡' },
-  { label: 'Services', href: '/build/services', code: '004', icon: '⌘' },
-  { label: 'Deployments', href: '/build/deployments', code: '005', icon: '◉' },
-  { label: 'Docs & Knowledge', href: '/build/docs', code: '006', icon: '▤' },
-  { label: 'Terminal', href: '/build/terminal', code: '007', icon: '▸' },
-  { label: 'PowerShell', href: '/build/powershell', code: '008', icon: '▷' },
-  { label: 'Providers', href: '/build/providers', code: '009', icon: '✣' },
-  { label: 'Settings', href: '/build/settings', code: '010', icon: '⚙' },
+  { label: 'Workspace', href: '/build', code: '01', icon: '◱' },
+  { label: 'Build', href: '/build/pipeline', code: '02', icon: '⌁' },
+  { label: 'Apps', href: '/build/apps', code: '03', icon: '⬡' },
+  { label: 'Services', href: '/build/services', code: '04', icon: '⌘' },
+  { label: 'Deployments', href: '/build/deployments', code: '05', icon: '◉' },
+  { label: 'Docs & Knowledge', href: '/build/docs', code: '06', icon: '▤' },
+  { label: 'Terminal', href: '/build/terminal', code: '07', icon: '▸' },
+  { label: 'PowerShell', href: '/build/powershell', code: '08', icon: '▷' },
+  { label: 'Providers', href: '/build/providers', code: '09', icon: '✣' },
+  { label: 'Settings', href: '/build/settings', code: '10', icon: '⚙' },
 ] as const;
-
-function isCurrent(pathname: string, href: string) {
-  return pathname === href;
-}
 
 export function DevWorkspaceShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { state } = useBuildWorkspace();
+  const facts = workspaceFacts(state);
   const [navOpen, setNavOpen] = useState(false);
+  const sidebar = useRef<HTMLElement>(null);
+  const menu = useRef<HTMLButtonElement>(null);
+  const current = DEV_DESTINATIONS.find((item) => pathname === item.href);
 
-  const current = DEV_DESTINATIONS.find((item) => isCurrent(pathname, item.href));
-  // Access is a fact about this deployment, not a loading artefact. Saying
-  // "adapter online" while every read was refused would be the interface
-  // claiming a connection it does not have.
-  const adapterLabel =
-    state.access === 'refused'
-      ? 'SIGN IN TO OPERATE'
-      : state.status === 'ready' && state.project
-        ? 'ADAPTER ONLINE'
-        : state.status === 'loading'
-          ? 'READING PROJECT'
-          : 'ADAPTER STATE UNKNOWN';
+  useEffect(() => {
+    if (!navOpen) return;
+    const rail = sidebar.current;
+    const toggle = menu.current;
+    const controls = () => Array.from(rail?.querySelectorAll<HTMLElement>('a, button:not(:disabled)') ?? []);
+    controls()[0]?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setNavOpen(false); event.preventDefault(); }
+      if (event.key !== 'Tab') return;
+      const items = controls();
+      const first = items[0];
+      const last = items.at(-1);
+      if (event.shiftKey && document.activeElement === first) { last?.focus(); event.preventDefault(); }
+      else if (!event.shiftKey && document.activeElement === last) { first?.focus(); event.preventDefault(); }
+    };
+    const onResize = () => { if (window.innerWidth > 1024) setNavOpen(false); };
+    document.addEventListener('keydown', onKey);
+    window.addEventListener('resize', onResize);
+    return () => { document.removeEventListener('keydown', onKey); window.removeEventListener('resize', onResize); toggle?.focus(); };
+  }, [navOpen]);
 
-  const isLanding = pathname === '/build';
-
-  return (
-    <div className={`dev-shell ${isLanding ? 'dev-shell--landing' : 'dev-shell--operational'}`}>
-      <div className="dev-shell__top">
-        <div className="dev-shell__identity"><span className="dev-dot" />KNOuX <strong>DEV</strong></div>
-        <div className="dev-shell__descriptor">KN / DEV — {current?.code ?? '000'} · {state.adapter.environment.toUpperCase()} · {state.adapter.label}</div>
-        <button
-          type="button"
-          className="dev-menu-button"
-          aria-expanded={navOpen}
-          aria-controls="dev-sidebar"
-          onClick={() => setNavOpen((open) => !open)}
-        >
-          <span aria-hidden="true">☰</span> MENU
-        </button>
-
-      </div>
-      <div className="dev-shell__grid">
-        <aside
-          id="dev-sidebar"
-          className={`dev-sidebar ${navOpen ? 'dev-sidebar--open' : ''}`}
-          aria-label="KNOuX DEV workspace"
-        >
-          <div className="dev-sidebar__brand">
-            <span className="dev-dot" aria-hidden="true" /> KNOuX <small>DEV / 001</small>
-          </div>
-
-          <nav aria-label="Workspace destinations">
-            {DEV_DESTINATIONS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`dev-nav-link ${isCurrent(pathname, item.href) ? 'dev-nav-link--active' : ''}`}
-                aria-current={isCurrent(pathname, item.href) ? 'page' : undefined}
-                onClick={() => setNavOpen(false)}
-              >
-                <span aria-hidden="true">
-                  {item.icon}
-                </span>
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="dev-sidebar__projects">
-            <div className="dev-mini-label">PROJECTS
-            <button
-              type="button"
-              title="No project creation adapter is connected in this environment"
-              aria-label="Add project — not available in this environment"
-              disabled
-            >
-              +
-            </button>
-            </div>
-            {softwareProducts.slice(0, 4).map((product) => (
-              <Link key={product.id} href={`/build/apps?product=${product.slug}`}>{product.shortName}</Link>
-            ))}
-          </div>
-
-          <p className="dev-sidebar__foot">
-            {adapterLabel}
-            <br />
-            {state.project
-              ? state.project.name
-              : state.access === 'refused'
-                ? 'PROJECT WITHHELD'
-                : 'PROJECT UNAVAILABLE'}
-          </p>
-        </aside>
-
-        <main id="main-content" tabIndex={-1} className="dev-shell__content">
-          <div className="dev-crumb"><span>KN / DEV</span> / {current?.label ?? 'Workspace'}<span className="dev-crumb__right">{state.adapter.environment.toUpperCase()} · {state.adapter.label}</span></div>
-          {children}
-        </main>
-      </div>
+  return <div className={`dev-shell dev-cinematic ${pathname === '/build' ? 'dev-shell--landing' : 'dev-shell--operational'}`}>
+    <div className="dev-shell__top"><Link href="/" className="dev-shell__identity" aria-label="KNOuX Store home">KNOuX <strong>DEV</strong></Link><span className="dev-mini-label">{current?.label ?? 'Workspace'}</span><button ref={menu} type="button" className="dev-menu-button" aria-label="Open workspace navigation" aria-expanded={navOpen} aria-controls="dev-sidebar" onClick={() => setNavOpen((open) => !open)}>☰ MENU</button></div>
+    <div className="dev-shell__grid">
+      {navOpen ? <button type="button" className="dev-nav-backdrop" tabIndex={-1} aria-label="Close workspace navigation" onClick={() => setNavOpen(false)} /> : null}
+      <aside ref={sidebar} id="dev-sidebar" className={`dev-sidebar ${navOpen ? 'dev-sidebar--open' : ''}`} aria-label="KNOuX DEV workspace" role={navOpen ? 'dialog' : undefined} aria-modal={navOpen ? true : undefined}>
+        <div className="dev-sidebar__brand"><Link href="/" aria-label="KNOuX Store home"><span className="dev-dot" aria-hidden="true" />KNOuX <small>DEV</small></Link><button className="dev-sidebar__close" type="button" onClick={() => setNavOpen(false)} aria-label="Close workspace navigation">×</button></div>
+        <Link className="dev-sidebar__action" href="/build?intro=1" onClick={(event) => { setNavOpen(false); if (pathname === '/build') { event.preventDefault(); replayEntryGate(); } }}>New build <span aria-hidden="true">↗</span></Link>
+        <nav aria-label="Workspace destinations">{DEV_DESTINATIONS.map((item) => <Link key={item.href} href={item.href} className={`dev-nav-link ${pathname === item.href ? 'dev-nav-link--active' : ''}`} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => setNavOpen(false)}><span aria-hidden="true">{item.icon}</span><small>{item.code}</small>{item.label}</Link>)}</nav>
+        <div className="dev-sidebar__projects"><div className="dev-mini-label">PROJECTS <button type="button" disabled title="No project creation adapter is connected" aria-label="Add project — no creation adapter">+</button></div>{softwareProducts.slice(0, 4).map((product) => <Link key={product.id} href={`/build/apps?product=${product.slug}`} onClick={() => setNavOpen(false)}>{product.name}</Link>)}</div>
+        <dl className="dev-sidebar__facts"><dt>ADAPTER STATUS</dt><dd>{facts.adapter}</dd><dt>PROJECT STATUS</dt><dd>{facts.project}</dd><dt>ENVIRONMENT</dt><dd>{facts.environment}</dd></dl>
+      </aside>
+      <div className="dev-shell__stage" inert={navOpen}><CosmicField /><main id="main-content" tabIndex={-1} className="dev-shell__content"><div className="dev-crumb"><span>KN / DEV</span> / {current?.label ?? 'Workspace'}<span className="dev-crumb__right">{facts.environment}</span></div>{children}</main><footer className="dev-status-rail" aria-label="Workspace status"><span><i aria-hidden="true" />{facts.runtime}</span><Link href="/build/pipeline">{facts.verification}</Link><Link href="/build/deployments">DEPLOYMENT · {facts.deployment}</Link><Link href="/build/providers">{facts.provider}</Link></footer></div>
     </div>
-  );
+  </div>;
 }
