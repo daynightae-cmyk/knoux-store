@@ -7,9 +7,12 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { softwareProducts } from '@/data/software';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { workspaceFacts } from './workspace-facts';
-import { replayEntryGate } from './BuildEntryGate';
 
 const CosmicField = dynamic(() => import('./DevCosmicField').then((mod) => mod.DevCosmicField), { ssr: false });
+const LivingMark = dynamic(() => import('./BuildLivingMarkBackdrop').then((mod) => mod.BuildLivingMarkBackdrop), { ssr: false });
+const Launcher = dynamic(() => import('./ProjectLauncher').then((mod) => mod.ProjectLauncher));
+const Palette = dynamic(() => import('./WorkspaceUtilities').then((mod) => mod.WorkspaceCommandPalette));
+const Activity = dynamic(() => import('./WorkspaceUtilities').then((mod) => mod.WorkspaceActivity));
 
 export const DEV_DESTINATIONS = [
   { label: 'Workspace', href: '/build', code: '01', icon: '◱' },
@@ -29,6 +32,11 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
   const { state } = useBuildWorkspace();
   const facts = workspaceFacts(state);
   const [navOpen, setNavOpen] = useState(false);
+  const [utility, setUtility] = useState<'launcher' | 'palette' | 'activity' | null>(null);
+  useEffect(() => {
+    const key = (event: KeyboardEvent) => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); setNavOpen(false); setUtility((value) => value === 'palette' ? null : 'palette'); } };
+    document.addEventListener('keydown', key); return () => document.removeEventListener('keydown', key);
+  }, []);
   const sidebar = useRef<HTMLElement>(null);
   const menu = useRef<HTMLButtonElement>(null);
   const current = DEV_DESTINATIONS.find((item) => pathname === item.href);
@@ -60,12 +68,13 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
       {navOpen ? <button type="button" className="dev-nav-backdrop" tabIndex={-1} aria-label="Close workspace navigation" onClick={() => setNavOpen(false)} /> : null}
       <aside ref={sidebar} id="dev-sidebar" className={`dev-sidebar ${navOpen ? 'dev-sidebar--open' : ''}`} aria-label="KNOuX DEV workspace" role={navOpen ? 'dialog' : undefined} aria-modal={navOpen ? true : undefined}>
         <div className="dev-sidebar__brand"><Link href="/" aria-label="KNOuX Store home"><span className="dev-dot" aria-hidden="true" />KNOuX <small>DEV</small></Link><button className="dev-sidebar__close" type="button" onClick={() => setNavOpen(false)} aria-label="Close workspace navigation">×</button></div>
-        <Link className="dev-sidebar__action" href="/build?intro=1" onClick={(event) => { setNavOpen(false); if (pathname === '/build') { event.preventDefault(); replayEntryGate(); } }}>New build <span aria-hidden="true">↗</span></Link>
+        <button type="button" className="dev-sidebar__action" onClick={() => { setNavOpen(false); setUtility('launcher'); }}>New build <span aria-hidden="true">↗</span></button>
         <nav aria-label="Workspace destinations">{DEV_DESTINATIONS.map((item) => <Link key={item.href} href={item.href} className={`dev-nav-link ${pathname === item.href ? 'dev-nav-link--active' : ''}`} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => setNavOpen(false)}><span aria-hidden="true">{item.icon}</span><small>{item.code}</small>{item.label}</Link>)}</nav>
-        <div className="dev-sidebar__projects"><div className="dev-mini-label">PROJECTS <button type="button" disabled title="No project creation adapter is connected" aria-label="Add project — no creation adapter">+</button></div>{softwareProducts.slice(0, 4).map((product) => <Link key={product.id} href={`/build/apps?product=${product.slug}`} onClick={() => setNavOpen(false)}>{product.name}</Link>)}</div>
+        <div className="dev-sidebar__projects"><div className="dev-mini-label">PROJECTS <button type="button" onClick={() => { setNavOpen(false); setUtility('launcher'); }} aria-label="Add or open project">+</button></div>{softwareProducts.slice(0, 4).map((product) => <Link key={product.id} href={`/build/apps?product=${product.slug}`} onClick={() => setNavOpen(false)}>{product.name}</Link>)}</div>
         <dl className="dev-sidebar__facts"><dt>ADAPTER STATUS</dt><dd>{facts.adapter}</dd><dt>PROJECT STATUS</dt><dd>{facts.project}</dd><dt>ENVIRONMENT</dt><dd>{facts.environment}</dd></dl>
       </aside>
-      <div className="dev-shell__stage" inert={navOpen}><CosmicField /><main id="main-content" tabIndex={0} className="dev-shell__content"><div className="dev-crumb"><span>KN / DEV</span> / {current?.label ?? 'Workspace'}<span className="dev-crumb__right">{facts.environment}</span></div>{children}</main><footer className="dev-status-rail" aria-label="Workspace status"><span><i aria-hidden="true" />{facts.runtime}</span><Link href="/build/pipeline">{facts.verification}</Link><Link href="/build/deployments">DEPLOYMENT · {facts.deployment}</Link><Link href="/build/providers">{facts.provider}</Link></footer></div>
+      <div className="dev-shell__stage" inert={navOpen}><CosmicField /><LivingMark /><main id="main-content" tabIndex={0} className="dev-shell__content"><div className="dev-crumb"><span>KN / DEV</span> / {current?.label ?? 'Workspace'}<span className="dev-crumb__right">{facts.environment}</span></div>{children}</main><footer className="dev-status-rail" aria-label="Workspace status"><div className="dev-utility-actions"><button type="button" onClick={() => setUtility('palette')}>COMMANDS · Ctrl K</button><button type="button" onClick={() => setUtility('activity')}>ACTIVITY · {state.activity.length}</button></div><span><i aria-hidden="true" />{facts.runtime}</span><Link href="/build/pipeline">{facts.verification}</Link><Link href="/build/deployments">DEPLOYMENT · {facts.deployment}</Link><Link href="/build/providers">{facts.provider}</Link></footer></div>
     </div>
+    {utility === 'launcher' ? <Launcher onClose={() => setUtility(null)} /> : utility === 'palette' ? <Palette onClose={() => setUtility(null)} onLaunch={() => setUtility('launcher')} /> : utility === 'activity' ? <Activity onClose={() => setUtility(null)} /> : null}
   </div>;
 }

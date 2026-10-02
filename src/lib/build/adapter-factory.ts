@@ -20,8 +20,6 @@ import {
 import type { EnvironmentName } from './deployment';
 import type { ProjectAdapter } from './types';
 
-export const ADAPTER_ID = 'knoux-fs-readonly';
-
 export {
   ENVIRONMENT_LABELS,
   environmentLabel,

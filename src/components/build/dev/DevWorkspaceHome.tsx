@@ -8,7 +8,6 @@ import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { BuildEntryGate } from './BuildEntryGate';
 import { workspaceFacts } from './workspace-facts';
 
-const ParticleHero = dynamic(() => import('./KnouxDevParticleHero').then((mod) => mod.KnouxDevParticleHero), { ssr: false });
 const Preview = dynamic(() => import('../surfaces/PreviewSurface').then((mod) => mod.PreviewSurface));
 const Registry = dynamic(() => import('./ProductMachine').then((mod) => mod.ProductMachine));
 
@@ -24,7 +23,8 @@ const QUICK_INTENTS = [
 export function DevWorkspaceHome() {
   const { state, dispatch } = useBuildWorkspace();
   const [draftOverride, setDraftOverride] = useState<string | null>(null);
-  const [view, setView] = useState<'build' | 'preview' | 'registry'>('build');
+  const view = state.workspace.activeSurface === 'preview' ? 'preview' : state.workspace.activeSurface === 'data' ? 'registry' : 'build';
+  const setView = (view: 'build' | 'preview' | 'registry') => dispatch({ type: 'surface/active', surface: view === 'preview' ? 'preview' : view === 'registry' ? 'data' : 'genesis' });
   const input = useRef<HTMLTextAreaElement>(null);
   const draft = draftOverride ?? state.intent?.rawInput ?? '';
   const facts = workspaceFacts(state);
@@ -44,7 +44,6 @@ export function DevWorkspaceHome() {
         </div>
       </header>
       {view === 'build' ? <div className="dev-universe">
-        <ParticleHero />
         <div className="dev-universe__orbit" aria-hidden="true" />
         <dl className="dev-hud dev-hud--project"><dt>PROJECT</dt><dd>{facts.project}</dd>{state.git?.branch ? <><dt>BRANCH</dt><dd>{state.git.branch}</dd></> : null}</dl>
         <dl className="dev-hud dev-hud--runtime"><dt>RUNTIME</dt><dd>{facts.runtime}</dd><dt>PROVIDER</dt><dd>{facts.provider}</dd></dl>

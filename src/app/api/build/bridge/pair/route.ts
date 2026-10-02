@@ -23,6 +23,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   const denied = await guardBuildApi(request, { scope: 'bridge-pair' });
   if (denied) return denied;
+  if (request.headers.get('origin') !== request.nextUrl.origin) return NextResponse.json({ message: 'Same-origin operator action required.' }, { status: 403 });
 
   const ownerId = await resolveBuildOwnerId();
   if (!ownerId) {
@@ -63,13 +64,15 @@ export async function POST(request: NextRequest) {
   let origin: string;
   try {
     const parsed = new URL(url);
-    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    if (!['http:', 'https:'].includes(parsed.protocol) || !['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname) || parsed.pathname !== '/' || parsed.search || parsed.hash) {
       throw new Error('unsupported protocol');
     }
     origin = parsed.origin;
+    const configured = process.env.KNOUX_BRIDGE_URL;
+    if (!configured || new URL(configured).origin !== origin || parsed.username || parsed.password) throw new Error('Bridge must match configured origin');
   } catch {
     return NextResponse.json(
-      { error: 'invalid-url', message: 'The bridge URL must be an http(s) URL.' },
+      { error: 'invalid-url', message: 'Use the exact server-configured loopback KNOUX_BRIDGE_URL origin. Hosted tunnel pairing requires a separate reviewed gateway and schema.' },
       { status: 400 },
     );
   }
@@ -120,10 +123,9 @@ export async function POST(request: NextRequest) {
       pairedAt: new Date().toISOString(),
       lastSeenAt: null,
     });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'The pairing could not be saved.';
+  } catch {
     return NextResponse.json(
-      { error: 'pair-persist-failed', message },
+      { error: 'pair-persist-failed', message: 'Pairing could not be saved in the owner-scoped store. Check its migration and RLS policy server-side.' },
       { status: 500 },
     );
   }

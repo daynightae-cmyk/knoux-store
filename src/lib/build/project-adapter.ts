@@ -54,6 +54,7 @@ function isReadableProjectPath(relative: string): boolean {
   const segments = relative.split('/');
   if (segments.some((segment) => !/^[A-Za-z0-9_@().\[\]-]+$/.test(segment) || segment.startsWith('.'))) return false;
   return relative.startsWith('src/') || relative.startsWith('tests/') ||
+    (relative.startsWith('docs/') && relative.endsWith('.md')) ||
     (relative.startsWith('references/') && relative.endsWith('.md')) ||
     ['README.md', 'package.json', 'tsconfig.json', 'next.config.ts', 'next.config.mjs', 'AGENTS.md'].includes(relative);
 }
@@ -119,6 +120,7 @@ function walk(dir: string, root: string, out: string[], depth = 0): Promise<void
 
 /** Turn `src/app/about/page.tsx` into `/about`. */
 function routeOf(relative: string): string | null {
+  if (/^src\/app\/page\.tsx?$/.test(relative)) return '/';
   const match = /^src\/app\/(.*)\/(page|layout|route)\.tsx?$/.exec(relative);
   if (!match) return null;
   const segments = match[1].split('/').filter(Boolean);
@@ -175,7 +177,7 @@ function git(root: string, args: string[], timeout = GIT_TIMEOUT_MS): Promise<st
       child.on('error', () => { clearTimeout(timer); finish(null); });
       child.on('close', (code) => {
         clearTimeout(timer);
-        finish(code === 0 ? out : err || null);
+        finish(code === 0 ? out : null);
       });
     } catch {
       finish(null);
@@ -325,7 +327,7 @@ export class FsProjectAdapter implements ProjectAdapter {
         }
       }
       files.push({ path: file, language: languageOf(file), bytes, lines, role });
-      if (role === 'app-route') {
+      if (role === 'app-route' && /(?:^|\/)page\.tsx?$/.test(file)) {
         const route = routeOf(file);
         if (route) routes.push({ route, file });
       }
@@ -594,7 +596,7 @@ export class FsProjectAdapter implements ProjectAdapter {
         if (!file) continue;
         files.push({
           path: file,
-          state: code === '??' ? 'untracked' : code[1] !== ' ' ? 'staged' : 'unstaged',
+          state: code === '??' ? 'untracked' : code[0] !== ' ' ? 'staged' : 'unstaged',
         });
       }
     }
@@ -698,7 +700,9 @@ export class FsProjectAdapter implements ProjectAdapter {
     timeout: number,
   ): Promise<{ code: number; stdout: string; stderr: string }> {
     return new Promise((resolve) => {
-      const child = spawn(this.packageManagerBin(), args, {
+      const npmCli = path.join(path.dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
+      const useNode = process.platform === 'win32' && this.packageManagerName() === 'npm' && existsSync(npmCli);
+      const child = spawn(useNode ? process.execPath : this.packageManagerBin(), useNode ? [npmCli, ...args] : args, {
         cwd: this.root,
         windowsHide: true,
         shell: false,

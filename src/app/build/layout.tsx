@@ -4,6 +4,7 @@ import { DevWorkspaceShell } from '@/components/build/dev/DevWorkspaceShell';
 import '@/components/build/workspace/build-os.css';
 import '@/components/build/dev/dev-workspace.css';
 import '@/components/build/dev/dev-cinematic.css';
+import '@/components/build/dev/dev-connected.css';
 
 export const dynamic = 'force-dynamic';
 

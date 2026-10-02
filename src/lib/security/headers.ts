@@ -38,6 +38,8 @@ export type HeaderPolicyOptions = {
   isDevelopment: boolean;
   /** Public origin, used only for HSTS. Absent on a local run. */
   canonicalOrigin?: string | undefined;
+  /** Exact trusted bridge origin, only supplied for workspace responses. */
+  bridgeOrigin?: string | undefined;
 };
 
 export type Header = { key: string; value: string };
@@ -47,6 +49,13 @@ const SUPABASE_ORIGIN = 'https://cnkddxxhcfceokxzaaot.supabase.co';
 
 export function buildContentSecurityPolicy(options: HeaderPolicyOptions): string {
   const dev = options.isDevelopment;
+  const bridge: string[] = [];
+  try {
+    const url = new URL(options.bridgeOrigin ?? '');
+    if (['http:', 'https:'].includes(url.protocol) && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname) && !url.username && !url.password && url.pathname === '/' && !url.search && !url.hash) {
+      bridge.push(url.origin, `${url.protocol === 'https:' ? 'wss:' : 'ws:'}//${url.host}`);
+    }
+  } catch { /* An absent or invalid bridge origin never widens the policy. */ }
 
   const directives: [string, string[]][] = [
     ['default-src', ["'self'"]],
@@ -58,7 +67,7 @@ export function buildContentSecurityPolicy(options: HeaderPolicyOptions): string
     ['img-src', ["'self'", 'blob:', 'data:']],
     ['font-src', ["'self'", 'data:']],
     // Supabase auth: HTTPS for REST and a WebSocket for realtime.
-    ['connect-src', ["'self'", SUPABASE_ORIGIN, 'wss://cnkddxxhcfceokxzaaot.supabase.co']],
+    ['connect-src', ["'self'", SUPABASE_ORIGIN, 'wss://cnkddxxhcfceokxzaaot.supabase.co', ...bridge]],
     // Workspace previews frame this origin only.
     ['frame-src', ["'self'"]],
     ['worker-src', ["'self'", 'blob:']],
