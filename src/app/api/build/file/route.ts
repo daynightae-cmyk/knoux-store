@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createProjectAdapter } from '@/lib/build/adapter-factory';
+import { requestProjectAdapter } from '@/lib/build/request-adapter';
 import { guardBuildApi } from '@/lib/build/api-guard';
 
 export const dynamic = 'force-dynamic';
@@ -27,9 +27,10 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const adapter = createProjectAdapter();
+  let adapter;
+  try { adapter = await requestProjectAdapter(request); } catch { return NextResponse.json({ message: 'Selected project is unavailable. Sign in and pair its bridge.' }, { status: 409 }); }
   const writable = adapter.capabilities()['project.write'];
-  const file = await adapter.readFile(requested);
+  const file = await adapter.readFile(requested).catch(() => null);
 
   if (!file) {
     return NextResponse.json(

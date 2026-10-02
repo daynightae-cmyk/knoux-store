@@ -26,6 +26,8 @@ export const BRIDGE_SCOPES = [
   'run:allowlisted',
   'metrics:read',
   'logs:read',
+  'project:import',
+  'tools:read',
 ] as const;
 
 export type BridgeScope = (typeof BRIDGE_SCOPES)[number];
@@ -76,6 +78,7 @@ export interface BridgeCapabilities {
 }
 
 export interface Handshake {
+  projectImport?: boolean;
   bridgeId: string;
   version: string;
   hostname: string;

@@ -251,7 +251,7 @@ test('every workspace route asks the guard before touching the project', () => {
     // the one source.
     assert.match(
       source,
-      /createProjectAdapter\(|resolveDeploymentEnvironment\(/,
+      /createProjectAdapter\(|requestProjectAdapter\(|resolveDeploymentEnvironment\(/,
       `/api/build/${route} must use the shared adapter/environment factory`,
     );
   }

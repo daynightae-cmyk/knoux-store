@@ -17,6 +17,8 @@
  */
 
 import { clamp01 } from './spatial';
+import { DEFAULT_PREFERENCES, type WorkspacePreferences } from './preferences';
+import type { IntegrationSnapshot } from './integration-types';
 import type {
   BuildCapability,
   BuildIntent,
@@ -58,6 +60,12 @@ export type OpenFile = SourceFileEntry & {
 };
 
 export type BuildWorkspaceState = {
+  snapshot: import('./types').ProjectSnapshot | null;
+  projectRef: string | null;
+  recentProjects: { name: string; path: string }[];
+  integrations: IntegrationSnapshot | null;
+  preferences: WorkspacePreferences;
+  activity: { id: string; at: string; message: string }[];
   adapter: {
     id: string;
     label: string;
@@ -139,6 +147,7 @@ export const ALL_BUILD_CAPABILITIES: readonly BuildCapability[] = [
   'command.allowlisted',
   'command.arbitrary',
   'terminal.interactive',
+  'terminal.powershell',
   'runtime.manage',
   'git.read',
   'git.write',
@@ -147,9 +156,13 @@ export const ALL_BUILD_CAPABILITIES: readonly BuildCapability[] = [
   'database.read',
   'database.write',
   'provider.execute',
+  'provider.probe',
   'diagnostics.read',
   'test.run',
   'deploy.trigger',
+  'deploy.history',
+  'metrics.read',
+  'fs.watch',
 ];
 
 function undetectedCapabilities(): Record<BuildCapability, CapabilityStatus> {
@@ -165,6 +178,8 @@ function undetectedCapabilities(): Record<BuildCapability, CapabilityStatus> {
 export const DEFAULT_PREVIEW_VIEWPORT = { id: 'laptop', label: 'LAPTOP', width: 1440, height: 900 };
 
 export const initialBuildState: BuildWorkspaceState = {
+  snapshot: null, projectRef: null, recentProjects: [], integrations: null,
+  preferences: DEFAULT_PREFERENCES, activity: [],
   adapter: {
     id: 'pending',
     label: 'Detecting environment',
@@ -213,6 +228,11 @@ export const initialBuildState: BuildWorkspaceState = {
 };
 
 export type BuildAction =
+  | { type: 'snapshot/resolved'; snapshot: import('./types').ProjectSnapshot }
+  | { type: 'project/activate'; path: string; name: string }
+  | { type: 'integrations/resolved'; snapshot: IntegrationSnapshot }
+  | { type: 'preferences/set'; preferences: WorkspacePreferences }
+  | { type: 'activity/record'; message: string }
   | { type: 'status/loading' }
   | { type: 'status/ready' }
   | { type: 'status/error'; error: string }
@@ -258,6 +278,11 @@ export type BuildAction =
 
 export function buildReducer(state: BuildWorkspaceState, action: BuildAction): BuildWorkspaceState {
   switch (action.type) {
+    case 'snapshot/resolved': return { ...state, snapshot: action.snapshot };
+    case 'project/activate': return { ...initialBuildState, ai: state.ai, preferences: state.preferences, integrations: state.integrations, activity: state.activity, projectRef: action.path, recentProjects: [{ name: action.name, path: action.path }, ...state.recentProjects.filter((p) => p.path !== action.path)].slice(0, 12) };
+    case 'integrations/resolved': return { ...state, integrations: action.snapshot };
+    case 'preferences/set': return { ...state, preferences: action.preferences };
+    case 'activity/record': return { ...state, activity: [{ id: crypto.randomUUID(), at: new Date().toISOString(), message: action.message }, ...state.activity].slice(0, 60) };
     case 'status/loading':
       return { ...state, status: 'loading', error: null };
     case 'status/ready':
