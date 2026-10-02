@@ -8,6 +8,12 @@ import { OPEN_EVENT } from '@/components/CommandPalette';
 import { track } from '@/lib/analytics';
 
 /**
+ * Where the divisions give way to the panel. Mirrors the switchover block in
+ * `globals.css`; the two must agree or the panel opens with no way to close it.
+ */
+const PANEL_MAX_WIDTH = '(max-width: 860px)';
+
+/**
  * Site header.
  *
  * Divisions, not pages. The command palette is the only other persistent
@@ -42,6 +48,19 @@ export function SiteHeader() {
       document.removeEventListener('keydown', onKey);
     };
   }, [menu]);
+
+  // Rotating or resizing past the switchover hides the trigger that closes the
+  // panel, which would otherwise leave an opaque full-viewport panel over the
+  // page with the body still scroll-locked and no visible way out. Closing on
+  // the crossing releases the lock above through the same state.
+  useEffect(() => {
+    const panel = window.matchMedia(PANEL_MAX_WIDTH);
+    const onChange = (event: MediaQueryListEvent) => {
+      if (!event.matches) setMenu(false);
+    };
+    panel.addEventListener('change', onChange);
+    return () => panel.removeEventListener('change', onChange);
+  }, []);
 
   return (
     <>
