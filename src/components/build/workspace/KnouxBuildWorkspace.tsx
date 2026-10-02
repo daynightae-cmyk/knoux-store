@@ -130,9 +130,14 @@ export async function readWorkspaceFacts(
   let refused = false;
 
   const suffix = projectRef ? `?project=${encodeURIComponent(projectRef)}` : '';
-  const project = await getJson<ProjectResponse>(`/api/build/project${suffix}`);
+  const [project, environment, git] = await Promise.all([
+    getJson<ProjectResponse>(`/api/build/project${suffix}`),
+    getJson<EnvironmentResponse>('/api/build/environment'),
+    getJson<GitResponse>(`/api/build/git${suffix}`),
+  ]);
   if (isCancelled()) return;
   if (!project.ok) {
+    dispatch({ type: 'facts/unavailable' });
     refused = refused || project.refused;
     dispatch({
       type: 'status/error',
@@ -166,7 +171,7 @@ export async function readWorkspaceFacts(
     });
   }
 
-  const environment = await getJson<EnvironmentResponse>('/api/build/environment');
+
   if (isCancelled()) return;
   if (environment.ok) {
     dispatch({ type: 'environment/resolved', signals: environment.value.signals, fetchedAt: new Date().toISOString() });
@@ -190,7 +195,7 @@ export async function readWorkspaceFacts(
     dispatch({ type: 'environment/resolved', signals: [], fetchedAt: '' });
   }
 
-  const git = await getJson<GitResponse>(`/api/build/git${suffix}`);
+
   if (isCancelled()) return;
   if (!git.ok) refused = refused || git.refused;
   dispatch({ type: 'git/resolved', git: git.ok ? git.value.git : UNREADABLE_GIT });

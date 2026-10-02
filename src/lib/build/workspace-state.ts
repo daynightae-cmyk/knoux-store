@@ -228,6 +228,7 @@ export const initialBuildState: BuildWorkspaceState = {
 };
 
 export type BuildAction =
+  | { type: 'facts/unavailable' }
   | { type: 'snapshot/resolved'; snapshot: import('./types').ProjectSnapshot }
   | { type: 'project/activate'; path: string; name: string }
   | { type: 'integrations/resolved'; snapshot: IntegrationSnapshot }
@@ -278,6 +279,7 @@ export type BuildAction =
 
 export function buildReducer(state: BuildWorkspaceState, action: BuildAction): BuildWorkspaceState {
   switch (action.type) {
+    case 'facts/unavailable': return { ...state, snapshot: null, project: null, graph: null, git: null, verification: null, runtime: initialBuildState.runtime, adapter: { ...initialBuildState.adapter, capabilities: undetectedCapabilities() }, workspace: { ...state.workspace, openFiles: [], selectedFilePath: null, selectedRoute: null } };
     case 'snapshot/resolved': return { ...state, snapshot: action.snapshot };
     case 'project/activate': return { ...initialBuildState, ai: state.ai, preferences: state.preferences, integrations: state.integrations, activity: state.activity, projectRef: action.path, recentProjects: [{ name: action.name, path: action.path }, ...state.recentProjects.filter((p) => p.path !== action.path)].slice(0, 12) };
     case 'integrations/resolved': return { ...state, integrations: action.snapshot };

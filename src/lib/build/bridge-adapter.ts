@@ -66,10 +66,19 @@ export class BridgeProjectAdapter implements ProjectAdapter {
     // The handshake lists the shell profiles this host actually probed. PowerShell
     // is available only when one of them really is PowerShell.
     const hasPowerShell = handshake?.profiles.some((p) => p.id === 'pwsh' || p.id === 'powershell') ?? false;
+    const canRead = reachable && !!handshake && !!this.options.client && !!this.options.ticket;
+    const selectedCaps = {
+      ...fsCaps,
+      'project.read': canRead && handshake?.capabilities.filesystem ? 'available' : 'blocked',
+      'project.files': canRead && handshake?.capabilities.filesystem ? 'available' : 'blocked',
+      'git.read': canRead && handshake?.capabilities.git ? 'available' : 'blocked',
+      'command.allowlisted': 'blocked', 'test.run': 'blocked', 'diagnostics.read': 'blocked',
+      'preview.live': 'blocked', 'preview.inspect': 'blocked',
+    } as Record<BuildCapability, CapabilityStatus>;
 
     if (!handshake || !reachable) {
       return {
-        ...fsCaps,
+        ...selectedCaps,
         'project.write': 'blocked',
         'project.delete': 'blocked',
         'command.arbitrary': 'blocked',
@@ -87,7 +96,7 @@ export class BridgeProjectAdapter implements ProjectAdapter {
 
     const caps = handshake.capabilities;
     return {
-      ...fsCaps,
+      ...selectedCaps,
       // The bridge measures the filesystem capability, so these follow it.
       'project.write': 'blocked',
       'project.delete': 'blocked',
@@ -121,6 +130,10 @@ export class BridgeProjectAdapter implements ProjectAdapter {
     const caps = handshake?.capabilities;
 
     switch (capability) {
+      case 'project.read':
+      case 'project.files':
+      case 'git.read':
+        return this.capabilities()[capability] === 'available' ? null : 'Selected-project reads require a reachable authenticated bridge transport and its measured filesystem or Git capability.';
       case 'project.write':
       case 'project.delete':
         return 'Project mutation is not exposed by this inspection adapter. Use a separately authorized bridge operation.';

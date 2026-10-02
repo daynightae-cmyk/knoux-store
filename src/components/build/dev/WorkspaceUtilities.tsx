@@ -15,7 +15,7 @@ export function WorkspaceCommandPalette({ onClose, onLaunch }: { onClose: () => 
     { name: 'Refresh Project Facts', blocker: state.access === 'refused' ? 'Sign in to inspect workspace facts.' : null, run: () => { void refresh(); onClose(); } },
     ...['lint', 'typecheck', 'test', 'build'].map((task) => ({ name: `Run ${task === 'test' ? 'Tests' : task}`, blocker: blocker(task), run: () => { void run(task); onClose(); } })),
   ];
-  return <WorkspaceDialog title="Command palette" onClose={onClose}><label className="dev-input-label">Search workspace commands<input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search actions…" /></label><div className="dev-command-list">{commands.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())).map((c) => <div key={c.name}><button type="button" disabled={!!c.blocker} title={c.blocker ?? c.name} onClick={c.run}>{c.name}<span>↗</span></button>{c.blocker ? <small>{c.blocker}</small> : null}</div>)}</div></WorkspaceDialog>;
+  return <WorkspaceDialog title="Command palette" onClose={onClose}><label className="dev-input-label">Search workspace commands<input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search actions…" /></label><div className="dev-command-list">{commands.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())).map((c) => <div key={c.name}><button type="button" disabled={!!c.blocker} title={c.blocker ?? c.name} onClick={c.run}>{c.name}<span aria-hidden="true">↗</span></button>{c.blocker ? <small>{c.blocker}</small> : null}</div>)}</div></WorkspaceDialog>;
 }
 export function WorkspaceActivity({ onClose }: { onClose: () => void }) {
   const { state } = useBuildWorkspace();

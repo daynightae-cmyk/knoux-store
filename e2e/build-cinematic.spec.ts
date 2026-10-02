@@ -88,7 +88,7 @@ test('Entry gate compiles intent, contains keyboard focus and launches projects'
   await expect(page.locator('.dev-intent-reading')).toContainText('WEB');
   if (page.viewportSize()!.width <= 1024) await page.getByRole('button', { name: 'Open workspace navigation' }).click();
   await page.getByRole('button', { name: 'New build', exact: true }).click();
-  await expect(gate).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Project launcher' })).toBeVisible();
 });
 
 test('Build shell and composer pass automated accessibility at desktop and mobile', async ({ page }) => {

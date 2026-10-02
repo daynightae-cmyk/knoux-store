@@ -30,7 +30,8 @@ test('launcher, command palette and integration controls expose exact blockers w
   await expect(launcher.getByRole('button', { name: 'INSPECT & OPEN' })).toBeDisabled();
   await launcher.getByRole('button', { name: 'IMPORT FROM GITHUB', exact: true }).click();
   await expect(launcher.getByRole('button', { name: 'LIST MY REPOSITORIES' })).toBeDisabled();
-  await expect(launcher.getByRole('button', { name: 'CLONE & OPEN' })).toBeDisabled();
+  await expect(launcher).toContainText('CLONE BLOCKED');
+  await expect(launcher.getByRole('button', { name: 'IMPORT & INSPECT' })).toHaveCount(0);
   if (info.project.name === 'desktop') await page.screenshot({ path: join(evidence, 'launcher-github-1440.png') });
   await page.keyboard.press('Escape'); await expect(launcher).toHaveCount(0);
   await page.keyboard.press('Control+k'); const palette = page.getByRole('dialog', { name: 'Command palette' }); await expect(palette).toBeVisible();
@@ -91,4 +92,23 @@ test('real local Preview studio observes DOM, console, resource failures, respon
     const downloaded = page.waitForEvent('download'); await page.getByRole('button', { name: 'EXPORT EVIDENCE METADATA' }).click(); const download = await downloaded; await download.saveAs(join(evidence, `preview-evidence-${info.project.name}.json`));
     const metrics = await page.locator('.dev-living-mark canvas').evaluate((element) => ({ particles: Number((element as HTMLElement).dataset.particles), sampleMs: Number((element as HTMLElement).dataset.sampleMs), motion: (element as HTMLElement).dataset.motion })); expect(metrics.particles).toBeGreaterThan(1000); expect(metrics.particles).toBeLessThanOrEqual(3600); writeFileSync(join(evidence, `particle-metrics-${info.project.name}.json`), JSON.stringify(metrics, null, 2));
   } finally { server.kill(); }
+});
+
+test('animated canonical mark has bounded particles, reuses its pool and pauses outside the render surface', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'Measure the animation once; reduced motion is tested across all profiles.');
+  await page.emulateMedia({ reducedMotion: 'no-preference' }); await page.goto('/build');
+  const canvas = page.locator('.dev-living-mark canvas'); await expect(canvas).toHaveAttribute('data-motion', 'animated');
+  const before = await canvas.evaluate((element) => ({ sampleMs: (element as HTMLElement).dataset.sampleMs, paints: Number((element as HTMLElement).dataset.paints) }));
+  await page.evaluate(() => new Promise<void>((resolve) => { let frames = 0; const next = () => ++frames >= 60 ? resolve() : requestAnimationFrame(next); requestAnimationFrame(next); }));
+  const measured = await canvas.evaluate((element) => ({ particles: Number((element as HTMLElement).dataset.particles), paints: Number((element as HTMLElement).dataset.paints), meanPaintMs: Number((element as HTMLElement).dataset.meanPaintMs), sampleMs: Number((element as HTMLElement).dataset.sampleMs) }));
+  expect(measured.particles).toBeLessThanOrEqual(3600); expect(measured.paints - before.paints).toBeGreaterThan(10); expect(Number(before.sampleMs)).toBe(measured.sampleMs);
+  const handle = await canvas.elementHandle(); await page.locator('.dev-nav-link[href="/build/apps"]').click(); expect(await handle!.evaluate((element) => element.isConnected)).toBe(true); await expect(canvas).toHaveAttribute('data-sample-ms', before.sampleMs!);
+  await page.locator('.dev-living-mark').evaluate((element) => { (element as HTMLElement).style.display = 'none'; });
+  await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  const paused = await canvas.getAttribute('data-paints');
+  await page.evaluate(() => new Promise<void>((resolve) => { let frames = 0; const next = () => ++frames >= 20 ? resolve() : requestAnimationFrame(next); requestAnimationFrame(next); }));
+  expect(await canvas.getAttribute('data-paints')).toBe(paused);
+  await page.locator('.dev-living-mark').evaluate((element) => { (element as HTMLElement).style.display = ''; });
+  await expect.poll(async () => Number(await canvas.getAttribute('data-paints'))).toBeGreaterThan(Number(paused));
+  writeFileSync(join(evidence, 'particle-animation-measurement.json'), JSON.stringify({ measuredAt: new Date().toISOString(), source: 'Real browser animation; 60 browser frames, hidden box pause, persistent canvas across route navigation', ...measured }, null, 2));
 });

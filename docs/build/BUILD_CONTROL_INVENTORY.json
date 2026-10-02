@@ -1053,10 +1053,10 @@
     "file": "src/components/build/dev/SettingsPage.tsx",
     "line": 24,
     "tag": "button",
-    "label": "\"URL, one-time code and authenticated account are required\"",
+    "label": "{state.integrations?.bridgePairBlocker ?? 'Sign in and configure the server bridge before pairing.'}",
     "handler": "{() => void pair()}",
     "destination": null,
-    "disabled": "{!url.trim() || !code.trim() || busy}",
+    "disabled": "{!state.integrations?.bridgePairAllowed || !url.trim() || !code.trim() || busy}",
     "type": "\"button\""
   },
   {

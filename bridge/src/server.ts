@@ -197,6 +197,10 @@ export class BridgeServer {
   }
 
   listen(port: number, host: string): Promise<{ port: number }> {
+    // Shell discovery belongs to startup. Running synchronous cold version
+    // probes during the first WebSocket upgrade can hold its opening handshake
+    // past the client timeout, even though the PTY itself is healthy.
+    discoverProfiles();
     return new Promise((resolveListen, rejectListen) => {
       const onError = (err: Error): void => rejectListen(err);
       this.http.once('error', onError);
@@ -347,7 +351,7 @@ export class BridgeServer {
         detail: redactError(err),
         approvalId: null,
       });
-      error(res, 500, 'internal-error', 'The request could not be completed.');
+      error(res, path.startsWith('/v1/project/') ? 409 : 500, 'internal-error', path.startsWith('/v1/project/') ? 'Selected project is unavailable or refused by the bridge path policy.' : 'The request could not be completed.');
     }
   }
 
@@ -377,7 +381,10 @@ export class BridgeServer {
           const snapshot = await cloneProject(root, body.repository, body.destination, this.options.config.allowProjectImport);
           this.options.audit.append({ action: 'project.import', actor: claims.sub, target: body.destination, outcome: 'success', detail: body.repository, approvalId: null });
           json(res, 200, snapshot);
-        } catch (cause) { error(res, 409, 'import-refused', cause instanceof Error ? cause.message : 'Import refused.'); }
+        } catch (cause) {
+          this.options.audit.append({ action: 'project.import', actor: claims.sub, target: body.destination.slice(0, 80), outcome: 'denied', detail: redactError(cause), approvalId: null });
+          error(res, 409, 'import-refused', cause instanceof Error && 'code' in cause && cause.code === 'EEXIST' ? 'Destination already exists. Choose a new folder; existing projects are never overwritten.' : redactError(cause));
+        }
         return;
       }
       case 'GET /v1/tools':
