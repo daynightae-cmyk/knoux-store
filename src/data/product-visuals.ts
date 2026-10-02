@@ -23,8 +23,8 @@ export type ProductVisualProfile = {
   geometry: readonly string[];
   motion: readonly string[];
   accentIntensity: 'subtle' | 'moderate' | 'pronounced';
-  /** Optional local logo asset key under public/products/{slug}/logo.svg */
-  localLogoKey?: string;
+  /** Canonical same-origin product logo recovered from the approved visual package. */
+  logoPath?: string;
 };
 
 export const productVisualProfiles: readonly ProductVisualProfile[] = [
@@ -36,6 +36,7 @@ export const productVisualProfiles: readonly ProductVisualProfile[] = [
     geometry: ['modular nodes', 'service shells', 'layered operating planes'],
     motion: ['ordered assembly', 'bounded path pulse', 'subtle pointer depth'],
     accentIntensity: 'moderate',
+    logoPath: '/knoux-universe/knoux-one.webp',
   },
   {
     slug: 'kforge',
@@ -45,6 +46,7 @@ export const productVisualProfiles: readonly ProductVisualProfile[] = [
     geometry: ['branch graph', 'code planes', 'pipeline traces'],
     motion: ['dependency resolve', 'branch focus', 'trace propagation'],
     accentIntensity: 'moderate',
+    logoPath: '/knoux-universe/knoux-forge.webp',
   },
   {
     slug: 'knoux-repair',
@@ -54,6 +56,7 @@ export const productVisualProfiles: readonly ProductVisualProfile[] = [
     geometry: ['diagnostic rings', 'tool sectors', 'bounded scan arcs'],
     motion: ['scan', 'isolate', 'resolve'],
     accentIntensity: 'subtle',
+    logoPath: '/knoux-universe/knoux-repair.webp',
   },
   {
     slug: 'knoux-smartorganizer',
@@ -63,6 +66,7 @@ export const productVisualProfiles: readonly ProductVisualProfile[] = [
     geometry: ['file tiles', 'folder clusters', 'storage bands'],
     motion: ['scatter to cluster', 'stable grouping', 'local focus'],
     accentIntensity: 'subtle',
+    logoPath: '/knoux-universe/knoux-smartorganizer.webp',
   },
   {
     slug: 'knoux-rec',
@@ -72,6 +76,7 @@ export const productVisualProfiles: readonly ProductVisualProfile[] = [
     geometry: ['capture corners', 'waveform ribbon', 'timeline lanes'],
     motion: ['frame resolve', 'timeline grow', 'waveform breathe'],
     accentIntensity: 'moderate',
+    logoPath: '/knoux-universe/knoux-rec.webp',
   },
   {
     slug: 'knoux-x',
@@ -81,6 +86,7 @@ export const productVisualProfiles: readonly ProductVisualProfile[] = [
     geometry: ['playback ring', 'spectral bands', 'subtitle tracks'],
     motion: ['spectrum drift', 'timeline move', 'ring response'],
     accentIntensity: 'pronounced',
+    logoPath: '/knoux-universe/knoux-player-x.webp',
   },
   {
     slug: 'knoux-clipboard-ai',
@@ -90,6 +96,7 @@ export const productVisualProfiles: readonly ProductVisualProfile[] = [
     geometry: ['clipboard cards', 'guard boundary', 'inspection gates'],
     motion: ['item ingress', 'guard pass', 'bounded route'],
     accentIntensity: 'subtle',
+    logoPath: '/knoux-universe/knoux-clipboard-ai.webp',
   },
 ];
 
@@ -98,16 +105,11 @@ export function visualProfileFor(slug: string): ProductVisualProfile | undefined
 }
 
 /**
- * Resolves logo strategy for a product.
- * Returns the path if a verified local logo exists, otherwise null to use
- * the canonical KNOuX mark + product shortName.
+ * Resolves the recovered canonical logo for a product dossier.
+ * Every dossier with an approved recovered asset returns that asset directly.
  */
 export function resolveProductLogo(slug: string): string | null {
-  const profile = visualProfileFor(slug);
-  if (profile?.localLogoKey) {
-    return `/products/${slug}/${profile.localLogoKey}`;
-  }
-  return null;
+  return visualProfileFor(slug)?.logoPath ?? null;
 }
 
 /**
