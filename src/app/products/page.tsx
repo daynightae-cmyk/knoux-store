@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { PageIntro } from '@/components/PageIntro';
 import { ProductUniverse } from '@/components/ProductUniverse';
+import { KnouxSoftwareUniverse } from '@/components/KnouxSoftwareUniverse';
 import { RepositoryLedger } from '@/components/RepositoryLedger';
 import { DivisionBridge, NextLink, RevealGroup, SystemIndex, IndexRow } from '@/components/blocks';
 import { SignalRail } from '@/components/DivisionShell';
@@ -28,6 +29,8 @@ export default function ProductsPage() {
         description={`Every public KNOuX system, classified from repository evidence. Audited ${softwareAuditDate} against ${softwareAuditOwner}. Nothing is listed that a repository does not establish.`}
       />
       <SignalRail division="software" path="/products" />
+
+      <KnouxSoftwareUniverse />
 
       <Suspense fallback={<div className="shell" style={{ minHeight: 620 }} />}>
         <ProductUniverse />
