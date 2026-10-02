@@ -60,8 +60,8 @@ const anchors: ReadonlyArray<{
     label: 'SIGNATURE',
     title: 'Founder',
     body: 'Sadek Elgazar — Founder & Software Developer, KNOuX.',
-    href: '/contact',
-    action: 'Contact KNOuX',
+    href: '#about-founder',
+    action: 'Meet the founder',
   },
 ];
 
