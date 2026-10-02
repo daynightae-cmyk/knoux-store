@@ -76,7 +76,7 @@ test('Drawer traps focus, closes on Escape and returns focus', async ({ page }) 
   await expect(toggle).toHaveAttribute('aria-expanded', 'false');
 });
 
-test('Entry gate compiles intent, contains keyboard focus and can be replayed', async ({ page }) => {
+test('Entry gate compiles intent, contains keyboard focus and launches projects', async ({ page }) => {
   await page.goto('/build?intro=1');
   const gate = page.getByRole('dialog', { name: 'What are you here to build?' });
   await expect(gate).toBeVisible();
@@ -87,7 +87,7 @@ test('Entry gate compiles intent, contains keyboard focus and can be replayed', 
   await expect(gate).toHaveCount(0);
   await expect(page.locator('.dev-intent-reading')).toContainText('WEB');
   if (page.viewportSize()!.width <= 1024) await page.getByRole('button', { name: 'Open workspace navigation' }).click();
-  await page.getByRole('link', { name: 'New build' }).click();
+  await page.getByRole('button', { name: 'New build', exact: true }).click();
   await expect(gate).toBeVisible();
 });
 
@@ -103,7 +103,7 @@ test('Build shell and composer pass automated accessibility at desktop and mobil
 
 test('Reduced motion paints a stable, nonempty KNOuX particle subject', async ({ page }) => {
   await page.goto('/build');
-  const particles = page.locator('.dev-hero canvas');
+  const particles = page.locator('.dev-living-mark canvas');
   const signature = () => particles.evaluate((element) => {
     const canvas = element as HTMLCanvasElement;
     const pixels = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height).data;

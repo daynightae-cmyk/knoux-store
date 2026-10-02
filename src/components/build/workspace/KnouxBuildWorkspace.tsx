@@ -31,6 +31,7 @@ import {
 import { compileBuildIntent } from '@/lib/build/intent';
 import { summariseIntent } from '@/lib/build/intent';
 import { routeModel } from '@/lib/build/model-router';
+import { parsePreferences, PREFERENCES_KEY } from '@/lib/build/preferences';
 import { WorkspaceModeSwitcher } from './WorkspaceModeSwitcher';
 import { BuildWorkspaceHeader } from './BuildWorkspaceHeader';
 import { WorkspaceCanvas } from './WorkspaceCanvas';
@@ -42,6 +43,7 @@ import './build-os.css';
 const BuildStateContext = createContext<{
   state: BuildWorkspaceState;
   dispatch: (action: BuildAction) => void;
+  refresh: () => Promise<void>;
 } | null>(null);
 
 export function useBuildWorkspace() {
@@ -58,14 +60,14 @@ type ProjectResponse = {
     capabilities: BuildWorkspaceState['adapter']['capabilities'];
     blockers: BuildWorkspaceState['adapter']['blockers'];
   };
-  snapshot: {
+  snapshot: import('@/lib/build/types').ProjectSnapshot & {
     name: string;
     root: string;
     framework: string | null;
     packageManager: string | null;
     routes: { route: string; file: string }[];
     apiRoutes: { route: string; file: string }[];
-    files: { path: string; language: string; bytes: number; lines: number; role: string }[];
+    files: { path: string; language: string; bytes: number; lines: number | null; role: string }[];
     tests: { file: string; bytes: number }[];
     scripts: { name: string; command: string }[];
     dependencies: { name: string; version: string; dev: boolean }[];
@@ -123,10 +125,12 @@ const UNREADABLE_GIT: NonNullable<BuildWorkspaceState['git']> = {
 export async function readWorkspaceFacts(
   dispatch: (action: BuildAction) => void,
   isCancelled: () => boolean,
+  projectRef: string | null = null,
 ): Promise<void> {
   let refused = false;
 
-  const project = await getJson<ProjectResponse>('/api/build/project');
+  const suffix = projectRef ? `?project=${encodeURIComponent(projectRef)}` : '';
+  const project = await getJson<ProjectResponse>(`/api/build/project${suffix}`);
   if (isCancelled()) return;
   if (!project.ok) {
     refused = refused || project.refused;
@@ -137,6 +141,7 @@ export async function readWorkspaceFacts(
         : 'The project snapshot could not be read on this deployment. Every surface below is therefore showing an unknown state rather than an assumed one.',
     });
   } else {
+    dispatch({ type: 'snapshot/resolved', snapshot: project.value.snapshot });
     dispatch({
       type: 'adapter/resolved',
       adapter: project.value.adapter.id,
@@ -171,10 +176,10 @@ export async function readWorkspaceFacts(
       runtime: {
         // The deployed site is the only runtime that exists, and it is
         // serving. No process here is startable or stoppable.
-        status: 'running',
+        status: projectRef ? 'unavailable' : 'running',
         pid: null,
         port: null,
-        url: typeof window === 'undefined' ? null : window.location.origin,
+        url: projectRef || typeof window === 'undefined' ? null : window.location.origin,
         command: null,
         startedAt: null,
         blocker: 'This deployment is itself the runtime. It cannot supervise processes.',
@@ -185,13 +190,16 @@ export async function readWorkspaceFacts(
     dispatch({ type: 'environment/resolved', signals: [], fetchedAt: '' });
   }
 
-  const git = await getJson<GitResponse>('/api/build/git');
+  const git = await getJson<GitResponse>(`/api/build/git${suffix}`);
   if (isCancelled()) return;
   if (!git.ok) refused = refused || git.refused;
   dispatch({ type: 'git/resolved', git: git.ok ? git.value.git : UNREADABLE_GIT });
 
   dispatch({ type: 'access/set', access: refused ? 'refused' : 'granted' });
-  dispatch({ type: 'status/ready' });
+  if (project.ok) {
+    dispatch({ type: 'status/ready' });
+    dispatch({ type: 'activity/record', message: `Project loaded: ${project.value.snapshot.name}` });
+  }
 }
 
 export function KnouxBuildWorkspace() {
@@ -229,7 +237,8 @@ export function KnouxBuildWorkspace() {
     dispatch({ type: 'intent/compiled', intent: compileBuildIntent(raw) });
   }, []);
 
-  const context = useMemo(() => ({ state, dispatch }), [state]);
+  const refresh = useCallback(() => readWorkspaceFacts(dispatch, () => false), []);
+  const context = useMemo(() => ({ state, dispatch, refresh }), [state, refresh]);
 
   const intentSummary = state.intent ? summariseIntent(state.intent) : null;
 
@@ -258,17 +267,29 @@ export function KnouxBuildWorkspace() {
 export type { BuildWorkspaceState };
 export function BuildStateProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(buildReducer, initialBuildState);
-  useEffect(() => {
-    let cancelled = false;
+  const generation = useRef(0);
+  const refresh = useCallback(async () => {
+    const current = ++generation.current;
     dispatch({ type: 'status/loading' });
-    void readWorkspaceFacts(dispatch, () => cancelled);
-    return () => { cancelled = true; };
+    await Promise.all([
+      readWorkspaceFacts(dispatch, () => current !== generation.current, state.projectRef),
+      getJson<import('@/lib/build/integration-types').IntegrationSnapshot>('/api/build/integrations').then((result) => { if (current === generation.current && result.ok) dispatch({ type: 'integrations/resolved', snapshot: result.value }); }),
+    ]);
+  }, [state.projectRef]);
+  useEffect(() => { void refresh(); const counter = generation; return () => { counter.current++; }; }, [refresh]);
+  useEffect(() => {
+    try { const saved = localStorage.getItem(PREFERENCES_KEY); if (saved) { const preferences = parsePreferences(JSON.parse(saved)); dispatch({ type: 'preferences/set', preferences }); const viewport = preferences.viewport === 'phone' ? { id: 'phone', label: 'MOBILE', width: 390, height: 844 } : preferences.viewport === 'tablet' ? { id: 'tablet', label: 'TABLET', width: 768, height: 1024 } : { id: 'laptop', label: 'LAPTOP', width: 1440, height: 900 }; dispatch({ type: 'preview/viewport', viewport }); } } catch { /* Browser storage is optional. */ }
   }, []);
+  useEffect(() => {
+    document.documentElement.classList.toggle('dev-shell--compact', state.preferences.compact);
+    document.documentElement.classList.toggle('dev-shell--less-evidence', !state.preferences.showEvidence);
+    return () => { document.documentElement.classList.remove('dev-shell--compact', 'dev-shell--less-evidence'); };
+  }, [state.preferences.compact, state.preferences.showEvidence]);
 
   useEffect(() => {
     if (state.ai.providers.length === 0) return;
     dispatch({ type: 'routing/resolved', routing: routeModel(state.ai.task, state.ai.routingMode, state.ai.providers, { providerId: state.ai.providerId ?? '', modelId: state.ai.modelId ?? '' }) });
   }, [state.ai.task, state.ai.routingMode, state.ai.providers, state.ai.providerId, state.ai.modelId]);
-  const value = useMemo(() => ({ state, dispatch }), [state]);
+  const value = useMemo(() => ({ state, dispatch, refresh }), [state, refresh]);
   return <BuildStateContext.Provider value={value}>{children}</BuildStateContext.Provider>;
 }

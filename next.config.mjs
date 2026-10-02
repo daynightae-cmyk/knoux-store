@@ -25,6 +25,7 @@ const nextConfig = {
 
     return [
       { source: '/:path*', headers: security },
+      { source: '/build/:path*', headers: buildSecurityHeaders({ isDevelopment, canonicalOrigin: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://knoux.store', bridgeOrigin: process.env.KNOUX_BRIDGE_URL }) },
       // Static assets are content-addressed. Marking them immutable is a
       // performance decision, not a security one, so it lives on its own rule.
       {

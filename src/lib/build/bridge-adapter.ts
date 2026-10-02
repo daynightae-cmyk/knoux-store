@@ -5,8 +5,8 @@
  * handshake is stale, the adapter re-probes. When the bridge is unreachable,
  * every bridge-derived capability becomes `blocked` with a measured reason.
  *
- * The FsProjectAdapter remains the read fallback. The bridge adapter adds
- * write, terminal, exec, and process capabilities on top.
+ * Selected-project reads use the authenticated bridge transport exclusively.
+ * Inspection never authorizes imported package scripts or project mutations.
  *
  * Server-only. Never imported by client components.
  */
@@ -14,8 +14,13 @@
 import type { BuildCapability, CapabilityStatus, EnvironmentName, ProjectAdapter, ProjectSnapshot, GitSnapshot, DatabaseStatus, VerificationSnapshot } from './types';
 import type { Handshake } from './bridge-protocol';
 import { FsProjectAdapter } from './project-adapter';
+import type { BridgeClient } from './bridge-client';
+import type { BridgeScope } from './bridge-protocol';
 
 export interface BridgeAdapterOptions {
+  client?: BridgeClient;
+  ticket?: (scopes: BridgeScope[]) => string;
+  projectRef?: string;
   root: string;
   environment: EnvironmentName;
   label: string;
@@ -84,8 +89,13 @@ export class BridgeProjectAdapter implements ProjectAdapter {
     return {
       ...fsCaps,
       // The bridge measures the filesystem capability, so these follow it.
-      'project.write': caps.filesystem ? 'available' : 'blocked',
-      'project.delete': caps.filesystem ? 'available' : 'blocked',
+      'project.write': 'blocked',
+      'project.delete': 'blocked',
+      'command.allowlisted': 'blocked',
+      'test.run': 'blocked',
+      'diagnostics.read': 'blocked',
+      'preview.live': 'blocked',
+      'preview.inspect': 'blocked',
       // Arbitrary commands are never reachable through the bridge's allowlist.
       'command.arbitrary': 'blocked',
       'terminal.interactive': caps.terminal ? 'available' : 'blocked',
@@ -103,9 +113,8 @@ export class BridgeProjectAdapter implements ProjectAdapter {
   }
 
   blockerFor(capability: BuildCapability): string | null {
-    const fsBlocker = this.fsAdapter.blockerFor(capability);
-    if (fsBlocker) return fsBlocker;
-
+    if (['command.allowlisted', 'test.run', 'diagnostics.read'].includes(capability)) return 'Imported projects are inspection only. Execution requires a separately trusted bridge task profile; opening a repository never authorizes its scripts.';
+    if (capability === 'preview.live' || capability === 'preview.inspect') return 'No preview runtime is reported for this selected local project. Start a trusted runtime separately.';
     const handshake = this.options.handshake;
     const connected = Boolean(handshake) && this.options.bridgeReachable;
     const unreachable = this.options.bridgeError ?? 'The bridge is not reachable.';
@@ -114,8 +123,7 @@ export class BridgeProjectAdapter implements ProjectAdapter {
     switch (capability) {
       case 'project.write':
       case 'project.delete':
-        if (!connected) return `Bridge filesystem access is unavailable. ${unreachable}`;
-        return caps?.filesystem ? null : 'The bridge reports no filesystem capability on this host.';
+        return 'Project mutation is not exposed by this inspection adapter. Use a separately authorized bridge operation.';
 
       case 'terminal.interactive':
         if (!connected) return `Bridge terminal access is unavailable. ${unreachable}`;
@@ -149,24 +157,33 @@ export class BridgeProjectAdapter implements ProjectAdapter {
         return 'The bridge does not watch the filesystem. Reload or poll instead.';
 
       default:
-        return null;
+        return this.fsAdapter.blockerFor(capability);
     }
   }
 
   async snapshot(): Promise<ProjectSnapshot> {
-    return this.fsAdapter.snapshot();
+    return this.remote<ProjectSnapshot>('inspect', ['fs:read']);
   }
 
   async readFile(path: string): Promise<{ content: string; language: string; bytes: number; lines: number } | null> {
-    return this.fsAdapter.readFile(path);
+    if (!/^(?:(?:src|docs|tests|references)\/[A-Za-z0-9_@().\[\]/-]+|README\.md|package\.json|AGENTS\.md|tsconfig\.json)$/.test(path) || path.split('/').some((part) => part.startsWith('.'))) return null;
+    return this.remote('file', ['fs:read'], `&path=${encodeURIComponent(path)}`);
   }
 
   async gitSnapshot(): Promise<GitSnapshot> {
-    return this.fsAdapter.gitSnapshot();
+    const result = await this.remote<import('./bridge-protocol').GitSnapshot>('git', ['git:read']);
+    return { ...result, originMainSha: null, ahead: null, behind: null };
   }
 
   async runVerification(task: string): Promise<VerificationSnapshot> {
-    return this.fsAdapter.runVerification(task);
+    throw new Error(`Verification ${task} requires a trusted project task profile. Project inspection does not authorize execution.`);
+  }
+
+  private async remote<T>(action: string, scopes: BridgeScope[], extra = ''): Promise<T> {
+    if (!this.options.client || !this.options.ticket) throw new Error('Bridge project transport is unavailable.');
+    const result = await this.options.client.request<T>({ method: 'GET', path: `/v1/project/${action}?project=${encodeURIComponent(this.options.projectRef ?? '.')}${extra}`, token: this.options.ticket(scopes) });
+    if (!result.ok || !result.data) throw new Error(result.error ?? 'Bridge project read failed.');
+    return result.data;
   }
 
   database(): DatabaseStatus {

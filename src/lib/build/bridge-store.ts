@@ -19,6 +19,11 @@ export interface BridgeRecord {
   createdAt: string;
 }
 
+function readBridgeRow(row: unknown): BridgeRecord {
+  const r = row as Record<string, unknown>;
+  return { id: String(r.id), ownerId: String(r.owner_id), url: String(r.url), bridgeId: String(r.bridge_id), fingerprint: String(r.fingerprint), pairedBy: String(r.paired_by), pairedAt: String(r.paired_at), lastSeenAt: typeof r.last_seen_at === 'string' ? r.last_seen_at : null, createdAt: String(r.created_at) };
+}
+
 export interface ApprovalRecord {
   id: string;
   ownerId: string;
@@ -65,11 +70,6 @@ export interface RunRecord {
  * build instead of passing silently, and so the store stays unit-testable with a stub
  * that implements only what is used.
  */
-interface SupabaseQueryResult {
-  data: unknown;
-  error: { message: string } | null;
-}
-
 interface SupabaseQueryResult {
   data: unknown;
   error: { message: string } | null;
@@ -124,7 +124,7 @@ export class BridgeStore {
       .eq('owner_id', this.ownerId)
       .order('created_at', { ascending: false });
     if (error) throw new Error(`Failed to list bridges: ${error.message}`);
-    return (data ?? []) as BridgeRecord[];
+    return ((data ?? []) as unknown[]).map(readBridgeRow);
   }
 
   async getBridge(id: string): Promise<BridgeRecord | null> {
@@ -135,23 +135,23 @@ export class BridgeStore {
       .eq('owner_id', this.ownerId)
       .single();
     if (error) return null;
-    return data as BridgeRecord;
+    return data ? readBridgeRow(data) : null;
   }
 
   async createBridge(record: Omit<BridgeRecord, 'id' | 'createdAt'>): Promise<BridgeRecord> {
     const { data, error } = await this.supabase
       .from('knoux_build_bridges')
-      .insert({ ...record, owner_id: this.ownerId })
+      .insert({ owner_id: this.ownerId, url: record.url, bridge_id: record.bridgeId, fingerprint: record.fingerprint, paired_by: record.pairedBy, paired_at: record.pairedAt, last_seen_at: record.lastSeenAt })
       .select()
       .single();
     if (error) throw new Error(`Failed to create bridge: ${error.message}`);
-    return data as BridgeRecord;
+    return readBridgeRow(data);
   }
 
   async updateBridge(id: string, patch: Partial<BridgeRecord>): Promise<void> {
     const { error } = await this.supabase
       .from('knoux_build_bridges')
-      .update(patch)
+      .update(Object.fromEntries(Object.entries(patch).filter(([key]) => key !== 'ownerId' && key !== 'id' && key !== 'createdAt').map(([key, value]) => [({ bridgeId: 'bridge_id', pairedBy: 'paired_by', pairedAt: 'paired_at', lastSeenAt: 'last_seen_at' })[key] ?? key, value])))
       .eq('id', id)
       .eq('owner_id', this.ownerId);
     if (error) throw new Error(`Failed to update bridge: ${error.message}`);

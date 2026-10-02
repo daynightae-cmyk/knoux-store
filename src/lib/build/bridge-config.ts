@@ -34,7 +34,7 @@ function readBridgeUrl(env: Record<string, string | undefined> = process.env): s
   if (!raw || raw.trim().length === 0) return null;
   try {
     const parsed = new URL(raw.trim());
-    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+    if (!['http:', 'https:'].includes(parsed.protocol) || !['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname) || parsed.username || parsed.password || parsed.pathname !== '/' || parsed.search || parsed.hash) return null;
     return parsed.origin;
   } catch {
     return null;
@@ -65,7 +65,13 @@ export async function loadBridgeConfig(options: {
     };
   }
 
-  const store = options.storeFactory?.(options.ownerId) ?? null;
+  let store = options.storeFactory?.(options.ownerId) ?? null;
+  if (!options.storeFactory) {
+    try {
+      const { createClient } = await import('../supabase/server');
+      store = new BridgeStore(await createClient() as unknown as import('./bridge-store').SupabaseLike, options.ownerId);
+    } catch { /* Configuration remains closed when the session store is unavailable. */ }
+  }
   const url = readBridgeUrl(env);
   if (!url) {
     return {
@@ -82,7 +88,7 @@ export async function loadBridgeConfig(options: {
   if (store) {
     try {
       const bridges = await store.listBridges();
-      record = bridges.find((b) => b.url === url) ?? bridges[0] ?? null;
+      record = bridges.find((b) => b.url === url) ?? null;
     } catch {
       record = null;
     }
