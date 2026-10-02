@@ -10,6 +10,7 @@ import { creativeDisciplines } from '@/data/services';
 import { solutions } from '@/data/solutions';
 import { capabilities } from '@/data/capabilities';
 import { AboutOriginRoom } from '@/components/AboutOriginRoom';
+import { AboutFounder } from '@/components/AboutFounder';
 
 export const metadata = pageMetadata(
   'About',
@@ -54,6 +55,8 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      <AboutFounder />
 
       <div style={{ paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
         <SystemIndex
