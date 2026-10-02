@@ -10,57 +10,123 @@ export function BuildLivingMarkBackdrop() {
   const transition = useRef(0);
   const pathname = usePathname();
   const { state } = useBuildWorkspace();
+
   useEffect(() => { transition.current = performance.now(); }, [pathname]);
+
   useEffect(() => {
     const surface = canvas.current;
     if (!surface) return;
     const context = surface.getContext('2d');
     if (!context) return;
+
     const motion = matchMedia('(prefers-reduced-motion: reduce)');
-    const budget = Math.min(window.innerWidth < 700 ? 1600 : 3600, navigator.hardwareConcurrency <= 4 || state.preferences.density === 'low' ? 1800 : 3600);
+    const isCompact = window.innerWidth < 700;
+    const budget = Math.min(isCompact ? 1200 : 3200, navigator.hardwareConcurrency <= 4 || state.preferences.density === 'low' ? 1700 : 3200);
     const started = performance.now();
     const samples = buildMarkSamples(budget);
     surface.dataset.particles = String(samples.length);
     surface.dataset.sampleMs = (performance.now() - started).toFixed(1);
+
     let width = 0, height = 0, frame = 0, last = 0, elapsed = 0;
-    let visible = true;
+    let visible = true; let paints = 0; let totalPaintMs = 0;
     const reduced = () => motion.matches || state.preferences.motion === 'reduced';
+
     const draw = (now: number) => {
-      if (document.hidden || !visible) { frame = 0; return; }
+      if (document.hidden || !visible) {
+        frame = 0;
+        return;
+      }
+
       if (!reduced()) frame = requestAnimationFrame(draw); else frame = 0;
-      if (!reduced() && now - last < 33) return;
+      if (!reduced() && now - last < 24) return;
       if (!reduced()) elapsed += Math.min((now - last) / 1000, 0.05);
       last = now;
+
+      const paintStarted = performance.now();
       context.clearRect(0, 0, width, height);
+
+      const halo = context.createRadialGradient(
+        width * 0.68,
+        height * 0.5,
+        0,
+        width * 0.68,
+        height * 0.5,
+        Math.max(width, height) * 0.78,
+      );
+      halo.addColorStop(0, 'rgba(206,196,244,0.25)');
+      halo.addColorStop(0.2, 'rgba(151,130,204,0.18)');
+      halo.addColorStop(0.52, 'rgba(91,78,128,0.10)');
+      halo.addColorStop(1, 'rgba(6,8,14,0)');
+      context.fillStyle = halo;
+      context.fillRect(0, 0, width, height);
+
       const scale = Math.min(width * 0.68 / 3, height * 0.8 / 5);
-      const impulse = reduced() ? 0 : Math.exp(-Math.max(0, now - transition.current) / 850) * 0.08;
-      const scatter = reduced() ? 0 : Math.pow(Math.max(0, Math.sin(elapsed / 6)), 12) * 0.035 + impulse;
-      context.fillStyle = '#e6e5ef';
+      const impulse = reduced() ? 0 : Math.exp(-Math.max(0, now - transition.current) / 900) * 0.11;
+      const scatter = reduced() ? 0 : Math.pow(Math.max(0, Math.sin(elapsed / 6.2)), 10) * 0.042 + impulse;
+      const pulse = reduced() ? 1 : 1 + Math.sin(elapsed * 1.25) * 0.05;
+      const wave = reduced() ? 0 : Math.sin(elapsed * 0.9) * 0.018;
+
+      context.save();
+      context.fillStyle = '#eef1ff';
+      context.shadowBlur = reduced() ? 8 : isCompact ? 17 : 24;
+      context.shadowColor = 'rgba(170, 157, 216, 0.9)';
       context.beginPath();
+
       for (const particle of samples) {
         const phase = particle.random * Math.PI * 2;
-        const breath = reduced() ? 1 : 1 + Math.sin(elapsed / 4) * 0.006;
-        const x = width * 0.69 + (particle.x * breath + Math.cos(phase) * scatter * 5) * scale;
-        const y = height * 0.48 - (particle.y * breath + Math.sin(phase) * scatter * 5) * scale;
-        const size = Math.max(0.6, particle.size * scale * 0.23);
+        const breath = reduced() ? 1 : 1 + Math.sin(elapsed / 4.8 + particle.random * 6) * 0.014;
+        const driftX = reduced() ? 0 : Math.sin(now * 0.0005 + particle.random * 10) * (isCompact ? 6 : 9);
+        const driftY = reduced() ? 0 : Math.cos(now * 0.00042 + particle.random * 12) * (isCompact ? 5 : 7);
+        const x = width * 0.69 + (particle.x * breath + Math.cos(phase) * (scatter + wave) * 5 + driftX * 0.3) * scale;
+        const y = height * 0.48 - (particle.y * breath + Math.sin(phase) * (scatter + wave) * 5 + driftY * 0.2) * scale;
+        const size = Math.max(0.6, particle.size * scale * 0.24 * pulse * (isCompact ? 0.9 : 1.1));
         context.rect(x, y, size, size);
       }
+
       context.fill();
+      context.restore();
+
+      totalPaintMs += performance.now() - paintStarted;
+      surface.dataset.paints = String(++paints);
+      surface.dataset.meanPaintMs = (totalPaintMs / paints).toFixed(2);
       surface.dataset.motion = reduced() ? 'stable' : 'animated';
     };
+
     const resize = () => {
-      width = surface.clientWidth; height = surface.clientHeight;
+      width = surface.clientWidth;
+      height = surface.clientHeight;
       const dpr = Math.min(devicePixelRatio || 1, 1.5);
-      surface.width = Math.round(width * dpr); surface.height = Math.round(height * dpr);
+      surface.width = Math.round(width * dpr);
+      surface.height = Math.round(height * dpr);
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
-    const wake = () => { cancelAnimationFrame(frame); resize(); frame = requestAnimationFrame(draw); };
-    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; wake(); });
+
+    const wake = () => {
+      cancelAnimationFrame(frame);
+      resize();
+      frame = requestAnimationFrame(draw);
+    };
+
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      wake();
+    });
+
     observer.observe(surface);
-    resize(); wake();
+    resize();
+    wake();
     document.addEventListener('visibilitychange', wake);
-    motion.addEventListener('change', wake); window.addEventListener('resize', wake);
-    return () => { cancelAnimationFrame(frame); observer.disconnect(); document.removeEventListener('visibilitychange', wake); motion.removeEventListener('change', wake); window.removeEventListener('resize', wake); };
+    motion.addEventListener('change', wake);
+    window.addEventListener('resize', wake);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', wake);
+      motion.removeEventListener('change', wake);
+      window.removeEventListener('resize', wake);
+    };
   }, [state.preferences.motion, state.preferences.density]);
+
   return <div className="dev-living-mark" aria-hidden="true"><canvas ref={canvas} /></div>;
 }

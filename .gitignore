@@ -79,3 +79,6 @@ node_modules*/
 !/scripts/build-controls.mjs
 /build-test-output.log
 /bridge/bridge-test-output.log
+
+/build-browser-output.log
+/bridge/bridge-focused-output.log

@@ -108,3 +108,15 @@ test('workspace CSP adds only an explicit loopback bridge and never widens frame
   assert.match(policy, /connect-src[^;]*http:\/\/127\.0\.0\.1:7331 ws:\/\/127\.0\.0\.1:7331/); assert.match(policy, /frame-src 'self';/); assert.ok(!policy.includes("'unsafe-eval'"));
   for (const origin of ['https://evil.test', 'http://user:password@localhost:7331', 'http://localhost:7331/path', 'http://localhost:7331?token=secret']) assert.equal(buildContentSecurityPolicy({ isDevelopment: false, bridgeOrigin: origin }), base);
 });
+
+test('a failed project refresh invalidates stale capabilities and project evidence', () => {
+  const stale = { ...initialBuildState, project: repo, snapshot: repo, git: { headSha: 'old' }, runtime: { url: 'https://stale.test' } };
+  const next = buildReducer(stale, { type: 'facts/unavailable' }); assert.equal(next.project, null); assert.equal(next.snapshot, null); assert.equal(next.git, null); assert.equal(next.runtime.url, null); assert.equal(next.adapter.capabilities['preview.live'], 'unknown');
+});
+test('new BFF endpoints preserve the workspace guard and privileged writes retain origin checks', async () => {
+  const { readFileSync } = await import('node:fs');
+  for (const route of ['github', 'integrations', 'providers/probe', 'project/import', 'bridge/tools']) {
+    const source = readFileSync(new URL(`../src/app/api/build/${route}/route.ts`, import.meta.url), 'utf8'); assert.match(source, /guardBuildApi\(/);
+    if (['providers/probe', 'project/import'].includes(route)) assert.match(source, /request.headers.get\('origin'\) !== request.nextUrl.origin/);
+  }
+});
