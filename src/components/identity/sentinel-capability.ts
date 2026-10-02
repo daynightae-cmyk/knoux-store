@@ -170,8 +170,8 @@ export function sentinelMarkGlyph(budget: number): SentinelGlyphPoint[] {
     const violet = rand() > 1 - VIOLET_RATIO;
 
     out.push({
-      x: Number(x.toFixed(3)),
-      y: Number(y.toFixed(3)),
+      x: Number(Math.max(0, Math.min(SHELL_VIEW_BOX.width, x)).toFixed(3)),
+      y: Number(Math.max(0, Math.min(SHELL_VIEW_BOX.height, y)).toFixed(3)),
       r: Number((0.5 + rand() * 0.55 + (violet ? 0.2 : 0)).toFixed(3)),
       contour: Number((0.45 + rand() * 0.55).toFixed(3)),
       violet,
