@@ -172,7 +172,7 @@ export function BuildEntryGate() {
               tabIndex={settled ? -1 : 0}
               disabled={settled}
             />
-            <button type="submit" className="dev-btn dev-btn--primary" disabled={settled || !value.trim()}>
+            <button type="submit" className="dev-btn dev-btn--primary" disabled={settled} aria-disabled={settled || !value.trim()}>
               Enter workspace
             </button>
           </div>

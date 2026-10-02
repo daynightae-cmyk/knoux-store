@@ -258,7 +258,7 @@ test.describe('composition', () => {
         `/api/build${endpoint}`,
       );
     }
-    await expect(page.locator('.dev-sidebar__foot')).toContainText('ADAPTER STATE UNKNOWN');
+    await expect(page.locator('.dev-sidebar__facts')).toContainText('ADAPTER STATE UNKNOWN');
   });
 });
 

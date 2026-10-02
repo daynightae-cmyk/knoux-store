@@ -128,7 +128,7 @@ test.describe('keyboard', () => {
       }
 
       expect(reached.length, `${route} must expose focusable controls`).toBeGreaterThan(2);
-      expect(reached, `${route} must reach a link or a button by keyboard`).toContain('a');
+      expect(reached.some((tag) => tag === 'a' || tag === 'button'), `${route} must reach a link or a button by keyboard`).toBe(true);
 
       // Focus must be discernible. A focus ring that is `outline: none` with no
       // replacement is invisible to a sighted keyboard user.
