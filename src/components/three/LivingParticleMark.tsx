@@ -259,11 +259,12 @@ export function LivingParticleField({
       uniforms.uPixelRatio.value = pixelRatio.current;
     }
     uniforms.uTime.value = state.clock.elapsedTime;
-    uniforms.uArrival.value = THREE.MathUtils.damp(uniforms.uArrival.value, awake ? 1 : 0, reduced ? 40 : 2.3, step);
-    uniforms.uAwake.value = THREE.MathUtils.damp(uniforms.uAwake.value, awake ? 1 : 0, reduced ? 40 : 2.5, step);
-    uniforms.uTransition.value = THREE.MathUtils.damp(uniforms.uTransition.value, progress, 2.4, step);
+    // Demand rendering must reach the requested static state in one frame.
+    uniforms.uArrival.value = reduced ? (awake ? 1 : 0) : THREE.MathUtils.damp(uniforms.uArrival.value, awake ? 1 : 0, 2.3, step);
+    uniforms.uAwake.value = reduced ? (awake ? 1 : 0) : THREE.MathUtils.damp(uniforms.uAwake.value, awake ? 1 : 0, 2.5, step);
+    uniforms.uTransition.value = reduced ? progress : THREE.MathUtils.damp(uniforms.uTransition.value, progress, 2.4, step);
     uniforms.uMorph.value = uniforms.uTransition.value;
-    uniforms.uMotion.value = THREE.MathUtils.damp(uniforms.uMotion.value, reduced ? 0 : 1, 4, step);
+    uniforms.uMotion.value = reduced ? 0 : THREE.MathUtils.damp(uniforms.uMotion.value, 1, 4, step);
     uniforms.uMouse3D.value.lerp(pointer.current, 1 - Math.exp(-8 * step));
     uniforms.uMouseActive.value = THREE.MathUtils.damp(uniforms.uMouseActive.value, hovering.current, 6, step);
     if (!settled.current && uniforms.uArrival.value > 0.94) {
