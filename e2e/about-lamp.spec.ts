@@ -11,7 +11,10 @@ async function capture(page: Page, testInfo: TestInfo, name: string) {
 
 for (const motion of ['no-preference', 'reduce'] as const) {
   test(`real Origin Room wakes and remains operable with ${motion} motion`, async ({ page }, testInfo) => {
-    test.setTimeout(90_000);
+    // Local Windows runs may render WebGL in software; the trace showed a
+    // 19-second media-emulation action after the lamp had already lit. Keep
+    // the existing remote CI budget and all state/interaction assertions.
+    test.setTimeout(process.env.CI ? 90_000 : 150_000);
     await page.emulateMedia({ reducedMotion: motion });
     const errors: string[] = [];
     page.on('pageerror', error => errors.push(error.message));
@@ -22,12 +25,32 @@ for (const motion of ['no-preference', 'reduce'] as const) {
     await expect(canvas).toBeVisible();
     await expect(room).toHaveClass(/origin-room--closed/);
     await capture(page, testInfo, `about-${motion}-closed.png`);
+    if (motion === 'no-preference') {
+      // Record the transient phase at the browser, before clicking. Tracing
+      // and software GPU drawing can delay the next assertion until ready.
+      await room.evaluate(element => {
+        let wakingAt = 0;
+        const observer = new MutationObserver(() => {
+          if (element.classList.contains('origin-room--waking') && !wakingAt) {
+            wakingAt = performance.now();
+            element.setAttribute('data-wake-observed', 'true');
+          }
+          if (element.classList.contains('origin-room--ready')) {
+            element.setAttribute('data-wake-duration', String(performance.now() - wakingAt));
+            observer.disconnect();
+          }
+        });
+        observer.observe(element, { attributes: true, attributeFilter: ['class'] });
+      });
+    }
     await page.getByRole('button', { name: /ENTER KNOuX/ }).click();
     if (motion === 'no-preference') {
-      await expect(room).toHaveClass(/origin-room--waking/);
-      await capture(page, testInfo, 'about-lamp-waking.png');
+      await expect(room).toHaveAttribute('data-wake-observed', 'true');
+      const stillWaking = await room.evaluate(element => element.classList.contains('origin-room--waking'));
+      await capture(page, testInfo, stillWaking ? 'about-lamp-waking.png' : 'about-lamp-after-entry.png');
     }
     await expect(room).toHaveClass(/origin-room--ready/, { timeout: 45_000 });
+    if (motion === 'no-preference') expect(Number(await room.getAttribute('data-wake-duration'))).toBeGreaterThan(100);
     await capture(page, testInfo, `about-${motion}-lit.png`);
     const records = page.getByRole('group', { name: 'Inspect the institution' });
     await expect(records.getByRole('button')).toHaveCount(5);

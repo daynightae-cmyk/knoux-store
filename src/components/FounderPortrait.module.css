@@ -1,0 +1,14 @@
+.portrait { margin: 0; min-width: 0; }
+.frame { position: relative; width: 100%; aspect-ratio: 1; overflow: hidden; background: #0c0d10; border: 1px solid #34343c; }
+.frame::after { content: ''; position: absolute; inset: 14px; border: 1px solid #25262e; pointer-events: none; }
+.image { display: block; width: 92%; height: 92%; margin: 4%; object-fit: contain; filter: grayscale(1); }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; }
+.frame[data-particles-ready='true'] .image { opacity: .24; }
+.frame[data-particles-ready='true'] .canvas { opacity: 1; }
+.coordinates { position: absolute; bottom: 18px; left: 22px; font: 9px var(--mono); letter-spacing: .12em; color: #c5c1ce; pointer-events: none; }
+.caption { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; padding-top: 18px; }
+.caption > span { font: 9px var(--mono); letter-spacing: .08em; color: #aaa5b0; }
+.caption button { padding: 8px 0; background: transparent; color: #e9e6ee; border: 0; border-bottom: 1px solid #65616d; font-size: 12px; cursor: pointer; }
+.caption button:hover { color: #c8b7de; }
+.caption button:focus-visible { outline: 2px solid #c8b7de; outline-offset: 5px; }
+@media (pointer: coarse) { .frame[data-particles-ready='true'] .image { opacity: .35; } }
