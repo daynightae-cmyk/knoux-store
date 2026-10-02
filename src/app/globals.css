@@ -198,8 +198,8 @@
   border: 1px solid var(--line-soft);
 }
 .product-hero__telemetry > div { background: var(--bg); padding: 16px 18px 18px; }
-.product-hero__telemetry dt { font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--dim); }
-.product-hero__telemetry dd { margin: 8px 0 0; font-size: 14px; line-height: 1.55; color: var(--text); }
+.product-hero__telemetry dt { font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #9b99a3; }
+.product-hero__telemetry dd { margin: 8px 0 0; font-size: 14px; line-height: 1.55; color: #d8d6df; }
 .product-hero__actions { display: flex; flex-wrap: wrap; gap: 26px; margin-top: 40px; }
 .product-hero__scene { min-width: 0; align-self: stretch; }
 .product-hero__scene canvas, .product-hero__scene .product-scene { display: block; width: 100%; height: 100%; min-height: 400px; }
@@ -1389,21 +1389,63 @@
 .evidence-disclosure summary::-webkit-details-marker{display:none}
 .evidence-disclosure>div,.evidence-disclosure>.ledger{margin:0}
 .evidence-disclosure .ledger{width:100%}
-.experiment-chamber{min-height:590px;display:grid;grid-template-columns:48% 52%;grid-template-rows:1fr auto;background:radial-gradient(circle at 22% 46%,#21182a,#0a0a0d 42%,#090a0c 75%)}
-.experiment-chamber__field{grid-column:1;grid-row:1;position:relative;min-height:470px}
-.experiment-chamber__ring{position:absolute;width:260px;height:260px;left:50%;top:50%;border:1px dashed #725783;border-radius:50%;transform:translate(-50%,-50%);animation:chamberTurn 22s linear infinite}
-.experiment-chamber__ring::before,.experiment-chamber__ring::after{content:"";position:absolute;width:12px;height:12px;border-radius:50%;background:#b6a0c9;left:12%;top:12%;box-shadow:0 0 24px #a18acb}.experiment-chamber__ring::after{left:auto;top:auto;right:8%;bottom:17%;width:5px;height:5px}
-.experiment-chamber__seed{position:absolute;width:76px;height:76px;border:1px solid #a18acb;left:50%;top:50%;transform:translate(-50%,-50%) rotate(45deg);box-shadow:0 0 80px #a18acb24}
-.experiment-chamber__axis{position:absolute;width:75%;left:12.5%;top:50%;border-top:1px solid #5a4567;transform:rotate(-35deg)}
-.experiment-chamber__field small{position:absolute;bottom:24px;left:28px;font:9px var(--mono);letter-spacing:.12em;color:#8e789d}
-@keyframes chamberTurn{to{transform:translate(-50%,-50%) rotate(360deg)}}
-.experiment-chamber__body{grid-column:2;grid-row:1;align-self:center;padding:40px 9% 40px 0}
-.experiment-chamber__body h3{font-size:clamp(48px,5vw,80px);line-height:1;letter-spacing:-.075em;font-weight:400;margin:22px 0}.experiment-chamber__body p{font-size:14px;line-height:1.7;color:var(--muted);max-width:44ch}
-.experiment-chamber__evidence{display:grid;gap:7px;border-top:1px solid #3a313f;margin:25px 0;padding-top:18px;font-size:12px;line-height:1.6;color:#b6aabb}.experiment-chamber__evidence small{font:9px var(--mono);letter-spacing:.12em;color:#a18acb}
-.experiment-chamber__selector{grid-column:1/-1;display:flex;overflow-x:auto;border-top:1px solid #39303e}
-.experiment-chamber__selector button{flex:1;min-width:150px;background:transparent;border:0;border-right:1px solid #39303e;text-align:left;padding:16px 20px;font:9px var(--mono);letter-spacing:.1em;color:#a18acb;cursor:pointer}.experiment-chamber__selector button span{display:block;color:#c7c0c9;font:14px sans-serif;letter-spacing:0;margin-top:5px}.experiment-chamber__selector button.is-active{background:#a18acb17}
-@media(max-width:760px){.experiment-chamber{display:block;min-height:0}.experiment-chamber__field{min-height:250px}.experiment-chamber__ring{width:160px;height:160px}.experiment-chamber__body{padding:20px 22px 36px}.experiment-chamber__body h3{font-size:46px}}
-@media(prefers-reduced-motion:reduce){.experiment-chamber__ring{animation:none}.constellation__grid{transform:none}.constellation.is-departing .constellation__node{transform:translate(-50%,-50%)}}
+/* ═══════════════════════════════════════════════════════════════════
+   EXPERIMENT CHAMBER V2 — SCIENCE LAB / SDF DOT-MATRIX INSTRUMENT
+═══════════════════════════════════════════════════════════════════ */
+.experiment-chamber--v2{min-height:640px;display:grid;grid-template-columns:minmax(320px,52%) minmax(300px,48%);grid-template-rows:1fr auto;background:radial-gradient(circle at 25% 45%,#1c1524,#0a0a0d 44%,#07070a 78%);border:1px solid #231d2b;position:relative}
+
+/* Visual Field */
+.experiment-chamber--v2__field{grid-column:1;grid-row:1;position:relative;min-height:520px;overflow:hidden;border-right:1px solid #201a26;background:#050508}
+.lab-material-field{width:100%;height:100%;min-height:520px;position:relative;display:flex;align-items:center;justify-content:center}
+.lab-material-field__canvas,.lab-material-field__fallback{display:block;width:100%!important;height:100%!important;object-fit:cover}
+
+/* Telemetry HUD */
+.lab-material-field__hud{position:absolute;inset:18px 22px;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;z-index:2;font:8px var(--mono);letter-spacing:.14em;color:#6d5f78;text-transform:uppercase}
+.lab-material-field__hud-code{color:#a18acb;font-weight:600}
+.lab-material-field__hud-mode{align-self:flex-end}
+.lab-material-field__hud-axis{color:#54495e}
+
+.experiment-chamber--v2__meta-note{position:absolute;bottom:20px;left:24px;font:8px var(--mono);letter-spacing:.12em;color:#7e698d;z-index:3;pointer-events:none}
+
+/* Dossier */
+.experiment-chamber--v2__body{grid-column:2;grid-row:1;align-self:center;padding:44px 8% 44px 7%;display:flex;flex-direction:column}
+.experiment-chamber--v2__body h3{font-size:clamp(40px,4.5vw,72px);line-height:1;letter-spacing:-.07em;font-weight:400;margin:18px 0;color:#ede8f3}
+.experiment-chamber--v2__body p{font-size:13.5px;line-height:1.7;color:var(--muted);max-width:44ch}
+
+.experiment-chamber--v2__evidence,.experiment-chamber--v2__stack{display:grid;gap:6px;border-top:1px solid #261f2e;margin-top:18px;padding-top:14px;font-size:12px;line-height:1.55;color:#b6aabb}
+.experiment-chamber--v2__evidence small,.experiment-chamber--v2__stack small{font:8px var(--mono);letter-spacing:.14em;color:#a18acb}
+.experiment-chamber--v2__body .action{margin-top:24px;align-self:flex-start}
+
+/* Selector */
+.experiment-chamber--v2__selector{grid-column:1/-1;display:flex;overflow-x:auto;border-top:1px solid #261f2e;background:#0d0b12}
+.experiment-chamber--v2__selector button{flex:1;min-width:180px;background:transparent;border:0;border-right:1px solid #261f2e;text-align:left;padding:18px 24px;font:9px var(--mono);letter-spacing:.12em;color:#a18acb;cursor:pointer;transition:background .2s,color .2s;min-height:54px}
+.experiment-chamber--v2__selector button span{display:block;color:#ded8e2;font:14px sans-serif;letter-spacing:0;margin-top:4px;font-weight:400}
+.experiment-chamber--v2__selector button.is-active{background:#a18acb18;color:#d5c2e9}
+.experiment-chamber--v2__selector button.is-active span{color:#ffffff;font-weight:500}
+.experiment-chamber--v2__selector button:hover{background:#a18acb0d}
+.experiment-chamber--v2__selector button:focus-visible{outline:1px solid #9b86ad;outline-offset:-2px}
+
+/* Responsive */
+@media(max-width:860px){
+  .experiment-chamber--v2{display:block;min-height:0}
+  .experiment-chamber--v2__field{min-height:360px;border-right:0;border-bottom:1px solid #201a26}
+  .lab-material-field{min-height:360px}
+  .experiment-chamber--v2__body{padding:30px 24px 38px}
+  .experiment-chamber--v2__body h3{font-size:42px}
+  .experiment-chamber--v2__selector{flex-wrap:nowrap}
+}
+@media(max-width:480px){
+  .experiment-chamber--v2__field{min-height:280px}
+  .lab-material-field{min-height:280px}
+  .experiment-chamber--v2__body h3{font-size:32px}
+  .experiment-chamber--v2__selector button{min-width:140px;padding:14px 18px}
+}
+
+/* Reduced motion */
+@media(prefers-reduced-motion:reduce){
+  .experiment-chamber--v2__selector button{transition:none}
+}
+
 .wordpress-axes{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #3b3540;border-bottom:1px solid #3b3540;background:linear-gradient(180deg,#131017,#0b0c0e)}
 .wordpress-axes .pillar{background:transparent;border-right:1px solid #3b3540;min-height:360px;padding:30px;transition:background var(--motion-response)}
 .wordpress-axes .pillar:last-child{border-right:0}.wordpress-axes .pillar:hover{background:#a18acb0c}
