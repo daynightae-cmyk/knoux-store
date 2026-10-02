@@ -47,6 +47,7 @@
 .dev-entry__field input{color:#fff;background:0 0;border:0;outline:0;flex:1;min-width:0;padding:13px 15px;font-size:15px}
 .dev-entry__field button,.dev-compose button{color:var(--bg);white-space:nowrap;background:var(--text);border:0;border-radius:3px;padding:0 17px;font-size:11px;font-weight:800}
 .dev-entry__field button span{margin-left:9px}
+.dev-entry__field button[aria-disabled="true"]{cursor:not-allowed;opacity:.48}
 .dev-hero{background:radial-gradient(at 52% 53%,var(--surface-2) 0%,var(--panel) 52%,var(--bg) 80%);flex-direction:column;justify-content:space-between;min-height:390px;margin:0 -18px;display:flex;position:relative;overflow:hidden}
 .dev-hero:before{content:"";opacity:.2;background-image:radial-gradient(#ddd 1px,#0000 1px);background-size:27px 27px;position:absolute;inset:0;-webkit-mask-image:radial-gradient(#000,#0000 68%);mask-image:radial-gradient(#000,#0000 68%)}
 .dev-hero__micro{z-index:2;font:10px var(--font-mono,monospace);letter-spacing:.22em;color:#b7b0c5;justify-content:space-between;padding:24px 24px 0;display:flex;position:relative}

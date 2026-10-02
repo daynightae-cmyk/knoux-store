@@ -8,7 +8,7 @@ export function workspaceFacts(state: BuildWorkspaceState) {
   const checks = state.verification?.checks ?? [];
   return {
     project: state.project?.name ?? (refused ? 'PROJECT WITHHELD' : 'PROJECT UNAVAILABLE'),
-    adapter: refused ? 'SIGN IN REQUIRED' : state.adapter.id === 'pending' ? 'NOT RESOLVED' : state.adapter.label,
+    adapter: refused ? 'SIGN IN REQUIRED' : state.adapter.id === 'pending' ? 'ADAPTER STATE UNKNOWN' : state.adapter.label,
     environment: state.adapter.id === 'pending' ? 'UNKNOWN' : state.adapter.environment.toUpperCase(),
     runtime: state.runtime.url ? state.runtime.status.toUpperCase() : 'NO RUNTIME REPORTED',
     provider: provider ? `${provider.displayName} · ${provider.status.toUpperCase()}` : refused ? 'STATE WITHHELD' : 'NO PROVIDER SELECTED',
