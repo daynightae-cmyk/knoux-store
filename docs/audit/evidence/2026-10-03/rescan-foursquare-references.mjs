@@ -68,22 +68,19 @@ const walk = (dir) => {
       skippedEnv++;
       continue;
     }
-    let size = 0;
+    // Read exactly once. The text that is inspected and the bytes that are hashed must
+    // come from the same snapshot, so there is no stat pre-check and no second read.
+    let bytes;
     try {
-      size = fs.statSync(full).size;
+      bytes = fs.readFileSync(full);
     } catch {
       continue;
     }
-    if (size > maxBytes) {
+    if (bytes.length > maxBytes) {
       skippedLarge++;
       continue;
     }
-    let text;
-    try {
-      text = fs.readFileSync(full, 'utf8');
-    } catch {
-      continue;
-    }
+    const text = bytes.toString('utf8');
     scanned++;
     const lines = [];
     text.split(/\r?\n/).forEach((line, index) => {
@@ -92,7 +89,7 @@ const walk = (dir) => {
     if (lines.length) {
       matches.push({
         path: full,
-        sha256: crypto.createHash('sha256').update(fs.readFileSync(full)).digest('hex'),
+        sha256: crypto.createHash('sha256').update(bytes).digest('hex'),
         lines,
         auditArtifact: full.replace(/\//g, '\\').includes('\\docs\\audit\\'),
       });

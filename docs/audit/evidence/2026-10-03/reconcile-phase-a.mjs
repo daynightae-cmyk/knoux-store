@@ -16,7 +16,10 @@ const hash=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
 // silently turns a missing file into a non-null hash and a bogus source comparison.
 // The object type is checked first, so an absent path is always null.
 const gitBytes=(ref,p)=>{try{const type=execFileSync('git',['cat-file','-t',ref+':'+p],{stdio:['ignore','pipe','ignore'],encoding:'utf8'}).trim();if(type!=='blob')return null;return execFileSync('git',['cat-file','blob',ref+':'+p],{stdio:['ignore','pipe','ignore'],maxBuffer:20*1024*1024});}catch{return null;}};
-const bytesAt=p=>fs.existsSync(p)&&fs.statSync(p).isFile()?fs.readFileSync(p):null;
+// Read once. An existsSync/statSync pre-check would be a check-then-read race, and it
+// also resolves two different snapshots. Only the expected absence / not-a-regular-file
+// outcomes become null; every other IO failure propagates instead of being swallowed.
+const bytesAt=(p)=>{try{return fs.readFileSync(p);}catch(error){if(error&&typeof error==='object'&&'code' in error&&['ENOENT','EISDIR','ENOTDIR'].includes(error.code))return null;throw error;}};
 // Preserve case and whitespace inside SQL string literals. This is a conservative
 // textual comparison, not a PostgreSQL semantic-equivalence parser.
 const stripComments=s=>s.split(/('(?:''|[^'])*')/).map((x,i)=>i%2?x:x.replace(/--[^\n]*/g,'')).join('');
