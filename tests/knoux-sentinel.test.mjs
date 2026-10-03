@@ -207,10 +207,13 @@ const capabilityModule = load('src/components/identity/sentinel-capability.ts', 
   '@/lib/entities': entities,
 });
 
+const EXPECTED_SENTINEL_SHELL = { width: 80, height: 100 };
+
 test('the glyph is a real reading of the canonical mark, inside the shell', () => {
   const glyph = capabilityModule.sentinelMarkGlyph(96);
   assert.equal(glyph.length, 96);
-  const { GLYPH_BOX, SHELL_VIEW_BOX } = capabilityModule;
+  const { GLYPH_BOX } = capabilityModule;
+  assert.match(view, /<svg viewBox="0 0 80 100"/);
   for (const point of glyph) {
     assert.ok(Number.isFinite(point.x) && Number.isFinite(point.y));
     assert.ok(
@@ -221,8 +224,8 @@ test('the glyph is a real reading of the canonical mark, inside the shell', () =
       point.y >= GLYPH_BOX.y - 0.6 && point.y <= GLYPH_BOX.y + GLYPH_BOX.height + 0.6,
       `y ${point.y} escaped the glyph box`,
     );
-    assert.ok(point.x >= 0 && point.x <= SHELL_VIEW_BOX.width, 'glyph stayed inside the shell width');
-    assert.ok(point.y >= 0 && point.y <= SHELL_VIEW_BOX.height, 'glyph stayed inside the shell height');
+    assert.ok(point.x >= 0 && point.x <= EXPECTED_SENTINEL_SHELL.width, 'glyph stayed inside the shell width');
+    assert.ok(point.y >= 0 && point.y <= EXPECTED_SENTINEL_SHELL.height, 'glyph stayed inside the shell height');
     assert.ok(point.r > 0 && point.r < 2, 'particle radius is renderable');
   }
   assert.ok(glyph.some((p) => p.violet), 'KNOuX violet energy particles are present');
