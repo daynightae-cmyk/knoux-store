@@ -145,6 +145,24 @@ check('withheld migration count is truthful and stays withheld', () => {
   }
 });
 
+check('no component claims a main hash for a path absent from the pinned base tree', () => {
+  const tracked = new Set(execFileSync('git', ['ls-tree', '-r', '--name-only', main], { encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 }).trim().split('\n'));
+  const bogus = bridge.components.filter((c) => c.mainSha256 && !tracked.has(c.path)).map((c) => c.path);
+  assert.equal(bogus.length, 0, `mainSha256 recorded for paths absent from ${main}: ${bogus.join(', ')}`);
+  const wrongDonor = bridge.components.filter((c) => c.mainSha256 && tracked.has(c.path))
+    .filter((c) => sha256(execFileSync('git', ['cat-file', 'blob', `${main}:${c.path}`], { maxBuffer: 20 * 1024 * 1024 })) !== c.mainSha256)
+    .map((c) => c.path);
+  assert.equal(wrongDonor.length, 0, `mainSha256 does not match the base tree blob: ${wrongDonor.join(', ')}`);
+});
+
+check('donor review main presence is derived from the base tree, not from a failed lookup', () => {
+  const tracked = new Set(execFileSync('git', ['ls-tree', '-r', '--name-only', main], { encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 }).trim().split('\n'));
+  for (const review of donors.reviews) {
+    assert.equal(review.mainPresence, tracked.has(review.path) ? 'PRESENT' : 'ABSENT', `mainPresence is wrong for ${review.path}`);
+    assert.equal(review.mainSha256 !== null, tracked.has(review.path), `mainSha256 presence disagrees with mainPresence for ${review.path}`);
+  }
+});
+
 check('temporary staging policies are recorded only as masked structure', () => {
   assert.equal(withheldPolicies.policies.length, 2, 'expected exactly two secret-dependent staging policies');
   for (const policy of withheldPolicies.policies) {

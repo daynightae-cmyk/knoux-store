@@ -533,13 +533,13 @@
     },
     {
       "path": "src/app/api/build/bridge/control/jobs/[id]/route.ts",
-      "mainSha256": "56b95772ad81a334b08245b73cbe7bfa0fce7c7c977a28e24cbc78d814b605ba",
+      "mainSha256": null,
       "dirtyDonorSha256": "63648935d118b8ecb0160fba0e5e861b10c3671eb9dbcd03e20559655f650551",
       "archivedRecoverySha256": "fcc051623fffb8fafe1bee2ef38b696ee22eb376dd18f572b8b7390531eee781",
       "liveDeployedSha256": null,
       "classification": "UNKNOWN",
       "canonicalExecutionRole": "UNVERIFIED",
-      "comparison": "DIVERGED",
+      "comparison": "UNKNOWN",
       "reason": "Recovery provenance identifies a source commit, not a deployment. Running local worker/gateway artifact identity not attested; no temporal ordering inferred from mtime."
     },
     {
