@@ -29,8 +29,9 @@ No application, runtime, CI, migration, permission or donor path was changed. No
 | The report claimed the browser job was still running | Job 111108178942 is terminal | Recorded as PASS; the CI section below is now a terminal result, not an expectation |
 | `application-catalog-summary.json` carried a `snapshotSha256` over the pre-merge 4,316-object catalog that could not be reproduced from any surviving artifact | No derivation reproduced the value | Replaced with `catalogObjectsSha256`, computed over the catalog on disk by a documented derivation, with per-object claims re-asserted |
 | `foursquare-reference-scan.json` recorded a SHA-256 of a catalog file that reconciliation has since rewritten | Recorded hash did not match the file on disk | Rescanned; conclusion unchanged |
+| **The evidence generator's Git blob reader was unsound** | `git show <ref>:<path>` for `src/app/api/build/bridge/control/jobs/[id]/route.ts` — a path **absent** from the pinned base — returned a **commit object** instead of failing, so the component carried a non-null `mainSha256` equal to a commit hash and a fabricated source comparison. The value also shifted whenever HEAD moved | Replaced with a strict `cat-file -t` type check; absent paths are now `null`, that component's comparison is `UNKNOWN`, and two new assertions pin every recorded hash to the base tree |
 | No component-level classification answered "which executable artifact does the running Bridge path load?" | Absent | Every one of 64 components now carries `canonicalExecutionRole`, and all 64 are UNVERIFIED |
-| The reconciliation was a generator with no integrity gate | `reconcile-phase-a.mjs` wrote files and exited 0 unconditionally | Added a 19-assertion read-only gate that fails loudly |
+| The reconciliation was a generator with no integrity gate | `reconcile-phase-a.mjs` wrote files and exited 0 unconditionally | Added a 21-assertion read-only gate that fails loudly |
 
 ## VERIFIED — archive and structural evidence
 
@@ -42,7 +43,7 @@ flowchart LR
   A --> E[6 live Edge Functions archived]
   E --> F[fresh live source == archive, 10/10 files]
   A --> G[4318-object structural catalog]
-  G --> H[19/19 integrity assertions pass]
+  G --> H[21/21 integrity assertions pass]
 ```
 
 | Check | Result |
@@ -59,7 +60,7 @@ flowchart LR
 | Applied migration statements withheld | 17, statement text absent, MD5 fingerprint retained |
 | Archived donor files | 35, all still byte-identical on disk |
 | Application tests / bridge tests / focused browser checks (unchanged app) | 433 / 167 / 15 |
-| Integrity assertions | 19 passed, 0 failed |
+| Integrity assertions | 21 passed, 0 failed |
 
 ### Catalog comparison against exact origin/main
 
@@ -187,7 +188,7 @@ Each gate is classified separately. The distinction that matters: historical arc
 | 4 | Six deployed aliases covered by caller/auth evidence | **VERIFIED** | live, archived and caller sets asserted equal, 6/6 |
 | 5 | PR #6 unique-value semantic review | **VERIFIED** | 38/38 classified, set asserted against `git diff-tree` |
 | 6 | Signal unique-value semantic review | **VERIFIED** | 20/20 classified, set asserted against `git diff-tree` |
-| 7 | Evidence integrity and secret safety | **VERIFIED** | 19/19 assertions; 0 credential-class values; reconciliation idempotent |
+| 7 | Evidence integrity and secret safety | **VERIFIED** | 21/21 assertions; 0 credential-class values; reconciliation idempotent |
 | 8 | Current main application baseline stable | **VERIFIED** | lint, types, build, tests, coverage all pass at the exact head |
 | 9 | Production dependency audit | **VERIFIED** | 0 advisories |
 | 10 | Evidence tooling reproducible | **VERIFIED** | generator byte-stable across repeated runs; recheck and scan re-runnable |
@@ -248,6 +249,6 @@ No donor was altered. `bridgeDirtyStatus` in the recheck artifact records the do
 | `recheck-preservation.mjs` | Donor fingerprint recheck against the census | `preservation-recheck.json` |
 | `rescan-foursquare-references.mjs` | Read-only RPC reference rescan | `foursquare-reference-scan.json` |
 | `scan-secrets.mjs` | Credential scan, reports class and count only, never values | nothing |
-| `assert-phase-a-evidence.mjs` | 19-assertion integrity gate | nothing |
+| `assert-phase-a-evidence.mjs` | 21-assertion integrity gate | nothing |
 
 Run order: `verify-recovery.mjs` → `reconcile-phase-a.mjs` → `recheck-preservation.mjs` → `rescan-foursquare-references.mjs` → `scan-secrets.mjs` → `assert-phase-a-evidence.mjs`.

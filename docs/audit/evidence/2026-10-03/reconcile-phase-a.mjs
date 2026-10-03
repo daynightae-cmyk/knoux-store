@@ -5,14 +5,17 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const root = execFileSync('git',['rev-parse','--show-toplevel'],{encoding:'utf8'}).trim();
 const main = execFileSync('git',['rev-parse','origin/main'],{encoding:'utf8'}).trim();
 const donorRoot='D:/Knoux Store-worktrees/local-bridge-registration';
 const recoveryRoot='D:/Knoux Store Recovery/2026-10-02/restored/local-control-plane';
 const read=name=>JSON.parse(fs.readFileSync(path.join(here,name),'utf8').replace(/^\uFEFF/,''));
 const write=(name,value)=>fs.writeFileSync(path.join(here,name),JSON.stringify(value,null,2)+'\n');
 const hash=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
-const gitBytes=(ref,p)=>{try{return execFileSync('git',['show',ref+':'+p],{stdio:['ignore','pipe','ignore'],maxBuffer:20*1024*1024});}catch{return null;}};
+// Strict blob reader. `git show <ref>:<path>` is unsafe here: for a path that is absent
+// at <ref> it can fall back to printing a COMMIT object instead of failing, which
+// silently turns a missing file into a non-null hash and a bogus source comparison.
+// The object type is checked first, so an absent path is always null.
+const gitBytes=(ref,p)=>{try{const type=execFileSync('git',['cat-file','-t',ref+':'+p],{stdio:['ignore','pipe','ignore'],encoding:'utf8'}).trim();if(type!=='blob')return null;return execFileSync('git',['cat-file','blob',ref+':'+p],{stdio:['ignore','pipe','ignore'],maxBuffer:20*1024*1024});}catch{return null;}};
 const bytesAt=p=>fs.existsSync(p)&&fs.statSync(p).isFile()?fs.readFileSync(p):null;
 // Preserve case and whitespace inside SQL string literals. This is a conservative
 // textual comparison, not a PostgreSQL semantic-equivalence parser.
@@ -51,7 +54,6 @@ for(const file of sqlFiles){
 const catalog=read('live-structural-catalog.json');
 const notes='Comparison is against exact origin/main tracked migrations. Name inventory is not semantic equality. No donor or withheld historical statement is canonical source. Managed objects are UNKNOWN unless secret-dependent. Source-only inventory contains declarations, not a replay-derived schema.';
 for(const o of catalog.objects){
- const schema=o.details.schema??o.identity.split('.')[0];
  let classification='UNKNOWN',reason='Catalog structure verified; no complete semantic source comparison',source=null;
  if(o.details.secret_dependent||o.details.default_withheld){classification='SECRET-DEPENDENT';reason='Definition/default withheld at database query boundary';}
  else if(o.identity.startsWith('public.')){
