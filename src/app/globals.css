@@ -1420,7 +1420,7 @@
 .lab-material-field__hud-mode{align-self:flex-end}
 .lab-material-field__hud-axis{color:#54495e}
 
-.experiment-chamber--v2__meta-note{position:absolute;bottom:20px;left:24px;font:8px var(--mono);letter-spacing:.12em;color:#7e698d;z-index:3;pointer-events:none}
+.experiment-chamber--v2__meta-note{position:absolute;bottom:20px;left:24px;font:8px var(--mono);letter-spacing:.12em;color:#a18acb;background:#050508;padding:3px 5px;z-index:3;pointer-events:none}
 
 /* Dossier */
 .experiment-chamber--v2__body{grid-column:2;grid-row:1;align-self:center;padding:44px 8% 44px 7%;display:flex;flex-direction:column}

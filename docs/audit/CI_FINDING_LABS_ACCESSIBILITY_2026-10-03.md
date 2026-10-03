@@ -95,3 +95,13 @@ Track as two separate items with two owners:
 - **the gate's reliability** — the spec asserts on a live-rendered surface without waiting for a stable paint, so its green runs are not proof of accessibility.
 
 Neither blocks the Phase A evidence in this branch, and neither should be closed by weakening the assertion or the threshold. Do not disable, skip, or relax `e2e/accessibility.spec.ts` to clear the job.
+
+## Closure fix implemented on the Phase A branch
+
+The application defect is fixed without changing the Axe assertion, blocking-impact threshold, or accessibility spec. `.experiment-chamber--v2__meta-note` now uses `#a18acb` text on its own solid `#050508` backing surface, with a small padding inset. The declared-colour WCAG contrast is approximately **6.80:1**, above the required 4.5:1.
+
+Giving the badge its own opaque backing also removes the original contrast result's dependence on whatever the animated/canvas field happens to paint underneath it. This addresses the real accessibility defect and makes this specific contrast measurement invariant to the field's compositing state rather than masking test failures.
+
+The branch also incorporates the already-verified PR #30 CI policy from current `main`, so the production dependency audit remains blocking while the known development/tooling advisory stays explicitly visible without falsely representing production exposure.
+
+**Merge remains prohibited until the new exact head passes the repository's full GitHub CI, including CodeQL, lint/types/build/tests/coverage/audits, routes/responsive/accessibility, and Vercel.**
