@@ -12,7 +12,6 @@ import type {
   GenerationResponse,
   StreamChunk,
   TokenUsage,
-  NormalizedError,
   NormalizedModel,
   DiscoveryResult,
   ProbeResult,
@@ -201,10 +200,13 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
     return `${this.config.baseUrl}/models/${modelId}${GEMINI_OPERATION_SUFFIX[operation]}`;
   }
 
+  protected override get probePath(): string {
+    return "/models?pageSize=1";
+  }
+
   override async probe(
     env: Record<string, string | undefined>,
   ): Promise<ProbeResult> {
-    const start = Date.now();
     const apiKey = this.getApiKey(env);
     if (!apiKey) {
       return {
@@ -223,48 +225,7 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
         latencyMs: 0,
       };
     }
-    try {
-      const response = await fetch(`${this.config.baseUrl}/models?pageSize=1`, {
-        headers: this.buildHeaders(apiKey),
-        redirect: "error",
-        signal: AbortSignal.timeout(10000),
-        cache: "no-store",
-      });
-      const latencyMs = Date.now() - start;
-      if (response.ok)
-        return {
-          providerId: this.id,
-          authenticated: true,
-          detail: "Authenticated; models endpoint answered.",
-          error: null,
-          latencyMs,
-        };
-      const bodyText = await response.text().catch(() => null);
-      return {
-        providerId: this.id,
-        authenticated: false,
-        detail: `Authentication failed (HTTP ${response.status}).`,
-        error: normalizeError(response.status, bodyText),
-        latencyMs,
-      };
-    } catch (cause) {
-      const latencyMs = Date.now() - start;
-      const message = cause instanceof Error ? cause.message : "Network error";
-      return {
-        providerId: this.id,
-        authenticated: false,
-        detail: "Endpoint unreachable.",
-        error: {
-          category: "NETWORK",
-          message,
-          safeMessage: message.slice(0, 200),
-          httpStatus: null,
-          providerErrorId: null,
-          retryable: false,
-        },
-        latencyMs,
-      };
-    }
+    return super.probe(env);
   }
 
   override async discoverModels(
@@ -521,22 +482,14 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
     const start = Date.now();
     const apiKey = this.getApiKey(env);
     if (!apiKey) {
-      yield {
-        delta: "",
-        done: true,
-        finishReason: null,
-        usage: null,
-        error: {
-          category: "AUTHENTICATION",
-          message: "Missing credential",
-          safeMessage: "No API key configured.",
-          httpStatus: null,
-          providerErrorId: null,
-          retryable: false,
-        },
-        latencyMs: 0,
-        ttftMs: null,
-      };
+      yield this.streamError({
+        category: "AUTHENTICATION",
+        message: "Missing credential",
+        safeMessage: "No API key configured.",
+        httpStatus: null,
+        providerErrorId: null,
+        retryable: false,
+      }, 0);
       return;
     }
 
@@ -565,131 +518,57 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
     let usage: TokenUsage | null = null;
 
     try {
-      const response = await fetch(
-        this.buildModelUrl(modelId, "streamGenerateContent"),
-        {
-          method: "POST",
-          headers: this.buildHeaders(apiKey),
-          body: JSON.stringify(body),
-          redirect: "error",
-          signal: signal ?? AbortSignal.timeout(120000),
-          cache: "no-store",
-        },
-      );
-
-      if (!response.ok) {
-        const bodyText = await response.text().catch(() => null);
-        yield {
-          delta: "",
-          done: true,
-          finishReason: null,
-          usage: null,
-          error: normalizeError(response.status, bodyText),
-          latencyMs: Date.now() - start,
-          ttftMs: null,
-        };
-        return;
-      }
-
-      if (!response.body) {
-        yield {
-          delta: "",
-          done: true,
-          finishReason: null,
-          usage: null,
-          error: {
-            category: "NETWORK",
-            message: "No body",
-            safeMessage: "No response body.",
-            httpStatus: null,
-            providerErrorId: null,
-            retryable: false,
-          },
-          latencyMs: Date.now() - start,
-          ttftMs: null,
-        };
-        return;
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed.startsWith("data: ")) continue;
-          try {
-            const chunk = JSON.parse(trimmed.slice(6));
-            const text =
-              chunk.candidates?.[0]?.content?.parts
-                ?.map((p: { text?: string }) => p.text)
-                .join("") ?? "";
-            if (text) {
-              if (firstTokenTime === null) firstTokenTime = Date.now() - start;
-              yield {
-                delta: text,
-                done: false,
-                finishReason: null,
-                usage: null,
-                error: null,
-                latencyMs: null,
-                ttftMs: firstTokenTime,
-              };
-            }
-            if (chunk.candidates?.[0]?.finishReason)
-              finishReason = chunk.candidates[0].finishReason;
-            if (chunk.usageMetadata) {
-              usage = {
-                inputTokens: chunk.usageMetadata.promptTokenCount ?? null,
-                outputTokens: chunk.usageMetadata.candidatesTokenCount ?? null,
-                cachedTokens:
-                  chunk.usageMetadata.cachedContentTokenCount ?? null,
-                source: "provider",
-              };
-            }
-          } catch {
-            /* skip */
+      for await (const data of this.readStreamData(
+        this.buildModelUrl(modelId, "streamGenerateContent"), apiKey, body, start, signal,
+        "No body",
+        "No response body."
+      )) {
+        if (typeof data !== "string") {
+          yield data;
+          return;
+        }
+        try {
+          const chunk = JSON.parse(data);
+          const text =
+            chunk.candidates?.[0]?.content?.parts
+              ?.map((p: { text?: string }) => p.text)
+              .join("") ?? "";
+          if (text) {
+            if (firstTokenTime === null) firstTokenTime = Date.now() - start;
+            yield {
+              delta: text,
+              done: false,
+              finishReason: null,
+              usage: null,
+              error: null,
+              latencyMs: null,
+              ttftMs: firstTokenTime,
+            };
           }
+          if (chunk.candidates?.[0]?.finishReason)
+            finishReason = chunk.candidates[0].finishReason;
+          if (chunk.usageMetadata) {
+            usage = {
+              inputTokens: chunk.usageMetadata.promptTokenCount ?? null,
+              outputTokens: chunk.usageMetadata.candidatesTokenCount ?? null,
+              cachedTokens:
+                chunk.usageMetadata.cachedContentTokenCount ?? null,
+              source: "provider",
+            };
+          }
+        } catch {
+          /* skip */
         }
       }
 
-      yield {
-        delta: "",
-        done: true,
-        finishReason,
-        usage: usage ?? {
-          inputTokens: null,
-          outputTokens: null,
-          cachedTokens: null,
-          source: "unknown",
-        },
-        error: null,
-        latencyMs: Date.now() - start,
-        ttftMs: firstTokenTime,
-      };
+      yield this.streamComplete(start, firstTokenTime, finishReason, usage);
     } catch (cause) {
-      const error: NormalizedError =
+      yield this.streamError(
         cause instanceof DOMException && cause.name === "AbortError"
           ? abortedError()
-          : networkError(
-              cause instanceof Error ? cause.message : "Network error",
-            );
-      yield {
-        delta: "",
-        done: true,
-        finishReason,
-        usage,
-        error,
-        latencyMs: Date.now() - start,
-        ttftMs: firstTokenTime,
-      };
+          : networkError(cause instanceof Error ? cause.message : "Network error"),
+        Date.now() - start, firstTokenTime, finishReason, usage,
+      );
     }
   }
 

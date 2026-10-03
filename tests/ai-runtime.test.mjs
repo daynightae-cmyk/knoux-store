@@ -243,29 +243,7 @@ test("mergeCostBasis returns UNKNOWN when all UNKNOWN", () => {
 // ---------------------------------------------------------------------------
 
 test("manual mode honours explicit selection", () => {
-  const healthMap = new Map([
-    [
-      "openai",
-      {
-        providerId: "openai",
-        displayName: "OpenAI",
-        transport: "OpenAI",
-        configured: true,
-        auth: "AUTHENTICATED",
-        discovery: "DISCOVERY_VERIFIED",
-        generation: "GENERATION_VERIFIED",
-        streaming: "STREAMING_VERIFIED",
-        tools: "SUPPORTED",
-        vision: "SUPPORTED",
-        structuredOutput: "SUPPORTED",
-        modelCount: 5,
-        lastTestedAt: new Date().toISOString(),
-        lastError: null,
-        latencyMs: 500,
-        rateLimits: null,
-      },
-    ],
-  ]);
+  const healthMap = new Map([["openai", OPENAI_HEALTH]]);
   const decision = router.routeV2(
     {
       taskClass: "general",
@@ -283,29 +261,20 @@ test("manual mode honours explicit selection", () => {
 });
 
 test("manual mode rejects unconfigured without override", () => {
-  const healthMap = new Map([
-    [
-      "openai",
-      {
-        providerId: "openai",
-        displayName: "OpenAI",
-        transport: "OpenAI",
-        configured: false,
-        auth: "UNCONFIGURED",
-        discovery: "UNCONFIGURED",
-        generation: "UNCONFIGURED",
-        streaming: "UNCONFIGURED",
-        tools: "UNKNOWN",
-        vision: "UNKNOWN",
-        structuredOutput: "UNKNOWN",
-        modelCount: 0,
-        lastTestedAt: null,
-        lastError: null,
-        latencyMs: null,
-        rateLimits: null,
-      },
-    ],
-  ]);
+  const healthMap = new Map([["openai", {
+    ...OPENAI_HEALTH,
+    configured: false,
+    auth: "UNCONFIGURED",
+    discovery: "UNCONFIGURED",
+    generation: "UNCONFIGURED",
+    streaming: "UNCONFIGURED",
+    tools: "UNKNOWN",
+    vision: "UNKNOWN",
+    structuredOutput: "UNKNOWN",
+    modelCount: 0,
+    lastTestedAt: null,
+    latencyMs: null,
+  }]]);
   const decision = router.routeV2(
     {
       taskClass: "general",
@@ -323,29 +292,7 @@ test("manual mode rejects unconfigured without override", () => {
 });
 
 test("returns unavailable when no models discovered", () => {
-  const healthMap = new Map([
-    [
-      "openai",
-      {
-        providerId: "openai",
-        displayName: "OpenAI",
-        transport: "OpenAI",
-        configured: true,
-        auth: "AUTHENTICATED",
-        discovery: "DISCOVERY_VERIFIED",
-        generation: "GENERATION_VERIFIED",
-        streaming: "STREAMING_VERIFIED",
-        tools: "SUPPORTED",
-        vision: "SUPPORTED",
-        structuredOutput: "SUPPORTED",
-        modelCount: 5,
-        lastTestedAt: new Date().toISOString(),
-        lastError: null,
-        latencyMs: 500,
-        rateLimits: null,
-      },
-    ],
-  ]);
+  const healthMap = new Map([["openai", OPENAI_HEALTH]]);
   const decision = router.routeV2(
     {
       taskClass: "general",
@@ -553,6 +500,147 @@ async function withFetchRecorder(run) {
 
 const GEMINI_ENV = { GEMINI_API_KEY: "test-key-not-a-real-credential" };
 const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta";
+
+async function withMockFetch(mock, run) {
+  const guarded = globalThis.fetch;
+  globalThis.fetch = mock;
+  try {
+    return await run();
+  } finally {
+    globalThis.fetch = guarded;
+  }
+}
+
+const STREAM_CASES = [
+  {
+    id: "openai", model: "gpt-4.1", env: { OPENAI_API_KEY: "test" },
+    url: "https://api.openai.com/v1/chat/completions", finish: "stop",
+    first: [{ choices: [{ delta: { content: "hé" } }] }],
+    rest: [
+      { choices: [{ delta: { content: "llo" }, finish_reason: "stop" }] },
+      { usage: { prompt_tokens: 7, completion_tokens: 2, prompt_tokens_details: { cached_tokens: 1 } } },
+    ],
+  },
+  {
+    id: "anthropic", model: "claude-3-haiku-20240307", env: { ANTHROPIC_API_KEY: "test" },
+    url: "https://api.anthropic.com/v1/messages", finish: "end_turn",
+    first: [
+      { type: "message_start", message: { usage: { input_tokens: 7, cache_read_input_tokens: 1 } } },
+      { type: "content_block_delta", delta: { text: "hé" } },
+    ],
+    rest: [
+      { type: "content_block_delta", delta: { text: "llo" } },
+      { type: "message_delta", delta: { stop_reason: "end_turn" }, usage: { output_tokens: 2 } },
+    ],
+  },
+  {
+    id: "gemini", model: "gemini-2.5-flash", env: GEMINI_ENV,
+    url: `${GEMINI_BASE}/models/gemini-2.5-flash:streamGenerateContent?alt=sse`, finish: "STOP",
+    first: [{ candidates: [{ content: { parts: [{ text: "hé" }] } }] }],
+    rest: [{
+      candidates: [{ content: { parts: [{ text: "llo" }] }, finishReason: "STOP" }],
+      usageMetadata: { promptTokenCount: 7, candidatesTokenCount: 2, cachedContentTokenCount: 1 },
+    }],
+  },
+];
+
+const sseBytes = (events) => new TextEncoder().encode(
+  events.map((event) => `data: ${JSON.stringify(event)}\n\n`).join(""),
+);
+
+test("native streams yield before EOF and preserve split UTF-8 and protocol usage", async (t) => {
+  for (const entry of STREAM_CASES) {
+    await t.test(entry.id, async () => {
+      let controller;
+      const body = new ReadableStream({ start(c) { controller = c; } });
+      const signal = new AbortController().signal;
+      await withMockFetch((url, init) => {
+        assert.equal(url, entry.url);
+        assert.equal(init.redirect, "error");
+        assert.equal(init.cache, "no-store");
+        assert.equal(init.signal, signal);
+        return Promise.resolve(new Response(body));
+      }, async () => {
+        const iterator = registry.getAdapter(entry.id).stream({
+          providerId: entry.id, modelId: entry.model,
+          messages: [{ role: "user", content: "hi" }],
+        }, entry.env, signal);
+        const firstPromise = iterator.next();
+        const bytes = sseBytes(entry.first);
+        const split = bytes.indexOf(0xc3) + 1;
+        controller.enqueue(bytes.slice(0, split));
+        controller.enqueue(bytes.slice(split));
+        const first = await firstPromise;
+        assert.equal(first.value.delta, "hé");
+        assert.equal(first.value.done, false);
+        assert.ok(first.value.ttftMs >= 0);
+        // Only now send the remaining events and close the transport.
+        controller.enqueue(new TextEncoder().encode("data: malformed\n\n"));
+        controller.enqueue(sseBytes(entry.rest));
+        controller.close();
+        const chunks = [];
+        for await (const chunk of iterator) chunks.push(chunk);
+        assert.equal(chunks.map((chunk) => chunk.delta).join(""), "llo");
+        assert.equal(chunks.filter((chunk) => chunk.done).length, 1);
+        const last = chunks.at(-1);
+        assert.equal(last.error, null);
+        assert.equal(last.finishReason, entry.finish);
+        assert.deepEqual(last.usage, {
+          inputTokens: 7, outputTokens: 2, cachedTokens: 1, source: "provider",
+        });
+        assert.equal(last.ttftMs, first.value.ttftMs);
+      });
+    });
+  }
+});
+
+test("native streams preserve authentication, HTTP, absent-body and cancellation errors", async (t) => {
+  for (const entry of STREAM_CASES) {
+    for (const failure of [
+      { name: "missing credential", env: {}, category: "AUTHENTICATION", response: () => { assert.fail("must not fetch"); } },
+      { name: "HTTP 401", category: "AUTHENTICATION", response: () => new Response("{}", { status: 401 }) },
+      { name: "absent body", category: "NETWORK", response: () => new Response(null, { status: 204 }) },
+      { name: "abort", category: "ABORTED", response: () => { throw new DOMException("Aborted", "AbortError"); } },
+    ]) {
+      await t.test(`${entry.id}: ${failure.name}`, async () => {
+        await withMockFetch(failure.response, async () => {
+          const chunks = [];
+          for await (const chunk of registry.getAdapter(entry.id).stream({
+            providerId: entry.id, modelId: entry.model, messages: [],
+          }, failure.env ?? entry.env)) chunks.push(chunk);
+          assert.equal(chunks.length, 1);
+          assert.equal(chunks[0].done, true);
+          assert.equal(chunks[0].error.category, failure.category);
+          assert.equal(chunks[0].usage, null);
+        });
+      });
+    }
+  }
+});
+
+test("native probes retain their lightweight endpoints and Anthropic discovery retains tools", async () => {
+  const urls = [];
+  await withMockFetch((url) => {
+    urls.push(url);
+    return Promise.resolve(Response.json({ data: [
+      { id: "claude-3-haiku-20240307" }, { id: "new-claude-model" },
+    ] }));
+  }, async () => {
+    assert.equal((await registry.getAdapter("anthropic").probe({ ANTHROPIC_API_KEY: "test" })).authenticated, true);
+    assert.equal((await registry.getAdapter("gemini").probe(GEMINI_ENV)).authenticated, true);
+    const result = await registry.getAdapter("anthropic").discoverModels({ ANTHROPIC_API_KEY: "test" });
+    assert.equal(result.source, "LIVE");
+    assert.equal(result.models.length, 2);
+    for (const model of result.models) assert.equal(model.capabilities.tools, "SUPPORTED");
+    assert.equal(result.models[0].maxOutputTokens, 4096);
+    assert.equal(result.models[1].maxOutputTokens, null);
+  });
+  assert.deepEqual(urls, [
+    "https://api.anthropic.com/v1/models?limit=1",
+    `${GEMINI_BASE}/models?pageSize=1`,
+    "https://api.anthropic.com/v1/models?limit=100",
+  ]);
+});
 
 const geminiRequest = (modelId) => ({
   providerId: "gemini",
