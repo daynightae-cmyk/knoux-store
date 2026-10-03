@@ -1,0 +1,478 @@
+{
+  "observedAt": "2026-10-03T02:24:42.447Z",
+  "functions": [
+    {
+      "slug": "knoux-bridge-control",
+      "version": 9,
+      "verifyJwt": false,
+      "deploymentBundleSha256": "eb8653b1db2f48b3fd82beb1e775eac2530e337633753054ea326e0a907d2b09",
+      "mainSource": "MISSING at ae7c0d3",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-edge-functions.json",
+      "files": [
+        {
+          "name": "index.ts",
+          "sourceSha256": "fc6bddb50f60039901491aab02620b19172e25ccbafb805f1780ca83b1a5de43",
+          "localDonorSha256": "83eb597fa5f032477d75830f4cced7417c9beb9da68dcc2dafe9d2ac9caec80a",
+          "byteEqualToDonor": false
+        },
+        {
+          "name": "deno.json",
+          "sourceSha256": "5f1c69e365acfb48147f4f9c2806b4228ba91f920fc7723b25185e275bd29537",
+          "localDonorSha256": "1b460685771499324b99deee312e7d1ed9d1e18be1eb693ddf1aadfab91bdab9",
+          "byteEqualToDonor": false
+        }
+      ]
+    },
+    {
+      "slug": "knoux-store-mcp-gateway",
+      "version": 2,
+      "verifyJwt": false,
+      "deploymentBundleSha256": "cd931ea11f0f7fbda9ecb0d632c804422fb936735e0b7c15cada52c8608c7761",
+      "mainSource": "MISSING at ae7c0d3",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-edge-functions.json",
+      "files": [
+        {
+          "name": "index.ts",
+          "sourceSha256": "04d3625d3a95ffe48d06ff916e71aa1804312ee0cf110312ab4d82e9439f9a62",
+          "localDonorSha256": "ff46e9f07b7da7e8f88de63f7236651336644c073dacb0b68f284c12ae1f3dcb",
+          "byteEqualToDonor": false
+        },
+        {
+          "name": "deno.json",
+          "sourceSha256": "1b460685771499324b99deee312e7d1ed9d1e18be1eb693ddf1aadfab91bdab9",
+          "localDonorSha256": "1b460685771499324b99deee312e7d1ed9d1e18be1eb693ddf1aadfab91bdab9",
+          "byteEqualToDonor": true
+        }
+      ]
+    },
+    {
+      "slug": "knoux-bridge-gateway-api",
+      "version": 1,
+      "verifyJwt": false,
+      "deploymentBundleSha256": "562f1c80e680590991e5804dd470289988a70c286cdd1d1c5eb4c527b96cc45f",
+      "mainSource": "MISSING at ae7c0d3",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-edge-functions.json",
+      "files": [
+        {
+          "name": "index.ts",
+          "sourceSha256": "bf5ac40385df195b5e82ebe02669838935f4ec6aac754f0b9e202374c0a7aed5",
+          "localDonorSha256": "bf5ac40385df195b5e82ebe02669838935f4ec6aac754f0b9e202374c0a7aed5",
+          "byteEqualToDonor": true
+        }
+      ]
+    },
+    {
+      "slug": "knoux-bridge-control-smoke",
+      "version": 1,
+      "verifyJwt": false,
+      "deploymentBundleSha256": "8585acdcff3129afaaccdff649ea84e2b497231b44086904beb572d1db3f1612",
+      "mainSource": "MISSING at ae7c0d3",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-edge-functions.json",
+      "files": [
+        {
+          "name": "index.ts",
+          "sourceSha256": "9d98364bcec333eba360c95881ac5456bd204209c86aaea836c01e205532f7c8",
+          "localDonorSha256": null,
+          "byteEqualToDonor": null
+        },
+        {
+          "name": "deno.json",
+          "sourceSha256": "511ad3cbe225fcdcf4947a23554c76ef9856a805a191217456c1db50ce3fe87c",
+          "localDonorSha256": null,
+          "byteEqualToDonor": null
+        }
+      ]
+    },
+    {
+      "slug": "knoux-store-bridge-control",
+      "version": 2,
+      "verifyJwt": false,
+      "deploymentBundleSha256": "27774c7bcdc7ea308ceeafb31ce266e025fcc5a886c676f4ccd586ba688c9d94",
+      "mainSource": "MISSING at ae7c0d3",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-edge-functions.json",
+      "files": [
+        {
+          "name": "index.ts",
+          "sourceSha256": "6a5273770cac84f838978e819b20e791e448383c4bd8a3273038d8a2699eadb8",
+          "localDonorSha256": null,
+          "byteEqualToDonor": null
+        }
+      ]
+    },
+    {
+      "slug": "knoux-store-mcp",
+      "version": 1,
+      "verifyJwt": false,
+      "deploymentBundleSha256": "771597eea00f3fc502f0634ea3138f57e2b443f8d6db4d15844c14d0cce901cc",
+      "mainSource": "MISSING at ae7c0d3",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-edge-functions.json",
+      "files": [
+        {
+          "name": "index.ts",
+          "sourceSha256": "4dcacd1857808ddccd2fefa308b688e5d8b6246c259ccb43b5fe029c0e2357f3",
+          "localDonorSha256": null,
+          "byteEqualToDonor": null
+        },
+        {
+          "name": "deno.json",
+          "sourceSha256": "511ad3cbe225fcdcf4947a23554c76ef9856a805a191217456c1db50ce3fe87c",
+          "localDonorSha256": null,
+          "byteEqualToDonor": null
+        }
+      ]
+    }
+  ],
+  "migrations": [
+    {
+      "version": "20260928171744",
+      "name": "knoux_store_foundation",
+      "liveSourceMd5": "c93cf5fe2ee097b89f8bca24fb43c7fb",
+      "mainPrototype": null,
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20260928172305",
+      "name": "harden_knoux_store_foundation",
+      "liveSourceMd5": "3d8d1624291919285c382b73ec669ef9",
+      "mainPrototype": null,
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20260929112550",
+      "name": "knoux_signal_v1_privacy_safe",
+      "liveSourceMd5": "7ec15048b2103fb9c788b1bd7a530aa9",
+      "mainPrototype": "supabase/migrations/20260929152000_knoux_signal_v1.sql",
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20260929112656",
+      "name": "knoux_signal_v1_hardening",
+      "liveSourceMd5": "c33535703932e33a1571153625482087",
+      "mainPrototype": "supabase/migrations/20260929153500_knoux_signal_v1_hardening.sql",
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20260929112921",
+      "name": "knoux_signal_v1_regex_fix",
+      "liveSourceMd5": "f64afffe49fc5c55ec88a76d4050eca6",
+      "mainPrototype": "supabase/migrations/20260929154000_knoux_signal_v1_regex_fix.sql",
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20260929112940",
+      "name": "knoux_signal_v1_phone_constraint_fix",
+      "liveSourceMd5": "23618558b6df018143bc0e5bbd24ba34",
+      "mainPrototype": "supabase/migrations/20260929154100_knoux_signal_v1_phone_constraint_fix.sql",
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20260929114420",
+      "name": "knoux_signal_identity_activity",
+      "liveSourceMd5": "a93e431c6c39128def4720e66d18e250",
+      "mainPrototype": "supabase/migrations/20260929154800_knoux_signal_identity_activity.sql",
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20260929114509",
+      "name": "knoux_signal_rpc_grants",
+      "liveSourceMd5": "3806bff01ea3c9d4a50418065dbbc343",
+      "mainPrototype": "supabase/migrations/20260929155500_knoux_signal_rpc_grants.sql",
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20260929140514",
+      "name": "knoux_signal_source_registry",
+      "liveSourceMd5": "c9edcd34826b79d6b9dbe6678d4f141d",
+      "mainPrototype": "supabase/migrations/20260929181000_knoux_signal_source_registry.sql",
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20260929145105",
+      "name": "knoux_signal_sources_v2",
+      "liveSourceMd5": "dce8799a3e78fdf3140e51328afbf44d",
+      "mainPrototype": "supabase/migrations/20260929185000_knoux_signal_sources_v2.sql",
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20260929150708",
+      "name": "knoux_signal_source_metadata_v2",
+      "liveSourceMd5": "5d1d75d66a59555c6923ef7744dc7f15",
+      "mainPrototype": "supabase/migrations/20260929191000_knoux_signal_source_metadata_v2.sql",
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20260929220841",
+      "name": "knoux_signal_dataset_staging",
+      "liveSourceMd5": "653c1496c0db78c30df0b3ccb2dcf455",
+      "mainPrototype": "supabase/migrations/20260929220841_knoux_signal_dataset_staging.sql",
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20260929220929",
+      "name": "knoux_signal_ingestion_errors_run_index",
+      "liveSourceMd5": "1a7f1febbca8bcdad88f4d19bccd32b1",
+      "mainPrototype": "supabase/migrations/20260929220929_knoux_signal_ingestion_errors_run_index.sql",
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20260930233701",
+      "name": "knoux_signal_overture_temp_ingest_gate",
+      "liveSourceMd5": "316266215aa2ad368c3dd34ab6cac257",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20260930234047",
+      "name": "knoux_signal_overture_temp_ingest_gate_fix",
+      "liveSourceMd5": "df43730a1c37484a84db2d0af8cf5281",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20260930234128",
+      "name": "knoux_signal_overture_temp_select_gate",
+      "liveSourceMd5": "1f949d3e3f445255b29076fcdfcc4928",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261001015157",
+      "name": "signal_overture_temp_staging_rpc",
+      "liveSourceMd5": "c24ec05e8654a0feed9f62005281a3ae",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261001015536",
+      "name": "signal_overture_temp_staging_rpc_rotate",
+      "liveSourceMd5": "ee49775e25b0fff5e253add9eb65d04d",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261001020204",
+      "name": "remove_signal_overture_temp_staging_rpc",
+      "liveSourceMd5": "36898e97f998ea90fe62b5352989cb7e",
+      "mainPrototype": null,
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261001101329",
+      "name": "knoux_signal_temp_foursquare_bulk_stage",
+      "liveSourceMd5": "4737b01375b2a59b6c3541cefef108bc",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261001152537",
+      "name": "knoux_bridge_control_plane",
+      "liveSourceMd5": "f18a1ebf4ca32af144f3bcc35989e3aa",
+      "mainPrototype": null,
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261001152731",
+      "name": "harden_knoux_bridge_control_plane",
+      "liveSourceMd5": "cc94a4badbf7645b33cd99e9abf49f06",
+      "mainPrototype": null,
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261001154111",
+      "name": "knoux_bridge_vault",
+      "liveSourceMd5": "6eb8db988dfb526f5367ff306db2e65b",
+      "mainPrototype": null,
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261001154412",
+      "name": "knoux_bridge_edge_control",
+      "liveSourceMd5": "8bf3d5642548356781ea18af6d83525a",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261001201123",
+      "name": "enable_pgsodium_for_bridge",
+      "liveSourceMd5": "55937b5b387e7ac2c17aa1ccdfcaf25b",
+      "mainPrototype": null,
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261001201417",
+      "name": "knoux_bridge_vault_runtime",
+      "liveSourceMd5": "a02e0e0bae5ea32ec182ac13b186ff89",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261001201757",
+      "name": "knoux_bridge_vault_secrets",
+      "liveSourceMd5": "34b13b4a96e31cdfe4a5f48b08d61194",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261001204528",
+      "name": "knoux_bridge_vault_signer_and_gateway_tokens",
+      "liveSourceMd5": "5b6f23fda3bcbb7489de353758704b8a",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261001204617",
+      "name": "knoux_bridge_signature_verifier",
+      "liveSourceMd5": "ef8ab556d1e972bb915e33e3b57e62ad",
+      "mainPrototype": null,
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261002125707",
+      "name": "knoux_bridge_issuer_vault",
+      "liveSourceMd5": "21256f34478458ec82e362a75b7e34b3",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261002130433",
+      "name": "knoux_bridge_gateway_auth",
+      "liveSourceMd5": "0b8924462f9da8fa761ddb67c4f29078",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261002160737",
+      "name": "knoux_bridge_gateway_tokens_current",
+      "liveSourceMd5": "34de604ab788da98c8e18b5e122f32df",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261002162041",
+      "name": "rotate_knoux_bridge_gateway_runtime_token",
+      "liveSourceMd5": "5d09ad8c1eadf8dea38dcc4856067a0b",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261002162407",
+      "name": "enable_http_for_knoux_bridge_probe",
+      "liveSourceMd5": "ffe79137e2b09357a0f4fe854d7643f1",
+      "mainPrototype": null,
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261002163201",
+      "name": "knoux_bridge_gateway_tokens",
+      "liveSourceMd5": "b889eb6a72f6aa001d3e9b677cbf7941",
+      "mainPrototype": null,
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261002233953",
+      "name": "knoux_bridge_vault_material",
+      "liveSourceMd5": "9755fa12ef934e732c2cf3dfc1375933",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261003000635",
+      "name": "knoux_bridge_edge_runtime",
+      "liveSourceMd5": "9f179f4f1455e1c073e80355d04702d8",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261003000930",
+      "name": "harden_knoux_bridge_signing_init",
+      "liveSourceMd5": "996b4bf117fdd7c2aa1dcf92d3f7cafa",
+      "mainPrototype": null,
+      "historyStatus": "WITHHELD: secret-sensitive or conservative filter",
+      "canonicalCandidate": null,
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    },
+    {
+      "version": "20261003002431",
+      "name": "knoux_bridge_runtime_security",
+      "liveSourceMd5": "ecc324eaaead5cb04c65b94c7157c6aa",
+      "mainPrototype": null,
+      "historyStatus": "RECOVERED EXACT APPLIED STATEMENT",
+      "canonicalCandidate": "docs/audit/evidence/2026-10-03/live-applied-migrations.json",
+      "semanticParity": "UNPROVEN; matching name does not prove equality"
+    }
+  ]
+}
