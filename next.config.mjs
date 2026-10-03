@@ -13,6 +13,12 @@ const nextConfig = {
   // dev server without the two fighting over the same build directory.
   distDir: process.env.NEXT_DIST_DIR || '.next',
 
+  // Base44 preview origin — Next.js gates dev assets/HMR by origin; without
+  // this the preview's requests for dev modules are blocked.
+  allowedDevOrigins: process.env.BASE44_PUBLIC_HOST_SUFFIX
+    ? ['3000-' + process.env.BASE44_PUBLIC_HOST_SUFFIX]
+    : [],
+
   /**
    * Applied to every response, including the routes the workspace guard
    * refuses. A 401 that carries no policy is still a 401 a browser will render.
