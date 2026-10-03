@@ -1,0 +1,691 @@
+{
+  "observedAt": "2026-10-03T02:49:43.370Z",
+  "main": "ae7c0d394ea07047f3c0ef534411872a59c2711f",
+  "applicationObjectCounts": {
+    "column": 305,
+    "constraint": 129,
+    "extension": 7,
+    "function": 36,
+    "index": 89,
+    "policy": 14,
+    "relation": 39,
+    "relation_grant": 855,
+    "sequence": 7,
+    "trigger": 104
+  },
+  "publicTableRls": [
+    {
+      "table": "public.contact_requests",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.content_registry",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.content_sync_runs",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.knoux_bridge_control_config",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.knoux_bridge_enrollments",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.knoux_bridge_events",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.knoux_bridge_gateway_auth",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.knoux_bridge_gateway_principals",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.knoux_bridge_gateway_tokens",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.knoux_bridge_issuer",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.knoux_bridge_issuer_meta",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.knoux_bridge_jobs",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.knoux_bridge_machines",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.knoux_bridge_registration_nonces",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.knoux_bridge_sessions",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.knoux_bridge_signing_keys",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.profiles",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    },
+    {
+      "table": "public.signal_alias_submissions",
+      "enabled": true,
+      "forced": false,
+      "classification": "UNKNOWN"
+    },
+    {
+      "table": "public.signal_business_phone_records",
+      "enabled": true,
+      "forced": false,
+      "classification": "UNKNOWN"
+    },
+    {
+      "table": "public.signal_datasets",
+      "enabled": true,
+      "forced": false,
+      "classification": "UNKNOWN"
+    },
+    {
+      "table": "public.signal_ingestion_errors",
+      "enabled": true,
+      "forced": false,
+      "classification": "UNKNOWN"
+    },
+    {
+      "table": "public.signal_ingestion_runs",
+      "enabled": true,
+      "forced": false,
+      "classification": "UNKNOWN"
+    },
+    {
+      "table": "public.signal_network_codes",
+      "enabled": true,
+      "forced": false,
+      "classification": "UNKNOWN"
+    },
+    {
+      "table": "public.signal_numbering_prefixes",
+      "enabled": true,
+      "forced": false,
+      "classification": "UNKNOWN"
+    },
+    {
+      "table": "public.signal_numbers",
+      "enabled": true,
+      "forced": false,
+      "classification": "UNKNOWN"
+    },
+    {
+      "table": "public.signal_profiles",
+      "enabled": true,
+      "forced": false,
+      "classification": "UNKNOWN"
+    },
+    {
+      "table": "public.signal_reputation_reports",
+      "enabled": true,
+      "forced": false,
+      "classification": "UNKNOWN"
+    },
+    {
+      "table": "public.signal_search_events",
+      "enabled": true,
+      "forced": false,
+      "classification": "UNKNOWN"
+    },
+    {
+      "table": "public.signal_source_catalog",
+      "enabled": true,
+      "forced": false,
+      "classification": "UNKNOWN"
+    },
+    {
+      "table": "public.signal_source_records_staging",
+      "enabled": true,
+      "forced": false,
+      "classification": "UNKNOWN"
+    },
+    {
+      "table": "public.signal_viewer_preferences",
+      "enabled": true,
+      "forced": false,
+      "classification": "UNKNOWN"
+    },
+    {
+      "table": "public.site_settings",
+      "enabled": true,
+      "forced": false,
+      "classification": "LIVE ONLY"
+    }
+  ],
+  "publicRpcSignatures": [
+    {
+      "signature": "public.handle_new_user()",
+      "returns": "trigger",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "b9530a992823621841128247d6e90382",
+      "bodyWithheld": false,
+      "classification": "LIVE ONLY",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_active_signing_public()",
+      "returns": "TABLE(fingerprint text, public_key_pem text)",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "d5ec1b059abcdb13259f5971958265f5",
+      "bodyWithheld": false,
+      "classification": "LIVE ONLY",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_claim_job(p_machine_id uuid, p_session_id uuid)",
+      "returns": "SETOF knoux_bridge_jobs",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "fca4a6065852991e58f45c345d78521b",
+      "bodyWithheld": false,
+      "classification": "LIVE ONLY",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_enroll_machine(p_token_hash text, p_bridge_id text, p_fingerprint text, p_public_key text, p_hostname text, p_platform text, p_arch text, p_bridge_version text, p_capabilities jsonb)",
+      "returns": "TABLE(id uuid, owner_id uuid, bridge_id text)",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "29b77ab5f4d3e56df5c12aa4f43ada57",
+      "bodyWithheld": false,
+      "classification": "LIVE ONLY",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_get_gateway_key()",
+      "returns": "TABLE(secret text, key_hash text)",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "7e760529191c31f7d98d6598cbfa8ef0",
+      "bodyWithheld": false,
+      "classification": "SECRET-DEPENDENT",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_get_gateway_token()",
+      "returns": "text",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "538b8bb3cf8a71d46575386133e3fd92",
+      "bodyWithheld": false,
+      "classification": "SECRET-DEPENDENT",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_get_issuer()",
+      "returns": "TABLE(public_key text, fingerprint text, private_key text)",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "08e99e19ca91ed42d693d056d51e50c4",
+      "bodyWithheld": false,
+      "classification": "SECRET-DEPENDENT",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_get_secret(p_name text)",
+      "returns": "text",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "6e23dedb0529cbc2c03c846386f58dd8",
+      "bodyWithheld": false,
+      "classification": "SECRET-DEPENDENT",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_get_signing_material()",
+      "returns": "text",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "778679fdc202df968cb12209c281e662",
+      "bodyWithheld": false,
+      "classification": "SECRET-DEPENDENT",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_get_signing_private_key()",
+      "returns": "text",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "8b98fbbae3817c24bdde8c72272f0197",
+      "bodyWithheld": true,
+      "classification": "SECRET-DEPENDENT",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_get_signing_seed()",
+      "returns": "text",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "fc6a70f2315b1c2c8884afde8dbf694a",
+      "bodyWithheld": false,
+      "classification": "SECRET-DEPENDENT",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_lock_allowed_bridge(p_bridge_id text)",
+      "returns": "boolean",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "aa9397efedba6d3407cfc87cceb911e8",
+      "bodyWithheld": false,
+      "classification": "LIVE ONLY",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_mint_ticket(p_owner_id uuid, p_bridge_id text, p_sid text, p_scopes text[], p_ttl_seconds integer)",
+      "returns": "text",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "eccb2dc234ddd3c15953894a04451e78",
+      "bodyWithheld": false,
+      "classification": "SECRET-DEPENDENT",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_provision_issuer(p_private_key text, p_public_key text, p_fingerprint text)",
+      "returns": "TABLE(public_key text, fingerprint text, created boolean)",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "bb54c3d8608d2a87b615707c81a66b9d",
+      "bodyWithheld": true,
+      "classification": "SECRET-DEPENDENT",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_runtime_value(p_name text)",
+      "returns": "text",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "c6e8bc2742cc4bf070240d88d28d99d1",
+      "bodyWithheld": true,
+      "classification": "SECRET-DEPENDENT",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_server_material()",
+      "returns": "TABLE(signing_private_key text, signing_public_key text, gateway_token text)",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "846ff835b140be2ec8fa21a35f2afb89",
+      "bodyWithheld": true,
+      "classification": "SECRET-DEPENDENT",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_sign_message(p_message text)",
+      "returns": "text",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "ec192710768c5ef9c8575011313c759a",
+      "bodyWithheld": true,
+      "classification": "SECRET-DEPENDENT",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_store_gateway_key(p_secret text, p_hash text)",
+      "returns": "boolean",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "2b2d380c1e07998244dbf4fce8ba84f5",
+      "bodyWithheld": true,
+      "classification": "SECRET-DEPENDENT",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_store_issuer(p_private_key text, p_public_key text, p_fingerprint text)",
+      "returns": "TABLE(public_key text, fingerprint text)",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "14c642d2444e8dab96e3b05ba33815d3",
+      "bodyWithheld": true,
+      "classification": "SECRET-DEPENDENT",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_store_signing_key(p_private_key text, p_public_key text, p_fingerprint text)",
+      "returns": "boolean",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "1c4421e5ffe9b806f5680da2eaf705fb",
+      "bodyWithheld": true,
+      "classification": "SECRET-DEPENDENT",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.knoux_bridge_verify_signature(p_public_key_base64 text, p_message text, p_signature_base64 text)",
+      "returns": "boolean",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "57a5651ea2ed6f19334a9680f089998d",
+      "bodyWithheld": false,
+      "classification": "LIVE ONLY",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.set_updated_at()",
+      "returns": "trigger",
+      "securityDefiner": false,
+      "anonExecute": true,
+      "authenticatedExecute": true,
+      "definitionMd5": "082058a59b50aae6fbde4d4adba90749",
+      "bodyWithheld": false,
+      "classification": "LIVE ONLY",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.signal_business_matches(p_phone text)",
+      "returns": "jsonb",
+      "securityDefiner": true,
+      "anonExecute": true,
+      "authenticatedExecute": true,
+      "definitionMd5": "df32333b94c65f4765934f1fb799bc2d",
+      "bodyWithheld": false,
+      "classification": "UNKNOWN",
+      "sourceBodyMatches": true
+    },
+    {
+      "signature": "public.signal_claim_number(p_phone text, p_country_code text, p_national_number text, p_line_type text)",
+      "returns": "jsonb",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": true,
+      "definitionMd5": "ff76d9241129bf4739de44df2086b565",
+      "bodyWithheld": false,
+      "classification": "UNKNOWN",
+      "sourceBodyMatches": true
+    },
+    {
+      "signature": "public.signal_contribute_alias(p_phone text, p_country_code text, p_national_number text, p_label text, p_language text, p_category text)",
+      "returns": "jsonb",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": true,
+      "definitionMd5": "cfaa1d325836b81ade00fccf7e1b0422",
+      "bodyWithheld": false,
+      "classification": "UNKNOWN",
+      "sourceBodyMatches": true
+    },
+    {
+      "signature": "public.signal_lookup_safe(p_phone text, p_country_code text, p_national_number text, p_line_type text)",
+      "returns": "jsonb",
+      "securityDefiner": true,
+      "anonExecute": true,
+      "authenticatedExecute": true,
+      "definitionMd5": "2712946858529f7c29eec079741c3a9d",
+      "bodyWithheld": false,
+      "classification": "UNKNOWN",
+      "sourceBodyMatches": true
+    },
+    {
+      "signature": "public.signal_my_activity(p_phone text)",
+      "returns": "jsonb",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": true,
+      "definitionMd5": "41e90b058b59194e0a349e2764256a9e",
+      "bodyWithheld": false,
+      "classification": "UNKNOWN",
+      "sourceBodyMatches": true
+    },
+    {
+      "signature": "public.signal_normalize_label(p_label text)",
+      "returns": "text",
+      "securityDefiner": false,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "86576a48d6ea9e3e01369a16456f2159",
+      "bodyWithheld": false,
+      "classification": "UNKNOWN",
+      "sourceBodyMatches": true
+    },
+    {
+      "signature": "public.signal_promote_business_staging(p_dataset_key text)",
+      "returns": "jsonb",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": false,
+      "definitionMd5": "9f123f4799f60f34d2bbd75d8765d593",
+      "bodyWithheld": false,
+      "classification": "UNKNOWN",
+      "sourceBodyMatches": true
+    },
+    {
+      "signature": "public.signal_record_profile_view(p_phone text)",
+      "returns": "jsonb",
+      "securityDefiner": true,
+      "anonExecute": true,
+      "authenticatedExecute": true,
+      "definitionMd5": "d10494cc683d1b2015364d77747ffb65",
+      "bodyWithheld": false,
+      "classification": "UNKNOWN",
+      "sourceBodyMatches": true
+    },
+    {
+      "signature": "public.signal_report_reputation(p_phone text, p_country_code text, p_national_number text, p_line_type text, p_category text)",
+      "returns": "jsonb",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": true,
+      "definitionMd5": "e4fe2b4ba6071d670978d87d503a80a9",
+      "bodyWithheld": false,
+      "classification": "UNKNOWN",
+      "sourceBodyMatches": true
+    },
+    {
+      "signature": "public.signal_set_profile_preferences(p_phone text, p_allow_community_aliases boolean, p_visibility text, p_display_name text, p_business_name text, p_profile_kind text)",
+      "returns": "jsonb",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": true,
+      "definitionMd5": "9f1bb948a845eb10a646968b40ca2b31",
+      "bodyWithheld": false,
+      "classification": "UNKNOWN",
+      "sourceBodyMatches": true
+    },
+    {
+      "signature": "public.signal_set_viewer_preference(p_disclose_visits boolean, p_public_label text)",
+      "returns": "jsonb",
+      "securityDefiner": true,
+      "anonExecute": false,
+      "authenticatedExecute": true,
+      "definitionMd5": "4982f7d48a03785ecb7bcdf6a44bb69b",
+      "bodyWithheld": false,
+      "classification": "UNKNOWN",
+      "sourceBodyMatches": true
+    },
+    {
+      "signature": "public.signal_sources_public()",
+      "returns": "jsonb",
+      "securityDefiner": true,
+      "anonExecute": true,
+      "authenticatedExecute": true,
+      "definitionMd5": "2e19b2d71bd333313035e8c79e869cb4",
+      "bodyWithheld": false,
+      "classification": "UNKNOWN",
+      "sourceBodyMatches": true
+    },
+    {
+      "signature": "public.signal_temp_stage_foursquare(p_token text, p_rows jsonb)",
+      "returns": "jsonb",
+      "securityDefiner": true,
+      "anonExecute": true,
+      "authenticatedExecute": true,
+      "definitionMd5": "a97eff438decc749cac9aab811a10633",
+      "bodyWithheld": true,
+      "classification": "SECRET-DEPENDENT",
+      "sourceBodyMatches": null
+    },
+    {
+      "signature": "public.submit_contact_request(p_name text, p_email text, p_message text, p_phone text, p_company text, p_request_type text, p_source_path text, p_metadata jsonb)",
+      "returns": "uuid",
+      "securityDefiner": true,
+      "anonExecute": true,
+      "authenticatedExecute": true,
+      "definitionMd5": "b1d9539247228ba73b65daa84ffcd4f4",
+      "bodyWithheld": false,
+      "classification": "LIVE ONLY",
+      "sourceBodyMatches": null
+    }
+  ],
+  "extensions": [
+    {
+      "kind": "extension",
+      "identity": "http",
+      "details": {
+        "schema": "extensions",
+        "version": "1.6",
+        "relocatable": false
+      },
+      "classification": "UNKNOWN",
+      "comparisonReason": "Catalog structure verified; no complete semantic source comparison"
+    },
+    {
+      "kind": "extension",
+      "identity": "pg_stat_statements",
+      "details": {
+        "schema": "extensions",
+        "version": "1.11",
+        "relocatable": true
+      },
+      "classification": "UNKNOWN",
+      "comparisonReason": "Catalog structure verified; no complete semantic source comparison"
+    },
+    {
+      "kind": "extension",
+      "identity": "pgcrypto",
+      "details": {
+        "schema": "extensions",
+        "version": "1.3",
+        "relocatable": true
+      },
+      "classification": "UNKNOWN",
+      "comparisonReason": "Catalog structure verified; no complete semantic source comparison"
+    },
+    {
+      "kind": "extension",
+      "identity": "pgsodium",
+      "details": {
+        "schema": "pgsodium",
+        "version": "3.1.8",
+        "relocatable": false
+      },
+      "classification": "UNKNOWN",
+      "comparisonReason": "Catalog structure verified; no complete semantic source comparison"
+    },
+    {
+      "kind": "extension",
+      "identity": "plpgsql",
+      "details": {
+        "schema": "pg_catalog",
+        "version": "1.0",
+        "relocatable": false
+      },
+      "classification": "UNKNOWN",
+      "comparisonReason": "Catalog structure verified; no complete semantic source comparison"
+    },
+    {
+      "kind": "extension",
+      "identity": "supabase_vault",
+      "details": {
+        "schema": "vault",
+        "version": "0.3.1",
+        "relocatable": false
+      },
+      "classification": "UNKNOWN",
+      "comparisonReason": "Catalog structure verified; no complete semantic source comparison"
+    },
+    {
+      "kind": "extension",
+      "identity": "uuid-ossp",
+      "details": {
+        "schema": "extensions",
+        "version": "1.1",
+        "relocatable": true
+      },
+      "classification": "UNKNOWN",
+      "comparisonReason": "Catalog structure verified; no complete semantic source comparison"
+    }
+  ],
+  "catalogObjects": 4318,
+  "catalogObjectsSha256": "f460782c8f2b8e534530c8b084f1e35955c43b0a62235f3638803405845e23e2",
+  "derivation": "sha256 over JSON.stringify(live-structural-catalog.json .objects) as written by reconcile-phase-a.mjs",
+  "fingerprintNote": "Replaces an earlier snapshotSha256 that was computed over the pre-merge 4,316-object catalog and could not be reproduced from any surviving artifact. Per-object claims below are re-asserted against the current catalog by assert-phase-a-evidence.mjs."
+}

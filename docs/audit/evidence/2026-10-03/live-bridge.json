@@ -1,0 +1,66 @@
+{
+  "project": "cnkddxxhcfceokxzaaot",
+  "source": "Read-only aggregate SQL; no job payloads or secret columns queried",
+  "evidence": {
+    "events": 84,
+    "by_tool": [
+      {
+        "jobs": 7,
+        "tool": "logs.read",
+        "status": "succeeded"
+      },
+      {
+        "jobs": 15,
+        "tool": "metrics.read",
+        "status": "succeeded"
+      },
+      {
+        "jobs": 16,
+        "tool": "git.status",
+        "status": "succeeded"
+      },
+      {
+        "jobs": 1,
+        "tool": "logs.read",
+        "status": "failed"
+      },
+      {
+        "jobs": 10,
+        "tool": "proc.list",
+        "status": "succeeded"
+      },
+      {
+        "jobs": 12,
+        "tool": "fs.list",
+        "status": "succeeded"
+      },
+      {
+        "jobs": 5,
+        "tool": "fs.read",
+        "status": "succeeded"
+      }
+    ],
+    "machine": [
+      {
+        "status": "online",
+        "hostname": "DESKTOP-FCJJB5O",
+        "platform": "win32",
+        "last_seen_at": "2026-10-03T02:17:17.419+00:00",
+        "bridge_version": "0.1.0"
+      }
+    ],
+    "sessions": 6,
+    "by_status": [
+      {
+        "jobs": 65,
+        "status": "succeeded"
+      },
+      {
+        "jobs": 1,
+        "status": "failed"
+      }
+    ],
+    "database_now": "2026-10-03T02:17:25.114032+00:00",
+    "unexpired_sessions": 1
+  }
+}

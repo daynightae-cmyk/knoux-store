@@ -1,0 +1,598 @@
+{
+  "main": "ae7c0d394ea07047f3c0ef534411872a59c2711f",
+  "scope": "Every changed file in each one-commit donor; no wholesale merge, acquisition/import, generated claims or runtime execution",
+  "reviews": [
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": ".env.example",
+      "donorSha256": "47d60f5fb3c722b940dc8bc37a985d173e5a243a112ec12d0186d4f686d4f1ba",
+      "mainSha256": "506ab3f5dfd97d47a78994da1528fb5b33b00b8dc553dd573a8daa01c0aa2b0b",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Historical configuration/ignore additions replaced by larger current canonical configuration; old whole-file replacement drops later entries.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": ".gitignore",
+      "donorSha256": "d1e73e67475e8ffca299f7fdb48dd0920c0968bb790f64b6e347b08b743b8767",
+      "mainSha256": "032763a74eb5231dbaf250b4d1f9bde0eebdf90a18ca078461240db028a86115",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Historical configuration/ignore additions replaced by larger current canonical configuration; old whole-file replacement drops later entries.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "package-lock.json",
+      "donorSha256": "86f79d182236d95359044f0df121819c949212a953eecbea223b32f44f649034",
+      "mainSha256": "caf09755d5ec1eb057771365b4802f5be276ef8c09d7815d791b97290281e0e8",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current dependency graph includes later integrations; dependency work belongs to PR #30. No old lockfile import.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "package.json",
+      "donorSha256": "06bd66b5c5e7fa9ca5641acf5bf887ce6f52c929f89f8dce0c79c3dc46e86460",
+      "mainSha256": "fe07b23ecdb3fc0fd09ac3acdce7ffd6617317263384d1b6b3afb30d51222cb0",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current dependency graph includes later integrations; dependency work belongs to PR #30. No old lockfile import.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "proxy.ts",
+      "donorSha256": "82f6863cf67a1aa4b2364c05b9991c2bbcaa221a271d389c597b7a08049235d7",
+      "mainSha256": "2dd105806508d6d5a47b2512568deedd73452fa480e11c2291b2d1bf13426230",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current SSR adapter and proxy have current cookie/header handling and canonical naming. Donor five-table typing/config helpers are stale.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "references/QA_CLOSURE.md",
+      "donorSha256": "6f2727bfe9276226a021a73ff53336580c5cfc21ce04070672f51d28105f1b96",
+      "mainSha256": "0b5fd82736226ecdd9e759b70fedd2a6fec6a5fb7eb1c48209b9d68f6a8e5e2e",
+      "mainPresence": "PRESENT",
+      "decision": "REFERENCE ONLY",
+      "reason": "Historical closure/QA report is provenance context, not present-day live proof.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "references/REFERENCE_IMPLEMENTATION_AUDIT.md",
+      "donorSha256": "e120de7066e3e6f88616e5ec7107502da03744922f749b1ce69940aaade0a037",
+      "mainSha256": "4782190da62738c9c6b0f2ffb596866cd32c2453d7b115e7c3fbe5d702bd7c78",
+      "mainPresence": "PRESENT",
+      "decision": "REFERENCE ONLY",
+      "reason": "Historical closure/QA report is provenance context, not present-day live proof.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "references/SUPABASE_AUTH_CLOSURE.md",
+      "donorSha256": "aad510e421c60612866176529c4d11c1f7a15fbdd0aec76647997fe3068a8a8f",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "REFERENCE ONLY",
+      "reason": "Historical closure/QA report is provenance context, not present-day live proof.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/app/account/page.tsx",
+      "donorSha256": "1b711e345971e21be0746b24f84883e02173446825f4c2cf51eac0db2b7d38b3",
+      "mainSha256": "0874641b60de75f5d6c546f7d9c62d87021c21a6812215f022f87ca87d1a542c",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/app/api/contact/route.ts",
+      "donorSha256": "8589d9dd874a65da44112764ffced3e744e4fd84c5751d035b95d2f182eefaca",
+      "mainSha256": "8ba4b39a5bc521a2e0a4383e7ba508189e9eeff78632b5e7b7723a67117f0fa9",
+      "mainPresence": "PRESENT",
+      "decision": "BLOCKED",
+      "reason": "Unique durable Supabase contact intake/Stored UI semantics conflict with current guarded webhook-only contract. Live RPC exists, but source/grant parity and intended persistence are unproved; preserve current origin/size/rate guards.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/app/auth/callback/route.ts",
+      "donorSha256": "6155591c212ca2d7b7a07a0bd54e6f43f776e07f774073211f0617f15ae823bf",
+      "mainSha256": "cc39cdd652a7950795976d1f11d9e0071ef4da817f7d13635b80ef945475cc08",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/app/forgot-password/page.tsx",
+      "donorSha256": "c40e58cc440e8c378bb21f193162dfe1cd2ba185802bee2109710a7c58624182",
+      "mainSha256": "2a6dd8f0cc50578d0d95e844472053007c4ec468ea83d1c1a6b0ac2277f388a6",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/app/globals.css",
+      "donorSha256": "2cb5d39c4c70197cb99749f1a8f9c74792d2618c8e5aafba17538c780b9c12a2",
+      "mainSha256": "c56455ed3d51678df4960acba3cc6dd73c1dab061bf5716ff94f331d418cea37",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/app/login/page.tsx",
+      "donorSha256": "a69134180ff3b7dbab2a6952e976a0e08da5abd41c38f5312856dfef0ddfe031",
+      "mainSha256": "8e7845f7575f20c1735334c87d89296a08c12f88068d0d1e83954e23309edfb3",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/app/register/page.tsx",
+      "donorSha256": "bbd7d925bfb2756896785370826038f840dc429133850b3fa923d6254a19e48c",
+      "mainSha256": "1782f029df852793e7da356f41563bd4ba9d1479b62573c4218902cbff5e6807",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/app/update-password/page.tsx",
+      "donorSha256": "0a0ed6ecdb2c80f7b89c535eb61a3660ca3a3687593c2abc38da51e750c06827",
+      "mainSha256": "688aa7ec618ec7a0813863cf767bebebf0b48506c5b4773a8b930798186683c6",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/components/RequestForm.tsx",
+      "donorSha256": "25a82824f7a387a82489e13a7f527504ab72a2a2aad651e53b40875fae9d6b6a",
+      "mainSha256": "46a466b890ffff31a06c408feed05ab5732aaccb2c54b9c496df86a59c15ce1e",
+      "mainPresence": "PRESENT",
+      "decision": "BLOCKED",
+      "reason": "Unique durable Supabase contact intake/Stored UI semantics conflict with current guarded webhook-only contract. Live RPC exists, but source/grant parity and intended persistence are unproved; preserve current origin/size/rate guards.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/components/SiteHeader.tsx",
+      "donorSha256": "60e3987d784f1b6020829b63cb9ceaff3f493103a3c96372117a02b30b352880",
+      "mainSha256": "53667eef0b170b94d4193740b1ae92a1d75c898bc9f1e2de35c6ed65ef178ba1",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Later canonical navigation/auth integration and visual system supersede old header/styles; no visual donor transplant.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/components/auth/AuthStatus.tsx",
+      "donorSha256": "f8eac70a40f64e9536a62a2db3c59774807ce6aa3092c6d5358cbcd9ffbd804e",
+      "mainSha256": "7439a147d9b141a6ebd2b1220216e1abb4170b28f6c9a6742a3795a8cc6e6b23",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/components/auth/ForgotPasswordForm.tsx",
+      "donorSha256": "3df55b6db61d60a9f1f80de8336ec3a6fd2e9c3aeb96c9fbe911590232612f68",
+      "mainSha256": "060c38b5e496baae8ed797a599e6a1603e247f9677ac936c3a697b58390ad3b6",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/components/auth/LoginForm.tsx",
+      "donorSha256": "9973330c984b10b6ed0a3c2aa34ea2499ae9b8bbf492450a9a589ec8f901f309",
+      "mainSha256": "b2f2579d26824edde63ddb81c64be0cefb85863719ee76f0990b65707ff5d992",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/components/auth/ProviderButtons.tsx",
+      "donorSha256": "2205bfd5a79322a030bcf9b491091e7aa89d6c3d9565033ea22d79118e61e90f",
+      "mainSha256": "172ea90d1aa596aab0eba52f4bf1187012a1332d19ecd7e0f8c624c1d5c0a604",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/components/auth/RegisterForm.tsx",
+      "donorSha256": "cdee82a025483256aff9eadf6d0e538449caa22320923085d20fa1c359ba7095",
+      "mainSha256": "d42a5c829a430ec8e833e5df27569af8fb791b4a92915ca70e642145ae525c55",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/components/auth/UpdatePasswordForm.tsx",
+      "donorSha256": "7e46be797f53ce0613ad115397a2753db2b5a09a918cffa92c31a803fa93d0f6",
+      "mainSha256": "cd0d6254c433973c1f49fa6d711ac2521b4b9bc04f01fad663c844a8ef7831d5",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/lib/auth/actions.ts",
+      "donorSha256": "70635808e6b4ddf39ccad10a88605e3a0441b60cc0145588060c211ece6e216f",
+      "mainSha256": "9893cd5abba2669cc4de6cc4d1f168a742aaa00e8b973a1db12133720a190632",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/lib/auth/provider.ts",
+      "donorSha256": "30bbd10f171108ae395b66e6187376120c7978292d56564d824c41a187c2f616",
+      "mainSha256": "6f5f3d8ca6f12859a5e361d1468f19d24cd43538f9a1c11ceb7ad3ad20422dd5",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/lib/auth/state.ts",
+      "donorSha256": "36b3545ea33adb4469040de6963bc122224983ad9dfb7f8f88b25e6ff4bdd895",
+      "mainSha256": "6f9536a2c4950a750d9cb601888373ee12fbc76ff3115d32275a0e887894f2b2",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/lib/auth/validation.ts",
+      "donorSha256": "27445fb0885acef2e6db1927f795143ce1f575fcbcb02f708f51ded6cb46448b",
+      "mainSha256": "f5d049096f171dfac9d8f38a1b91377f73d3b75c052fe3e5c105fc22a0b60259",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current source retains real Supabase credential/OAuth/recovery actions and newer redirect/capability/form contracts. Donor whole-file restoration would regress canonical behavior.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/lib/supabase/client.ts",
+      "donorSha256": "ba651e1453bac6a2fed4f4fe3051aa1e2245038d9ff90e2c92960b23c55f647c",
+      "mainSha256": "efab7b12791e826e534797a7043ade9836e320576666ba46840eb4f30be3f4d5",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current SSR adapter and proxy have current cookie/header handling and canonical naming. Donor five-table typing/config helpers are stale.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/lib/supabase/config.ts",
+      "donorSha256": "545fd0dd1832926ecdf788239712a66385c81eb8b4f695cc19520e61e50e8237",
+      "mainSha256": "212cf9886b9c1cf8c11dea6fd5e34ba0b92f6103b2a0e9188ac593b7fa9ef59f",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current SSR adapter and proxy have current cookie/header handling and canonical naming. Donor five-table typing/config helpers are stale.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/lib/supabase/database.types.ts",
+      "donorSha256": "72c0d694fd5c687c2c2731344e9b213e1a21a425b906d735b19aca82592cfee8",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "REFERENCE ONLY",
+      "reason": "Historical five-table generated types omit current Signal and bridge structures; stale type safety must not replace live catalog.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/lib/supabase/proxy.ts",
+      "donorSha256": "77f9ae9bc6aa29497c9371339bfe6c483c9a98a0d38bd361287e3499fce6c5ba",
+      "mainSha256": "8154b3bc6a912988145aaf230fd760847a4842ea0172bd3ee902958b14b91d18",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current SSR adapter and proxy have current cookie/header handling and canonical naming. Donor five-table typing/config helpers are stale.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "src/lib/supabase/server.ts",
+      "donorSha256": "8ee833251e633c1990323bc13c1695b790cf5500c69e5f7817ca12d57d44a31e",
+      "mainSha256": "5581227465b9751613017769bed410c51395db46fe7fb89540752291452745e2",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current SSR adapter and proxy have current cookie/header handling and canonical naming. Donor five-table typing/config helpers are stale.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "supabase/build-content-seed.mjs",
+      "donorSha256": "352f3c1400faa420431a3731e88966e18b39f85b106cea7caba12fb7e138ab40",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "BLOCKED",
+      "reason": "Literal-only TypeScript AST exporter generates local JSON and transactional seed SQL; old named exports/current collection compatibility and content_sync source parity unproved. Not run.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "supabase/migrations/20260928171744_knoux_store_foundation.sql",
+      "donorSha256": "ece9713c0ca05917709f657c31eaa173ca48d6232cb34a22a27645637c779ff7",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "REFERENCE ONLY",
+      "reason": "Historical foundation prototype: live same-version statement MD5 differs; current catalog is authority. Never apply or represent as recovered historical migration.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "supabase/migrations/20260928172305_harden_knoux_store_foundation.sql",
+      "donorSha256": "bd9c8367f5ce6ab553fbc8b6e8d92331bc6d85ad828b7a2a19861a499de131ee",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "REFERENCE ONLY",
+      "reason": "Historical foundation prototype: live same-version statement MD5 differs; current catalog is authority. Never apply or represent as recovered historical migration.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "tests/auth.test.mjs",
+      "donorSha256": "d0aa3c2f0c9aec93820e3c3ff6c9a2edc0b1db6650b97341dd7ed839ed42d153",
+      "mainSha256": "fd722914e4c2220eb9108f291190a655a6178f8c667308316c5bdfecb7a550e0",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current tests exercise hardened auth, redirects and contact guards; historical source-contract assertions target obsolete helpers/Stored intake.",
+      "executed": false
+    },
+    {
+      "donor": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "path": "tests/site.test.mjs",
+      "donorSha256": "846776939cb5de4cb477601ccbf648a1aef57f946712abd5c11537c5fc66335a",
+      "mainSha256": "774abbd2e820b192a0f067282681e825d2f1ae0c57200b1e1faee06a1dfd9a49",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current tests exercise hardened auth, redirects and contact guards; historical source-contract assertions target obsolete helpers/Stored intake.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": ".gitignore",
+      "donorSha256": "dbdb5b7a7f95c1c2045515cf6bc71f86cd7f3e0362b19d1b3c137906606d1757",
+      "mainSha256": "032763a74eb5231dbaf250b4d1f9bde0eebdf90a18ca078461240db028a86115",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Current ignore rules preserve later source/evidence structure. Broad /audit/ ignore would hide future evidence.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "config/signal_sources.yaml",
+      "donorSha256": "186d92766c8f4f8e10285e9b30211c529fe7bb0488ae38b44b62a705559476a1",
+      "mainSha256": "f6affdaf519fdab1ad718f1e55a359ef5f37c7431b2916ff21885a0b06e26c36",
+      "mainPresence": "PRESENT",
+      "decision": "BLOCKED",
+      "reason": "Enables new ingestion sources and declares approval/licensing including OpenSanctions; source-policy evidence not retained. Current configuration deliberately keeps several disabled.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "requirements-signal.txt",
+      "donorSha256": "9ae95f8338729addbe53e3f7625f6a46fa3c888cc66564b58360be5fdd7f45a3",
+      "mainSha256": "903d181718042e8ab31299026973f4ff250617c3e74a9254b74d417a1b328fff",
+      "mainPresence": "PRESENT",
+      "decision": "BLOCKED",
+      "reason": "Adds osmium/PyMuPDF and broad DuckDB range; no compatible locked, audited ingestion toolchain proved.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "scripts/signal/acquire_foursquare_places.py",
+      "donorSha256": "9ba1214e09764547350e205b9d59a03382fb348a92c0422cc67707dfbdf32d24",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "BLOCKED",
+      "reason": "DuckDB remote mirror extraction and external parquet writes; remote dataset revision/license and staging consumer provenance unproved.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "scripts/signal/acquire_opensanctions_targets.py",
+      "donorSha256": "f760d7ae8a2bc3cf9f0313d7721e9cb1c7a44d0410d1224d4fceeec465e635bb",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "BLOCKED",
+      "reason": "Streams targets and emits Person/Business aliases. Donor CC-BY claim and personal-data acceptance lack retained current approval evidence.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "scripts/signal/acquire_overture_fsq_places.py",
+      "donorSha256": "8bed06b36bc4b147e31789be8deccac1ee648756faec044dabab65f85c5c0bc9",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "BLOCKED",
+      "reason": "Remote joined parquet extraction, normalization and staging batches; unpinned dataset and dual-source attribution require proof.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "scripts/signal/acquire_overture_places.py",
+      "donorSha256": "3360f06c43fcc47cc7491feb3499603670733f2e18b44643416147fedd950ae6",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "BLOCKED",
+      "reason": "STAC-selected release and remote S3 extraction. Per-record licence handling and exact pinned release need evidence.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "scripts/signal/acquire_wikidata_phones.py",
+      "donorSha256": "729a5ee61d9622cc37032191925e3fac95f835ec8c847d0681a6fd2f598aa22d",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "BLOCKED",
+      "reason": "Country-scoped SPARQL excludes explicit Q5 humans, not all personal records; output-promotion validation unproved.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "scripts/signal/consolidate_manifests.py",
+      "donorSha256": "7b70a96baac0a3a5331efb17dd5b88272d74e9f81b3f30abcf9c5cfd15267ab2",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "REFERENCE ONLY",
+      "reason": "Builds local central Pydantic manifest from hard-coded dataset entries and counts. No database promotion call found; previous mutatingApi heuristic is withdrawn. Must not import historical measured claims as current evidence.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "scripts/signal/extract_osm_business_phones.py",
+      "donorSha256": "df48f8b933c04d980aa2db7cd163f69bb5afaf26862ff5746e86110d0d7b0553",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "BLOCKED",
+      "reason": "OSM extraction rewrites batches and unlinks prior output; attribution, name/brand filter and safe output-path validation need evidence before reuse.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "scripts/signal/measure_corpus_metrics.py",
+      "donorSha256": "bb51f1fb160f27d82470e32e0dbb77c3858a5416f91a64f5cef2ec15b71d675d",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "REFERENCE ONLY",
+      "reason": "Top-level local parquet scanning; hard-coded corpus paths. Counts apply only to those artifacts, not live database.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "scripts/signal/parse_itu_numbering.py",
+      "donorSha256": "a5504466fab54617bd827cc58a7bb57494258a120b4cb68ecd37b089e2c47dfb",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "BLOCKED",
+      "reason": "Hard-coded country PDF page/table selections and deterministic range expansion; current source-PDF hashes and extraction accuracy not proved.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "scripts/signal/prepare_telecom_metadata.py",
+      "donorSha256": "ff317795a61ed334b7e9ffca2d022230084d73b8267de90143004054795f924e",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "BLOCKED",
+      "reason": "Writes network/prefix payloads plus UI mapping from local manifests; uppercase MOBILE and provenance mapping compatibility need validation.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "scripts/signal/query_placekey_mena.py",
+      "donorSha256": "1a55342694563f0bd055e83318825cfb50bd8bd1226cd338c988da95d645cd6e",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "REFERENCE ONLY",
+      "reason": "Network query and DuckDB extension installation execute at import time; exploratory counts only.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "scripts/signal/signal_storage.py",
+      "donorSha256": "afa6267df0769b3884610e96f6ed4c588eb0a656b3f1db8854fc9a2a49c955b6",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "BLOCKED",
+      "reason": "Useful external-storage routing and free-space guard, but imports config mkdir side effects and hard-coded Windows default. No proven deployment integration or import-safety.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "scripts/signal/test_hotosm.py",
+      "donorSha256": "f4765b7d592d8d93e8bb4311b993588e33a9f93869969111196140b2304652ad",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "REFERENCE ONLY",
+      "reason": "Exploratory HDX HTTP requests execute at import time; not a deterministic offline test.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "src/lib/signal/generated/carrierPrefixes.json",
+      "donorSha256": "37bc7dd1f246959e98589666c4848907c9fe0e93bd593334fba85d1134f779e6",
+      "mainSha256": null,
+      "mainPresence": "ABSENT",
+      "decision": "BLOCKED",
+      "reason": "Generated mapping lacks bundled raw manifest provenance and is not referenced by current instant-telecom source. Do not treat prefixes as verified identity or carrier evidence.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "src/lib/wordpress/external.ts",
+      "donorSha256": "1f561eaa3d1f1d9149bad993a8eb4ff7129c3c8f14e35040875552bcecf776c6",
+      "mainSha256": "b8c3a082d7a29014c0a115e29fe31bb03875ac15569a3a97ecbcf13346074e0d",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Raster-only intent is superseded by current toRenderableAssetUrl plus MIME/redirect/size checks in asset-policy and proxy tests. Donor filter/test adds no unique accepted behavior.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "src/lib/wordpress/wordpress-org.ts",
+      "donorSha256": "3ed2d8b376957a9f71875405f04710f34ac9b98d02622bdd4b0c64a671632a5b",
+      "mainSha256": "4ab8ee645feaf13f0423bb16b2f92b23c1989a94ddf186a199fc123e2b91e1c1",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Raster-only intent is superseded by current toRenderableAssetUrl plus MIME/redirect/size checks in asset-policy and proxy tests. Donor filter/test adds no unique accepted behavior.",
+      "executed": false
+    },
+    {
+      "donor": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "path": "tests/wordpress-marketplace.test.mjs",
+      "donorSha256": "ad771b2725c7918e8a31065f27121bc4274a09427fc2c13ba1a05c96bdc0305e",
+      "mainSha256": "0c697e4e070dc4b314fddd42f45b83367c0116741f90c297f824b761ded4e01c",
+      "mainPresence": "PRESENT",
+      "decision": "SUPERSEDED",
+      "reason": "Raster-only intent is superseded by current toRenderableAssetUrl plus MIME/redirect/size checks in asset-policy and proxy tests. Donor filter/test adds no unique accepted behavior.",
+      "executed": false
+    }
+  ],
+  "counts": {
+    "ff902822c7b70f6a91b93c5e1470ddfac24579b6": {
+      "SUPERSEDED": 29,
+      "REFERENCE ONLY": 6,
+      "BLOCKED": 3
+    },
+    "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf": {
+      "SUPERSEDED": 4,
+      "BLOCKED": 12,
+      "REFERENCE ONLY": 4
+    }
+  }
+}

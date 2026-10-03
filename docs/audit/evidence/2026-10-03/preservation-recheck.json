@@ -1,0 +1,15 @@
+{
+  "observedAt": "2026-10-03T06:22:01.317Z",
+  "baseline": {
+    "census": "census.json",
+    "censusObservedAt": "2026-10-03T02:19:23.356Z",
+    "base": "ae7c0d394ea07047f3c0ef534411872a59c2711f"
+  },
+  "excludedOwner": "PR #30 dependency-audit worktree (independent owner)",
+  "checked": 316,
+  "unchanged": 316,
+  "changed": [],
+  "missing": [],
+  "bridgeDirtyStatus": " M .env.example\n M bridge/src/control-plane.ts\n M bridge/src/main.ts\n M bridge/src/server.ts\n M bridge/test/control-plane.test.mjs\n M gateway/Dockerfile\n M gateway/README.md\n M gateway/control.py\n M gateway/server.py\n M gateway/test_control.py\n M src/app/api/build/bridge/control/poll/route.ts\n M src/app/api/build/bridge/control/register/route.ts\n M supabase/migrations/20261001150000_knoux_bridge_control_plane.sql\n M tsconfig.json\n?? supabase/functions/\n?? supabase/migrations/20261001153500_harden_knoux_bridge_control_plane.sql\n?? supabase/migrations/20261001154500_knoux_bridge_vault.sql\n?? supabase/migrations/20261001155500_knoux_bridge_edge_control.sql\n?? supabase/migrations/20261002170000_knoux_bridge_issuer_vault.sql\n?? supabase/migrations/20261002171500_knoux_bridge_gateway_auth.sql\n?? supabase/migrations/20261002180000_knoux_bridge_gateway_tokens_current.sql\n?? supabase/migrations/20261003040500_knoux_bridge_edge_runtime.sql\n",
+  "result": "Every recorded donor byte is unchanged since census. Preservation holds; this proves non-mutation only and implies nothing about runtime behavior."
+}

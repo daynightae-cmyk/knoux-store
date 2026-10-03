@@ -1,0 +1,128 @@
+{
+  "observedAt": "2026-10-03T06:21:33.951Z",
+  "main": "ae7c0d394ea07047f3c0ef534411872a59c2711f",
+  "lockfileSha256": "caf09755d5ec1eb057771365b4802f5be276ef8c09d7815d791b97290281e0e8",
+  "owner": "PR #30",
+  "cli": "npm@10.9.4 audit read-only; host allow-scripts policy unchanged",
+  "productionAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "fullDevToolingAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 6,
+    "critical": 0,
+    "total": 6
+  },
+  "openAdvisories": [
+    {
+      "name": "@next/eslint-plugin-next",
+      "severity": "high",
+      "range": ">=14.3.0-canary.0",
+      "via": [
+        "fast-glob"
+      ],
+      "availableFix": {
+        "name": "eslint-config-next",
+        "version": "14.2.35",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "braces",
+      "severity": "high",
+      "range": "*",
+      "via": [
+        {
+          "source": 1240992,
+          "name": "braces",
+          "dependency": "braces",
+          "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+          "severity": "high",
+          "cwe": [
+            "CWE-674"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=3.0.3"
+        }
+      ],
+      "availableFix": {
+        "name": "knip",
+        "version": "6.39.0",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "eslint-config-next",
+      "severity": "high",
+      "range": ">=14.3.0-canary.0",
+      "via": [
+        "@next/eslint-plugin-next"
+      ],
+      "availableFix": {
+        "name": "eslint-config-next",
+        "version": "14.2.35",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "fast-glob",
+      "severity": "high",
+      "range": "*",
+      "via": [
+        "micromatch"
+      ],
+      "availableFix": {
+        "name": "knip",
+        "version": "6.39.0",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "knip",
+      "severity": "high",
+      "range": "<=0.0.0 || 1.0.0-alpha.0 - 6.4.1",
+      "via": [
+        "fast-glob"
+      ],
+      "availableFix": {
+        "name": "knip",
+        "version": "6.39.0",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "micromatch",
+      "severity": "high",
+      "range": ">=0.2.0",
+      "via": [
+        "braces"
+      ],
+      "availableFix": {
+        "name": "knip",
+        "version": "6.39.0",
+        "isSemVerMajor": true
+      }
+    }
+  ],
+  "availableFix": "npm proposes breaking Knip 6.39.0 and eslint-config-next 14.2.35 graph changes; no compatible full-graph resolution validated or applied",
+  "noFixAvailable": {
+    "advisory": "GHSA-vfj7-8cjw-p6xm",
+    "affected": "braces <=3.0.3",
+    "patchedVersion": null,
+    "source": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+    "checkedAt": "2026-10-03",
+    "note": "GitHub advisory lists Patched versions: None; one underlying advisory yields six vulnerable graph nodes"
+  },
+  "status": "BLOCKED"
+}
