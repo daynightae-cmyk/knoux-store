@@ -19,7 +19,23 @@ const gitBytes=(ref,p)=>{try{const type=execFileSync('git',['cat-file','-t',ref+
 // Read once. An existsSync/statSync pre-check would be a check-then-read race, and it
 // also resolves two different snapshots. Only the expected absence / not-a-regular-file
 // outcomes become null; every other IO failure propagates instead of being swallowed.
-const bytesAt=(p)=>{try{return fs.readFileSync(p);}catch(error){if(error&&typeof error==='object'&&'code' in error&&['ENOENT','EISDIR','ENOTDIR'].includes(error.code))return null;throw error;}};
+// The absence test is a named multi-line condition: chained inline it reads as one
+// expression and static analysis flags the nesting as ambiguous operator precedence.
+const absentFileCodes = new Set(['ENOENT', 'EISDIR', 'ENOTDIR']);
+const bytesAt = (p) => {
+  try {
+    return fs.readFileSync(p);
+  } catch (error) {
+    // Boolean(error) is load-bearing: typeof null === 'object', so without it the
+    // `'code' in error` test would throw on a null reason instead of rethrowing it.
+    const fileIsAbsent = Boolean(error)
+      && typeof error === 'object'
+      && 'code' in error
+      && absentFileCodes.has(error.code);
+    if (fileIsAbsent) return null;
+    throw error;
+  }
+};
 // Preserve case and whitespace inside SQL string literals. This is a conservative
 // textual comparison, not a PostgreSQL semantic-equivalence parser.
 const stripComments=s=>s.split(/('(?:''|[^'])*')/).map((x,i)=>i%2?x:x.replace(/--[^\n]*/g,'')).join('');
