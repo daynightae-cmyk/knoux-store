@@ -1,10 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 import {
   checkDeclaredLength,
   checkRequestOrigin,
   intakeRateLimit,
   readBoundedJson,
-} from '@/lib/contact/intake-guard';
+} from "@/lib/contact/intake-guard";
+import {
+  isEmailConfigured,
+  sendContactNotification,
+} from "@/lib/contact/email";
 
 /**
  * Request intake.
@@ -13,9 +17,10 @@ import {
  * engine, so a Composer stack, a WordPress goal and a direct contact all
  * arrive in the same shape.
  *
- * Delivery requires CONTACT_WEBHOOK_URL. Without it the endpoint returns 503
- * rather than pretending a message was received. No other transport, no
- * logging of message content, and no storage of submissions.
+ * Delivery uses email (Resend API, RESEND_API_KEY) as the primary transport,
+ * falling back to CONTACT_WEBHOOK_URL. Without either the endpoint returns 503
+ * rather than pretending a message was received. No logging of message
+ * content, and no storage of submissions.
  *
  * Abuse controls are applied in the order that costs the least to a legitimate
  * caller: a cross-site browser request is refused before the body is read, an
@@ -43,20 +48,24 @@ type Payload = {
 function cleanList(value: unknown, limit: number): string[] {
   if (!Array.isArray(value)) return [];
   return value
-    .filter((entry): entry is string => typeof entry === 'string')
+    .filter((entry): entry is string => typeof entry === "string")
     .map((entry) => entry.trim().slice(0, 160))
     .filter(Boolean)
     .slice(0, limit);
 }
 
 function cleanText(value: unknown, max: number): string {
-  return typeof value === 'string' ? value.trim().slice(0, max) : '';
+  return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
 
-function refuse(status: number, error: string, extra: Record<string, unknown> = {}) {
+function refuse(
+  status: number,
+  error: string,
+  extra: Record<string, unknown> = {},
+) {
   return NextResponse.json(
     { error, delivered: false, ...extra },
-    { status, headers: { 'cache-control': 'no-store' } },
+    { status, headers: { "cache-control": "no-store" } },
   );
 }
 
@@ -79,13 +88,15 @@ function refuse(status: number, error: string, extra: Record<string, unknown> = 
  */
 function publicOrigin(request: Request): string {
   const headers = request.headers;
-  const host = headers.get('x-forwarded-host') ?? headers.get('host');
+  const host = headers.get("x-forwarded-host") ?? headers.get("host");
   if (!host) return new URL(request.url).origin;
 
-  const forwardedProto = headers.get('x-forwarded-proto');
+  const forwardedProto = headers.get("x-forwarded-proto");
   const proto =
     forwardedProto ??
-    (host.startsWith('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https');
+    (host.startsWith("localhost") || host.startsWith("127.0.0.1")
+      ? "http"
+      : "https");
 
   return `${proto}://${host}`;
 }
@@ -95,23 +106,29 @@ export async function POST(request: Request) {
 
   const origin = checkRequestOrigin(request.headers, ownOrigin);
   if (!origin.ok) {
-    return refuse(403, 'This endpoint accepts submissions from the KNOuX site only.');
+    return refuse(
+      403,
+      "This endpoint accepts submissions from the KNOuX site only.",
+    );
   }
 
   const declared = checkDeclaredLength(request.headers);
   if (!declared.ok) {
-    return refuse(413, 'Submission is larger than this endpoint accepts.');
+    return refuse(413, "Submission is larger than this endpoint accepts.");
   }
 
   const limit = intakeRateLimit(request);
   if (!limit.ok) {
     return NextResponse.json(
-      { error: 'Too many submissions. Please try again shortly.', delivered: false },
+      {
+        error: "Too many submissions. Please try again shortly.",
+        delivered: false,
+      },
       {
         status: 429,
         headers: {
-          'cache-control': 'no-store',
-          'retry-after': String(limit.retryAfterSeconds ?? 60),
+          "cache-control": "no-store",
+          "retry-after": String(limit.retryAfterSeconds ?? 60),
         },
       },
     );
@@ -119,19 +136,25 @@ export async function POST(request: Request) {
 
   const body = await readBoundedJson(request);
   if (!body.ok) {
-    return refuse(body.reason === 'body-too-large' ? 413 : 400, 'Invalid request body.');
+    return refuse(
+      body.reason === "body-too-large" ? 413 : 400,
+      "Invalid request body.",
+    );
   }
 
   const data = body.value;
-  if (!data || typeof data !== 'object' || Array.isArray(data)) {
-    return refuse(400, 'Invalid request body.');
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    return refuse(400, "Invalid request body.");
   }
 
   const fields = data as Record<string, unknown>;
 
   // Honeypot submissions are accepted silently so bots do not learn the rule.
   if (cleanText(fields.website, 200)) {
-    return NextResponse.json({ ok: true, delivered: false }, { headers: { 'cache-control': 'no-store' } });
+    return NextResponse.json(
+      { ok: true, delivered: false },
+      { headers: { "cache-control": "no-store" } },
+    );
   }
 
   const payload: Payload = {
@@ -139,13 +162,19 @@ export async function POST(request: Request) {
     email: cleanText(fields.email, 254),
     organisation: cleanText(fields.organisation, 160),
     message: cleanText(fields.message, 4000),
-    requestType: cleanText(fields.requestType, 40) || 'custom',
+    requestType: cleanText(fields.requestType, 40) || "custom",
     selectedItems: cleanList(fields.selectedItems, MAX_ITEMS),
     preferredChannels: cleanList(fields.preferredChannels, MAX_CHANNELS),
-    budgetBand: typeof fields.budgetBand === 'string' ? fields.budgetBand.slice(0, 40) : null,
+    budgetBand:
+      typeof fields.budgetBand === "string"
+        ? fields.budgetBand.slice(0, 40)
+        : null,
     timeline: cleanText(fields.timeline, 40),
-    sourceInput: typeof fields.sourceInput === 'string' ? cleanText(fields.sourceInput, 500) : null,
-    entryRoute: cleanText(fields.entryRoute, 200) || '/contact',
+    sourceInput:
+      typeof fields.sourceInput === "string"
+        ? cleanText(fields.sourceInput, 500)
+        : null,
+    entryRoute: cleanText(fields.entryRoute, 200) || "/contact",
   };
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email);
@@ -155,35 +184,64 @@ export async function POST(request: Request) {
     payload.message.length < 10 ||
     payload.message.length > 4000
   ) {
-    return refuse(422, 'Request fields are invalid.');
+    return refuse(422, "Request fields are invalid.");
   }
 
+  const receivedAt = new Date().toISOString();
   const webhook = process.env.CONTACT_WEBHOOK_URL;
-  if (!webhook) {
-    return refuse(503, 'Request delivery is not configured on this deployment.');
+
+  if (!isEmailConfigured() && !webhook) {
+    return refuse(
+      503,
+      "Request delivery is not configured on this deployment.",
+    );
   }
+
+  // Email is the primary transport when configured.
+  if (isEmailConfigured()) {
+    const sent = await sendContactNotification({ ...payload, receivedAt });
+    if (sent) {
+      return NextResponse.json(
+        { ok: true, delivered: true },
+        { headers: { "cache-control": "no-store" } },
+      );
+    }
+    // Email failed — fall through to webhook if available, otherwise report failure.
+    if (!webhook) return refuse(502, "Delivery failed.");
+  }
+
+  // Re-assert the invariant immediately before the outbound request. The two
+  // guards above only prove it along their own control-flow paths; this is the
+  // point where the value is actually used, so it is where it must be checked.
+  // The URL is server-configured only — nothing in the request body can reach
+  // this fetch, so there is no user-controlled SSRF surface here.
+  if (!webhook)
+    return refuse(
+      503,
+      "Request delivery is not configured on this deployment.",
+    );
 
   try {
     const response = await fetch(webhook, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...payload, source: 'knoux.store', receivedAt: new Date().toISOString() }),
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...payload, source: "knoux.store", receivedAt }),
       signal: AbortSignal.timeout(10000),
-      cache: 'no-store',
+      cache: "no-store",
     });
     if (!response.ok) throw new Error(`Upstream responded ${response.status}`);
     return NextResponse.json(
       { ok: true, delivered: true },
-      { headers: { 'cache-control': 'no-store' } },
+      { headers: { "cache-control": "no-store" } },
     );
   } catch {
-    return refuse(502, 'Delivery failed.');
+    return refuse(502, "Delivery failed.");
   }
 }
 
 export async function GET() {
   return NextResponse.json(
-    { error: 'Method not allowed.' },
-    { status: 405, headers: { 'cache-control': 'no-store' } },
+    { error: "Method not allowed." },
+    { status: 405, headers: { "cache-control": "no-store" } },
   );
 }
