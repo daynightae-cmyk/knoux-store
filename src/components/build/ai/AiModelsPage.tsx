@@ -120,7 +120,7 @@ export function AiModelsPage() {
       heading={
         <header className="dev-page-heading" style={{ marginBottom: 16 }}>
           <span className="dev-mini-label">AI RUNTIME / MODELS</span>
-          <h1>Model Discovery</h1>
+          <h2>Model Discovery</h2>
           <p>
             Live model enumeration with static fallback. Discovery source and
             timestamp shown for each model. Stale cached data is never displayed
@@ -168,6 +168,7 @@ export function AiModelsPage() {
           value={providerFilter}
           onChange={(e) => setProviderFilter(e.target.value)}
           className="dev-field"
+          aria-label="Filter models by provider"
         >
           <option value="">All providers</option>
           {providers.map((p) => (
@@ -180,6 +181,7 @@ export function AiModelsPage() {
           value={capFilter}
           onChange={(e) => setCapFilter(e.target.value)}
           className="dev-field"
+          aria-label="Filter models by capability"
         >
           <option value="">All capabilities</option>
           <option value="tools">Tools</option>

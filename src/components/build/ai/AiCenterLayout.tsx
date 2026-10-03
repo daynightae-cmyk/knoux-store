@@ -41,6 +41,11 @@ export function AiCenterPage({ heading, children }: { heading: ReactNode; childr
     <div className="dev-route">
       <header className="dev-page-heading">
         <span className="dev-mini-label">KNOuX AI RUNTIME / PHASE B</span>
+        {/* The single `<h1>` for every AI Center route. Each screen renders its
+            own heading as an `<h2>` beneath this one, so exactly one top-level
+            heading exists per page in every state — including the loading
+            states, where a screen passes `heading={null}` and would otherwise
+            leave the route with no `<h1>` at all. */}
         <h1>AI Command Center</h1>
         <p>Real provider adapters, live model discovery, generation, streaming, and structured output. Every capability state is measured — never assumed.</p>
       </header>

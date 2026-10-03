@@ -82,7 +82,7 @@ export function AiUsagePage() {
       heading={
         <header className="dev-page-heading" style={{ marginBottom: 16 }}>
           <span className="dev-mini-label">AI RUNTIME / USAGE</span>
-          <h1>Usage Ledger</h1>
+          <h2>Usage Ledger</h2>
           <p>
             Every AI operation is recorded with safe metadata. Prompt contents
             are never stored. Secrets are never logged.

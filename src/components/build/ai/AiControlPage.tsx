@@ -132,7 +132,7 @@ export function AiControlPage() {
     <AiCenterPage heading={
       <header className="dev-page-heading" style={{ marginBottom: 16 }}>
         <span className="dev-mini-label">AI RUNTIME / CONTROL</span>
-        <h1>Model Control Center</h1>
+        <h2>Model Control Center</h2>
         <p>Generation controls for the selected model. Unsupported controls disappear. Each control only appears when the model supports it.</p>
       </header>
     }>
@@ -143,6 +143,7 @@ export function AiControlPage() {
           <select
             className="dev-field"
             style={{ padding: 8, width: '100%' }}
+            aria-label="Select a model"
             value={selected ? `${selected.providerId}:${selected.modelId}` : ''}
             onChange={(e) => {
               const [p, ...m] = e.target.value.split(':');

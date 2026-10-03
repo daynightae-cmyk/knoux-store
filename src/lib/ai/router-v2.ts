@@ -8,7 +8,7 @@ import type {
   ProviderHealth,
   CostEstimate,
 } from "./types";
-import { getDiscoveryCache, getAllDiscoveredModels } from "./registry";
+import { getAdapter, getDiscoveryCache, getAllDiscoveredModels } from "./registry";
 import { getPricing } from "./cost";
 import { estimateTokens } from "./contract";
 
@@ -202,7 +202,33 @@ export function routeV2(
 
   // Manual mode: honour explicit selection, never override
   if (input.mode === "manual" && input.manualSelection) {
-    const { providerId, modelId } = input.manualSelection;
+    const { providerId: requestedProviderId, modelId } = input.manualSelection;
+
+    // The provider identifier arrives from the browser and is used as a key
+    // into the health map and into the decision's health record. Resolve it
+    // against the adapter registry first, then key everything by the
+    // registry's own identifier: a caller may only name a provider this server
+    // owns, and can never introduce an arbitrary property name.
+    const adapter = getAdapter(requestedProviderId);
+    if (!adapter) {
+      return {
+        taskClass: input.taskClass,
+        mode: "manual",
+        selected: null,
+        candidates: [],
+        fallbackChain: [],
+        estimatedCost: null,
+        health: {},
+        contextFit: "unknown",
+        reasons: [
+          "Manual selection rejected: the named provider is not one this runtime owns.",
+        ],
+        status: "unavailable",
+        blocker: "Unknown provider. Manual selection was not overridden.",
+      };
+    }
+    const providerId = adapter.id;
+
     const health = healthMap.get(providerId) ?? null;
 
     if (!health || !health.configured) {

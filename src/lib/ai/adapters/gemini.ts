@@ -1,5 +1,10 @@
 import "server-only";
-import { abortedError, networkError, normalizeError } from "../errors";
+import {
+  abortedError,
+  createNormalizedError,
+  networkError,
+  normalizeError,
+} from "../errors";
 import { calculateCost } from "../cost";
 import { OpenAICompatibleAdapter } from "./base";
 import type {
@@ -24,6 +29,103 @@ import type {
  *
  * Two env var names are accepted: GEMINI_API_KEY and GOOGLE_GENERATIVE_AI_API_KEY.
  */
+
+/**
+ * Canonical Gemini model identities this adapter will address.
+ *
+ * Gemini is the one adapter in the runtime that puts the model identifier in
+ * the request *path* (`/models/{id}:generateContent`) rather than in the body,
+ * so the identifier decides which endpoint is called. A value taken straight
+ * from a browser request would therefore let the caller choose the target, not
+ * merely the model.
+ *
+ * Discovery is the primary source of identity. This list is the controlled
+ * static fallback used before discovery has run on a cold server, and it names
+ * only models this repository already declares in its own provider catalogue
+ * (`src/lib/build/providers.ts`) and pricing table (`src/lib/ai/cost.ts`).
+ * Nothing here is invented for the purpose of passing a gate.
+ */
+const GEMINI_CANONICAL_MODEL_IDS: readonly string[] = [
+  "gemini-2.5-pro",
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+];
+
+/**
+ * The fixed operation suffix for each supported endpoint. Kept as a closed
+ * union so a URL can only ever be built from one of these two literals.
+ */
+const GEMINI_OPERATION_SUFFIX = {
+  generateContent: ":generateContent",
+  streamGenerateContent: ":streamGenerateContent?alt=sse",
+} as const;
+
+type GeminiOperation = keyof typeof GEMINI_OPERATION_SUFFIX;
+
+/**
+ * The character set a model identifier may use when it becomes a URL path
+ * segment: one leading alphanumeric, then alphanumerics, dot, underscore or
+ * hyphen. No slash, colon, percent, query, fragment, at-sign or whitespace
+ * survives this test, and a `..` traversal cannot either.
+ */
+const SAFE_MODEL_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$/;
+
+function isSafeModelIdSegment(value: string): boolean {
+  return SAFE_MODEL_ID_PATTERN.test(value) && !value.includes("..");
+}
+
+/**
+ * The prefix Google puts on every identity in the `name` field of a model
+ * listing. `GET /v1beta/models` documents that field as `Format: models/{model}`
+ * (e.g. `models/gemini-2.5-flash`), while the generation URL template is
+ * `POST /v1beta/models/{model}:generateContent` — the bare identifier, with the
+ * `models/` segment supplied by the URL itself.
+ *
+ * The prefix is therefore a *trusted, provider-owned* part of discovery, never
+ * part of the identity this adapter addresses. It is removed before any
+ * validation so a legitimate discovered name is not rejected merely for
+ * carrying it.
+ *
+ * The match is anchored: only a single leading occurrence is removed, so
+ * `models/../../etc` normalizes to `../../etc` and is then refused by
+ * `isSafeModelIdSegment` rather than being partially sanitized into something
+ * that still looks path-like.
+ */
+const GEMINI_MODEL_NAME_PREFIX = "models/";
+
+function stripModelNamePrefix(name: string): string {
+  const trimmed = name.trim();
+  return trimmed.startsWith(GEMINI_MODEL_NAME_PREFIX)
+    ? trimmed.slice(GEMINI_MODEL_NAME_PREFIX.length)
+    : trimmed;
+}
+
+/**
+ * Resolve `requested` against `inventory` and return the inventory's own
+ * spelling of the identity.
+ *
+ * The requested value is used only as a lookup key. The returned value is
+ * always an element of the inventory, so no character the caller chose can
+ * reach a URL — the caller can select *which* known model is used, never
+ * introduce a new path segment. Returns null when the identity is unknown.
+ */
+function canonicalIdentity(
+  requested: string,
+  inventory: Iterable<string>,
+): string | null {
+  if (typeof requested !== "string") return null;
+  // A caller may name a model either bare (`gemini-2.5-flash`) or in the
+  // provider's own discovery spelling (`models/gemini-2.5-flash`). Both denote
+  // the same identity, so the trusted prefix is normalized away before the
+  // lookup. This only widens *matching*: the value returned is still an
+  // element of the inventory, so it can never carry caller-chosen text.
+  const candidate = stripModelNamePrefix(requested).toLowerCase();
+  if (candidate.length === 0) return null;
+  for (const known of inventory) {
+    if (known.toLowerCase() === candidate) return known;
+  }
+  return null;
+}
 
 export class GeminiAdapter extends OpenAICompatibleAdapter {
   constructor() {
@@ -65,6 +167,38 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
       if (value) return value;
     }
     return null;
+  }
+
+  /**
+   * Identities the provider itself has confirmed through `discoverModels`.
+   *
+   * Per server instance, matching the lifecycle of the registry's discovery
+   * cache. Entries are added, never cleared, so a transient discovery failure
+   * cannot silently shrink what the runtime is willing to address.
+   */
+  private readonly discoveredModelIds = new Set<string>();
+
+  /**
+   * Resolve a requested model identifier to an identity this adapter can prove
+   * exists, returning the inventory's spelling rather than the requested
+   * string. Returns null when discovery has not confirmed the model and it is
+   * not in the canonical list.
+   */
+  private resolveModelId(requested: string): string | null {
+    const resolved =
+      canonicalIdentity(requested, this.discoveredModelIds) ??
+      canonicalIdentity(requested, GEMINI_CANONICAL_MODEL_IDS);
+    return resolved !== null && isSafeModelIdSegment(resolved) ? resolved : null;
+  }
+
+  /**
+   * Build a request URL from three parts and nothing else: the fixed trusted
+   * base URL, one identity already resolved from this adapter's own inventory,
+   * and a fixed operation suffix from a closed set. No part of the caller's
+   * input reaches this function.
+   */
+  private buildModelUrl(modelId: string, operation: GeminiOperation): string {
+    return `${this.config.baseUrl}/models/${modelId}${GEMINI_OPERATION_SUFFIX[operation]}`;
   }
 
   override async probe(
@@ -193,7 +327,7 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
       // image-only models are excluded rather than surfaced as models that
       // would fail the moment generation was attempted.
       const models: NormalizedModel[] = list
-        .filter((m) => m.name?.startsWith("models/"))
+        .filter((m) => typeof m.name === "string" && m.name.trim().length > 0)
         .filter((m) => {
           const methods = m.supportedGenerationMethods ?? [];
           return (
@@ -202,7 +336,11 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
           );
         })
         .map((entry): NormalizedModel => {
-          const modelId = entry.name.replace("models/", "");
+          // Google returns `name` as `models/{model}`. Strip that trusted
+          // provider-owned prefix here so everything downstream — capability
+          // sniffing, the inventory, and the request URL — works with the bare
+          // identifier the API path actually expects.
+          const modelId = stripModelNamePrefix(entry.name);
           const methods = entry.supportedGenerationMethods ?? [];
           const supportsStream = methods.includes("streamGenerateContent");
           const isPreview = modelId.includes("exp");
@@ -249,9 +387,23 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
         })
         .filter(
           (m) =>
-            m.capabilities.streaming !== "UNSUPPORTED" ||
-            m.capabilities.tools !== "UNSUPPORTED",
+            // An identity that cannot be a safe URL path segment is never
+            // surfaced as a discoverable model, so what discovery reports and
+            // what the adapter is willing to address stay the same set.
+            isSafeModelIdSegment(m.modelId) &&
+            (m.capabilities.streaming !== "UNSUPPORTED" ||
+              m.capabilities.tools !== "UNSUPPORTED"),
         );
+
+      // Discovery may widen the inventory, but only with identities that are
+      // safe as a URL path segment. An answer that cannot be addressed safely
+      // is dropped here rather than carried into the URL builder later.
+      for (const model of models) {
+        if (isSafeModelIdSegment(model.modelId)) {
+          this.discoveredModelIds.add(model.modelId);
+        }
+      }
+
       return {
         providerId: this.id,
         models,
@@ -295,10 +447,25 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
       );
     }
 
+    // The trust boundary. The caller names a model; this adapter decides
+    // whether that name is one it can address. An unconfirmed identity is
+    // refused here, before any URL is built.
+    const modelId = this.resolveModelId(request.modelId);
+    if (!modelId) {
+      return this.errorResponse(
+        createNormalizedError(
+          "MODEL_NOT_FOUND",
+          `Unknown Gemini model identity "${request.modelId}". Discovery has not confirmed it and it is not in the canonical model list.`,
+        ),
+        0,
+        request.modelId,
+      );
+    }
+
     const body = this.buildGeminiRequestBody(request);
     try {
       const response = await fetch(
-        `${this.config.baseUrl}/models/${request.modelId}:generateContent`,
+        this.buildModelUrl(modelId, "generateContent"),
         {
           method: "POST",
           headers: this.buildHeaders(apiKey),
@@ -373,6 +540,25 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
       return;
     }
 
+    // Same trust boundary as `generate`: the streaming path builds its URL from
+    // a resolved identity, never from the requested string.
+    const modelId = this.resolveModelId(request.modelId);
+    if (!modelId) {
+      yield {
+        delta: "",
+        done: true,
+        finishReason: null,
+        usage: null,
+        error: createNormalizedError(
+          "MODEL_NOT_FOUND",
+          `Unknown Gemini model identity "${request.modelId}". Discovery has not confirmed it and it is not in the canonical model list.`,
+        ),
+        latencyMs: 0,
+        ttftMs: null,
+      };
+      return;
+    }
+
     const body = this.buildGeminiRequestBody(request);
     let firstTokenTime: number | null = null;
     let finishReason: string | null = null;
@@ -380,7 +566,7 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
 
     try {
       const response = await fetch(
-        `${this.config.baseUrl}/models/${request.modelId}:streamGenerateContent?alt=sse`,
+        this.buildModelUrl(modelId, "streamGenerateContent"),
         {
           method: "POST",
           headers: this.buildHeaders(apiKey),

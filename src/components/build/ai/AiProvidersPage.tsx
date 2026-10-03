@@ -151,7 +151,7 @@ export function AiProvidersPage() {
       heading={
         <header className="dev-page-heading" style={{ marginBottom: 16 }}>
           <span className="dev-mini-label">AI RUNTIME / PROVIDERS</span>
-          <h1>Provider Registry</h1>
+          <h2>Provider Registry</h2>
           <p>
             13 adapters. Each capability state is independently measured.
             Credential presence does not mean provider health.

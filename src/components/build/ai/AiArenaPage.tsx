@@ -107,7 +107,7 @@ export function AiArenaPage() {
       heading={
         <header className="dev-page-heading" style={{ marginBottom: 16 }}>
           <span className="dev-mini-label">AI RUNTIME / ARENA</span>
-          <h1>Model Arena</h1>
+          <h2>Model Arena</h2>
           <p>
             Run one prompt against 2–4 models in parallel. Compare output,
             latency, cost, and errors. No winner is declared automatically.

@@ -162,7 +162,7 @@ export function AiSenshialPage() {
       heading={
         <header className="dev-page-heading" style={{ marginBottom: 16 }}>
           <span className="dev-mini-label">AI RUNTIME / SENSHIAL</span>
-          <h1>Senshial — Real Inference</h1>
+          <h2>Senshial — Real Inference</h2>
           <p>
             ASK and PLAN use real AI inference. EXECUTE is blocked until the
             agent write runtime is security-verified.
