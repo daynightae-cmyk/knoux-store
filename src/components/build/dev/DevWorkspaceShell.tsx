@@ -24,6 +24,7 @@ export const DEV_DESTINATIONS = [
   { label: 'Terminal', href: '/build/terminal', code: '07', icon: '▸' },
   { label: 'PowerShell', href: '/build/powershell', code: '08', icon: '▷' },
   { label: 'Providers', href: '/build/providers', code: '09', icon: '✣' },
+  { label: 'AI Center', href: '/build/ai', code: 'AI', icon: '◈' },
   { label: 'Settings', href: '/build/settings', code: '10', icon: '⚙' },
 ] as const;
 
