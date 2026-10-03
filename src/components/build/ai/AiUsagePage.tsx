@@ -1,7 +1,7 @@
-'use client';
-import { useCallback, useEffect, useState } from 'react';
-import { AiCenterPage } from './AiCenterLayout';
-import { DevPanel, DevEmpty } from '../dev/DevUI';
+"use client";
+import { useEffect, useState } from "react";
+import { AiCenterPage } from "./AiCenterLayout";
+import { DevPanel, DevEmpty } from "../dev/DevUI";
 
 type UsageRecord = {
   id: string;
@@ -25,8 +25,14 @@ type UsageSummary = {
   totalInputTokens: number;
   totalOutputTokens: number;
   totalEstimatedCost: number | null;
-  byProvider: Record<string, { requests: number; tokens: number; cost: number | null }>;
-  byModel: Record<string, { requests: number; tokens: number; cost: number | null }>;
+  byProvider: Record<
+    string,
+    { requests: number; tokens: number; cost: number | null }
+  >;
+  byModel: Record<
+    string,
+    { requests: number; tokens: number; cost: number | null }
+  >;
   costBasis: string;
 };
 
@@ -35,50 +41,87 @@ export function AiUsagePage() {
   const [summary, setSummary] = useState<UsageSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUsage = useCallback(async () => {
-    try {
-      const res = await fetch('/api/build/ai/usage', { cache: 'no-store' });
-      if (!res.ok) return;
-      const data = await res.json();
-      setRecords(data.records ?? []);
-      setSummary(data.summary ?? null);
-    } catch {
-      // silent
-    } finally {
-      setLoading(false);
+  // Polling owns its fetch inside the effect so no state is set synchronously
+  // in the effect body, and teardown cancels both the interval and any
+  // in-flight write-back.
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      try {
+        const res = await fetch("/api/build/ai/usage", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!active) return;
+        setRecords(data.records ?? []);
+        setSummary(data.summary ?? null);
+      } catch {
+        // silent
+      } finally {
+        if (active) setLoading(false);
+      }
     }
+    void load();
+    const interval = setInterval(() => {
+      void load();
+    }, 5000);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
   }, []);
 
-  useEffect(() => { void fetchUsage(); const interval = setInterval(fetchUsage, 5000); return () => clearInterval(interval); }, [fetchUsage]);
-
-  if (loading) return <AiCenterPage heading={null}><p className="dev-note">Loading usage…</p></AiCenterPage>;
+  if (loading)
+    return (
+      <AiCenterPage heading={null}>
+        <p className="dev-note">Loading usage…</p>
+      </AiCenterPage>
+    );
 
   return (
-    <AiCenterPage heading={
-      <header className="dev-page-heading" style={{ marginBottom: 16 }}>
-        <span className="dev-mini-label">AI RUNTIME / USAGE</span>
-        <h1>Usage Ledger</h1>
-        <p>Every AI operation is recorded with safe metadata. Prompt contents are never stored. Secrets are never logged.</p>
-        {summary ? (
-          <span className="dev-page-heading__detail">
-            {summary.totalRequests} requests · {summary.totalInputTokens.toLocaleString()} in / {summary.totalOutputTokens.toLocaleString()} out ·{' '}
-            {summary.totalEstimatedCost !== null ? `$${summary.totalEstimatedCost.toFixed(6)}` : 'cost unknown'} ({summary.costBasis})
-          </span>
-        ) : null}
-      </header>
-    }>
+    <AiCenterPage
+      heading={
+        <header className="dev-page-heading" style={{ marginBottom: 16 }}>
+          <span className="dev-mini-label">AI RUNTIME / USAGE</span>
+          <h1>Usage Ledger</h1>
+          <p>
+            Every AI operation is recorded with safe metadata. Prompt contents
+            are never stored. Secrets are never logged.
+          </p>
+          {summary ? (
+            <span className="dev-page-heading__detail">
+              {summary.totalRequests} requests ·{" "}
+              {summary.totalInputTokens.toLocaleString()} in /{" "}
+              {summary.totalOutputTokens.toLocaleString()} out ·{" "}
+              {summary.totalEstimatedCost !== null
+                ? `$${summary.totalEstimatedCost.toFixed(6)}`
+                : "cost unknown"}{" "}
+              ({summary.costBasis})
+            </span>
+          ) : null}
+        </header>
+      }
+    >
       {summary && summary.totalRequests > 0 ? (
         <>
           <DevPanel title="By Provider">
-            <table className="dev-kv-table" style={{ width: '100%' }}>
-              <thead><tr><th>Provider</th><th>Requests</th><th>Tokens</th><th>Cost</th></tr></thead>
+            <table className="dev-kv-table" style={{ width: "100%" }}>
+              <thead>
+                <tr>
+                  <th>Provider</th>
+                  <th>Requests</th>
+                  <th>Tokens</th>
+                  <th>Cost</th>
+                </tr>
+              </thead>
               <tbody>
                 {Object.entries(summary.byProvider).map(([key, val]) => (
                   <tr key={key}>
                     <td>{key}</td>
                     <td>{val.requests}</td>
                     <td>{val.tokens.toLocaleString()}</td>
-                    <td>{val.cost !== null ? `$${val.cost.toFixed(6)}` : '—'}</td>
+                    <td>
+                      {val.cost !== null ? `$${val.cost.toFixed(6)}` : "—"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -88,15 +131,24 @@ export function AiUsagePage() {
           <div style={{ height: 16 }} />
 
           <DevPanel title="By Model">
-            <table className="dev-kv-table" style={{ width: '100%' }}>
-              <thead><tr><th>Model</th><th>Requests</th><th>Tokens</th><th>Cost</th></tr></thead>
+            <table className="dev-kv-table" style={{ width: "100%" }}>
+              <thead>
+                <tr>
+                  <th>Model</th>
+                  <th>Requests</th>
+                  <th>Tokens</th>
+                  <th>Cost</th>
+                </tr>
+              </thead>
               <tbody>
                 {Object.entries(summary.byModel).map(([key, val]) => (
                   <tr key={key}>
                     <td>{key}</td>
                     <td>{val.requests}</td>
                     <td>{val.tokens.toLocaleString()}</td>
-                    <td>{val.cost !== null ? `$${val.cost.toFixed(6)}` : '—'}</td>
+                    <td>
+                      {val.cost !== null ? `$${val.cost.toFixed(6)}` : "—"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -109,10 +161,13 @@ export function AiUsagePage() {
 
       <DevPanel title={`Records (${records.length})`}>
         {records.length === 0 ? (
-          <DevEmpty title="NO USAGE RECORDED" body="AI operations will appear here once you run generations, streams, or arena comparisons." />
+          <DevEmpty
+            title="NO USAGE RECORDED"
+            body="AI operations will appear here once you run generations, streams, or arena comparisons."
+          />
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="dev-kv-table" style={{ width: '100%' }}>
+          <div style={{ overflowX: "auto" }}>
+            <table className="dev-kv-table" style={{ width: "100%" }}>
               <thead>
                 <tr>
                   <th>Time</th>
@@ -133,19 +188,35 @@ export function AiUsagePage() {
                   <tr key={r.id}>
                     <td>{r.timestamp.slice(11, 19)}</td>
                     <td>{r.providerId}</td>
-                    <td style={{ maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.modelId}</td>
+                    <td
+                      style={{
+                        maxWidth: 150,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {r.modelId}
+                    </td>
                     <td>{r.operation}</td>
-                    <td>{r.inputTokens ?? '—'}</td>
-                    <td>{r.outputTokens ?? '—'}</td>
-                    <td>{r.latencyMs ?? '—'}ms</td>
-                    <td>{r.ttftMs !== null ? `${r.ttftMs}ms` : '—'}</td>
-                    <td>{r.estimatedCost?.amount !== null && r.estimatedCost?.amount !== undefined ? `$${r.estimatedCost.amount.toFixed(6)}` : '—'}</td>
+                    <td>{r.inputTokens ?? "—"}</td>
+                    <td>{r.outputTokens ?? "—"}</td>
+                    <td>{r.latencyMs ?? "—"}ms</td>
+                    <td>{r.ttftMs !== null ? `${r.ttftMs}ms` : "—"}</td>
                     <td>
-                      <span className="dev-tag" data-tone={r.success ? 'ok' : 'bad'}>
-                        {r.success ? 'OK' : 'FAIL'}
+                      {r.estimatedCost?.amount !== null &&
+                      r.estimatedCost?.amount !== undefined
+                        ? `$${r.estimatedCost.amount.toFixed(6)}`
+                        : "—"}
+                    </td>
+                    <td>
+                      <span
+                        className="dev-tag"
+                        data-tone={r.success ? "ok" : "bad"}
+                      >
+                        {r.success ? "OK" : "FAIL"}
                       </span>
                     </td>
-                    <td>{r.fallbackCount > 0 ? `×${r.fallbackCount}` : '—'}</td>
+                    <td>{r.fallbackCount > 0 ? `×${r.fallbackCount}` : "—"}</td>
                   </tr>
                 ))}
               </tbody>

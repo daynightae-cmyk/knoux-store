@@ -1,8 +1,8 @@
-import 'server-only';
-import type { GenerationResponse, NormalizedError } from './types';
-import { getAdapter, updateHealth } from './registry';
-import { recordUsage } from './usage';
-import type { GenerationRequest, ProviderHealth } from './types';
+import "server-only";
+import type { GenerationResponse } from './types';
+import { getAdapter, updateHealth } from "./registry";
+import { recordUsage } from "./usage";
+import type { GenerationRequest } from "./types";
 
 /**
  * Fallback engine. Executes a primary generation, and on retryable errors
@@ -26,11 +26,11 @@ export type FallbackResult = {
 };
 
 const NON_FALLBACKABLE_ERRORS = new Set([
-  'INVALID_REQUEST',
-  'AUTHENTICATION',
-  'UNSUPPORTED_CAPABILITY',
-  'CONTEXT_OVERFLOW',
-  'ABORTED',
+  "INVALID_REQUEST",
+  "AUTHENTICATION",
+  "UNSUPPORTED_CAPABILITY",
+  "CONTEXT_OVERFLOW",
+  "ABORTED",
 ]);
 
 export async function generateWithFallback(
@@ -54,14 +54,18 @@ export async function generateWithFallback(
       continue;
     }
 
-    const actualRequest: GenerationRequest = { ...request, providerId, modelId };
+    const actualRequest: GenerationRequest = {
+      ...request,
+      providerId,
+      modelId,
+    };
     const response = await adapter.generate(actualRequest, env);
 
     // Record usage
     recordUsage({
       providerId,
       modelId,
-      operation: 'generate',
+      operation: "generate",
       taskClass: null,
       inputTokens: response.usage.inputTokens,
       outputTokens: response.usage.outputTokens,
@@ -77,7 +81,7 @@ export async function generateWithFallback(
     if (response.ok) {
       // Update health: generation verified
       updateHealth(providerId, {
-        generation: 'GENERATION_VERIFIED',
+        generation: "GENERATION_VERIFIED",
         lastError: null,
         latencyMs: response.latencyMs,
       });
@@ -96,8 +100,8 @@ export async function generateWithFallback(
     if (errorCategory && NON_FALLBACKABLE_ERRORS.has(errorCategory)) {
       // Update health: failed
       updateHealth(providerId, {
-        generation: 'FAILED',
-        lastError: response.error ? { category: response.error.category, safeMessage: response.error.safeMessage } : null,
+        generation: "FAILED",
+        lastError: response.error,
       });
 
       // For RATE_LIMITED, mark as rate-limited but still try fallback
@@ -111,15 +115,15 @@ export async function generateWithFallback(
     }
 
     // Rate-limited is fallbackable
-    if (errorCategory === 'RATE_LIMIT') {
+    if (errorCategory === "RATE_LIMIT") {
       updateHealth(providerId, {
-        generation: 'RATE_LIMITED',
-        lastError: response.error ? { category: response.error.category, safeMessage: response.error.safeMessage } : null,
+        generation: "RATE_LIMITED",
+        lastError: response.error,
       });
     } else {
       updateHealth(providerId, {
-        generation: 'FAILED',
-        lastError: response.error ? { category: response.error.category, safeMessage: response.error.safeMessage } : null,
+        generation: "FAILED",
+        lastError: response.error,
       });
     }
 
@@ -133,7 +137,7 @@ export async function generateWithFallback(
       recordUsage({
         providerId,
         modelId,
-        operation: 'generate',
+        operation: "generate",
         taskClass: null,
         inputTokens: null,
         outputTokens: null,
@@ -142,30 +146,48 @@ export async function generateWithFallback(
         ttftMs: null,
         estimatedCost: null,
         success: false,
-        errorCategory: errorCategory ?? 'UNKNOWN',
+        errorCategory: errorCategory ?? "UNKNOWN",
         fallbackCount,
       });
     }
   }
 
   // All providers failed
-  const lastResponse = await getAdapter(chain[chain.length - 1].providerId)?.generate(
-    { ...request, providerId: chain[chain.length - 1].providerId, modelId: chain[chain.length - 1].modelId },
+  const lastResponse = await getAdapter(
+    chain[chain.length - 1].providerId,
+  )?.generate(
+    {
+      ...request,
+      providerId: chain[chain.length - 1].providerId,
+      modelId: chain[chain.length - 1].modelId,
+    },
     env,
   );
 
   return {
     response: lastResponse ?? {
       ok: false,
-      text: '',
+      text: "",
       finishReason: null,
-      usage: { inputTokens: null, outputTokens: null, cachedTokens: null, source: 'unknown' },
+      usage: {
+        inputTokens: null,
+        outputTokens: null,
+        cachedTokens: null,
+        source: "unknown",
+      },
       latencyMs: 0,
       ttftMs: null,
       providerRequestId: null,
       modelUsed: null,
-      warnings: ['All providers in the fallback chain failed.'],
-      error: { category: 'UNKNOWN', message: 'All providers failed', safeMessage: 'All providers in the chain failed.', httpStatus: null, providerErrorId: null, retryable: false },
+      warnings: ["All providers in the fallback chain failed."],
+      error: {
+        category: "UNKNOWN",
+        message: "All providers failed",
+        safeMessage: "All providers in the chain failed.",
+        httpStatus: null,
+        providerErrorId: null,
+        retryable: false,
+      },
       estimatedCost: null,
     },
     fallbackUsed: fallbackCount > 0,

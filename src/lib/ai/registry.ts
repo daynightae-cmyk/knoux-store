@@ -1,26 +1,30 @@
-import 'server-only';
-import type { ProviderAdapter } from './contract';
-import { OpenAIAdapter } from './adapters/openai';
-import { AnthropicAdapter } from './adapters/anthropic';
-import { GeminiAdapter } from './adapters/gemini';
-import { OpenRouterAdapter } from './adapters/openrouter';
-import { GroqAdapter } from './adapters/groq';
-import { MistralAdapter } from './adapters/mistral';
-import { DeepSeekAdapter } from './adapters/deepseek';
-import { QwenAdapter } from './adapters/qwen';
-import { GrokAdapter } from './adapters/grok';
-import { OpenCodeGoAdapter } from './adapters/opencode-go';
-import { OllamaAdapter } from './adapters/ollama';
-import { LMStudioAdapter } from './adapters/lm-studio';
-import { CustomOpenAIAdapter } from './adapters/custom-openai';
+import "server-only";
+import type { ProviderAdapter } from "./contract";
+import { OpenAIAdapter } from "./adapters/openai";
+import { AnthropicAdapter } from "./adapters/anthropic";
+import { GeminiAdapter } from "./adapters/gemini";
+import { OpenRouterAdapter } from "./adapters/openrouter";
+import { GroqAdapter } from "./adapters/groq";
+import { MistralAdapter } from "./adapters/mistral";
+import { DeepSeekAdapter } from "./adapters/deepseek";
+import { QwenAdapter } from "./adapters/qwen";
+import { GrokAdapter } from "./adapters/grok";
+import { OpenCodeGoAdapter } from "./adapters/opencode-go";
+import { OllamaAdapter } from "./adapters/ollama";
+import { LMStudioAdapter } from "./adapters/lm-studio";
+import { CustomOpenAIAdapter } from "./adapters/custom-openai";
 
 import type {
   ProviderHealth,
   CapabilityState,
   SupportState,
+  NormalizedError,
   NormalizedModel,
   DiscoveryResult,
-} from './types';
+  DiscoveryCacheEntry,
+  DiscoverySource,
+  AcceptanceResult,
+} from "./types";
 
 /**
  * Provider registry. Singleton that holds all adapter instances and
@@ -69,7 +73,7 @@ type HealthRecord = {
   vision: SupportState;
   structuredOutput: SupportState;
   lastTestedAt: string | null;
-  lastError: { category: string; message: string; safeMessage: string; httpStatus: number | null; providerErrorId: string | null; retryable: boolean } | null;
+  lastError: NormalizedError | null;
   latencyMs: number | null;
 };
 
@@ -78,13 +82,13 @@ const healthRecords = new Map<string, HealthRecord>();
 function initHealthRecord(providerId: string): HealthRecord {
   return {
     providerId,
-    auth: 'UNCONFIGURED',
-    discovery: 'UNCONFIGURED',
-    generation: 'UNCONFIGURED',
-    streaming: 'UNCONFIGURED',
-    tools: 'UNKNOWN',
-    vision: 'UNKNOWN',
-    structuredOutput: 'UNKNOWN',
+    auth: "UNCONFIGURED",
+    discovery: "UNCONFIGURED",
+    generation: "UNCONFIGURED",
+    streaming: "UNCONFIGURED",
+    tools: "UNKNOWN",
+    vision: "UNKNOWN",
+    structuredOutput: "UNKNOWN",
     lastTestedAt: null,
     lastError: null,
     latencyMs: null,
@@ -98,7 +102,10 @@ function getHealthRecord(providerId: string): HealthRecord {
   return healthRecords.get(providerId)!;
 }
 
-export function updateHealth(providerId: string, updates: Partial<HealthRecord>): void {
+export function updateHealth(
+  providerId: string,
+  updates: Partial<HealthRecord>,
+): void {
   const record = getHealthRecord(providerId);
   Object.assign(record, updates, { lastTestedAt: new Date().toISOString() });
 }
@@ -125,13 +132,13 @@ export function buildProviderHealth(
       displayName: adapter.displayName,
       transport: adapter.transport,
       configured: false,
-      auth: 'UNCONFIGURED',
-      discovery: 'UNCONFIGURED',
-      generation: 'UNCONFIGURED',
-      streaming: 'UNCONFIGURED',
-      tools: 'UNKNOWN',
-      vision: 'UNKNOWN',
-      structuredOutput: 'UNKNOWN',
+      auth: "UNCONFIGURED",
+      discovery: "UNCONFIGURED",
+      generation: "UNCONFIGURED",
+      streaming: "UNCONFIGURED",
+      tools: "UNKNOWN",
+      vision: "UNKNOWN",
+      structuredOutput: "UNKNOWN",
       modelCount: 0,
       lastTestedAt: null,
       lastError: null,
@@ -141,10 +148,20 @@ export function buildProviderHealth(
   }
 
   // Start with stored health; if configured but never tested, show CONFIGURED_UNTESTED
-  const authState = health.auth === 'UNCONFIGURED' ? 'CONFIGURED_UNTESTED' : health.auth;
-  const discoveryState = health.discovery === 'UNCONFIGURED' ? 'CONFIGURED_UNTESTED' : health.discovery;
-  const generationState = health.generation === 'UNCONFIGURED' ? 'CONFIGURED_UNTESTED' : health.generation;
-  const streamingState = health.streaming === 'UNCONFIGURED' ? 'CONFIGURED_UNTESTED' : health.streaming;
+  const authState =
+    health.auth === "UNCONFIGURED" ? "CONFIGURED_UNTESTED" : health.auth;
+  const discoveryState =
+    health.discovery === "UNCONFIGURED"
+      ? "CONFIGURED_UNTESTED"
+      : health.discovery;
+  const generationState =
+    health.generation === "UNCONFIGURED"
+      ? "CONFIGURED_UNTESTED"
+      : health.generation;
+  const streamingState =
+    health.streaming === "UNCONFIGURED"
+      ? "CONFIGURED_UNTESTED"
+      : health.streaming;
 
   // Capabilities from adapter declaration, refined by health records
   const caps = adapter.capabilities();
@@ -158,9 +175,24 @@ export function buildProviderHealth(
     discovery: discoveryState,
     generation: generationState,
     streaming: streamingState,
-    tools: health.tools !== 'UNKNOWN' ? health.tools : (caps.tools ? 'SUPPORTED' : 'UNSUPPORTED'),
-    vision: health.vision !== 'UNKNOWN' ? health.vision : (caps.vision ? 'SUPPORTED' : 'UNSUPPORTED'),
-    structuredOutput: health.structuredOutput !== 'UNKNOWN' ? health.structuredOutput : (caps.structuredOutput ? 'SUPPORTED' : 'UNSUPPORTED'),
+    tools:
+      health.tools !== "UNKNOWN"
+        ? health.tools
+        : caps.tools
+          ? "SUPPORTED"
+          : "UNSUPPORTED",
+    vision:
+      health.vision !== "UNKNOWN"
+        ? health.vision
+        : caps.vision
+          ? "SUPPORTED"
+          : "UNSUPPORTED",
+    structuredOutput:
+      health.structuredOutput !== "UNKNOWN"
+        ? health.structuredOutput
+        : caps.structuredOutput
+          ? "SUPPORTED"
+          : "UNSUPPORTED",
     modelCount: getDiscoveryCache(adapter.id)?.models.length ?? 0,
     lastTestedAt: health.lastTestedAt,
     lastError: health.lastError,
@@ -169,8 +201,65 @@ export function buildProviderHealth(
   };
 }
 
-export function allProviderHealth(env: Record<string, string | undefined>): ProviderHealth[] {
-  return getAdapters().map((adapter) => buildProviderHealth(adapter, env));
+/**
+ * Collapse a measured capability state into a deliverable acceptance verdict.
+ *
+ * The rule the runtime must never break: the presence of a credential is not
+ * evidence. Only a state actually measured by a live call may report PASS, and
+ * a state that has never been exercised stays UNTESTED rather than widening to
+ * a success.
+ */
+function acceptanceOf(
+  state: CapabilityState | SupportState,
+  configured: boolean,
+): AcceptanceResult {
+  if (!configured || state === "UNCONFIGURED") return "BLOCKED";
+  switch (state) {
+    case "AUTHENTICATED":
+    case "DISCOVERY_VERIFIED":
+    case "GENERATION_VERIFIED":
+    case "STREAMING_VERIFIED":
+    case "TOOLS_VERIFIED":
+    case "VISION_VERIFIED":
+    case "STRUCTURED_OUTPUT_VERIFIED":
+    case "VERIFIED":
+    case "SUPPORTED":
+      return "PASS";
+    case "FAILED":
+    case "RATE_LIMITED":
+    case "DEGRADED":
+      return "FAIL";
+    case "UNSUPPORTED":
+      return "UNSUPPORTED";
+    case "BLOCKED":
+      return "BLOCKED";
+    default:
+      // CONFIGURED_UNTESTED and UNKNOWN both mean "not measured".
+      return "UNTESTED";
+  }
+}
+
+export function allProviderHealth(
+  env: Record<string, string | undefined>,
+): ProviderHealth[] {
+  return getAdapters().map((adapter) => {
+    const snapshot = buildProviderHealth(adapter, env);
+    return {
+      ...snapshot,
+      acceptance: {
+        auth: acceptanceOf(snapshot.auth, snapshot.configured),
+        discovery: acceptanceOf(snapshot.discovery, snapshot.configured),
+        generation: acceptanceOf(snapshot.generation, snapshot.configured),
+        streaming: acceptanceOf(snapshot.streaming, snapshot.configured),
+        tools: acceptanceOf(snapshot.tools, snapshot.configured),
+        vision: acceptanceOf(snapshot.vision, snapshot.configured),
+        structuredOutput: acceptanceOf(
+          snapshot.structuredOutput,
+          snapshot.configured,
+        ),
+      },
+    };
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -178,9 +267,11 @@ export function allProviderHealth(env: Record<string, string | undefined>): Prov
 // ---------------------------------------------------------------------------
 
 const DISCOVERY_TTL_MS = 10 * 60 * 1000; // 10 minutes
-const discoveryCache = new Map<string, { models: NormalizedModel[]; discoveredAt: string; expiresAt: string; source: string }>();
+const discoveryCache = new Map<string, DiscoveryCacheEntry>();
 
-export function getDiscoveryCache(providerId: string): { models: NormalizedModel[]; discoveredAt: string; expiresAt: string; source: string } | null {
+export function getDiscoveryCache(
+  providerId: string,
+): DiscoveryCacheEntry | null {
   const entry = discoveryCache.get(providerId);
   if (!entry) return null;
   if (Date.now() > new Date(entry.expiresAt).getTime()) {
@@ -190,10 +281,15 @@ export function getDiscoveryCache(providerId: string): { models: NormalizedModel
   return entry;
 }
 
-export function setDiscoveryCache(providerId: string, models: NormalizedModel[], source: string): void {
+export function setDiscoveryCache(
+  providerId: string,
+  models: NormalizedModel[],
+  source: DiscoverySource,
+): void {
   const now = new Date();
   const expires = new Date(now.getTime() + DISCOVERY_TTL_MS);
   discoveryCache.set(providerId, {
+    providerId,
     models,
     discoveredAt: now.toISOString(),
     expiresAt: expires.toISOString(),
@@ -219,9 +315,16 @@ export async function discoverProviderModels(
     return {
       providerId,
       models: [],
-      source: 'UNKNOWN',
+      source: "UNKNOWN",
       discoveredAt: new Date().toISOString(),
-      error: { category: 'UNKNOWN', message: 'Unknown provider', safeMessage: `No adapter for ${providerId}`, httpStatus: null, providerErrorId: null, retryable: false },
+      error: {
+        category: "UNKNOWN",
+        message: "Unknown provider",
+        safeMessage: `No adapter for ${providerId}`,
+        httpStatus: null,
+        providerErrorId: null,
+        retryable: false,
+      },
       fromCache: false,
     };
   }
@@ -232,7 +335,7 @@ export async function discoverProviderModels(
       return {
         providerId,
         models: cached.models,
-        source: 'CACHED_LIVE',
+        source: "CACHED_LIVE",
         discoveredAt: cached.discoveredAt,
         error: null,
         fromCache: true,
@@ -243,7 +346,7 @@ export async function discoverProviderModels(
   if (forceRefresh) clearDiscoveryCache(providerId);
 
   const result = await adapter.discoverModels(env);
-  if (result.models.length > 0 && result.source === 'LIVE') {
+  if (result.models.length > 0 && result.source === "LIVE") {
     setDiscoveryCache(providerId, result.models, result.source);
   }
   return result;
@@ -260,7 +363,10 @@ export async function discoverAllModels(
   return results;
 }
 
-export function getAllDiscoveredModels(): { providerId: string; models: NormalizedModel[] }[] {
+export function getAllDiscoveredModels(): {
+  providerId: string;
+  models: NormalizedModel[];
+}[] {
   const all: { providerId: string; models: NormalizedModel[] }[] = [];
   for (const adapter of getAdapters()) {
     const cached = getDiscoveryCache(adapter.id);

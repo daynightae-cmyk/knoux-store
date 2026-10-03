@@ -1,6 +1,6 @@
-import 'server-only';
-import type { UsageRecord, UsageSummary, CostEstimate } from './types';
-import { mergeCostBasis } from './cost';
+import "server-only";
+import type { UsageRecord, UsageSummary, CostEstimate } from "./types";
+import { mergeCostBasis } from "./cost";
 
 /**
  * Usage ledger. In-memory per server instance. Records every AI operation
@@ -15,7 +15,9 @@ const records: UsageRecord[] = [];
 
 let recordCounter = 0;
 
-export function recordUsage(entry: Omit<UsageRecord, 'id' | 'timestamp'>): UsageRecord {
+export function recordUsage(
+  entry: Omit<UsageRecord, "id" | "timestamp">,
+): UsageRecord {
   const record: UsageRecord = {
     id: `usage-${Date.now().toString(36)}-${(recordCounter++).toString(36)}`,
     timestamp: new Date().toISOString(),
@@ -33,33 +35,46 @@ export function getUsageRecords(limit = 100): UsageRecord[] {
 }
 
 export function getUsageSummary(): UsageSummary {
-  let totalRequests = records.length;
+  const totalRequests = records.length;
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
-  let allCosts: CostEstimate[] = [];
+  const allCosts: CostEstimate[] = [];
 
-  const byProvider: Record<string, { requests: number; tokens: number; cost: number | null }> = {};
-  const byModel: Record<string, { requests: number; tokens: number; cost: number | null }> = {};
+  const byProvider: Record<
+    string,
+    { requests: number; tokens: number; cost: number | null }
+  > = {};
+  const byModel: Record<
+    string,
+    { requests: number; tokens: number; cost: number | null }
+  > = {};
 
   for (const r of records) {
     if (r.inputTokens) totalInputTokens += r.inputTokens;
     if (r.outputTokens) totalOutputTokens += r.outputTokens;
     if (r.estimatedCost) allCosts.push(r.estimatedCost);
 
+    // A record with no cost, or a cost whose basis is UNKNOWN, contributes
+    // nothing to the numeric total. Accumulating it as 0 would make an
+    // unpriced provider indistinguishable from a free one, which is exactly
+    // the "UNKNOWN COST != ZERO" rule this ledger has to honour.
+    const amount = r.estimatedCost?.amount ?? null;
+
     const pKey = r.providerId;
-    if (!byProvider[pKey]) byProvider[pKey] = { requests: 0, tokens: 0, cost: 0 };
+    if (!byProvider[pKey])
+      byProvider[pKey] = { requests: 0, tokens: 0, cost: 0 };
     byProvider[pKey].requests++;
     byProvider[pKey].tokens += (r.inputTokens ?? 0) + (r.outputTokens ?? 0);
-    if (r.estimatedCost?.amount !== null) {
-      byProvider[pKey].cost = (byProvider[pKey].cost ?? 0) + (r.estimatedCost.amount ?? 0);
+    if (amount !== null) {
+      byProvider[pKey].cost = (byProvider[pKey].cost ?? 0) + amount;
     }
 
     const mKey = `${r.providerId}:${r.modelId}`;
     if (!byModel[mKey]) byModel[mKey] = { requests: 0, tokens: 0, cost: 0 };
     byModel[mKey].requests++;
     byModel[mKey].tokens += (r.inputTokens ?? 0) + (r.outputTokens ?? 0);
-    if (r.estimatedCost?.amount !== null) {
-      byModel[mKey].cost = (byModel[mKey].cost ?? 0) + (r.estimatedCost.amount ?? 0);
+    if (amount !== null) {
+      byModel[mKey].cost = (byModel[mKey].cost ?? 0) + amount;
     }
   }
 
@@ -74,8 +89,4 @@ export function getUsageSummary(): UsageSummary {
     byModel,
     costBasis: mergedCost.basis,
   };
-}
-
-export function clearUsageLedger(): void {
-  records.length = 0;
 }

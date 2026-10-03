@@ -17,25 +17,30 @@
  * fact. Credential presence alone does not advance past UNCONFIGURED.
  */
 export type CapabilityState =
-  | 'UNCONFIGURED'
-  | 'CONFIGURED_UNTESTED'
-  | 'AUTHENTICATED'
-  | 'DISCOVERY_VERIFIED'
-  | 'GENERATION_VERIFIED'
-  | 'STREAMING_VERIFIED'
-  | 'TOOLS_VERIFIED'
-  | 'VISION_VERIFIED'
-  | 'STRUCTURED_OUTPUT_VERIFIED'
-  | 'RATE_LIMITED'
-  | 'DEGRADED'
-  | 'FAILED'
-  | 'BLOCKED';
+  | "UNCONFIGURED"
+  | "CONFIGURED_UNTESTED"
+  | "AUTHENTICATED"
+  | "DISCOVERY_VERIFIED"
+  | "GENERATION_VERIFIED"
+  | "STREAMING_VERIFIED"
+  | "TOOLS_VERIFIED"
+  | "VISION_VERIFIED"
+  | "STRUCTURED_OUTPUT_VERIFIED"
+  | "RATE_LIMITED"
+  | "DEGRADED"
+  | "FAILED"
+  | "BLOCKED";
 
 /** A tri-state for optional capabilities that may not exist on a model. */
-export type SupportState = 'UNKNOWN' | 'SUPPORTED' | 'VERIFIED' | 'UNSUPPORTED';
+export type SupportState = "UNKNOWN" | "SUPPORTED" | "VERIFIED" | "UNSUPPORTED";
 
 /** Acceptance values for the final deliverable matrix. */
-export type AcceptanceResult = 'PASS' | 'FAIL' | 'UNTESTED' | 'UNSUPPORTED' | 'BLOCKED';
+export type AcceptanceResult =
+  | "PASS"
+  | "FAIL"
+  | "UNTESTED"
+  | "UNSUPPORTED"
+  | "BLOCKED";
 
 // ---------------------------------------------------------------------------
 // Normalized model record
@@ -73,9 +78,9 @@ export type ModelPricing = {
   currency: string;
 };
 
-export type ModelLifecycle = 'active' | 'deprecated' | 'preview' | 'unknown';
+export type ModelLifecycle = "active" | "deprecated" | "preview" | "unknown";
 
-export type DiscoverySource = 'LIVE' | 'STATIC' | 'CACHED_LIVE' | 'UNKNOWN';
+export type DiscoverySource = "LIVE" | "STATIC" | "CACHED_LIVE" | "UNKNOWN";
 
 export type NormalizedModel = {
   providerId: string;
@@ -113,13 +118,42 @@ export type ProviderHealth = {
   lastError: NormalizedError | null;
   latencyMs: number | null;
   rateLimits: RateLimitSnapshot | null;
+  /**
+   * The deliverable verdict for each measured axis. Derived from the measured
+   * state, never from the presence of a credential — a configured-but-untested
+   * provider reports UNTESTED, not PASS.
+   */
+  acceptance?: {
+    auth: AcceptanceResult;
+    discovery: AcceptanceResult;
+    generation: AcceptanceResult;
+    streaming: AcceptanceResult;
+    tools: AcceptanceResult;
+    vision: AcceptanceResult;
+    structuredOutput: AcceptanceResult;
+  };
 };
 
 export type RateLimitSnapshot = {
   remainingRequests: number | null;
   remainingTokens: number | null;
   resetAt: string | null;
-  source: 'header' | 'body' | 'unknown';
+  source: "header" | "body" | "unknown";
+};
+
+/**
+ * The result of an explicit authentication probe.
+ *
+ * `authenticated` is a measured fact from a live request, never inferred from
+ * the presence of a credential. `detail` is safe to display; `error` is always
+ * a complete NormalizedError, never a partial projection.
+ */
+export type ProbeResult = {
+  providerId: string;
+  authenticated: boolean;
+  detail: string;
+  error: NormalizedError | null;
+  latencyMs: number;
 };
 
 // ---------------------------------------------------------------------------
@@ -127,7 +161,7 @@ export type RateLimitSnapshot = {
 // ---------------------------------------------------------------------------
 
 export type ChatMessage = {
-  role: 'system' | 'user' | 'assistant' | 'tool';
+  role: "system" | "user" | "assistant" | "tool";
   content: string;
   /** Optional image input (base64 data URL or URL) for vision models. */
   images?: string[];
@@ -139,10 +173,10 @@ export type GenerationControls = {
   temperature?: number;
   topP?: number;
   maxOutputTokens?: number;
-  reasoningEffort?: 'low' | 'medium' | 'high';
+  reasoningEffort?: "low" | "medium" | "high";
   seed?: number;
   stop?: string[];
-  toolChoice?: 'auto' | 'none' | 'required' | { name: string };
+  toolChoice?: "auto" | "none" | "required" | { name: string };
 };
 
 export type GenerationRequest = {
@@ -164,7 +198,7 @@ export type TokenUsage = {
   outputTokens: number | null;
   cachedTokens: number | null;
   /** How the token counts were obtained. */
-  source: 'provider' | 'estimated' | 'unknown';
+  source: "provider" | "estimated" | "unknown";
 };
 
 export type GenerationResponse = {
@@ -184,7 +218,7 @@ export type GenerationResponse = {
 export type CostEstimate = {
   amount: number | null;
   /** MEASURED = provider returned cost. ESTIMATED = calculated from pricing. UNKNOWN = no pricing data. */
-  basis: 'MEASURED' | 'ESTIMATED' | 'UNKNOWN';
+  basis: "MEASURED" | "ESTIMATED" | "UNKNOWN";
   currency: string;
 };
 
@@ -213,17 +247,17 @@ export type ToolDefinition = {
 // ---------------------------------------------------------------------------
 
 export type ErrorCategory =
-  | 'AUTHENTICATION'
-  | 'RATE_LIMIT'
-  | 'MODEL_NOT_FOUND'
-  | 'CONTEXT_OVERFLOW'
-  | 'TIMEOUT'
-  | 'NETWORK'
-  | 'PROVIDER_5XX'
-  | 'INVALID_REQUEST'
-  | 'UNSUPPORTED_CAPABILITY'
-  | 'ABORTED'
-  | 'UNKNOWN';
+  | "AUTHENTICATION"
+  | "RATE_LIMIT"
+  | "MODEL_NOT_FOUND"
+  | "CONTEXT_OVERFLOW"
+  | "TIMEOUT"
+  | "NETWORK"
+  | "PROVIDER_5XX"
+  | "INVALID_REQUEST"
+  | "UNSUPPORTED_CAPABILITY"
+  | "ABORTED"
+  | "UNKNOWN";
 
 export type NormalizedError = {
   category: ErrorCategory;
@@ -245,7 +279,7 @@ export type RouterInput = {
   visionRequired: boolean;
   toolsRequired: boolean;
   structuredOutputRequired: boolean;
-  mode: 'auto' | 'manual';
+  mode: "auto" | "manual";
   manualSelection?: { providerId: string; modelId: string };
   noFallback?: boolean;
 };
@@ -261,15 +295,15 @@ export type RouterCandidate = {
 
 export type RouterDecision = {
   taskClass: string;
-  mode: 'auto' | 'manual';
+  mode: "auto" | "manual";
   selected: { providerId: string; modelId: string; displayName: string } | null;
   candidates: RouterCandidate[];
   fallbackChain: { providerId: string; modelId: string; displayName: string }[];
   estimatedCost: CostEstimate | null;
   health: Record<string, CapabilityState>;
-  contextFit: 'fits' | 'exceeds' | 'unknown';
+  contextFit: "fits" | "exceeds" | "unknown";
   reasons: string[];
-  status: 'resolved' | 'unavailable';
+  status: "resolved" | "unavailable";
   blocker: string | null;
 };
 
@@ -282,7 +316,7 @@ export type UsageRecord = {
   timestamp: string;
   providerId: string;
   modelId: string;
-  operation: 'generate' | 'stream' | 'arena' | 'probe' | 'discover';
+  operation: "generate" | "stream" | "arena" | "probe" | "discover";
   taskClass: string | null;
   inputTokens: number | null;
   outputTokens: number | null;
@@ -300,9 +334,15 @@ export type UsageSummary = {
   totalInputTokens: number;
   totalOutputTokens: number;
   totalEstimatedCost: number | null;
-  byProvider: Record<string, { requests: number; tokens: number; cost: number | null }>;
-  byModel: Record<string, { requests: number; tokens: number; cost: number | null }>;
-  costBasis: 'MEASURED' | 'ESTIMATED' | 'UNKNOWN';
+  byProvider: Record<
+    string,
+    { requests: number; tokens: number; cost: number | null }
+  >;
+  byModel: Record<
+    string,
+    { requests: number; tokens: number; cost: number | null }
+  >;
+  costBasis: "MEASURED" | "ESTIMATED" | "UNKNOWN";
 };
 
 // ---------------------------------------------------------------------------
@@ -330,7 +370,7 @@ export type ArenaResult = {
 // ---------------------------------------------------------------------------
 
 export type SenshialRequest = {
-  mode: 'ask' | 'plan' | 'execute';
+  mode: "ask" | "plan" | "execute";
   prompt: string;
   system?: string;
   context?: SenshialContextEntry[];
@@ -338,7 +378,7 @@ export type SenshialRequest = {
 };
 
 export type SenshialContextEntry = {
-  type: 'file' | 'directory' | 'route' | 'git-diff' | 'instructions' | 'pasted';
+  type: "file" | "directory" | "route" | "git-diff" | "instructions" | "pasted";
   label: string;
   path: string | null;
   content: string;
@@ -347,7 +387,7 @@ export type SenshialContextEntry = {
 
 export type SenshialResponse = {
   ok: boolean;
-  mode: 'ask' | 'plan' | 'execute';
+  mode: "ask" | "plan" | "execute";
   text: string;
   providerId: string | null;
   modelId: string | null;
@@ -364,13 +404,24 @@ export type SenshialResponse = {
 // ---------------------------------------------------------------------------
 
 export type ContextSelection = {
-  type: 'file' | 'directory' | 'route' | 'git-diff' | 'instructions' | 'pasted';
+  type: "file" | "directory" | "route" | "git-diff" | "instructions" | "pasted";
   path: string | null;
   label: string;
 };
 
 export type ContextBundle = {
-  entries: { path: string; content: string; lines: number; excluded: boolean; exclusionReason: string | null }[];
+  /**
+   * `path` is null for synthetic entries — pasted text, project instructions
+   * and git diffs have no filesystem path. Forcing them to `''` would collide
+   * with a real root-level entry, so the type reflects reality.
+   */
+  entries: {
+    path: string | null;
+    content: string;
+    lines: number;
+    excluded: boolean;
+    exclusionReason: string | null;
+  }[];
   totalTokenEstimate: number;
   totalBytes: number;
   excludedCount: number;
