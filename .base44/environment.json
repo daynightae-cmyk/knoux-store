@@ -8,6 +8,12 @@
       "description": "Resend API key for sending email notifications when the contact form is submitted. Get it from https://resend.com/api-keys after creating an account. Optional — without it the contact form returns 503.",
       "requiredAtBoot": false,
       "generatedForDevelopment": false
+    },
+    {
+      "name": "CONTACT_NOTIFY_EMAIL",
+      "description": "Email address that receives contact form notifications. Must match the Resend account email until knoux.store is verified on Resend.",
+      "requiredAtBoot": false,
+      "generatedForDevelopment": false
     }
   ]
 }
