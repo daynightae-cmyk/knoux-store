@@ -144,6 +144,14 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
     return headers;
   }
 
+  protected get probePath(): string {
+    return "/models";
+  }
+
+  protected get discoveryPath(): string {
+    return "/models";
+  }
+
   async probe(env: Record<string, string | undefined>): Promise<ProbeResult> {
     const start = Date.now();
     const apiKey = this.getApiKey(env);
@@ -164,7 +172,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
       };
     }
     try {
-      const response = await fetch(`${this.config.baseUrl}/models`, {
+      const response = await fetch(`${this.config.baseUrl}${this.probePath}`, {
         headers: this.buildHeaders(apiKey),
         redirect: "error",
         signal: AbortSignal.timeout(10000),
@@ -230,7 +238,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
       };
     }
     try {
-      const response = await fetch(`${this.config.baseUrl}/models`, {
+      const response = await fetch(`${this.config.baseUrl}${this.discoveryPath}`, {
         headers: this.buildHeaders(apiKey),
         redirect: "error",
         signal: AbortSignal.timeout(15000),
@@ -337,22 +345,14 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
     const start = Date.now();
     const apiKey = this.getApiKey(env);
     if (!apiKey) {
-      yield {
-        delta: "",
-        done: true,
-        finishReason: null,
-        usage: null,
-        error: {
-          category: "AUTHENTICATION",
-          message: "Missing credential",
-          safeMessage: "No API key configured.",
-          httpStatus: null,
-          providerErrorId: null,
-          retryable: false,
-        },
-        latencyMs: 0,
-        ttftMs: null,
-      };
+      yield this.streamError({
+        category: "AUTHENTICATION",
+        message: "Missing credential",
+        safeMessage: "No API key configured.",
+        httpStatus: null,
+        providerErrorId: null,
+        retryable: false,
+      }, 0);
       return;
     }
 
@@ -362,128 +362,136 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
     let usage: TokenUsage | null = null;
 
     try {
-      const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
-        method: "POST",
-        headers: this.buildHeaders(apiKey),
-        body: JSON.stringify(body),
-        redirect: "error",
-        signal: signal ?? AbortSignal.timeout(120000),
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        const bodyText = await response.text().catch(() => null);
-        yield {
-          delta: "",
-          done: true,
-          finishReason: null,
-          usage: null,
-          error: normalizeError(response.status, bodyText),
-          latencyMs: Date.now() - start,
-          ttftMs: null,
-        };
-        return;
-      }
-
-      if (!response.body) {
-        yield {
-          delta: "",
-          done: true,
-          finishReason: null,
-          usage: null,
-          error: {
-            category: "NETWORK",
-            message: "No response body",
-            safeMessage: "Provider returned no body.",
-            httpStatus: null,
-            providerErrorId: null,
-            retryable: false,
-          },
-          latencyMs: Date.now() - start,
-          ttftMs: null,
-        };
-        return;
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed.startsWith("data: ")) continue;
-          const data = trimmed.slice(6);
-          if (data === "[DONE]") continue;
-          try {
-            const chunk = JSON.parse(data);
-            const delta = chunk.choices?.[0]?.delta?.content ?? "";
-            const reason = chunk.choices?.[0]?.finish_reason ?? null;
-            if (delta) {
-              if (firstTokenTime === null) firstTokenTime = Date.now() - start;
-              yield {
-                delta,
-                done: false,
-                finishReason: null,
-                usage: null,
-                error: null,
-                latencyMs: null,
-                ttftMs: firstTokenTime,
-              };
-            }
-            if (reason) finishReason = reason;
-            if (chunk.usage) {
-              usage = {
-                inputTokens: chunk.usage.prompt_tokens ?? null,
-                outputTokens: chunk.usage.completion_tokens ?? null,
-                cachedTokens:
-                  chunk.usage.prompt_tokens_details?.cached_tokens ?? null,
-                source: "provider" as const,
-              };
-            }
-          } catch {
-            // Skip malformed chunks
+      for await (const data of this.readStreamData(
+        `${this.config.baseUrl}/chat/completions`, apiKey, body, start, signal
+      )) {
+        if (typeof data !== "string") {
+          yield data;
+          return;
+        }
+        if (data === "[DONE]") continue;
+        try {
+          const chunk = JSON.parse(data);
+          const delta = chunk.choices?.[0]?.delta?.content ?? "";
+          const reason = chunk.choices?.[0]?.finish_reason ?? null;
+          if (delta) {
+            if (firstTokenTime === null) firstTokenTime = Date.now() - start;
+            yield {
+              delta,
+              done: false,
+              finishReason: null,
+              usage: null,
+              error: null,
+              latencyMs: null,
+              ttftMs: firstTokenTime,
+            };
           }
+          if (reason) finishReason = reason;
+          if (chunk.usage) {
+            usage = {
+              inputTokens: chunk.usage.prompt_tokens ?? null,
+              outputTokens: chunk.usage.completion_tokens ?? null,
+              cachedTokens:
+                chunk.usage.prompt_tokens_details?.cached_tokens ?? null,
+              source: "provider" as const,
+            };
+          }
+        } catch {
+          // Skip malformed chunks
         }
       }
 
-      yield {
-        delta: "",
-        done: true,
-        finishReason,
-        usage: usage ?? {
-          inputTokens: null,
-          outputTokens: null,
-          cachedTokens: null,
-          source: "unknown",
-        },
-        error: null,
-        latencyMs: Date.now() - start,
-        ttftMs: firstTokenTime,
-      };
+      yield this.streamComplete(start, firstTokenTime, finishReason, usage);
     } catch (cause) {
-      const error: NormalizedError =
+      yield this.streamError(
         cause instanceof DOMException && cause.name === "AbortError"
           ? abortedError()
-          : networkError(
-              cause instanceof Error ? cause.message : "Network error",
-            );
-      yield {
-        delta: "",
-        done: true,
-        finishReason,
-        usage,
-        error,
-        latencyMs: Date.now() - start,
-        ttftMs: firstTokenTime,
-      };
+          : networkError(cause instanceof Error ? cause.message : "Network error"),
+        Date.now() - start, firstTokenTime, finishReason, usage,
+      );
     }
+  }
+
+  /** Common HTTP/SSE framing only; adapters retain their native event parsers. */
+  protected async *readStreamData(
+    url: string,
+    apiKey: string,
+    body: Record<string, unknown>,
+    start: number,
+    signal?: AbortSignal,
+    noBodyMessage = "No response body",
+    noBodySafeMessage = "Provider returned no body.",
+  ): AsyncGenerator<string | StreamChunk, void, void> {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: this.buildHeaders(apiKey),
+      body: JSON.stringify(body),
+      redirect: "error",
+      signal: signal ?? AbortSignal.timeout(120000),
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      const bodyText = await response.text().catch(() => null);
+      yield this.streamError(normalizeError(response.status, bodyText), Date.now() - start);
+      return;
+    }
+    if (!response.body) {
+      yield this.streamError({
+        category: "NETWORK",
+        message: noBodyMessage,
+        safeMessage: noBodySafeMessage,
+        httpStatus: null,
+        providerErrorId: null,
+        retryable: false,
+      }, Date.now() - start);
+      return;
+    }
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith("data: ")) yield trimmed.slice(6);
+      }
+    }
+  }
+
+  protected streamError(
+    error: NormalizedError,
+    latencyMs: number,
+    ttftMs: number | null = null,
+    finishReason: string | null = null,
+    usage: TokenUsage | null = null,
+  ): StreamChunk {
+    return { delta: "", done: true, finishReason, usage, error, latencyMs, ttftMs };
+  }
+
+  protected streamComplete(
+    start: number,
+    ttftMs: number | null,
+    finishReason: string | null,
+    usage: TokenUsage | null,
+  ): StreamChunk {
+    return {
+      delta: "",
+      done: true,
+      finishReason,
+      usage: usage ?? {
+        inputTokens: null,
+        outputTokens: null,
+        cachedTokens: null,
+        source: "unknown",
+      },
+      error: null,
+      latencyMs: Date.now() - start,
+      ttftMs,
+    };
   }
 
   protected buildRequestBody(

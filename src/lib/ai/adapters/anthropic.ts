@@ -1,5 +1,5 @@
 import "server-only";
-import { abortedError, networkError, normalizeError } from "../errors";
+import { abortedError, networkError } from "../errors";
 import { calculateCost } from "../cost";
 import { OpenAICompatibleAdapter } from "./base";
 import type {
@@ -7,10 +7,7 @@ import type {
   GenerationResponse,
   StreamChunk,
   TokenUsage,
-  NormalizedError,
   NormalizedModel,
-  DiscoveryResult,
-  ProbeResult,
   RateLimitSnapshot,
 } from "../types";
 
@@ -124,167 +121,51 @@ export class AnthropicAdapter extends OpenAICompatibleAdapter {
     });
   }
 
-  async probe(env: Record<string, string | undefined>): Promise<ProbeResult> {
-    const start = Date.now();
-    const apiKey = this.getApiKey(env);
-    if (!apiKey) {
-      return {
-        providerId: this.id,
-        authenticated: false,
-        detail: `No credential present. Set ANTHROPIC_API_KEY on the server.`,
-        error: {
-          category: "AUTHENTICATION",
-          message: "Missing credential",
-          safeMessage: "Set ANTHROPIC_API_KEY",
-          httpStatus: null,
-          providerErrorId: null,
-          retryable: false,
-        },
-        latencyMs: 0,
-      };
-    }
-    try {
-      // Use the models endpoint (lightweight, no generation tokens)
-      const response = await fetch(`${this.config.baseUrl}/models?limit=1`, {
-        headers: this.buildHeaders(apiKey),
-        redirect: "error",
-        signal: AbortSignal.timeout(10000),
-        cache: "no-store",
-      });
-      const latencyMs = Date.now() - start;
-      if (response.ok) {
-        return {
-          providerId: this.id,
-          authenticated: true,
-          detail: "Authenticated; models endpoint answered.",
-          error: null,
-          latencyMs,
-        };
-      }
-      const bodyText = await response.text().catch(() => null);
-      return {
-        providerId: this.id,
-        authenticated: false,
-        detail: `Authentication failed (HTTP ${response.status}).`,
-        error: normalizeError(response.status, bodyText),
-        latencyMs,
-      };
-    } catch (cause) {
-      const latencyMs = Date.now() - start;
-      const message = cause instanceof Error ? cause.message : "Network error";
-      return {
-        providerId: this.id,
-        authenticated: false,
-        detail: "Endpoint unreachable.",
-        error: {
-          category: "NETWORK",
-          message,
-          safeMessage: message.slice(0, 200),
-          httpStatus: null,
-          providerErrorId: null,
-          retryable: false,
-        },
-        latencyMs,
-      };
-    }
+  protected override get probePath(): string {
+    return "/models?limit=1";
   }
 
-  async discoverModels(
-    env: Record<string, string | undefined>,
-  ): Promise<DiscoveryResult> {
-    const apiKey = this.getApiKey(env);
-    if (!apiKey) {
+  protected override get discoveryPath(): string {
+    return "/models?limit=100";
+  }
+
+  protected override parseModelList(json: unknown): NormalizedModel[] {
+    const list =
+      (json as { data?: Array<{ id: string; display_name?: string }> })
+        ?.data ?? [];
+    return list.map((entry) => {
+      const known = ANTHROPIC_MODELS.find((m) => m.id === entry.id);
       return {
         providerId: this.id,
-        models: [],
-        source: "UNKNOWN",
+        modelId: entry.id,
+        displayName: entry.display_name ?? known?.label ?? entry.id,
         discoveredAt: new Date().toISOString(),
-        error: {
-          category: "AUTHENTICATION",
-          message: "Missing credential",
-          safeMessage: "Set ANTHROPIC_API_KEY",
-          httpStatus: null,
-          providerErrorId: null,
-          retryable: false,
+        contextWindow: known?.context ?? 200_000,
+        maxOutputTokens: known?.maxOutput ?? null,
+        modalities: {
+          text: true,
+          imageInput: known?.vision ?? true,
+          audioInput: false,
+          audioOutput: false,
         },
-        fromCache: false,
+        capabilities: {
+          streaming: "SUPPORTED",
+          tools: "SUPPORTED",
+          structuredOutput: "SUPPORTED",
+          reasoning: known?.reasoning ? "SUPPORTED" : "UNKNOWN",
+          vision: (known?.vision ?? true) ? "SUPPORTED" : "UNSUPPORTED",
+        },
+        controls: this.config.controls,
+        pricing: {
+          inputPerMillion: null,
+          outputPerMillion: null,
+          cachedInputPerMillion: null,
+          currency: "USD",
+        },
+        lifecycle: "active",
+        source: "LIVE" as const,
       };
-    }
-    try {
-      const response = await fetch(`${this.config.baseUrl}/models?limit=100`, {
-        headers: this.buildHeaders(apiKey),
-        redirect: "error",
-        signal: AbortSignal.timeout(15000),
-        cache: "no-store",
-      });
-      if (!response.ok) {
-        const bodyText = await response.text().catch(() => null);
-        return {
-          providerId: this.id,
-          models: [],
-          source: "UNKNOWN",
-          discoveredAt: new Date().toISOString(),
-          error: normalizeError(response.status, bodyText),
-          fromCache: false,
-        };
-      }
-      const json = await response.json();
-      const list =
-        (json as { data?: Array<{ id: string; display_name?: string }> })
-          ?.data ?? [];
-      const models: NormalizedModel[] = list.map((entry) => {
-        const known = ANTHROPIC_MODELS.find((m) => m.id === entry.id);
-        return {
-          providerId: this.id,
-          modelId: entry.id,
-          displayName: entry.display_name ?? known?.label ?? entry.id,
-          discoveredAt: new Date().toISOString(),
-          contextWindow: known?.context ?? 200_000,
-          maxOutputTokens: known?.maxOutput ?? null,
-          modalities: {
-            text: true,
-            imageInput: known?.vision ?? true,
-            audioInput: false,
-            audioOutput: false,
-          },
-          capabilities: {
-            streaming: "SUPPORTED",
-            tools: known?.tools ? "SUPPORTED" : "SUPPORTED",
-            structuredOutput: "SUPPORTED",
-            reasoning: known?.reasoning ? "SUPPORTED" : "UNKNOWN",
-            vision: (known?.vision ?? true) ? "SUPPORTED" : "UNSUPPORTED",
-          },
-          controls: this.config.controls,
-          pricing: {
-            inputPerMillion: null,
-            outputPerMillion: null,
-            cachedInputPerMillion: null,
-            currency: "USD",
-          },
-          lifecycle: "active",
-          source: "LIVE" as const,
-        };
-      });
-      return {
-        providerId: this.id,
-        models,
-        source: "LIVE",
-        discoveredAt: new Date().toISOString(),
-        error: null,
-        fromCache: false,
-      };
-    } catch (cause) {
-      return {
-        providerId: this.id,
-        models: [],
-        source: "UNKNOWN",
-        discoveredAt: new Date().toISOString(),
-        error: networkError(
-          cause instanceof Error ? cause.message : "Network error",
-        ),
-        fromCache: false,
-      };
-    }
+  });
   }
 
   protected buildRequestBody(
@@ -387,22 +268,14 @@ export class AnthropicAdapter extends OpenAICompatibleAdapter {
     const start = Date.now();
     const apiKey = this.getApiKey(env);
     if (!apiKey) {
-      yield {
-        delta: "",
-        done: true,
-        finishReason: null,
-        usage: null,
-        error: {
-          category: "AUTHENTICATION",
-          message: "Missing credential",
-          safeMessage: "No API key configured.",
-          httpStatus: null,
-          providerErrorId: null,
-          retryable: false,
-        },
-        latencyMs: 0,
-        ttftMs: null,
-      };
+      yield this.streamError({
+        category: "AUTHENTICATION",
+        message: "Missing credential",
+        safeMessage: "No API key configured.",
+        httpStatus: null,
+        providerErrorId: null,
+        retryable: false,
+      }, 0);
       return;
     }
 
@@ -419,138 +292,65 @@ export class AnthropicAdapter extends OpenAICompatibleAdapter {
     let usageCachedTokens: number | null = null;
 
     try {
-      const response = await fetch(`${this.config.baseUrl}/messages`, {
-        method: "POST",
-        headers: this.buildHeaders(apiKey),
-        body: JSON.stringify(body),
-        redirect: "error",
-        signal: signal ?? AbortSignal.timeout(120000),
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        const bodyText = await response.text().catch(() => null);
-        yield {
-          delta: "",
-          done: true,
-          finishReason: null,
-          usage: null,
-          error: normalizeError(response.status, bodyText),
-          latencyMs: Date.now() - start,
-          ttftMs: null,
-        };
-        return;
-      }
-
-      if (!response.body) {
-        yield {
-          delta: "",
-          done: true,
-          finishReason: null,
-          usage: null,
-          error: {
-            category: "NETWORK",
-            message: "No response body",
-            safeMessage: "Provider returned no body.",
-            httpStatus: null,
-            providerErrorId: null,
-            retryable: false,
-          },
-          latencyMs: Date.now() - start,
-          ttftMs: null,
-        };
-        return;
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed.startsWith("data: ")) continue;
-          try {
-            const event = JSON.parse(trimmed.slice(6));
-            if (event.type === "content_block_delta" && event.delta?.text) {
-              if (firstTokenTime === null) firstTokenTime = Date.now() - start;
-              yield {
-                delta: event.delta.text,
-                done: false,
-                finishReason: null,
-                usage: null,
-                error: null,
-                latencyMs: null,
-                ttftMs: firstTokenTime,
-              };
-            } else if (event.type === "message_delta") {
-              if (event.delta?.stop_reason)
-                finishReason = event.delta.stop_reason;
-              if (event.usage) {
-                // `message_start` establishes input tokens and `message_delta`
-                // reports the final output count, so the two have to merge.
-                usageInputTokens =
-                  usageInputTokens ?? event.usage.input_tokens ?? null;
-                usage = {
-                  inputTokens: usageInputTokens,
-                  outputTokens: event.usage.output_tokens ?? null,
-                  cachedTokens: usageCachedTokens,
-                  source: "provider",
-                };
-              }
-            } else if (event.type === "message_start" && event.message?.usage) {
-              usageInputTokens = event.message.usage.input_tokens ?? null;
-              usageCachedTokens =
-                event.message.usage.cache_read_input_tokens ?? null;
+      for await (const data of this.readStreamData(
+        `${this.config.baseUrl}/messages`, apiKey, body, start, signal
+      )) {
+        if (typeof data !== "string") {
+          yield data;
+          return;
+        }
+        try {
+          const event = JSON.parse(data);
+          if (event.type === "content_block_delta" && event.delta?.text) {
+            if (firstTokenTime === null) firstTokenTime = Date.now() - start;
+            yield {
+              delta: event.delta.text,
+              done: false,
+              finishReason: null,
+              usage: null,
+              error: null,
+              latencyMs: null,
+              ttftMs: firstTokenTime,
+            };
+          } else if (event.type === "message_delta") {
+            if (event.delta?.stop_reason)
+              finishReason = event.delta.stop_reason;
+            if (event.usage) {
+              // `message_start` establishes input tokens and `message_delta`
+              // reports the final output count, so the two have to merge.
+              usageInputTokens =
+                usageInputTokens ?? event.usage.input_tokens ?? null;
               usage = {
                 inputTokens: usageInputTokens,
-                outputTokens: null,
+                outputTokens: event.usage.output_tokens ?? null,
                 cachedTokens: usageCachedTokens,
                 source: "provider",
               };
             }
-          } catch {
-            /* skip malformed */
+          } else if (event.type === "message_start" && event.message?.usage) {
+            usageInputTokens = event.message.usage.input_tokens ?? null;
+            usageCachedTokens =
+              event.message.usage.cache_read_input_tokens ?? null;
+            usage = {
+              inputTokens: usageInputTokens,
+              outputTokens: null,
+              cachedTokens: usageCachedTokens,
+              source: "provider",
+            };
           }
+        } catch {
+          /* skip malformed */
         }
       }
 
-      yield {
-        delta: "",
-        done: true,
-        finishReason,
-        usage: usage ?? {
-          inputTokens: null,
-          outputTokens: null,
-          cachedTokens: null,
-          source: "unknown",
-        },
-        error: null,
-        latencyMs: Date.now() - start,
-        ttftMs: firstTokenTime,
-      };
+      yield this.streamComplete(start, firstTokenTime, finishReason, usage);
     } catch (cause) {
-      const error: NormalizedError =
+      yield this.streamError(
         cause instanceof DOMException && cause.name === "AbortError"
           ? abortedError()
-          : networkError(
-              cause instanceof Error ? cause.message : "Network error",
-            );
-      yield {
-        delta: "",
-        done: true,
-        finishReason,
-        usage,
-        error,
-        latencyMs: Date.now() - start,
-        ttftMs: firstTokenTime,
-      };
+          : networkError(cause instanceof Error ? cause.message : "Network error"),
+        Date.now() - start, firstTokenTime, finishReason, usage,
+      );
     }
   }
 
