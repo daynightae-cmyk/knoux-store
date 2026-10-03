@@ -1,0 +1,179 @@
+{
+  "tables": [
+    {
+      "name": "public.content_registry",
+      "rls_enabled": true,
+      "rows": 260,
+      "comment": "Canonical KNOuX Store public content registry, seeded from verified repository data."
+    },
+    {
+      "name": "public.site_settings",
+      "rls_enabled": true,
+      "rows": 2
+    },
+    {
+      "name": "public.profiles",
+      "rls_enabled": true,
+      "rows": 1
+    },
+    {
+      "name": "public.contact_requests",
+      "rls_enabled": true,
+      "rows": 0,
+      "comment": "Contact submissions. Direct table writes are blocked; use submit_contact_request()."
+    },
+    {
+      "name": "public.content_sync_runs",
+      "rls_enabled": true,
+      "rows": 2,
+      "comment": "Server-side audit trail for repository-to-database content synchronization."
+    },
+    {
+      "name": "public.signal_numbers",
+      "rls_enabled": true,
+      "rows": 12
+    },
+    {
+      "name": "public.signal_profiles",
+      "rls_enabled": true,
+      "rows": 0
+    },
+    {
+      "name": "public.signal_alias_submissions",
+      "rls_enabled": true,
+      "rows": 0,
+      "comment": "Consent-gated community aliases. Lookup exposes aliases only for verified target profiles that enable them."
+    },
+    {
+      "name": "public.signal_reputation_reports",
+      "rls_enabled": true,
+      "rows": 0
+    },
+    {
+      "name": "public.signal_search_events",
+      "rls_enabled": true,
+      "rows": 35,
+      "comment": "Only in-product KNOuX Signal lookup/profile-view events. No third-party search visibility is implied."
+    },
+    {
+      "name": "public.signal_viewer_preferences",
+      "rls_enabled": true,
+      "rows": 0,
+      "comment": "Viewer disclosure is explicit opt-in. KNOuX Signal never exposes a viewer identity by default."
+    },
+    {
+      "name": "public.signal_source_catalog",
+      "rls_enabled": true,
+      "rows": 25,
+      "comment": "KNOuX Signal provenance registry. Live ingestion is restricted to approved sources."
+    },
+    {
+      "name": "public.signal_ingestion_runs",
+      "rls_enabled": true,
+      "rows": 4,
+      "comment": "Artifact-level ingestion audit with hashes and import/rejection counts."
+    },
+    {
+      "name": "public.signal_business_phone_records",
+      "rls_enabled": true,
+      "rows": 347520,
+      "comment": "Public or licensed business phone identities with source-level provenance. Never use for leaked/private contact-book data."
+    },
+    {
+      "name": "public.signal_network_codes",
+      "rls_enabled": true,
+      "rows": 29
+    },
+    {
+      "name": "public.signal_numbering_prefixes",
+      "rls_enabled": true,
+      "rows": 503
+    },
+    {
+      "name": "public.signal_datasets",
+      "rls_enabled": true,
+      "rows": 8
+    },
+    {
+      "name": "public.signal_source_records_staging",
+      "rls_enabled": true,
+      "rows": 245415
+    },
+    {
+      "name": "public.signal_ingestion_errors",
+      "rls_enabled": true,
+      "rows": 0
+    },
+    {
+      "name": "public.knoux_bridge_enrollments",
+      "rls_enabled": true,
+      "rows": 2
+    },
+    {
+      "name": "public.knoux_bridge_machines",
+      "rls_enabled": true,
+      "rows": 1,
+      "comment": "KNOuX Store bridge identities enrolled outbound and measured by heartbeat."
+    },
+    {
+      "name": "public.knoux_bridge_registration_nonces",
+      "rls_enabled": true,
+      "rows": 6
+    },
+    {
+      "name": "public.knoux_bridge_sessions",
+      "rls_enabled": true,
+      "rows": 6,
+      "comment": "Short-lived machine sessions. Only SHA-256 token hashes are persisted."
+    },
+    {
+      "name": "public.knoux_bridge_jobs",
+      "rls_enabled": true,
+      "rows": 66,
+      "comment": "Durable KNOuX Store cloud-to-local jobs claimed outbound by local bridges."
+    },
+    {
+      "name": "public.knoux_bridge_events",
+      "rls_enabled": true,
+      "rows": 85
+    },
+    {
+      "name": "public.knoux_bridge_issuer_meta",
+      "rls_enabled": true,
+      "rows": 0,
+      "comment": "Public half of the KNOuX Store bridge ticket issuer. Private material lives only in Supabase Vault."
+    },
+    {
+      "name": "public.knoux_bridge_gateway_principals",
+      "rls_enabled": true,
+      "rows": 0,
+      "comment": "Google service-account identities allowed to broker MCP read-only jobs through the KNOuX bridge control plane."
+    },
+    {
+      "name": "public.knoux_bridge_signing_keys",
+      "rls_enabled": true,
+      "rows": 1
+    },
+    {
+      "name": "public.knoux_bridge_gateway_tokens",
+      "rls_enabled": true,
+      "rows": 6,
+      "comment": "Hashed bearer-token registry for the private KNOuX Store MCP Gateway. RLS has no client policies by design."
+    },
+    {
+      "name": "public.knoux_bridge_issuer",
+      "rls_enabled": true,
+      "rows": 1
+    },
+    {
+      "name": "public.knoux_bridge_gateway_auth",
+      "rls_enabled": true,
+      "rows": 1
+    },
+    {
+      "name": "public.knoux_bridge_control_config",
+      "rls_enabled": true,
+      "rows": 1
+    }
+  ]
+}

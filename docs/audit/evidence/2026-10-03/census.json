@@ -1,0 +1,2851 @@
+{
+  "observedAt": "2026-10-03T02:19:23.356Z",
+  "base": "ae7c0d394ea07047f3c0ef534411872a59c2711f",
+  "tree": "822c50e4f166f2175b33db2606941f3a3503c431",
+  "worktrees": [
+    {
+      "path": "D:/Knoux Store",
+      "head": "dac60f15a9ce6294ccb8d98ae4a0b0c39d7a5c05",
+      "branch": "refs/heads/main",
+      "behind": 9,
+      "unique": 0,
+      "classification": [
+        "MERGED",
+        "UNIQUE UNCOMMITTED"
+      ],
+      "dirty": [
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/header/build.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/header/build.log",
+          "sha256": "b6962a21429e5ca851427571b5924722c314db7ee008a1b3153e44afa86b798e"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/header/e2e.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/header/e2e.log",
+          "sha256": "0f13b4cb3a6fcfd69ceb8c381fa80e80cf4aa3654425a0c41cdec4a6b5aa28ff"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/header/lint.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/header/lint.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/header/typecheck.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/header/typecheck.log",
+          "sha256": "919d852af2a098b62397bde8e629cb3505d637c3d442a7d6168b81cc1bb31a6a"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs/build.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs/build.log",
+          "sha256": "6e9e597c463223c0c5706f759d9dbe29b64111f3669595b59c5255c5649202ec"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs/lint.exit",
+          "sha256": "df4e26a04a444901b95afef44e4a96cfae34690fff2ad2c66389c70079cdff2b"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs/lint.log",
+          "sha256": "422798485c1268ba7d5d4dfc21361790f9484f114dc7f21917a88d67ccff068d"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs/test.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs/test.log",
+          "sha256": "ac24e11f8211883b8578c9c53e5559de13c7e959fe530b51c98657719025ab8a"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs/typecheck.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs/typecheck.log",
+          "sha256": "8444ac1e04d855879a67b0f15c42a738b7e89faf156b5419338528dfba795ac8"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs2/build.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs2/build.log",
+          "sha256": "53537e9ea8aa1ee62c2c0e2d7699984698cb5b93dba9997167ce9ee78770358a"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs2/labs-test.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs2/labs-test.log",
+          "sha256": "726986318483635d2d8f63b8e52f8a995149fcffcf526b31b9f5f830a4e16d0f"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs2/lint.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs2/lint.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs2/typecheck.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs2/typecheck.log",
+          "sha256": "919d852af2a098b62397bde8e629cb3505d637c3d442a7d6168b81cc1bb31a6a"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs3/test.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs3/test.log",
+          "sha256": "48f9eb5081a48d279d938b3b52904b3f9446db06696b8c81400b1df02338a2cf"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs4/e2e.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/labs4/e2e.log",
+          "sha256": "a4775b59f31fa6c4d86624a1915ade05620ef8785044b3c3620b7c5b4e6e7601"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/sentinel/build.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/sentinel/build.log",
+          "sha256": "d5fed9674b61ae6e758d531c0c65867cacbe8a4041806c71fa5531a8b9c233fd"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/sentinel/lint.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/sentinel/lint.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/sentinel/sentinel-test.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/sentinel/sentinel-test.log",
+          "sha256": "bd26d0706d46d1a52d66f30909aeeef204cc4f7774098e130e30053d45ce2cb0"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/sentinel/typecheck.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/sentinel/typecheck.log",
+          "sha256": "919d852af2a098b62397bde8e629cb3505d637c3d442a7d6168b81cc1bb31a6a"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/sentinel2/test.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/sentinel2/test.log",
+          "sha256": "37ac906a2d6a15a97ee8679987ba0231b5797d122e1bad44d32fa68632ad9f6c"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/trio-browser/e2e.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/trio-browser/e2e.log",
+          "sha256": "25121b73bc26e02718211dcc115e1dd581f6d0e6ba041d011c694cbadb6bea64"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/trio/build.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/trio/build.log",
+          "sha256": "4e6df4a6e74db99187a52de22a735fb915b74c189886b36817e1525136d9655f"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/trio/lint.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/trio/lint.log",
+          "sha256": "37e822aabbdd008f23ed8e1d1d43c5caedc1c5ea9e50b2ed3382a8f1a128a577"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/trio/test.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/trio/test.log",
+          "sha256": "6da62df8538b700890c255a0da1cc4578ba3a83bcef46aa9f22118e3bbce8d8a"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/trio/typecheck.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/convergence/trio/typecheck.log",
+          "sha256": "919d852af2a098b62397bde8e629cb3505d637c3d442a7d6168b81cc1bb31a6a"
+        },
+        {
+          "status": "??",
+          "path": "Qwen_yaml_20260929_d5xjiknll.yaml",
+          "sha256": "456ca75aa1c1acdcb9cdbfeb3b37ecc78488740125e48c65a98a9fd901368844"
+        },
+        {
+          "status": "??",
+          "path": "khda_dubai_private_schools_open_data_original.xlsx",
+          "sha256": "514b6afb0c625c8916dd5e401f51a07131356fcff8b8c087d2df602647106685"
+        },
+        {
+          "status": "??",
+          "path": "references/KNOuX_VISUAL_REFERENCE_MASTER_MAP.md",
+          "sha256": "4ba1084fad353a4b31cd42d698ff4d856300176590c53149035856b4f3df9682"
+        },
+        {
+          "status": "??",
+          "path": "references/products/chrome_F29H7lpGAS.mp4",
+          "sha256": "c62acfde93e1aa68980e4cbf254350422ecbdd727c2ad3664cc08c6c604db33f"
+        },
+        {
+          "status": "??",
+          "path": "references/products/chrome_ujbUPcLRnW.mp4",
+          "sha256": "ff3f6c6460b8068350e4978d2aba7aa8fafab111ac058889a2d4570c1c5af22b"
+        },
+        {
+          "status": "??",
+          "path": "references/task-prompts/KNOuX_CREATIVE_DIGITAL_ATELIER_V2_CLAUDE_SONNET.txt",
+          "sha256": "85ca0c0a26ede11c77450fb04b457b97769c868f7aeba80132fd7578e750e2ac"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/IMMUTABLE_REFERENCE_MANIFEST.md",
+          "sha256": "627f373a9af290a213cb04a1fe1fe5c777aef38caf815ae141e7ff94c6232a69"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/_source-zips/remix-3d-mind-map-visualizatio.zip",
+          "sha256": "631f142d404a0558eb7ed2227fd7f797a351cf9640527628e1fa3b4fee303be4"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/_source-zips/remix-atul-verma-3d-profile-po.zip",
+          "sha256": "5e4c484781a02b70009bc9184fd869f8922edc9004182f45d1331cdbd1203168"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/_source-zips/remix-cinematic-3d-scroll-expe.zip",
+          "sha256": "600de95a0115f4ddbde03cd6cd65d6ab006f857a720c7baef015f7d17e9a3441"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/_source-zips/remix-cinematic-organizational.zip",
+          "sha256": "81b441fb8ca8461ebd59ebb20c70c7de300650a4d1716ec5d9f378281de6927b"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/_source-zips/remix-futuristic-3d-portfolio-.zip",
+          "sha256": "ed1f336ea0d59642e4f1e417f0162da298e1007ef6062383300c96a5aa012fe8"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/_source-zips/remix-golden-mind-lattice.zip",
+          "sha256": "4b2350a76172bc8332c3017561166beb37011f70afd0dd5e758a3498b5b467d4"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/_source-zips/remix-interactive-3d-digital-m.zip",
+          "sha256": "a8f8832345e95323b09fa2d2fa5a8c9ad39e1221a34ff89ab3ef9d21484a782f"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/_source-zips/remix-landscape-design.zip",
+          "sha256": "d2f695dfe95364e781f0d146c86697ca82fdda616f02b3a4da738628da347d61"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/_source-zips/remix-neural-bloom.zip",
+          "sha256": "5aea0bbe914e76aa7531c188b0c80908fc14f4eb70db0695cce951d101b4185e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/_source-zips/remix-ours.zip",
+          "sha256": "c8255fea9e9f730e058b336ce86470bb7653ec008d81d04cef51d74897939833"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/_source-zips/remix-remix-pale-blue-dot.zip",
+          "sha256": "88a5a67d7bb2046d2139bd27effb23aaaf2bd36bf1b9c75eec8618984f9014f5"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/_source-zips/remix-science-lab-website-with.zip",
+          "sha256": "c5c37f217e3a6652ed3765d7726d1552653b218f0918eab20a69ad8bf3b6bda0"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/_source-zips/remix-stunning-3d-interactive-.zip",
+          "sha256": "d2071a64d46c16a16bebaa9a498789c84a5c152b445fba79e50907090b1d3221"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/_source-zips/remix-ushop.zip",
+          "sha256": "9f30ca2ae33aa84b41c13615f8ed44047a1ed880a817e3c843975f4b72b18002"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/_source-zips/remix-vanta-digital-atelier.zip",
+          "sha256": "ad60d73f252159b9f30be86886d95ee124521c981c2deb8d706c6a76e97000a0"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/_source-zips/vary-detailed-solar-system-vis.zip",
+          "sha256": "d192d4771df9053d80ebdddc13603d5dd80f652e48d684888182c445a4fdf9a9"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/01-vanta-digital-atelier/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/01-vanta-digital-atelier/README.md",
+          "sha256": "8c0417bda34a1536dd2ee06a6c2b08d2103cbcc51d91daab718c95f49ab1d3c5"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/01-vanta-digital-atelier/index.html",
+          "sha256": "81876d0f024c52384efa963ccfc67bea1f210dfd3dc3533e8b674a275c06a0ea"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/02-science-lab-sdf-dot-matrix/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/02-science-lab-sdf-dot-matrix/README.md",
+          "sha256": "4fd5b32c60c2d385610fcb65950b49c64c843a1d06e70f2fb67bc98956124e39"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/02-science-lab-sdf-dot-matrix/index.html",
+          "sha256": "5c11c51f621f49beeef9a38b2ac98cca99f7de2f0a4399e955232c3665ae61b1"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/02-science-lab-sdf-dot-matrix/index.js",
+          "sha256": "9d6fab8d07e811aa81ebb532ca90818e44d3f7ea2af35e4c5f6833b48ebc0be7"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/02-science-lab-sdf-dot-matrix/package.json",
+          "sha256": "cc1e868f086ecb0c75bd8260533056c680afd2c55ffa501ae608c17efb1fcbeb"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/03-marlow-vance-digital-marketer/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/03-marlow-vance-digital-marketer/README.md",
+          "sha256": "0c9d0d4281f44e2bcc49bec521e4142d7ec6f86d942890b86ca5e82dac537f8f"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/03-marlow-vance-digital-marketer/index.html",
+          "sha256": "c77e1e93dac399538890a11c390630b363a3b5ba106941bf073c58c111bfd9f9"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/04-3d-mind-map/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/04-3d-mind-map/README.md",
+          "sha256": "eaa83c733735dae579e0560434edcb1bdc2ddc60c568d0f2801f48e2998b9ada"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/04-3d-mind-map/index.html",
+          "sha256": "db693b195b55ad0226451f1688e3dbc501a93dd4dcc2eb56c7934bef3b63120b"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/05-neural-bloom/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/05-neural-bloom/README.md",
+          "sha256": "2a21fb8569f6e6d600cec81f3c9ae5e7e6f645a6911bb39fc4c96008f621a278"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/05-neural-bloom/main.js",
+          "sha256": "87332c8e4414d037fc84d6a91a4c4214cb671cc0a207a5ab85709964c3238ac4"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/05-neural-bloom/package.json",
+          "sha256": "f573cebb49e968f0e87538a5363058ce390e808eb8bad0bb6f95d0b55fede0e1"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/06-cinematic-organizational-handoff/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/06-cinematic-organizational-handoff/README.md",
+          "sha256": "f7db1856788aa4722ab97bb8bef1033ceb4005124cfe83fc5226da3121e0b781"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/06-cinematic-organizational-handoff/cardframe.js",
+          "sha256": "1107ed8ec7216c728f43c98c43c44b3548636584b8fa8a72f43a4a4d95dcabd1"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/06-cinematic-organizational-handoff/config.js",
+          "sha256": "a2b4289e542ee7e642cb22c56e95be10a5496a102e00b496f2f593be35e310ae"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/06-cinematic-organizational-handoff/environment.js",
+          "sha256": "b5d80fa61ceb4efd4cf5e9a49b4707e914add01321e57c28ddc26d3f5c0f5563"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/06-cinematic-organizational-handoff/fallback2d.js",
+          "sha256": "ae64580da9eed8c697f0718dbad6ab4a87e01d527214557b4bea6449542124e3"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/06-cinematic-organizational-handoff/index.html",
+          "sha256": "563644460c818887d014326ceba3cd9bd62762ae7e7516a1fb2eed36ac6a3e90"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/06-cinematic-organizational-handoff/islands.js",
+          "sha256": "8520e5769087e77245e1b413115cc4565d2b0b4359f92260e1e2516e2cb35385"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/06-cinematic-organizational-handoff/links.js",
+          "sha256": "120ea3ded90dde984b7dea2bbba355897c25f0161ef74692ab964380f8a7dac7"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/06-cinematic-organizational-handoff/main.js",
+          "sha256": "52c26d4f366a8c7f79befe85bb90a4bb365f5951e46c0ddf3e1af374f23cac1a"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/06-cinematic-organizational-handoff/package.json",
+          "sha256": "8160b24f88da7efc8e6644f8c560a88bb27cebea4ba334f8e207bc1f876bd53f"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/06-cinematic-organizational-handoff/scene3d.js",
+          "sha256": "c83836ae4ebc944f1e930edbab7d9204a800584ef8032781f6925a306d9d93c9"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/06-cinematic-organizational-handoff/styles.css",
+          "sha256": "016fe74491bbbaa46b2b7d471c05cfcc19d9124d5fee7187d99ac8b849a7852f"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/06-cinematic-organizational-handoff/ui.js",
+          "sha256": "17adfd361b6ee8644f7a314ad220ca1b9285a1d14040e93241f8ef93b4ac4f06"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/07-futuristic-3d-portfolio/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/07-futuristic-3d-portfolio/README.md",
+          "sha256": "a908aa03b06826b37704951bab7b49744cbb5b8382a2ac5d792623476a94ffbd"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/07-futuristic-3d-portfolio/index.html",
+          "sha256": "7ec9f6fba8bd94461234236f16bcd1f477705bbf909ca7303a064804e4858c50"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/08-detailed-solar-system/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/08-detailed-solar-system/README.md",
+          "sha256": "9b19bf8cfadf1fa1ee151fe3df85767be7607200152ad1178280719acb0d3292"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/08-detailed-solar-system/index.html",
+          "sha256": "e09296344b736ac2e25fa4f086fc5024b59a802c469194ecf6e0df6ded8ff608"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/08-detailed-solar-system/package.json",
+          "sha256": "e5692e90ffe2d413ad2c78499eefb0a8c915be3a2f037505b0dbba96e1c4a7bb"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/08-detailed-solar-system/scene.js",
+          "sha256": "08899b369431f3c60abe792ba00c8d4904d30b8363af716a85600a58d7ddca84"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/09-landscape-editorial-process/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/09-landscape-editorial-process/README.md",
+          "sha256": "2f990255ad1e559fc523b1ffd2d85363bd45cf6157d66dbe5a59232ce7d0d222"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/09-landscape-editorial-process/index.html",
+          "sha256": "e0ffb56307523b467948b9e93192572ba346b9cd9e15d370b38c4c5c6238567c"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/README.md",
+          "sha256": "1ff775b191b1ac4a2f329ddb5094d8f4c46bf4ebf5a2964886154ca36d580dc3"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/index.html",
+          "sha256": "308079144fa56f52a840d94030f14fb9484b24b0801560b69880f9e00bba055f"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/index.js",
+          "sha256": "91c416d77f13e31c5c87a00d48b6d5f6c989c3bb0a706d8688e38705e90d8173"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/package.json",
+          "sha256": "db480f51cc21c26492ea2e38e635c36a34f3f29a991bd84ae6a37a324275fba3"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/src/blueprint2d.js",
+          "sha256": "031ca5c7a24a1ff987c3a9afaab074480cb80b2bea37533dc3568d26894c8824"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/src/brainField.js",
+          "sha256": "0c4226628e46612072d0c7efafe80722077528e608e1d0e9ea6121fc9c46582a"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/src/camera.js",
+          "sha256": "95f382351f169f09c152a35debf5214462e41312ebbaf824233747c454b4a60e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/src/embed.js",
+          "sha256": "8ce1fe7111486b517fd848185e69b8447f7235bf7f38c6e2f94bf26f785b2315"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/src/interaction.js",
+          "sha256": "1082f19330dfa4e496c8d60991fb951f595456cb3e677b784a8f3275b9c8dc70"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/src/lattice.js",
+          "sha256": "abbf6d2b1c08e61f2b6c4fa8a2930492a5a3c7d2aa96ffeb498658fefde6217d"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/src/nodes.js",
+          "sha256": "ab544f84927bea3aeddcf2ac86718829e9a7779aa0ff2029024fc8e510b2e99f"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/src/pyramidMarker.js",
+          "sha256": "d86628bfd2909cd627103df9d6ef340b4fa51e31be9460e7b2910748cd88d512"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/src/pyramids.js",
+          "sha256": "99354ced1cb6372d2cff276cd4a5eab764d4980274c6c8b882907e4b526ac860"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/src/resonance.js",
+          "sha256": "2bb2ef9710ebd1d63ec8dd12db9a34e2b171579dd166456e9d6bca17f75d580b"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/src/story.js",
+          "sha256": "5b96629d4442f1ef4deba9745ba1fb54b21a009063a48c5306a6417a6711bc86"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/10-golden-mind-lattice/src/viewMode.js",
+          "sha256": "3a253c6d823103d61e8e2443fddcbbc1837dba0241d2d9d61d4ab9c8acb79182"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/11-pale-blue-dot/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/11-pale-blue-dot/README.md",
+          "sha256": "d46e9fd9f788fe556433f1816578b0ff250578f2284b52bff304d10dcbdc2c68"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/11-pale-blue-dot/index.html",
+          "sha256": "5f0c78e1b2f5ed8694180f0fb472942ca010fda70d08b54b05511080b9bbca23"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/12-ours-cosmic-scale/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/12-ours-cosmic-scale/README.md",
+          "sha256": "2e06851697948973d5c12d7d4499b056c63e711c108f7981b5f9258ac087b5e5"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/12-ours-cosmic-scale/index.html",
+          "sha256": "4a5a5df7423415f514b685b3e4f4121d1e6c4a6a1d7b9fe877118643226d00e3"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/12-ours-cosmic-scale/package.json",
+          "sha256": "bbb3264d965d7be3922c798d489f3d7d6ca879a5a33bfd7e84f47a662e043b3f"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/13-stunning-3d-interactive-portfolio/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/13-stunning-3d-interactive-portfolio/README.md",
+          "sha256": "4211b636adc5f1037dd7d2d20191ed9b9b47c2d3cf64cd6bab5fc077076f16d5"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/13-stunning-3d-interactive-portfolio/index.html",
+          "sha256": "2fc8d6da41f931dd64e929faea7f36935fbedb695f62177ad58005cbc9b7a669"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/13-stunning-3d-interactive-portfolio/package.json",
+          "sha256": "65ea1e82a1af944120f66ac346a1a855d25fa85a3b7f04863b6fbed30fa09200"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/14-atul-verma-3d-profile/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/14-atul-verma-3d-profile/README.md",
+          "sha256": "5fb082d2cb129646cfb43e0870c40cfddc53edbd078ffb7438e10edbd4e6eeb8"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/14-atul-verma-3d-profile/index.html",
+          "sha256": "1a4fde0273e6217fff1b08f1bc6a6f9106f82a1a77a33061fc44546d94b6b3b2"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/14-atul-verma-3d-profile/index.js",
+          "sha256": "d004f7b6be751fb9257f7574a16ef828c2fd2ad2093f379333ec22da393f02c7"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/14-atul-verma-3d-profile/package.json",
+          "sha256": "4feecca88a1f8cf362266d6bf1abd969d0961919ecc528ece18a6724f65a5eed"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/15-ushop-product-cinematic/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/15-ushop-product-cinematic/README.md",
+          "sha256": "7577d78a1579d309627b7d57b4dbd34e96b535129d67ceea51a9789e860a141b"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/15-ushop-product-cinematic/index.html",
+          "sha256": "2348c4b96a2697907923d3f8f7b031cc0e1fcc4ece514864fb0d56697f638421"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/16-cinematic-3d-scroll-experience/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/16-cinematic-3d-scroll-experience/README.md",
+          "sha256": "afe455f988f5daf6b248986a3889b7ade497ee836f39ba06e05a1d5006f649ed"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/16-cinematic-3d-scroll-experience/index.html",
+          "sha256": "c08595f543e4b567a8624248c0451a6d3551f66f3bf2b2a16d1d67ff24bdee22"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/16-cinematic-3d-scroll-experience/package.json",
+          "sha256": "2a1df168e98daec8c8afa481c72bd4578375c141acca58dc68c033c353882a62"
+        },
+        {
+          "status": "??",
+          "path": "vary-detailed-solar-system-vis/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "vary-detailed-solar-system-vis/README.md",
+          "sha256": "9b19bf8cfadf1fa1ee151fe3df85767be7607200152ad1178280719acb0d3292"
+        },
+        {
+          "status": "??",
+          "path": "vary-detailed-solar-system-vis/index.html",
+          "sha256": "e09296344b736ac2e25fa4f086fc5024b59a802c469194ecf6e0df6ded8ff608"
+        },
+        {
+          "status": "??",
+          "path": "vary-detailed-solar-system-vis/package.json",
+          "sha256": "e5692e90ffe2d413ad2c78499eefb0a8c915be3a2f037505b0dbba96e1c4a7bb"
+        },
+        {
+          "status": "??",
+          "path": "vary-detailed-solar-system-vis/scene.js",
+          "sha256": "5e6eff6a178952d4851d69a4eef8d6c2123b9034e3a0c53ba52bbe8d8daea39f"
+        }
+      ]
+    },
+    {
+      "path": "C:/Users/k7/.codex/worktrees/2f53/Knoux Store",
+      "head": "b4756463850714f97ac04255073689368360290e",
+      "branch": "refs/heads/feat/build-figma-cinematic-workspace",
+      "behind": 29,
+      "unique": 0,
+      "classification": [
+        "MERGED",
+        "UNIQUE UNCOMMITTED"
+      ],
+      "dirty": [
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/build-e2e-desktop.log",
+          "sha256": "271f95c28196e563b9bec3f3d9370a1ea68eb75a10135be3bbcd408d4770804d"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/build.log",
+          "sha256": "5f088945d5a1b539fc01b1c1909da4be26bebb3bac68e74ff74e00edc2a00388"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/capture.mjs",
+          "sha256": "e561b8804c4505a2c604af36aa6cc42e13079119849c1147d282e3b83cdcca28"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/final-local/audit.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/final-local/audit.log",
+          "sha256": "5be70d5588e5372242a23178b313a998132dbb128d5b05c74051e1c5e149dded"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/final-local/build-e2e.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/final-local/build-e2e.log",
+          "sha256": "0750768bdad61edea68aca4d52dcec7ddeddcf885bc09db1b123eaa694f65571"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/final-local/diff-check.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/final-local/diff-check.log",
+          "sha256": "bf06e0a8fd47dcd7c8c63bd18575c5917a71baaf1c56f08530c3e07e542d0934"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/final-local/lint.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/final-local/lint.log",
+          "sha256": "7a828b7beae2054d5ee3689bba0c02b7b3653cb87081dce813e885ff8431df70"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/final-local/test.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/final-local/test.log",
+          "sha256": "5687b8a045fa8f52970e552034b2eb511198981e11f55ceab5073942695b95d5"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/final-local/typecheck.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/final-local/typecheck.log",
+          "sha256": "8444ac1e04d855879a67b0f15c42a738b7e89faf156b5419338528dfba795ac8"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/fix-ci/build.log",
+          "sha256": "37a129490c4ec4504fc9483ad85ed3acbac11fdcf32a791cdd04794046a860aa"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/fix-ci/lint.log",
+          "sha256": "04622e6d15bcfff3a9ca14e7f20d6371bb24f2b676a3ff1f836a3e07684600c8"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/fix-ci/typecheck.log",
+          "sha256": "8444ac1e04d855879a67b0f15c42a738b7e89faf156b5419338528dfba795ac8"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/fix-ci2/lint.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/fix-ci2/lint.log",
+          "sha256": "7a828b7beae2054d5ee3689bba0c02b7b3653cb87081dce813e885ff8431df70"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/fix-ci2/typecheck.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/fix-ci2/typecheck.log",
+          "sha256": "8444ac1e04d855879a67b0f15c42a738b7e89faf156b5419338528dfba795ac8"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/fix-ci3/build.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/fix-ci3/build.log",
+          "sha256": "475cc66189b2ab8fcdf1c883aa63013083b9aeb84c8ed819dbee32ec2a4162c6"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/fix-ci3/e2e.exit",
+          "sha256": "f1b2f662800122bed0ff255693df89c4487fbdcf453d3524a42d4ec20c3d9c04"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/fix-ci3/e2e.log",
+          "sha256": "75175bca02b3dbd2e2d01f87c097901f29c44581ea97e7b65b40bfd5a4041a57"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/fix-ci4/build.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/fix-ci4/build.log",
+          "sha256": "1b882298801a649ef2abf43d90207a806dfc7dfe4d776d58d29abfd270c92020"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/fix-ci4/e2e.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/fix-ci4/e2e.log",
+          "sha256": "78002f4e40f788a04a3f76f35092354c4ed0dbd96b81380b096ef13ed0df2cd0"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/lint.log",
+          "sha256": "0452a2f089fe0ec254c4ac5e7824d1f1ff963e8a19bb924b39439d58bc081a0d"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/reconcile-e2e/core.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/reconcile-e2e/core.log",
+          "sha256": "9aad0cd7cda29e346711583b30b83ba3a4f9c83245164ba80bb9e7fcc1e57c6b"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/reconcile-e2e/gates.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/reconcile-e2e/gates.log",
+          "sha256": "6895735c348156698afa06f2fd025f7c04d51e018901f060dc66e663035754fe"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/reconcile/audit.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/reconcile/audit.log",
+          "sha256": "5be70d5588e5372242a23178b313a998132dbb128d5b05c74051e1c5e149dded"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/reconcile/build.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/reconcile/build.log",
+          "sha256": "f321ce37129b7dd8733ff3ceb4c3d85217f9cd2ab91219d6294c76a31b69e4df"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/reconcile/diff-check.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/reconcile/diff-check.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/reconcile/lint.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/reconcile/lint.log",
+          "sha256": "7a828b7beae2054d5ee3689bba0c02b7b3653cb87081dce813e885ff8431df70"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/reconcile/test.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/reconcile/test.log",
+          "sha256": "d0907bae35b08bb6b45eb8c3340f29bfd6de1166411179acc220a9989b14b549"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/reconcile/typecheck.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/reconcile/typecheck.log",
+          "sha256": "8444ac1e04d855879a67b0f15c42a738b7e89faf156b5419338528dfba795ac8"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/typecheck.log",
+          "sha256": "1bc910c1fd2e29e88bc4814e09223466e1f1c9eb3204a417339c3f35a8586352"
+        },
+        {
+          "status": "??",
+          "path": ".artifacts/build-cinematic/unit-tests.log",
+          "sha256": "f7cef9c4e490cb4af36292a9ce852e58dd51045a53ca7b950febb91b9b431d11"
+        }
+      ]
+    },
+    {
+      "path": "C:/Users/k7/.codex/worktrees/6528/Knoux Store",
+      "head": "687778e7f294aa550474730200c6f3ecd41e72ed",
+      "branch": "refs/heads/feat/build-real-integrations-os",
+      "behind": 22,
+      "unique": 0,
+      "classification": [
+        "MERGED",
+        "UNIQUE UNCOMMITTED"
+      ],
+      "dirty": [
+        {
+          "status": " M",
+          "path": "CLAUDE.md",
+          "sha256": "16d6dc82e5a019b919e03694b155aa114ba8a2a7c30c9709b7da9970811a09e4"
+        },
+        {
+          "status": " M",
+          "path": "docs/build/BUILD_CONTROL_INVENTORY.json",
+          "sha256": "e9dfc22f37be3d92e3057e9c8b3dd1becc84efdda7e94c866a97fac0a82bcb5b"
+        },
+        {
+          "status": " M",
+          "path": "references/build-connected/qa/particle-animation-measurement.json",
+          "sha256": "3255da7c1024ac954b7e35c92cd932b779f630f56f4fbebd865366e49cfb21cb"
+        },
+        {
+          "status": " M",
+          "path": "references/build-connected/qa/particle-metrics-desktop.json",
+          "sha256": "9616415d31524cb159356f07b113d2a81942c061354201c9f993afcdd8018e20"
+        },
+        {
+          "status": " M",
+          "path": "references/build-connected/qa/particle-metrics-mobile.json",
+          "sha256": "f0fd5731e674056213c13c22b0f81cf7f9a31527b93326cce76ed9278d9a5ca2"
+        },
+        {
+          "status": " M",
+          "path": "references/build-connected/qa/particle-metrics-tablet.json",
+          "sha256": "b34baea82606d437613bea709edee2a1216062517899f213899a3502192f3cf9"
+        },
+        {
+          "status": " M",
+          "path": "references/build-connected/qa/preview-evidence-desktop.json",
+          "sha256": "104af68862e5cb59828cd3f3cb3f5cfb11b24e0ae514a5bf2af1548e6c65b10d"
+        },
+        {
+          "status": " M",
+          "path": "references/build-connected/qa/preview-evidence-mobile.json",
+          "sha256": "b4b9e090f4871d212d3f4be812300bf46edbd670bb126b61c758f7caac32c1ac"
+        },
+        {
+          "status": " M",
+          "path": "references/build-connected/qa/preview-evidence-tablet.json",
+          "sha256": "5f0f1a0fc07a482d9ef95e11ac7ee775f5b860f6f49afc967e35eee552beb49b"
+        },
+        {
+          "status": " M",
+          "path": "scripts/build-controls.mjs",
+          "sha256": "24d4d42636183248c2dfc684f323a8d690a9093f831b2b89251dc822b1056442"
+        },
+        {
+          "status": "??",
+          "path": ".claude/agents/kfc/spec-design.md",
+          "sha256": "dbb637b3b8d32cd861cfb1ca15e82d4027925fb0190ba3f8ceb9ce9fae628d23"
+        },
+        {
+          "status": "??",
+          "path": ".claude/agents/kfc/spec-impl.md",
+          "sha256": "c51d958bfe670cc93ac7cd7ca4ab32fe6885c82f92b3d4dfe9052c59c40822a4"
+        },
+        {
+          "status": "??",
+          "path": ".claude/agents/kfc/spec-judge.md",
+          "sha256": "a7e41e84b16bde7fab6642c96767bf3261ce5724f86215007e40897ee699371c"
+        },
+        {
+          "status": "??",
+          "path": ".claude/agents/kfc/spec-requirements.md",
+          "sha256": "44c361f98de7c83278d16964a746ed6d8d6b45540a97bb9e64708a3d15cde082"
+        },
+        {
+          "status": "??",
+          "path": ".claude/agents/kfc/spec-system-prompt-loader.md",
+          "sha256": "ee36f0c27a9bde5f3b5e965a3b32d99307c05b959331d860bec8fc1daaf762b5"
+        },
+        {
+          "status": "??",
+          "path": ".claude/agents/kfc/spec-tasks.md",
+          "sha256": "4d3bedd06081c814ba37f3c8fdf295eadd4550cd8b6f64ab8d9fdd3ddaaebcbd"
+        },
+        {
+          "status": "??",
+          "path": ".claude/agents/kfc/spec-test.md",
+          "sha256": "87291f9e56597d972b919c74d511f2b15cb45621d3f7cbaf3c05ff70260066d9"
+        },
+        {
+          "status": "??",
+          "path": ".claude/cloude-code-toolbox-mcp-skills-awareness.md",
+          "sha256": "a31470cc531d8a2d2a4d5a31d1e903c4dcd0f5d33bf349f1fa0b5a458253f323"
+        },
+        {
+          "status": "??",
+          "path": ".claude/project-map.md",
+          "sha256": "4acc053392e88b52cd307ce71112da2872b1ac813b6c0c31cc28e588aa7a61a1"
+        },
+        {
+          "status": "??",
+          "path": ".claude/settings/kfc-settings.json",
+          "sha256": "7c7bfc1178b4ae960267a47db29b7f3c65e83d346973a1af8a8ee5c678365fd6"
+        },
+        {
+          "status": "??",
+          "path": ".claude/system-prompts/spec-workflow-starter.md",
+          "sha256": "ea2f235e376deffe841368aabadd3ed004e2196f79c3e6781ba25d3e15e6a303"
+        },
+        {
+          "status": "??",
+          "path": "memory-bank/activeContext.md",
+          "sha256": "c66a04c23adc57d479e4c955a38e4559e30f10341627209fa9a820c10cc3db30"
+        },
+        {
+          "status": "??",
+          "path": "memory-bank/productContext.md",
+          "sha256": "8c9470e1dde94f875791e682cdbc5f12e273affe86840a010f12da9a958998bd"
+        },
+        {
+          "status": "??",
+          "path": "memory-bank/progress.md",
+          "sha256": "a38e9f0cef7d503dcd33f07d272a10ab38c1d1b303a4f67668ced7790e31381b"
+        },
+        {
+          "status": "??",
+          "path": "memory-bank/projectbrief.md",
+          "sha256": "875decd6f6a6e43fd54ccd5152c79125a26f61d45a2067bb02b3baa52be00aa4"
+        },
+        {
+          "status": "??",
+          "path": "memory-bank/systemPatterns.md",
+          "sha256": "770ddf736e1716b6abcd81dc0452b0e8f8eef7f0ed1327a7fa1072900b8368f6"
+        },
+        {
+          "status": "??",
+          "path": "memory-bank/techContext.md",
+          "sha256": "dba9a7d59475bbe342d48f25bc7844f9190567b9d818ca892581ce312a05b2ed"
+        }
+      ]
+    },
+    {
+      "path": "C:/Users/k7/.codex/worktrees/9bea/Knoux Store",
+      "head": "ae7c0d394ea07047f3c0ef534411872a59c2711f",
+      "branch": "DETACHED",
+      "behind": 0,
+      "unique": 0,
+      "classification": [
+        "CANONICAL"
+      ],
+      "dirty": []
+    },
+    {
+      "path": "C:/Users/k7/.codex/worktrees/task04-solar-system",
+      "head": "57a3fe0ba83fccf5c65c10a0c37f88c4cf763737",
+      "branch": "refs/heads/codex/recovery-solar-system-decision",
+      "behind": 26,
+      "unique": 0,
+      "classification": [
+        "MERGED",
+        "UNIQUE UNCOMMITTED"
+      ],
+      "dirty": [
+        {
+          "status": "A ",
+          "path": "references/cosmic/SOLAR_SYSTEM_RECOVERY_DECISION.md",
+          "sha256": "ed3184e2eb90e3f4a2ecae132eec2c90114be8c08045d5c9f4933d0a6e835a0d"
+        }
+      ]
+    },
+    {
+      "path": "C:/Users/k7/.traycer/worktrees/daynightae-cmyk__knoux-store/traycer-knoux-store-electric-elk-7e187dad1510",
+      "head": "28387cef020ec6947c13989b83e5206a80343cf7",
+      "branch": "refs/heads/traycer/knoux-store-electric-elk",
+      "behind": 91,
+      "unique": 0,
+      "classification": [
+        "MERGED"
+      ],
+      "dirty": []
+    },
+    {
+      "path": "C:/Users/k7/.traycer/worktrees/daynightae-cmyk__knoux-store/traycer-knoux-store-jolly-sparrow-16775bdc14d7",
+      "head": "ad38dd1c7747aef686a95d791281b8a665685979",
+      "branch": "refs/heads/traycer/knoux-store-jolly-sparrow",
+      "behind": 114,
+      "unique": 0,
+      "classification": [
+        "MERGED",
+        "UNIQUE UNCOMMITTED"
+      ],
+      "dirty": [
+        {
+          "status": " M",
+          "path": "package-lock.json",
+          "sha256": "51efb9b2816434fd6ba95fc2beabd195f7fca4c4e708ab7cd47f93d06c44e8c5"
+        },
+        {
+          "status": " M",
+          "path": "package.json",
+          "sha256": "d6319157f6c9cd8ebd1c4639fc4bf23fdd999aebed890e725fc7052bef99e20b"
+        },
+        {
+          "status": "??",
+          "path": "audit/closure/COMMAND_LOG.md",
+          "sha256": "17cd78e3eb391f02d4d470b02cafad982d082be5e02bf5f6f2580e882e245625"
+        },
+        {
+          "status": "??",
+          "path": "playwright.config.mjs",
+          "sha256": "ebd447cc2fd9be76def5d774461468a5f5a1a13885169741709e7a45345d5406"
+        },
+        {
+          "status": "??",
+          "path": "tests/e2e/navigation.spec.mjs",
+          "sha256": "baaac6cf341dd9ff121576b0aea3f0edae35f19116b292a91676f5dbd3ecc732"
+        }
+      ]
+    },
+    {
+      "path": "C:/Users/k7/.traycer/worktrees/daynightae-cmyk__knoux-store/traycer-knoux-store-keen-platypus-5830f9d5ceb1",
+      "head": "3b85791ec0e3f4ffa0944d2ed74a6704b876433c",
+      "branch": "refs/heads/traycer/knoux-store-keen-platypus",
+      "behind": 120,
+      "unique": 0,
+      "classification": [
+        "MERGED"
+      ],
+      "dirty": []
+    },
+    {
+      "path": "C:/Users/k7/.traycer/worktrees/daynightae-cmyk__knoux-store/traycer-knoux-store-mighty-leopard-1d9dccd65343",
+      "head": "ae9584438afcf31906ac4826218ed4380ce5b926",
+      "branch": "refs/heads/traycer/knoux-store-mighty-leopard",
+      "behind": 118,
+      "unique": 0,
+      "classification": [
+        "MERGED"
+      ],
+      "dirty": []
+    },
+    {
+      "path": "C:/Users/k7/.traycer/worktrees/daynightae-cmyk__knoux-store/traycer-knoux-store-nimble-rabbit-9ed29cb1545d",
+      "head": "7f5a21f64290b7854a5bdf2f9756e6bf05ae007f",
+      "branch": "refs/heads/traycer/knoux-store-nimble-rabbit",
+      "behind": 64,
+      "unique": 0,
+      "classification": [
+        "MERGED"
+      ],
+      "dirty": []
+    },
+    {
+      "path": "C:/Users/k7/.traycer/worktrees/daynightae-cmyk__knoux-store/traycer-knoux-store-rugged-lynx-cb48dabab78a",
+      "head": "ae9584438afcf31906ac4826218ed4380ce5b926",
+      "branch": "refs/heads/traycer/knoux-store-rugged-lynx",
+      "behind": 118,
+      "unique": 0,
+      "classification": [
+        "MERGED"
+      ],
+      "dirty": []
+    },
+    {
+      "path": "C:/Users/k7/.traycer/worktrees/daynightae-cmyk__knoux-store/traycer-knoux-store-stellar-puma-d824fd6538cd",
+      "head": "ae9584438afcf31906ac4826218ed4380ce5b926",
+      "branch": "refs/heads/traycer/knoux-store-stellar-puma",
+      "behind": 118,
+      "unique": 0,
+      "classification": [
+        "MERGED"
+      ],
+      "dirty": []
+    },
+    {
+      "path": "C:/Users/k7/.traycer/worktrees/daynightae-cmyk__knoux-store/traycer-knoux-store-stellar-seal-3a46280d28c6",
+      "head": "de6072446d3ee9034b3d7143b35c61c81004b1f8",
+      "branch": "refs/heads/traycer/knoux-store-stellar-seal",
+      "behind": 142,
+      "unique": 0,
+      "classification": [
+        "MERGED",
+        "UNIQUE UNCOMMITTED"
+      ],
+      "dirty": [
+        {
+          "status": " M",
+          "path": "src/app/about/page.tsx",
+          "sha256": "c0e47d89a9e05f98cc5fc212132084aa6b9b7fb2e4b83a962a63afa88feb5eb7"
+        },
+        {
+          "status": " M",
+          "path": "src/app/globals.css",
+          "sha256": "327772e60572482badab45653dbdfdd81b462b0ec3b15355a6d85a5e845c52f5"
+        },
+        {
+          "status": " M",
+          "path": "src/components/HomeExperience.tsx",
+          "sha256": "54e016882c69b833d42088da9cd22cd07742e72d3fcef4666f8dbca9d3d77702"
+        },
+        {
+          "status": " M",
+          "path": "src/components/motion/PointerField.tsx",
+          "sha256": "dd6b98d64c36007665296306dc9cbd10eba2bb45b42cd5cb7cb4cc1ba7d5c1e3"
+        },
+        {
+          "status": " M",
+          "path": "src/components/three/LivingParticleMark.tsx",
+          "sha256": "00ba61ff96184bdceb3455267c5049426446133dae08199d7e7a000ff7b184d4"
+        },
+        {
+          "status": "??",
+          "path": "src/components/AboutIdentity.tsx",
+          "sha256": "0d686a0fee4cfc1b2c4e512f140faf80909e4faeba55df3046227ccc1d096a28"
+        },
+        {
+          "status": "??",
+          "path": "src/components/SystemsRegister.tsx",
+          "sha256": "2a2c78a6a9105a8eaa006832c79923a3447f51245e48d3fdc34771f4fc62b34a"
+        },
+        {
+          "status": "??",
+          "path": "src/components/motion/LivingCompanion.tsx",
+          "sha256": "443c65a9fc9bd4b1faa482755cec75fbacb10f187509d5859cbde89f68610a18"
+        },
+        {
+          "status": "??",
+          "path": "src/lib/knouxCompanion.ts",
+          "sha256": "cf1d84a5db326e13868080c50f37b8f344f59da61ba5e220398347f056e335ad"
+        },
+        {
+          "status": "??",
+          "path": "src/lib/systemsField.ts",
+          "sha256": "800442c212b120db86c3844c5ad0dc5bb9ade280a9feefa127efc619011e4489"
+        }
+      ]
+    },
+    {
+      "path": "C:/Users/k7/.traycer/worktrees/daynightae-cmyk__knoux-store/traycer-swift-stork-65418d586d6f",
+      "head": "7f5a21f64290b7854a5bdf2f9756e6bf05ae007f",
+      "branch": "refs/heads/traycer/swift-stork",
+      "behind": 64,
+      "unique": 0,
+      "classification": [
+        "MERGED"
+      ],
+      "dirty": []
+    },
+    {
+      "path": "C:/Users/k7/.traycer/worktrees/daynightae-cmyk__knoux-store/traycer-tidy-elk-4ed2b834e8ad",
+      "head": "7f5a21f64290b7854a5bdf2f9756e6bf05ae007f",
+      "branch": "refs/heads/traycer/tidy-elk",
+      "behind": 64,
+      "unique": 0,
+      "classification": [
+        "MERGED",
+        "UNIQUE UNCOMMITTED"
+      ],
+      "dirty": [
+        {
+          "status": "??",
+          "path": "verify-baseline.log",
+          "sha256": "1054e8604deee821a16da67cf9a26692aaf88000513da27c9cbb521708caf26f"
+        }
+      ]
+    },
+    {
+      "path": "C:/Users/k7/Knoux-Signal-Deploy",
+      "head": "fdf5affbbc6fc7a1461c529c95662c128186b8fc",
+      "branch": "refs/heads/deploy/knoux-signal-live",
+      "behind": 79,
+      "unique": 0,
+      "classification": [
+        "MERGED",
+        "UNIQUE UNCOMMITTED"
+      ],
+      "dirty": [
+        {
+          "status": "??",
+          "path": ".signal-deploy-build.code",
+          "sha256": "9aca8dfce962538fb8131d73f84cada05e4dc79f5a0d3612c511b1150f3e33e2"
+        },
+        {
+          "status": "??",
+          "path": ".signal-deploy-build.log",
+          "sha256": "ba0844306008707f3fef61b7892656b978394a9a756b7dc439fc7df5bff2636d"
+        },
+        {
+          "status": "??",
+          "path": ".signal-deploy-test.code",
+          "sha256": "9aca8dfce962538fb8131d73f84cada05e4dc79f5a0d3612c511b1150f3e33e2"
+        },
+        {
+          "status": "??",
+          "path": ".signal-deploy-test.log",
+          "sha256": "01dd61f910332258cffcb27fd20343fdc9a0bbb2b1e08f262d82aaeb9afa3822"
+        },
+        {
+          "status": "??",
+          "path": ".signal-deploy-typecheck.code",
+          "sha256": "9aca8dfce962538fb8131d73f84cada05e4dc79f5a0d3612c511b1150f3e33e2"
+        },
+        {
+          "status": "??",
+          "path": ".signal-deploy-typecheck.log",
+          "sha256": "919d852af2a098b62397bde8e629cb3505d637c3d442a7d6168b81cc1bb31a6a"
+        }
+      ]
+    },
+    {
+      "path": "C:/Users/k7/ksci-d549392",
+      "head": "d549392a07b2219cd52fcfd4ed4cc8a657cac2df",
+      "branch": "DETACHED",
+      "behind": 78,
+      "unique": 1,
+      "classification": [
+        "UNIQUE COMMITTED",
+        "UNIQUE UNCOMMITTED"
+      ],
+      "dirty": [
+        {
+          "status": "??",
+          "path": "auditdead.log",
+          "sha256": "5be70d5588e5372242a23178b313a998132dbb128d5b05c74051e1c5e149dded"
+        },
+        {
+          "status": "??",
+          "path": "auditdeps.log",
+          "sha256": "989d2fdd0a64d4e6ddbb9f31d43f2ae8952c877aea31b9d874070944470dcb2e"
+        },
+        {
+          "status": "??",
+          "path": "build.log",
+          "sha256": "c71b25a53df02adc4f1d91016042670f9ed35425c1dc22f19c12b8d6f6d4bfb7"
+        },
+        {
+          "status": "??",
+          "path": "diffcheck.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "status": "??",
+          "path": "gate-results.txt",
+          "sha256": "494c6ed99b505bca9d41e88a019893648c4a57237c1a752be405fc4e37494565"
+        },
+        {
+          "status": "??",
+          "path": "lint.log",
+          "sha256": "7a828b7beae2054d5ee3689bba0c02b7b3653cb87081dce813e885ff8431df70"
+        },
+        {
+          "status": "??",
+          "path": "retest.exit",
+          "sha256": "f1b2f662800122bed0ff255693df89c4487fbdcf453d3524a42d4ec20c3d9c04"
+        },
+        {
+          "status": "??",
+          "path": "retest.log",
+          "sha256": "4900e49c4a680e5e1ea987ec6c1da4a3426673f7089ddc4219723fc2cd265bc6"
+        },
+        {
+          "status": "??",
+          "path": "test.log",
+          "sha256": "2876df480a20413222b61d33029b96adcd086f3be20c1dff4fe02de3f2156141"
+        },
+        {
+          "status": "??",
+          "path": "typecheck.log",
+          "sha256": "8444ac1e04d855879a67b0f15c42a738b7e89faf156b5419338528dfba795ac8"
+        }
+      ]
+    },
+    {
+      "path": "D:/Knoux Signal",
+      "head": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "branch": "refs/heads/feat/knoux-signal-v1",
+      "behind": 93,
+      "unique": 1,
+      "classification": [
+        "UNIQUE COMMITTED"
+      ],
+      "dirty": []
+    },
+    {
+      "path": "D:/Knoux Store Auth",
+      "head": "66bb49f59bba1480209be0626fde890faab207d3",
+      "branch": "refs/heads/feat/supabase-auth",
+      "behind": 122,
+      "unique": 0,
+      "classification": [
+        "MERGED"
+      ],
+      "dirty": []
+    },
+    {
+      "path": "D:/Knoux Store Supabase",
+      "head": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "branch": "refs/heads/feat/supabase-content-registry",
+      "behind": 135,
+      "unique": 1,
+      "classification": [
+        "UNIQUE COMMITTED"
+      ],
+      "dirty": []
+    },
+    {
+      "path": "D:/Knoux Store-worktrees/about-origin-room-v2",
+      "head": "c7006285d2ac9f55d3dfadba2576e79341bfe4b3",
+      "branch": "refs/heads/fix/about-origin-room-v2",
+      "behind": 90,
+      "unique": 1,
+      "classification": [
+        "UNIQUE COMMITTED",
+        "UNIQUE UNCOMMITTED"
+      ],
+      "dirty": [
+        {
+          "status": "??",
+          "path": ".tmp-about-final-visual.mjs",
+          "sha256": "a03d6ffec5e688a01d68501ee56d0aae5045f9c072a0b29ebbd4307955beef93"
+        },
+        {
+          "status": "??",
+          "path": ".tmp-finalshot.mjs",
+          "sha256": "34f7072dae1cda2f143c1038aac84748101652636476bc4db3163f69e02eec87"
+        },
+        {
+          "status": "??",
+          "path": ".tmp-qa-regression.mjs",
+          "sha256": "31b19185598394d888519db7669c5fe3aca62fd06732dfe7e7fac078e8fcf774"
+        },
+        {
+          "status": "??",
+          "path": ".tmp-qa-visual-v2.mjs",
+          "sha256": "029fd144356dc1a424d786c885060f0b204fd68a48846d3628d91577f6a9f3d4"
+        },
+        {
+          "status": "??",
+          "path": ".tmp-qa-visual-v3.mjs",
+          "sha256": "d3374e1fe6419f88b5a3b5f5f994ac33edd7e770510b53199c2f5502a7477083"
+        },
+        {
+          "status": "??",
+          "path": ".tmp-visual-final.mjs",
+          "sha256": "c5c42176f60ecdb0fef9a0cb31ff812dcc9d82b7adf05eedb04d3b64efc52f7e"
+        },
+        {
+          "status": "??",
+          "path": "references/about/quiet-room-source-scene.full-source.txt",
+          "sha256": "8ca8d8c797a3d08267833797d33e0689297ef367f9aff0da30bedb17bbd40135"
+        }
+      ]
+    },
+    {
+      "path": "D:/Knoux Store-worktrees/convergence-20261003",
+      "head": "27247a190e17c6043f874a5dbec9408b641a295e",
+      "branch": "refs/heads/converge/remaining-useful-20261003",
+      "behind": 1,
+      "unique": 0,
+      "classification": [
+        "MERGED"
+      ],
+      "dirty": []
+    },
+    {
+      "path": "D:/Knoux Store-worktrees/creative-digital-atelier-v2",
+      "head": "27213b56138d75d2c2d166e1c736ba649ebac9ed",
+      "branch": "refs/heads/feat/creative-digital-atelier-v2",
+      "behind": 50,
+      "unique": 0,
+      "classification": [
+        "MERGED",
+        "UNIQUE UNCOMMITTED"
+      ],
+      "dirty": [
+        {
+          "status": "??",
+          "path": "references/KNOuX_VISUAL_REFERENCE_MASTER_MAP.md",
+          "sha256": "4ba1084fad353a4b31cd42d698ff4d856300176590c53149035856b4f3df9682"
+        },
+        {
+          "status": "??",
+          "path": "references/task-prompts/KNOuX_CREATIVE_DIGITAL_ATELIER_V2_CLAUDE_SONNET.txt",
+          "sha256": "85ca0c0a26ede11c77450fb04b457b97769c868f7aeba80132fd7578e750e2ac"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/01-vanta-digital-atelier/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/01-vanta-digital-atelier/README.md",
+          "sha256": "8c0417bda34a1536dd2ee06a6c2b08d2103cbcc51d91daab718c95f49ab1d3c5"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/01-vanta-digital-atelier/index.html",
+          "sha256": "81876d0f024c52384efa963ccfc67bea1f210dfd3dc3533e8b674a275c06a0ea"
+        }
+      ]
+    },
+    {
+      "path": "D:/Knoux Store-worktrees/dependency-audit-braces-20261003",
+      "head": "ae7c0d394ea07047f3c0ef534411872a59c2711f",
+      "branch": "refs/heads/fix/dependency-audit-braces-20261003",
+      "behind": 0,
+      "unique": 0,
+      "classification": [
+        "CANONICAL",
+        "UNIQUE UNCOMMITTED"
+      ],
+      "dirty": [
+        {
+          "status": " M",
+          "path": ".github/workflows/ci.yml",
+          "sha256": "1d0eb2e55c20b1f44f534b1ab5939f2945730adc29014c069531096cda47b24e"
+        }
+      ]
+    },
+    {
+      "path": "D:/Knoux Store-worktrees/dev-workspace-real",
+      "head": "e9fb6acd126c5b24b5c7e2a9f9c49d96e36f1c22",
+      "branch": "refs/heads/feat/dev-workspace-real",
+      "behind": 39,
+      "unique": 0,
+      "classification": [
+        "MERGED"
+      ],
+      "dirty": []
+    },
+    {
+      "path": "D:/Knoux Store-worktrees/global-visual-shell-v2",
+      "head": "5891b09a1ceadd1c8792c462eb2fdd8ab91f37a9",
+      "branch": "refs/heads/fix/global-visual-shell-v2",
+      "behind": 63,
+      "unique": 0,
+      "classification": [
+        "MERGED"
+      ],
+      "dirty": []
+    },
+    {
+      "path": "D:/Knoux Store-worktrees/home-system-field",
+      "head": "e140b5e2011895cacba4eba9ff01d2749a574683",
+      "branch": "refs/heads/feat/home-system-field-map",
+      "behind": 69,
+      "unique": 0,
+      "classification": [
+        "MERGED"
+      ],
+      "dirty": []
+    },
+    {
+      "path": "D:/Knoux Store-worktrees/labs-experiment-chamber-v2",
+      "head": "63dc0b234f76c4e220f97c731a54da810fa5f756",
+      "branch": "refs/heads/feat/labs-experiment-chamber-v2",
+      "behind": 14,
+      "unique": 1,
+      "classification": [
+        "UNIQUE COMMITTED",
+        "UNIQUE UNCOMMITTED"
+      ],
+      "dirty": [
+        {
+          "status": " M",
+          "path": "package-lock.json",
+          "sha256": "c810b5ecdb8150966b71fe3bec9d6ef1dff56473d4b730d9c72f65b9ba614555"
+        },
+        {
+          "status": "??",
+          "path": "references/KNOuX_VISUAL_REFERENCE_MASTER_MAP.md",
+          "sha256": "4ba1084fad353a4b31cd42d698ff4d856300176590c53149035856b4f3df9682"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/02-science-lab-sdf-dot-matrix/.gitignore",
+          "sha256": "877c8d36f5cd89e476c871a393f3a3d6e7e31dad722a6ad719a90cb6df001e9e"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/02-science-lab-sdf-dot-matrix/README.md",
+          "sha256": "4fd5b32c60c2d385610fcb65950b49c64c843a1d06e70f2fb67bc98956124e39"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/02-science-lab-sdf-dot-matrix/index.html",
+          "sha256": "5c11c51f621f49beeef9a38b2ac98cca99f7de2f0a4399e955232c3665ae61b1"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/02-science-lab-sdf-dot-matrix/index.js",
+          "sha256": "9d6fab8d07e811aa81ebb532ca90818e44d3f7ea2af35e4c5f6833b48ebc0be7"
+        },
+        {
+          "status": "??",
+          "path": "references/visual-library/originals/02-science-lab-sdf-dot-matrix/package.json",
+          "sha256": "cc1e868f086ecb0c75bd8260533056c680afd2c55ffa501ae608c17efb1fcbeb"
+        },
+        {
+          "status": "??",
+          "path": "scratch/job.log",
+          "sha256": "6ca691454865d888a2d353fa7d2c98835508affb11cf428992e1bd3115f995a4"
+        },
+        {
+          "status": "??",
+          "path": "scratch/playwright_full.log",
+          "sha256": "851462b420c6a77c7e428cc59670f16f245a319b2c777303a48843546d90a6b3"
+        },
+        {
+          "status": "??",
+          "path": "scratch/playwright_output.log",
+          "sha256": "851462b420c6a77c7e428cc59670f16f245a319b2c777303a48843546d90a6b3"
+        }
+      ]
+    },
+    {
+      "path": "D:/Knoux Store-worktrees/local-bridge-registration",
+      "head": "e1fabd1c8419d4ed1170c4afb7cf72e8182080bf",
+      "branch": "refs/heads/feat/knoux-store-local-bridge-registration",
+      "behind": 39,
+      "unique": 1,
+      "classification": [
+        "UNIQUE COMMITTED",
+        "UNIQUE UNCOMMITTED"
+      ],
+      "dirty": [
+        {
+          "status": " M",
+          "path": ".env.example",
+          "sha256": "e3925cbd0433a277ce9f4a5c03dc710caa90d30f19d8a12eb1b9f21ca66e1295"
+        },
+        {
+          "status": " M",
+          "path": "bridge/src/control-plane.ts",
+          "sha256": "18eb1a3648d782ce1460317d97a7ec29d0275f4c79d89a678202e9172c3a96e4"
+        },
+        {
+          "status": " M",
+          "path": "bridge/src/main.ts",
+          "sha256": "ef70b1335bf3815196bd6128f0f6e1a48e810355517c04ffe93b6d752f81d062"
+        },
+        {
+          "status": " M",
+          "path": "bridge/src/server.ts",
+          "sha256": "ffe4fd6f07de230cfc664c539087dfa6fdae42f084146aebdf592fa3ab3bd8ec"
+        },
+        {
+          "status": " M",
+          "path": "bridge/test/control-plane.test.mjs",
+          "sha256": "9f6ab00477a051da1ea504e6e69fe3d199616197590d1e473b9eedc135b72902"
+        },
+        {
+          "status": " M",
+          "path": "gateway/Dockerfile",
+          "sha256": "c39c9161610b6d7813fc08db5c9a419551696e20d7ef500142d1a24cdea7bd02"
+        },
+        {
+          "status": " M",
+          "path": "gateway/README.md",
+          "sha256": "d7c890ca1a6f1b70c5852c68e0e7158787d2a11f023e1e91b4c81ce40e9e65a1"
+        },
+        {
+          "status": " M",
+          "path": "gateway/control.py",
+          "sha256": "50f878a638e5a5de28c647db9c11c291fcdced9c4bd8de69189f970f71b61d69"
+        },
+        {
+          "status": " M",
+          "path": "gateway/server.py",
+          "sha256": "08e7610b7410b1e1b80f2b82344212031918388248272c239d8f5473e731d667"
+        },
+        {
+          "status": " M",
+          "path": "gateway/test_control.py",
+          "sha256": "06020dcc4a252354f82a4b604ce5ddb54dd990add2404b18609eb20767b0e533"
+        },
+        {
+          "status": " M",
+          "path": "src/app/api/build/bridge/control/poll/route.ts",
+          "sha256": "c0e91dc2cd67154a5ac0ab77ce84e3b43195d13ff9a955b05d1d269fe1c34bc1"
+        },
+        {
+          "status": " M",
+          "path": "src/app/api/build/bridge/control/register/route.ts",
+          "sha256": "02ea9ee2b1895df07e8974786f0766f3fb3bd094996b0de3f0e5012450ffc91e"
+        },
+        {
+          "status": " M",
+          "path": "supabase/migrations/20261001150000_knoux_bridge_control_plane.sql",
+          "sha256": "7449bed2c1ddb9b5f8ab72d7c0715e729569b9a0094592fd3f876ae0250f587c"
+        },
+        {
+          "status": " M",
+          "path": "tsconfig.json",
+          "sha256": "f7a00ae059e22653c66197fbe0d859be124fbd40056f9f3fc93667bd3275690b"
+        },
+        {
+          "status": "??",
+          "path": "supabase/functions/knoux-bridge-control/deno.json",
+          "sha256": "1b460685771499324b99deee312e7d1ed9d1e18be1eb693ddf1aadfab91bdab9"
+        },
+        {
+          "status": "??",
+          "path": "supabase/functions/knoux-bridge-control/index.ts",
+          "sha256": "83eb597fa5f032477d75830f4cced7417c9beb9da68dcc2dafe9d2ac9caec80a"
+        },
+        {
+          "status": "??",
+          "path": "supabase/functions/knoux-bridge-gateway-api/index.ts",
+          "sha256": "bf5ac40385df195b5e82ebe02669838935f4ec6aac754f0b9e202374c0a7aed5"
+        },
+        {
+          "status": "??",
+          "path": "supabase/functions/knoux-store-mcp-gateway/deno.json",
+          "sha256": "1b460685771499324b99deee312e7d1ed9d1e18be1eb693ddf1aadfab91bdab9"
+        },
+        {
+          "status": "??",
+          "path": "supabase/functions/knoux-store-mcp-gateway/index.ts",
+          "sha256": "ff46e9f07b7da7e8f88de63f7236651336644c073dacb0b68f284c12ae1f3dcb"
+        },
+        {
+          "status": "??",
+          "path": "supabase/migrations/20261001153500_harden_knoux_bridge_control_plane.sql",
+          "sha256": "99cb9f0a49eaeba5bd254f83d756b3a94f98be09330d4aed9a07def2032743cf"
+        },
+        {
+          "status": "??",
+          "path": "supabase/migrations/20261001154500_knoux_bridge_vault.sql",
+          "sha256": "1f1356d320d51dcb9c5989a93221c10d0dfcdebceb7142db1c1654ec63a598d9"
+        },
+        {
+          "status": "??",
+          "path": "supabase/migrations/20261001155500_knoux_bridge_edge_control.sql",
+          "sha256": "e3f90b8f85e7019285c6df11f26fafb6f9436aaba593621bf1a804dd78647770"
+        },
+        {
+          "status": "??",
+          "path": "supabase/migrations/20261002170000_knoux_bridge_issuer_vault.sql",
+          "sha256": "276458c920992b71464d7b5a78744bf50a9624948eef9496191c6e3a2d738fe5"
+        },
+        {
+          "status": "??",
+          "path": "supabase/migrations/20261002171500_knoux_bridge_gateway_auth.sql",
+          "sha256": "7b1aabd6c636a299abefc5508eb1cdaa00e8507f8afa3d4b6fc5634bb377a208"
+        },
+        {
+          "status": "??",
+          "path": "supabase/migrations/20261002180000_knoux_bridge_gateway_tokens_current.sql",
+          "sha256": "67ad585d1ff235e288e9e323e18ac2142d9acb11b3c39cf62f3fb310b16fe0e7"
+        },
+        {
+          "status": "??",
+          "path": "supabase/migrations/20261003040500_knoux_bridge_edge_runtime.sql",
+          "sha256": "8c74421e19534352673bc5b2cad431960f70619f54eb43ed307d273dcd369eff"
+        }
+      ]
+    },
+    {
+      "path": "D:/Knoux Store-worktrees/product-cinematic-v2",
+      "head": "b5be6fd2e6689580ef979d19bd2e928ae903e55d",
+      "branch": "refs/heads/feat/product-cinematic-v2",
+      "behind": 53,
+      "unique": 0,
+      "classification": [
+        "MERGED"
+      ],
+      "dirty": []
+    },
+    {
+      "path": "D:/Knoux Store-worktrees/wordpress-ecosystem-v2",
+      "head": "bb05950aab397b00c1e67a00d82b25522db40674",
+      "branch": "refs/heads/feat/wordpress-ecosystem-v2",
+      "behind": 65,
+      "unique": 0,
+      "classification": [
+        "MERGED"
+      ],
+      "dirty": []
+    }
+  ],
+  "branches": [
+    {
+      "ref": "refs/heads/backup/superseded-visual-finish-v2-rc1-20261001",
+      "head": "49ce16d8feee49bbbd203fb18acfb137b57500d0",
+      "behind": 73,
+      "unique": 3,
+      "classification": "UNIQUE COMMITTED"
+    },
+    {
+      "ref": "refs/heads/codex/recovery-solar-system-decision",
+      "head": "57a3fe0ba83fccf5c65c10a0c37f88c4cf763737",
+      "behind": 26,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/converge/remaining-useful-20261003",
+      "head": "27247a190e17c6043f874a5dbec9408b641a295e",
+      "behind": 1,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/deploy/knoux-signal-live",
+      "head": "fdf5affbbc6fc7a1461c529c95662c128186b8fc",
+      "behind": 79,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/feat/about-origin-room",
+      "head": "c578029766ae8307ee9a083a2e4f39d62e3474a0",
+      "behind": 91,
+      "unique": 1,
+      "classification": "UNIQUE COMMITTED"
+    },
+    {
+      "ref": "refs/heads/feat/build-figma-cinematic-workspace",
+      "head": "b4756463850714f97ac04255073689368360290e",
+      "behind": 29,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/feat/build-real-integrations-os",
+      "head": "687778e7f294aa550474730200c6f3ecd41e72ed",
+      "behind": 22,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/feat/creative-digital-atelier-v2",
+      "head": "27213b56138d75d2c2d166e1c736ba649ebac9ed",
+      "behind": 50,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/feat/dev-workspace-real",
+      "head": "e9fb6acd126c5b24b5c7e2a9f9c49d96e36f1c22",
+      "behind": 39,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/feat/digital-headquarters",
+      "head": "063fa4ade9338941532005278adc84b33c62dece",
+      "behind": 143,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/feat/final-experience-closure",
+      "head": "09da1b600a0cc08725758dd507b9f829a2c870f1",
+      "behind": 136,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/feat/home-system-field-map",
+      "head": "e140b5e2011895cacba4eba9ff01d2749a574683",
+      "behind": 69,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/feat/knoux-build-os",
+      "head": "597f763401e1653dc31ba88f511e63fbcc828280",
+      "behind": 129,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/feat/knoux-dev-reference-workspace",
+      "head": "3f7eb753d291027beee6077b7d406b8bd5dcfb5a",
+      "behind": 119,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/feat/knoux-signal-v1",
+      "head": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "behind": 93,
+      "unique": 1,
+      "classification": "UNIQUE COMMITTED"
+    },
+    {
+      "ref": "refs/heads/feat/knoux-store-local-bridge-registration",
+      "head": "e1fabd1c8419d4ed1170c4afb7cf72e8182080bf",
+      "behind": 39,
+      "unique": 1,
+      "classification": "UNIQUE COMMITTED"
+    },
+    {
+      "ref": "refs/heads/feat/knoux-visual-architecture-closure",
+      "head": "ae9584438afcf31906ac4826218ed4380ce5b926",
+      "behind": 118,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/feat/labs-experiment-chamber-v2",
+      "head": "63dc0b234f76c4e220f97c731a54da810fa5f756",
+      "behind": 14,
+      "unique": 1,
+      "classification": "UNIQUE COMMITTED"
+    },
+    {
+      "ref": "refs/heads/feat/product-cinematic-v2",
+      "head": "b5be6fd2e6689580ef979d19bd2e928ae903e55d",
+      "behind": 53,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/feat/sentinel-capability-layer",
+      "head": "fc5def2e796146f68a5e09b13de35badf8fa421d",
+      "behind": 134,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/feat/spatial-build-workspace",
+      "head": "3f3c0137ca6625d7136c54a571221c8dd115478b",
+      "behind": 124,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/feat/supabase-auth",
+      "head": "66bb49f59bba1480209be0626fde890faab207d3",
+      "behind": 122,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/feat/supabase-content-registry",
+      "head": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "behind": 135,
+      "unique": 1,
+      "classification": "UNIQUE COMMITTED"
+    },
+    {
+      "ref": "refs/heads/feat/wordpress-ecosystem-v2",
+      "head": "bb05950aab397b00c1e67a00d82b25522db40674",
+      "behind": 65,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/fix/about-origin-room-v2",
+      "head": "c7006285d2ac9f55d3dfadba2576e79341bfe4b3",
+      "behind": 90,
+      "unique": 1,
+      "classification": "UNIQUE COMMITTED"
+    },
+    {
+      "ref": "refs/heads/fix/build-hero-script-budget-and-e2e-timeout",
+      "head": "08a78b407054f9feba73fb5af2bc5543f37c660a",
+      "behind": 63,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/fix/dependency-audit-braces-20261003",
+      "head": "ae7c0d394ea07047f3c0ef534411872a59c2711f",
+      "behind": 0,
+      "unique": 0,
+      "classification": "CANONICAL"
+    },
+    {
+      "ref": "refs/heads/fix/global-visual-shell-v2",
+      "head": "5891b09a1ceadd1c8792c462eb2fdd8ab91f37a9",
+      "behind": 63,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/main",
+      "head": "dac60f15a9ce6294ccb8d98ae4a0b0c39d7a5c05",
+      "behind": 9,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/traycer/dapper-bear",
+      "head": "7f5a21f64290b7854a5bdf2f9756e6bf05ae007f",
+      "behind": 64,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/traycer/knoux-store-electric-elk",
+      "head": "28387cef020ec6947c13989b83e5206a80343cf7",
+      "behind": 91,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/traycer/knoux-store-jolly-sparrow",
+      "head": "ad38dd1c7747aef686a95d791281b8a665685979",
+      "behind": 114,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/traycer/knoux-store-keen-platypus",
+      "head": "3b85791ec0e3f4ffa0944d2ed74a6704b876433c",
+      "behind": 120,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/traycer/knoux-store-mighty-leopard",
+      "head": "ae9584438afcf31906ac4826218ed4380ce5b926",
+      "behind": 118,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/traycer/knoux-store-nimble-rabbit",
+      "head": "7f5a21f64290b7854a5bdf2f9756e6bf05ae007f",
+      "behind": 64,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/traycer/knoux-store-quiet-falcon",
+      "head": "ae9584438afcf31906ac4826218ed4380ce5b926",
+      "behind": 118,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/traycer/knoux-store-rugged-lynx",
+      "head": "ae9584438afcf31906ac4826218ed4380ce5b926",
+      "behind": 118,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/traycer/knoux-store-stellar-puma",
+      "head": "ae9584438afcf31906ac4826218ed4380ce5b926",
+      "behind": 118,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/traycer/knoux-store-stellar-seal",
+      "head": "de6072446d3ee9034b3d7143b35c61c81004b1f8",
+      "behind": 142,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/traycer/lucid-panda",
+      "head": "afc0dba6d16d34cdb0c5f8c08c740d5936a13f0c",
+      "behind": 90,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/traycer/swift-stork",
+      "head": "7f5a21f64290b7854a5bdf2f9756e6bf05ae007f",
+      "behind": 64,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/heads/traycer/tidy-elk",
+      "head": "7f5a21f64290b7854a5bdf2f9756e6bf05ae007f",
+      "behind": 64,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/HEAD",
+      "head": "ae7c0d394ea07047f3c0ef534411872a59c2711f",
+      "behind": 0,
+      "unique": 0,
+      "classification": "CANONICAL"
+    },
+    {
+      "ref": "refs/remotes/origin/converge/remaining-useful-20261003",
+      "head": "27247a190e17c6043f874a5dbec9408b641a295e",
+      "behind": 1,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/deploy/knoux-signal-live",
+      "head": "fdf5affbbc6fc7a1461c529c95662c128186b8fc",
+      "behind": 79,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/about-origin-room",
+      "head": "c578029766ae8307ee9a083a2e4f39d62e3474a0",
+      "behind": 91,
+      "unique": 1,
+      "classification": "UNIQUE COMMITTED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/build-figma-cinematic-workspace",
+      "head": "b4756463850714f97ac04255073689368360290e",
+      "behind": 29,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/build-real-integrations-os",
+      "head": "687778e7f294aa550474730200c6f3ecd41e72ed",
+      "behind": 22,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/creative-digital-atelier-v2",
+      "head": "27213b56138d75d2c2d166e1c736ba649ebac9ed",
+      "behind": 50,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/dev-workspace-real",
+      "head": "e9fb6acd126c5b24b5c7e2a9f9c49d96e36f1c22",
+      "behind": 39,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/digital-headquarters",
+      "head": "063fa4ade9338941532005278adc84b33c62dece",
+      "behind": 143,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/final-experience-closure",
+      "head": "09da1b600a0cc08725758dd507b9f829a2c870f1",
+      "behind": 136,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/home-system-field-map",
+      "head": "e140b5e2011895cacba4eba9ff01d2749a574683",
+      "behind": 69,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/knoux-build-os",
+      "head": "597f763401e1653dc31ba88f511e63fbcc828280",
+      "behind": 129,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/knoux-dev-reference-workspace",
+      "head": "3f7eb753d291027beee6077b7d406b8bd5dcfb5a",
+      "behind": 119,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/knoux-signal-v1",
+      "head": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "behind": 93,
+      "unique": 1,
+      "classification": "UNIQUE COMMITTED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/labs-experiment-chamber-v2",
+      "head": "138f48ca0d2381754b94e04413c1c608379bb5ea",
+      "behind": 31,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/product-cinematic-v2",
+      "head": "b5be6fd2e6689580ef979d19bd2e928ae903e55d",
+      "behind": 53,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/sentinel-capability-layer",
+      "head": "fc5def2e796146f68a5e09b13de35badf8fa421d",
+      "behind": 134,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/spatial-build-workspace",
+      "head": "3f3c0137ca6625d7136c54a571221c8dd115478b",
+      "behind": 124,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/supabase-auth",
+      "head": "66bb49f59bba1480209be0626fde890faab207d3",
+      "behind": 122,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/supabase-content-registry",
+      "head": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "behind": 135,
+      "unique": 1,
+      "classification": "UNIQUE COMMITTED"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/wordpress-ecosystem-v2",
+      "head": "bb05950aab397b00c1e67a00d82b25522db40674",
+      "behind": 65,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/fix/about-origin-room-v2",
+      "head": "c7006285d2ac9f55d3dfadba2576e79341bfe4b3",
+      "behind": 90,
+      "unique": 1,
+      "classification": "UNIQUE COMMITTED"
+    },
+    {
+      "ref": "refs/remotes/origin/fix/build-hero-script-budget-and-e2e-timeout",
+      "head": "08a78b407054f9feba73fb5af2bc5543f37c660a",
+      "behind": 63,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/fix/global-visual-shell-v2",
+      "head": "5891b09a1ceadd1c8792c462eb2fdd8ab91f37a9",
+      "behind": 63,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/fix/signal-main-ci-deadcode",
+      "head": "ef592ab74f48ebd20f2719225573412acd924a2e",
+      "behind": 76,
+      "unique": 0,
+      "classification": "MERGED"
+    },
+    {
+      "ref": "refs/remotes/origin/main",
+      "head": "ae7c0d394ea07047f3c0ef534411872a59c2711f",
+      "behind": 0,
+      "unique": 0,
+      "classification": "CANONICAL"
+    },
+    {
+      "ref": "refs/remotes/origin/vercel/install-vercel-web-analytics-ohwcpy",
+      "head": "b9334a98e9957f6dd9875e3cf2eee14ec0a993c4",
+      "behind": 142,
+      "unique": 1,
+      "classification": "UNIQUE COMMITTED"
+    }
+  ],
+  "donorAudits": [
+    {
+      "commit": "ff902822c7b70f6a91b93c5e1470ddfac24579b6",
+      "files": [
+        {
+          "path": ".env.example",
+          "donorBlob": "41bda6c47e1740c95f771f14d91255741dafbe12",
+          "mainBlob": "c30ad616015351350b9e84538a081318d0f11b9e",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": ".gitignore",
+          "donorBlob": "dbd30470d9d12cb137c28544b8e8b4d62c33555e",
+          "mainBlob": "87f11cdf29b30e28fba4e56bed8d074f1df7b969",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "package-lock.json",
+          "donorBlob": "eee017ac4e62640a81ffc4bac9fe6a7b748ba1b0",
+          "mainBlob": "85a7b3e5dbb14a7b9740995e54de40d4501cb8b4",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "package.json",
+          "donorBlob": "7099dcf573ac35addba9ef87667a921b6ffa0719",
+          "mainBlob": "33879027606440ace54fae5dc58752c45c063c2c",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "proxy.ts",
+          "donorBlob": "69c4b53fa675338feb3e1a3baae638a0fa18237c",
+          "mainBlob": "c3bd2f66f7773538a623dfe64e532e009ccea314",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "references/QA_CLOSURE.md",
+          "donorBlob": "9520ed51c889b5ceb66fe991f44b718eb46029e7",
+          "mainBlob": "0e6a916804100da803ce09ebeb96d11441b0e4c8",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "references/REFERENCE_IMPLEMENTATION_AUDIT.md",
+          "donorBlob": "adfaf53dd2b4d3c1c9d136ac07cf67e01a85fa1b",
+          "mainBlob": "23cd55980eaafb72a4d3c427170bcff826d8db7b",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "references/SUPABASE_AUTH_CLOSURE.md",
+          "donorBlob": "7b901bb510d35cd2308decae9e0a5607b5c5994f",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "src/app/account/page.tsx",
+          "donorBlob": "f89ba5bd897d4c8a201c68b5bdeb49045f3dca9f",
+          "mainBlob": "2aa4915b37d920df6184e4bbb2e2a1beac4dc3dc",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/app/api/contact/route.ts",
+          "donorBlob": "1c2308772ea2ad8cd271bd268f1c44fdb44ba0d2",
+          "mainBlob": "c3e5adecf970f3bf221a041a46442fa5819b6da5",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/app/auth/callback/route.ts",
+          "donorBlob": "9bcfc1d09f364dfdbdec7c1bffac5ac7298b8edb",
+          "mainBlob": "94e8dd3547a714499592fd9b3cdecbe4bfb80578",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/app/forgot-password/page.tsx",
+          "donorBlob": "44aa58682d43a121ee48dda116256d2338cf333d",
+          "mainBlob": "b2f6db668e72a431a14604e9405d722afaa39b4d",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/app/globals.css",
+          "donorBlob": "ae6bcee2313116c2b1944e6801481ba1205e39bf",
+          "mainBlob": "991b0d8db024cc896cbcd043d021af39217196e8",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/app/login/page.tsx",
+          "donorBlob": "f7d81a475bcbaf7e5ae11a2501ec56789cfd07d9",
+          "mainBlob": "85b81b3c3e2836f542e092602f4409470fa6eaa0",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/app/register/page.tsx",
+          "donorBlob": "2290b7cfb5c1ea5a64671515b85ec5c8df931cbc",
+          "mainBlob": "8d96e8961f1c13e9844fda079f490e8179a8d619",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/app/update-password/page.tsx",
+          "donorBlob": "1d69fd477f46af82d2a9fa048c09bd5420cbd6ea",
+          "mainBlob": "10b1e05c35dc9ed5d94a128542d425641eeed64f",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/components/RequestForm.tsx",
+          "donorBlob": "96b8844af8481b7e41d0000f7509414219032a65",
+          "mainBlob": "54d3fd94591ea4b13db73364a995651e51536918",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/components/SiteHeader.tsx",
+          "donorBlob": "a87d27ec2ba08bf94ea0238ce2d81f0c4cc0bfee",
+          "mainBlob": "e64fe96b582262eb5c8d8cffa573dcb54e755015",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/components/auth/AuthStatus.tsx",
+          "donorBlob": "0f6e001e6cd0f94b9f9e08c1c7d2f63aecdc16eb",
+          "mainBlob": "3cb81bebf55f3d68c8863158389f9bc7cfa625bb",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/components/auth/ForgotPasswordForm.tsx",
+          "donorBlob": "4c2f39a39b2dfa7daad4f27effc220189b9933f9",
+          "mainBlob": "1137e0f318c875ae3cc5ceb3b4d05c5384fcc91a",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/components/auth/LoginForm.tsx",
+          "donorBlob": "ef4f137eaf473dd4aef28432e1e7bb40a393e144",
+          "mainBlob": "30663d8100dfd3969060a36f5bb37f9bfecef5c1",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/components/auth/ProviderButtons.tsx",
+          "donorBlob": "28cae2a2945e8d4a47a972bd48beba4889ee432d",
+          "mainBlob": "62891d204e12f4d3a1534322559088bc14d58727",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/components/auth/RegisterForm.tsx",
+          "donorBlob": "a1b7259c0dfc683ef9969767fd7c24b775d0db5f",
+          "mainBlob": "19ac9bc9be79f3d63e11416f22a0a62935f358d0",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/components/auth/UpdatePasswordForm.tsx",
+          "donorBlob": "3156bf64500357dc77a34bf01d7d690840a89aea",
+          "mainBlob": "526d72f145d30713325be3c2ce950d3d58be8813",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/lib/auth/actions.ts",
+          "donorBlob": "72365c3ead303b02242c318183347026d3f90f52",
+          "mainBlob": "abcc98d88db27d2b79982f617f1a5095dd475c92",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/lib/auth/provider.ts",
+          "donorBlob": "922c1ae2bcc08ecc1317bf3d879c1a38854f3774",
+          "mainBlob": "80501893c0db3549d9ab999d8ae3cc0a9627c31f",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/lib/auth/state.ts",
+          "donorBlob": "337fde931450db7d40dc5b6a5f89f64d10b728b4",
+          "mainBlob": "e9410f18cf20a750cb1cd01e40a87eca6b890ac2",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/lib/auth/validation.ts",
+          "donorBlob": "fcd48144429fa0284185551a0f73302c56d98910",
+          "mainBlob": "120055c42afce6fc4f61fdfb9e8c1ce80dbda9aa",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/lib/supabase/client.ts",
+          "donorBlob": "5e84de99e4781fe4265dcd086353cdf114237d13",
+          "mainBlob": "45b9f950c089d124e0040b8c809e1bd9fce3b08a",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/lib/supabase/config.ts",
+          "donorBlob": "2630968b1fc140038f52459cd7d618290b453219",
+          "mainBlob": "dee76b6cd3dfdc7e434cf292139a00976ab975f4",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/lib/supabase/database.types.ts",
+          "donorBlob": "5b8ef329b628799aee46fcb7c56d82316d8b8f0b",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "src/lib/supabase/proxy.ts",
+          "donorBlob": "cc4a89056bbb8c90eed8114ea353e28e3620c2de",
+          "mainBlob": "3bb62a40588ce2748763b589da82d69914e36ead",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/lib/supabase/server.ts",
+          "donorBlob": "f7571a48dfae40a7871cf51cf8ecd0501e5b5d2b",
+          "mainBlob": "284cc88a80ed4c276d08740a15fa501a9cd07f3b",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "supabase/build-content-seed.mjs",
+          "donorBlob": "f1da4d2167d2a3b58dcc9df460812c1693af2a27",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "supabase/migrations/20260928171744_knoux_store_foundation.sql",
+          "donorBlob": "6ae4342d1ed8a15d8f0275e952d2f5aaba270174",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "supabase/migrations/20260928172305_harden_knoux_store_foundation.sql",
+          "donorBlob": "b454b0a7bd3e9626be769895445749c5edafd991",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "tests/auth.test.mjs",
+          "donorBlob": "9437073f8232d70bae2fb2592d19069acfbe6fa5",
+          "mainBlob": "48fc1775b886726e4b3fe15c36b7660d55b742c2",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "tests/site.test.mjs",
+          "donorBlob": "bbf1c75e9f34b3db384dd6541fdcaf73fc6b386b",
+          "mainBlob": "b10f49c155563b213f5037b265ce386018e53113",
+          "comparison": "DIFFERENT"
+        }
+      ]
+    },
+    {
+      "commit": "848c0eba1611a7b7f3d76f83f0ade110fa1ad5cf",
+      "files": [
+        {
+          "path": ".gitignore",
+          "donorBlob": "9edc2d0532ebcc8ed02104519f3f82111454a7e7",
+          "mainBlob": "87f11cdf29b30e28fba4e56bed8d074f1df7b969",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "config/signal_sources.yaml",
+          "donorBlob": "6c60f7b70f26b6bd47b2caa1e7d9d01e72b59a46",
+          "mainBlob": "fb683df6b81ddf291278baff6690512e5c301e3b",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "requirements-signal.txt",
+          "donorBlob": "009b3237f570f38f04d0e93b5425cb2d3df48e9e",
+          "mainBlob": "0e76524ae171d4fbb8ca7becc953cd60fcb5304e",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "scripts/signal/acquire_foursquare_places.py",
+          "donorBlob": "fa78198781f4500ca06ef3bc6d003faa3a490c09",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "scripts/signal/acquire_opensanctions_targets.py",
+          "donorBlob": "1d03b95a23d246e141eecbd6792de3b3b4245de4",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "scripts/signal/acquire_overture_fsq_places.py",
+          "donorBlob": "2fccc5ef6635366837deb15935382f260566483d",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "scripts/signal/acquire_overture_places.py",
+          "donorBlob": "920ae6b62a3088c7f4e9375ddf9a1f2d4d890748",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "scripts/signal/acquire_wikidata_phones.py",
+          "donorBlob": "0d1351ca1ac5c4383aa4e256c1785b3c5ce78704",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "scripts/signal/consolidate_manifests.py",
+          "donorBlob": "1bbff987952233836c76f01e4f0241eb3513e1c7",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "scripts/signal/extract_osm_business_phones.py",
+          "donorBlob": "da744ef61c3804c7e097182363acfb99591844d5",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "scripts/signal/measure_corpus_metrics.py",
+          "donorBlob": "e927ee7bf7bfb77638800368b0185c8535411003",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "scripts/signal/parse_itu_numbering.py",
+          "donorBlob": "6f6155ea0aeeb64192fc5bc10d5ee93e9cbe7399",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "scripts/signal/prepare_telecom_metadata.py",
+          "donorBlob": "e3d10c7f673c3ba2c1da23cde2f09aa2f67d924f",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "scripts/signal/query_placekey_mena.py",
+          "donorBlob": "13417ec03e403ea8647cc418dbbbc9f58c3bd2a6",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "scripts/signal/signal_storage.py",
+          "donorBlob": "646abe3a7046a148e201e219b9f9b46bdc45d33a",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "scripts/signal/test_hotosm.py",
+          "donorBlob": "f07fe396376ac7cdb16ffe580dd71bb8102ff424",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "src/lib/signal/generated/carrierPrefixes.json",
+          "donorBlob": "d5c652a119f88729feae16f1efee3a376149df4e",
+          "mainBlob": null,
+          "comparison": "MISSING"
+        },
+        {
+          "path": "src/lib/wordpress/external.ts",
+          "donorBlob": "923d5cbed08e935e5f57363cda78da1ed8d3645e",
+          "mainBlob": "91cfb6aa27c5f627a0b4f88008502bfe382db04a",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "src/lib/wordpress/wordpress-org.ts",
+          "donorBlob": "92dc01c53bd45eaf24b1b085739e8e2ddecf709b",
+          "mainBlob": "dea445029c6f454f989dcf36f51ecd4a89b0943d",
+          "comparison": "DIFFERENT"
+        },
+        {
+          "path": "tests/wordpress-marketplace.test.mjs",
+          "donorBlob": "1040fc95b89509406161b491e6af07c301daa0c1",
+          "mainBlob": "2f3107c9c9711f96d8b4b97b32c0bee42505d2f7",
+          "comparison": "DIFFERENT"
+        }
+      ]
+    }
+  ],
+  "stashes": [
+    "0288bf358fd583f993249b6160ffc8118a96d5b7 stash@{0} On feat/wordpress-ecosystem-v2: wordpress-v2-wip-before-rebase"
+  ],
+  "reflog": [
+    "ae7c0d394ea07047f3c0ef534411872a59c2711f HEAD@{0} ",
+    "ae7c0d394ea07047f3c0ef534411872a59c2711f worktrees/dependency-audit-braces-20261003/HEAD@{0} reset: moving to HEAD",
+    "ae7c0d394ea07047f3c0ef534411872a59c2711f fix/dependency-audit-braces-20261003@{0} branch: Created from origin/main",
+    "ae7c0d394ea07047f3c0ef534411872a59c2711f worktrees/dependency-audit-braces-20261003/HEAD@{1} ",
+    "ae7c0d394ea07047f3c0ef534411872a59c2711f origin/main@{0} fetch: fast-forward",
+    "27247a190e17c6043f874a5dbec9408b641a295e origin/converge/remaining-useful-20261003@{0} update by push",
+    "27247a190e17c6043f874a5dbec9408b641a295e converge/remaining-useful-20261003@{0} commit: fix(sentinel): align shell bounds test with private geometry",
+    "27247a190e17c6043f874a5dbec9408b641a295e worktrees/convergence-20261003/HEAD@{0} commit: fix(sentinel): align shell bounds test with private geometry",
+    "ca358fd49539136ed1f459d2861b64302ac9c23b converge/remaining-useful-20261003@{1} merge origin/converge/remaining-useful-20261003: Fast-forward",
+    "ca358fd49539136ed1f459d2861b64302ac9c23b worktrees/convergence-20261003/HEAD@{1} merge origin/converge/remaining-useful-20261003: Fast-forward",
+    "ca358fd49539136ed1f459d2861b64302ac9c23b origin/converge/remaining-useful-20261003@{1} fetch: fast-forward",
+    "dac60f15a9ce6294ccb8d98ae4a0b0c39d7a5c05 main-worktree/HEAD@{0} checkout: moving from audit/converge-signal-20261003 to main",
+    "dac60f15a9ce6294ccb8d98ae4a0b0c39d7a5c05 main-worktree/HEAD@{1} reset: moving to HEAD",
+    "dac60f15a9ce6294ccb8d98ae4a0b0c39d7a5c05 main-worktree/HEAD@{2} checkout: moving from main to audit/converge-signal-20261003",
+    "dac60f15a9ce6294ccb8d98ae4a0b0c39d7a5c05 main@{0} merge origin/main: Fast-forward",
+    "dac60f15a9ce6294ccb8d98ae4a0b0c39d7a5c05 origin/main@{1} fetch origin: fast-forward",
+    "dac60f15a9ce6294ccb8d98ae4a0b0c39d7a5c05 main-worktree/HEAD@{3} merge origin/main: Fast-forward",
+    "7967b8f9da5c1a0e725fe55a7b4d6ae893b75eac main-worktree/HEAD@{4} checkout: moving from audit/converge-trio-20261003 to main",
+    "d9b59a0dbcb9797450c7ff41472f848d3ccdfbfe main-worktree/HEAD@{5} merge origin/fix/global-visual-shell-v2: Merge made by the 'ort' strategy.",
+    "c8c55c89f6ae4de66888a756d30441d03e08f719 main-worktree/HEAD@{6} merge origin/feat/sentinel-capability-layer: Merge made by the 'ort' strategy.",
+    "6dc376d1281f19caa4be0e9a4facd877daa47f0e main-worktree/HEAD@{7} merge origin/feat/labs-experiment-chamber-v2: Merge made by the 'ort' strategy.",
+    "7967b8f9da5c1a0e725fe55a7b4d6ae893b75eac main-worktree/HEAD@{8} checkout: moving from main to audit/converge-trio-20261003",
+    "7967b8f9da5c1a0e725fe55a7b4d6ae893b75eac main-worktree/HEAD@{9} checkout: moving from audit/converge-header-20261003 to main",
+    "7967b8f9da5c1a0e725fe55a7b4d6ae893b75eac main-worktree/HEAD@{10} reset: moving to HEAD",
+    "63dc0b234f76c4e220f97c731a54da810fa5f756 feat/labs-experiment-chamber-v2@{0} merge origin/main: Merge made by the 'ort' strategy.",
+    "63dc0b234f76c4e220f97c731a54da810fa5f756 worktrees/labs-experiment-chamber-v2/HEAD@{0} merge origin/main: Merge made by the 'ort' strategy.",
+    "138f48ca0d2381754b94e04413c1c608379bb5ea feat/labs-experiment-chamber-v2@{1} merge origin/feat/labs-experiment-chamber-v2: Fast-forward",
+    "138f48ca0d2381754b94e04413c1c608379bb5ea worktrees/labs-experiment-chamber-v2/HEAD@{1} merge origin/feat/labs-experiment-chamber-v2: Fast-forward",
+    "7967b8f9da5c1a0e725fe55a7b4d6ae893b75eac main-worktree/HEAD@{11} checkout: moving from main to audit/converge-header-20261003",
+    "7967b8f9da5c1a0e725fe55a7b4d6ae893b75eac main-worktree/HEAD@{12} checkout: moving from audit/converge-sentinel-20261003 to main",
+    "7967b8f9da5c1a0e725fe55a7b4d6ae893b75eac main-worktree/HEAD@{13} reset: moving to HEAD",
+    "7967b8f9da5c1a0e725fe55a7b4d6ae893b75eac main-worktree/HEAD@{14} checkout: moving from main to audit/converge-sentinel-20261003",
+    "7967b8f9da5c1a0e725fe55a7b4d6ae893b75eac main-worktree/HEAD@{15} checkout: moving from audit/converge-labs-20261003 to main",
+    "7967b8f9da5c1a0e725fe55a7b4d6ae893b75eac main-worktree/HEAD@{16} reset: moving to HEAD",
+    "37025f90f40c4a3f8eef423debc89233a218d09a origin/converge/remaining-useful-20261003@{2} update by push",
+    "37025f90f40c4a3f8eef423debc89233a218d09a converge/remaining-useful-20261003@{2} commit: fix(sentinel): bound canonical glyph to shell",
+    "37025f90f40c4a3f8eef423debc89233a218d09a worktrees/convergence-20261003/HEAD@{2} commit: fix(sentinel): bound canonical glyph to shell",
+    "7967b8f9da5c1a0e725fe55a7b4d6ae893b75eac main-worktree/HEAD@{17} checkout: moving from main to audit/converge-labs-20261003",
+    "7967b8f9da5c1a0e725fe55a7b4d6ae893b75eac main@{1} merge origin/main: Fast-forward",
+    "7967b8f9da5c1a0e725fe55a7b4d6ae893b75eac main-worktree/HEAD@{18} merge origin/main: Fast-forward"
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "root": "D:\\Knoux Store Recovery\\2026-10-02",
+  "catalogs": [
+    {
+      "catalog": "GIT_VARIANTS.csv",
+      "sha256": "5dfe6f496644c20e9f52f8898cb54e5e41da9f13006c29b56a65a5189cd9672c",
+      "rows": 437,
+      "sample": [
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\git-variants\\23d352a710616b6340729aa4b5031e76bab4fe73\\references\\home\\SOFTWARE_FIELD_CLOSURE.md",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\git-variants\\2f06544badf0de77a2d02031609ee50e448d2e0e\\src\\app\\about\\page.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\git-variants\\ff94eb825c9766a54a82a418998d1a6a5764f7f8\\src\\app\\api\\build\\project\\route.ts",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\git-variants\\1a576d273f148062c8e3b467e49e155338d69040\\src\\app\\api\\build\\verify\\route.ts",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\git-variants\\b073b112d6bcccda2bd81acc087c8020aeed4cd0\\src\\app\\globals.css",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\git-variants\\bfd8131825426a441b67f39ac6ec0701005d8f83\\src\\app\\sitemap.ts",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\git-variants\\2a3175e36a52cac02a9cc7c0fb43b91c84cfea44\\src\\app\\wordpress\\page.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\git-variants\\5cc3834514c7fc839c0745ed13fe597eeb775265\\src\\components\\AboutLivingIdentity.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\git-variants\\4c274cfcc0d529b2dc4cdbe81ee8fe9f65371108\\src\\components\\HomeSoftwareField.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\git-variants\\0b20bedadeca151a79722ca4b35eb893924d6c2b\\src\\components\\SpatialExperiences.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\git-variants\\861b6787e957fa16db63fe6c38272888877f81c0\\src\\components\\build\\dev\\KnouxDevParticleHero.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\git-variants\\b65d0e4b679c612df7849db0ec14f3d843670eaa\\src\\components\\build\\dev\\PowerShellPage.tsx",
+          "hashMatch": true
+        }
+      ],
+      "status": "REFERENCE ONLY; sample integrity is not acceptance of design variants"
+    },
+    {
+      "catalog": "UI_SNAPSHOT_CANDIDATES.csv",
+      "sha256": "fb7b46ac3ea4fd86de9028d56f479d1186f86aad54711430d449a83d1b94a1e9",
+      "rows": 195,
+      "sample": [
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\restored\\snapshot-ui-candidates\\0069c513d5f90049bd0474b7592a226375cd1acc96e6c567ee129876ca83db0f\\page.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\restored\\snapshot-ui-candidates\\00ba61ff96184bdceb3455267c5049426446133dae08199d7e7a000ff7b184d4\\LivingParticleMark.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\restored\\snapshot-ui-candidates\\01e9846bd62b4a76e7262110ae1e1ac1936df01eea647fc9d7749fe4e7c32d7e\\SpatialExperiences.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\restored\\snapshot-ui-candidates\\02eff63aa46c9e3022544460bf51a40e3cb3eca00d6a714045b4748eb6549b33\\EcosystemHero.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\restored\\snapshot-ui-candidates\\04541b4a3e01a7f106fcc905ba0b011bbeacf0b4ceec02466eaf3211ceac98dd\\page.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\restored\\snapshot-ui-candidates\\06d9753e3951577064259e36378c21d745619552705a70cf8469f72ada86dda5\\SpatialExperiences.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\restored\\snapshot-ui-candidates\\06dd63fef7b0dacbb15afdb595fa8c1b69c3e53ce77ce17ac8c58cda1b076230\\page.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\restored\\snapshot-ui-candidates\\078ef5bad882800417289a8634a3fb9df7d066cb67fb1761d43e94e1a8be9957\\HomeExperience.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\restored\\snapshot-ui-candidates\\0a4a78624575ad4edb66f42816b72213880687283c75f25315d570c4fe41e000\\LivingParticleMark.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\restored\\snapshot-ui-candidates\\0e10474bbc2b44e4cf662bd18700f89e28a1164dc5b5bd3ccc028cb8f261a05f\\HomeExperience.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\restored\\snapshot-ui-candidates\\0ef1beb8d08348b723ab7aeae3abc14749778b140154cc4d92bb05e3a828b32f\\page.tsx",
+          "hashMatch": true
+        },
+        {
+          "path": "D:\\Knoux Store Recovery\\2026-10-02\\restored\\snapshot-ui-candidates\\0f45eee6f3a54f9c435d68ec9c94816b4d309c76c0a2e780430d9e896f98da15\\UniverseConstellation.tsx",
+          "hashMatch": true
+        }
+      ],
+      "status": "REFERENCE ONLY; sample integrity is not acceptance of design variants"
+    }
+  ],
+  "preservation": "untouched; full per-artifact semantic audit remains outstanding"
+}

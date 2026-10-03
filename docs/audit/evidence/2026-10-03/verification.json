@@ -1,0 +1,101 @@
+{
+  "base": "ae7c0d394ea07047f3c0ef534411872a59c2711f",
+  "applicationSourceChanged": false,
+  "phaseA": "BLOCKED",
+  "phaseB": "NOT STARTED",
+  "phaseC": "NOT STARTED",
+  "verification": [
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "npm run lint",
+      "exit": 0
+    },
+    {
+      "command": "npm run typecheck",
+      "exit": 0
+    },
+    {
+      "command": "npm run build",
+      "exit": 0
+    },
+    {
+      "command": "npm test (post-build)",
+      "exit": 0,
+      "tests": 433,
+      "passed": 433,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "command": "npm run audit:dead",
+      "exit": 0
+    },
+    {
+      "command": "npm run audit:deps",
+      "exit": 1,
+      "blocker": "Host npm 11.17.0 EALLOWSCRIPTS"
+    },
+    {
+      "command": "npm exec --yes --package=npm@10.9.4 -- npm audit --audit-level=high",
+      "exit": 1,
+      "highFindings": 6
+    },
+    {
+      "command": "npm test (bridge)",
+      "exit": 0,
+      "tests": 167,
+      "passed": 167,
+      "skipped": 0,
+      "note": "baseline package; audit/native PTY warnings present; not a live donor integration test"
+    },
+    {
+      "command": "npx playwright test e2e/build-cinematic.spec.ts e2e/build-connected.spec.ts --grep 'all ten connected routes|launcher, command palette|persistent mark|cinematic|Refused|keyboard|workspace' --project=desktop",
+      "exit": 0,
+      "passed": 15,
+      "widths": [
+        1440,
+        1280,
+        1024,
+        768,
+        390
+      ]
+    },
+    {
+      "command": "node docs/audit/evidence/2026-10-03/verify-recovery.mjs",
+      "exit": 0,
+      "donorFiles": 35,
+      "localDonorComparisons": 35,
+      "edgeFunctionFiles": 10,
+      "appliedStatements": 22
+    },
+    {
+      "command": "SHA-256 comparison of all censused dirty files",
+      "compared": 317,
+      "changed": 0,
+      "missing": 0
+    }
+  ],
+  "currentMainCI": {
+    "run": 37086725739,
+    "conclusion": "failure",
+    "failure": "Dependency audit: 6 high-severity vulnerabilities"
+  },
+  "production": {
+    "id": "dpl_9KGM692KtR2XUXpPtHsghv1z7cd9",
+    "state": "READY",
+    "gitSha": "ae7c0d394ea07047f3c0ef534411872a59c2711f",
+    "url": "https://knoux.store"
+  },
+  "blocker": [
+    "17 applied SQL statements withheld at database query",
+    "Full schema semantic parity unproven",
+    "Bridge current-main executable integration pending",
+    "Live function caller/auth review pending",
+    "Original dependency audit failing",
+    "Full semantic recovery/reference audit outstanding"
+  ],
+  "logRoot": "C:\\Users\\k7\\.codex\\visualizations\\2026\\10\\03\\01a0ff8a-fcbb-7b81-834d-8165108a0e7e\\verification"
+}
