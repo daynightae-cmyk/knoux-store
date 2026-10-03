@@ -15,7 +15,7 @@ import { loadTypeScript } from "./load.mjs";
 // Load AI runtime modules (dynamic, via resolver hook)
 // ---------------------------------------------------------------------------
 
-let errors, cost, router, registry, contextManager, contract;
+let errors, cost, router, registry, contextManager, contract, geminiAdapter;
 
 test.before(async () => {
   errors = await loadTypeScript("../src/lib/ai/errors.ts");
@@ -24,6 +24,7 @@ test.before(async () => {
   registry = await loadTypeScript("../src/lib/ai/registry.ts");
   contextManager = await loadTypeScript("../src/lib/ai/context-manager.ts");
   contract = await loadTypeScript("../src/lib/ai/contract.ts");
+  geminiAdapter = await loadTypeScript("../src/lib/ai/adapters/gemini.ts");
 });
 
 // ---------------------------------------------------------------------------
@@ -474,4 +475,255 @@ test("handles empty string", () => {
 
 test("handles large text", () => {
   assert.equal(contract.estimateTokens("x".repeat(4000)), 1000);
+
+// ---------------------------------------------------------------------------
+// Provider error envelopes
+//
+// A vendor envelope is read once, in a documented order of precedence. Which
+// identifier a caller ends up with is observable, so the precedence is a
+// contract rather than an implementation detail: the `type` and `status`
+// fallbacks are unreachable if a branch reads `error.message` and shadows them.
+// ---------------------------------------------------------------------------
+
+test("reads the identifier from an OpenAI error envelope", () => {
+  const error = errors.normalizeError(
+    400,
+    '{"error":{"message":"bad","code":"invalid_request"}}',
+  );
+  assert.equal(error.providerErrorId, "invalid_request");
+});
+
+test("falls back to `type` when the envelope carries no code", () => {
+  const error = errors.normalizeError(
+    400,
+    '{"error":{"message":"bad","type":"invalid_request_error"}}',
+  );
+  assert.equal(error.providerErrorId, "invalid_request_error");
+});
+
+test("falls back to `status` when Google sends only a numeric code", () => {
+  const error = errors.normalizeError(
+    400,
+    '{"error":{"message":"bad","code":400,"status":"INVALID_ARGUMENT"}}',
+  );
+  assert.equal(error.providerErrorId, "INVALID_ARGUMENT");
+});
+
+test("a numeric provider code is never reported as a provider error id", () => {
+  const error = errors.normalizeError(400, '{"error":{"message":"bad","code":400}}');
+  assert.equal(error.providerErrorId, null);
+});
+
+test("a generic message envelope still parses, with no id", () => {
+  const error = errors.normalizeError(400, '{"message":"bad request"}');
+  assert.equal(error.providerErrorId, null);
+});
+
+});
+
+// ---------------------------------------------------------------------------
+// Gemini model identity boundary
+//
+// Gemini is the only adapter that addresses a model through the request path
+// (`/models/{id}:generateContent`), so an identifier arriving from a browser
+// decides which endpoint is called. These tests assert the boundary is real: a
+// refused identity never reaches `fetch` at all, so there is nothing to race.
+//
+// The suite runs with `isolate-network` installed, so a *permitted* identity
+// records its URL and then has its connection refused. That is the positive
+// half of the proof — the boundary refuses unsafe identities without
+// refusing legitimate ones.
+// ---------------------------------------------------------------------------
+
+/** Records every outbound URL, then delegates so isolation still applies. */
+async function withFetchRecorder(run) {
+  const calls = [];
+  const guarded = globalThis.fetch;
+  globalThis.fetch = (input, init) => {
+    calls.push(typeof input === "string" ? input : String(input?.url ?? input));
+    return guarded(input, init);
+  };
+  try {
+    const result = await run(calls);
+    return { result, calls };
+  } finally {
+    globalThis.fetch = guarded;
+  }
+}
+
+const GEMINI_ENV = { GEMINI_API_KEY: "test-key-not-a-real-credential" };
+const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta";
+
+const geminiRequest = (modelId) => ({
+  providerId: "gemini",
+  modelId,
+  messages: [{ role: "user", content: "hi" }],
+});
+
+/** Identities a caller must never be able to turn into a path. */
+const UNSAFE_MODEL_IDENTITIES = [
+  "../../v1beta/tunedModels/x",
+  "gemini-2.5-flash/../../secret",
+  "gemini-2.5-flash:generateContent",
+  "gemini-2.5-flash?alt=sse",
+  "gemini-2.5-flash#fragment",
+  "gemini 2.5 flash",
+  "%2e%2e%2fadmin",
+  "gemini-2.5-flash@evil.example",
+];
+
+test("a canonical Gemini model builds a URL from the trusted base", async () => {
+  const adapter = new geminiAdapter.GeminiAdapter();
+  const { result: response, calls } = await withFetchRecorder(() =>
+    adapter.generate(geminiRequest("gemini-2.5-flash"), GEMINI_ENV),
+  );
+  // Isolation refuses the connection, so the result is a NETWORK error — the
+  // point is that the request was built and left at all.
+  assert.equal(calls.length, 1);
+  assert.equal(
+    calls[0],
+    `${GEMINI_BASE}/models/gemini-2.5-flash:generateContent`,
+  );
+  assert.equal(response.ok, false);
+  assert.equal(response.error.category, "NETWORK");
+});
+
+test("the provider's own `models/` spelling resolves to the same identity", async () => {
+  const adapter = new geminiAdapter.GeminiAdapter();
+  const { result: response, calls } = await withFetchRecorder(() =>
+    adapter.generate(geminiRequest("models/gemini-2.5-flash"), GEMINI_ENV),
+  );
+  // Discovery reports `models/{model}`; that trusted prefix must be normalized
+  // away rather than refused, or a legitimate model becomes unusable.
+  assert.equal(calls.length, 1);
+  assert.equal(
+    calls[0],
+    `${GEMINI_BASE}/models/gemini-2.5-flash:generateContent`,
+  );
+  assert.equal(response.ok, false);
+  assert.equal(response.error.category, "NETWORK");
+});
+
+test("an unsafe Gemini identity is refused before any request is made", async () => {
+  for (const modelId of UNSAFE_MODEL_IDENTITIES) {
+    const adapter = new geminiAdapter.GeminiAdapter();
+    const { result: response, calls } = await withFetchRecorder(() =>
+      adapter.generate(geminiRequest(modelId), GEMINI_ENV),
+    );
+    assert.deepEqual(calls, [], `${modelId} must not reach the network`);
+    assert.equal(response.ok, false, `${modelId} must not succeed`);
+    assert.equal(
+      response.error.category,
+      "MODEL_NOT_FOUND",
+      `${modelId} must be refused as an unknown identity`,
+    );
+  }
+});
+
+test("an unsafe Gemini identity is refused on the streaming path too", async () => {
+  for (const modelId of UNSAFE_MODEL_IDENTITIES) {
+    const adapter = new geminiAdapter.GeminiAdapter();
+    const chunks = [];
+    const { calls } = await withFetchRecorder(async () => {
+      for await (const chunk of adapter.stream(geminiRequest(modelId), GEMINI_ENV)) {
+        chunks.push(chunk);
+      }
+    });
+    assert.deepEqual(calls, [], `${modelId} must not reach the network`);
+    assert.equal(chunks.length, 1, `${modelId} must end on one error chunk`);
+    assert.equal(chunks[0].error.category, "MODEL_NOT_FOUND");
+  }
+});
+
+test("streaming a canonical model still builds the streaming URL", async () => {
+  const adapter = new geminiAdapter.GeminiAdapter();
+  const { calls } = await withFetchRecorder(async () => {
+    for await (const _chunk of adapter.stream(
+      geminiRequest("models/gemini-2.5-flash"),
+      GEMINI_ENV,
+    )) {
+      // Isolation refuses the connection; the URL is the assertion.
+    }
+  });
+  assert.equal(calls.length, 1);
+  assert.equal(
+    calls[0],
+    `${GEMINI_BASE}/models/gemini-2.5-flash:streamGenerateContent?alt=sse`,
+  );
+});
+
+
+// ---------------------------------------------------------------------------
+// Router provider identity boundary
+//
+// In manual mode the provider identifier arrives from the browser and is used
+// as a key in the decision's health record. An unidentified key is a
+// remote-property-injection sink, so the router resolves the name against its
+// own registry before anything is written.
+// ---------------------------------------------------------------------------
+
+const OPENAI_HEALTH = {
+  providerId: "openai",
+  displayName: "OpenAI",
+  transport: "OpenAI",
+  configured: true,
+  auth: "AUTHENTICATED",
+  discovery: "DISCOVERY_VERIFIED",
+  generation: "GENERATION_VERIFIED",
+  streaming: "STREAMING_VERIFIED",
+  tools: "SUPPORTED",
+  vision: "SUPPORTED",
+  structuredOutput: "SUPPORTED",
+  modelCount: 5,
+  lastTestedAt: new Date().toISOString(),
+  lastError: null,
+  latencyMs: 500,
+  rateLimits: null,
+};
+
+const manualInput = (providerId) => ({
+  taskClass: "general",
+  contextRequirement: 0,
+  visionRequired: false,
+  toolsRequired: false,
+  structuredOutputRequired: false,
+  mode: "manual",
+  manualSelection: { providerId, modelId: "gpt-4.1" },
+});
+
+test("manual mode keys health by the registry's own provider id", () => {
+  const healthMap = new Map([["openai", OPENAI_HEALTH]]);
+  const decision = router.routeV2(manualInput("openai"), healthMap);
+  assert.equal(decision.status, "resolved");
+  assert.deepEqual(Object.keys(decision.health), ["openai"]);
+});
+
+test("an unregistered provider name never becomes a health key", () => {
+  const healthMap = new Map([["openai", OPENAI_HEALTH]]);
+  for (const providerId of [
+    "__proto__",
+    "constructor",
+    "toString",
+    "openai/../../etc",
+    "nonexistent",
+  ]) {
+    const decision = router.routeV2(manualInput(providerId), healthMap);
+    assert.equal(decision.status, "unavailable", `${providerId} must be refused`);
+    assert.equal(decision.selected, null, `${providerId} must select nothing`);
+    assert.deepEqual(
+      Object.keys(decision.health),
+      [],
+      `${providerId} must not add a property to the health record`,
+    );
+    assert.equal(
+      Object.getPrototypeOf(decision.health),
+      Object.prototype,
+      `${providerId} must not alter the health record's prototype`,
+    );
+    assert.equal(
+      Object.prototype.hasOwnProperty.call(decision.health, providerId),
+      false,
+      `${providerId} must not exist as an own property`,
+    );
+  }
 });

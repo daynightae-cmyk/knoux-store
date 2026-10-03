@@ -25,6 +25,22 @@ function redact(text: string): string {
 }
 
 /**
+ * Return the first argument that is a non-empty string, or null.
+ *
+ * Provider error envelopes carry their machine-readable identifier under
+ * different keys depending on the vendor (`code` for OpenAI and Google, `type`
+ * for OpenAI and Anthropic, `status` for Google). Google sends `code` as a
+ * number, which is not an identifier string and is therefore never reported
+ * as one.
+ */
+function firstString(...values: unknown[]): string | null {
+  for (const value of values) {
+    if (typeof value === "string" && value.length > 0) return value;
+  }
+  return null;
+}
+
+/**
  * The operator-facing explanation for each category. Shared by every
  * constructor so a category always reads the same way wherever it surfaces.
  */
@@ -80,23 +96,22 @@ export function normalizeError(
   if (rawMessage) {
     try {
       const parsed = JSON.parse(rawMessage);
-      // OpenAI-style: { error: { message, code, type } }
-      if (parsed?.error?.message) {
+      // Provider error envelopes. OpenAI, Anthropic and Google all nest the
+      // human-readable text under `error.message`, so a single branch covers
+      // all three; only the key holding the identifier differs per vendor. The
+      // identifier is taken in a documented order of precedence and only when
+      // it really is a string.
+      if (typeof parsed?.error?.message === "string") {
         rawMessage = parsed.error.message;
-        providerErrorId = parsed.error.code ?? parsed.error.type ?? null;
-      }
-      // Anthropic-style: { error: { type, message } }
-      else if (parsed?.error?.type && parsed?.error?.message) {
-        rawMessage = parsed.error.message;
-        providerErrorId = parsed.error.type;
-      }
-      // Google-style: { error: { code, message, status } }
-      else if (parsed?.error?.message) {
-        rawMessage = parsed.error.message;
-        providerErrorId = parsed.error.status ?? null;
+        providerErrorId =
+          firstString(
+            parsed.error.code,
+            parsed.error.type,
+            parsed.error.status,
+          ) ?? null;
       }
       // Generic { message }
-      else if (parsed?.message) {
+      else if (typeof parsed?.message === "string") {
         rawMessage = parsed.message;
       }
     } catch {

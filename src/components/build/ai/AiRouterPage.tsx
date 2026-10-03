@@ -88,7 +88,7 @@ export function AiRouterPage() {
       heading={
         <header className="dev-page-heading" style={{ marginBottom: 16 }}>
           <span className="dev-mini-label">AI RUNTIME / ROUTER</span>
-          <h1>Router v2</h1>
+          <h2>Router v2</h2>
           <p>
             Score-based routing with health, latency, cost, and context-fit
             factors. AUTO explains its decision. MANUAL is never silently
@@ -119,6 +119,7 @@ export function AiRouterPage() {
             onChange={(e) => setTaskClass(e.target.value)}
             className="dev-field"
             style={{ padding: 8 }}
+            aria-label="Task class"
           >
             {TASK_CLASSES.map((t) => (
               <option key={t} value={t}>
