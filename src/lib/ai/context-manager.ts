@@ -1,6 +1,6 @@
-import 'server-only';
-import { estimateTokens } from './contract';
-import type { ContextSelection, ContextBundle } from './types';
+import "server-only";
+import { estimateTokens } from "./contract";
+import type { ContextSelection, ContextBundle } from "./types";
 
 /**
  * Context manager. Builds a safe context bundle for AI requests.
@@ -73,57 +73,101 @@ export function buildContextBundle(
   selections: ContextSelection[],
   fileContents: Map<string, string>,
 ): ContextBundle {
-  const entries: ContextBundle['entries'] = [];
+  const entries: ContextBundle["entries"] = [];
   let totalBytes = 0;
   let excludedCount = 0;
 
   for (const selection of selections) {
-    if (selection.type === 'pasted' || selection.type === 'instructions') {
+    if (selection.type === "pasted" || selection.type === "instructions") {
       // User-pasted content is always included
-      const content = selection.path ? (fileContents.get(selection.path) ?? '') : '';
-      const bytes = Buffer.byteLength(content, 'utf-8');
-      const tokens = estimateTokens(content);
+      const content = selection.path
+        ? (fileContents.get(selection.path) ?? "")
+        : "";
+      const bytes = Buffer.byteLength(content, "utf-8");
       totalBytes += bytes;
-      entries.push({ path: selection.path, content, lines: content.split('\n').length, excluded: false, exclusionReason: null });
+      entries.push({
+        path: selection.path,
+        content,
+        lines: content.split("\n").length,
+        excluded: false,
+        exclusionReason: null,
+      });
       continue;
     }
 
-    if (selection.type === 'git-diff') {
-      const content = fileContents.get('__git_diff__') ?? '';
-      const bytes = Buffer.byteLength(content, 'utf-8');
+    if (selection.type === "git-diff") {
+      const content = fileContents.get("__git_diff__") ?? "";
+      const bytes = Buffer.byteLength(content, "utf-8");
       totalBytes += bytes;
-      entries.push({ path: null, content, lines: content.split('\n').length, excluded: false, exclusionReason: null });
+      entries.push({
+        path: null,
+        content,
+        lines: content.split("\n").length,
+        excluded: false,
+        exclusionReason: null,
+      });
       continue;
     }
 
     // File or directory entries
-    const path = selection.path ?? '';
+    const path = selection.path ?? "";
     if (isExcluded(path)) {
       excludedCount++;
-      entries.push({ path, content: '', lines: 0, excluded: true, exclusionReason: 'File matches exclusion pattern (secrets, build artifacts, or binary).' });
+      entries.push({
+        path,
+        content: "",
+        lines: 0,
+        excluded: true,
+        exclusionReason:
+          "File matches exclusion pattern (secrets, build artifacts, or binary).",
+      });
       continue;
     }
 
     const content = fileContents.get(path);
     if (content === undefined) {
-      entries.push({ path, content: '', lines: 0, excluded: true, exclusionReason: 'File content not provided.' });
+      entries.push({
+        path,
+        content: "",
+        lines: 0,
+        excluded: true,
+        exclusionReason: "File content not provided.",
+      });
       continue;
     }
 
-    const truncated = content.length > MAX_FILE_BYTES ? content.slice(0, MAX_FILE_BYTES) + '\n... [truncated]' : content;
-    const bytes = Buffer.byteLength(truncated, 'utf-8');
+    const truncated =
+      content.length > MAX_FILE_BYTES
+        ? content.slice(0, MAX_FILE_BYTES) + "\n... [truncated]"
+        : content;
+    const bytes = Buffer.byteLength(truncated, "utf-8");
 
     if (totalBytes + bytes > MAX_TOTAL_BYTES) {
-      entries.push({ path, content: '', lines: 0, excluded: true, exclusionReason: 'Total context bundle exceeds size limit.' });
+      entries.push({
+        path,
+        content: "",
+        lines: 0,
+        excluded: true,
+        exclusionReason: "Total context bundle exceeds size limit.",
+      });
       excludedCount++;
       continue;
     }
 
     totalBytes += bytes;
-    entries.push({ path, content: truncated, lines: truncated.split('\n').length, excluded: false, exclusionReason: null });
+    entries.push({
+      path,
+      content: truncated,
+      lines: truncated.split("\n").length,
+      excluded: false,
+      exclusionReason: null,
+    });
   }
 
-  const totalTokenEstimate = entries.reduce((sum, e) => sum + estimateTokens(e.content), 0);
+  const totalTokenEstimate = entries.reduce(
+    (sum, e) => sum + estimateTokens(e.content),
+    0,
+  );
 
   return {
     entries,
@@ -147,5 +191,5 @@ export function formatContextForPrompt(bundle: ContextBundle): string {
       parts.push(entry.content);
     }
   }
-  return parts.join('\n\n');
+  return parts.join("\n\n");
 }

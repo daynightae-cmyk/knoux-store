@@ -1,6 +1,11 @@
-import 'server-only';
-import { normalizeError } from '../errors';
-import { calculateCost } from '../cost';
+import "server-only";
+import {
+  abortedError,
+  networkError,
+  normalizeError,
+  timeoutError,
+} from "../errors";
+import { calculateCost } from "../cost";
 import {
   type ProviderAdapter,
   type ProbeResult,
@@ -10,12 +15,9 @@ import {
   type TokenUsage,
   type RateLimitSnapshot,
   type NormalizedError,
-} from '../contract';
-import type {
-  DiscoveryResult,
-  NormalizedModel,
-  ModelControls,
-} from '../types';
+  unknownPricing,
+} from "../contract";
+import type { DiscoveryResult, NormalizedModel, ModelControls } from "../types";
 
 /**
  * Base adapter for OpenAI-compatible providers. Many providers use the
@@ -29,7 +31,7 @@ export type OpenAICompatibleConfig = {
   transport: string;
   baseUrl: string;
   /** Auth header name, e.g. "Authorization" or "x-api-key". */
-  authHeader: 'bearer' | 'x-api-key' | 'header';
+  authHeader: "bearer" | "x-api-key" | "header";
   /** The header name for custom header auth. */
   authHeaderName?: string;
   /** Env var names for the API key. */
@@ -55,8 +57,13 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
   readonly displayName: string;
   readonly transport: string;
   readonly requiredEnv: string[];
+  /** Declared explicitly rather than as a constructor parameter property:
+   * Node's native type stripping cannot erase parameter properties, so the
+   * test runner cannot load this module otherwise. */
+  protected readonly config: OpenAICompatibleConfig;
 
-  constructor(protected config: OpenAICompatibleConfig) {
+  constructor(config: OpenAICompatibleConfig) {
+    this.config = config;
     this.id = config.id;
     this.displayName = config.displayName;
     this.transport = config.transport;
@@ -66,7 +73,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
   isConfigured(env: Record<string, string | undefined>): boolean {
     return this.config.requiredEnv.every((name) => {
       const value = env[name];
-      return typeof value === 'string' && value.trim().length > 0;
+      return typeof value === "string" && value.trim().length > 0;
     });
   }
 
@@ -79,7 +86,10 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
   }
 
   protected parseModelList(json: unknown): NormalizedModel[] {
-    const data = json as { data?: Array<{ id: string }>; models?: Array<{ id: string }> };
+    const data = json as {
+      data?: Array<{ id: string }>;
+      models?: Array<{ id: string }>;
+    };
     const list = data?.data ?? data?.models ?? [];
     return list.map((entry) => this.normalizeModel(entry.id));
   }
@@ -92,28 +102,40 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
       discoveredAt: new Date().toISOString(),
       contextWindow: null,
       maxOutputTokens: null,
-      modalities: { text: true, imageInput: this.config.supportsVision, audioInput: false, audioOutput: false },
+      modalities: {
+        text: true,
+        imageInput: this.config.supportsVision,
+        audioInput: false,
+        audioOutput: false,
+      },
       capabilities: {
-        streaming: this.config.supportsStreaming ? 'SUPPORTED' : 'UNSUPPORTED',
-        tools: this.config.supportsTools ? 'SUPPORTED' : 'UNSUPPORTED',
-        structuredOutput: this.config.supportsStructuredOutput ? 'SUPPORTED' : 'UNSUPPORTED',
-        reasoning: 'UNKNOWN' as const,
-        vision: this.config.supportsVision ? 'SUPPORTED' : 'UNSUPPORTED',
+        streaming: this.config.supportsStreaming ? "SUPPORTED" : "UNSUPPORTED",
+        tools: this.config.supportsTools ? "SUPPORTED" : "UNSUPPORTED",
+        structuredOutput: this.config.supportsStructuredOutput
+          ? "SUPPORTED"
+          : "UNSUPPORTED",
+        reasoning: "UNKNOWN" as const,
+        vision: this.config.supportsVision ? "SUPPORTED" : "UNSUPPORTED",
       },
       controls: this.config.controls,
-      pricing: { inputPerMillion: null, outputPerMillion: null, cachedInputPerMillion: null, currency: 'USD' },
-      lifecycle: 'unknown' as const,
-      source: 'LIVE' as const,
+      pricing: unknownPricing(),
+      lifecycle: "unknown" as const,
+      source: "LIVE" as const,
     };
   }
 
   protected buildHeaders(apiKey: string): HeadersInit {
-    const headers: Record<string, string> = { 'content-type': 'application/json' };
-    if (this.config.authHeader === 'bearer') {
-      headers['authorization'] = `Bearer ${apiKey}`;
-    } else if (this.config.authHeader === 'x-api-key') {
-      headers['x-api-key'] = apiKey;
-    } else if (this.config.authHeader === 'header' && this.config.authHeaderName) {
+    const headers: Record<string, string> = {
+      "content-type": "application/json",
+    };
+    if (this.config.authHeader === "bearer") {
+      headers["authorization"] = `Bearer ${apiKey}`;
+    } else if (this.config.authHeader === "x-api-key") {
+      headers["x-api-key"] = apiKey;
+    } else if (
+      this.config.authHeader === "header" &&
+      this.config.authHeaderName
+    ) {
       headers[this.config.authHeaderName] = apiKey;
     }
     if (this.config.extraHeaders) {
@@ -129,56 +151,97 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
       return {
         providerId: this.id,
         authenticated: false,
-        detail: `No credential present. Set ${this.config.requiredEnv.join(' and ')} on the server.`,
-        error: { category: 'AUTHENTICATION', message: 'Missing credential', safeMessage: `Set ${this.config.requiredEnv.join(' and ')}`, httpStatus: null, providerErrorId: null, retryable: false },
+        detail: `No credential present. Set ${this.config.requiredEnv.join(" and ")} on the server.`,
+        error: {
+          category: "AUTHENTICATION",
+          message: "Missing credential",
+          safeMessage: `Set ${this.config.requiredEnv.join(" and ")}`,
+          httpStatus: null,
+          providerErrorId: null,
+          retryable: false,
+        },
         latencyMs: 0,
       };
     }
     try {
       const response = await fetch(`${this.config.baseUrl}/models`, {
         headers: this.buildHeaders(apiKey),
-        redirect: 'error',
+        redirect: "error",
         signal: AbortSignal.timeout(10000),
-        cache: 'no-store',
+        cache: "no-store",
       });
       const latencyMs = Date.now() - start;
       if (response.ok) {
-        return { providerId: this.id, authenticated: true, detail: 'Authenticated; models endpoint answered.', error: null, latencyMs };
+        return {
+          providerId: this.id,
+          authenticated: true,
+          detail: "Authenticated; models endpoint answered.",
+          error: null,
+          latencyMs,
+        };
       }
       const bodyText = await response.text().catch(() => null);
-      return { providerId: this.id, authenticated: false, detail: `Authentication failed (HTTP ${response.status}).`, error: normalizeError(response.status, bodyText), latencyMs };
+      return {
+        providerId: this.id,
+        authenticated: false,
+        detail: `Authentication failed (HTTP ${response.status}).`,
+        error: normalizeError(response.status, bodyText),
+        latencyMs,
+      };
     } catch (cause) {
       const latencyMs = Date.now() - start;
-      const message = cause instanceof Error ? cause.message : 'Network error';
-      return { providerId: this.id, authenticated: false, detail: 'Endpoint unreachable.', error: { category: 'NETWORK', message, safeMessage: message.slice(0, 200), httpStatus: null, providerErrorId: null, retryable: false }, latencyMs };
+      const message = cause instanceof Error ? cause.message : "Network error";
+      return {
+        providerId: this.id,
+        authenticated: false,
+        detail: "Endpoint unreachable.",
+        error: {
+          category: "NETWORK",
+          message,
+          safeMessage: message.slice(0, 200),
+          httpStatus: null,
+          providerErrorId: null,
+          retryable: false,
+        },
+        latencyMs,
+      };
     }
   }
 
-  async discoverModels(env: Record<string, string | undefined>): Promise<DiscoveryResult> {
+  async discoverModels(
+    env: Record<string, string | undefined>,
+  ): Promise<DiscoveryResult> {
     const apiKey = this.getApiKey(env);
     if (!apiKey) {
       return {
         providerId: this.id,
         models: [],
-        source: 'UNKNOWN',
+        source: "UNKNOWN",
         discoveredAt: new Date().toISOString(),
-        error: { category: 'AUTHENTICATION', message: 'Missing credential', safeMessage: `Set ${this.config.requiredEnv.join(' and ')}`, httpStatus: null, providerErrorId: null, retryable: false },
+        error: {
+          category: "AUTHENTICATION",
+          message: "Missing credential",
+          safeMessage: `Set ${this.config.requiredEnv.join(" and ")}`,
+          httpStatus: null,
+          providerErrorId: null,
+          retryable: false,
+        },
         fromCache: false,
       };
     }
     try {
       const response = await fetch(`${this.config.baseUrl}/models`, {
         headers: this.buildHeaders(apiKey),
-        redirect: 'error',
+        redirect: "error",
         signal: AbortSignal.timeout(15000),
-        cache: 'no-store',
+        cache: "no-store",
       });
       if (!response.ok) {
         const bodyText = await response.text().catch(() => null);
         return {
           providerId: this.id,
           models: [],
-          source: 'UNKNOWN',
+          source: "UNKNOWN",
           discoveredAt: new Date().toISOString(),
           error: normalizeError(response.status, bodyText),
           fromCache: false,
@@ -189,7 +252,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
       return {
         providerId: this.id,
         models,
-        source: 'LIVE',
+        source: "LIVE",
         discoveredAt: new Date().toISOString(),
         error: null,
         fromCache: false,
@@ -198,117 +261,190 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
       return {
         providerId: this.id,
         models: [],
-        source: 'UNKNOWN',
+        source: "UNKNOWN",
         discoveredAt: new Date().toISOString(),
-        error: { category: 'NETWORK', message: cause instanceof Error ? cause.message : 'Network error', safeMessage: 'Could not reach provider endpoint.', httpStatus: null, providerErrorId: null, retryable: false },
+        error: networkError(
+          cause instanceof Error ? cause.message : "Network error",
+        ),
         fromCache: false,
       };
     }
   }
 
-  async generate(request: GenerationRequest, env: Record<string, string | undefined>): Promise<GenerationResponse> {
+  async generate(
+    request: GenerationRequest,
+    env: Record<string, string | undefined>,
+  ): Promise<GenerationResponse> {
     const start = Date.now();
     const apiKey = this.getApiKey(env);
     if (!apiKey) {
-      return this.errorResponse({ category: 'AUTHENTICATION', message: 'Missing credential', safeMessage: 'No API key configured.', httpStatus: null, providerErrorId: null, retryable: false }, 0, request.modelId);
+      return this.errorResponse(
+        {
+          category: "AUTHENTICATION",
+          message: "Missing credential",
+          safeMessage: "No API key configured.",
+          httpStatus: null,
+          providerErrorId: null,
+          retryable: false,
+        },
+        0,
+        request.modelId,
+      );
     }
 
     const body = this.buildRequestBody(request, false);
     try {
       const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
-        method: 'POST',
+        method: "POST",
         headers: this.buildHeaders(apiKey),
         body: JSON.stringify(body),
-        redirect: 'error',
+        redirect: "error",
         signal: AbortSignal.timeout(120000),
-        cache: 'no-store',
+        cache: "no-store",
       });
       const latencyMs = Date.now() - start;
       if (!response.ok) {
         const bodyText = await response.text().catch(() => null);
-        return this.errorResponse(normalizeError(response.status, bodyText), latencyMs, request.modelId);
+        return this.errorResponse(
+          normalizeError(response.status, bodyText),
+          latencyMs,
+          request.modelId,
+        );
       }
       const json = await response.json();
       return this.parseCompletionResponse(json, latencyMs, request);
     } catch (cause) {
       const latencyMs = Date.now() - start;
-      if (cause instanceof DOMException && cause.name === 'TimeoutError') {
-        return this.errorResponse({ category: 'TIMEOUT', message: 'Request timed out', safeMessage: 'Request timed out.', httpStatus: null, providerErrorId: null, retryable: true }, latencyMs, request.modelId);
+      if (cause instanceof DOMException && cause.name === "TimeoutError") {
+        return this.errorResponse(timeoutError(), latencyMs, request.modelId);
       }
-      if (cause instanceof DOMException && cause.name === 'AbortError') {
-        return this.errorResponse({ category: 'ABORTED', message: 'Request cancelled', safeMessage: 'Request cancelled.', httpStatus: null, providerErrorId: null, retryable: false }, latencyMs, request.modelId);
+      if (cause instanceof DOMException && cause.name === "AbortError") {
+        return this.errorResponse(abortedError(), latencyMs, request.modelId);
       }
-      return this.errorResponse({ category: 'NETWORK', message: cause instanceof Error ? cause.message : 'Network error', safeMessage: 'Could not reach provider.', httpStatus: null, providerErrorId: null, retryable: false }, latencyMs, request.modelId);
+      return this.errorResponse(
+        networkError(cause instanceof Error ? cause.message : "Network error"),
+        latencyMs,
+        request.modelId,
+      );
     }
   }
 
-  async *stream(request: GenerationRequest, env: Record<string, string | undefined>, signal?: AbortSignal): AsyncGenerator<StreamChunk, void, void> {
+  async *stream(
+    request: GenerationRequest,
+    env: Record<string, string | undefined>,
+    signal?: AbortSignal,
+  ): AsyncGenerator<StreamChunk, void, void> {
     const start = Date.now();
     const apiKey = this.getApiKey(env);
     if (!apiKey) {
-      yield { delta: '', done: true, finishReason: null, usage: null, error: { category: 'AUTHENTICATION', message: 'Missing credential', safeMessage: 'No API key configured.', httpStatus: null, providerErrorId: null, retryable: false }, latencyMs: 0, ttftMs: null };
+      yield {
+        delta: "",
+        done: true,
+        finishReason: null,
+        usage: null,
+        error: {
+          category: "AUTHENTICATION",
+          message: "Missing credential",
+          safeMessage: "No API key configured.",
+          httpStatus: null,
+          providerErrorId: null,
+          retryable: false,
+        },
+        latencyMs: 0,
+        ttftMs: null,
+      };
       return;
     }
 
     const body = this.buildRequestBody(request, true);
     let firstTokenTime: number | null = null;
-    let accumulatedText = '';
     let finishReason: string | null = null;
     let usage: TokenUsage | null = null;
 
     try {
       const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
-        method: 'POST',
+        method: "POST",
         headers: this.buildHeaders(apiKey),
         body: JSON.stringify(body),
-        redirect: 'error',
+        redirect: "error",
         signal: signal ?? AbortSignal.timeout(120000),
-        cache: 'no-store',
+        cache: "no-store",
       });
 
       if (!response.ok) {
         const bodyText = await response.text().catch(() => null);
-        yield { delta: '', done: true, finishReason: null, usage: null, error: normalizeError(response.status, bodyText), latencyMs: Date.now() - start, ttftMs: null };
+        yield {
+          delta: "",
+          done: true,
+          finishReason: null,
+          usage: null,
+          error: normalizeError(response.status, bodyText),
+          latencyMs: Date.now() - start,
+          ttftMs: null,
+        };
         return;
       }
 
       if (!response.body) {
-        yield { delta: '', done: true, finishReason: null, usage: null, error: { category: 'NETWORK', message: 'No response body', safeMessage: 'Provider returned no body.', httpStatus: null, providerErrorId: null, retryable: false }, latencyMs: Date.now() - start, ttftMs: null };
+        yield {
+          delta: "",
+          done: true,
+          finishReason: null,
+          usage: null,
+          error: {
+            category: "NETWORK",
+            message: "No response body",
+            safeMessage: "Provider returned no body.",
+            httpStatus: null,
+            providerErrorId: null,
+            retryable: false,
+          },
+          latencyMs: Date.now() - start,
+          ttftMs: null,
+        };
         return;
       }
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let buffer = '';
+      let buffer = "";
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
 
         for (const line of lines) {
           const trimmed = line.trim();
-          if (!trimmed.startsWith('data: ')) continue;
+          if (!trimmed.startsWith("data: ")) continue;
           const data = trimmed.slice(6);
-          if (data === '[DONE]') continue;
+          if (data === "[DONE]") continue;
           try {
             const chunk = JSON.parse(data);
-            const delta = chunk.choices?.[0]?.delta?.content ?? '';
+            const delta = chunk.choices?.[0]?.delta?.content ?? "";
             const reason = chunk.choices?.[0]?.finish_reason ?? null;
             if (delta) {
               if (firstTokenTime === null) firstTokenTime = Date.now() - start;
-              accumulatedText += delta;
-              yield { delta, done: false, finishReason: null, usage: null, error: null, latencyMs: null, ttftMs: firstTokenTime };
+              yield {
+                delta,
+                done: false,
+                finishReason: null,
+                usage: null,
+                error: null,
+                latencyMs: null,
+                ttftMs: firstTokenTime,
+              };
             }
             if (reason) finishReason = reason;
             if (chunk.usage) {
               usage = {
                 inputTokens: chunk.usage.prompt_tokens ?? null,
                 outputTokens: chunk.usage.completion_tokens ?? null,
-                cachedTokens: chunk.usage.prompt_tokens_details?.cached_tokens ?? null,
-                source: 'provider' as const,
+                cachedTokens:
+                  chunk.usage.prompt_tokens_details?.cached_tokens ?? null,
+                source: "provider" as const,
               };
             }
           } catch {
@@ -318,60 +454,108 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
       }
 
       yield {
-        delta: '',
+        delta: "",
         done: true,
         finishReason,
-        usage: usage ?? { inputTokens: null, outputTokens: null, cachedTokens: null, source: 'unknown' },
+        usage: usage ?? {
+          inputTokens: null,
+          outputTokens: null,
+          cachedTokens: null,
+          source: "unknown",
+        },
         error: null,
         latencyMs: Date.now() - start,
         ttftMs: firstTokenTime,
       };
     } catch (cause) {
-      const error: NormalizedError = cause instanceof DOMException && cause.name === 'AbortError'
-        ? { category: 'ABORTED', message: 'Cancelled', safeMessage: 'Request cancelled.', httpStatus: null, providerErrorId: null, retryable: false }
-        : { category: 'NETWORK', message: cause instanceof Error ? cause.message : 'Network error', safeMessage: 'Could not reach provider.', httpStatus: null, providerErrorId: null, retryable: false };
-      yield { delta: '', done: true, finishReason, usage, error, latencyMs: Date.now() - start, ttftMs: firstTokenTime };
+      const error: NormalizedError =
+        cause instanceof DOMException && cause.name === "AbortError"
+          ? abortedError()
+          : networkError(
+              cause instanceof Error ? cause.message : "Network error",
+            );
+      yield {
+        delta: "",
+        done: true,
+        finishReason,
+        usage,
+        error,
+        latencyMs: Date.now() - start,
+        ttftMs: firstTokenTime,
+      };
     }
   }
 
-  protected buildRequestBody(request: GenerationRequest, stream: boolean): Record<string, unknown> {
+  protected buildRequestBody(
+    request: GenerationRequest,
+    stream: boolean,
+  ): Record<string, unknown> {
     const messages: Array<{ role: string; content: unknown }> = [];
     if (request.system) {
-      messages.push({ role: 'system', content: request.system });
+      messages.push({ role: "system", content: request.system });
     }
     for (const msg of request.messages) {
       messages.push({ role: msg.role, content: msg.content });
     }
-    const body: Record<string, unknown> = { model: request.modelId, messages, stream };
-    if (request.controls?.temperature !== undefined) body.temperature = request.controls.temperature;
-    if (request.controls?.topP !== undefined) body.top_p = request.controls.topP;
-    if (request.controls?.maxOutputTokens !== undefined) body.max_tokens = request.controls.maxOutputTokens;
+    const body: Record<string, unknown> = {
+      model: request.modelId,
+      messages,
+      stream,
+    };
+    if (request.controls?.temperature !== undefined)
+      body.temperature = request.controls.temperature;
+    if (request.controls?.topP !== undefined)
+      body.top_p = request.controls.topP;
+    if (request.controls?.maxOutputTokens !== undefined)
+      body.max_tokens = request.controls.maxOutputTokens;
     if (request.controls?.seed !== undefined) body.seed = request.controls.seed;
     if (request.controls?.stop) body.stop = request.controls.stop;
-    if (request.controls?.toolChoice) body.tool_choice = request.controls.toolChoice;
+    if (request.controls?.toolChoice)
+      body.tool_choice = request.controls.toolChoice;
     if (request.responseSchema) {
-      body.response_format = { type: 'json_schema', json_schema: { name: 'response', schema: request.responseSchema } };
+      body.response_format = {
+        type: "json_schema",
+        json_schema: { name: "response", schema: request.responseSchema },
+      };
     }
     if (request.tools && request.tools.length > 0) {
-      body.tools = request.tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } }));
+      body.tools = request.tools.map((t) => ({
+        type: "function",
+        function: {
+          name: t.name,
+          description: t.description,
+          parameters: t.parameters,
+        },
+      }));
     }
     return body;
   }
 
-  protected parseCompletionResponse(json: unknown, latencyMs: number, request: GenerationRequest): GenerationResponse {
+  protected parseCompletionResponse(
+    json: unknown,
+    latencyMs: number,
+    request: GenerationRequest,
+  ): GenerationResponse {
     const data = json as {
-      choices?: Array<{ message?: { content?: string }; finish_reason?: string }>;
-      usage?: { prompt_tokens?: number; completion_tokens?: number; prompt_tokens_details?: { cached_tokens?: number } };
+      choices?: Array<{
+        message?: { content?: string };
+        finish_reason?: string;
+      }>;
+      usage?: {
+        prompt_tokens?: number;
+        completion_tokens?: number;
+        prompt_tokens_details?: { cached_tokens?: number };
+      };
       id?: string;
       model?: string;
     };
-    const text = data.choices?.[0]?.message?.content ?? '';
+    const text = data.choices?.[0]?.message?.content ?? "";
     const finishReason = data.choices?.[0]?.finish_reason ?? null;
     const usage: TokenUsage = {
       inputTokens: data.usage?.prompt_tokens ?? null,
       outputTokens: data.usage?.completion_tokens ?? null,
       cachedTokens: data.usage?.prompt_tokens_details?.cached_tokens ?? null,
-      source: 'provider',
+      source: "provider",
     };
     const cost = calculateCost(this.id, request.modelId, usage);
     return {
@@ -389,12 +573,21 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
     };
   }
 
-  protected errorResponse(error: NormalizedError, latencyMs: number, modelUsed: string | null): GenerationResponse {
+  protected errorResponse(
+    error: NormalizedError,
+    latencyMs: number,
+    modelUsed: string | null,
+  ): GenerationResponse {
     return {
       ok: false,
-      text: '',
+      text: "",
       finishReason: null,
-      usage: { inputTokens: null, outputTokens: null, cachedTokens: null, source: 'unknown' },
+      usage: {
+        inputTokens: null,
+        outputTokens: null,
+        cachedTokens: null,
+        source: "unknown",
+      },
       latencyMs,
       ttftMs: null,
       providerRequestId: null,
@@ -414,7 +607,10 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
     };
   }
 
-  normalizeError(status: number | null, bodyText: string | null): NormalizedError {
+  normalizeError(
+    status: number | null,
+    bodyText: string | null,
+  ): NormalizedError {
     return normalizeError(status, bodyText);
   }
 
@@ -423,24 +619,33 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
   }
 
   parseRateLimits(headers: Headers): RateLimitSnapshot | null {
-    const prefixes = this.config.rateLimitPrefixes ?? ['requests', 'tokens'];
+    const prefixes = this.config.rateLimitPrefixes ?? ["requests", "tokens"];
     for (const prefix of prefixes) {
       const remaining = headers.get(`x-ratelimit-remaining-${prefix}`);
       const reset = headers.get(`x-ratelimit-reset-${prefix}`);
       if (remaining !== null || reset !== null) {
         return {
-          remainingRequests: remaining !== null ? parseInt(remaining, 10) : null,
+          remainingRequests:
+            remaining !== null ? parseInt(remaining, 10) : null,
           remainingTokens: null,
           resetAt: reset,
-          source: 'header' as const,
+          source: "header" as const,
         };
       }
     }
     // Generic headers
-    const remaining = headers.get('x-ratelimit-remaining') ?? headers.get('ratelimit-remaining');
-    const reset = headers.get('x-ratelimit-reset') ?? headers.get('ratelimit-reset');
+    const remaining =
+      headers.get("x-ratelimit-remaining") ??
+      headers.get("ratelimit-remaining");
+    const reset =
+      headers.get("x-ratelimit-reset") ?? headers.get("ratelimit-reset");
     if (remaining !== null || reset !== null) {
-      return { remainingRequests: remaining !== null ? parseInt(remaining, 10) : null, remainingTokens: null, resetAt: reset, source: 'header' as const };
+      return {
+        remainingRequests: remaining !== null ? parseInt(remaining, 10) : null,
+        remainingTokens: null,
+        resetAt: reset,
+        source: "header" as const,
+      };
     }
     return null;
   }
