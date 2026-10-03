@@ -5,6 +5,7 @@ import {
   intakeRateLimit,
   readBoundedJson,
 } from '@/lib/contact/intake-guard';
+import { isEmailConfigured, sendContactNotification } from '@/lib/contact/email';
 
 /**
  * Request intake.
@@ -13,9 +14,10 @@ import {
  * engine, so a Composer stack, a WordPress goal and a direct contact all
  * arrive in the same shape.
  *
- * Delivery requires CONTACT_WEBHOOK_URL. Without it the endpoint returns 503
- * rather than pretending a message was received. No other transport, no
- * logging of message content, and no storage of submissions.
+ * Delivery uses email (Resend API, RESEND_API_KEY) as the primary transport,
+ * falling back to CONTACT_WEBHOOK_URL. Without either the endpoint returns 503
+ * rather than pretending a message was received. No logging of message
+ * content, and no storage of submissions.
  *
  * Abuse controls are applied in the order that costs the least to a legitimate
  * caller: a cross-site browser request is refused before the body is read, an
@@ -158,16 +160,31 @@ export async function POST(request: Request) {
     return refuse(422, 'Request fields are invalid.');
   }
 
+  const receivedAt = new Date().toISOString();
   const webhook = process.env.CONTACT_WEBHOOK_URL;
-  if (!webhook) {
+
+  if (!isEmailConfigured() && !webhook) {
     return refuse(503, 'Request delivery is not configured on this deployment.');
+  }
+
+  // Email is the primary transport when configured.
+  if (isEmailConfigured()) {
+    const sent = await sendContactNotification({ ...payload, receivedAt });
+    if (sent) {
+      return NextResponse.json(
+        { ok: true, delivered: true },
+        { headers: { 'cache-control': 'no-store' } },
+      );
+    }
+    // Email failed — fall through to webhook if available, otherwise report failure.
+    if (!webhook) return refuse(502, 'Delivery failed.');
   }
 
   try {
     const response = await fetch(webhook, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...payload, source: 'knoux.store', receivedAt: new Date().toISOString() }),
+      body: JSON.stringify({ ...payload, source: 'knoux.store', receivedAt }),
       signal: AbortSignal.timeout(10000),
       cache: 'no-store',
     });
