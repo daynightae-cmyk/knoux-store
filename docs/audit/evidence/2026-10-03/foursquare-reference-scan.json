@@ -1,0 +1,122 @@
+{
+  "rescannedAt": "2026-10-03T06:06:39.897Z",
+  "needle": "signal_temp_stage_foursquare",
+  "scannedFiles": 21354,
+  "skipped": {
+    "largerThan4Mb": 33,
+    "dotEnv": 38,
+    "excludedDirectories": [
+      "node_modules",
+      ".git",
+      ".next",
+      "data",
+      "dist",
+      "test-results",
+      "playwright-report",
+      ".venv",
+      "venv"
+    ]
+  },
+  "roots": [
+    "D:/Knoux Store",
+    "C:/Users/k7/.codex/worktrees/2f53/Knoux Store",
+    "C:/Users/k7/.codex/worktrees/6528/Knoux Store",
+    "C:/Users/k7/.codex/worktrees/9bea/Knoux Store",
+    "C:/Users/k7/.codex/worktrees/task04-solar-system",
+    "C:/Users/k7/Knoux-Signal-Deploy",
+    "C:/Users/k7/ksci-d549392",
+    "D:/Knoux Signal",
+    "D:/Knoux Store Auth",
+    "D:/Knoux Store Supabase",
+    "D:/Knoux Store-worktrees/about-origin-room-v2",
+    "D:/Knoux Store-worktrees/convergence-20261003",
+    "D:/Knoux Store-worktrees/creative-digital-atelier-v2",
+    "D:/Knoux Store-worktrees/dependency-audit-braces-20261003",
+    "D:/Knoux Store-worktrees/dev-workspace-real",
+    "D:/Knoux Store-worktrees/global-visual-shell-v2",
+    "D:/Knoux Store-worktrees/home-system-field",
+    "D:/Knoux Store-worktrees/labs-experiment-chamber-v2",
+    "D:/Knoux Store-worktrees/local-bridge-registration",
+    "D:/Knoux Store-worktrees/product-cinematic-v2",
+    "D:/Knoux Store-worktrees/wordpress-ecosystem-v2",
+    "D:/Knoux Store Recovery/2026-10-02/restored",
+    "D:/Knoux Store Integration",
+    "C:\\Users\\k7\\.traycer\\worktrees\\daynightae-cmyk__knoux-store\\traycer-knoux-store-electric-elk-7e187dad1510",
+    "C:\\Users\\k7\\.traycer\\worktrees\\daynightae-cmyk__knoux-store\\traycer-knoux-store-humble-hawk-bf8637340e3e",
+    "C:\\Users\\k7\\.traycer\\worktrees\\daynightae-cmyk__knoux-store\\traycer-knoux-store-jolly-sparrow-16775bdc14d7",
+    "C:\\Users\\k7\\.traycer\\worktrees\\daynightae-cmyk__knoux-store\\traycer-knoux-store-keen-platypus-5830f9d5ceb1",
+    "C:\\Users\\k7\\.traycer\\worktrees\\daynightae-cmyk__knoux-store\\traycer-knoux-store-mighty-leopard-1d9dccd65343",
+    "C:\\Users\\k7\\.traycer\\worktrees\\daynightae-cmyk__knoux-store\\traycer-knoux-store-nimble-rabbit-9ed29cb1545d",
+    "C:\\Users\\k7\\.traycer\\worktrees\\daynightae-cmyk__knoux-store\\traycer-knoux-store-rugged-lynx-cb48dabab78a",
+    "C:\\Users\\k7\\.traycer\\worktrees\\daynightae-cmyk__knoux-store\\traycer-knoux-store-stellar-puma-d824fd6538cd",
+    "C:\\Users\\k7\\.traycer\\worktrees\\daynightae-cmyk__knoux-store\\traycer-knoux-store-stellar-seal-3a46280d28c6",
+    "C:\\Users\\k7\\.traycer\\worktrees\\daynightae-cmyk__knoux-store\\traycer-swift-stork-65418d586d6f",
+    "C:\\Users\\k7\\.traycer\\worktrees\\daynightae-cmyk__knoux-store\\traycer-tidy-elk-4ed2b834e8ad"
+  ],
+  "matches": [
+    {
+      "path": "C:\\Users\\k7\\.codex\\worktrees\\9bea\\Knoux Store\\docs\\audit\\evidence\\2026-10-03\\advisors.json",
+      "sha256": "48f454d7db61cbead9e350e0f64f387954d972f75260b21f18378e02082e3b44",
+      "lines": [
+        263,
+        265,
+        409,
+        411
+      ],
+      "auditArtifact": true
+    },
+    {
+      "path": "C:\\Users\\k7\\.codex\\worktrees\\9bea\\Knoux Store\\docs\\audit\\evidence\\2026-10-03\\application-catalog-summary.json",
+      "sha256": "9de5f6d89467adf976cc018a3b6a44f7943f8797e5d79877ec09a212d851147d",
+      "lines": [
+        586
+      ],
+      "auditArtifact": true
+    },
+    {
+      "path": "C:\\Users\\k7\\.codex\\worktrees\\9bea\\Knoux Store\\docs\\audit\\evidence\\2026-10-03\\foursquare-reference-scan.json",
+      "sha256": "18015f27a09fd2748dc4ae332150902d27e8ca5f7df415e4369a484841eb2509",
+      "lines": [
+        3
+      ],
+      "auditArtifact": true
+    },
+    {
+      "path": "C:\\Users\\k7\\.codex\\worktrees\\9bea\\Knoux Store\\docs\\audit\\evidence\\2026-10-03\\foursquare-staging-review.json",
+      "sha256": "9225aae2debef322b0c41038441c2fe87ed7a77bad06247096d22a8d4232aed1",
+      "lines": [
+        3
+      ],
+      "auditArtifact": true
+    },
+    {
+      "path": "C:\\Users\\k7\\.codex\\worktrees\\9bea\\Knoux Store\\docs\\audit\\evidence\\2026-10-03\\live-structural-catalog.json",
+      "sha256": "913091fba4001cb23682ad49a005e6510970c4b7ff8bba70f048ab3f8bc238c2",
+      "lines": [
+        33585,
+        33588,
+        33642,
+        65114
+      ],
+      "auditArtifact": true
+    },
+    {
+      "path": "C:\\Users\\k7\\.codex\\worktrees\\9bea\\Knoux Store\\docs\\audit\\evidence\\2026-10-03\\rescan-foursquare-references.mjs",
+      "sha256": "718b0aba123076f376c616d25967889aa3d324219cc9e6aadebcfe12a17e25b8",
+      "lines": [
+        12
+      ],
+      "auditArtifact": true
+    },
+    {
+      "path": "C:\\Users\\k7\\.codex\\worktrees\\9bea\\Knoux Store\\docs\\audit\\PHASE_A_EVIDENCE_RECONCILIATION_2026-10-03.md",
+      "sha256": "742e91b72a2c724a1a063f6f25a3d6e0d0d360679cf957d07975874599ecaf0c",
+      "lines": [
+        118,
+        226
+      ],
+      "auditArtifact": true
+    }
+  ],
+  "conclusion": "Only audit artifacts reference the RPC. This is not proof of absence: external jobs, clients and schedulers are outside these roots, and track_functions=none makes zero recorded calls unusable as inactivity evidence."
+}

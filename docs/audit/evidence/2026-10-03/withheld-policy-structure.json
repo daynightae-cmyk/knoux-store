@@ -1,0 +1,42 @@
+{
+  "observedAt": "2026-10-03T03:05:09.231Z",
+  "query": "select 'policy' kind,schemaname||'.'||tablename||'.'||policyname identity,jsonb_build_object('permissive',permissive,'roles',roles,'command',cmd,'using',null,'with_check',null,'expression_withheld',true,'secret_dependent',true,'expression_md5',md5(coalesce(qual,'')||coalesce(with_check,'')),'sanitized_using',regexp_replace(qual,$rx$'([^']|'')*'$rx$,$rep$'[WITHHELD LITERAL]'$rep$,'g'),'sanitized_with_check',regexp_replace(with_check,$rx$'([^']|'')*'$rx$,$rep$'[WITHHELD LITERAL]'$rep$,'g')) details from pg_policies where policyname in ('signal_overture_temp_insert','signal_overture_temp_select') order by identity",
+  "policies": [
+    {
+      "kind": "policy",
+      "identity": "public.signal_source_records_staging.signal_overture_temp_insert",
+      "details": {
+        "roles": [
+          "anon"
+        ],
+        "using": null,
+        "command": "INSERT",
+        "permissive": "PERMISSIVE",
+        "with_check": null,
+        "expression_md5": "10da89ea5acd11d4ae1779af15011c51",
+        "sanitized_using": null,
+        "secret_dependent": true,
+        "expression_withheld": true,
+        "sanitized_with_check": "((dataset_id = '[WITHHELD LITERAL]'::uuid) AND (record_kind = '[WITHHELD LITERAL]'::text) AND (status = '[WITHHELD LITERAL]'::text) AND (phone_e164 ~ '[WITHHELD LITERAL]'::text) AND (encode(digest(COALESCE(((current_setting('[WITHHELD LITERAL]'::text, true))::jsonb ->> '[WITHHELD LITERAL]'::text), '[WITHHELD LITERAL]'::text), '[WITHHELD LITERAL]'::text), '[WITHHELD LITERAL]'::text) = '[WITHHELD LITERAL]'::text))"
+      }
+    },
+    {
+      "kind": "policy",
+      "identity": "public.signal_source_records_staging.signal_overture_temp_select",
+      "details": {
+        "roles": [
+          "anon"
+        ],
+        "using": null,
+        "command": "SELECT",
+        "permissive": "PERMISSIVE",
+        "with_check": null,
+        "expression_md5": "d7556346ecdb5a0f8ad8c7308007a20d",
+        "sanitized_using": "((dataset_id = '[WITHHELD LITERAL]'::uuid) AND (encode(digest(COALESCE(((current_setting('[WITHHELD LITERAL]'::text, true))::jsonb ->> '[WITHHELD LITERAL]'::text), '[WITHHELD LITERAL]'::text), '[WITHHELD LITERAL]'::text), '[WITHHELD LITERAL]'::text) = '[WITHHELD LITERAL]'::text))",
+        "secret_dependent": true,
+        "expression_withheld": true,
+        "sanitized_with_check": null
+      }
+    }
+  ]
+}

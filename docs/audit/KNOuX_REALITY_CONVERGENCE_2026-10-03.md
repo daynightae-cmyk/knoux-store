@@ -2,6 +2,8 @@
 
 Status: **BLOCKED at Phase A. Phase B and Phase C have not begun.**
 
+The continuation is recorded in [the current structural, caller and semantic reconciliation](PHASE_A_EVIDENCE_RECONCILIATION_2026-10-03.md). Its donor decisions supersede the preliminary decisions below. Historical withheld migrations remain withheld; the new catalog is a current structural observation, not invented migration history.
+
 This document records observed evidence, selective source preservation, and unresolved gates. Source archives are recoverable material for review; their existence does not prove executable integration, schema parity, or live AI inference.
 
 ## Canonical baseline

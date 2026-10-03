@@ -1,0 +1,365 @@
+{
+  "observedAt": "2026-10-03T02:57:41.360Z",
+  "sourceMain": "ae7c0d394ea07047f3c0ef534411872a59c2711f",
+  "activityEvidence": "live-function-activity.json",
+  "provenanceEvidence": "bridge-reconciliation.json",
+  "callerIdentity": "UNVERIFIED for every alias. HTTP outcomes, machine heartbeat, and job success do not identify a particular caller. No live requests submitted by this audit.",
+  "aliases": [
+    {
+      "alias": "knoux-bridge-control",
+      "version": 9,
+      "verifyJwt": false,
+      "repositoryCallSites": [],
+      "donorCallSites": [
+        {
+          "path": "bridge/src/control-plane.ts",
+          "mechanism": "Configured baseUrl plus /register, /heartbeat, /poll, /result; not an alias literal"
+        },
+        {
+          "path": "gateway/control.py",
+          "mechanism": "KNOUX_CONTROL_PLANE_URL plus /gateway/status and /gateway/run"
+        },
+        {
+          "path": "bridge/test/control-plane.test.mjs",
+          "mechanism": "Alias literal in mocks"
+        },
+        {
+          "path": "gateway/test_control.py",
+          "mechanism": "Alias literal in mocks"
+        }
+      ],
+      "liveSourceCallSites": [
+        {
+          "alias": "knoux-store-mcp-gateway",
+          "path": "index.ts:110",
+          "mechanism": "CONTROL_URL points explicitly to knoux-bridge-control"
+        }
+      ],
+      "expectedCaller": "Outbound machine worker; bearer-token gateway/MCP client",
+      "expectedAuth": "Registration: Ed25519 signature, public-key/fingerprint, timestamp/nonce, allowed bridge and enrollment hash; subsequent machine calls: hashed session bearer with expiration/revocation. Gateway calls: hashed active unexpired gateway bearer scoped to bridge.",
+      "stillReferencedByMain": false,
+      "stillReferencedByLiveSource": true,
+      "likelyLegacy": "UNVERIFIED; explicitly referenced by deployed MCP gateway",
+      "risk": "verify_jwt=false is deliberate custom-auth design; operational subject/caller attestation is absent",
+      "activity": [
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 1084,
+          "status": "200",
+          "version": "3"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 10544,
+          "status": "204",
+          "version": "3"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 13,
+          "status": "200",
+          "version": "4"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 117,
+          "status": "204",
+          "version": "4"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 106,
+          "status": "200",
+          "version": "5"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 942,
+          "status": "204",
+          "version": "5"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 215,
+          "status": "200",
+          "version": "6"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 21,
+          "status": "202",
+          "version": "6"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 647,
+          "status": "204",
+          "version": "6"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 826,
+          "status": "200",
+          "version": "7"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 6891,
+          "status": "204",
+          "version": "7"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 69,
+          "status": "200",
+          "version": "8"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 675,
+          "status": "204",
+          "version": "8"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 2,
+          "status": "200",
+          "version": "9"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 1,
+          "status": "400",
+          "version": "9"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 1,
+          "status": "401",
+          "version": "9"
+        }
+      ],
+      "activityAtCurrentVersion": [
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 2,
+          "status": "200",
+          "version": "9"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 1,
+          "status": "400",
+          "version": "9"
+        },
+        {
+          "function_id": "88f57a47-057a-459c-8cb6-c897a7c2044c",
+          "requests": 1,
+          "status": "401",
+          "version": "9"
+        }
+      ],
+      "status": "UNVERIFIED"
+    },
+    {
+      "alias": "knoux-store-mcp-gateway",
+      "version": 2,
+      "verifyJwt": false,
+      "repositoryCallSites": [],
+      "donorCallSites": [
+        {
+          "path": "supabase/functions/knoux-store-mcp-gateway/index.ts",
+          "mechanism": "Donor function implementation; no canonical main client caller"
+        }
+      ],
+      "liveSourceCallSites": [],
+      "expectedCaller": "External MCP client using JSON-RPC initialize/tools/list/tools/call",
+      "expectedAuth": "Opaque bearer token forwarded to knoux-bridge-control gateway endpoints; initialize/tools/list validate through gateway/status. /health public; merely having a bearer syntax is not identity proof.",
+      "stillReferencedByMain": false,
+      "stillReferencedByLiveSource": false,
+      "likelyLegacy": "UNVERIFIED; observed v2 activity and explicit live bridge-control dependency",
+      "activity": [
+        {
+          "function_id": "9c172219-88c0-4a7d-b6c8-9bec299bd833",
+          "requests": 18,
+          "status": "200",
+          "version": "1"
+        },
+        {
+          "function_id": "9c172219-88c0-4a7d-b6c8-9bec299bd833",
+          "requests": 1,
+          "status": "401",
+          "version": "1"
+        },
+        {
+          "function_id": "9c172219-88c0-4a7d-b6c8-9bec299bd833",
+          "requests": 36,
+          "status": "200",
+          "version": "2"
+        },
+        {
+          "function_id": "9c172219-88c0-4a7d-b6c8-9bec299bd833",
+          "requests": 3,
+          "status": "202",
+          "version": "2"
+        }
+      ],
+      "activityAtCurrentVersion": [
+        {
+          "function_id": "9c172219-88c0-4a7d-b6c8-9bec299bd833",
+          "requests": 36,
+          "status": "200",
+          "version": "2"
+        },
+        {
+          "function_id": "9c172219-88c0-4a7d-b6c8-9bec299bd833",
+          "requests": 3,
+          "status": "202",
+          "version": "2"
+        }
+      ],
+      "status": "UNVERIFIED"
+    },
+    {
+      "alias": "knoux-bridge-gateway-api",
+      "version": 1,
+      "verifyJwt": false,
+      "repositoryCallSites": [],
+      "donorCallSites": [
+        {
+          "path": "supabase/functions/knoux-bridge-gateway-api/index.ts",
+          "mechanism": "Exact live implementation copy; no demonstrated caller in main"
+        }
+      ],
+      "liveSourceCallSites": [],
+      "expectedCaller": "External gateway client posting action=status/tool",
+      "expectedAuth": "x-knoux-gateway-token hashed lookup in active/unexpired knoux_bridge_gateway_tokens; allowed bridge/machine; closed tool validation.",
+      "stillReferencedByMain": false,
+      "stillReferencedByLiveSource": false,
+      "likelyLegacy": "UNVERIFIED; alternative API, five observed requests do not establish actual client",
+      "activity": [
+        {
+          "function_id": "7afc221d-b1d6-4b6a-a269-bc98fe27652a",
+          "requests": 5,
+          "status": "200",
+          "version": "1"
+        }
+      ],
+      "activityAtCurrentVersion": [
+        {
+          "function_id": "7afc221d-b1d6-4b6a-a269-bc98fe27652a",
+          "requests": 5,
+          "status": "200",
+          "version": "1"
+        }
+      ],
+      "status": "UNVERIFIED"
+    },
+    {
+      "alias": "knoux-bridge-control-smoke",
+      "version": 1,
+      "verifyJwt": false,
+      "repositoryCallSites": [],
+      "donorCallSites": [],
+      "liveSourceCallSites": [],
+      "expectedCaller": "Deployment smoke checker, inferred from alias and constant {ok:true} handler",
+      "expectedAuth": "None in retrieved source; public handler. No bridge/database access in this source.",
+      "stillReferencedByMain": false,
+      "stillReferencedByLiveSource": false,
+      "likelyLegacy": "Likely temporary diagnostic; UNVERIFIED because no owner/retirement evidence and zero logs in window is not proof of disuse",
+      "activity": [],
+      "activityAtCurrentVersion": [],
+      "status": "UNVERIFIED"
+    },
+    {
+      "alias": "knoux-store-bridge-control",
+      "version": 2,
+      "verifyJwt": false,
+      "repositoryCallSites": [],
+      "donorCallSites": [],
+      "liveSourceCallSites": [],
+      "expectedCaller": "Outbound machine worker and Google service-account gateway",
+      "expectedAuth": "Registration Ed25519/enrollment; machine hashed bearer session. Gateway uses Google tokeninfo with issuer, expiry, configured audience, service-account email and email_verified checks. Config values withheld.",
+      "stillReferencedByMain": false,
+      "stillReferencedByLiveSource": false,
+      "likelyLegacy": "UNVERIFIED parallel implementation; ongoing v2 traffic means removal cannot be justified",
+      "risk": "External tokeninfo verification and configured identity values require deployment/caller binding proof",
+      "activity": [
+        {
+          "function_id": "cead2bd2-5e71-49e1-ba1f-9bce02140d94",
+          "requests": 278,
+          "status": "200",
+          "version": "2"
+        },
+        {
+          "function_id": "cead2bd2-5e71-49e1-ba1f-9bce02140d94",
+          "requests": 763,
+          "status": "204",
+          "version": "2"
+        },
+        {
+          "function_id": "cead2bd2-5e71-49e1-ba1f-9bce02140d94",
+          "requests": 3,
+          "status": "401",
+          "version": "2"
+        }
+      ],
+      "activityAtCurrentVersion": [
+        {
+          "function_id": "cead2bd2-5e71-49e1-ba1f-9bce02140d94",
+          "requests": 278,
+          "status": "200",
+          "version": "2"
+        },
+        {
+          "function_id": "cead2bd2-5e71-49e1-ba1f-9bce02140d94",
+          "requests": 763,
+          "status": "204",
+          "version": "2"
+        },
+        {
+          "function_id": "cead2bd2-5e71-49e1-ba1f-9bce02140d94",
+          "requests": 3,
+          "status": "401",
+          "version": "2"
+        }
+      ],
+      "status": "UNVERIFIED"
+    },
+    {
+      "alias": "knoux-store-mcp",
+      "version": 1,
+      "verifyJwt": false,
+      "repositoryCallSites": [],
+      "donorCallSites": [],
+      "liveSourceCallSites": [],
+      "expectedCaller": "External MCP client; this function directly queues and observes bridge jobs",
+      "expectedAuth": "Opaque bearer SHA-256 lookup, active/expiry/bridge scope validation; authenticated before JSON-RPC handling; service client is server-side.",
+      "stillReferencedByMain": false,
+      "stillReferencedByLiveSource": false,
+      "likelyLegacy": "UNVERIFIED standalone parallel MCP implementation; observed traffic prevents assuming retired",
+      "activity": [
+        {
+          "function_id": "f16217ee-c970-4360-af43-30781889af1d",
+          "requests": 10,
+          "status": "200",
+          "version": "1"
+        }
+      ],
+      "activityAtCurrentVersion": [
+        {
+          "function_id": "f16217ee-c970-4360-af43-30781889af1d",
+          "requests": 10,
+          "status": "200",
+          "version": "1"
+        }
+      ],
+      "status": "UNVERIFIED"
+    }
+  ],
+  "recommendation": "Obtain credential-free deployment/client configuration attestation and authenticated subject audit correlations for each active alias before retiring or consolidating. Preserve all six until ownership and compatibility are proved. No function was changed.",
+  "activityWindow": {
+    "start": "2026-10-02T03:00:00Z",
+    "end": "2026-10-03T02:59:00Z"
+  }
+}
