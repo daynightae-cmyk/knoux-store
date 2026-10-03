@@ -1,0 +1,40 @@
+{
+  "observedAt": "2026-10-03T02:59:18.742Z",
+  "identity": "public.signal_temp_stage_foursquare(p_token text, p_rows jsonb)",
+  "state": "BLOCKED",
+  "structure": "Live catalog body fingerprint and literal-masked definition in live-structural-catalog.json; no original embedded token or dataset UUID exported",
+  "currentCodeReferences": "None found outside audit artifacts in 12,556 eligible files across all registered worktrees and restored/integration source; excluded roots/file classes documented in foursquare-reference-scan.json. This does not prove absence of external callers.",
+  "intendedCaller": "Inferred one-off trusted Foursquare ingestion client; explicit p_token gate and fixed dataset, business-record/phone/name filtering and staging-only write shape. Actual client/owner remains UNVERIFIED.",
+  "stillRequired": "UNVERIFIED. No canonical main or donor caller found; no positive evidence of retirement.",
+  "ingestionOnly": {
+    "verified": true,
+    "writes": [
+      "public.signal_source_records_staging"
+    ],
+    "behavior": "Insert/upsert scoped to fixed dataset and filtered rows; max 1,500 per call; conflict on (dataset_id,source_record_fingerprint); preserves promoted status/rejection branch; does not call promotion or write production business records directly"
+  },
+  "auth": {
+    "securityDefiner": true,
+    "anonExecute": true,
+    "authenticatedExecute": true,
+    "serviceRoleExecute": true,
+    "publicExecute": false,
+    "authUidCheck": false,
+    "authorization": "One embedded shared token; expiration, rotation, caller subject and replay/rate controls not visible in this body"
+  },
+  "risk": "Publicly callable privileged staging mutation bypasses caller RLS under postgres ownership if token is learned/reused. Dataset filter and batch cap bound content/one-call size, but repeated valid calls may poison staging or consume resources. Upsert branch preserves already-promoted status yet can update other fields; downstream promotion/consumer compatibility needs review.",
+  "statistics": [
+    {
+      "track_functions": "none",
+      "recorded_calls": 0,
+      "stats_reset": "2026-08-25 20:41:21.766501+00"
+    }
+  ],
+  "statisticsCaveat": "track_functions=none makes zero recorded_calls unusable as inactivity evidence",
+  "safestRecommendation": [
+    "Identify ingestion owner, external caller configuration and job schedule; confirm whether the fixed dataset pipeline completed or still runs using credential-free correlated audit evidence.",
+    "If still needed, replace temporary embedded-token/public RPC access in a separate reviewed remediation with a least-privilege server ingestion path, scoped and expiring authentication, bounded replay/rate checks and canonical audited SQL.",
+    "If retired, revoke anon/authenticated EXECUTE (and explicitly verify inherited PUBLIC access) in a separately authorized, rollbackable migration after owner confirmation, then retire the temporary token. Do not drop the RPC or interrupt unknown ingestion based on this scan."
+  ],
+  "actionsTaken": "Read-only catalog/statistics and local source scan only; no permission, source, dataset, function or production change."
+}
