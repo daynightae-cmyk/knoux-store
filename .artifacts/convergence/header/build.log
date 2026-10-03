@@ -1,0 +1,128 @@
+
+> knoux-digital-headquarters@0.1.0 build
+> next build
+
+▲ Next.js 16.3.6 (Turbopack)
+✓ Running next.config.mjs took 198ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 28.7s
+  Running TypeScript ...
+  Finished TypeScript in 17.8s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/80) ...
+  Generating static pages using 3 workers (20/80) 
+  Generating static pages using 3 workers (40/80) 
+  Generating static pages using 3 workers (60/80) 
+✓ Generating static pages using 3 workers (80/80) in 14.7s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /about
+├ ƒ /account
+├ ƒ /api/build/bridge/pair
+├ ƒ /api/build/bridge/status
+├ ƒ /api/build/bridge/ticket
+├ ƒ /api/build/bridge/tools
+├ ƒ /api/build/environment
+├ ƒ /api/build/exec
+├ ƒ /api/build/file
+├ ƒ /api/build/git
+├ ƒ /api/build/github
+├ ƒ /api/build/integrations
+├ ƒ /api/build/project
+├ ƒ /api/build/project/import
+├ ƒ /api/build/providers
+├ ƒ /api/build/providers/probe
+├ ƒ /api/build/verify
+├ ƒ /api/contact
+├ ƒ /api/domain/search
+├ ƒ /api/domain/status
+├ ƒ /api/signal/activity
+├ ƒ /api/signal/claim
+├ ƒ /api/signal/contribute
+├ ƒ /api/signal/lookup
+├ ƒ /api/signal/profile-preferences
+├ ƒ /api/signal/report
+├ ƒ /api/signal/sources
+├ ƒ /api/signal/view
+├ ƒ /api/signal/viewer-preference
+├ ƒ /api/wp-image
+├ ƒ /auth/callback
+├ ƒ /build
+├ ƒ /build/apps
+├ ƒ /build/deployments
+├ ƒ /build/docs
+├ ƒ /build/pipeline
+├ ƒ /build/powershell
+├ ƒ /build/providers
+├ ƒ /build/services
+├ ƒ /build/settings
+├ ƒ /build/terminal
+├ ○ /contact
+├ ○ /creative
+├   /creative/[slug]
+│ ├ ● /creative/brand-identity
+│ ├ ● /creative/ui-ux
+│ ├ ● /creative/art-direction
+│ └ ● [+5 more paths]
+├ ○ /engineering
+├ ○ /forgot-password
+├ ○ /growth
+├   /growth/[slug]
+│ ├ ● /growth/google-ads
+│ ├ ● /growth/meta-ads
+│ ├ ● /growth/social
+│ └ ● [+2 more paths]
+├ ○ /icon.svg
+├ ○ /labs
+├ ƒ /login
+├ ○ /products
+├   /products/[slug]
+│ ├ ● /products/knoux-one
+│ ├ ● /products/kforge
+│ ├ ● /products/knoux-repair
+│ └ ● [+4 more paths]
+├ ƒ /register
+├ ○ /robots.txt
+├ ○ /signal
+├ ○ /signal/business
+├ ○ /signal/claim
+├ ○ /signal/lookup
+├ ○ /signal/my-number
+├ ○ /signal/my-number/activity
+├ ○ /signal/my-number/labels
+├ ○ /signal/my-number/privacy
+├ ○ /signal/my-number/reputation
+├ ○ /signal/settings
+├ ○ /signal/watchlist
+├ ○ /sitemap.xml
+├ ○ /solutions
+├   /solutions/[slug]
+│ ├ ● /solutions/start-a-business
+│ ├ ● /solutions/launch-a-new-product
+│ ├ ● /solutions/build-an-online-store
+│ └ ● [+5 more paths]
+├ ƒ /update-password
+├ ○ /web
+├   /web/[slug]
+│ ├ ● /web/corporate-site
+│ ├ ● /web/ecommerce
+│ ├ ● /web/web-application
+│ └ ● [+3 more paths]
+├ ○ /wordpress
+├ ƒ /wordpress/blocks
+├ ƒ /wordpress/patterns
+├ ƒ /wordpress/plugins
+├ ○ /wordpress/solutions
+├ ○ /wordpress/starter-sites
+├ ƒ /wordpress/themes
+└ ○ /work
+
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

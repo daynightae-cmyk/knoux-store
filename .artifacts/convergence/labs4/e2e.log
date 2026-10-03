@@ -1,0 +1,8 @@
+[WebServer] npm warn allow-scripts .npmrc allow-scripts setting is being ignored because --allow-scripts was passed on the command line
+
+Running 2 tests using 1 worker
+
+  ok 1 [desktop] › e2e\software-universe.spec.ts:3:1 › recovered software universe exposes all ten real identities without replacing the audited topology (5.1s)
+  ok 2 [desktop] › e2e\software-universe.spec.ts:40:1 › software universe selection resolves Signal and Labs to real routes (4.1s)
+
+  2 passed (18.1s)

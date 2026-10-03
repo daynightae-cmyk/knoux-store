@@ -1,0 +1,7 @@
+[WebServer] npm warn allow-scripts .npmrc allow-scripts setting is being ignored because --allow-scripts was passed on the command line
+
+Running 1 test using 1 worker
+
+  ok 1 [desktop] › e2e\about-lamp.spec.ts:85:1 › room and header fit the 768px boundary (24.1s)
+
+  1 passed (1.4m)
