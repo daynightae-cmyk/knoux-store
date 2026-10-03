@@ -82,3 +82,9 @@ node_modules*/
 
 /build-browser-output.log
 /bridge/bridge-focused-output.log
+
+# Generated MCP/skills awareness reports. These are rewritten on every scan and
+# contain machine-specific endpoints, user paths and project identifiers, so they
+# stay local. Ignore the awareness report family only; anything else placed under
+# .claude/ may be hand-maintained repository configuration and must stay trackable.
+.claude/*mcp-skills-awareness*.md
