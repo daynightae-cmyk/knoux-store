@@ -22,6 +22,7 @@ import 'server-only';
 
 import {
   CALL_FAILURE_MEANING,
+  CAPABILITY_STATE_MEANING,
   type CallFailure,
   type DataOrigin,
 } from '../states';
@@ -242,14 +243,14 @@ export type SafeCapabilityView = {
   blockedReason?: string;
 };
 
-const READINESS_MEANING: Record<string, string> = {
-  UI_READY: 'Usable against workspace data. No provider credential required.',
-  ADAPTER_READY: 'Server-side adapter exists and holds credentials, but no live call has been made in this process.',
-  CONFIG_REQUIRED: 'An environment secret is missing.',
-  AUTH_REQUIRED: 'Configured; an operator must complete authorisation.',
-  DEMO_ONLY: 'Only labelled non-production fixtures are available.',
-  BLOCKED: 'A platform limitation prevents this. No configuration will change it.',
-};
+/**
+ * Serialisation guard for `CapabilityStatus['resolved']`.
+ *
+ * `readinessMeaning` reuses the canonical sentence from `states.ts` rather than a
+ * second copy of it. A duplicated map is a second thing to forget to update, and
+ * a client reading a stale explanation is worse than no explanation.
+ */
+const READINESS_MEANING: Record<string, string> = CAPABILITY_STATE_MEANING;
 
 export function describeCapabilities(
   env: Record<string, string | undefined>,

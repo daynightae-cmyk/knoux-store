@@ -12,13 +12,6 @@ export const dynamic = 'force-dynamic';
 const MAX_REQUESTS_PER_MINUTE = 20;
 const MAX_BODY_BYTES = 24 * 1024;
 
-const GROWTH_FAMILIES: readonly IntelligenceFamily[] = [
-  'GROWTH',
-  'SOCIAL',
-  'ADVERTISING',
-  'COMMUNITY',
-  'ANALYTICS',
-];
 
 /**
  * KNOuX Intelligence API.
@@ -188,5 +181,3 @@ const DEMO_CAMPAIGN_BUDGETS: Record<string, number> = {
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
-
-export { GROWTH_FAMILIES };
