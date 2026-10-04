@@ -105,14 +105,13 @@ export class KnouxLocalIntelligence implements KnouxIntelligence {
     // Ranking is over computed cost-per-lead. Rows without a lead count are
     // excluded rather than treated as best, which would invert the answer.
     const ranked = rows
-      .map((row) => {
-        const cpl = row.derived.costPerLead;
-        return { row, cpl: cpl?.value ?? null, live: cpl?.origin === 'LIVE' };
-      })
-      .filter((entry) => entry.cpl !== null)
-      .sort((a, b) => (a.cpl as number) - (b.cpl as number));
+      .map((row) => ({ row, cpl: row.derived.costPerLead }))
+      .filter((entry): entry is { row: PerformanceRow; cpl: NonNullable<PerformanceRow['derived']['costPerLead']> } =>
+        entry.cpl !== null,
+      )
+      .sort((a, b) => a.cpl.value - b.cpl.value);
 
-    const comparable = ranked.filter((entry) => entry.live);
+    const comparable = ranked.filter((entry) => entry.cpl.origin === 'LIVE');
     const best = comparable[0];
     const worst = comparable[comparable.length - 1];
 
