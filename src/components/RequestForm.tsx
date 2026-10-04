@@ -351,10 +351,9 @@ export function RequestForm() {
       </p>
 
       <p className="field__hint">
-        This form exists and is tested, but no delivery transport is configured on this deployment. Until one is,
-        the address above is the working route. That is stated here rather than shown as a success message.
-        <button type="button" className="action action--ghost" style={{ fontSize: 9 }} onClick={() => router.push('/build')}>
-          Or assemble a stack first
+        Prefer email? Write to <a href={`mailto:${CONTACT_EMAIL}`} style={{ textDecoration: 'underline', textUnderlineOffset: 3 }}>{CONTACT_EMAIL}</a> directly, or
+        <button type="button" className="action action--ghost" style={{ fontSize: 9, marginLeft: 4 }} onClick={() => router.push('/build')}>
+          assemble a stack first
           <span className="action-arrow" aria-hidden="true">
             ↗
           </span>
