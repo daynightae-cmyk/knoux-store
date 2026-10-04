@@ -5505,3 +5505,274 @@ body:has(.origin-room) .knoux-sentinel{display:none}
 /* Dossier section headings */
 .dossier__section > h2 { font-size: clamp(26px, 3vw, 40px); letter-spacing: -0.06em; font-weight: 400; margin: 12px 0 10px; }
 .dossier__section > .label { display: block; margin-bottom: 20px; }
+
+/* ==========================================================================
+   KNOuX SYSTEMS REGISTER  (sr__ namespace)
+   An engineering instrument and editorial systems archive.
+   Uses only tokens already declared in :root. Every block is explained.
+   ========================================================================== */
+
+/* Section wrapper — inherits --bg so register reads as Hero continuation. */
+.sr {
+  padding: clamp(80px, 9vw, 140px) max(5.3vw, 24px);
+  background: var(--bg);
+  position: relative;
+}
+
+/* Invisible live-region: no visual footprint, screen readers still hear it. */
+.sr__announce {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Top metadata rail — hairline top border, page-rule pattern. */
+.sr__rail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--line);
+  padding: 18px 0 clamp(52px, 6vw, 90px);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.17em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+/* Two-column body. Left panel sticky; right scrolls freely. */
+.sr__body {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: clamp(32px, 4vw, 64px);
+  align-items: start;
+}
+
+/* Left panel: sticky, 90px top clears the 78px fixed header. */
+.sr__panel {
+  position: sticky;
+  top: 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Visual field (canvas stage). */
+.sr__field {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #090a0c;
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.sr__canvas {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Corner architecture brackets — pure decoration, 10x10px each. */
+.sr__corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: var(--line-strong);
+  border-style: solid;
+  pointer-events: none;
+}
+.sr__corner--tl { top: 9px; left: 9px; border-width: 1px 0 0 1px; }
+.sr__corner--tr { top: 9px; right: 9px; border-width: 1px 1px 0 0; }
+.sr__corner--bl { bottom: 9px; left: 9px; border-width: 0 0 1px 1px; }
+.sr__corner--br { bottom: 9px; right: 9px; border-width: 0 1px 1px 0; }
+
+/* Monospace readout strip at bottom edge of field. */
+.sr__readout {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  color: var(--dim);
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* Panel identity copy — below the field. */
+.sr__identity {
+  padding: clamp(20px, 2.5vw, 30px) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.sr__name {
+  font-size: clamp(26px, 3vw, 42px);
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 1.05;
+  margin: 10px 0 10px;
+}
+
+.sr__tagline {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--muted);
+  margin: 0 0 20px;
+}
+
+/* Definition list — two-column key/value pairs. */
+.sr__meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin: 0 0 20px;
+}
+.sr__meta > div {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  gap: 6px;
+  border-bottom: 1px solid var(--line-soft);
+  padding: 10px 0;
+}
+.sr__meta > div:last-child { border-bottom: 0; }
+.sr__meta dt {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--dim);
+  text-transform: uppercase;
+  align-self: start;
+  padding-top: 1px;
+}
+.sr__meta dd {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* Related systems list */
+.sr__relations { margin-bottom: 22px; }
+.sr__relations ul { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.sr__relations li { display: flex; gap: 10px; font-size: 11px; color: var(--text-dim); }
+.sr__relations .mono { font-size: 9px; color: var(--violet); letter-spacing: 0.12em; min-width: 38px; }
+
+.sr__action { margin-top: 8px; }
+
+/* Right: scrolling records list */
+.sr__records { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+
+/* Individual record — hairline separated, left-indent when active. */
+.sr__record { border-top: 1px solid var(--line); }
+.sr__record:last-child { border-bottom: 1px solid var(--line); }
+.sr__record article {
+  padding: clamp(28px, 3.5vw, 48px) 0;
+  transition: padding-left 0.25s cubic-bezier(0.16, 0.84, 0.34, 1);
+}
+.sr__record[data-active] article { padding-left: clamp(14px, 1.6vw, 22px); }
+
+/* Record head: code / title / activate button */
+.sr__record-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; }
+.sr__record-code { font-size: 9px; letter-spacing: 0.17em; color: var(--violet); white-space: nowrap; flex-shrink: 0; font-family: var(--mono); }
+.sr__record-title { font-size: clamp(22px, 2.8vw, 38px); font-weight: 400; letter-spacing: -0.055em; margin: 0; flex: 1; min-width: 0; }
+
+/* Activate button — small pill, swaps label when active. */
+.sr__record-activate {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  padding: 4px 10px;
+  flex-shrink: 0;
+  transition: border-color 0.18s, color 0.18s;
+}
+.sr__record-activate:hover,
+.sr__record-activate:focus-visible { border-color: var(--violet); color: var(--violet-soft); }
+.sr__record[data-active] .sr__record-activate { border-color: var(--violet); color: var(--violet); }
+
+.sr__record-tagline { font-size: 14px; font-weight: 600; letter-spacing: -0.02em; color: var(--text-dim); margin: 0 0 8px; }
+.sr__record-statement { font-size: 13.5px; line-height: 1.72; color: var(--muted); margin: 0 0 22px; max-width: 76ch; }
+
+/* Two-column capability / limitation block */
+.sr__record-cols { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(16px, 2.5vw, 40px); margin-bottom: 24px; }
+
+/* Capability list */
+.sr__caps { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.sr__caps li { display: flex; gap: 10px; font-size: 12px; line-height: 1.55; color: var(--text-dim); }
+.sr__caps .mono { font-size: 9px; color: var(--violet); letter-spacing: 0.12em; flex-shrink: 0; margin-top: 2px; }
+
+/* Limitation list */
+.sr__limits { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.sr__limits li { font-size: 12px; line-height: 1.55; color: var(--dim); padding-left: 12px; border-left: 1px solid var(--line-strong); }
+
+/* Record foot */
+.sr__record-foot { border-top: 1px solid var(--line-soft); padding-top: 18px; display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
+.sr__record-registry { display: grid; grid-template-columns: repeat(2, auto); gap: 8px 24px; margin: 0; font-size: 11px; }
+.sr__record-registry dt { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; color: var(--dim); text-transform: uppercase; }
+.sr__record-registry dd { margin: 0; color: var(--text-dim); }
+.sr__record-actions { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; flex-shrink: 0; }
+.sr__record-link { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; color: var(--dim); text-transform: uppercase; transition: color 0.18s; }
+.sr__record-link:hover { color: var(--text); }
+
+/* Narrow selector strip — hidden above 900px, visible below. */
+.sr__selector { display: none; gap: 8px; overflow-x: auto; padding: 0 0 22px; scrollbar-width: none; }
+.sr__selector::-webkit-scrollbar { display: none; }
+.sr__selector button { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; background: transparent; border: 1px solid var(--line); color: var(--dim); padding: 10px 14px; white-space: nowrap; transition: border-color 0.18s, color 0.18s; flex-shrink: 0; }
+.sr__selector button .mono { font-size: 8px; letter-spacing: 0.14em; color: var(--violet); }
+.sr__selector button span:not(.mono) { font-size: 11px; }
+.sr__selector button:hover, .sr__selector button:focus-visible { border-color: var(--line-strong); color: var(--text); }
+.sr__selector button.is-current { border-color: var(--violet); color: var(--text); }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+/* Tablet landscape: shrink panel, keep two columns */
+@media (max-width: 1100px) {
+  .sr__body { grid-template-columns: 280px 1fr; }
+  .sr__name { font-size: clamp(22px, 2.5vw, 34px); }
+}
+
+/* Tablet portrait: collapse to single column, show selector strip */
+@media (max-width: 900px) {
+  .sr__body { grid-template-columns: 1fr; }
+  .sr__panel { position: static; }
+  .sr__field { aspect-ratio: 16 / 7; }
+  .sr__selector { display: flex; }
+  .sr__record-cols { grid-template-columns: 1fr; }
+  .sr__record-foot { flex-direction: column; gap: 16px; }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .sr { padding-top: 60px; padding-bottom: 60px; }
+  .sr__rail { flex-direction: column; align-items: flex-start; gap: 6px; padding-bottom: 36px; }
+  .sr__record-head { flex-wrap: wrap; gap: 8px; }
+  .sr__meta { grid-template-columns: 1fr; }
+  .sr__meta > div { grid-template-columns: 1fr; grid-column: 1; }
+  .sr__record-registry { grid-template-columns: 1fr; }
+}
+
+/* Coarse pointer */
+@media (pointer: coarse) {
+  .sr__record-activate { touch-action: manipulation; }
+}
+
+/* Reduced motion: near-zero transitions (canvas single-frame handled in JS). */
+@media (prefers-reduced-motion: reduce) {
+  .sr__record article,
+  .sr__record-activate,
+  .sr__record-link,
+  .sr__selector button { transition-duration: 0.01ms; }
+}

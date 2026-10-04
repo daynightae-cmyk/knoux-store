@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <title>Remix: Ours</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            overflow: hidden;
+            background: #000;
+            font-family: 'Inter', sans-serif;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        #canvas-container { width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; }
+        #text-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            pointer-events: none; z-index: 10;
+        }
+        .poem-line {
+            color: rgba(210, 225, 255, 0.95);
+            font-family: 'Playfair Display', Georgia, serif;
+            font-style: italic;
+            font-weight: 400;
+            font-size: clamp(15px, 3.2vw, 30px);
+            letter-spacing: 0.04em;
+            text-align: center;
+            max-width: 80vw;
+            line-height: 1.9;
+            opacity: 0;
+            transition: opacity 1.8s ease;
+            text-shadow:
+                0 0 10px rgba(0, 0, 0, 1),
+                0 0 20px rgba(0, 0, 0, 1),
+                0 0 40px rgba(0, 0, 0, 0.9),
+                0 0 80px rgba(0, 0, 0, 0.7),
+                0 2px 4px rgba(0, 0, 0, 1);
+            padding: 20px 32px;
+        }
+        .poem-line.visible { opacity: 1; }
+        .poem-line.fading { opacity: 0; }
+        #scale-label {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            color: rgba(120, 150, 200, 0.5);
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(9px, 1.5vw, 12px);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            pointer-events: none; z-index: 10;
+            transition: opacity 1s ease;
+            padding: 6px 16px;
+            text-shadow:
+                0 0 6px rgba(0, 0, 0, 1),
+                0 0 12px rgba(0, 0, 0, 0.8),
+                0 1px 2px rgba(0, 0, 0, 1);
+        }
+        #scroll-hint {
+            position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%);
+            color: rgba(120, 150, 200, 0.5);
+            font-size: clamp(10px, 1.8vw, 13px);
+            letter-spacing: 0.2em;
+            pointer-events: none; z-index: 10;
+            animation: pulse 2.5s ease-in-out infinite;
+            padding: 6px 16px;
+            text-shadow:
+                0 0 6px rgba(0, 0, 0, 1),
+                0 0 12px rgba(0, 0, 0, 0.8),
+                0 1px 2px rgba(0, 0, 0, 1);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: translateX(-50%) translateY(0); }
+            50% { opacity: 0.7; transform: translateX(-50%) translateY(-5px); }
+        }
+        #progress-bar {
+            position: fixed; top: 0; left: 0; height: 1px; z-index: 20;
+            background: linear-gradient(90deg, rgba(80,130,255,0.0), rgba(80,130,255,0.5), rgba(80,130,255,0.0));
+            transition: width 0.3s ease;
+        }
+        /* ── Audio toggle ── */
+        #audio-toggle {
+            position: fixed; top: 18px; right: 18px; z-index: 50;
+            width: 40px; height: 40px;
+            background: none; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 1.5s ease 2s;
+            pointer-events: none;
+        }
+        #audio-toggle.show {
+            opacity: 1; pointer-events: auto;
+        }
+        #audio-toggle svg {
+            width: 22px; height: 22px;
+            fill: none; stroke: rgba(140,170,220,0.55);
+            stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+            transition: stroke 0.4s ease;
+        }
+        #audio-toggle:hover svg { stroke: rgba(200,220,255,0.85); }
+        #audio-toggle .mute-line {
+            transition: opacity 0.3s ease;
+        }
+        #audio-toggle.unmuted .mute-line { opacity: 0; }
+        #begin-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: opacity 2s ease;
+        }
+        #begin-screen.hidden { opacity: 0; pointer-events: none; }
+        #begin-screen h1 {
+            color: rgba(180, 200, 255, 0.85);
+            font-size: clamp(24px, 5vw, 48px);
+            font-weight: 300;
+            letter-spacing: 0.25em;
+            margin-bottom: 30px;
+        }
+        #begin-screen p {
+            color: rgba(120, 150, 200, 0.5);
+            font-size: clamp(10px, 1.8vw, 14px);
+            letter-spacing: 0.2em;
+        }
+
+        /* ── Final screen ── */
+        #final-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            pointer-events: none; z-index: 15;
+            opacity: 0;
+            transition: opacity 3s ease;
+        }
+        #final-screen.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #final-quote {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-style: italic;
+            font-weight: 600;
+            color: rgba(210, 225, 255, 0.95);
+            font-size: clamp(22px, 5vw, 52px);
+            text-align: center;
+            line-height: 1.6;
+            max-width: 85vw;
+            text-shadow:
+                0 0 10px rgba(0, 0, 0, 1),
+                0 0 20px rgba(0, 0, 0, 1),
+                0 0 40px rgba(0, 0, 0, 0.9),
+                0 0 80px rgba(0, 0, 0, 0.7),
+                0 2px 4px rgba(0, 0, 0, 1);
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 4s ease 0.5s, transform 4s ease 0.5s;
+        }
+        #final-screen.visible #final-quote {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #final-buttons {
+            display: flex;
+            gap: 24px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 2.5s ease 3s, transform 2.5s ease 3s;
+        }
+        #final-screen.visible #final-buttons {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .final-btn {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            font-size: clamp(11px, 1.6vw, 14px);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(180, 200, 240, 0.7);
+            background: none;
+            border: 1px solid rgba(120, 150, 200, 0.25);
+            padding: 12px 32px;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            text-shadow: 0 0 6px rgba(0,0,0,1);
+        }
+        .final-btn:hover {
+            color: rgba(210, 225, 255, 0.95);
+            border-color: rgba(140, 170, 220, 0.5);
+        }
+        .final-btn:active {
+            transform: scale(0.97);
+        }
+    </style>
+</head>
+<body>
+    <div id="begin-screen">
+        <h1>OURS</h1>
+        <p>SCROLL TO BEGIN</p>
+    </div>
+    <div id="canvas-container"></div>
+    <div id="text-overlay">
+        <div class="poem-line" id="poem"></div>
+    </div>
+    <div id="final-screen">
+        <div id="final-quote">That's here. That's home. That's us.</div>
+        <div id="final-buttons">
+            <button class="final-btn" id="btn-begin-again">Begin Again</button>
+            <button class="final-btn" id="btn-share">Share</button>
+        </div>
+    </div>
+    <div id="scale-label"></div>
+    <div id="scroll-hint">↓ SCROLL TO ZOOM OUT ↓</div>
+    <div id="progress-bar"></div>
+    <button id="audio-toggle" aria-label="Toggle audio">
+        <svg viewBox="0 0 24 24">
+            <polygon points="6,9 2,9 2,15 6,15 11,19 11,5" />
+            <path d="M15.5 8.5 C16.8 9.8 17.5 11.5 17.5 12 C17.5 12.5 16.8 14.2 15.5 15.5" />
+            <path d="M18.5 6 C20.8 8.3 22 10.8 22 12 C22 13.2 20.8 15.7 18.5 18" />
+            <line class="mute-line" x1="2" y1="2" x2="22" y2="22" stroke-width="2"/>
+        </svg>
+    </button>
+<script type="module">
+        import * as THREE from 'three';
+
+        // ── SCENE SETUP ──
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+        scene.fog = null;
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.001, 500000);
+        camera.position.set(0, 0, 3);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // ── LIGHTING ──
+        const ambientLight = new THREE.AmbientLight(0x404060, 0.3);
+        ambientLight.name = 'ambientLight';
+        scene.add(ambientLight);
+
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        sunLight.name = 'sunLight';
+        sunLight.position.set(5, 3, 5);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 2048;
+        sunLight.shadow.mapSize.height = 2048;
+        scene.add(sunLight);
+
+        const rimLight = new THREE.DirectionalLight(0x4466aa, 0.4);
+        rimLight.name = 'rimLight';
+        rimLight.position.set(-3, 1, -3);
+        scene.add(rimLight);
+
+        // ── TEXTURES ──
+        const textureLoader = new THREE.TextureLoader();
+
+        function loadTex(url) {
+            return new Promise(resolve => {
+                textureLoader.load(url, resolve, undefined, () => {
+                    const c = document.createElement('canvas');
+                    c.width = 512; c.height = 256;
+                    const ctx = c.getContext('2d');
+                    ctx.fillStyle = '#1a3a5c';
+                    ctx.fillRect(0, 0, 512, 256);
+                    resolve(new THREE.CanvasTexture(c));
+                });
+            });
+        }
+
+        const [dayTexture, nightTexture, normalTexture, specularTexture, cloudsTexture] = await Promise.all([
+            loadTex('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg'),
+            loadTex('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_lights_2048.png'),
+            loadTex('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_normal_2048.jpg'),
+            loadTex('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg'),
+            loadTex('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png'),
+        ]);
+
+        // ── SCALES DEFINITION ──
+        const scales = [
+            { z: 3,      label: 'EARTH',              poem: 'Look again at that dot.\nThat\'s here. That\'s home. That\'s us.' },
+            { z: 6,      label: 'LOW EARTH ORBIT',    poem: 'Every saint and sinner in the\nhistory of our species lived there —\non a mote of dust suspended in a sunbeam.' },
+            { z: 18,     label: 'GEOSYNCHRONOUS',     poem: 'The Earth is a very small stage\nin a vast cosmic arena.' },
+            { z: 80,     label: 'SOLAR SYSTEM',       poem: 'Our posturings, our imagined self-importance,\nthe delusion that we have some\nprivileged position in the Universe.' },
+            { z: 500,    label: 'OUTER PLANETS',      poem: 'There is perhaps no better demonstration\nof the folly of human conceits\nthan this distant image of our tiny world.' },
+            { z: 4000,   label: 'INTERSTELLAR',       poem: 'To me, it underscores our responsibility\nto deal more kindly with one another,\nand to preserve the pale blue dot.' },
+            { z: 40000,  label: 'MILKY WAY',          poem: 'The cosmos is within us.\nWe are made of star-stuff.\nWe are a way for the universe to know itself.' },
+            { z: 200000, label: 'OBSERVABLE UNIVERSE', poem: 'For small creatures such as we,\nthe vastness is bearable\nonly through love.' },
+            { z: 800000,  label: 'DEEP VOID',          poem: 'Everything you have ever known,\neveryone who ever lived,\nreduced to a single point of fading light.' },
+            { z: 5000000, label: 'THE SILENCE',        poem: '' },
+        ];
+
+        // ── SCROLL / ZOOM STATE ──
+        let progress = 0;
+        let targetProgress = 0;
+        let hasStarted = false;
+        let audioCtx, droneGain;
+
+        function getZForProgress(p) {
+            const t = Math.max(0, Math.min(1, p));
+            const startZ = scales[0].z;
+            const endZ = scales[scales.length - 1].z;
+            return startZ * Math.pow(endZ / startZ, t);
+        }
+
+        function getScaleIndex(p) {
+            const z = getZForProgress(p);
+            for (let i = scales.length - 1; i >= 0; i--) {
+                if (z >= scales[i].z * 0.7) return i;
+            }
+            return 0;
+        }
+
+        // ── INPUT HANDLING ──
+        const scrollSensitivity = 0.0004;
+
+        function startExperience() {
+            if (hasStarted) return;
+            hasStarted = true;
+            document.getElementById('begin-screen').classList.add('hidden');
+            setTimeout(() => { document.getElementById('begin-screen').style.display = 'none'; }, 2000);
+            initAudio();
+            audioBtn.classList.add('show');
+        }
+
+        window.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            startExperience();
+            targetProgress += e.deltaY * scrollSensitivity;
+            targetProgress = Math.max(0, Math.min(1, targetProgress));
+        }, { passive: false });
+
+        let lastTouchY = 0;
+        let touchStartY = 0;
+        let touchVelocity = 0;
+        let lastTouchTime = 0;
+
+        window.addEventListener('touchstart', (e) => {
+            lastTouchY = e.touches[0].clientY;
+            touchStartY = e.touches[0].clientY;
+            lastTouchTime = performance.now();
+            touchVelocity = 0;
+            // Cancel any ongoing momentum
+            if (momentumRAF) { cancelAnimationFrame(momentumRAF); momentumRAF = null; }
+            startExperience();
+        }, { passive: false });
+
+        window.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const currentY = e.touches[0].clientY;
+            const dy = lastTouchY - currentY;
+            const now = performance.now();
+            const dt = Math.max(1, now - lastTouchTime);
+
+            const instantVelocity = dy / dt;
+            touchVelocity = touchVelocity * 0.4 + instantVelocity * 0.6;
+
+            lastTouchY = currentY;
+            lastTouchTime = now;
+
+            const adaptiveSens = 0.001 + progress * 0.003;
+            targetProgress += dy * adaptiveSens / window.innerHeight * 6;
+            targetProgress = Math.max(0, Math.min(1, targetProgress));
+        }, { passive: false });
+
+        let momentumRAF = null;
+        let momentumVel = 0;
+        window.addEventListener('touchend', () => {
+            momentumVel = touchVelocity * 0.08;
+            if (momentumRAF) cancelAnimationFrame(momentumRAF);
+            function drift() {
+                if (Math.abs(momentumVel) < 0.00001) { momentumRAF = null; return; }
+                const adaptiveSens = 0.001 + progress * 0.003;
+                targetProgress += momentumVel * adaptiveSens * 2;
+                targetProgress = Math.max(0, Math.min(1, targetProgress));
+                momentumVel *= 0.94;
+                momentumRAF = requestAnimationFrame(drift);
+            }
+            drift();
+        }, { passive: false });
+
+        document.getElementById('begin-screen').addEventListener('click', startExperience);
+
+        // ── FINAL SCREEN LOGIC ──
+        const finalScreen = document.getElementById('final-screen');
+        const poemEl = document.getElementById('poem');
+        let finalVisible = false;
+
+        document.getElementById('btn-begin-again').addEventListener('click', () => {
+            targetProgress = 0;
+            finalScreen.classList.remove('visible');
+            finalVisible = false;
+            // Show the poem and label again
+            poemEl.classList.remove('fading');
+            document.getElementById('scroll-hint').style.opacity = '';
+        });
+
+        document.getElementById('btn-share').addEventListener('click', () => {
+            const shareData = {
+                title: 'Pale Blue Dot',
+                text: "That's here. That's home. That's us. — Experience the cosmic zoom-out.",
+                url: window.location.href
+            };
+            if (navigator.share) {
+                navigator.share(shareData).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    const btn = document.getElementById('btn-share');
+                    btn.textContent = 'LINK COPIED';
+                    setTimeout(() => { btn.textContent = 'SHARE'; }, 2000);
+                }).catch(() => {});
+            }
+        });
+
+        // ── AUDIO SYSTEM ──
+        // Layered ambient: wind/breath at Earth, deep drone in cosmos, sub-bass at void
+        let audioMuted = true;
+        let masterGain, windGain, droneNodes, subGain, noiseGain;
+        let windFilter, droneFilter;
+
+        const audioBtn = document.getElementById('audio-toggle');
+
+        function initAudio() {
+            if (audioCtx) return;               // already initialised
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+                // Master gain (muted by default)
+                masterGain = audioCtx.createGain();
+                masterGain.gain.value = 0;       // starts muted
+                masterGain.connect(audioCtx.destination);
+
+                // ── Layer 1: Wind / Breath  (Earth scale) ──
+                windGain = audioCtx.createGain();
+                windGain.gain.value = 0.6;
+                windGain.connect(masterGain);
+
+                const windBuf = audioCtx.createBuffer(2, audioCtx.sampleRate * 4, audioCtx.sampleRate);
+                for (let ch = 0; ch < 2; ch++) {
+                    const d = windBuf.getChannelData(ch);
+                    let prev = 0;
+                    for (let i = 0; i < d.length; i++) {
+                        // Brown noise for natural wind
+                        prev = (prev + (Math.random() * 2 - 1) * 0.02) * 0.998;
+                        d[i] = prev * 3;
+                    }
+                }
+                const windSrc = audioCtx.createBufferSource();
+                windSrc.buffer = windBuf;
+                windSrc.loop = true;
+
+                windFilter = audioCtx.createBiquadFilter();
+                windFilter.type = 'bandpass';
+                windFilter.frequency.value = 300;
+                windFilter.Q.value = 0.5;
+                windSrc.connect(windFilter);
+                windFilter.connect(windGain);
+                windSrc.start();
+
+                // Gentle wind modulation via LFO
+                const windLFO = audioCtx.createOscillator();
+                windLFO.type = 'sine';
+                windLFO.frequency.value = 0.15;
+                const windLFOGain = audioCtx.createGain();
+                windLFOGain.gain.value = 120;
+                windLFO.connect(windLFOGain);
+                windLFOGain.connect(windFilter.frequency);
+                windLFO.start();
+
+                // ── Layer 2: Deep space drone  (builds with distance) ──
+                droneGain = audioCtx.createGain();
+                droneGain.gain.value = 0;
+                droneGain.connect(masterGain);
+
+                droneFilter = audioCtx.createBiquadFilter();
+                droneFilter.type = 'lowpass';
+                droneFilter.frequency.value = 150;
+                droneFilter.connect(droneGain);
+
+                droneNodes = [];
+                const droneFreqs = [
+                    { f: 36,   vol: 0.18, type: 'sine' },
+                    { f: 54,   vol: 0.10, type: 'sine' },
+                    { f: 72,   vol: 0.06, type: 'triangle' },
+                    { f: 108.5,vol: 0.04, type: 'sine' },
+                    { f: 144.7,vol: 0.025,type: 'sine' },
+                    { f: 27,   vol: 0.07, type: 'triangle' },
+                ];
+                droneFreqs.forEach(d => {
+                    const osc = audioCtx.createOscillator();
+                    osc.type = d.type;
+                    osc.frequency.value = d.f;
+                    const g = audioCtx.createGain();
+                    g.gain.value = d.vol;
+                    osc.connect(g);
+                    g.connect(droneFilter);
+                    osc.start();
+                    droneNodes.push({ osc, gain: g });
+                });
+
+                // Slow pitch modulation for evolving timbre
+                const droneLFO = audioCtx.createOscillator();
+                droneLFO.type = 'sine';
+                droneLFO.frequency.value = 0.04;
+                const droneLFOGain = audioCtx.createGain();
+                droneLFOGain.gain.value = 0.5;
+                droneLFO.connect(droneLFOGain);
+                droneNodes.forEach(d => {
+                    const dest = audioCtx.createGain();
+                    dest.gain.value = 1;
+                    droneLFOGain.connect(d.osc.frequency);
+                });
+                droneLFO.start();
+
+                // ── Layer 3: Sub-bass rumble  (void scale) ──
+                subGain = audioCtx.createGain();
+                subGain.gain.value = 0;
+                subGain.connect(masterGain);
+
+                const subOsc = audioCtx.createOscillator();
+                subOsc.type = 'sine';
+                subOsc.frequency.value = 20;
+                const subOsc2 = audioCtx.createOscillator();
+                subOsc2.type = 'sine';
+                subOsc2.frequency.value = 22.3;
+                subOsc.connect(subGain);
+                subOsc2.connect(subGain);
+                subOsc.start();
+                subOsc2.start();
+
+                // ── Layer 4: High-altitude hiss ──
+                noiseGain = audioCtx.createGain();
+                noiseGain.gain.value = 0;
+                noiseGain.connect(masterGain);
+
+                const hissBuf = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
+                const hissData = hissBuf.getChannelData(0);
+                for (let i = 0; i < hissData.length; i++) hissData[i] = (Math.random() * 2 - 1) * 0.015;
+                const hissSrc = audioCtx.createBufferSource();
+                hissSrc.buffer = hissBuf;
+                hissSrc.loop = true;
+                const hissFilter = audioCtx.createBiquadFilter();
+                hissFilter.type = 'highpass';
+                hissFilter.frequency.value = 3000;
+                hissSrc.connect(hissFilter);
+                hissFilter.connect(noiseGain);
+                hissSrc.start();
+
+                // Show button
+                audioBtn.classList.add('show');
+
+            } catch (e) { console.warn('Audio init failed', e); }
+        }
+
+        function setAudioMuted(muted) {
+            audioMuted = muted;
+            if (!audioCtx || !masterGain) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const t = audioCtx.currentTime;
+            masterGain.gain.cancelScheduledValues(t);
+            masterGain.gain.setValueAtTime(masterGain.gain.value, t);
+            masterGain.gain.linearRampToValueAtTime(muted ? 0 : 1, t + 0.8);
+            audioBtn.classList.toggle('unmuted', !muted);
+        }
+
+        audioBtn.addEventListener('click', () => {
+            if (!audioCtx) initAudio();
+            setAudioMuted(!audioMuted);
+        });
+
+        function updateAudioLayers(camZ) {
+            if (!audioCtx || !masterGain) return;
+            const t = audioCtx.currentTime;
+
+            // Wind: loud at Earth (z<10), fades to silence by z=200
+            const windVol = Math.max(0, 1 - THREE.MathUtils.smoothstep(camZ, 5, 200)) * 0.6;
+            windGain.gain.setTargetAtTime(windVol, t, 0.3);
+
+            // Widen wind filter as we ascend (sounds more hollow)
+            const windFreq = 300 + THREE.MathUtils.smoothstep(camZ, 3, 80) * 600;
+            windFilter.frequency.setTargetAtTime(windFreq, t, 0.5);
+
+            // Drone: fades in from orbit, peaks at galaxy/universe scale
+            const droneFade = THREE.MathUtils.smoothstep(camZ, 20, 500);
+            const droneVol = droneFade * 0.7;
+            droneGain.gain.setTargetAtTime(droneVol, t, 0.4);
+
+            // Open drone filter as we go deeper
+            const droneFreq = 150 + droneFade * 400;
+            droneFilter.frequency.setTargetAtTime(droneFreq, t, 0.6);
+
+            // Sub-bass: fades in at deep void, peaks at silence
+            const subFade = THREE.MathUtils.smoothstep(camZ, 200000, 2000000);
+            subGain.gain.setTargetAtTime(subFade * 0.25, t, 0.5);
+
+            // High hiss: present in mid-range (interstellar/galaxy) for texture
+            const hissFade = THREE.MathUtils.smoothstep(camZ, 500, 5000) * (1 - THREE.MathUtils.smoothstep(camZ, 100000, 500000));
+            noiseGain.gain.setTargetAtTime(hissFade * 0.15, t, 0.3);
+        }
+
+        // ── CREATE EARTH ──
+        const earthGroup = new THREE.Group();
+        earthGroup.name = 'earthGroup';
+        scene.add(earthGroup);
+
+        const earthGeometry = new THREE.SphereGeometry(1, 128, 128);
+        const earthMaterial = new THREE.MeshPhongMaterial({
+            map: dayTexture,
+            specularMap: specularTexture,
+            normalMap: normalTexture,
+            normalScale: new THREE.Vector2(0.8, 0.8),
+            shininess: 100,
+            specular: new THREE.Color(0x333333),
+            emissiveMap: nightTexture,
+            emissive: new THREE.Color(0xffaa44),
+            emissiveIntensity: 0.4,
+        });
+        const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+        earth.name = 'earth';
+        earth.castShadow = true;
+        earth.receiveShadow = true;
+        earthGroup.add(earth);
+
+        // Atmosphere
+        const atmosphereGeometry = new THREE.SphereGeometry(1.015, 64, 64);
+        const atmosphereMaterial = new THREE.ShaderMaterial({
+            vertexShader: `
+                varying vec3 vNormal;
+                varying vec3 vWorldPos;
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vNormal;
+                varying vec3 vWorldPos;
+                uniform vec3 lightDirection;
+                void main() {
+                    float rim = pow(0.7 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                    vec3 col = vec3(0.3, 0.6, 1.0);
+                    float ld = max(0.0, dot(normalize(vWorldPos), lightDirection));
+                    col = mix(col, vec3(0.8, 0.9, 1.0), ld * 0.3);
+                    gl_FragColor = vec4(col, 1.0) * rim;
+                }
+            `,
+            uniforms: { lightDirection: { value: new THREE.Vector3(1, 0.5, 1).normalize() } },
+            blending: THREE.AdditiveBlending,
+            side: THREE.BackSide,
+            transparent: true,
+        });
+        const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+        atmosphere.name = 'atmosphere';
+        earthGroup.add(atmosphere);
+
+        // Outer glow
+        const glowGeometry = new THREE.SphereGeometry(1.06, 32, 32);
+        const glowMaterial = new THREE.ShaderMaterial({
+            vertexShader: `
+                varying vec3 vNormal;
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vNormal;
+                void main() {
+                    float intensity = pow(0.5 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
+                    gl_FragColor = vec4(0.2, 0.5, 1.0, 1.0) * intensity * 0.5;
+                }
+            `,
+            blending: THREE.AdditiveBlending,
+            side: THREE.BackSide,
+            transparent: true,
+        });
+        const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+        glowMesh.name = 'earthGlow';
+        earthGroup.add(glowMesh);
+
+        // Clouds
+        const cloudsGeometry = new THREE.SphereGeometry(1.008, 64, 64);
+        cloudsTexture.wrapS = THREE.RepeatWrapping;
+        cloudsTexture.wrapT = THREE.RepeatWrapping;
+        const cloudsMaterial = new THREE.MeshPhongMaterial({
+            map: cloudsTexture,
+            transparent: true,
+            opacity: 0.35,
+            depthWrite: false,
+        });
+        const clouds = new THREE.Mesh(cloudsGeometry, cloudsMaterial);
+        clouds.name = 'clouds';
+        earthGroup.add(clouds);
+
+        // ── SOLAR SYSTEM ──
+        const solarSystem = new THREE.Group();
+        solarSystem.name = 'solarSystem';
+        scene.add(solarSystem);
+
+        const sunGeometry = new THREE.SphereGeometry(5, 64, 64);
+        const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc33 });
+        const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+        sun.name = 'sun';
+        sun.position.set(-60, 0, -20);
+        solarSystem.add(sun);
+
+        const sunGlowGeo = new THREE.SphereGeometry(8, 32, 32);
+        const sunGlowMat = new THREE.ShaderMaterial({
+            vertexShader: `
+                varying vec3 vNormal;
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vNormal;
+                void main() {
+                    float i = pow(0.65 - dot(vNormal, vec3(0,0,1)), 2.0);
+                    gl_FragColor = vec4(1.0, 0.7, 0.2, 1.0) * i * 0.8;
+                }
+            `,
+            blending: THREE.AdditiveBlending,
+            side: THREE.BackSide,
+            transparent: true,
+        });
+        const sunGlow = new THREE.Mesh(sunGlowGeo, sunGlowMat);
+        sunGlow.name = 'sunGlow';
+        sunGlow.position.copy(sun.position);
+        solarSystem.add(sunGlow);
+
+        const sunPointLight = new THREE.PointLight(0xffddaa, 2, 500);
+        sunPointLight.name = 'sunPointLight';
+        sunPointLight.position.copy(sun.position);
+        solarSystem.add(sunPointLight);
+
+        const planetData = [
+            { name: 'mercury', color: 0x999999, size: 0.2,  dist: 15, speed: 1.6 },
+            { name: 'venus',   color: 0xddaa55, size: 0.35, dist: 22, speed: 1.2 },
+            { name: 'mars',    color: 0xcc5533, size: 0.3,  dist: 38, speed: 0.7 },
+            { name: 'jupiter', color: 0xddaa77, size: 2.0,  dist: 65, speed: 0.35 },
+            { name: 'saturn',  color: 0xeedd88, size: 1.6,  dist: 95, speed: 0.22 },
+            { name: 'uranus',  color: 0x88ccdd, size: 0.9,  dist: 140, speed: 0.12 },
+            { name: 'neptune', color: 0x3355bb, size: 0.85, dist: 180, speed: 0.08 },
+        ];
+
+        const planets = [];
+        planetData.forEach(pd => {
+            const geo = new THREE.SphereGeometry(pd.size, 32, 32);
+            const mat = new THREE.MeshStandardMaterial({ color: pd.color, roughness: 0.7, metalness: 0.1 });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.name = pd.name;
+            mesh.castShadow = true;
+            solarSystem.add(mesh);
+
+            const orbitGeo = new THREE.RingGeometry(pd.dist - 0.05, pd.dist + 0.05, 128);
+            const orbitMat = new THREE.MeshBasicMaterial({ color: 0x334466, side: THREE.DoubleSide, transparent: true, opacity: 0.15 });
+            const orbitRing = new THREE.Mesh(orbitGeo, orbitMat);
+            orbitRing.name = pd.name + 'Orbit';
+            orbitRing.rotation.x = -Math.PI / 2;
+            orbitRing.position.copy(sun.position);
+            solarSystem.add(orbitRing);
+
+            if (pd.name === 'saturn') {
+                const ringGeo = new THREE.RingGeometry(pd.size * 1.4, pd.size * 2.2, 64);
+                const ringMat = new THREE.MeshBasicMaterial({ color: 0xccbb88, side: THREE.DoubleSide, transparent: true, opacity: 0.5 });
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.name = 'saturnRings';
+                ring.rotation.x = Math.PI * 0.4;
+                mesh.add(ring);
+            }
+
+            planets.push({ mesh, ...pd });
+        });
+
+        // ── MILKY WAY GALAXY ──
+        const galaxyGroup = new THREE.Group();
+        galaxyGroup.name = 'galaxyGroup';
+        scene.add(galaxyGroup);
+
+        const galaxyParticleCount = 80000;
+        const galaxyPositions = new Float32Array(galaxyParticleCount * 3);
+        const galaxyColors = new Float32Array(galaxyParticleCount * 3);
+        const galaxySizes = new Float32Array(galaxyParticleCount);
+
+        const arms = 4;
+        const galaxyRadius = 8000;
+        const bulgeRadius = 1500;
+
+        for (let i = 0; i < galaxyParticleCount; i++) {
+            const i3 = i * 3;
+            if (i < galaxyParticleCount * 0.15) {
+                const r = Math.random() * bulgeRadius;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = (Math.random() - 0.5) * Math.PI * 0.6;
+                galaxyPositions[i3]     = r * Math.cos(theta) * Math.cos(phi);
+                galaxyPositions[i3 + 1] = r * Math.sin(phi) * 0.3;
+                galaxyPositions[i3 + 2] = r * Math.sin(theta) * Math.cos(phi);
+                const c = new THREE.Color().setHSL(0.1, 0.6, 0.7 + Math.random() * 0.3);
+                galaxyColors[i3] = c.r; galaxyColors[i3+1] = c.g; galaxyColors[i3+2] = c.b;
+                galaxySizes[i] = Math.random() * 20 + 10;
+            } else {
+                const arm = Math.floor(Math.random() * arms);
+                const armAngle = (arm / arms) * Math.PI * 2;
+                const r = Math.random() * galaxyRadius + bulgeRadius * 0.3;
+                const spiralAngle = armAngle + (r / galaxyRadius) * Math.PI * 3;
+                const spread = (r / galaxyRadius) * 600;
+                galaxyPositions[i3]     = r * Math.cos(spiralAngle) + (Math.random() - 0.5) * spread;
+                galaxyPositions[i3 + 2] = r * Math.sin(spiralAngle) + (Math.random() - 0.5) * spread;
+                galaxyPositions[i3 + 1] = (Math.random() - 0.5) * spread * 0.15;
+                const distFactor = r / galaxyRadius;
+                const c = new THREE.Color().setHSL(0.55 + distFactor * 0.1 + Math.random() * 0.1, 0.4 + Math.random() * 0.3, 0.5 + Math.random() * 0.4);
+                galaxyColors[i3] = c.r; galaxyColors[i3+1] = c.g; galaxyColors[i3+2] = c.b;
+                galaxySizes[i] = Math.random() * 15 + 3;
+            }
+        }
+
+        const galaxyGeometry = new THREE.BufferGeometry();
+        galaxyGeometry.setAttribute('position', new THREE.BufferAttribute(galaxyPositions, 3));
+        galaxyGeometry.setAttribute('color', new THREE.BufferAttribute(galaxyColors, 3));
+        galaxyGeometry.setAttribute('size', new THREE.BufferAttribute(galaxySizes, 1));
+
+        const galaxyMaterial = new THREE.ShaderMaterial({
+            vertexShader: `
+                attribute float size;
+                varying vec3 vColor;
+                void main() {
+                    vColor = color;
+                    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+                    gl_PointSize = size * (400.0 / -mv.z);
+                    gl_PointSize = clamp(gl_PointSize, 0.5, 30.0);
+                    gl_Position = projectionMatrix * mv;
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vColor;
+                void main() {
+                    float d = length(gl_PointCoord - vec2(0.5));
+                    if (d > 0.5) discard;
+                    float alpha = smoothstep(0.5, 0.0, d);
+                    gl_FragColor = vec4(vColor, alpha * 0.9);
+                }
+            `,
+            vertexColors: true,
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+        });
+
+        const galaxyPoints = new THREE.Points(galaxyGeometry, galaxyMaterial);
+        galaxyPoints.name = 'galaxyPoints';
+        galaxyGroup.add(galaxyPoints);
+
+        const coreGlowGeo = new THREE.SphereGeometry(600, 16, 16);
+        const coreGlowMat = new THREE.ShaderMaterial({
+            vertexShader: `
+                varying vec3 vNormal;
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vNormal;
+                void main() {
+                    float i = pow(0.6 - dot(vNormal, vec3(0,0,1)), 2.0);
+                    gl_FragColor = vec4(1.0, 0.85, 0.5, 1.0) * i * 0.4;
+                }
+            `,
+            blending: THREE.AdditiveBlending,
+            side: THREE.BackSide,
+            transparent: true,
+        });
+        const coreGlow = new THREE.Mesh(coreGlowGeo, coreGlowMat);
+        coreGlow.name = 'galaxyCoreGlow';
+        galaxyGroup.add(coreGlow);
+
+        // ── DEEP FIELD / OBSERVABLE UNIVERSE ──
+        const deepFieldGroup = new THREE.Group();
+        deepFieldGroup.name = 'deepFieldGroup';
+        scene.add(deepFieldGroup);
+
+        // Soft circle texture
+        const pointCanvas = document.createElement('canvas');
+        pointCanvas.width = 64;
+        pointCanvas.height = 64;
+        const pointCtx = pointCanvas.getContext('2d');
+        const gradient = pointCtx.createRadialGradient(32, 32, 0, 32, 32, 32);
+        gradient.addColorStop(0, 'rgba(255,255,255,1)');
+        gradient.addColorStop(0.3, 'rgba(255,255,255,0.8)');
+        gradient.addColorStop(0.7, 'rgba(255,255,255,0.15)');
+        gradient.addColorStop(1, 'rgba(255,255,255,0)');
+        pointCtx.fillStyle = gradient;
+        pointCtx.fillRect(0, 0, 64, 64);
+        const softCircleTexture = new THREE.CanvasTexture(pointCanvas);
+
+        // Shared deep-field shader
+        const deepFieldVertShader = `
+            attribute float size;
+            varying vec3 vColor;
+            void main() {
+                vColor = color;
+                vec4 mv = modelViewMatrix * vec4(position, 1.0);
+                gl_PointSize = size * (600.0 / -mv.z);
+                gl_PointSize = clamp(gl_PointSize, 0.3, 40.0);
+                gl_Position = projectionMatrix * mv;
+            }
+        `;
+        const deepFieldFragShader = `
+            varying vec3 vColor;
+            uniform float uOpacity;
+            void main() {
+                float d = length(gl_PointCoord - vec2(0.5));
+                if (d > 0.5) discard;
+                float alpha = smoothstep(0.5, 0.05, d);
+                alpha *= alpha;
+                gl_FragColor = vec4(vColor, alpha * uOpacity);
+            }
+        `;
+
+        function makeDeepLayer(count, rMin, rMax, hueBase, hueRange, satBase, satRange, lumBase, lumRange, sizeMin, sizeMax) {
+            const geo = new THREE.BufferGeometry();
+            const pos = new Float32Array(count * 3);
+            const col = new Float32Array(count * 3);
+            const sizes = new Float32Array(count);
+            for (let i = 0; i < count; i++) {
+                const i3 = i * 3;
+                const r = rMin + Math.random() * (rMax - rMin);
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos(2 * Math.random() - 1);
+                pos[i3]     = r * Math.sin(phi) * Math.cos(theta);
+                pos[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+                pos[i3 + 2] = r * Math.cos(phi);
+                const c = new THREE.Color().setHSL(hueBase + Math.random() * hueRange, satBase + Math.random() * satRange, lumBase + Math.random() * lumRange);
+                col[i3] = c.r; col[i3+1] = c.g; col[i3+2] = c.b;
+                sizes[i] = sizeMin + Math.random() * (sizeMax - sizeMin);
+            }
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+            geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+            const mat = new THREE.ShaderMaterial({
+                vertexShader: deepFieldVertShader,
+                fragmentShader: deepFieldFragShader,
+                uniforms: { uOpacity: { value: 0.7 } },
+                vertexColors: true,
+                transparent: true,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending,
+            });
+            const pts = new THREE.Points(geo, mat);
+            return { points: pts, material: mat };
+        }
+
+        const layer1 = makeDeepLayer(6000,  20000, 80000,    0.55, 0.15, 0.3, 0.3, 0.5, 0.4,  40, 120);
+        layer1.points.name = 'deepField_near';
+        deepFieldGroup.add(layer1.points);
+
+        const layer2 = makeDeepLayer(10000, 80000, 400000,   0.50, 0.20, 0.2, 0.3, 0.4, 0.4,  80, 200);
+        layer2.points.name = 'deepField_mid';
+        deepFieldGroup.add(layer2.points);
+
+        const layer3 = makeDeepLayer(15000, 300000, 2500000, 0.45, 0.30, 0.15, 0.2, 0.3, 0.35, 120, 350);
+        layer3.points.name = 'deepField_far';
+        deepFieldGroup.add(layer3.points);
+
+        // Cosmic web filaments
+        for (let f = 0; f < 30; f++) {
+            const points = [];
+            const start = new THREE.Vector3(
+                (Math.random() - 0.5) * 120000,
+                (Math.random() - 0.5) * 120000,
+                (Math.random() - 0.5) * 120000
+            );
+            const dir = new THREE.Vector3(Math.random()-0.5, Math.random()-0.5, Math.random()-0.5).normalize();
+            const length = 10000 + Math.random() * 40000;
+            for (let s = 0; s <= 20; s++) {
+                const t = s / 20;
+                const p = start.clone().add(dir.clone().multiplyScalar(t * length));
+                p.x += Math.sin(t * Math.PI * 3) * 1000;
+                p.y += Math.cos(t * Math.PI * 2) * 800;
+                points.push(p);
+            }
+            const curve = new THREE.CatmullRomCurve3(points);
+            const tubeGeo = new THREE.TubeGeometry(curve, 32, 50 + Math.random() * 100, 4, false);
+            const tubeMat = new THREE.MeshBasicMaterial({
+                color: new THREE.Color().setHSL(0.6 + Math.random() * 0.2, 0.3, 0.15),
+                transparent: true, opacity: 0.06, blending: THREE.AdditiveBlending,
+            });
+            const tube = new THREE.Mesh(tubeGeo, tubeMat);
+            tube.name = 'filament_' + f;
+            deepFieldGroup.add(tube);
+        }
+
+        // ── BACKGROUND STARFIELDS ──
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsVertices = [], starsColors = [];
+        for (let i = 0; i < 20000; i++) {
+            const r = 300 + Math.random() * 400;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            starsVertices.push(r*Math.sin(phi)*Math.cos(theta), r*Math.sin(phi)*Math.sin(theta), r*Math.cos(phi));
+            const c = new THREE.Color().setHSL(Math.random()*0.2+0.5, 0.5, 0.7+Math.random()*0.3);
+            starsColors.push(c.r, c.g, c.b);
+        }
+        starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
+        starsGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starsColors, 3));
+        const starsMaterial = new THREE.PointsMaterial({
+            size: 0.3, map: softCircleTexture, vertexColors: true, transparent: true, opacity: 0.8, sizeAttenuation: true, depthWrite: false,
+        });
+        const nearStars = new THREE.Points(starsGeometry, starsMaterial);
+        nearStars.name = 'nearStars';
+        scene.add(nearStars);
+
+        const farStarsGeo = new THREE.BufferGeometry();
+        const farStarsPos = [], farStarsCol = [];
+        for (let i = 0; i < 15000; i++) {
+            const r = 5000 + Math.random() * 15000;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            farStarsPos.push(r*Math.sin(phi)*Math.cos(theta), r*Math.sin(phi)*Math.sin(theta), r*Math.cos(phi));
+            const c = new THREE.Color().setHSL(Math.random()*0.3+0.4, 0.4, 0.6+Math.random()*0.4);
+            farStarsCol.push(c.r, c.g, c.b);
+        }
+        farStarsGeo.setAttribute('position', new THREE.Float32BufferAttribute(farStarsPos, 3));
+        farStarsGeo.setAttribute('color', new THREE.Float32BufferAttribute(farStarsCol, 3));
+        const farStarsMat = new THREE.PointsMaterial({
+            size: 5, map: softCircleTexture, vertexColors: true, transparent: true, opacity: 0.7, sizeAttenuation: true, depthWrite: false,
+        });
+        const farStars = new THREE.Points(farStarsGeo, farStarsMat);
+        farStars.name = 'farStars';
+        scene.add(farStars);
+
+        // ── TEXT SYSTEM ──
+        const labelEl = document.getElementById('scale-label');
+        const hintEl = document.getElementById('scroll-hint');
+        const progressBar = document.getElementById('progress-bar');
+        let currentScaleIdx = -1;
+        let poemTimeout = null;
+
+        function updateText(idx) {
+            if (idx === currentScaleIdx) return;
+            currentScaleIdx = idx;
+
+            const isFinal = idx === scales.length - 1;
+
+            // Handle final screen
+            if (isFinal) {
+                poemEl.classList.remove('visible');
+                poemEl.classList.add('fading');
+                labelEl.textContent = scales[idx].label;
+                if (!finalVisible) {
+                    finalVisible = true;
+                    finalScreen.classList.add('visible');
+                }
+                return;
+            }
+
+            // Hide final screen when scrolling back
+            if (finalVisible) {
+                finalVisible = false;
+                finalScreen.classList.remove('visible');
+            }
+
+            // Fade poem
+            poemEl.classList.remove('visible');
+            poemEl.classList.add('fading');
+            labelEl.textContent = scales[idx].label;
+
+            clearTimeout(poemTimeout);
+            poemTimeout = setTimeout(() => {
+                poemEl.innerHTML = scales[idx].poem.replace(/\n/g, '<br>');
+                poemEl.classList.remove('fading');
+                poemEl.classList.add('visible');
+            }, 800);
+
+            if (idx > 0) {
+                hintEl.style.opacity = '0';
+            } else {
+                hintEl.style.opacity = '';
+            }
+        }
+
+        // ── ANIMATION LOOP ──
+        let time = 0;
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+            time += delta;
+
+            progress += (targetProgress - progress) * 0.03;
+
+            const camZ = getZForProgress(progress);
+            camera.position.set(0, camZ * 0.05, camZ);
+            camera.lookAt(0, 0, 0);
+
+            camera.near = Math.max(0.001, camZ * 0.0005);
+            camera.far = Math.max(1000, camZ * 50);
+            camera.updateProjectionMatrix();
+
+            const scaleIdx = getScaleIndex(progress);
+            updateText(scaleIdx);
+
+            progressBar.style.width = (progress * 100) + '%';
+
+            // Earth rotation
+            earth.rotation.y += 0.002;
+            clouds.rotation.y += 0.0025;
+            clouds.rotation.x = Math.sin(time * 0.1) * 0.02;
+            atmosphereMaterial.uniforms.lightDirection.value.copy(sunLight.position).normalize();
+
+            // Planet orbits
+            planets.forEach(p => {
+                const angle = time * p.speed * 0.1;
+                p.mesh.position.set(
+                    sun.position.x + Math.cos(angle) * p.dist,
+                    Math.sin(angle * 0.3) * 0.5,
+                    sun.position.z + Math.sin(angle) * p.dist
+                );
+                p.mesh.rotation.y += 0.01;
+            });
+
+            // Galaxy rotation
+            galaxyPoints.rotation.y += 0.0001;
+
+            // Near stars
+            const nearStarOpacity = THREE.MathUtils.clamp(1 - (camZ - 100) / 200, 0, 0.8);
+            starsMaterial.opacity = nearStarOpacity;
+            nearStars.visible = nearStarOpacity > 0.01;
+
+            // Far stars
+            const farStarOpacity = THREE.MathUtils.smoothstep(camZ, 200, 2000) * (1 - THREE.MathUtils.smoothstep(camZ, 20000, 50000));
+            farStarsMat.opacity = farStarOpacity * 0.7;
+            farStars.visible = farStarOpacity > 0.01;
+
+            // Solar system
+            const solarVis = camZ > 15 && camZ < 2000;
+            solarSystem.visible = solarVis;
+            if (solarVis) {
+                const solarOpacity = THREE.MathUtils.smoothstep(camZ, 15, 50) * (1 - THREE.MathUtils.smoothstep(camZ, 800, 2000));
+                sun.material.transparent = true;
+                sun.material.opacity = solarOpacity;
+            }
+
+            // Galaxy
+            const galaxyOpacity = THREE.MathUtils.smoothstep(camZ, 2000, 8000) * (1 - THREE.MathUtils.smoothstep(camZ, 80000, 150000));
+            galaxyGroup.visible = galaxyOpacity > 0.01;
+
+            // Deep field layers
+            const deepOpacity = THREE.MathUtils.smoothstep(camZ, 30000, 80000);
+            deepFieldGroup.visible = deepOpacity > 0.01;
+
+            if (deepFieldGroup.visible) {
+                const l1fade = 1.0 - THREE.MathUtils.smoothstep(camZ, 400000, 1500000);
+                layer1.material.uniforms.uOpacity.value = deepOpacity * l1fade * 0.7;
+
+                const l2fade = 1.0 - THREE.MathUtils.smoothstep(camZ, 800000, 3000000);
+                layer2.material.uniforms.uOpacity.value = deepOpacity * l2fade * 0.7;
+
+                const l3fade = 1.0 - THREE.MathUtils.smoothstep(camZ, 2000000, 6000000) * 0.85;
+                layer3.material.uniforms.uOpacity.value = deepOpacity * l3fade * 0.7;
+            }
+
+            // Twinkling
+            if (nearStars.visible) {
+                starsMaterial.size = 0.3 + Math.sin(time * 3) * 0.05;
+            }
+
+            // Audio layers
+            updateAudioLayers(camZ);
+
+            sunLight.position.set(5 + camZ * 0.1, 3 + camZ * 0.05, 5 + camZ * 0.1);
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>

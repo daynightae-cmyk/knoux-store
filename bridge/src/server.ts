@@ -14,7 +14,7 @@
 
 import { createServer, type Server as HttpServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import type { Duplex } from 'node:stream';
-import { randomUUID, createHash, createPublicKey } from 'node:crypto';
+import { randomUUID, createHash, createPublicKey, timingSafeEqual } from 'node:crypto';
 import { dirname, resolve } from 'node:path';
 import { readdirSync, statSync, readFileSync, writeFileSync, renameSync, existsSync, mkdirSync, unlinkSync, rmSync, openSync, fstatSync, readSync, closeSync } from 'node:fs';
 import { hostname } from 'node:os';
@@ -35,8 +35,6 @@ import { redactError } from './redact.js';
 import { spawnPty } from './pty/spawn.js';
 import { discoverProfiles, getExecutionPolicy, getPowerShellVersion, isElevated, currentUser } from './pty/profiles.js';
 import { sampleMetrics } from './metrics.js';
-import { inspectProject, cloneProject, projectRoot } from './projects.js';
-import { detectTools } from './tools.js';
 
 const BRIDGE_VERSION = '0.1.0';
 
@@ -61,6 +59,8 @@ export interface BridgeServerOptions {
   bridgeId: string;
   /** Trusted issuer public keys, keyed by fingerprint. */
   trustedIssuers: Map<string, string>;
+  /** Process-local token shared only with the outbound control worker. */
+  internalControlToken?: string;
   /**
    * Pending pairing codes. The key is empty when the code was minted by `init`
    * before any issuer existed; the first successful pair binds it.
@@ -118,7 +118,6 @@ function buildHandshake(options: BridgeServerOptions): Handshake {
   const config = options.config;
   return {
     bridgeId: options.bridgeId,
-    projectImport: config.allowProjectImport && probeGit(),
     version: BRIDGE_VERSION,
     hostname: hostname(),
     platform: process.platform,
@@ -197,10 +196,6 @@ export class BridgeServer {
   }
 
   listen(port: number, host: string): Promise<{ port: number }> {
-    // Shell discovery belongs to startup. Running synchronous cold version
-    // probes during the first WebSocket upgrade can hold its opening handshake
-    // past the client timeout, even though the PTY itself is healthy.
-    discoverProfiles();
     return new Promise((resolveListen, rejectListen) => {
       const onError = (err: Error): void => rejectListen(err);
       this.http.once('error', onError);
@@ -301,43 +296,58 @@ export class BridgeServer {
       return;
     }
 
-    const token = bearerToken(req);
-    if (!token) {
-      error(res, 401, 'unauthorized', 'A signed ticket is required.');
-      return;
-    }
-
     const requiredScope = this.scopeForPath(path);
     if (!requiredScope) {
       error(res, 404, 'not-found', 'Unknown route.');
       return;
     }
 
-    const verified = verifyTicket(
-      token,
-      [...this.options.trustedIssuers.values()],
-      this.options.bridgeId,
-      requiredScope,
-    );
+    let claims: { sub: string; cwd?: string };
 
-    if (!verified.ok) {
+    if (
+      method === 'GET' &&
+      INTERNAL_CONTROL_PATHS.has(path) &&
+      internalControlTokenMatches(req, this.options.internalControlToken ?? '')
+    ) {
+      claims = { sub: 'control-plane' };
       this.options.audit.append({
-        action: 'auth.denied',
-        actor: 'unknown',
+        action: 'auth.internal',
+        actor: 'control-plane',
         target: `${method} ${path}`,
-        outcome: 'denied',
-        detail: verified.reason ?? 'Ticket verification failed',
+        outcome: 'success',
+        detail: 'Authorized through the process-local outbound control token.',
         approvalId: null,
       });
-      // The status code and error code are constant for every rejection reason.
-      // A client cannot learn whether its signature, audience, expiry, jti or
-      // scope was the problem, so this endpoint is not an oracle. The specific
-      // reason went to the local audit log above.
-      error(res, 403, verified.error, 'The ticket was rejected.');
-      return;
+    } else {
+      const token = bearerToken(req);
+      if (!token) {
+        error(res, 401, 'unauthorized', 'A signed ticket is required.');
+        return;
+      }
+
+      const verified = verifyTicket(
+        token,
+        [...this.options.trustedIssuers.values()],
+        this.options.bridgeId,
+        requiredScope,
+      );
+
+      if (!verified.ok) {
+        this.options.audit.append({
+          action: 'auth.denied',
+          actor: 'unknown',
+          target: `${method} ${path}`,
+          outcome: 'denied',
+          detail: verified.reason ?? 'Ticket verification failed',
+          approvalId: null,
+        });
+        error(res, 403, verified.error, 'The ticket was rejected.');
+        return;
+      }
+
+      claims = verified.claims!;
     }
 
-    const claims = verified.claims!;
     const root = this.rootFor(claims.cwd);
 
     try {
@@ -351,7 +361,7 @@ export class BridgeServer {
         detail: redactError(err),
         approvalId: null,
       });
-      error(res, path.startsWith('/v1/project/') ? 409 : 500, 'internal-error', path.startsWith('/v1/project/') ? 'Selected project is unavailable or refused by the bridge path policy.' : 'The request could not be completed.');
+      error(res, 500, 'internal-error', 'The request could not be completed.');
     }
   }
 
@@ -365,31 +375,6 @@ export class BridgeServer {
     root: string,
   ): Promise<void> {
     switch (`${method} ${path}`) {
-      case 'GET /v1/project/inspect':
-        json(res, 200, await inspectProject(root, url.searchParams.get('project') ?? '.'));
-        return;
-      case 'GET /v1/project/git':
-        this.handleGitStatus(res, await projectRoot(root, url.searchParams.get('project') ?? '.'));
-        return;
-      case 'GET /v1/project/file':
-        this.handleFsRead(res, url, await projectRoot(root, url.searchParams.get('project') ?? '.'));
-        return;
-      case 'POST /v1/project/import': {
-        const body = await readJson<{ repository?: string; destination?: string }>(req, 8192);
-        if (!body || typeof body.repository !== 'string' || typeof body.destination !== 'string') { error(res, 400, 'invalid-body', 'Repository and destination required.'); return; }
-        try {
-          const snapshot = await cloneProject(root, body.repository, body.destination, this.options.config.allowProjectImport);
-          this.options.audit.append({ action: 'project.import', actor: claims.sub, target: body.destination, outcome: 'success', detail: body.repository, approvalId: null });
-          json(res, 200, snapshot);
-        } catch (cause) {
-          this.options.audit.append({ action: 'project.import', actor: claims.sub, target: body.destination.slice(0, 80), outcome: 'denied', detail: redactError(cause), approvalId: null });
-          error(res, 409, 'import-refused', cause instanceof Error && 'code' in cause && cause.code === 'EEXIST' ? 'Destination already exists. Choose a new folder; existing projects are never overwritten.' : redactError(cause));
-        }
-        return;
-      }
-      case 'GET /v1/tools':
-        json(res, 200, { tools: await detectTools() });
-        return;
       case 'GET /v1/handshake':
         json(res, 200, buildHandshake(this.options));
         return;
@@ -464,10 +449,6 @@ export class BridgeServer {
   }
 
   private scopeForPath(path: string): BridgeScope | null {
-    if (path === '/v1/project/inspect' || path === '/v1/project/file') return 'fs:read';
-    if (path === '/v1/project/git') return 'git:read';
-    if (path === '/v1/project/import') return 'project:import';
-    if (path === '/v1/tools') return 'tools:read';
     if (path === '/v1/handshake') return 'terminal:open';
     if (path === '/v1/fs/list' || path === '/v1/fs/read') return 'fs:read';
     if (path === '/v1/fs/write') return 'fs:write';
@@ -1448,6 +1429,29 @@ export class BridgeServer {
 // ---------------------------------------------------------------------------
 // helpers
 // ---------------------------------------------------------------------------
+
+const INTERNAL_CONTROL_PATHS = new Set([
+  '/v1/handshake',
+  '/v1/git/status',
+  '/v1/metrics',
+  '/v1/proc/list',
+  '/v1/logs',
+  '/v1/audit',
+  '/v1/fs/list',
+  '/v1/fs/read',
+]);
+
+function internalControlTokenMatches(req: IncomingMessage, expected: string): boolean {
+  const raw = req.headers['x-knoux-internal-token'];
+  const value = Array.isArray(raw) ? raw[0] ?? '' : raw ?? '';
+  if (!value || value.length !== expected.length) return false;
+  try {
+    return timingSafeEqual(Buffer.from(value, 'utf8'), Buffer.from(expected, 'utf8'));
+  } catch {
+    return false;
+  }
+}
+
 
 function bearerToken(req: IncomingMessage): string {
   const header = req.headers['authorization'];

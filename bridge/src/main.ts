@@ -18,7 +18,7 @@ import { SessionManager } from './pty/session.js';
 import { ProcessRegistry } from './proc/registry.js';
 import { BridgeServer } from './server.js';
 import { createControlPlaneWorker, controlPlaneUrlFromEnv } from './control-plane.js';
-import { createHash, randomInt } from 'node:crypto';
+import { createHash, randomBytes, randomInt } from 'node:crypto';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -167,6 +167,7 @@ async function cmdStart(): Promise<void> {
 
   const trustedIssuers = loadTrustedIssuers();
   const pendingCodes = loadPendingCodes();
+  const internalControlToken = randomBytes(32).toString('base64url');
 
   const server = new BridgeServer({
     config,
@@ -176,6 +177,7 @@ async function cmdStart(): Promise<void> {
     processes,
     bridgeId,
     trustedIssuers,
+    internalControlToken,
     pendingCodes,
   });
 
@@ -205,10 +207,7 @@ async function cmdStart(): Promise<void> {
       version: VERSION,
       identity,
       config,
-      onIssuerTrust: (fingerprint, publicKey) => {
-        trustedIssuers.set(fingerprint, publicKey);
-        saveTrustedIssuers(trustedIssuers);
-      },
+      internalControlToken,
       onAudit: (action, outcome, detail) => {
         audit.append({
           action,

@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marlow Vance — Digital Marketing Strategist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#050505;
+    --surface:#121212;
+    --ink:#FAFAFA;
+    --ink-mute:#9a9a9a;
+    --accent:#FAFAFA;
+    --border:2px solid var(--ink);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter Tight', sans-serif;
+    overflow-x:hidden;
+    width:100%;
+    height:100%;
+  }
+  h1,h2,h3,.display{
+    font-family:'Bricolage Grotesque', sans-serif;
+    font-weight:600;
+    letter-spacing:-0.02em;
+  }
+  a{color:inherit; text-decoration:none;}
+  ::selection{background:var(--ink); color:var(--bg);}
+
+  /* crop marks */
+  .crop{
+    position:fixed;
+    width:16px; height:16px;
+    z-index:200;
+    pointer-events:none;
+    opacity:.8;
+  }
+  .crop::before, .crop::after{
+    content:'';
+    position:absolute;
+    background:var(--ink);
+  }
+  .crop::before{ width:100%; height:1px; top:50%; }
+  .crop::after{ width:1px; height:100%; left:50%; }
+  .crop.tl{top:12px; left:12px;}
+  .crop.tr{top:12px; right:12px;}
+  .crop.bl{bottom:12px; left:12px;}
+  .crop.br{bottom:12px; right:12px;}
+
+  #canvas-bg{
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    z-index:0;
+    pointer-events:none;
+  }
+
+  .layout{
+    position:relative;
+    z-index:2;
+    display:flex;
+    min-height:100vh;
+  }
+
+  /* IDENTITY PANEL - fixed left */
+  .identity{
+    width:40%;
+    position:fixed;
+    top:0; left:0;
+    height:100vh;
+    border-right:var(--border);
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:32px;
+    z-index:10;
+  }
+  .id-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+  }
+  .wordmark{
+    font-family:'Bricolage Grotesque', sans-serif;
+    font-weight:700;
+    font-size:20px;
+    letter-spacing:-0.02em;
+  }
+  .nav-links{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    text-align:right;
+  }
+  .nav-links a{
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    position:relative;
+    padding-bottom:2px;
+  }
+  .nav-links a::after{
+    content:'';
+    position:absolute;
+    left:0; bottom:0;
+    width:0%;
+    height:1px;
+    background:var(--ink);
+    transition:width .3s ease;
+  }
+  .nav-links a:hover::after{ width:100%; }
+
+  .id-mid{
+    perspective:900px;
+  }
+  .id-name{
+    font-size:clamp(42px, 4.6vw, 68px);
+    line-height:0.98;
+    text-transform:uppercase;
+  }
+  .id-role{
+    margin-top:18px;
+    font-size:15px;
+    color:var(--ink-mute);
+    max-width:380px;
+    line-height:1.5;
+  }
+  .id-role u{ color:var(--ink); text-decoration-thickness:1px; text-underline-offset:3px; }
+
+  .id-card{
+    margin-top:26px;
+    border:var(--border);
+    background:var(--surface);
+    box-shadow:6px 6px 0 var(--ink);
+    padding:16px;
+    max-width:380px;
+    transform-style:preserve-3d;
+    will-change:transform;
+    transition:transform .1s ease-out;
+  }
+  .id-card .stat-row{
+    display:flex;
+    justify-content:space-between;
+    padding:8px 0;
+    border-bottom:1px solid #2a2a2a;
+    font-size:13px;
+  }
+  .id-card .stat-row:last-child{ border-bottom:none; }
+  .id-card .stat-row b{ font-family:'Bricolage Grotesque'; font-size:16px; }
+
+  .id-bottom{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .contact-line{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-top:var(--border);
+    padding-top:14px;
+  }
+  .contact-line span{ font-size:12px; color:var(--ink-mute); text-transform:uppercase; letter-spacing:.08em; }
+  .btn-primary{
+    border:var(--border);
+    background:var(--ink);
+    color:var(--bg);
+    padding:12px 20px;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    font-weight:600;
+    box-shadow:4px 4px 0 var(--ink);
+    display:inline-block;
+    text-align:center;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary:hover{
+    transform:translate(4px,4px);
+    box-shadow:0 0 0 var(--ink);
+  }
+
+  /* CONTENT SIDE */
+  .content{
+    margin-left:40%;
+    width:60%;
+    position:relative;
+    z-index:5;
+  }
+  section{
+    padding:120px 60px;
+    border-bottom:var(--border);
+    position:relative;
+  }
+  .tag{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:var(--ink-mute);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:24px;
+  }
+  .tag::before{
+    content:'';
+    width:26px; height:1px;
+    background:var(--ink-mute);
+  }
+  .sec-title{
+    font-size:clamp(32px, 3.4vw, 52px);
+    margin-bottom:40px;
+    text-transform:uppercase;
+  }
+  .sec-title span{ color:var(--ink-mute); }
+
+  /* HERO */
+  .hero{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding-top:80px;
+  }
+  .hero-head{
+    font-size:clamp(38px, 5vw, 64px);
+    line-height:1.02;
+    text-transform:uppercase;
+  }
+  .hero-sub{
+    margin-top:28px;
+    font-size:17px;
+    max-width:520px;
+    line-height:1.6;
+    color:var(--ink-mute);
+  }
+  .hero-marquee{
+    margin-top:60px;
+    overflow:hidden;
+    border-top:var(--border);
+    border-bottom:var(--border);
+    padding:16px 0;
+    white-space:nowrap;
+  }
+  .marquee-track{
+    display:inline-block;
+    animation:scroll 18s linear infinite;
+    font-family:'Bricolage Grotesque';
+    font-size:22px;
+    text-transform:uppercase;
+  }
+  .marquee-track span{ margin-right:40px; color:var(--ink-mute); }
+  @keyframes scroll{
+    0%{ transform:translateX(0); }
+    100%{ transform:translateX(-50%); }
+  }
+
+  /* WORK GRID */
+  .work-item{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:20px;
+    border:var(--border);
+    background:var(--surface);
+    margin-bottom:40px;
+    box-shadow:6px 6px 0 var(--ink);
+    overflow:hidden;
+    cursor:pointer;
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .work-item:hover{
+    transform:translate(-4px,-4px);
+    box-shadow:10px 10px 0 var(--ink);
+  }
+  .work-canvas-wrap{
+    width:100%;
+    height:280px;
+    position:relative;
+    border-bottom:var(--border);
+    background:#0a0a0a;
+  }
+  .work-canvas-wrap canvas{ display:block; width:100%; height:100%; }
+  .work-meta{
+    padding:22px 26px 28px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:20px;
+  }
+  .work-meta h3{
+    font-size:24px;
+    text-transform:uppercase;
+  }
+  .work-meta p{
+    color:var(--ink-mute);
+    font-size:14px;
+    margin-top:8px;
+    max-width:340px;
+    line-height:1.5;
+  }
+  .work-num{
+    font-size:13px;
+    color:var(--ink-mute);
+    white-space:nowrap;
+  }
+  .pill-row{
+    display:flex;
+    gap:8px;
+    margin-top:14px;
+    flex-wrap:wrap;
+  }
+  .pill{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    border:1px solid var(--ink-mute);
+    padding:4px 10px;
+    color:var(--ink-mute);
+  }
+
+  /* STATS */
+  .stats-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0;
+    border:var(--border);
+  }
+  .stat-box{
+    padding:32px;
+    border-right:1px solid var(--ink);
+    border-bottom:1px solid var(--ink);
+  }
+  .stat-box:nth-child(2n){ border-right:none; }
+  .stat-box .num{
+    font-family:'Bricolage Grotesque';
+    font-size:44px;
+    font-weight:700;
+  }
+  .stat-box .label{
+    margin-top:8px;
+    font-size:13px;
+    color:var(--ink-mute);
+    text-transform:uppercase;
+    letter-spacing:.06em;
+  }
+
+  /* SERVICES */
+  .service-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:26px 0;
+    border-bottom:1px solid #2a2a2a;
+    cursor:pointer;
+    position:relative;
+  }
+  .service-row:first-child{ border-top:var(--border); }
+  .service-row h3{
+    font-size:clamp(22px,2.4vw,32px);
+    text-transform:uppercase;
+    transition:transform .3s ease, color .3s ease;
+  }
+  .service-row:hover h3{ transform:translateX(14px); }
+  .service-index{ color:var(--ink-mute); font-size:14px; }
+  .service-arrow{
+    font-size:24px;
+    transform:rotate(45deg);
+    transition:transform .3s ease;
+  }
+  .service-row:hover .service-arrow{ transform:rotate(90deg); }
+
+  /* TESTIMONIAL */
+  .testimonial-box{
+    border:var(--border);
+    background:var(--surface);
+    padding:48px;
+    box-shadow:6px 6px 0 var(--ink);
+  }
+  .testimonial-box p{
+    font-family:'Bricolage Grotesque';
+    font-size:clamp(20px, 2.2vw, 30px);
+    line-height:1.4;
+    font-weight:400;
+  }
+  .testimonial-who{
+    margin-top:28px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .who-avatar{
+    width:40px; height:40px;
+    border:1px solid var(--ink);
+    background:#222;
+  }
+  .who-name{ font-size:14px; font-weight:600; }
+  .who-role{ font-size:12px; color:var(--ink-mute); }
+
+  /* CONTACT / FOOTER */
+  .cta-section{
+    text-align:left;
+    padding-bottom:80px;
+  }
+  .cta-big{
+    font-size:clamp(40px, 7vw, 96px);
+    text-transform:uppercase;
+    line-height:0.95;
+  }
+  .cta-big a{
+    position:relative;
+    display:inline-block;
+  }
+  .cta-big a::after{
+    content:'';
+    position:absolute;
+    left:0; bottom:6px;
+    width:100%; height:3px;
+    background:var(--ink);
+    transform:scaleX(0);
+    transform-origin:left;
+    transition:transform .4s ease;
+  }
+  .cta-big a:hover::after{ transform:scaleX(1); }
+
+  footer{
+    padding:50px 60px;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:24px;
+    font-size:13px;
+    color:var(--ink-mute);
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+  footer .foot-links{ display:flex; gap:24px; }
+  footer .foot-links a:hover{ color:var(--ink); }
+
+  /* MOBILE NAV TOGGLE */
+  .mobile-toggle{ display:none; }
+
+  @media (max-width: 900px){
+    .identity{
+      position:relative;
+      width:100%;
+      height:auto;
+      border-right:none;
+      border-bottom:var(--border);
+    }
+    .content{
+      margin-left:0;
+      width:100%;
+    }
+    section{ padding:80px 24px; }
+    .id-mid{ margin:30px 0; }
+    .stats-grid{ grid-template-columns:1fr; }
+    .stat-box{ border-right:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="crop tl"></div>
+<div class="crop tr"></div>
+<div class="crop bl"></div>
+<div class="crop br"></div>
+
+<canvas id="canvas-bg"></canvas>
+
+<div class="layout">
+
+  <aside class="identity" id="identity">
+    <div class="id-top">
+      <div class="wordmark">MARLOW&nbsp;VANCE</div>
+      <nav class="nav-links">
+        <a href="#work">Work</a>
+        <a href="#services">Services</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+
+    <div class="id-mid">
+      <h1 class="id-name">Growth<br>engineered<br>in public.</h1>
+      <p class="id-role">I'm a <u>digital marketing strategist</u> who treats campaigns like products — tested, measured, rebuilt until the numbers behave.</p>
+
+      <div class="id-card" id="tiltCard">
+        <div class="stat-row"><span>Campaigns shipped</span><b>212</b></div>
+        <div class="stat-row"><span>Avg. ROAS lift</span><b>3.8×</b></div>
+        <div class="stat-row"><span>Years in the field</span><b>9</b></div>
+      </div>
+    </div>
+
+    <div class="id-bottom">
+      <a href="#contact" class="btn-primary">Start a project →</a>
+      <div class="contact-line">
+        <span>Based in Lisbon, PT</span>
+        <span>Open to new work</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <section class="hero" id="hero">
+      <div class="tag">Digital Marketing Strategist / 2026</div>
+      <h1 class="hero-head">I turn attention<br>into revenue,<br>on purpose.</h1>
+      <p class="hero-sub">Ten years of running paid, lifecycle and content engines for brands that needed growth to actually show up in the ledger — not just the deck.</p>
+      <div class="hero-marquee">
+        <div class="marquee-track">
+          <span>Paid Media</span><span>Lifecycle</span><span>SEO</span><span>Brand Strategy</span><span>Analytics</span>
+          <span>Paid Media</span><span>Lifecycle</span><span>SEO</span><span>Brand Strategy</span><span>Analytics</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="work">
+      <div class="tag">Selected work</div>
+      <h2 class="sec-title">Case files <span>/ 04</span></h2>
+
+      <div class="work-item" data-scene="orbit">
+        <div class="work-canvas-wrap"><canvas class="mini-canvas"></canvas></div>
+        <div class="work-meta">
+          <div>
+            <h3>Northbeam Retail</h3>
+            <p>Rebuilt the paid social funnel from scratch, cut acquisition cost by 41% across three quarters.</p>
+            <div class="pill-row"><span class="pill">Paid Social</span><span class="pill">Creative Testing</span></div>
+          </div>
+          <div class="work-num">01 / Retail</div>
+        </div>
+      </div>
+
+      <div class="work-item" data-scene="grid">
+        <div class="work-canvas-wrap"><canvas class="mini-canvas"></canvas></div>
+        <div class="work-meta">
+          <div>
+            <h3>Fernhollow Skincare</h3>
+            <p>Lifecycle overhaul — email and SMS flows that now generate 34% of total monthly revenue.</p>
+            <div class="pill-row"><span class="pill">Lifecycle</span><span class="pill">CRM</span></div>
+          </div>
+          <div class="work-num">02 / DTC Beauty</div>
+        </div>
+      </div>
+
+      <div class="work-item" data-scene="wave">
+        <div class="work-canvas-wrap"><canvas class="mini-canvas"></canvas></div>
+        <div class="work-meta">
+          <div>
+            <h3>Cargotype Logistics</h3>
+            <p>SEO and content system built from zero, now ranking for 380+ commercial-intent terms.</p>
+            <div class="pill-row"><span class="pill">SEO</span><span class="pill">Content Ops</span></div>
+          </div>
+          <div class="work-num">03 / B2B SaaS</div>
+        </div>
+      </div>
+
+      <div class="work-item" data-scene="particles">
+        <div class="work-canvas-wrap"><canvas class="mini-canvas"></canvas></div>
+        <div class="work-meta">
+          <div>
+            <h3>Halvard Outdoor Co.</h3>
+            <p>Full-funnel relaunch across paid, organic and influencer — 2.1× return in the first 90 days.</p>
+            <div class="pill-row"><span class="pill">Full Funnel</span><span class="pill">Influencer</span></div>
+          </div>
+          <div class="work-num">04 / Consumer Goods</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="stats-sec">
+      <div class="tag">By the numbers</div>
+      <h2 class="sec-title">Results, <span>not vibes</span></h2>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="num">47M+</div><div class="label">Ad spend managed</div></div>
+        <div class="stat-box"><div class="num">3.8×</div><div class="label">Average ROAS lift</div></div>
+        <div class="stat-box"><div class="num">212</div><div class="label">Campaigns shipped</div></div>
+        <div class="stat-box"><div class="num">98%</div><div class="label">Client retention</div></div>
+      </div>
+    </section>
+
+    <section id="services">
+      <div class="tag">What I do</div>
+      <h2 class="sec-title">Services <span>/ 05</span></h2>
+
+      <div class="service-row"><span class="service-index">01</span><h3>Paid Media Strategy</h3><span class="service-arrow">→</span></div>
+      <div class="service-row"><span class="service-index">02</span><h3>Lifecycle &amp; CRM</h3><span class="service-arrow">→</span></div>
+      <div class="service-row"><span class="service-index">03</span><h3>SEO &amp; Content Systems</h3><span class="service-arrow">→</span></div>
+      <div class="service-row"><span class="service-index">04</span><h3>Brand Positioning</h3><span class="service-arrow">→</span></div>
+      <div class="service-row"><span class="service-index">05</span><h3>Analytics &amp; Attribution</h3><span class="service-arrow">→</span></div>
+    </section>
+
+    <section id="about">
+      <div class="tag">Testimonial</div>
+      <h2 class="sec-title">Kind <span>words</span></h2>
+      <div class="testimonial-box">
+        <p>"Marlow doesn't pitch tactics, he pitches outcomes. Our acquisition cost dropped in the first month and never crept back up."</p>
+        <div class="testimonial-who">
+          <div class="who-avatar"></div>
+          <div>
+            <div class="who-name">Priya Kannan</div>
+            <div class="who-role">Head of Growth, Fernhollow</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="tag">Get in touch</div>
+      <div class="cta-section">
+        <h2 class="cta-big"><a href="#">Let's build<br>your next<br>growth line.</a></h2>
+      </div>
+    </section>
+
+    <footer>
+      <div>© 2026 Marlow Vance. All rights reserved.</div>
+      <div class="foot-links">
+        <a href="#">LinkedIn</a>
+        <a href="#">Twitter / X</a>
+        <a href="#">Email</a>
+      </div>
+    </footer>
+
+  </main>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ===== BACKGROUND PARTICLE FIELD ===== */
+(function(){
+  const canvas = document.getElementById('canvas-bg');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 100);
+  camera.position.z = 12;
+
+  const count = 420;
+  const positions = new Float32Array(count*3);
+  for(let i=0;i<count;i++){
+    positions[i*3] = (Math.random()-0.5)*40;
+    positions[i*3+1] = (Math.random()-0.5)*40;
+    positions[i*3+2] = (Math.random()-0.5)*20;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+  const mat = new THREE.PointsMaterial({ color:0xffffff, size:0.045, transparent:true, opacity:0.55 });
+  const points = new THREE.Points(geo, mat);
+  scene.add(points);
+
+  const icoGeo = new THREE.IcosahedronGeometry(6, 1);
+  const icoMat = new THREE.MeshBasicMaterial({ color:0xffffff, wireframe:true, transparent:true, opacity:0.06 });
+  const ico = new THREE.Mesh(icoGeo, icoMat);
+  ico.position.set(6, -2, -6);
+  scene.add(ico);
+
+  let mouseX=0, mouseY=0;
+  window.addEventListener('mousemove', (e)=>{
+    mouseX = (e.clientX/window.innerWidth - 0.5);
+    mouseY = (e.clientY/window.innerHeight - 0.5);
+  });
+
+  function animate(){
+    requestAnimationFrame(animate);
+    points.rotation.y += 0.0009;
+    points.rotation.x += 0.0003;
+    ico.rotation.y += 0.0015;
+    ico.rotation.x += 0.0008;
+    camera.position.x += (mouseX*1.5 - camera.position.x) * 0.03;
+    camera.position.y += (-mouseY*1.5 - camera.position.y) * 0.03;
+    camera.lookAt(0,0,0);
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', ()=>{
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+
+/* ===== TILT CARD ===== */
+(function(){
+  const card = document.getElementById('tiltCard');
+  const identity = document.getElementById('identity');
+  identity.addEventListener('mousemove', (e)=>{
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width/2;
+    const y = e.clientY - rect.top - rect.height/2;
+    const rotX = Math.max(-8, Math.min(8, -y/14));
+    const rotY = Math.max(-8, Math.min(8, x/14));
+    card.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+  });
+  identity.addEventListener('mouseleave', ()=>{
+    card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+  });
+})();
+
+/* ===== MINI 3D SCENES PER WORK ITEM ===== */
+(function(){
+  const items = document.querySelectorAll('.work-item');
+
+  items.forEach((item) => {
+    const canvas = item.querySelector('.mini-canvas');
+    const wrap = item.querySelector('.work-canvas-wrap');
+    const sceneType = item.dataset.scene;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+    camera.position.z = 6;
+
+    let objects = [];
+    const group = new THREE.Group();
+    scene.add(group);
+
+    const wireMat = () => new THREE.MeshBasicMaterial({ color:0xffffff, wireframe:true, transparent:true, opacity:0.9 });
+    const solidMat = () => new THREE.MeshStandardMaterial({ color:0x1a1a1a, roughness:0.4, metalness:0.2 });
+    const light = new THREE.DirectionalLight(0xffffff, 1.2);
+    light.position.set(3,4,5);
+    scene.add(light);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+
+    if(sceneType === 'orbit'){
+      const core = new THREE.Mesh(new THREE.IcosahedronGeometry(1.1, 0), wireMat());
+      group.add(core);
+      for(let i=0;i<3;i++){
+        const ringGeo = new THREE.TorusGeometry(1.7 + i*0.45, 0.015, 8, 64);
+        const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:0.4}));
+        ring.rotation.x = Math.random()*Math.PI;
+        ring.rotation.y = Math.random()*Math.PI;
+        ring.userData.speed = 0.003 + i*0.002;
+        group.add(ring);
+        objects.push(ring);
+      }
+    } else if(sceneType === 'grid'){
+      const gridSize = 6;
+      const spacing = 0.7;
+      for(let x=0;x<gridSize;x++){
+        for(let y=0;y<gridSize;y++){
+          const geo = new THREE.BoxGeometry(0.3,0.3,0.3);
+          const mesh = new THREE.Mesh(geo, solidMat());
+          mesh.position.set((x-gridSize/2)*spacing, (y-gridSize/2)*spacing, 0);
+          mesh.userData.offset = Math.random()*Math.PI*2;
+          group.add(mesh);
+          objects.push(mesh);
+        }
+      }
+    } else if(sceneType === 'wave'){
+      const geo = new THREE.PlaneGeometry(6, 6, 40, 40);
+      const mesh = new THREE.Mesh(geo, wireMat());
+      mesh.rotation.x = -Math.PI/3.2;
+      group.add(mesh);
+      objects.push(mesh);
+    } else if(sceneType === 'particles'){
+      const pcount = 260;
+      const pos = new Float32Array(pcount*3);
+      for(let i=0;i<pcount;i++){
+        const r = 2 + Math.random()*0.6;
+        const theta = Math.random()*Math.PI*2;
+        const phi = Math.acos(2*Math.random()-1);
+        pos[i*3] = r*Math.sin(phi)*Math.cos(theta);
+        pos[i*3+1] = r*Math.sin(phi)*Math.sin(theta);
+        pos[i*3+2] = r*Math.cos(phi);
+      }
+      const pgeo = new THREE.BufferGeometry();
+      pgeo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+      const pmat = new THREE.PointsMaterial({color:0xffffff, size:0.05});
+      const cloud = new THREE.Points(pgeo, pmat);
+      group.add(cloud);
+      objects.push(cloud);
+    }
+
+    let frame = 0;
+    let hovered = false;
+    item.addEventListener('mouseenter', ()=>{ hovered = true; });
+    item.addEventListener('mouseleave', ()=>{ hovered = false; });
+
+    function resize(){
+      const w = wrap.clientWidth;
+      const h = wrap.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w/h;
+      camera.updateProjectionMatrix();
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function animateMini(){
+      requestAnimationFrame(animateMini);
+      frame += 1;
+      const speed = hovered ? 1 : 0.35;
+
+      if(sceneType === 'orbit'){
+        group.rotation.y += 0.004*speed;
+        objects.forEach(r => r.rotation.z += r.userData.speed*speed*2);
+      } else if(sceneType === 'grid'){
+        group.rotation.y = Math.sin(frame*0.003)*0.3*speed + (hovered?0.2:0);
+        objects.forEach(m => {
+          m.position.z = Math.sin(frame*0.02*speed + m.userData.offset)*0.4;
+        });
+      } else if(sceneType === 'wave'){
+        const posAttr = objects[0].geometry.attributes.position;
+        for(let i=0;i<posAttr.count;i++){
+          const x = posAttr.getX(i);
+          const y = posAttr.getY(i);
+          posAttr.setZ(i, Math.sin(x*1.5 + frame*0.02*speed)*0.3 + Math.cos(y*1.5 + frame*0.015*speed)*0.3);
+        }
+        posAttr.needsUpdate = true;
+        group.rotation.z += 0.0015*speed;
+      } else if(sceneType === 'particles'){
+        group.rotation.y += 0.003*speed;
+        group.rotation.x += 0.001*speed;
+      }
+
+      renderer.render(scene, camera);
+    }
+    animateMini();
+  });
+})();
+
+/* ===== SCROLL REVEAL ===== */
+(function(){
+  const els = document.querySelectorAll('.work-item, .stat-box, .service-row, .testimonial-box');
+  els.forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = (el.style.transform||'') + ' translateY(24px)';
+    el.style.transition = 'opacity .6s ease, transform .6s ease';
+  });
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = entry.target.style.transform.replace('translateY(24px)','translateY(0)');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold:0.15 });
+  els.forEach(el => obs.observe(el));
+})();
+
+document.querySelectorAll('a[href^="#"]').forEach(anchor=>{
+  anchor.addEventListener('click', function(e){
+    e.preventDefault();
+    const id = this.getAttribute('href').slice(1);
+    const target = document.getElementById(id);
+    if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+});
+</script>
+</body>
+</html>

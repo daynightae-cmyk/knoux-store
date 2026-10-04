@@ -7,13 +7,13 @@
  * against its own loopback BridgeServer.
  */
 
-import { createHash, createPublicKey, randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import { hostname } from 'node:os';
 import type { BridgeConfig } from './config.js';
 import type { BridgeIdentity } from './identity.js';
 import { sign } from './identity.js';
 
-const API_ROOT = '/api/build/bridge/control';
+const API_ROOT = '';
 const DEFAULT_HEARTBEAT_MS = 30_000;
 const DEFAULT_IDLE_POLL_MS = 10_000;
 const MAX_BACKOFF_MS = 30_000;
@@ -32,7 +32,7 @@ export interface ControlPlaneWorkerOptions {
     outcome: 'success' | 'failure' | 'denied',
     detail: string,
   ) => void;
-  onIssuerTrust?: (fingerprint: string, publicKey: string) => void;
+  internalControlToken: string;
   fetchImpl?: typeof fetch;
 }
 
@@ -44,8 +44,6 @@ interface RegisterResponse {
   expiresAt: string;
   heartbeatIntervalMs?: number;
   idlePollMs?: number;
-  issuerPublicKey: string;
-  issuerFingerprint: string;
 }
 
 interface ClaimedJob {
@@ -56,7 +54,6 @@ interface ClaimedJob {
     args: Record<string, unknown>;
     expiresAt: string;
   };
-  bridgeTicket: string;
 }
 
 export interface ControlPlaneWorker {
@@ -82,21 +79,12 @@ function normalizeBaseUrl(raw: string): string {
   if (url.protocol !== 'https:' && !(url.protocol === 'http:' && loopback)) {
     throw new Error('KNOuX control plane must use HTTPS outside loopback development.');
   }
-  return url.origin;
+  url.search = '';
+  url.hash = '';
+  url.pathname = url.pathname === '/' ? '/api/build/bridge/control' : url.pathname.replace(/\/+$/g, '');
+  return url.toString().replace(/\/$/, '');
 }
 
-
-function issuerFingerprint(publicKeyPem: string): string | null {
-  try {
-    const der = createPublicKey(publicKeyPem).export({
-      format: 'der',
-      type: 'spki',
-    });
-    return createHash('sha256').update(der).digest('hex');
-  } catch {
-    return null;
-  }
-}
 
 function capabilitiesFor(config: BridgeConfig): Record<string, boolean> {
   return {
@@ -154,6 +142,7 @@ class Worker implements ControlPlaneWorker {
 
   start(): void {
     if (this.running) return;
+
     this.running = true;
     this.stopRequested = false;
     this.loopPromise = this.runLoop().finally(() => {
@@ -262,23 +251,9 @@ class Worker implements ControlPlaneWorker {
     }
 
     const data = await response.json() as RegisterResponse;
-    if (
-      !data.ok ||
-      !data.sessionToken ||
-      !data.machineId ||
-      !data.expiresAt ||
-      !data.issuerPublicKey ||
-      !data.issuerFingerprint
-    ) {
+    if (!data.ok || !data.sessionToken || !data.machineId || !data.expiresAt) {
       throw new Error('Control-plane registration returned an invalid session.');
     }
-
-    const measuredIssuer = issuerFingerprint(data.issuerPublicKey);
-    if (!measuredIssuer || measuredIssuer !== data.issuerFingerprint) {
-      throw new Error('Control-plane issuer trust material failed fingerprint verification.');
-    }
-
-    this.options.onIssuerTrust?.(data.issuerFingerprint, data.issuerPublicKey);
 
     this.sessionToken = data.sessionToken;
     this.sessionExpiresAt = data.expiresAt;
@@ -329,8 +304,11 @@ class Worker implements ControlPlaneWorker {
     }
 
     const data = await response.json() as ClaimedJob;
-    if (!data.ok || !data.job?.id || !data.job.tool || !data.bridgeTicket) {
+    if (!data.ok || !data.job?.id || !data.job.tool) {
       throw new Error('Control-plane poll returned an invalid job.');
+    }
+    if (Date.parse(data.job.expiresAt) <= Date.now()) {
+      throw new Error('Control-plane poll returned an expired job.');
     }
     return data;
   }
@@ -345,7 +323,6 @@ class Worker implements ControlPlaneWorker {
       result = await this.executeLocal(
         claimed.job.tool,
         claimed.job.args ?? {},
-        claimed.bridgeTicket,
       );
       ok = true;
       this.audit('control.job', 'success', 'job=' + claimed.job.id + ' tool=' + claimed.job.tool);
@@ -366,7 +343,6 @@ class Worker implements ControlPlaneWorker {
   private async executeLocal(
     tool: string,
     args: Record<string, unknown>,
-    ticket: string,
   ): Promise<unknown> {
     const origin = 'http://' + this.options.config.host + ':' + this.options.config.port;
     let path = '';
@@ -389,9 +365,13 @@ class Worker implements ControlPlaneWorker {
         const name = String(args.name ?? '');
         const since = Number(args.since ?? 0);
         const limit = Number(args.limit ?? 200);
-        path = '/v1/logs?name=' + encodeURIComponent(name)
-          + '&since=' + encodeURIComponent(String(since))
-          + '&limit=' + encodeURIComponent(String(limit));
+        if (name === 'bridge' || name === 'bridge-audit') {
+          path = '/v1/audit?limit=' + encodeURIComponent(String(limit));
+        } else {
+          path = '/v1/logs?name=' + encodeURIComponent(name)
+            + '&since=' + encodeURIComponent(String(since))
+            + '&limit=' + encodeURIComponent(String(limit));
+        }
         break;
       }
       case 'fs.list':
@@ -411,7 +391,7 @@ class Worker implements ControlPlaneWorker {
       const response = await this.fetchImpl(origin + path, {
         method,
         headers: {
-          authorization: 'Bearer ' + ticket,
+          'x-knoux-internal-token': this.options.internalControlToken,
           accept: 'application/json',
         },
         cache: 'no-store',

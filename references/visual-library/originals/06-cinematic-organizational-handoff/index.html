@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Remix: Cinematic organizational handoff visualization</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<section class="handoff-hero" id="handoff-hero" aria-label="Organizational handoff flow">
+
+  <canvas id="hf-canvas" aria-hidden="true"></canvas>
+  <canvas id="hf-fallback" hidden aria-hidden="true"></canvas>
+  <div class="hf-vignette" aria-hidden="true"></div>
+
+  <header class="hf-topbar">
+    <div class="hf-brand">
+      <span class="hf-dot" aria-hidden="true"></span>
+      <span class="hf-brand-text">Service Transition Flow</span>
+    </div>
+    <div class="hf-topbar-right">
+      <span class="hf-counter" id="hf-counter">01 / 05</span>
+      <button type="button" class="hf-icon-btn" id="hf-autoplay" aria-pressed="false" aria-label="Toggle autoplay">
+        <span class="hf-icon-glyph" id="hf-autoplay-glyph" aria-hidden="true">▶</span>
+        <span>Auto</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="hf-stage">
+    <article class="hf-card" id="hf-card" aria-live="polite">
+      <div class="hf-card-head">
+        <span class="hf-card-icon" id="hf-icon" aria-hidden="true">◆</span>
+        <div class="hf-card-meta">
+          <span class="hf-eyebrow" id="hf-team">HR</span>
+          <span class="hf-stage-label" id="hf-stage-label">Stage 01</span>
+        </div>
+      </div>
+      <span class="hf-index" id="hf-index" aria-hidden="true">01</span>
+      <h2 class="hf-title" id="hf-title">Intake &amp; Onboarding</h2>
+      <p class="hf-body" id="hf-body"></p>
+      <div class="hf-handoff" id="hf-handoff">
+        <span class="hf-handoff-label">Hands off to</span>
+        <span class="hf-handoff-value" id="hf-handoff-value"></span>
+      </div>
+    </article>
+  </div>
+
+  <nav class="hf-rail" aria-label="Flow stages">
+    <ol class="hf-steps" id="hf-steps"></ol>
+    <div class="hf-controls">
+      <button type="button" class="hf-nav-btn" id="hf-prev" aria-label="Previous stage">‹</button>
+      <button type="button" class="hf-nav-btn" id="hf-next" aria-label="Next stage">›</button>
+    </div>
+  </nav>
+
+  <p class="hf-hint" id="hf-hint">Scroll, click or use arrow keys to advance</p>
+
+</section>
+
+<script type="module" src="/main.js"></script>
+</body>
+</html>

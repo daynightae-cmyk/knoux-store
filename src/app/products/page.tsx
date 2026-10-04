@@ -8,6 +8,7 @@ import { SignalRail } from '@/components/DivisionShell';
 import { pageMetadata } from '@/lib/metadata';
 import { softwareAuditDate, softwareAuditOwner, softwareProducts } from '@/data/software';
 import { divisions } from '@/lib/entities';
+import { SystemsRegister } from '@/components/SystemsRegister';
 import { ProjectRail } from '@/components/SpatialExperiences';
 
 export const metadata = pageMetadata(
@@ -35,6 +36,11 @@ export default function ProductsPage() {
       <Suspense fallback={<div className="shell" style={{ minHeight: 620 }} />}>
         <ProductUniverse />
       </Suspense>
+
+      <section id="register" aria-labelledby="register-heading">
+        <h2 id="register-heading" className="visually-hidden">KNOuX Systems Register</h2>
+        <SystemsRegister />
+      </section>
 
       <section className="shell" style={{ paddingTop: 'clamp(70px, 8vw, 130px)' }}>
         <div className="block-head"><div><span className="label label--signal">FEATURED ARCHIVE</span><h2 className="block-head__title">One system<br />at a time.</h2></div><p className="block-head__aside">Move through the same verified registry as the topology. Each system opens into its evidence backed dossier.</p></div>

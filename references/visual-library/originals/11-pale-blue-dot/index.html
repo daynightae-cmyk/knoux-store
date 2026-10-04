@@ -1,0 +1,3647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pale Blue Dot — Earth's Climate 1880–2026</title>
+
+    <!-- Favicon: pale blue circle on dark -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23080c14'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%238EAFC2' opacity='0.85'/%3E%3C/svg%3E">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Pale Blue Dot — 146 Years of a Warming World">
+    <meta property="og:description" content="An interactive 3D journey through Earth's climate transformation, driven by real NASA data. Scroll through time. Feel the change.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 630'%3E%3Crect width='1200' height='630' fill='%23080c14'/%3E%3Ccircle cx='600' cy='315' r='120' fill='%238EAFC2' opacity='0.3'/%3E%3C/svg%3E">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Pale Blue Dot — 146 Years of a Warming World">
+    <meta name="twitter:description" content="An interactive 3D journey through Earth's climate transformation, driven by real NASA data. Scroll through time. Feel the change.">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#000000">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Georgia&display=swap');
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        ::-webkit-scrollbar {
+            width: 0;
+            display: none;
+        }
+
+        html {
+            scrollbar-width: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: #fff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow-x: hidden;
+            cursor: default;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #scroll-container {
+            height: 6000vh;
+            position: relative;
+        }
+
+        #canvas-wrap {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        /* INTRO OVERLAY */
+        #intro-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: #000;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 1.2s ease;
+            pointer-events: all;
+        }
+
+        #intro-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #intro-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #8EAFC2;
+            box-shadow: 0 0 20px 6px rgba(142,175,194,0.4), 0 0 60px 15px rgba(142,175,194,0.15);
+            opacity: 0;
+            transform: scale(1);
+            transition: opacity 1.5s ease, transform 2s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        #intro-dot.visible {
+            opacity: 1;
+        }
+
+        #intro-dot.expand {
+            transform: scale(30);
+            opacity: 0;
+        }
+
+        #intro-quote {
+            position: absolute;
+            bottom: 28%;
+            text-align: center;
+            max-width: 600px;
+            padding: 0 30px;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        #intro-quote.visible {
+            opacity: 1;
+        }
+
+        #intro-quote p {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: clamp(16px, 2.2vw, 22px);
+            line-height: 1.7;
+            color: #F0F0F0;
+            letter-spacing: 0.01em;
+            font-style: italic;
+        }
+
+        #intro-quote .attribution {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            color: rgba(255,255,255,0.35);
+            margin-top: 16px;
+            font-style: normal;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        #scroll-hint {
+            position: absolute;
+            bottom: 8%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        #scroll-hint.visible {
+            opacity: 1;
+        }
+
+        #scroll-hint span {
+            font-size: 11px;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+        }
+
+        #scroll-hint .arrow {
+            width: 1px;
+            height: 28px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
+            animation: pulseArrow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseArrow {
+            0%, 100% { opacity: 0.3; transform: translateY(0); }
+            50% { opacity: 0.8; transform: translateY(6px); }
+        }
+
+        /* DATA HUD */
+        #data-hud {
+            position: fixed;
+            bottom: 48px;
+            left: 48px;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            pointer-events: none;
+        }
+
+        #data-hud.visible {
+            opacity: 1;
+        }
+
+        .hud-year {
+            font-size: clamp(64px, 9vw, 120px);
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -0.04em;
+            color: #fff;
+            font-variant-numeric: tabular-nums;
+            opacity: 0.95;
+        }
+
+        .hud-row {
+            display: flex;
+            gap: 40px;
+            margin-top: 12px;
+        }
+
+        .hud-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hud-label {
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 4px;
+        }
+
+        .hud-value {
+            font-size: clamp(20px, 3vw, 32px);
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.02em;
+            transition: color 0.4s ease;
+        }
+
+        /* Mobile HUD scrim for readability */
+        #hud-scrim {
+            display: none;
+        }
+
+        /* TEMPERATURE SPARKLINE */
+        #temp-sparkline {
+            margin-top: 18px;
+            width: clamp(200px, 28vw, 340px);
+            height: 64px;
+            position: relative;
+            opacity: 0.85;
+        }
+
+        #temp-sparkline canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .sparkline-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+            letter-spacing: 0.12em;
+            color: rgba(255,255,255,0.25);
+            margin-top: 4px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* EVENT CARD */
+        #event-card {
+            position: fixed;
+            top: 50%;
+            right: 48px;
+            transform: translateY(-50%);
+            z-index: 10;
+            max-width: 320px;
+            opacity: 0;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            pointer-events: none;
+        }
+
+        #event-card.visible {
+            opacity: 1;
+        }
+
+        .event-category {
+            font-size: 9px;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 8px;
+        }
+
+        .event-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #F0F0F0;
+            line-height: 1.3;
+            margin-bottom: 10px;
+        }
+
+        .event-desc {
+            font-size: 13px;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.5);
+            font-weight: 300;
+        }
+
+        /* TIMELINE */
+        #timeline {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 50vh;
+            width: 3px;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            cursor: pointer;
+        }
+        /* Invisible wider hit area for easier click/drag without changing visual width */
+        #timeline::before {
+            content: '';
+            position: absolute;
+            top: -10px; bottom: -10px;
+            left: -18px; right: -18px;
+        }
+
+        #timeline.dragging {
+            cursor: grabbing;
+        }
+
+        #timeline.visible {
+            opacity: 1;
+        }
+
+        #timeline-track {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(255,255,255,0.08);
+            border-radius: 2px;
+        }
+
+        #timeline-fill {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 0%;
+            background: rgba(255,255,255,0.25);
+            border-radius: 2px;
+            transition: height 0.1s linear, background 0.4s ease;
+        }
+
+        #timeline-indicator {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 8px rgba(255,255,255,0.5);
+            top: 0%;
+            transition: top 0.12s linear;
+            cursor: grab;
+        }
+
+        #timeline.dragging #timeline-indicator {
+            cursor: grabbing;
+        }
+
+        #timeline-tooltip {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(-50%);
+            right: 44px;
+            font-size: 12px;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.06em;
+            color: rgba(255,255,255,0.85);
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+            white-space: nowrap;
+            transition: opacity 0.2s ease, transform 0.15s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+            z-index: 11;
+        }
+        #timeline-tooltip.visible {
+            opacity: 1;
+        }
+        #timeline-tooltip.snap {
+            color: #fff;
+            background: rgba(255,170,60,0.55);
+            border-color: rgba(255,190,80,0.45);
+            transform: translateY(-50%) scale(1.12);
+            transition: opacity 0.2s ease, transform 0.15s cubic-bezier(.3,1.5,.6,1), background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+        }
+
+        .timeline-label {
+            position: absolute;
+            right: 14px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 0.08em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timeline-label.top { top: -6px; }
+        .timeline-label.bottom { bottom: -6px; }
+
+        /* EVENT DOT MARKERS on TIMELINE */
+        .timeline-tick {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            box-shadow: 0 0 3px rgba(255,255,255,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            z-index: 1;
+        }
+
+        .timeline-tick {
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        .timeline-tick:hover {
+            transform: translate(-50%, -50%) scale(1.6);
+            background: rgba(255,255,255,0.6);
+            box-shadow: 0 0 8px rgba(255,255,255,0.3);
+        }
+
+        .timeline-tick.clicked {
+            animation: dotPing 0.5s ease-out;
+        }
+
+        @keyframes dotPing {
+            0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.6); }
+            70% { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
+            100% { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
+        }
+
+        .timeline-tick.disaster { background: rgba(200,60,40,0.5); box-shadow: 0 0 4px rgba(200,60,40,0.15); }
+        .timeline-tick.milestone { background: rgba(212,136,58,0.5); box-shadow: 0 0 4px rgba(212,136,58,0.15); }
+        .timeline-tick.policy { background: rgba(100,180,120,0.5); box-shadow: 0 0 4px rgba(100,180,120,0.15); }
+        .timeline-tick.science { background: rgba(142,175,194,0.5); box-shadow: 0 0 4px rgba(142,175,194,0.15); }
+
+        .timeline-tick.disaster:hover, .timeline-tick.disaster.passed { background: rgba(200,60,40,0.8); box-shadow: 0 0 8px rgba(200,60,40,0.3); }
+        .timeline-tick.milestone:hover, .timeline-tick.milestone.passed { background: rgba(212,136,58,0.8); box-shadow: 0 0 8px rgba(212,136,58,0.3); }
+        .timeline-tick.policy:hover, .timeline-tick.policy.passed { background: rgba(100,180,120,0.8); box-shadow: 0 0 8px rgba(100,180,120,0.3); }
+        .timeline-tick.science:hover, .timeline-tick.science.passed { background: rgba(142,175,194,0.8); box-shadow: 0 0 8px rgba(142,175,194,0.3); }
+
+        .timeline-tick.nearby {
+            transform: translate(-50%, -50%) scale(1.8);
+            box-shadow: 0 0 10px rgba(255,255,255,0.4);
+        }
+
+        /* CLOSING */
+        #closing-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.5s ease;
+        }
+
+        #closing-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        #closing-overlay .closing-serif {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: clamp(18px, 2.5vw, 26px);
+            line-height: 1.7;
+            color: #F0F0F0;
+            max-width: 560px;
+            font-style: italic;
+            opacity: 0;
+            transition: opacity 1.5s ease 0.5s;
+        }
+
+        #closing-overlay.visible .closing-serif {
+            opacity: 1;
+        }
+
+        #closing-overlay .closing-sans {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(14px, 1.8vw, 18px);
+            color: rgba(255,255,255,0.6);
+            margin-top: 30px;
+            letter-spacing: 0.02em;
+            opacity: 0;
+            transition: opacity 1.5s ease 2s;
+        }
+
+        #closing-overlay.visible .closing-sans {
+            opacity: 1;
+        }
+
+        /* RADIAL VIGNETTE */
+        #vignette {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 45;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 2s ease;
+            background: radial-gradient(
+                ellipse 60% 60% at 50% 50%,
+                transparent 0%,
+                transparent 30%,
+                rgba(0,0,0,0.15) 55%,
+                rgba(0,0,0,0.5) 75%,
+                rgba(0,0,0,0.85) 90%,
+                #000 100%
+            );
+        }
+
+        #vignette.active {
+            opacity: 1;
+            animation: vignetteBreathe 8s ease-in-out infinite;
+        }
+
+        #vignette-warmth {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 46;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 3s ease;
+            background: radial-gradient(
+                ellipse 70% 70% at 50% 50%,
+                transparent 0%,
+                transparent 40%,
+                rgba(160, 80, 20, 0.0) 60%,
+                rgba(160, 80, 20, 0.02) 80%,
+                rgba(120, 50, 10, 0.03) 100%
+            );
+        }
+
+        #vignette-warmth.active {
+            opacity: 1;
+            animation: warmthPulse 12s ease-in-out infinite;
+            animation-delay: 4s;
+        }
+
+        @keyframes warmthPulse {
+            0%, 100% {
+                background: radial-gradient(
+                    ellipse 70% 70% at 50% 50%,
+                    transparent 0%,
+                    transparent 40%,
+                    rgba(160, 80, 20, 0.0) 60%,
+                    rgba(160, 80, 20, 0.0) 80%,
+                    rgba(120, 50, 10, 0.01) 100%
+                );
+            }
+            50% {
+                background: radial-gradient(
+                    ellipse 60% 60% at 50% 50%,
+                    transparent 0%,
+                    transparent 35%,
+                    rgba(160, 80, 20, 0.01) 55%,
+                    rgba(160, 80, 20, 0.03) 75%,
+                    rgba(120, 50, 10, 0.05) 100%
+                );
+            }
+        }
+
+        @keyframes vignetteBreathe {
+            0%, 100% {
+                background: radial-gradient(
+                    ellipse 65% 65% at 50% 50%,
+                    transparent 0%,
+                    transparent 30%,
+                    rgba(0,0,0,0.15) 55%,
+                    rgba(0,0,0,0.5) 75%,
+                    rgba(0,0,0,0.85) 90%,
+                    #000 100%
+                );
+            }
+            50% {
+                background: radial-gradient(
+                    ellipse 55% 55% at 50% 50%,
+                    transparent 0%,
+                    transparent 25%,
+                    rgba(0,0,0,0.18) 50%,
+                    rgba(0,0,0,0.55) 72%,
+                    rgba(0,0,0,0.88) 88%,
+                    #000 100%
+                );
+            }
+        }
+
+        /* SOUND TOGGLE */
+        #sound-toggle {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 60;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.8s ease, border-color 0.3s ease, background 0.3s ease;
+            pointer-events: none;
+        }
+
+        #sound-toggle.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        #sound-toggle:hover {
+            border-color: rgba(255,255,255,0.35);
+            background: rgba(255,255,255,0.08);
+        }
+
+        #sound-toggle svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: rgba(255,255,255,0.55);
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: stroke 0.3s ease;
+        }
+
+        #sound-toggle:hover svg {
+            stroke: rgba(255,255,255,0.8);
+        }
+
+        #sound-toggle .mute-line {
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        #sound-toggle.muted .mute-line {
+            opacity: 1;
+        }
+
+        /* LOADING OVERLAY */
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: #000;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease;
+            pointer-events: none;
+        }
+
+        #loading-overlay.hidden {
+            opacity: 0;
+        }
+
+        #loading-overlay .loading-text {
+            font-size: 12px;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+            animation: loadPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes loadPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* BIRTH YEAR INPUT */
+        #birth-year-input {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        #birth-year-input .birth-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+        }
+
+        #birth-year-input .birth-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #birth-year-input.visible {
+            opacity: 1;
+        }
+
+        #birth-year-input.confirmed {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease;
+        }
+
+        #birth-year {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 24px;
+            color: rgba(255,255,255,0.8);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            padding: 10px 20px;
+            width: 160px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s ease, background 0.3s ease;
+        }
+
+        #birth-year::placeholder {
+            color: rgba(255,255,255,0.22);
+            letter-spacing: 0.06em;
+            font-size: 12px;
+        }
+
+        #birth-year:focus {
+            border-color: rgba(255,255,255,0.35);
+            background: rgba(255,255,255,0.06);
+        }
+
+        #birth-year-confirm {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 50%;
+            color: rgba(255,255,255,0.5);
+            font-size: 16px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease;
+            line-height: 1;
+            padding: 0;
+        }
+
+        #birth-year-confirm:hover {
+            border-color: rgba(255,255,255,0.45);
+            color: rgba(255,255,255,0.85);
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* LIFETIME HUD ITEM */
+        .hud-lifetime-value {
+            font-size: clamp(16px, 2.4vw, 24px) !important;
+            display: inline-block;
+            transform-origin: left center;
+        }
+
+        .hud-lifetime-value.pulse-active {
+            animation: lifetimePulse var(--pulse-duration, 3s) ease-in-out infinite;
+        }
+
+        @keyframes lifetimePulse {
+            0%, 100% { transform: scale(1.0); opacity: 1; }
+            12% { transform: scale(1.07); opacity: 1; }
+            22% { transform: scale(1.0); opacity: 1; }
+            32% { transform: scale(1.04); opacity: 1; }
+            42% { transform: scale(1.0); opacity: 1; }
+        }
+
+        /* BIRTH YEAR MARKER ON SCREEN */
+        #birth-marker {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 12;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        #birth-marker.visible {
+            opacity: 1;
+        }
+
+        #birth-marker span {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.45);
+            text-transform: uppercase;
+        }
+
+        /* TIMELINE BIRTH HIGHLIGHT */
+        .timeline-birth-band {
+            position: absolute;
+            left: -1px;
+            width: 5px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 2px;
+            pointer-events: none;
+            box-shadow: 0 0 6px rgba(255,255,255,0.06);
+        }
+
+        .timeline-birth-label {
+            position: absolute;
+            right: 14px;
+            font-size: 9px;
+            color: rgba(255,255,255,0.25);
+            letter-spacing: 0.06em;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+            transform: translateY(-50%);
+        }
+
+        /* CLOSING PERSONAL LINE */
+        .closing-personal {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: clamp(15px, 2vw, 20px);
+            line-height: 1.7;
+            color: rgba(255,255,255,0.75);
+            margin-top: 20px;
+            font-style: italic;
+            opacity: 0;
+            transition: opacity 1.5s ease 1.2s;
+        }
+
+        #closing-overlay.visible .closing-personal {
+            opacity: 1;
+        }
+
+        /* Big typographic year for emphasis */
+        #big-year {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(180px, 28vw, 380px);
+            font-weight: 700;
+            letter-spacing: -0.06em;
+            color: rgba(255,255,255,0.03);
+            z-index: 2;
+            pointer-events: none;
+            font-variant-numeric: tabular-nums;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #big-year.visible {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            #data-hud {
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 16px 20px 24px;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            #hud-scrim {
+                display: block;
+                position: fixed;
+                bottom: 0; left: 0; right: 0;
+                height: 220px;
+                background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 60%, transparent 100%);
+                z-index: 9;
+                pointer-events: none;
+            }
+
+            .hud-year {
+                font-size: clamp(42px, 12vw, 64px);
+            }
+
+            .hud-row {
+                gap: 20px;
+                margin-top: 6px;
+                flex-wrap: wrap;
+            }
+
+            .hud-label {
+                font-size: 8px;
+                letter-spacing: 0.14em;
+                margin-bottom: 2px;
+            }
+
+            .hud-value {
+                font-size: clamp(16px, 4.5vw, 22px);
+            }
+
+            #temp-sparkline {
+                width: clamp(160px, 55vw, 280px);
+                height: 44px;
+                margin-top: 10px;
+            }
+
+            /* Timeline to left edge for thumb reach */
+            #timeline {
+                right: auto;
+                left: 10px;
+                height: 35vh;
+            }
+
+            .timeline-label {
+                right: auto;
+                left: 14px;
+            }
+
+            .timeline-birth-label {
+                right: auto;
+                left: 14px;
+            }
+
+            #timeline-tooltip {
+                right: auto;
+                left: 34px;
+            }
+
+            /* Event card below globe */
+            #event-card {
+                top: auto;
+                bottom: 200px;
+                right: 20px;
+                left: 20px;
+                max-width: none;
+                transform: none;
+                text-align: center;
+            }
+
+            .event-name { font-size: 15px; }
+            .event-desc { font-size: 12px; }
+
+            /* Big year more transparent on mobile */
+            #big-year {
+                font-size: clamp(100px, 22vw, 200px);
+                color: rgba(255,255,255,0.02);
+            }
+
+            /* Touch-friendly birth year input */
+            #birth-year-input {
+                bottom: 12%;
+            }
+
+            #birth-year-input .birth-label {
+                font-size: 9px;
+            }
+
+            #birth-year {
+                font-size: 15px;
+                padding: 12px 18px;
+                min-height: 48px;
+                width: 170px;
+            }
+
+            #birth-year-confirm {
+                min-height: 48px;
+                min-width: 48px;
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+
+            /* Closing text smaller */
+            #closing-overlay .closing-serif {
+                font-size: clamp(15px, 4vw, 20px);
+                padding: 0 16px;
+            }
+
+            #closing-overlay .closing-sans {
+                font-size: clamp(12px, 3vw, 16px);
+            }
+
+            .closing-personal {
+                font-size: clamp(13px, 3.5vw, 17px) !important;
+            }
+
+            /* Intro quote */
+            #intro-quote p {
+                font-size: clamp(14px, 4vw, 20px);
+            }
+
+            .hud-lifetime-value {
+                font-size: clamp(14px, 3.5vw, 20px) !important;
+            }
+
+            /* Hide sparkline on very small screens */
+            @media (max-height: 600px) {
+                #temp-sparkline { display: none; }
+            }
+
+            #sound-toggle {
+                top: 16px;
+                right: 16px;
+                width: 40px;
+                height: 40px;
+            }
+
+            #sound-toggle svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="loading-overlay" id="loading">
+    <div class="loading-text">Loading Earth…</div>
+</div>
+
+<button id="sound-toggle" aria-label="Toggle sound">
+    <svg viewBox="0 0 24 24">
+        <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+        <path class="sound-waves" d="M15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/>
+        <line class="mute-line" x1="4" y1="4" x2="20" y2="20"/>
+    </svg>
+</button>
+
+<div id="intro-overlay">
+    <div id="intro-dot"></div>
+    <div id="intro-quote">
+        <p>Look again at that dot. That's here. That's home. That's us.</p>
+        <div class="attribution">Carl Sagan, 1994</div>
+    </div>
+    <div id="scroll-hint">
+        <span>Scroll to begin</span>
+        <div class="arrow"></div>
+    </div>
+    <div id="birth-year-input">
+        <span class="birth-label">Personalize your journey</span>
+        <div class="birth-row">
+            <input type="text" id="birth-year" placeholder="Birth year" maxlength="4" inputmode="numeric" />
+            <button id="birth-year-confirm" aria-label="Confirm birth year">→</button>
+        </div>
+    </div>
+</div>
+
+<div id="canvas-wrap"></div>
+
+<div id="big-year"></div>
+
+    <div id="hud-scrim"></div>
+
+<div id="data-hud">
+    <div class="hud-year" id="hud-year">1880</div>
+    <div class="hud-row">
+        <div class="hud-item">
+            <div class="hud-label">Temperature Anomaly</div>
+            <div class="hud-value" id="hud-temp">−0.16°C</div>
+        </div>
+        <div class="hud-item">
+            <div class="hud-label">CO₂ Concentration</div>
+            <div class="hud-value" id="hud-co2">280.0 ppm</div>
+        </div>
+        <div class="hud-item hud-lifetime" id="hud-lifetime-wrap" style="display:none;">
+            <div class="hud-label">Your Lifetime</div>
+            <div class="hud-value hud-lifetime-value" id="hud-lifetime">—</div>
+        </div>
+    </div>
+    <div id="temp-sparkline">
+        <canvas id="sparkline-canvas"></canvas>
+        <div class="sparkline-label">
+            <span>1880</span>
+            <span>2026</span>
+        </div>
+    </div>
+</div>
+
+<div id="event-card">
+    <div class="event-category" id="evt-cat"></div>
+    <div class="event-name" id="evt-name"></div>
+    <div class="event-desc" id="evt-desc"></div>
+</div>
+
+<div id="timeline">
+    <div id="timeline-track"></div>
+    <div id="timeline-fill"></div>
+    <div id="timeline-indicator"></div>
+    <div class="timeline-label top">1880</div>
+    <div class="timeline-label bottom">2026</div>
+</div>
+<div id="timeline-tooltip"></div>
+
+<div id="vignette"></div>
+<div id="vignette-warmth"></div>
+
+<div id="closing-overlay">
+    <div class="closing-serif">We are the first generation to feel the impact of climate change, and the last generation that can do something about it.</div>
+    <div class="closing-personal" id="closing-personal"></div>
+    <div class="closing-sans">What happens next is up to us.</div>
+</div>
+
+<div id="scroll-container"></div>
+
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+// ─── DATA ───
+const tempData = [
+    {y:1880,t:-0.16},{y:1881,t:-0.08},{y:1882,t:-0.10},{y:1883,t:-0.18},{y:1884,t:-0.29},
+    {y:1885,t:-0.32},{y:1886,t:-0.31},{y:1887,t:-0.36},{y:1888,t:-0.17},{y:1889,t:-0.09},
+    {y:1890,t:-0.27},{y:1891,t:-0.16},{y:1892,t:-0.27},{y:1893,t:-0.31},{y:1894,t:-0.24},
+    {y:1895,t:-0.19},{y:1896,t:-0.08},{y:1897,t:-0.01},{y:1898,t:-0.12},{y:1899,t:-0.08},
+    {y:1900,t:-0.08},{y:1901,t:-0.06},{y:1902,t:-0.23},{y:1903,t:-0.38},{y:1904,t:-0.48},
+    {y:1905,t:-0.26},{y:1906,t:-0.02},{y:1907,t:-0.32},{y:1908,t:-0.43},{y:1909,t:-0.48},
+    {y:1910,t:-0.28},{y:1911,t:-0.44},{y:1912,t:-0.37},{y:1913,t:-0.32},{y:1914,t:-0.12},
+    {y:1915,t:0.00},{y:1916,t:-0.31},{y:1917,t:-0.46},{y:1918,t:-0.22},{y:1919,t:-0.27},
+    {y:1920,t:-0.22},{y:1921,t:-0.10},{y:1922,t:-0.21},{y:1923,t:-0.16},{y:1924,t:-0.27},
+    {y:1925,t:-0.16},{y:1926,t:-0.02},{y:1927,t:-0.08},{y:1928,t:-0.15},{y:1929,t:-0.31},
+    {y:1930,t:-0.09},{y:1931,t:-0.09},{y:1932,t:-0.16},{y:1933,t:-0.31},{y:1934,t:0.05},
+    {y:1935,t:-0.03},{y:1936,t:-0.10},{y:1937,t:0.10},{y:1938,t:0.13},{y:1939,t:0.08},
+    {y:1940,t:0.13},{y:1941,t:0.19},{y:1942,t:0.08},{y:1943,t:0.06},{y:1944,t:0.25},
+    {y:1945,t:0.14},{y:1946,t:-0.08},{y:1947,t:-0.03},{y:1948,t:-0.06},{y:1949,t:-0.07},
+    {y:1950,t:-0.16},{y:1951,t:-0.06},{y:1952,t:0.07},{y:1953,t:0.08},{y:1954,t:-0.13},
+    {y:1955,t:-0.14},{y:1956,t:-0.19},{y:1957,t:0.05},{y:1958,t:0.06},{y:1959,t:0.03},
+    {y:1960,t:0.03},{y:1961,t:0.06},{y:1962,t:0.03},{y:1963,t:0.05},{y:1964,t:-0.20},
+    {y:1965,t:-0.11},{y:1966,t:-0.06},{y:1967,t:-0.02},{y:1968,t:-0.07},{y:1969,t:0.05},
+    {y:1970,t:0.03},{y:1971,t:-0.09},{y:1972,t:0.03},{y:1973,t:0.16},{y:1974,t:-0.07},
+    {y:1975,t:-0.01},{y:1976,t:-0.10},{y:1977,t:0.18},{y:1978,t:0.07},{y:1979,t:0.16},
+    {y:1980,t:0.26},{y:1981,t:0.32},{y:1982,t:0.06},{y:1983,t:0.31},{y:1984,t:0.16},
+    {y:1985,t:0.12},{y:1986,t:0.18},{y:1987,t:0.32},{y:1988,t:0.40},{y:1989,t:0.27},
+    {y:1990,t:0.45},{y:1991,t:0.41},{y:1992,t:0.21},{y:1993,t:0.24},{y:1994,t:0.31},
+    {y:1995,t:0.45},{y:1996,t:0.33},{y:1997,t:0.61},{y:1998,t:0.61},{y:1999,t:0.42},
+    {y:2000,t:0.40},{y:2001,t:0.54},{y:2002,t:0.61},{y:2003,t:0.63},{y:2004,t:0.53},
+    {y:2005,t:0.68},{y:2006,t:0.64},{y:2007,t:0.66},{y:2008,t:0.54},{y:2009,t:0.66},
+    {y:2010,t:0.72},{y:2011,t:0.61},{y:2012,t:0.65},{y:2013,t:0.67},{y:2014,t:0.74},
+    {y:2015,t:0.87},{y:2016,t:1.01},{y:2017,t:0.92},{y:2018,t:0.85},{y:2019,t:0.98},
+    {y:2020,t:1.02},{y:2021,t:0.85},{y:2022,t:0.89},{y:2023,t:1.17},{y:2024,t:1.29},
+    {y:2025,t:1.30}
+];
+
+const co2Data = [
+    {y:1880,c:280.0},{y:1881,c:280.5},{y:1882,c:281.0},{y:1883,c:281.5},{y:1884,c:282.0},
+    {y:1885,c:282.5},{y:1886,c:283.0},{y:1887,c:283.4},{y:1888,c:283.8},{y:1889,c:284.2},
+    {y:1890,c:284.6},{y:1891,c:285.0},{y:1892,c:285.4},{y:1893,c:285.8},{y:1894,c:286.2},
+    {y:1895,c:286.6},{y:1896,c:287.0},{y:1897,c:287.3},{y:1898,c:287.6},{y:1899,c:287.9},
+    {y:1900,c:288.2},{y:1901,c:288.5},{y:1902,c:288.8},{y:1903,c:289.1},{y:1904,c:289.4},
+    {y:1905,c:289.7},{y:1906,c:290.0},{y:1907,c:290.3},{y:1908,c:290.6},{y:1909,c:290.9},
+    {y:1910,c:291.2},{y:1911,c:291.5},{y:1912,c:291.8},{y:1913,c:292.1},{y:1914,c:292.4},
+    {y:1915,c:292.7},{y:1916,c:293.0},{y:1917,c:293.2},{y:1918,c:293.4},{y:1919,c:293.6},
+    {y:1920,c:293.8},{y:1921,c:294.0},{y:1922,c:294.2},{y:1923,c:294.4},{y:1924,c:294.6},
+    {y:1925,c:294.8},{y:1926,c:295.0},{y:1927,c:295.2},{y:1928,c:295.4},{y:1929,c:295.6},
+    {y:1930,c:295.8},{y:1931,c:296.0},{y:1932,c:296.2},{y:1933,c:296.4},{y:1934,c:296.6},
+    {y:1935,c:296.8},{y:1936,c:297.0},{y:1937,c:297.3},{y:1938,c:297.6},{y:1939,c:297.9},
+    {y:1940,c:298.2},{y:1941,c:298.5},{y:1942,c:298.8},{y:1943,c:299.1},{y:1944,c:299.4},
+    {y:1945,c:299.7},{y:1946,c:300.0},{y:1947,c:300.3},{y:1948,c:300.6},{y:1949,c:300.9},
+    {y:1950,c:301.2},{y:1951,c:301.4},{y:1952,c:301.6},{y:1953,c:301.8},{y:1954,c:302.0},
+    {y:1955,c:302.2},{y:1956,c:302.4},{y:1957,c:302.6},{y:1958,c:315.98},{y:1959,c:316.91},
+    {y:1960,c:317.51},{y:1961,c:317.99},{y:1962,c:318.65},{y:1963,c:318.95},{y:1964,c:318.99},
+    {y:1965,c:319.04},{y:1966,c:319.62},{y:1967,c:320.04},{y:1968,c:320.66},{y:1969,c:321.32},
+    {y:1970,c:325.68},{y:1971,c:326.26},{y:1972,c:327.49},{y:1973,c:329.68},{y:1974,c:330.18},
+    {y:1975,c:331.08},{y:1976,c:331.78},{y:1977,c:333.78},{y:1978,c:335.50},{y:1979,c:336.78},
+    {y:1980,c:338.76},{y:1981,c:340.11},{y:1982,c:341.45},{y:1983,c:342.69},{y:1984,c:344.42},
+    {y:1985,c:345.90},{y:1986,c:347.25},{y:1987,c:348.93},{y:1988,c:351.57},{y:1989,c:353.12},
+    {y:1990,c:354.39},{y:1991,c:355.65},{y:1992,c:356.45},{y:1993,c:357.07},{y:1994,c:358.84},
+    {y:1995,c:360.82},{y:1996,c:362.61},{y:1997,c:363.77},{y:1998,c:366.70},{y:1999,c:368.38},
+    {y:2000,c:369.55},{y:2001,c:371.14},{y:2002,c:373.28},{y:2003,c:375.80},{y:2004,c:377.52},
+    {y:2005,c:379.80},{y:2006,c:381.90},{y:2007,c:383.79},{y:2008,c:385.59},{y:2009,c:387.43},
+    {y:2010,c:389.90},{y:2011,c:391.65},{y:2012,c:393.82},{y:2013,c:396.52},{y:2014,c:397.82},
+    {y:2015,c:400.83},{y:2016,c:404.24},{y:2017,c:406.55},{y:2018,c:408.52},{y:2019,c:411.44},
+    {y:2020,c:413.61},{y:2021,c:414.80},{y:2022,c:417.12},{y:2023,c:421.08},{y:2024,c:427.00},
+    {y:2025,c:428.00}
+];
+
+const events = [
+    {year:1896,name:"Arrhenius Greenhouse Theory",desc:"Svante Arrhenius publishes the first quantitative theory linking atmospheric CO₂ to global warming.",cat:"science"},
+    {year:1930,name:"Dust Bowl Begins",desc:"Severe drought and agricultural mismanagement trigger the most devastating environmental disaster in US history.",cat:"disaster"},
+    {year:1938,name:"Callendar Effect",desc:"Guy Stewart Callendar demonstrates that atmospheric CO₂ levels are rising and warming the planet.",cat:"science"},
+    {year:1958,name:"Mauna Loa Monitoring Begins",desc:"Charles Keeling establishes continuous atmospheric CO₂ measurements at Mauna Loa Observatory.",cat:"science"},
+    {year:1970,name:"First Earth Day",desc:"Earth Day is celebrated on April 22nd, galvanizing the modern environmental movement.",cat:"policy"},
+    {year:1979,name:"First World Climate Conference",desc:"The World Meteorological Organization convenes the first international conference on climate change.",cat:"policy"},
+    {year:1988,name:"Hansen Senate Testimony",desc:"NASA scientist James Hansen tells the US Senate that climate change is underway with 99% confidence.",cat:"science"},
+    {year:1988,name:"IPCC Established",desc:"The Intergovernmental Panel on Climate Change is created to assess climate science.",cat:"policy"},
+    {year:1992,name:"Rio Earth Summit",desc:"The UNFCCC is adopted at the Rio Summit, establishing the foundation for climate negotiations.",cat:"policy"},
+    {year:1997,name:"Kyoto Protocol Adopted",desc:"Nations commit to reduce greenhouse gas emissions by an average of 5% below 1990 levels.",cat:"policy"},
+    {year:1998,name:"Hottest Year on Record",desc:"El Niño-driven temperature spike makes 1998 the hottest year recorded to date.",cat:"milestone"},
+    {year:2005,name:"Hurricane Katrina",desc:"Warming-intensified Hurricane Katrina kills over 1,800 people, exposing vulnerability to climate extremes.",cat:"disaster"},
+    {year:2012,name:"Arctic Sea Ice Minimum",desc:"Arctic sea ice reaches the lowest extent on satellite record, indicating rapid polar warming.",cat:"milestone"},
+    {year:2013,name:"CO₂ Crosses 400 ppm",desc:"Atmospheric CO₂ surpasses 400 ppm for the first time in human history.",cat:"milestone"},
+    {year:2015,name:"Paris Agreement",desc:"196 parties adopt the Paris Agreement to limit global warming to well below 2°C.",cat:"policy"},
+    {year:2016,name:"Hottest Year — +1.01°C",desc:"2016 becomes the hottest year on record with +1.01°C anomaly above baseline.",cat:"milestone"},
+    {year:2019,name:"Australian Bushfire Crisis",desc:"Record heat fuels catastrophic wildfires across Australia, burning over 18 million hectares.",cat:"disaster"},
+    {year:2023,name:"Hottest Year — +1.17°C",desc:"2023 becomes the hottest year on record, driven by climate change and marine heatwaves.",cat:"milestone"},
+    {year:2024,name:"Temperature Exceeds 1.5°C Pathway",desc:"Annual global temperatures reach +1.29°C, approaching critical Paris Agreement thresholds.",cat:"milestone"},
+    {year:2025,name:"Climate Crisis Acceleration",desc:"Continued warming at +1.30°C demonstrates the acceleration of climate impacts globally.",cat:"milestone"}
+];
+
+// ─── UTILITY ───
+const YEAR_MIN = 1880, YEAR_MAX = 2026;
+const lerp = (a, b, t) => a + (b - a) * t;
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+function interpolateData(data, yearFloat, keyY, keyV) {
+    const idx = clamp(Math.floor(yearFloat) - data[0][keyY], 0, data.length - 2);
+    const frac = yearFloat - data[idx][keyY];
+    return lerp(data[idx][keyV], data[Math.min(idx + 1, data.length - 1)][keyV], clamp(frac, 0, 1));
+}
+
+function getTemp(yearFloat) { return interpolateData(tempData, yearFloat, 'y', 't'); }
+function getCO2(yearFloat) { return interpolateData(co2Data, yearFloat, 'y', 'c'); }
+
+// Temperature color gradient
+function tempToColor(temp) {
+    const stops = [
+        { t: -0.5, r: 11/255, g: 29/255, b: 58/255 },
+        { t:  0.0, r: 212/255, g: 197/255, b: 169/255 },
+        { t:  0.5, r: 212/255, g: 136/255, b: 58/255 },
+        { t:  1.0, r: 160/255, g: 52/255, b: 32/255 },
+        { t:  1.3, r: 139/255, g: 26/255, b: 26/255 }
+    ];
+    if (temp <= stops[0].t) return new THREE.Color(stops[0].r, stops[0].g, stops[0].b);
+    if (temp >= stops[stops.length-1].t) return new THREE.Color(stops[stops.length-1].r, stops[stops.length-1].g, stops[stops.length-1].b);
+    for (let i = 0; i < stops.length - 1; i++) {
+        if (temp >= stops[i].t && temp <= stops[i+1].t) {
+            const f = (temp - stops[i].t) / (stops[i+1].t - stops[i].t);
+            return new THREE.Color(
+                lerp(stops[i].r, stops[i+1].r, f),
+                lerp(stops[i].g, stops[i+1].g, f),
+                lerp(stops[i].b, stops[i+1].b, f)
+            );
+        }
+    }
+    return new THREE.Color(1, 1, 1);
+}
+
+function tempToCSS(temp) {
+    const c = tempToColor(temp);
+    return `rgb(${Math.round(c.r*255)},${Math.round(c.g*255)},${Math.round(c.b*255)})`;
+}
+
+// ─── THREE.JS SCENE ───
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.getElementById('canvas-wrap').appendChild(renderer.domElement);
+
+camera.position.set(0, 0, isMobile ? 2.6 : 3.2);
+
+// Force immediate loading overlay hide after 6s max (failsafe)
+setTimeout(() => {
+    if (!texturesLoaded) {
+        texturesLoaded = true;
+        clearTimeout(loadingTimeout);
+        loadingOverlay.classList.add('hidden');
+        setTimeout(() => { loadingOverlay.style.display = 'none'; }, 800);
+        crossfadeStart = performance.now();
+    }
+}, 6000);
+
+// Lighting
+const ambientLight = new THREE.AmbientLight(0x404060, 0.25);
+scene.add(ambientLight);
+
+const sunLight = new THREE.DirectionalLight(0xffffff, 1.8);
+sunLight.position.set(5, 3, 5);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.width = 2048;
+sunLight.shadow.mapSize.height = 2048;
+scene.add(sunLight);
+
+const rimLight = new THREE.DirectionalLight(0x6688cc, 0.3);
+rimLight.position.set(-4, -1, -3);
+scene.add(rimLight);
+
+// Texture loader
+// ─── MOBILE DETECTION ───
+var isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
+const MOBILE_PARTICLE_FACTOR = isMobile ? 0.5 : 1.0;
+
+// ─── TEXTURE LOADING WITH FALLBACK ───
+const textureLoader = new THREE.TextureLoader();
+
+// Show loading state after 1 second if textures haven't loaded
+let texturesLoaded = false;
+const loadingOverlay = document.getElementById('loading-overlay');
+
+const loadingTimeout = setTimeout(() => {
+    if (!texturesLoaded) {
+        loadingOverlay.style.opacity = '1';
+    }
+}, 1000);
+
+// Placeholder color while textures load
+const placeholderColor = new THREE.Color(0.08, 0.15, 0.3);
+
+// Track loaded textures
+let loadedCount = 0;
+const totalTextures = 4;
+
+function onTextureLoad() {
+    loadedCount++;
+    if (loadedCount >= totalTextures) {
+        texturesLoaded = true;
+        clearTimeout(loadingTimeout);
+        loadingOverlay.classList.add('hidden');
+        setTimeout(() => { loadingOverlay.style.display = 'none'; }, 800);
+        // Start crossfade to real textures
+        crossfadeStart = performance.now();
+    }
+}
+
+function onTextureError() {
+    onTextureLoad(); // Count it so we don't block forever
+}
+
+const dayTexture = textureLoader.load(
+    'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg',
+    onTextureLoad, undefined, onTextureError
+);
+const normalTexture = textureLoader.load(
+    'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_normal_2048.jpg',
+    onTextureLoad, undefined, onTextureError
+);
+const specularTexture = textureLoader.load(
+    'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg',
+    onTextureLoad, undefined, onTextureError
+);
+const cloudsTexture = textureLoader.load(
+    'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png',
+    onTextureLoad, undefined, onTextureError
+);
+
+// ─── EARTH ───
+const earthGeometry = new THREE.SphereGeometry(1, 128, 128);
+
+const earthMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+        uDayMap: { value: dayTexture },
+        uNormalMap: { value: normalTexture },
+        uSpecularMap: { value: specularTexture },
+        uTintColor: { value: new THREE.Color(0.04, 0.11, 0.23) },
+        uTintStrength: { value: 0.0 },
+        uLightDir: { value: new THREE.Vector3(1, 0.5, 1).normalize() },
+        uTime: { value: 0.0 },
+        uTextureLoaded: { value: 0.0 }
+    },
+    vertexShader: `
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+        varying vec3 vWorldNormal;
+        void main() {
+            vUv = uv;
+            vNormal = normalize(normalMatrix * normal);
+            vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
+            vWorldNormal = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `,
+    fragmentShader: `
+        uniform sampler2D uDayMap;
+        uniform sampler2D uNormalMap;
+        uniform sampler2D uSpecularMap;
+        uniform vec3 uTintColor;
+        uniform float uTintStrength;
+        uniform vec3 uLightDir;
+        uniform float uTime;
+        uniform float uTextureLoaded;
+
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+        varying vec3 vWorldNormal;
+
+        void main() {
+            vec3 placeholder = vec3(0.08, 0.15, 0.3);
+            vec3 texColor = texture2D(uDayMap, vUv).rgb;
+            vec3 dayColor = mix(placeholder, texColor, uTextureLoaded);
+            float spec = texture2D(uSpecularMap, vUv).r * uTextureLoaded;
+
+            // Lighting
+            float NdotL = max(dot(vWorldNormal, uLightDir), 0.0);
+            float diffuse = NdotL * 0.8 + 0.2;
+
+            // Specular
+            vec3 viewDir = normalize(-vPosition);
+            vec3 halfDir = normalize(uLightDir + viewDir);
+            float specular = pow(max(dot(vNormal, halfDir), 0.0), 60.0) * spec * 0.5;
+
+            // Night side subtle glow
+            float nightMask = smoothstep(-0.1, 0.2, -NdotL);
+            vec3 nightGlow = vec3(0.02, 0.015, 0.005) * nightMask;
+
+            // Combine
+            vec3 lit = dayColor * diffuse + vec3(specular) + nightGlow;
+
+            // Temperature tint overlay
+            vec3 tinted = mix(lit, lit * uTintColor * 2.5, uTintStrength);
+            // Also add an emissive tint at high anomalies
+            tinted += uTintColor * uTintStrength * 0.15;
+
+            // Slight desaturation at high tint to keep it from going neon
+            float gray = dot(tinted, vec3(0.299, 0.587, 0.114));
+            tinted = mix(tinted, vec3(gray) * uTintColor * 1.5, uTintStrength * 0.2);
+
+            gl_FragColor = vec4(tinted, 1.0);
+        }
+    `
+});
+
+const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+earth.castShadow = true;
+earth.receiveShadow = true;
+scene.add(earth);
+
+// ─── CLOUDS ───
+const cloudsGeometry = new THREE.SphereGeometry(1.008, 64, 64);
+const cloudsMaterial = new THREE.MeshPhongMaterial({
+    map: cloudsTexture,
+    transparent: true,
+    opacity: 0.28,
+    depthWrite: false,
+    color: 0xffffff,
+    blending: THREE.NormalBlending
+});
+const clouds = new THREE.Mesh(cloudsGeometry, cloudsMaterial);
+scene.add(clouds);
+
+// ─── ATMOSPHERE (Fresnel rim — CO₂ driven) ───
+const atmosphereGeometry = new THREE.SphereGeometry(1.02, 64, 64);
+const atmosphereMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+        uCO2Color: { value: new THREE.Color(0.6, 0.75, 1.0) },
+        uIntensity: { value: 0.6 },
+        uThickness: { value: 1.8 },
+        uLightDir: { value: new THREE.Vector3(1, 0.5, 1).normalize() }
+    },
+    vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vViewDir;
+        varying vec3 vWorldPos;
+        void main() {
+            vNormal = normalize(normalMatrix * normal);
+            vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+            vViewDir = normalize(-mvPos.xyz);
+            vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
+            gl_Position = projectionMatrix * mvPos;
+        }
+    `,
+    fragmentShader: `
+        uniform vec3 uCO2Color;
+        uniform float uIntensity;
+        uniform float uThickness;
+        uniform vec3 uLightDir;
+
+        varying vec3 vNormal;
+        varying vec3 vViewDir;
+        varying vec3 vWorldPos;
+
+        void main() {
+            float fresnel = 1.0 - dot(vNormal, vViewDir);
+            fresnel = pow(fresnel, uThickness);
+
+            // Limb darkening on the shadow side
+            vec3 worldNormal = normalize(vWorldPos);
+            float NdotL = dot(worldNormal, uLightDir);
+            float lightFactor = smoothstep(-0.3, 0.5, NdotL);
+
+            vec3 col = uCO2Color * uIntensity;
+            float alpha = fresnel * (0.3 + lightFactor * 0.7);
+
+            gl_FragColor = vec4(col, alpha * uIntensity);
+        }
+    `,
+    transparent: true,
+    side: THREE.FrontSide,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false
+});
+const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+scene.add(atmosphere);
+
+// Outer glow
+const glowGeometry = new THREE.SphereGeometry(1.06, 32, 32);
+const glowMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+        uColor: { value: new THREE.Color(0.3, 0.5, 1.0) },
+        uIntensity: { value: 0.15 }
+    },
+    vertexShader: `
+        varying vec3 vNormal;
+        void main() {
+            vNormal = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `,
+    fragmentShader: `
+        uniform vec3 uColor;
+        uniform float uIntensity;
+        varying vec3 vNormal;
+        void main() {
+            float intensity = pow(0.5 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
+            gl_FragColor = vec4(uColor, 1.0) * intensity * uIntensity;
+        }
+    `,
+    blending: THREE.AdditiveBlending,
+    side: THREE.BackSide,
+    transparent: true,
+    depthWrite: false
+});
+const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+scene.add(glow);
+
+// ─── ATMOSPHERIC PARTICLES ───
+const PARTICLE_COUNT = Math.round(180 * MOBILE_PARTICLE_FACTOR);
+const TRAIL_LENGTH = 3; // number of trail echoes per particle
+const TOTAL_POINTS = PARTICLE_COUNT * (1 + TRAIL_LENGTH); // main + trail copies
+const particleGeo = new THREE.BufferGeometry();
+const pPositions = new Float32Array(TOTAL_POINTS * 3);
+const pAltitudes = new Float32Array(PARTICLE_COUNT);
+const pPhases = new Float32Array(PARTICLE_COUNT);
+const pSpeeds = new Float32Array(PARTICLE_COUNT);
+const pLatitudes = new Float32Array(PARTICLE_COUNT);
+const pBaseSizes = new Float32Array(PARTICLE_COUNT);
+const pAllSizes = new Float32Array(TOTAL_POINTS);
+const pTrailAlphas = new Float32Array(TOTAL_POINTS); // per-vertex alpha multiplier
+
+// Trail history: store previous positions for each particle
+const trailHistory = [];
+for (let i = 0; i < PARTICLE_COUNT; i++) {
+    trailHistory.push([]);
+}
+
+for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const band = Math.floor(Math.random() * 4);
+    pAltitudes[i] = 1.03 + band * 0.015;
+    pPhases[i] = Math.random() * Math.PI * 2;
+    pSpeeds[i] = 0.3 + Math.random() * 0.7;
+    pLatitudes[i] = (Math.random() * 2 - 1) * 0.85;
+    pBaseSizes[i] = 0.15 + Math.random() * 0.25;
+
+    const lat = Math.asin(pLatitudes[i]);
+    const lon = pPhases[i];
+    const r = pAltitudes[i];
+    const x = r * Math.cos(lat) * Math.cos(lon);
+    const y = r * Math.sin(lat);
+    const z = r * Math.cos(lat) * Math.sin(lon);
+
+    // Main particle
+    const mainIdx = i * (1 + TRAIL_LENGTH);
+    pPositions[mainIdx * 3]     = x;
+    pPositions[mainIdx * 3 + 1] = y;
+    pPositions[mainIdx * 3 + 2] = z;
+    pAllSizes[mainIdx] = pBaseSizes[i];
+    pTrailAlphas[mainIdx] = 1.0;
+
+    // Trail echoes (start at same position)
+    for (let t = 0; t < TRAIL_LENGTH; t++) {
+        const tIdx = mainIdx + 1 + t;
+        pPositions[tIdx * 3]     = x;
+        pPositions[tIdx * 3 + 1] = y;
+        pPositions[tIdx * 3 + 2] = z;
+        pAllSizes[tIdx] = pBaseSizes[i] * (0.7 - t * 0.2); // progressively smaller
+        pTrailAlphas[tIdx] = (0.45 - t * 0.15); // progressively more transparent
+    }
+}
+
+particleGeo.setAttribute('position', new THREE.Float32BufferAttribute(pPositions, 3));
+particleGeo.setAttribute('size', new THREE.Float32BufferAttribute(pAllSizes, 1));
+particleGeo.setAttribute('trailAlpha', new THREE.Float32BufferAttribute(pTrailAlphas, 1));
+
+const particleMat = new THREE.ShaderMaterial({
+    uniforms: {
+        uTime: { value: 0 },
+        uEraProgress: { value: 0 },
+        uVisibleCount: { value: 50 },
+        uSpeedMult: { value: 1.0 },
+        uWarmth: { value: 0.0 },
+        uOpacity: { value: 1.0 },
+        uGlobeScale: { value: 1.0 },
+        uTrailStrength: { value: 0.0 } // 0 = no trails visible, 1 = full trails
+    },
+    vertexShader: `
+        attribute float size;
+        attribute float trailAlpha;
+        uniform float uTime;
+        uniform float uVisibleCount;
+        uniform float uOpacity;
+        uniform float uGlobeScale;
+        uniform float uTrailStrength;
+        varying float vAlpha;
+        varying float vIndex;
+        varying float vTrailAlpha;
+        void main() {
+            // Compute which base particle this vertex belongs to
+            int stride = ${1 + TRAIL_LENGTH};
+            int baseIdx = gl_VertexID / stride;
+            int subIdx = gl_VertexID - baseIdx * stride; // 0=main, 1..3=trail
+
+            vIndex = float(gl_VertexID);
+            vTrailAlpha = trailAlpha;
+
+            // Hide particles beyond visible count (based on base particle index)
+            float visible = step(float(baseIdx), uVisibleCount - 0.5);
+            // Trail echoes fade based on trail strength (speed-dependent)
+            float trailVis = subIdx == 0 ? 1.0 : uTrailStrength;
+            vAlpha = visible * uOpacity * trailVis;
+
+            vec3 scaledPos = position * uGlobeScale;
+            vec4 mvPos = modelViewMatrix * vec4(scaledPos, 1.0);
+            gl_PointSize = size * uGlobeScale * (120.0 / -mvPos.z);
+            gl_Position = projectionMatrix * mvPos;
+        }
+    `,
+    fragmentShader: `
+        uniform float uWarmth;
+        uniform float uTime;
+        varying float vAlpha;
+        varying float vIndex;
+        varying float vTrailAlpha;
+        void main() {
+            float combinedAlpha = vAlpha * vTrailAlpha;
+            if (combinedAlpha < 0.005) discard;
+            float d = length(gl_PointCoord - 0.5) * 2.0;
+            float alpha = smoothstep(1.0, 0.3, d);
+            alpha *= alpha;
+            alpha *= 0.35 + 0.2 * sin(uTime * 1.5 + vIndex * 7.3);
+            vec3 cool = vec3(0.82, 0.86, 1.0);
+            vec3 warm = vec3(0.95, 0.88, 0.72);
+            vec3 col = mix(cool, warm, uWarmth);
+            gl_FragColor = vec4(col, alpha * combinedAlpha * 0.7);
+        }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending
+});
+
+const particleSystem = new THREE.Points(particleGeo, particleMat);
+scene.add(particleSystem);
+
+// ─── DEEP SPACE STARFIELD ───
+// Layer 1: Dense background dust — thousands of tiny dim points like the Milky Way
+// Layer 2: Medium stars — varied colors (blue-white, white, yellow, orange, red) with soft glow
+// Layer 3: Bright foreground stars — larger, with diffraction spikes and pronounced twinkle
+
+function randomSpherePoint(rMin, rMax) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = rMin + Math.random() * (rMax - rMin);
+    return [
+        r * Math.sin(phi) * Math.cos(theta),
+        r * Math.sin(phi) * Math.sin(theta),
+        r * Math.cos(phi)
+    ];
+}
+
+// --- Layer 1: Background dust (dense field of tiny stars) ---
+const dustCount = isMobile ? 4000 : 12000;
+const dustPositions = new Float32Array(dustCount * 3);
+const dustSizes = new Float32Array(dustCount);
+const dustBrightness = new Float32Array(dustCount);
+for (let i = 0; i < dustCount; i++) {
+    const [x, y, z] = randomSpherePoint(40, 600);
+    dustPositions[i * 3] = x;
+    dustPositions[i * 3 + 1] = y;
+    dustPositions[i * 3 + 2] = z;
+    dustSizes[i] = 0.15 + Math.random() * 0.6;
+    // Most are dim but some punch through brightly
+    dustBrightness[i] = 0.3 + Math.random() * 0.7;
+}
+const dustGeo = new THREE.BufferGeometry();
+dustGeo.setAttribute('position', new THREE.Float32BufferAttribute(dustPositions, 3));
+dustGeo.setAttribute('size', new THREE.Float32BufferAttribute(dustSizes, 1));
+dustGeo.setAttribute('brightness', new THREE.Float32BufferAttribute(dustBrightness, 1));
+
+const dustMat = new THREE.ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uWarmth: { value: 0 } },
+    vertexShader: `
+        attribute float size;
+        attribute float brightness;
+        varying float vBright;
+        void main() {
+            vBright = brightness;
+            vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = size * (300.0 / -mvPos.z);
+            gl_PointSize = max(gl_PointSize, 1.0);
+            gl_Position = projectionMatrix * mvPos;
+        }
+    `,
+    fragmentShader: `
+        varying float vBright;
+        uniform float uWarmth;
+        void main() {
+            float d = length(gl_PointCoord - 0.5) * 2.0;
+            float core = smoothstep(0.6, 0.0, d);
+            float glow = smoothstep(1.0, 0.2, d) * 0.4;
+            float alpha = (core + glow) * vBright;
+            vec3 col = mix(vec3(0.82, 0.86, 1.0), vec3(0.95, 0.85, 0.7), uWarmth);
+            gl_FragColor = vec4(col, alpha);
+        }
+    `,
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+});
+const dustStars = new THREE.Points(dustGeo, dustMat);
+scene.add(dustStars);
+
+// --- Layer 2: Medium stars (varied spectral colors, soft glow, gentle twinkle) ---
+const medCount = isMobile ? 800 : 2500;
+const medPositions = new Float32Array(medCount * 3);
+const medSizes = new Float32Array(medCount);
+const medColors = new Float32Array(medCount * 3);
+const medPhase = new Float32Array(medCount); // twinkle phase offset
+const medSpeed = new Float32Array(medCount); // twinkle speed
+
+// Spectral star colors: O(blue) → B(blue-white) → A(white) → F(yellow-white) → G(yellow) → K(orange) → M(red)
+const starSpectralColors = [
+    [0.6, 0.7, 1.0],   // O — hot blue
+    [0.7, 0.8, 1.0],   // B — blue-white
+    [0.9, 0.92, 1.0],  // A — white with blue tint
+    [1.0, 0.97, 0.9],  // F — yellow-white
+    [1.0, 0.92, 0.7],  // G — yellow (sun-like)
+    [1.0, 0.75, 0.45], // K — orange
+    [1.0, 0.55, 0.35]  // M — red dwarf
+];
+// Weighted distribution — more dim red/orange, fewer hot blue
+const spectralWeights = [0.03, 0.05, 0.12, 0.15, 0.25, 0.25, 0.15];
+function pickSpectralColor() {
+    let r = Math.random(), cumulative = 0;
+    for (let i = 0; i < spectralWeights.length; i++) {
+        cumulative += spectralWeights[i];
+        if (r <= cumulative) return starSpectralColors[i];
+    }
+    return starSpectralColors[3];
+}
+
+for (let i = 0; i < medCount; i++) {
+    const [x, y, z] = randomSpherePoint(35, 500);
+    medPositions[i * 3] = x;
+    medPositions[i * 3 + 1] = y;
+    medPositions[i * 3 + 2] = z;
+    medSizes[i] = 0.6 + Math.random() * 1.8;
+    const col = pickSpectralColor();
+    // Slight random variation per star
+    medColors[i * 3] = Math.min(1.0, col[0] + (Math.random() - 0.5) * 0.1);
+    medColors[i * 3 + 1] = Math.min(1.0, col[1] + (Math.random() - 0.5) * 0.1);
+    medColors[i * 3 + 2] = Math.min(1.0, col[2] + (Math.random() - 0.5) * 0.1);
+    medPhase[i] = Math.random() * Math.PI * 2;
+    medSpeed[i] = 0.3 + Math.random() * 1.5;
+}
+
+const medGeo = new THREE.BufferGeometry();
+medGeo.setAttribute('position', new THREE.Float32BufferAttribute(medPositions, 3));
+medGeo.setAttribute('size', new THREE.Float32BufferAttribute(medSizes, 1));
+medGeo.setAttribute('color', new THREE.Float32BufferAttribute(medColors, 3));
+medGeo.setAttribute('phase', new THREE.Float32BufferAttribute(medPhase, 1));
+medGeo.setAttribute('speed', new THREE.Float32BufferAttribute(medSpeed, 1));
+
+const medMat = new THREE.ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uWarmth: { value: 0 } },
+    vertexShader: `
+        attribute float size;
+        attribute vec3 color;
+        attribute float phase;
+        attribute float speed;
+        varying vec3 vColor;
+        varying float vTwinkle;
+        uniform float uTime;
+        void main() {
+            vColor = color;
+            // Multi-frequency twinkle — like atmospheric scintillation
+            float t1 = sin(uTime * speed * 0.7 + phase) * 0.25;
+            float t2 = sin(uTime * speed * 1.3 + phase * 2.7) * 0.12;
+            float t3 = sin(uTime * speed * 3.1 + phase * 0.4) * 0.06;
+            vTwinkle = 0.7 + t1 + t2 + t3;
+            vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = size * (350.0 / -mvPos.z) * (0.9 + t1 * 0.2);
+            gl_PointSize = max(gl_PointSize, 1.2);
+            gl_Position = projectionMatrix * mvPos;
+        }
+    `,
+    fragmentShader: `
+        varying vec3 vColor;
+        varying float vTwinkle;
+        uniform float uWarmth;
+        void main() {
+            float d = length(gl_PointCoord - 0.5) * 2.0;
+            // Bright core with halo falloff
+            float core = smoothstep(0.4, 0.0, d);
+            float halo = smoothstep(1.0, 0.15, d) * 0.45;
+            float alpha = (core + halo) * vTwinkle;
+            // Shift color toward warm during closing
+            vec3 col = mix(vColor, vec3(1.0, 0.85, 0.6), uWarmth * 0.5);
+            // Whiten the cores
+            col = mix(col, vec3(1.0), core * 0.4);
+            gl_FragColor = vec4(col, alpha);
+        }
+    `,
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+});
+const medStars = new THREE.Points(medGeo, medMat);
+scene.add(medStars);
+
+// --- Layer 3: Bright foreground stars (larger, with diffraction spikes) ---
+const brightCount = isMobile ? 50 : 150;
+const brightPositions = new Float32Array(brightCount * 3);
+const brightSizes = new Float32Array(brightCount);
+const brightColors = new Float32Array(brightCount * 3);
+const brightPhase = new Float32Array(brightCount);
+const brightSpeed = new Float32Array(brightCount);
+
+for (let i = 0; i < brightCount; i++) {
+    const [x, y, z] = randomSpherePoint(30, 400);
+    brightPositions[i * 3] = x;
+    brightPositions[i * 3 + 1] = y;
+    brightPositions[i * 3 + 2] = z;
+    brightSizes[i] = 2.0 + Math.random() * 3.5;
+    // Bright stars tend to be hotter (bluer/whiter)
+    const col = starSpectralColors[Math.floor(Math.random() * 4)]; // O through F
+    brightColors[i * 3] = col[0];
+    brightColors[i * 3 + 1] = col[1];
+    brightColors[i * 3 + 2] = col[2];
+    brightPhase[i] = Math.random() * Math.PI * 2;
+    brightSpeed[i] = 0.2 + Math.random() * 0.8;
+}
+
+const brightGeo = new THREE.BufferGeometry();
+brightGeo.setAttribute('position', new THREE.Float32BufferAttribute(brightPositions, 3));
+brightGeo.setAttribute('size', new THREE.Float32BufferAttribute(brightSizes, 1));
+brightGeo.setAttribute('color', new THREE.Float32BufferAttribute(brightColors, 3));
+brightGeo.setAttribute('phase', new THREE.Float32BufferAttribute(brightPhase, 1));
+brightGeo.setAttribute('speed', new THREE.Float32BufferAttribute(brightSpeed, 1));
+
+const brightMat = new THREE.ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uWarmth: { value: 0 } },
+    vertexShader: `
+        attribute float size;
+        attribute vec3 color;
+        attribute float phase;
+        attribute float speed;
+        varying vec3 vColor;
+        varying float vTwinkle;
+        varying float vSize;
+        uniform float uTime;
+        void main() {
+            vColor = color;
+            vSize = size;
+            float t1 = sin(uTime * speed * 0.5 + phase) * 0.15;
+            float t2 = sin(uTime * speed * 1.7 + phase * 3.1) * 0.08;
+            vTwinkle = 0.8 + t1 + t2;
+            vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = size * (420.0 / -mvPos.z) * (0.92 + t1 * 0.15);
+            gl_PointSize = max(gl_PointSize, 2.5);
+            gl_Position = projectionMatrix * mvPos;
+        }
+    `,
+    fragmentShader: `
+        varying vec3 vColor;
+        varying float vTwinkle;
+        varying float vSize;
+        uniform float uWarmth;
+        void main() {
+            vec2 uv = gl_PointCoord - 0.5;
+            float d = length(uv) * 2.0;
+
+            // Intense bright core
+            float core = exp(-d * d * 10.0);
+
+            // Strong outer glow
+            float glow = exp(-d * d * 1.5) * 0.55;
+
+            // Diffraction spikes (4-pointed star) — more prominent
+            float angle = atan(uv.y, uv.x);
+            float spike1 = pow(abs(cos(angle * 2.0)), 60.0) * exp(-d * 1.5) * 0.7;
+            float spike2 = pow(abs(cos(angle * 2.0 + 0.785)), 90.0) * exp(-d * 1.8) * 0.35;
+
+            float alpha = (core + glow + spike1 + spike2) * vTwinkle;
+            alpha = clamp(alpha, 0.0, 1.0);
+
+            vec3 col = mix(vColor, vec3(1.0, 0.85, 0.6), uWarmth * 0.5);
+            // White-hot core, colored halo
+            vec3 finalCol = mix(col, vec3(1.0), core * 0.8);
+            gl_FragColor = vec4(finalCol, alpha);
+        }
+    `,
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+});
+const brightStars = new THREE.Points(brightGeo, brightMat);
+scene.add(brightStars);
+
+// Unified reference for animation loop
+const starsMaterial = { uniforms: medMat.uniforms };
+function updateAllStars(t, warmth) {
+    dustMat.uniforms.uTime.value = t;
+    dustMat.uniforms.uWarmth.value = warmth;
+    medMat.uniforms.uTime.value = t;
+    medMat.uniforms.uWarmth.value = warmth;
+    brightMat.uniforms.uTime.value = t;
+    brightMat.uniforms.uWarmth.value = warmth;
+}
+
+// ─── TIMELINE TICKS ───
+const timelineEl = document.getElementById('timeline');
+const timelineDots = [];
+events.forEach(evt => {
+    const pct = ((evt.year - YEAR_MIN) / (YEAR_MAX - YEAR_MIN)) * 100;
+    const tick = document.createElement('div');
+    tick.className = 'timeline-tick ' + evt.cat;
+    tick.style.top = pct + '%';
+    tick.title = evt.year + ': ' + evt.name;
+    tick.dataset.year = evt.year;
+
+    // Click dot to jump to that event year
+    tick.addEventListener('click', (e) => {
+        e.stopPropagation(); // don't trigger timeline's own click handler
+        if (!introComplete) dismissIntro();
+
+        // Ripple animation
+        tick.classList.remove('clicked');
+        void tick.offsetWidth; // force reflow to restart animation
+        tick.classList.add('clicked');
+        setTimeout(() => tick.classList.remove('clicked'), 500);
+
+        // Jump to event year
+        targetYear = evt.year;
+        const maxScroll = scrollContainer.scrollHeight - window.innerHeight;
+        const yearPct = (evt.year - YEAR_MIN) / (YEAR_MAX - YEAR_MIN);
+        const targetScroll = (yearPct * 0.92) * maxScroll;
+        window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    });
+
+    tick.addEventListener('touchend', (e) => {
+        e.stopPropagation();
+    });
+
+    timelineEl.appendChild(tick);
+    timelineDots.push({ el: tick, year: evt.year });
+});
+
+// ─── STATE ───
+let currentYear = 1880;
+let targetYear = 1880;
+let introComplete = false;
+let closingActive = false;
+let time = 0;
+let globeScale = 0; // for intro zoom-in
+let closingElapsed = 0; // seconds spent in closing sequence
+let starWarmth = 0; // 0 = cool blue-white, 1 = warm amber
+let crossfadeStart = -1; // -1 = not started yet
+let closingPersonalAnimated = false;
+let closingPersonalAnimStart = -1;
+
+// ─── INTRO SEQUENCE ───
+const introOverlay = document.getElementById('intro-overlay');
+const introDot = document.getElementById('intro-dot');
+const introQuote = document.getElementById('intro-quote');
+const scrollHint = document.getElementById('scroll-hint');
+
+setTimeout(() => { introDot.classList.add('visible'); }, 800);
+setTimeout(() => { introQuote.classList.add('visible'); }, 2800);
+setTimeout(() => { scrollHint.classList.add('visible'); }, 4500);
+setTimeout(() => { document.getElementById('birth-year-input').classList.add('visible'); }, 5200);
+setTimeout(() => { document.getElementById('sound-toggle').classList.add('visible'); }, 4000);
+
+// ─── BIRTH YEAR PERSONALIZATION ───
+let userBirthYear = null;
+let userBirthTemp = null;
+let birthMarkerShown = false;
+let birthMarkerTimer = null;
+
+const birthInput = document.getElementById('birth-year');
+const birthConfirmBtn = document.getElementById('birth-year-confirm');
+const birthInputWrap = document.getElementById('birth-year-input');
+
+function confirmBirthYear() {
+    const val = parseInt(birthInput.value, 10);
+    if (isNaN(val) || val < YEAR_MIN || val > 2025) return;
+    userBirthYear = val;
+    userBirthTemp = getTemp(val);
+    birthInputWrap.classList.add('confirmed');
+    // Delay timeline setup until the timeline is actually visible
+    setTimeout(() => {
+        setupBirthTimeline();
+    }, 800);
+}
+
+birthConfirmBtn.addEventListener('click', confirmBirthYear);
+birthInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') confirmBirthYear();
+});
+
+// Add birth band + label to the timeline
+function setupBirthTimeline() {
+    const pctStart = ((userBirthYear - YEAR_MIN) / (YEAR_MAX - YEAR_MIN)) * 100;
+    const pctEnd = 100;
+
+    const band = document.createElement('div');
+    band.className = 'timeline-birth-band';
+    band.style.top = pctStart + '%';
+    band.style.height = (pctEnd - pctStart) + '%';
+    timelineEl.appendChild(band);
+
+    const label = document.createElement('div');
+    label.className = 'timeline-birth-label';
+    label.style.top = pctStart + '%';
+    label.textContent = 'Born ' + userBirthYear;
+    timelineEl.appendChild(label);
+}
+
+// Birth marker element
+const birthMarkerEl = document.createElement('div');
+birthMarkerEl.id = 'birth-marker';
+birthMarkerEl.innerHTML = '<span>Your lifetime begins here</span>';
+document.body.appendChild(birthMarkerEl);
+
+function dismissIntro() {
+    if (introComplete) return;
+    introComplete = true;
+    introDot.classList.add('expand');
+    // If user hasn't confirmed a birth year yet but typed one, auto-confirm
+    if (userBirthYear === null && birthInput.value.length === 4) {
+        confirmBirthYear();
+    }
+    setTimeout(() => {
+        introOverlay.classList.add('hidden');
+        document.getElementById('data-hud').classList.add('visible');
+        document.getElementById('timeline').classList.add('visible');
+        document.getElementById('big-year').classList.add('visible');
+    }, 600);
+    // Auto-start audio (default ON) — needs user gesture context
+    if (!audioInitialized) {
+        try { initAudio(); } catch(e) {}
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    if (audioEnabled && audioCtx) {
+        const now = audioCtx.currentTime;
+        masterGain.gain.setValueAtTime(0, now);
+        masterGain.gain.linearRampToValueAtTime(0.85, now + 2.0);
+        startAmbience();
+    }
+}
+
+// ─── SCROLL HANDLING ───
+const scrollContainer = document.getElementById('scroll-container');
+let scrollEnabled = false;
+
+window.addEventListener('scroll', () => {
+    if (!introComplete) {
+        dismissIntro();
+        scrollEnabled = true;
+        return;
+    }
+    scrollEnabled = true;
+
+    const scrollTop = window.scrollY;
+    const maxScroll = scrollContainer.scrollHeight - window.innerHeight;
+    const progress = clamp(scrollTop / maxScroll, 0, 1);
+
+    // Map progress 0-0.92 → years, 0.92-1.0 → closing
+    if (progress < 0.92) {
+        const yearProgress = progress / 0.92;
+        targetYear = YEAR_MIN + yearProgress * (YEAR_MAX - YEAR_MIN);
+        closingActive = false;
+    } else {
+        targetYear = YEAR_MAX;
+        closingActive = true;
+    }
+});
+
+// ─── TIMELINE DRAG + CLICK ───
+let timelineDragging = false;
+let timelineDragSuppressClick = false;
+const timelineTooltip = document.getElementById('timeline-tooltip');
+
+// Build sorted array of event years for snap detection
+const eventYears = [...new Set(events.map(e => e.year))].sort((a, b) => a - b);
+// Map event years to their names for tooltip display
+const eventYearNames = {};
+events.forEach(e => { eventYearNames[e.year] = e.name; });
+
+const SNAP_THRESHOLD = 1.2; // ±1.2 years triggers snap
+const SNAP_LOCK = 0.8;      // within ±0.8 years, lock to exact event year
+let currentSnappedYear = null;
+
+function findNearestEvent(year) {
+    let nearest = null, minDist = Infinity;
+    for (let i = 0; i < eventYears.length; i++) {
+        const dist = Math.abs(year - eventYears[i]);
+        if (dist < minDist) { minDist = dist; nearest = eventYears[i]; }
+    }
+    return { year: nearest, dist: minDist };
+}
+
+function showTimelineTooltip(clientY, year) {
+    const nearest = findNearestEvent(year);
+    const isSnapping = nearest.dist <= SNAP_THRESHOLD;
+    const snappedYear = isSnapping ? nearest.year : Math.round(year);
+
+    // Show event name below year when snapped
+    if (isSnapping) {
+        timelineTooltip.innerHTML = '<span style="font-size:12px">' + nearest.year +
+            '</span><span style="display:block;font-size:9px;opacity:0.7;font-weight:400;margin-top:1px">' +
+            eventYearNames[nearest.year] + '</span>';
+    } else {
+        timelineTooltip.textContent = snappedYear;
+    }
+
+    timelineTooltip.style.top = clientY + 'px';
+    timelineTooltip.classList.add('visible');
+
+    if (isSnapping) {
+        timelineTooltip.classList.add('snap');
+        currentSnappedYear = nearest.year;
+    } else {
+        timelineTooltip.classList.remove('snap');
+        currentSnappedYear = null;
+    }
+
+    return { isSnapping, snappedYear: isSnapping ? nearest.year : null };
+}
+
+function hideTimelineTooltip() {
+    timelineTooltip.classList.remove('visible');
+    timelineTooltip.classList.remove('snap');
+    currentSnappedYear = null;
+}
+
+function timelineJumpTo(clientY, smooth) {
+    const rect = timelineEl.getBoundingClientRect();
+    const pct = clamp((clientY - rect.top) / rect.height, 0, 1);
+    let jumpYear = YEAR_MIN + pct * (YEAR_MAX - YEAR_MIN);
+
+    let snapResult = null;
+    if (timelineDragging) snapResult = showTimelineTooltip(clientY, jumpYear);
+
+    // Snap-lock: within tight threshold, lock to exact event year
+    if (snapResult && snapResult.isSnapping) {
+        const nearest = findNearestEvent(jumpYear);
+        if (nearest.dist <= SNAP_LOCK) {
+            jumpYear = nearest.year;
+        }
+    }
+
+    targetYear = jumpYear;
+
+    // Sync scroll position
+    const maxScroll = scrollContainer.scrollHeight - window.innerHeight;
+    const targetScroll = (pct * 0.92) * maxScroll;
+    if (smooth) {
+        window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    } else {
+        window.scrollTo({ top: targetScroll });
+    }
+}
+
+// Mouse down — start drag
+timelineEl.addEventListener('mousedown', (e) => {
+    if (!introComplete) dismissIntro();
+    e.preventDefault();
+    timelineDragging = true;
+    timelineDragSuppressClick = false;
+    timelineEl.classList.add('dragging');
+    timelineJumpTo(e.clientY, false);
+});
+
+// Mouse move — drag scrub (on window so it works even if cursor leaves the timeline)
+window.addEventListener('mousemove', (e) => {
+    if (!timelineDragging) return;
+    e.preventDefault();
+    timelineDragSuppressClick = true;
+    timelineJumpTo(e.clientY, false);
+});
+
+// Mouse up — stop drag
+window.addEventListener('mouseup', () => {
+    if (timelineDragging) {
+        timelineDragging = false;
+        timelineEl.classList.remove('dragging');
+        hideTimelineTooltip();
+    }
+});
+
+// Click — only fire if it wasn't a drag (pure click = smooth jump)
+timelineEl.addEventListener('click', (e) => {
+    if (timelineDragSuppressClick) {
+        timelineDragSuppressClick = false;
+        return;
+    }
+    if (!introComplete) dismissIntro();
+    timelineJumpTo(e.clientY, true);
+});
+
+// Touch support for mobile drag
+timelineEl.addEventListener('touchstart', (e) => {
+    if (!introComplete) dismissIntro();
+    timelineDragging = true;
+    timelineEl.classList.add('dragging');
+    timelineJumpTo(e.touches[0].clientY, false);
+}, { passive: true });
+
+timelineEl.addEventListener('touchmove', (e) => {
+    if (!timelineDragging) return;
+    e.preventDefault();
+    timelineJumpTo(e.touches[0].clientY, false);
+}, { passive: false });
+
+timelineEl.addEventListener('touchend', () => {
+    timelineDragging = false;
+    timelineEl.classList.remove('dragging');
+    hideTimelineTooltip();
+});
+
+// ─── DOM REFS ───
+const hudYear = document.getElementById('hud-year');
+const hudTemp = document.getElementById('hud-temp');
+const hudCO2 = document.getElementById('hud-co2');
+const bigYear = document.getElementById('big-year');
+const eventCard = document.getElementById('event-card');
+const evtCat = document.getElementById('evt-cat');
+const evtName = document.getElementById('evt-name');
+const evtDesc = document.getElementById('evt-desc');
+const timelineFill = document.getElementById('timeline-fill');
+const timelineIndicator = document.getElementById('timeline-indicator');
+const closingOverlay = document.getElementById('closing-overlay');
+
+let lastEventYear = -1;
+
+// ─── SPARKLINE SETUP ───
+const sparkCanvas = document.getElementById('sparkline-canvas');
+const sparkCtx = sparkCanvas.getContext('2d');
+let sparkW, sparkH;
+
+// Track milestone crossing flares
+const milestoneYears = [
+    { year: 1958, label: 'Keeling' },
+    { year: 1988, label: 'Hansen' },
+    { year: 1997, label: 'Kyoto' },
+    { year: 2013, label: '400ppm' },
+    { year: 2015, label: 'Paris' }
+];
+const milestoneCrossed = {};
+const milestoneFlare = {};  // 0→1 on cross, decays back to 0
+milestoneYears.forEach(m => {
+    milestoneCrossed[m.year] = false;
+    milestoneFlare[m.year] = 0;
+});
+
+function resizeSparkline() {
+    const rect = sparkCanvas.parentElement.getBoundingClientRect();
+    sparkW = Math.round(rect.width * Math.min(window.devicePixelRatio, 2));
+    sparkH = Math.round(rect.height * Math.min(window.devicePixelRatio, 2));
+    sparkCanvas.width = sparkW;
+    sparkCanvas.height = sparkH;
+}
+resizeSparkline();
+
+// Pre-compute normalized positions for the full temp curve
+const sparkTempMin = -0.5;
+const sparkTempMax = 1.4;
+const sparkPoints = tempData.map(d => ({
+    x: (d.y - YEAR_MIN) / (YEAR_MAX - YEAR_MIN),
+    y: 1.0 - (d.t - sparkTempMin) / (sparkTempMax - sparkTempMin),
+    t: d.t
+}));
+
+function drawSparkline(yearFloat) {
+    sparkCtx.clearRect(0, 0, sparkW, sparkH);
+
+    const pad = 2;
+    const w = sparkW - pad * 2;
+    const h = sparkH - pad * 2;
+    const progress = clamp((yearFloat - YEAR_MIN) / (YEAR_MAX - YEAR_MIN), 0, 1);
+
+    // Zero-line (0°C anomaly)
+    const zeroY = pad + (1.0 - (0 - sparkTempMin) / (sparkTempMax - sparkTempMin)) * h;
+    sparkCtx.beginPath();
+    sparkCtx.moveTo(pad, zeroY);
+    sparkCtx.lineTo(pad + w, zeroY);
+    sparkCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+    sparkCtx.lineWidth = 1;
+    sparkCtx.stroke();
+
+    // Milestone tick marks
+    const dpr = Math.min(window.devicePixelRatio, 2);
+    for (const m of milestoneYears) {
+        const mx = pad + ((m.year - YEAR_MIN) / (YEAR_MAX - YEAR_MIN)) * w;
+        const mProgress = (m.year - YEAR_MIN) / (YEAR_MAX - YEAR_MIN);
+        const revealed = mProgress <= progress;
+
+        // Detect first crossing and trigger flare
+        if (revealed && !milestoneCrossed[m.year]) {
+            milestoneCrossed[m.year] = true;
+            milestoneFlare[m.year] = 1.0;
+        }
+
+        // Reset when scrolling backward past a milestone
+        if (!revealed && milestoneCrossed[m.year]) {
+            milestoneCrossed[m.year] = false;
+            milestoneFlare[m.year] = 0;
+        }
+
+        // Decay flare
+        if (milestoneFlare[m.year] > 0) {
+            milestoneFlare[m.year] = Math.max(0, milestoneFlare[m.year] - 0.018);
+        }
+
+        const flare = milestoneFlare[m.year];
+        const baseAlpha = revealed ? 0.18 : 0.05;
+        const lineAlpha = baseAlpha + flare * 0.6;
+        const lineWidth = (1 + flare * 2) * dpr;
+
+        // Flare glow behind the tick line
+        if (flare > 0.01) {
+            sparkCtx.save();
+            sparkCtx.beginPath();
+            sparkCtx.moveTo(mx, pad);
+            sparkCtx.lineTo(mx, pad + h);
+            sparkCtx.strokeStyle = `rgba(255,255,255,${flare * 0.3})`;
+            sparkCtx.lineWidth = (4 + flare * 6) * dpr;
+            sparkCtx.filter = `blur(${3 * dpr}px)`;
+            sparkCtx.stroke();
+            sparkCtx.restore();
+        }
+
+        sparkCtx.beginPath();
+        sparkCtx.moveTo(mx, pad);
+        sparkCtx.lineTo(mx, pad + h);
+        sparkCtx.strokeStyle = `rgba(255,255,255,${lineAlpha})`;
+        sparkCtx.lineWidth = lineWidth;
+        sparkCtx.setLineDash([2 * dpr, 3 * dpr]);
+        sparkCtx.stroke();
+        sparkCtx.setLineDash([]);
+
+        // Tiny label at top if revealed
+        if (revealed) {
+            const labelAlpha = 0.2 + flare * 0.7;
+            sparkCtx.font = `${(7 + flare * 2) * dpr}px Inter, sans-serif`;
+            sparkCtx.fillStyle = `rgba(255,255,255,${labelAlpha})`;
+            sparkCtx.textAlign = 'center';
+            sparkCtx.fillText(m.label, mx, pad - 2 * dpr);
+        }
+    }
+
+    // Draw the revealed portion of the curve with a gradient
+    if (sparkPoints.length < 2) return;
+
+    // Find how far to draw
+    const drawUpToX = progress;
+
+    sparkCtx.beginPath();
+    let started = false;
+
+    for (let i = 0; i < sparkPoints.length; i++) {
+        const p = sparkPoints[i];
+        if (p.x > drawUpToX) {
+            // Interpolate to the exact cutoff
+            if (i > 0) {
+                const prev = sparkPoints[i - 1];
+                const frac = (drawUpToX - prev.x) / (p.x - prev.x);
+                const ix = pad + drawUpToX * w;
+                const iy = pad + lerp(prev.y, p.y, frac) * h;
+                sparkCtx.lineTo(ix, iy);
+            }
+            break;
+        }
+        const px = pad + p.x * w;
+        const py = pad + p.y * h;
+        if (!started) { sparkCtx.moveTo(px, py); started = true; }
+        else sparkCtx.lineTo(px, py);
+    }
+
+    // Stroke with gradient based on temperature
+    const grad = sparkCtx.createLinearGradient(pad, 0, pad + drawUpToX * w, 0);
+    // Sample a few color stops along the drawn portion
+    const numStops = 8;
+    for (let s = 0; s <= numStops; s++) {
+        const frac = s / numStops;
+        const sampleYear = YEAR_MIN + frac * drawUpToX * (YEAR_MAX - YEAR_MIN);
+        const sampleTemp = getTemp(sampleYear);
+        grad.addColorStop(frac, tempToCSS(sampleTemp));
+    }
+    sparkCtx.strokeStyle = grad;
+    sparkCtx.lineWidth = 1.5 * Math.min(window.devicePixelRatio, 2);
+    sparkCtx.lineJoin = 'round';
+    sparkCtx.stroke();
+
+    // Draw a dot at the current position
+    const currentTemp = getTemp(yearFloat);
+    const dotX = pad + progress * w;
+    const dotY = pad + (1.0 - (currentTemp - sparkTempMin) / (sparkTempMax - sparkTempMin)) * h;
+    const dotColor = tempToCSS(currentTemp);
+
+    // Glow
+    sparkCtx.beginPath();
+    sparkCtx.arc(dotX, dotY, 6 * Math.min(window.devicePixelRatio, 2), 0, Math.PI * 2);
+    const glowGrad = sparkCtx.createRadialGradient(dotX, dotY, 0, dotX, dotY, 6 * Math.min(window.devicePixelRatio, 2));
+    glowGrad.addColorStop(0, dotColor);
+    glowGrad.addColorStop(1, 'transparent');
+    sparkCtx.fillStyle = glowGrad;
+    sparkCtx.fill();
+
+    // Solid dot
+    sparkCtx.beginPath();
+    sparkCtx.arc(dotX, dotY, 2.5 * Math.min(window.devicePixelRatio, 2), 0, Math.PI * 2);
+    sparkCtx.fillStyle = '#fff';
+    sparkCtx.fill();
+
+    // Faded future portion
+    sparkCtx.beginPath();
+    started = false;
+    for (let i = 0; i < sparkPoints.length; i++) {
+        const p = sparkPoints[i];
+        if (p.x < drawUpToX) continue;
+        const px = pad + p.x * w;
+        const py = pad + p.y * h;
+        if (!started) { sparkCtx.moveTo(px, py); started = true; }
+        else sparkCtx.lineTo(px, py);
+    }
+    sparkCtx.strokeStyle = 'rgba(255,255,255,0.06)';
+    sparkCtx.lineWidth = 1 * Math.min(window.devicePixelRatio, 2);
+    sparkCtx.stroke();
+}
+
+function updateHUD(yearFloat) {
+    const yr = Math.round(yearFloat);
+    const temp = getTemp(yearFloat);
+    const co2 = getCO2(yearFloat);
+    const tempColor = tempToCSS(temp);
+
+    hudYear.textContent = yr;
+    hudTemp.textContent = (temp >= 0 ? '+' : '') + temp.toFixed(2) + '°C';
+    hudTemp.style.color = tempColor;
+    hudCO2.textContent = co2.toFixed(1) + ' ppm';
+
+    bigYear.textContent = yr;
+
+    // Personal lifetime tracker
+    if (userBirthYear !== null && userBirthTemp !== null) {
+        const lifetimeWrap = document.getElementById('hud-lifetime-wrap');
+        const lifetimeVal = document.getElementById('hud-lifetime');
+        if (yearFloat >= userBirthYear - 0.5) {
+            lifetimeWrap.style.display = 'flex';
+            lifetimeWrap.style.opacity = '1';
+            const delta = temp - userBirthTemp;
+            lifetimeVal.textContent = (delta >= 0 ? '+' : '') + delta.toFixed(2) + '°C';
+            lifetimeVal.style.color = tempColor;
+            if (!lifetimeVal.classList.contains('pulse-active')) {
+                lifetimeVal.classList.add('pulse-active');
+            }
+
+            // Sync heartbeat speed to rate of warming
+            // Estimate local rate of change (°C per decade) around current year
+            const rateWindow = 5; // look ±5 years
+            const tempAhead = getTemp(Math.min(yearFloat + rateWindow, YEAR_MAX - 0.5));
+            const tempBehind = getTemp(Math.max(yearFloat - rateWindow, YEAR_MIN));
+            const ratePerDecade = Math.abs(tempAhead - tempBehind) / (rateWindow * 2) * 10;
+            // ratePerDecade: ~0.02 in calm decades, ~0.2+ in 2000s
+            // Map to pulse duration: slow (4s) when calm, fast (1.4s) when accelerating
+            const pulseDuration = lerp(4.0, 1.4, clamp(ratePerDecade / 0.25, 0, 1));
+            lifetimeVal.style.setProperty('--pulse-duration', pulseDuration.toFixed(2) + 's');
+        } else {
+            lifetimeWrap.style.display = 'none';
+            lifetimeVal.classList.remove('pulse-active');
+        }
+
+        // Birth year marker flash
+        if (yearFloat >= userBirthYear && !birthMarkerShown) {
+            birthMarkerShown = true;
+            birthMarkerEl.classList.add('visible');
+            if (birthMarkerTimer) clearTimeout(birthMarkerTimer);
+            birthMarkerTimer = setTimeout(() => {
+                birthMarkerEl.classList.remove('visible');
+            }, 2500);
+        } else if (yearFloat < userBirthYear) {
+            if (birthMarkerShown) {
+                birthMarkerShown = false;
+                birthMarkerEl.classList.remove('visible');
+                if (birthMarkerTimer) clearTimeout(birthMarkerTimer);
+            }
+        }
+    }
+
+    // Timeline
+    const pct = ((yearFloat - YEAR_MIN) / (YEAR_MAX - YEAR_MIN)) * 100;
+    timelineFill.style.height = pct + '%';
+    timelineIndicator.style.top = pct + '%';
+
+    // Update timeline event dots — light up passed ones, pulse nearby
+    for (const dot of timelineDots) {
+        const dist = Math.abs(yearFloat - dot.year);
+        if (dist < 3) {
+            dot.el.classList.add('nearby');
+        } else {
+            dot.el.classList.remove('nearby');
+        }
+        if (yearFloat >= dot.year) {
+            dot.el.classList.add('passed');
+        } else {
+            dot.el.classList.remove('passed');
+        }
+    }
+
+    // Events — find closest event within ±2 years
+    let closestEvt = null;
+    let closestDist = Infinity;
+    for (const evt of events) {
+        const d = Math.abs(evt.year - yr);
+        if (d <= 2 && d < closestDist) {
+            closestDist = d;
+            closestEvt = evt;
+        }
+    }
+
+    if (closestEvt && closestEvt.year !== lastEventYear) {
+        lastEventYear = closestEvt.year;
+        evtCat.textContent = closestEvt.cat;
+        evtName.textContent = closestEvt.name;
+        evtDesc.textContent = closestEvt.desc;
+        eventCard.classList.add('visible');
+    } else if (!closestEvt) {
+        lastEventYear = -1;
+        eventCard.classList.remove('visible');
+    }
+}
+
+// ─── CO₂ to atmosphere visuals ───
+function updateAtmosphere(co2) {
+    // 280 → nearly invisible, 428 → subtle warm reddish-brown veil
+    const t = clamp((co2 - 280) / (430 - 280), 0, 1);
+
+    // Color: faint cool blue → subtle warm reddish-brown (like thin wildfire haze)
+    const r = lerp(0.5, 0.85, t);
+    const g = lerp(0.65, 0.42, t);
+    const b = lerp(0.95, 0.28, t);
+    atmosphereMaterial.uniforms.uCO2Color.value.setRGB(r, g, b);
+
+    // Intensity: much lower — a barely-there veil, not a bubble
+    atmosphereMaterial.uniforms.uIntensity.value = lerp(0.15, 0.6, t * t);
+    atmosphereMaterial.uniforms.uThickness.value = lerp(3.0, 1.8, t);
+
+    // Outer glow: very subdued, warm-shifting
+    glowMaterial.uniforms.uColor.value.setRGB(lerp(0.25, 0.55, t), lerp(0.4, 0.3, t), lerp(0.85, 0.2, t));
+    glowMaterial.uniforms.uIntensity.value = lerp(0.06, 0.18, t);
+}
+
+// ─── ANIMATION ───
+function animate() {
+    requestAnimationFrame(animate);
+    time += 0.008;
+
+    // Smooth year interpolation — slightly snappier on mobile for touch feel
+    currentYear = lerp(currentYear, targetYear, isMobile ? 0.08 : 0.06);
+    if (Math.abs(currentYear - targetYear) < 0.01) currentYear = targetYear;
+
+    const temp = getTemp(currentYear);
+    const co2 = getCO2(currentYear);
+
+    // Globe scale for intro
+    if (!introComplete) {
+        globeScale = lerp(globeScale, 0.001, 0.05);
+    } else {
+        const normalScale = isMobile ? 1.15 : 1.0;
+        globeScale = lerp(globeScale, closingActive ? 0.15 : normalScale, closingActive ? 0.015 : 0.04);
+    }
+    earth.scale.setScalar(globeScale);
+    clouds.scale.setScalar(globeScale * 1.008);
+    atmosphere.scale.setScalar(globeScale * 1.02);
+    glow.scale.setScalar(globeScale * 1.06);
+
+    // Earth tint based on temperature
+    const tintColor = tempToColor(temp);
+    earthMaterial.uniforms.uTintColor.value.copy(tintColor);
+    // Tint strength: 0 at baseline, ramps up
+    const tintStrength = clamp(Math.abs(temp) / 1.3, 0, 1) * 0.55;
+    earthMaterial.uniforms.uTintStrength.value = tintStrength;
+    earthMaterial.uniforms.uTime.value = time;
+
+    // Update atmosphere based on CO₂
+    updateAtmosphere(co2);
+
+    // Rotation
+    earth.rotation.y += 0.0015;
+    clouds.rotation.y += 0.002;
+    clouds.rotation.x = Math.sin(time * 0.15) * 0.015;
+
+    // Light direction sync
+    const lightDir = sunLight.position.clone().normalize();
+    earthMaterial.uniforms.uLightDir.value.copy(lightDir);
+    atmosphereMaterial.uniforms.uLightDir.value.copy(lightDir);
+
+    // ─── ATMOSPHERIC PARTICLES UPDATE ───
+    {
+        const yearNorm = clamp((currentYear - YEAR_MIN) / (YEAR_MAX - YEAR_MIN), 0, 1);
+        // Era thresholds: 1880-1950 = 0-0.48, 1950-2000 = 0.48-0.82, 2000-2026 = 0.82-1.0
+        const era1End = (1950 - YEAR_MIN) / (YEAR_MAX - YEAR_MIN);
+        const era2End = (2000 - YEAR_MIN) / (YEAR_MAX - YEAR_MIN);
+
+        let visCount, speedMul, warmth;
+        if (yearNorm < era1End) {
+            const t = yearNorm / era1End;
+            visCount = lerp(40, 60, t) * MOBILE_PARTICLE_FACTOR;
+            speedMul = lerp(0.3, 0.5, t);
+            warmth = lerp(0.0, 0.02, t);
+        } else if (yearNorm < era2End) {
+            const t = (yearNorm - era1End) / (era2End - era1End);
+            visCount = lerp(60, 120, t) * MOBILE_PARTICLE_FACTOR;
+            speedMul = lerp(0.5, 1.2, t * t);
+            warmth = lerp(0.02, 0.2, t);
+        } else {
+            const t = (yearNorm - era2End) / (1.0 - era2End);
+            visCount = lerp(120, 180, t) * MOBILE_PARTICLE_FACTOR;
+            speedMul = lerp(1.2, 2.8, t);
+            warmth = lerp(0.2, 0.55, t);
+        }
+
+        particleMat.uniforms.uTime.value = time;
+        particleMat.uniforms.uEraProgress.value = yearNorm;
+        particleMat.uniforms.uVisibleCount.value = visCount;
+        particleMat.uniforms.uSpeedMult.value = speedMul;
+        particleMat.uniforms.uWarmth.value = warmth;
+        particleMat.uniforms.uOpacity.value = closingActive ? clamp(1.0 - (closingElapsed / 5.0), 0, 0.15) : 1.0;
+        particleMat.uniforms.uGlobeScale.value = globeScale;
+
+        // Trail strength scales with speed — trails only visible when moving fast
+        const trailStrength = clamp((speedMul - 0.6) / 2.2, 0, 1);
+        particleMat.uniforms.uTrailStrength.value = trailStrength;
+
+        // Update particle positions on CPU for orbital motion + vortex behavior
+        const posArr = particleGeo.attributes.position.array;
+        const turbulence = yearNorm > era2End ? (yearNorm - era2End) / (1.0 - era2End) : 0;
+        const stride = 1 + TRAIL_LENGTH;
+
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            const phase = pPhases[i] + time * pSpeeds[i] * speedMul * 0.4;
+            const lat = Math.asin(pLatitudes[i]);
+            const wobble = turbulence * 0.12 * Math.sin(time * 2.3 * pSpeeds[i] + pPhases[i] * 5.0);
+            const latW = lat + wobble;
+            const vortexDrift = turbulence * 0.04 * Math.sin(phase * 3.0 + pPhases[i]);
+            const finalLat = latW + vortexDrift;
+            const r = pAltitudes[i];
+            const x = r * Math.cos(finalLat) * Math.cos(phase);
+            const y = r * Math.sin(finalLat);
+            const z = r * Math.cos(finalLat) * Math.sin(phase);
+
+            // Push current position into trail history
+            const history = trailHistory[i];
+            history.unshift(x, y, z); // prepend as 3 floats
+            // Keep only TRAIL_LENGTH entries (each = 3 floats)
+            if (history.length > TRAIL_LENGTH * 3) {
+                history.length = TRAIL_LENGTH * 3;
+            }
+
+            // Main particle position
+            const mainIdx = i * stride;
+            posArr[mainIdx * 3]     = x;
+            posArr[mainIdx * 3 + 1] = y;
+            posArr[mainIdx * 3 + 2] = z;
+
+            // Trail echo positions from history
+            for (let t = 0; t < TRAIL_LENGTH; t++) {
+                const tIdx = mainIdx + 1 + t;
+                const hOffset = t * 3;
+                if (hOffset + 2 < history.length) {
+                    posArr[tIdx * 3]     = history[hOffset];
+                    posArr[tIdx * 3 + 1] = history[hOffset + 1];
+                    posArr[tIdx * 3 + 2] = history[hOffset + 2];
+                } else {
+                    // Not enough history yet — place at current position
+                    posArr[tIdx * 3]     = x;
+                    posArr[tIdx * 3 + 1] = y;
+                    posArr[tIdx * 3 + 2] = z;
+                }
+            }
+        }
+        particleGeo.attributes.position.needsUpdate = true;
+    }
+
+    // Texture crossfade (placeholder → real textures)
+    if (crossfadeStart > 0) {
+        const elapsed = (performance.now() - crossfadeStart) / 1000;
+        earthMaterial.uniforms.uTextureLoaded.value = clamp(elapsed / 1.2, 0, 1);
+    }
+
+    // Sonification
+    if (introComplete && audioEnabled) {
+        updateSonification(currentYear);
+    }
+
+    // Stars twinkle + warmth shift during closing
+    if (closingActive && introComplete) {
+        closingElapsed += 0.008;
+        const warmthTarget = clamp(closingElapsed / 10.0, 0, 1);
+        starWarmth = lerp(starWarmth, warmthTarget, 0.03);
+    } else {
+        closingElapsed = 0;
+        starWarmth = lerp(starWarmth, 0, 0.02);
+    }
+    updateAllStars(time, starWarmth);
+
+    // HUD + Sparkline
+    if (introComplete) {
+        updateHUD(currentYear);
+        drawSparkline(currentYear);
+    }
+
+    // Closing overlay + vignette
+    const vignetteEl = document.getElementById('vignette');
+    const warmthEl = document.getElementById('vignette-warmth');
+    if (closingActive && introComplete) {
+        // Animate the closing personal temperature counter
+        if (userBirthYear !== null && userBirthTemp !== null) {
+            const closingPersonal = document.getElementById('closing-personal');
+            const finalDelta = getTemp(YEAR_MAX - 0.5) - userBirthTemp;
+            closingPersonal.style.display = '';
+
+            if (!closingPersonalAnimated) {
+                closingPersonalAnimated = true;
+                closingPersonalAnimStart = performance.now() + 1800; // delay to let overlay fade in
+            }
+
+            const now = performance.now();
+            if (closingPersonalAnimStart > 0 && now >= closingPersonalAnimStart) {
+                const animElapsed = (now - closingPersonalAnimStart) / 2000; // 2 seconds
+                const animT = clamp(animElapsed, 0, 1);
+                // Ease-out cubic for a satisfying deceleration
+                const eased = 1 - Math.pow(1 - animT, 3);
+                const displayDelta = finalDelta * eased;
+                closingPersonal.textContent = 'In your lifetime, global temperature has risen by ' + (displayDelta >= 0 ? '+' : '') + displayDelta.toFixed(2) + '°C.';
+            } else {
+                closingPersonal.textContent = 'In your lifetime, global temperature has risen by +0.00°C.';
+            }
+        }
+        closingOverlay.classList.add('visible');
+        vignetteEl.classList.add('active');
+        warmthEl.classList.add('active');
+        updateClosingAudio(true, closingElapsed);
+        document.getElementById('data-hud').style.opacity = '0';
+        document.getElementById('big-year').style.opacity = '0';
+        eventCard.classList.remove('visible');
+        document.getElementById('timeline').style.opacity = '0';
+        document.getElementById('timeline').style.pointerEvents = 'none';
+    } else if (introComplete) {
+        closingOverlay.classList.remove('visible');
+        vignetteEl.classList.remove('active');
+        warmthEl.classList.remove('active');
+        updateClosingAudio(false, 0);
+        // Reset closing personal counter so it re-animates on next entry
+        closingPersonalAnimated = false;
+        closingPersonalAnimStart = -1;
+        document.getElementById('data-hud').style.opacity = '1';
+        document.getElementById('big-year').style.opacity = '1';
+        document.getElementById('timeline').style.opacity = '';
+        document.getElementById('timeline').style.pointerEvents = '';
+        // Hide lifetime HUD during closing fade-back
+        if (userBirthYear !== null && currentYear < userBirthYear) {
+            document.getElementById('hud-lifetime-wrap').style.display = 'none';
+        }
+    }
+
+    renderer.render(scene, camera);
+}
+
+// ─── AUDIO ENGINE ───
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+let audioEnabled = true; // default ON
+let audioInitialized = false;
+
+// Audio nodes
+let masterGain, ambienceGain, dataGain;
+let padOscs = [], padGains = [];
+let droneLfo, droneLfoGain;
+let lastSonifyYear = -1, lastSonifyTemp = -999, lastSonifyCO2 = -999;
+let ambiencePlaying = false;
+let lastSonifyTime = 0;        // throttle: last time any sonification tone played
+const SONIFY_COOLDOWN = 120;   // ms between sonification tones (prevents overlap)
+let activeAudioNodes = 0;      // track live nodes to prevent accumulation
+const MAX_ACTIVE_NODES = 12;   // hard cap on simultaneous tones
+
+// Wind/breath noise layer
+let windNoiseSource = null, windGain = null, windFilter = null, windFilterHi = null;
+
+function initAudio() {
+    if (audioInitialized) return;
+    audioInitialized = true;
+    audioCtx = new AudioCtx();
+
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0;
+    masterGain.connect(audioCtx.destination);
+
+    ambienceGain = audioCtx.createGain();
+    ambienceGain.gain.value = 0.0;
+    ambienceGain.connect(masterGain);
+
+    dataGain = audioCtx.createGain();
+    dataGain.gain.value = 0.45;
+    dataGain.connect(masterGain);
+
+    // ── Reverb via convolver — long, diffuse, modern ambient space ──
+    const convolver = audioCtx.createConvolver();
+    const irLen = Math.floor(audioCtx.sampleRate * 4.5); // 4.5s tail — spacious
+    const irBuf = audioCtx.createBuffer(2, irLen, audioCtx.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+        const d = irBuf.getChannelData(ch);
+        for (let i = 0; i < irLen; i++) {
+            // Smooth decay with early reflection bump and long diffuse tail
+            const t = i / irLen;
+            const earlyReflection = t < 0.02 ? 1.0 : 0;
+            const diffuseTail = Math.pow(1 - t, 2.2);
+            d[i] = (Math.random() * 2 - 1) * (diffuseTail * 0.8 + earlyReflection * 0.2);
+        }
+    }
+    convolver.buffer = irBuf;
+
+    // Pre-filter the reverb — cut harsh highs for a warm, pillowy space
+    const reverbToneFilter = audioCtx.createBiquadFilter();
+    reverbToneFilter.type = 'lowpass';
+    reverbToneFilter.frequency.value = 2800;
+    reverbToneFilter.Q.value = 0.3;
+    convolver.connect(reverbToneFilter);
+
+    const reverbSend = audioCtx.createGain();
+    reverbSend.gain.value = 0.38;
+    reverbToneFilter.connect(reverbSend);
+    reverbSend.connect(ambienceGain);
+
+    // Also route data sonification through reverb for cohesion
+    const dataReverbSend = audioCtx.createGain();
+    dataReverbSend.gain.value = 0.25;
+    reverbToneFilter.connect(dataReverbSend);
+    dataReverbSend.connect(masterGain);
+
+    // ── Modern ambient pad — tape-saturated, lo-fi warmth ──
+    // Chord: Cmaj9 voiced wide — warm, emotional, modern ambient/post-rock feel
+    // Each voice: 3 slightly detuned oscillators + waveshaper saturation + LFO modulation
+    const padNotes = [
+        { freq: 65.41, detune: 0 },      // C2 — deep foundation
+        { freq: 130.81, detune: -8 },     // C3 — body
+        { freq: 196.00, detune: 5 },      // G3 — open fifth
+        { freq: 261.63, detune: -4 },     // C4 — warmth
+        { freq: 329.63, detune: 8 },      // E4 — major third, heart
+        { freq: 293.66, detune: -6 },     // D4 — add9, yearning
+    ];
+    window._padFilters = [];
+
+    padNotes.forEach((note, idx) => {
+        // Three-oscillator unison for rich, modern pad texture
+        const osc1 = audioCtx.createOscillator();
+        osc1.type = 'sine';
+        osc1.frequency.value = note.freq;
+        osc1.detune.value = note.detune;
+
+        const osc2 = audioCtx.createOscillator();
+        osc2.type = 'sine';
+        osc2.frequency.value = note.freq;
+        osc2.detune.value = note.detune + (idx % 2 === 0 ? 14 : -14);
+
+        const osc3 = audioCtx.createOscillator();
+        osc3.type = 'sine';
+        osc3.frequency.value = note.freq;
+        osc3.detune.value = note.detune + (idx % 2 === 0 ? -7 : 7);
+
+        // Pre-saturation mixer
+        const preMix = audioCtx.createGain();
+        preMix.gain.value = 0.38;
+        osc1.connect(preMix);
+        osc2.connect(preMix);
+        osc3.connect(preMix);
+
+        // Tape-style soft saturation per voice
+        const shaper = audioCtx.createWaveShaper();
+        const nCurve = 512; const curve = new Float32Array(nCurve);
+        for (let i = 0; i < nCurve; i++) {
+            const x = (i * 2) / nCurve - 1;
+            curve[i] = Math.tanh(x * 1.2) * 0.9 + x * 0.1; // mostly tanh, slight linear pass-through
+        }
+        shaper.curve = curve;
+        shaper.oversample = '2x';
+        preMix.connect(shaper);
+
+        // Output gain envelope
+        const g = audioCtx.createGain();
+        g.gain.value = 0;
+
+        // Slow organic LFO — each voice breathes at its own pace
+        const lfo = audioCtx.createOscillator();
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.025 + idx * 0.01;
+        const lfoG = audioCtx.createGain();
+        lfoG.gain.value = 0.006;
+        lfo.connect(lfoG);
+        lfoG.connect(g.gain);
+        lfo.start();
+
+        // Warm lowpass — rolls off highs for that lo-fi, vinyl feel
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 280 + idx * 100;
+        filter.Q.value = 0.35;
+
+        shaper.connect(filter);
+        filter.connect(g);
+        g.connect(ambienceGain);
+        g.connect(convolver);
+
+        osc1.start(); osc2.start(); osc3.start();
+
+        padOscs.push(osc1);
+        padOscs.push(osc2);
+        padOscs.push(osc3);
+        padGains.push(g);
+        window._padFilters.push(filter);
+    });
+
+    // ── Shimmer layer — ethereal high harmonics with gentle stereo movement ──
+    const shimmerNotes = [523.25, 659.25, 783.99]; // C5, E5, G5
+    window._shimmerOscs = [];
+    window._shimmerGains = [];
+    shimmerNotes.forEach((freq, idx) => {
+        // Two detuned oscillators per shimmer voice
+        const osc = audioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        osc.detune.value = (idx - 1) * 12;
+
+        const osc2 = audioCtx.createOscillator();
+        osc2.type = 'sine';
+        osc2.frequency.value = freq;
+        osc2.detune.value = (idx - 1) * -8;
+
+        const g = audioCtx.createGain();
+        g.gain.value = 0;
+
+        // Very slow LFO for shimmering fade-in/out
+        const lfo = audioCtx.createOscillator();
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.015 + idx * 0.007;
+        const lfoG = audioCtx.createGain();
+        lfoG.gain.value = 0.003;
+        lfo.connect(lfoG);
+        lfoG.connect(g.gain);
+        lfo.start();
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 800;
+        filter.Q.value = 0.25;
+
+        const satMix = audioCtx.createGain();
+        satMix.gain.value = 0.5;
+        osc.connect(satMix);
+        osc2.connect(satMix);
+        satMix.connect(filter);
+        filter.connect(g);
+        g.connect(ambienceGain);
+        g.connect(convolver);
+        osc.start(); osc2.start();
+
+        window._shimmerOscs.push(osc, osc2);
+        window._shimmerGains.push(g);
+    });
+
+    // ── Sub-bass with soft saturation ──
+    const subOsc = audioCtx.createOscillator();
+    subOsc.type = 'sine';
+    subOsc.frequency.value = 65.41; // C2
+    const subGain = audioCtx.createGain();
+    subGain.gain.value = 0;
+    const subFilter = audioCtx.createBiquadFilter();
+    subFilter.type = 'lowpass';
+    subFilter.frequency.value = 140;
+    subFilter.Q.value = 0.3;
+    // Subtle saturation on sub for analog warmth
+    const subShaper = audioCtx.createWaveShaper();
+    const subCurve = new Float32Array(256);
+    for (let i = 0; i < 256; i++) { const x = (i*2)/256-1; subCurve[i] = Math.tanh(x*1.1); }
+    subShaper.curve = subCurve;
+    subOsc.connect(subShaper);
+    subShaper.connect(subFilter);
+    subFilter.connect(subGain);
+    subGain.connect(ambienceGain);
+    subOsc.start();
+    padOscs.push(subOsc);
+    padGains.push(subGain);
+
+    // ── Wind/breath noise layer — filtered white noise that thickens with CO₂ ──
+    const noiseLen = audioCtx.sampleRate * 4; // 4-second loop
+    const noiseBuf = audioCtx.createBuffer(2, noiseLen, audioCtx.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+        const d = noiseBuf.getChannelData(ch);
+        for (let i = 0; i < noiseLen; i++) {
+            // Shape the noise: mix white + brown for a breathy, organic texture
+            d[i] = (Math.random() * 2 - 1) * 0.6;
+            if (i > 0) d[i] = d[i] * 0.35 + d[i - 1] * 0.65; // brownish smoothing
+        }
+    }
+    windNoiseSource = audioCtx.createBufferSource();
+    windNoiseSource.buffer = noiseBuf;
+    windNoiseSource.loop = true;
+
+    // Bandpass filter — shapes the noise into a breathy wind band
+    windFilter = audioCtx.createBiquadFilter();
+    windFilter.type = 'bandpass';
+    windFilter.frequency.value = 600;  // center freq — will sweep up with CO₂
+    windFilter.Q.value = 0.8;         // moderate width for natural breath sound
+
+    // High shelf to add subtle upper air/hiss at high CO₂
+    windFilterHi = audioCtx.createBiquadFilter();
+    windFilterHi.type = 'highshelf';
+    windFilterHi.frequency.value = 3000;
+    windFilterHi.gain.value = -12; // starts suppressed
+
+    // Slow modulation LFO — makes the wind feel alive, like breathing
+    const windLfo = audioCtx.createOscillator();
+    windLfo.type = 'sine';
+    windLfo.frequency.value = 0.15; // slow ~7s breathing cycle
+    const windLfoGain = audioCtx.createGain();
+    windLfoGain.gain.value = 0.003; // very subtle volume modulation
+
+    windGain = audioCtx.createGain();
+    windGain.gain.value = 0; // starts silent
+
+    windLfo.connect(windLfoGain);
+    windLfoGain.connect(windGain.gain);
+
+    windNoiseSource.connect(windFilter);
+    windFilter.connect(windFilterHi);
+    windFilterHi.connect(windGain);
+    windGain.connect(ambienceGain);
+    windGain.connect(convolver); // send through reverb for spatial depth
+
+    windNoiseSource.start();
+    windLfo.start();
+}
+
+function startAmbience() {
+    if (!audioCtx || ambiencePlaying) return;
+    ambiencePlaying = true;
+    const now = audioCtx.currentTime;
+    // Fade in pad voices — gentle volumes for lush blend
+    const padCount = padGains.length;
+    padGains.forEach((g, i) => {
+        // Last entry is sub-bass
+        const isSub = (i === padCount - 1);
+        const vol = isSub ? 0.02 : 0.018;
+        g.gain.cancelScheduledValues(now);
+        g.gain.setValueAtTime(g.gain.value, now);
+        g.gain.linearRampToValueAtTime(vol, now + 4);
+    });
+    // Fade in shimmer layer very gently
+    if (window._shimmerGains) {
+        window._shimmerGains.forEach(g => {
+            g.gain.cancelScheduledValues(now);
+            g.gain.setValueAtTime(g.gain.value, now);
+            g.gain.linearRampToValueAtTime(0.006, now + 6);
+        });
+    }
+    // Fade in wind noise layer gently
+    if (windGain) {
+        windGain.gain.cancelScheduledValues(now);
+        windGain.gain.setValueAtTime(windGain.gain.value, now);
+        windGain.gain.linearRampToValueAtTime(0.006, now + 5); // barely audible at start
+    }
+    ambienceGain.gain.cancelScheduledValues(now);
+    ambienceGain.gain.setValueAtTime(ambienceGain.gain.value, now);
+    ambienceGain.gain.linearRampToValueAtTime(1.0, now + 3);
+}
+
+function stopAmbience() {
+    if (!audioCtx || !ambiencePlaying) return;
+    ambiencePlaying = false;
+    const now = audioCtx.currentTime;
+    padGains.forEach(g => {
+        g.gain.cancelScheduledValues(now);
+        g.gain.setValueAtTime(g.gain.value, now);
+        g.gain.linearRampToValueAtTime(0, now + 1.5);
+    });
+    if (window._shimmerGains) {
+        window._shimmerGains.forEach(g => {
+            g.gain.cancelScheduledValues(now);
+            g.gain.setValueAtTime(g.gain.value, now);
+            g.gain.linearRampToValueAtTime(0, now + 1.5);
+        });
+    }
+    // Fade out wind noise
+    if (windGain) {
+        windGain.gain.cancelScheduledValues(now);
+        windGain.gain.setValueAtTime(windGain.gain.value, now);
+        windGain.gain.linearRampToValueAtTime(0, now + 1.5);
+    }
+}
+
+// Evolve ambient music based on year/temperature
+function updateAmbience(yearFloat, temp) {
+    if (!audioCtx || !ambiencePlaying) return;
+    const now = audioCtx.currentTime;
+    const yearNorm = clamp((yearFloat - YEAR_MIN) / (YEAR_MAX - YEAR_MIN), 0, 1);
+    const warmthFactor = clamp((temp + 0.2) / 1.5, 0, 1);
+    const padCount = padGains.length;
+    const subIdx = padCount - 1;
+
+    // Evolve chord voicing — always stays consonant/emotional
+    // Early: C major add9 (peaceful, nostalgic)
+    // Mid: Shifts toward Cmaj7 (bittersweet, reflective)
+    // Late: Opens to C add9/G with higher voicing (urgent but beautiful, not dark)
+    const earlyFreqs  = [65.41, 130.81, 196.00, 261.63, 329.63, 293.66];
+    const midFreqs    = [65.41, 130.81, 196.00, 261.63, 329.63, 493.88]; // B4 replaces D4 — maj7
+    const lateFreqs   = [65.41, 130.81, 196.00, 329.63, 392.00, 523.25]; // E4, G4, C5 — higher, open
+
+    // padOscs has triplets (main+chorus+chorus2) for each voice, then sub at end
+    // Voices are at indices 0,1,2 / 3,4,5 / 6,7,8 / 9,10,11 / 12,13,14 / 15,16,17 then sub at 18
+    for (let v = 0; v < 6; v++) {
+        let targetFreq;
+        if (yearNorm < 0.5) {
+            const t = yearNorm / 0.5;
+            targetFreq = lerp(earlyFreqs[v], midFreqs[v], t);
+        } else {
+            const t = (yearNorm - 0.5) / 0.5;
+            targetFreq = lerp(midFreqs[v], lateFreqs[v], t);
+        }
+        const oscIdx = v * 3;
+        if (padOscs[oscIdx]) padOscs[oscIdx].frequency.setTargetAtTime(targetFreq, now, 3.0);
+        if (padOscs[oscIdx + 1]) padOscs[oscIdx + 1].frequency.setTargetAtTime(targetFreq, now, 3.0);
+        if (padOscs[oscIdx + 2]) padOscs[oscIdx + 2].frequency.setTargetAtTime(targetFreq, now, 3.0);
+    }
+
+    // Pad volume gently swells with warming — emotional crescendo
+    const padVol = lerp(0.015, 0.028, warmthFactor);
+    for (let i = 0; i < subIdx; i++) {
+        padGains[i].gain.setTargetAtTime(padVol, now, 2.5);
+    }
+
+    // Sub-bass swells gently
+    const subVol = lerp(0.015, 0.04, yearNorm);
+    padGains[subIdx].gain.setTargetAtTime(subVol, now, 2.0);
+
+    // Shimmer layer grows more present in later decades — adds emotional lift
+    if (window._shimmerGains) {
+        const shimmerVol = lerp(0.003, 0.012, warmthFactor);
+        window._shimmerGains.forEach(g => {
+            g.gain.setTargetAtTime(shimmerVol, now, 3.0);
+        });
+    }
+
+    // Open pad filters as warming increases — lets more harmonics through
+    if (window._padFilters) {
+        window._padFilters.forEach((f, i) => {
+            const baseFreq = 300 + i * 120;
+            const openFreq = lerp(baseFreq, baseFreq + 600, warmthFactor);
+            f.frequency.setTargetAtTime(openFreq, now, 2.0);
+        });
+    }
+
+    // ── Wind/breath noise — intensifies with CO₂ concentration ──
+    if (windGain && windFilter && windFilterHi) {
+        const co2 = getCO2(yearFloat);
+        // CO₂ ranges ~280 (1880) to ~425 (2026)
+        const co2Norm = clamp((co2 - 280) / (425 - 280), 0, 1);
+
+        // Volume: nearly inaudible at pre-industrial, gradually builds to a present hiss
+        // Uses exponential curve so it's subliminal early, noticeable late
+        const windVol = lerp(0.004, 0.055, co2Norm * co2Norm);
+        windGain.gain.setTargetAtTime(windVol, now, 3.0);
+
+        // Bandpass center sweeps up: low moan → higher, thinner air
+        const filterFreq = lerp(400, 1600, co2Norm);
+        windFilter.frequency.setTargetAtTime(filterFreq, now, 2.5);
+
+        // Bandwidth narrows slightly at high CO₂ for more focused, oppressive tone
+        const q = lerp(0.6, 1.8, co2Norm);
+        windFilter.Q.setTargetAtTime(q, now, 2.5);
+
+        // High shelf opens up at high CO₂ — adds breathy upper hiss
+        const hiGain = lerp(-14, -2, co2Norm * co2Norm);
+        windFilterHi.gain.setTargetAtTime(hiGain, now, 3.0);
+    }
+}
+
+// ─── DATA SONIFICATION ───
+// Modern, warm sound design — layered oscillators with noise transients,
+// soft saturation, and musical envelopes inspired by lo-fi / ambient production
+
+function softSaturate(ctx, input, output) {
+    // Warm waveshaper for tape-like saturation
+    const shaper = ctx.createWaveShaper();
+    const n = 256; const curve = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+        const x = (i * 2) / n - 1;
+        curve[i] = Math.tanh(x * 1.4); // gentle soft-clip
+    }
+    shaper.curve = curve;
+    shaper.oversample = '2x';
+    input.connect(shaper);
+    shaper.connect(output);
+    return shaper;
+}
+
+function playModernTone(freq, duration, volume, opts = {}) {
+    if (!audioCtx) return;
+    // Hard cap: prevent node accumulation that causes audio glitches
+    if (activeAudioNodes >= MAX_ACTIVE_NODES) return;
+    activeAudioNodes++;
+
+    const now = audioCtx.currentTime;
+    const endTime = now + duration + 0.3;
+    const { brightness = 0.5, warmth = 0.7, attack = 0.02 } = opts;
+
+    // Single clean oscillator — no beating, no noise bursts
+    const osc = audioCtx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+
+    // Smooth musical envelope
+    const env = audioCtx.createGain();
+    env.gain.setValueAtTime(0, now);
+    env.gain.linearRampToValueAtTime(volume, now + attack);
+    env.gain.setTargetAtTime(volume * 0.4, now + attack, duration * 0.25);
+    env.gain.setTargetAtTime(0.0001, now + duration * 0.5, duration * 0.3);
+
+    // Warm lowpass filter
+    const lp = audioCtx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = freq * (1.5 + brightness * 3);
+    lp.Q.value = 0.4 + warmth * 0.4;
+    lp.frequency.setTargetAtTime(freq * (1 + brightness), now + attack, duration * 0.3);
+
+    osc.connect(lp);
+    lp.connect(env);
+    env.connect(dataGain);
+
+    osc.start(now);
+    osc.stop(endTime);
+    osc.onended = () => { activeAudioNodes = Math.max(0, activeAudioNodes - 1); };
+}
+
+// Year tick — single soft pentatonic pluck
+function sonifyYear(yr) {
+    const yearNorm = clamp((yr - YEAR_MIN) / (YEAR_MAX - YEAR_MIN), 0, 1);
+    const pentatonic = [392.00, 440.00, 493.88, 587.33, 659.25, 783.99];
+    const noteIdx = Math.floor(yearNorm * (pentatonic.length - 1));
+    const freq = pentatonic[noteIdx];
+    playModernTone(freq, 0.18, 0.015, {
+        brightness: 0.3, warmth: 0.8, attack: 0.008
+    });
+}
+
+// Temperature — single warm tone, pitch follows anomaly
+function sonifyTemp(temp, delta) {
+    if (Math.abs(delta) < 0.01) return;
+    const baseFreq = lerp(220.00, 440.00, clamp((temp + 0.3) / 1.6, 0, 1));
+    const vol = clamp(Math.abs(delta) * 0.5, 0.005, 0.022);
+    playModernTone(baseFreq, 0.4, vol, {
+        brightness: 0.35, warmth: 0.85, attack: 0.015
+    });
+}
+
+// CO₂ — single soft chime
+function sonifyCO2(co2, delta) {
+    if (Math.abs(delta) < 0.2) return;
+    if (!audioCtx) return;
+    const co2Norm = clamp((co2 - 280) / 150, 0, 1);
+    const freqBase = lerp(349.23, 698.46, co2Norm);
+    const vol = clamp(Math.abs(delta) * 0.006, 0.003, 0.015);
+    playModernTone(freqBase, 0.25, vol, {
+        brightness: 0.4 + co2Norm * 0.2, warmth: 0.65, attack: 0.012
+    });
+}
+
+function updateSonification(yearFloat) {
+    if (!audioCtx || !audioEnabled) return;
+    const yr = Math.round(yearFloat);
+    const temp = getTemp(yearFloat);
+    const co2 = getCO2(yearFloat);
+    const nowMs = performance.now();
+
+    // Year tick — once per integer year, throttled
+    if (yr !== lastSonifyYear && lastSonifyYear > 0) {
+        if (nowMs - lastSonifyTime > SONIFY_COOLDOWN) {
+            sonifyYear(yr);
+            lastSonifyTime = nowMs;
+        }
+    }
+
+    // Temperature — only on substantial change, throttled
+    if (lastSonifyTemp > -900) {
+        const tempDelta = temp - lastSonifyTemp;
+        if (Math.abs(tempDelta) > 0.02 && nowMs - lastSonifyTime > SONIFY_COOLDOWN) {
+            sonifyTemp(temp, tempDelta);
+            lastSonifyTime = nowMs;
+        }
+    }
+
+    // CO₂ — only on substantial change, throttled
+    if (lastSonifyCO2 > -900) {
+        const co2Delta = co2 - lastSonifyCO2;
+        if (Math.abs(co2Delta) > 0.3 && nowMs - lastSonifyTime > SONIFY_COOLDOWN) {
+            sonifyCO2(co2, co2Delta);
+            lastSonifyTime = nowMs;
+        }
+    }
+
+    lastSonifyYear = yr;
+    lastSonifyTemp = temp;
+    lastSonifyCO2 = co2;
+
+    // Evolve ambient pad (this is just gain/freq automation, always safe)
+    updateAmbience(yearFloat, temp);
+}
+
+// ─── UI TRANSITION SOUNDS ───
+// All UI sounds are gentle, modern, and musical — glass-like chimes and soft whooshes
+
+// Soft rising chime — for elements appearing (event card, HUD, overlays)
+function playAppearSound(pitch = 1.0, vol = 0.025) {
+    if (!audioCtx || !audioEnabled) return;
+    const now = audioCtx.currentTime;
+    const baseFreq = 880 * pitch;
+
+    // Two sine tones a perfect fifth apart for a glassy bell
+    const osc1 = audioCtx.createOscillator();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(baseFreq * 0.85, now);
+    osc1.frequency.exponentialRampToValueAtTime(baseFreq, now + 0.12);
+
+    const osc2 = audioCtx.createOscillator();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(baseFreq * 1.498 * 0.85, now);
+    osc2.frequency.exponentialRampToValueAtTime(baseFreq * 1.498, now + 0.12);
+
+    const g1 = audioCtx.createGain();
+    const g2 = audioCtx.createGain();
+    g1.gain.setValueAtTime(0, now);
+    g1.gain.linearRampToValueAtTime(vol, now + 0.04);
+    g1.gain.setTargetAtTime(0.0001, now + 0.08, 0.3);
+    g2.gain.setValueAtTime(0, now);
+    g2.gain.linearRampToValueAtTime(vol * 0.4, now + 0.06);
+    g2.gain.setTargetAtTime(0.0001, now + 0.1, 0.35);
+
+    const lp = audioCtx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 4000;
+    lp.Q.value = 0.5;
+
+    osc1.connect(g1); osc2.connect(g2);
+    g1.connect(lp); g2.connect(lp);
+    lp.connect(dataGain);
+
+    osc1.start(now); osc2.start(now);
+    osc1.stop(now + 1.2); osc2.stop(now + 1.2);
+}
+
+// Soft descending tone — for elements disappearing
+function playDisappearSound(vol = 0.015) {
+    if (!audioCtx || !audioEnabled) return;
+    const now = audioCtx.currentTime;
+    const baseFreq = 660;
+
+    const osc = audioCtx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(baseFreq, now);
+    osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.7, now + 0.15);
+
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(vol, now);
+    g.gain.setTargetAtTime(0.0001, now + 0.05, 0.12);
+
+    const lp = audioCtx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 2000;
+
+    osc.connect(g);
+    g.connect(lp);
+    lp.connect(dataGain);
+    osc.start(now); osc.stop(now + 0.8);
+}
+
+// Gentle shimmer whoosh — for major transitions (intro→main, main→closing)
+function playTransitionWhoosh(rising = true, vol = 0.03) {
+    if (!audioCtx || !audioEnabled) return;
+    const now = audioCtx.currentTime;
+    const dur = 1.2;
+
+    // Filtered noise sweep
+    const bufLen = Math.floor(audioCtx.sampleRate * dur);
+    const buf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufLen; i++) {
+        data[i] = (Math.random() * 2 - 1) * 0.5;
+    }
+    const src = audioCtx.createBufferSource();
+    src.buffer = buf;
+
+    const bp = audioCtx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.Q.value = 1.2;
+    if (rising) {
+        bp.frequency.setValueAtTime(300, now);
+        bp.frequency.exponentialRampToValueAtTime(3000, now + dur * 0.7);
+        bp.frequency.exponentialRampToValueAtTime(1500, now + dur);
+    } else {
+        bp.frequency.setValueAtTime(2500, now);
+        bp.frequency.exponentialRampToValueAtTime(200, now + dur);
+    }
+
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(vol, now + dur * 0.15);
+    g.gain.setTargetAtTime(0.0001, now + dur * 0.5, dur * 0.3);
+
+    src.connect(bp);
+    bp.connect(g);
+    g.connect(dataGain);
+    src.start(now); src.stop(now + dur + 0.2);
+
+    // Tonal shimmer underneath — a soft chord
+    const freqs = rising ? [523.25, 659.25, 783.99] : [440, 523.25, 659.25]; // C5 E5 G5 or A4 C5 E5
+    freqs.forEach((f, i) => {
+        const o = audioCtx.createOscillator();
+        o.type = 'sine';
+        o.frequency.value = f;
+        const og = audioCtx.createGain();
+        og.gain.setValueAtTime(0, now);
+        og.gain.linearRampToValueAtTime(vol * 0.35, now + 0.2 + i * 0.05);
+        og.gain.setTargetAtTime(0.0001, now + dur * 0.4, dur * 0.35);
+        o.connect(og); og.connect(dataGain);
+        o.start(now); o.stop(now + dur + 0.3);
+    });
+}
+
+// Soft click/tap — for timeline interaction
+function playTimelineClick(vol = 0.018) {
+    if (!audioCtx || !audioEnabled) return;
+    const now = audioCtx.currentTime;
+
+    const osc = audioCtx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1200, now);
+    osc.frequency.exponentialRampToValueAtTime(800, now + 0.03);
+
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(vol, now);
+    g.gain.setTargetAtTime(0.0001, now + 0.01, 0.03);
+
+    osc.connect(g); g.connect(dataGain);
+    osc.start(now); osc.stop(now + 0.15);
+}
+
+// Warm confirmation tone — birth year confirmed, personal marker appears
+function playConfirmSound(vol = 0.03) {
+    if (!audioCtx || !audioEnabled) return;
+    const now = audioCtx.currentTime;
+
+    // Rising two-note motif: C5 → E5
+    [523.25, 659.25].forEach((f, i) => {
+        const o = audioCtx.createOscillator();
+        o.type = 'sine';
+        o.frequency.value = f;
+        const o2 = audioCtx.createOscillator();
+        o2.type = 'sine';
+        o2.frequency.value = f * 1.003;
+        const g = audioCtx.createGain();
+        g.gain.setValueAtTime(0, now + i * 0.12);
+        g.gain.linearRampToValueAtTime(vol, now + i * 0.12 + 0.02);
+        g.gain.setTargetAtTime(0.0001, now + i * 0.12 + 0.1, 0.25);
+        const lp = audioCtx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.value = 3000;
+        o.connect(g); o2.connect(g); g.connect(lp); lp.connect(dataGain);
+        o.start(now + i * 0.12); o2.start(now + i * 0.12);
+        o.stop(now + i * 0.12 + 1); o2.stop(now + i * 0.12 + 1);
+    });
+}
+
+// Deep resonant swell — closing overlay entrance
+function playClosingSound(vol = 0.025) {
+    if (!audioCtx || !audioEnabled) return;
+    const now = audioCtx.currentTime;
+    const dur = 3.0;
+
+    // Low pad swell: C3 + G3 + C4
+    [130.81, 196.00, 261.63].forEach((f, i) => {
+        const o = audioCtx.createOscillator();
+        o.type = 'sine';
+        o.frequency.value = f;
+        const o2 = audioCtx.createOscillator();
+        o2.type = 'sine';
+        o2.frequency.value = f * 1.004;
+        const g = audioCtx.createGain();
+        g.gain.setValueAtTime(0, now);
+        g.gain.linearRampToValueAtTime(vol * (1 - i * 0.2), now + dur * 0.4);
+        g.gain.setTargetAtTime(vol * 0.3, now + dur * 0.6, dur * 0.4);
+        g.gain.setTargetAtTime(0.0001, now + dur * 0.8, dur * 0.3);
+        const lp = audioCtx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.setValueAtTime(200, now);
+        lp.frequency.linearRampToValueAtTime(1200, now + dur * 0.5);
+        lp.frequency.setTargetAtTime(400, now + dur * 0.6, dur * 0.3);
+        o.connect(g); o2.connect(g); g.connect(lp); lp.connect(dataGain);
+        o.start(now); o2.start(now);
+        o.stop(now + dur + 1); o2.stop(now + dur + 1);
+    });
+}
+
+// ─── SOUND TOGGLE ───
+const soundToggle = document.getElementById('sound-toggle');
+soundToggle.addEventListener('click', () => {
+    if (!audioInitialized) {
+        try { initAudio(); } catch(e) {}
+    }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    if (!audioCtx) return;
+
+    audioEnabled = !audioEnabled;
+    const now = audioCtx.currentTime;
+
+    if (audioEnabled) {
+        soundToggle.classList.remove('muted');
+        masterGain.gain.cancelScheduledValues(now);
+        masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+        masterGain.gain.linearRampToValueAtTime(0.85, now + 1.0);
+        startAmbience();
+    } else {
+        soundToggle.classList.add('muted');
+        masterGain.gain.cancelScheduledValues(now);
+        masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+        masterGain.gain.linearRampToValueAtTime(0, now + 0.8);
+        stopAmbience();
+    }
+});
+
+// Closing sequence — resolve to a beautiful, hopeful chord
+function updateClosingAudio(isClosing, elapsed) {
+    if (!audioCtx || !audioEnabled) return;
+    const now = audioCtx.currentTime;
+    const padCount = padGains.length;
+    const subIdx = padCount - 1;
+
+    if (isClosing) {
+        const fadeT = clamp(elapsed / 5.0, 0, 1);
+
+        // Pad voices fade to a gentle whisper
+        for (let i = 0; i < subIdx; i++) {
+            const vol = lerp(0.025, 0.01, fadeT);
+            padGains[i].gain.setTargetAtTime(vol, now, 1.5);
+        }
+
+        // Sub-bass swells for emotional gravity
+        padGains[subIdx].gain.setTargetAtTime(lerp(0.03, 0.055, fadeT), now, 2.0);
+
+        // Resolve to a pure, luminous C major voicing — hopeful, not dark
+        const resolveFreqs = [65.41, 130.81, 196.00, 261.63, 329.63, 523.25]; // C2-C3-G3-C4-E4-C5
+        for (let v = 0; v < 6; v++) {
+            const oscIdx = v * 3;
+            if (padOscs[oscIdx]) padOscs[oscIdx].frequency.setTargetAtTime(resolveFreqs[v], now, 4.0);
+            if (padOscs[oscIdx + 1]) padOscs[oscIdx + 1].frequency.setTargetAtTime(resolveFreqs[v], now, 4.0);
+            if (padOscs[oscIdx + 2]) padOscs[oscIdx + 2].frequency.setTargetAtTime(resolveFreqs[v], now, 4.0);
+        }
+
+        // Shimmer swells during closing — ethereal, lifted
+        if (window._shimmerGains) {
+            const shimVol = lerp(0.008, 0.018, fadeT);
+            window._shimmerGains.forEach(g => {
+                g.gain.setTargetAtTime(shimVol, now, 2.0);
+            });
+        }
+
+        // Open filters wide for the fullest, warmest sound at the end
+        if (window._padFilters) {
+            window._padFilters.forEach(f => {
+                f.frequency.setTargetAtTime(1800, now, 3.0);
+            });
+        }
+
+        // Wind noise: swell briefly then slowly exhale to silence
+        if (windGain && windFilter) {
+            if (fadeT < 0.3) {
+                // Brief swell — the atmosphere at its thickest
+                windGain.gain.setTargetAtTime(0.06, now, 1.5);
+                windFilter.frequency.setTargetAtTime(1800, now, 2.0);
+            } else {
+                // Slow fade — like the world exhaling
+                const exhale = clamp((fadeT - 0.3) / 0.7, 0, 1);
+                const vol = lerp(0.06, 0.002, exhale * exhale);
+                windGain.gain.setTargetAtTime(vol, now, 2.0);
+                windFilter.frequency.setTargetAtTime(lerp(1800, 500, exhale), now, 3.0);
+                if (windFilterHi) windFilterHi.gain.setTargetAtTime(-14, now, 3.0);
+            }
+        }
+    }
+}
+
+// Resize
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        resizeSparkline();
+    }, 100);
+});
+
+animate();
+</script>
+</body>
+</html>

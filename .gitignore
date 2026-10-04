@@ -93,3 +93,13 @@ node_modules*/
 gateway/.venv/
 gateway/__pycache__/
 gateway/*.pyc
+
+# Generated content exports and local Supabase state; regenerate from the tracked seed tool.
+supabase/.temp/
+supabase/.seed-batches/
+supabase/content-registry.generated.json
+supabase/seed.generated.sql
+gateway/.venv*/
+
+# Local recovery bundles and snapshots never belong in the product history.
+/.knoux-recovery/
