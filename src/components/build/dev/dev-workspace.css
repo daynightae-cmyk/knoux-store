@@ -168,7 +168,11 @@
 .dev-machine__node strong,.dev-machine__node small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dev-route{min-height:80vh;padding:25px 0 60px}
 .dev-page-heading{padding:8px 4px 24px}
-.dev-page-heading h1{letter-spacing:-.06em;margin:8px 0 7px;font-size:clamp(30px,3.5vw,49px)}
+/* Each screen's heading is an `<h2>`: the "AI Command Center" `<h1>` rendered
+   by the shared layout is the page's single top-level heading, and the screen
+   supplies a section heading beneath it. Both elements are listed so the
+   rendered size and spacing are identical to before. */
+.dev-page-heading h1,.dev-page-heading h2{letter-spacing:-.06em;margin:8px 0 7px;font-size:clamp(30px,3.5vw,49px)}
 .dev-page-heading p{color:#a9a6b7;max-width:650px;margin:0;font-size:13px;line-height:1.55}
 .dev-page-heading__detail{font:10px var(--font-mono,monospace);color:#c4a6e6;margin-top:13px;display:inline-block}
 .dev-route__grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;display:grid}
