@@ -46,7 +46,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <SiteFooter />
         <CommandPalette />
         <KnouxSentinel />
-        {process.env.VERCEL_ENV === 'production' && <Analytics />}
+        {process.env.VERCEL === '1' && process.env.VERCEL_ENV === 'production' && <Analytics />}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       </body>
     </html>
