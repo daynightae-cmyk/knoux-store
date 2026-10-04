@@ -70,7 +70,7 @@ export class KnouxLocalIntelligence implements KnouxIntelligence {
   }
 
   async reason(request: IntelligenceRequest): Promise<IntelligenceResponse> {
-    const { context, intent } = request;
+    const { intent } = request;
 
     switch (intent) {
       case 'ANALYZE_PERFORMANCE':
@@ -111,18 +111,29 @@ export class KnouxLocalIntelligence implements KnouxIntelligence {
       )
       .sort((a, b) => a.cpl.value - b.cpl.value);
 
-    const comparable = ranked.filter((entry) => entry.cpl.origin === 'LIVE');
-    const best = comparable[0];
-    const worst = comparable[comparable.length - 1];
+    // Best and worst come from every ranked row, live or fixture. Which of the two
+    // populations a row came from is reported in the sentence, not used to
+    // decide whether the screen has anything to show.
+    const best = ranked[0];
+    const worst = ranked[ranked.length - 1];
+
+    const liveCount = ranked.filter((entry) => entry.cpl.origin === 'LIVE').length;
+
+    // Fixture rows are ranked too, but the summary says which it is ranking.
+    // Suppressing them would make the screen empty and would not make it more
+    // honest — labelling is what keeps a demo number from being read as real, and
+    // a labelled comparison is genuinely useful to a reviewer.
+    const basis = liveCount === ranked.length ? 'live provider data' : 'demo fixtures, not live provider data';
 
     const sections = [
       {
         heading: 'What the data supports',
         body: best
-          ? `Across ${comparable.length} platform row(s) reporting a cost per lead, ${best.row.platformLabel} is currently the lowest at ${formatMetric(best.cpl, { kind: 'currency' }).text}.` +
+          ? `Across ${ranked.length} platform row(s) reporting a cost per lead, ${best.row.platformLabel} is currently the lowest at ${formatMetric(best.cpl, { kind: 'currency' }).text}.` +
             (worst && worst !== best
               ? ` ${worst.row.platformLabel} is the highest at ${formatMetric(worst.cpl, { kind: 'currency' }).text}.`
-              : '')
+              : '') +
+            ` This ranking is based on ${basis}.`
           : 'No platform row reported a cost per lead, so no platform can be ranked on it.',
         evidence,
         hypothesis: false,
@@ -141,8 +152,10 @@ export class KnouxLocalIntelligence implements KnouxIntelligence {
       'Revenue and ROAS are shown only where a provider actually reported revenue.',
     ];
 
-    if (comparable.length === 0) {
-      limitations.push('No LIVE-sourced cost-per-lead was available, so the comparison is fixture-only.');
+    if (liveCount === 0) {
+      limitations.push(
+        'No LIVE-sourced cost-per-lead was available, so this comparison is fixture-only and must not be presented as live performance.',
+      );
     }
 
     return this.base(

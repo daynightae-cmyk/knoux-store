@@ -1,32 +1,36 @@
 /*
  * Command Center route group.
  *
- * The public site sets a global body background and a header offset. This
- * surface is full-bleed and owns its own vertical rhythm, so it resets those
- * two things and nothing else. Every colour still comes from `globals.css`.
+ * An operating console, not a division page. The public site renders a fixed
+ * masthead, a footer and a command palette around every route, and those belong
+ * to the storefront. On this surface they would frame a client switcher as a
+ * marketing page and add a global command palette that competes with the
+ * contextual KNOuX dock.
+ *
+ * The scoping is `:has()` on `<body>` rather than a descendant selector, because
+ * the masthead and footer are *siblings* of this route's tree — CSS cannot reach
+ * a preceding sibling otherwise. This keeps the rule in one stylesheet instead of
+ * threading a surface flag through the root layout.
  */
 
+body:has(.command-root) .site-header,
+body:has(.command-root) .site-footer,
+body:has(.command-root) .skip-link {
+  display: none;
+}
+
 .command-root {
-  /* The site header is hidden here: this is an operating console, and a
-     storefront masthead above a client switcher is the wrong frame. It is
-     hidden by removal rather than by hiding it behind this surface, so it
-     cannot be tabbed into. */
-  margin-top: calc(var(--site-header-height, 0px) * -1);
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
+  min-height: 100vh;
 }
 
+/* The console supplies its own skip target and focus behaviour. */
 .command-root :where(main:focus) {
   outline: none;
 }
 
-/* The public footer is not part of an operating surface. */
-.command-root ~ footer {
-  display: none;
-}
-
-/* Every link inside the console is chrome-free. */
 .command-root a {
   color: inherit;
 }

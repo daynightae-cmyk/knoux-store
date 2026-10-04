@@ -15,11 +15,7 @@
  */
 
 import type { PlatformId } from '../types';
-import {
-  CALL_FAILURE_MEANING,
-  type CallFailure,
-  type CapabilityState,
-} from '../states';
+import type { CapabilityState } from '../states';
 
 export type CapabilityFamily = 'META' | 'GOOGLE' | 'COMMUNITY' | 'WHATSAPP' | 'LEADS' | 'CONTENT' | 'REPORTS';
 
@@ -540,4 +536,3 @@ export function summariseCapabilities(statuses: CapabilityStatus[]): {
   };
 }
 
-export { CALL_FAILURE_MEANING };

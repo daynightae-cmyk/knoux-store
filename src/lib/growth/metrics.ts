@@ -19,8 +19,21 @@
 import { fixture, live, type DataOrigin, type Sourced } from './states';
 import type { CanonicalMetrics, DerivedMetrics } from './types';
 
-/** Providers KNOuX normalises from. Anything else is not yet a data source. */
-export const PROVIDERS = ['meta', 'google_ads', 'google_business', 'ga4', 'search_console', 'whatsapp', 'knox'] as const;
+/**
+ * Providers KNOuX normalises from.
+ *
+ * KNOuX itself is deliberately absent: it is the intelligence layer that
+ * consumes canonical metrics, not a source that produces them. Listing it here
+ * would create a normaliser with nothing to normalise.
+ */
+export const PROVIDERS = [
+  'meta',
+  'google_ads',
+  'google_business',
+  'ga4',
+  'search_console',
+  'whatsapp',
+] as const;
 
 export type ProviderId = (typeof PROVIDERS)[number];
 
@@ -36,14 +49,6 @@ export type ProviderNormaliser = {
   normalise(row: Record<string, unknown>, context: { origin: DataOrigin; evidence?: string }): CanonicalMetrics;
 };
 
-const SOURCES = {
-  meta: { origin: 'LIVE' as const, evidence: 'meta.marketing_api.insights' },
-  google_ads: { origin: 'LIVE' as const, evidence: 'googleads.googleapis.ads.search' },
-  google_business: { origin: 'LIVE' as const, evidence: 'mybusiness.googleapis.performance' },
-  ga4: { origin: 'LIVE' as const, evidence: 'analyticsdata.googleapis.runReport' },
-  search_console: { origin: 'LIVE' as const, evidence: 'searchconsole.googleapis.searchAnalytics' },
-  whatsapp: { origin: 'LIVE' as const, evidence: 'graph.facebook.com.whatsapp_business' },
-};
 
 type Numeric = number;
 
@@ -106,7 +111,11 @@ const metaNormaliser: ProviderNormaliser = {
     const reach = num(row.reach);
     if (reach !== undefined) out.reach = s(reach);
 
-    const clicks = num(row.clicks ?? row.inline_link_clicks);
+    // `clicks` prefers an explicit field, then Meta's inline_link_clicks, then the
+    // link_click action value. Preference order matters: an explicit clicks field
+    // is unambiguous, while the action value is a fallback for the many calls
+    // that request actions only.
+    const clicks = num(row.clicks) ?? num(row.inline_link_clicks) ?? actionValue(row, 'link_click');
     if (clicks !== undefined) out.clicks = s(clicks);
 
     const leads = num(row.leads) ?? actionValue(row, 'lead');
