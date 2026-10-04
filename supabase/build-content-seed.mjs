@@ -10,7 +10,12 @@ const jsonOut = path.join(outDir, 'content-registry.generated.json');
 const sqlOut = path.join(outDir, 'seed.generated.sql');
 let sourceRevision = null;
 try {
-  sourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+  // Metadata is optional. Use fixed installation locations rather than a
+  // caller-controlled PATH when recording the generating source revision.
+  const gitExecutable = process.platform === 'win32'
+    ? 'C:/Program Files/Git/cmd/git.exe'
+    : '/usr/bin/git';
+  sourceRevision = execFileSync(gitExecutable, ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
 } catch {
   sourceRevision = null;
 }

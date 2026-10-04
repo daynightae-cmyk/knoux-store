@@ -25,11 +25,6 @@ export interface RegistrationPayload {
   enrollmentToken?: string;
 }
 
-interface RegistrationEnvelope {
-  payload: string;
-  signature: string;
-}
-
 export interface MachineAuth {
   session: {
     id: string;

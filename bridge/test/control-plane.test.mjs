@@ -5,6 +5,9 @@ import { createControlPlaneWorker, controlPlaneUrlFromEnv } from '../dist/contro
 import { generateIdentity, verifySignature } from '../dist/identity.js';
 
 test('control plane refuses insecure public HTTP', () => {
+  assert.throws(() => createControlPlaneWorker({
+    baseUrl: 'https://knoux.store', config: { host: 'example.com' },
+  }), /loopback/);
   assert.throws(
     () => controlPlaneUrlFromEnv({ KNOUX_CONTROL_PLANE_URL: 'http://example.com' }),
     /HTTPS/,

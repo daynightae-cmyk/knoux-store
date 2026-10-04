@@ -358,9 +358,11 @@ def collect_rows() -> list[dict[str, Any]]:
 
 
 def main() -> int:
+    from .path_guard import artifact_path
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, default=OUT_DEFAULT)
     args = parser.parse_args()
+    args.output = artifact_path(args.output)
 
     rows = collect_rows()
     args.output.parent.mkdir(parents=True, exist_ok=True)
