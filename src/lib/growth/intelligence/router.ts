@@ -108,7 +108,7 @@ export class KnouxIntelligenceRouter {
     const chosen = await this.select(request.context.family);
 
     if (!chosen) {
-      return unreachableResponse(request, this.now(), started, this.describeFailure());
+      return unreachableResponse(request, this.now, started, this.describeFailure());
     }
 
     try {
@@ -127,7 +127,7 @@ export class KnouxIntelligenceRouter {
     } catch (error) {
       return unreachableResponse(
         request,
-        this.now(),
+        this.now,
         started,
         'API_ERROR',
         error instanceof Error ? error.message : undefined,

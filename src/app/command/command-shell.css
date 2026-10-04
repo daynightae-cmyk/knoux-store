@@ -1,0 +1,36 @@
+/*
+ * Command Center route group.
+ *
+ * The public site sets a global body background and a header offset. This
+ * surface is full-bleed and owns its own vertical rhythm, so it resets those
+ * two things and nothing else. Every colour still comes from `globals.css`.
+ */
+
+.command-root {
+  /* The site header is hidden here: this is an operating console, and a
+     storefront masthead above a client switcher is the wrong frame. It is
+     hidden by removal rather than by hiding it behind this surface, so it
+     cannot be tabbed into. */
+  margin-top: calc(var(--site-header-height, 0px) * -1);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+}
+
+.command-root :where(main:focus) {
+  outline: none;
+}
+
+/* The public footer is not part of an operating surface. */
+.command-root ~ footer {
+  display: none;
+}
+
+/* Every link inside the console is chrome-free. */
+.command-root a {
+  color: inherit;
+}
+
+.command-root ::selection {
+  background: color-mix(in srgb, var(--violet) 30%, transparent);
+}

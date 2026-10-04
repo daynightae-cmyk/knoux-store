@@ -56,6 +56,28 @@ function num(value: unknown): Numeric | undefined {
   return undefined;
 }
 
+/**
+ * Reads Meta's `action_values` array by action type.
+ *
+ * Meta returns conversions as a positional array of `{ action_type, value }`.
+ * Indexing it positionally would be fragile, because the array is only ordered
+ * for the fields you requested — so the action type is matched instead, and an
+ * absent entry means the provider did not report that action at all.
+ */
+function actionValue(row: Record<string, unknown>, actionType: string): Numeric | undefined {
+  const values = row.action_values;
+  if (!Array.isArray(values)) return undefined;
+  for (const entry of values) {
+    if (entry && typeof entry === 'object' && 'action_type' in entry) {
+      const record = entry as { action_type?: unknown; value?: unknown };
+      if (typeof record.action_type === 'string' && record.action_type.includes(actionType)) {
+        return num(record.value);
+      }
+    }
+  }
+  return undefined;
+}
+
 function wrap(context: { origin: DataOrigin; evidence?: string }) {
   return (value: Numeric): Sourced<Numeric> =>
     context.origin === 'LIVE' ? live(value, context.evidence ?? 'provider') : fixture(value);
@@ -87,13 +109,13 @@ const metaNormaliser: ProviderNormaliser = {
     const clicks = num(row.clicks ?? row.inline_link_clicks);
     if (clicks !== undefined) out.clicks = s(clicks);
 
-    const leads = num(row.leads ?? row.action_values?.[1]?.value);
+    const leads = num(row.leads) ?? actionValue(row, 'lead');
     if (leads !== undefined) out.leads = s(leads);
 
     const calls = num(row.calls);
     if (calls !== undefined) out.calls = s(calls);
 
-    const whatsappStarts = num(row.whatsapp_starts ?? row.action_values?.[0]?.value);
+    const whatsappStarts = num(row.whatsapp_starts) ?? actionValue(row, 'onsite_conversion.messenger_conversation_started_7d');
     if (whatsappStarts !== undefined) out.whatsappStarts = s(whatsappStarts);
 
     return out;
@@ -114,7 +136,11 @@ const googleAdsNormaliser: ProviderNormaliser = {
     const s = wrap(context);
     const out: CanonicalMetrics = {};
 
-    const spend = num(row.cost_micros !== undefined ? num(row.cost_micros) / 1e6 : row.cost);
+    // Google Ads reports cost in micro-units of the account currency. Dividing
+    // has to be guarded: an absent micro value must fall through to `cost`
+    // rather than become NaN and disappear.
+    const micros = num(row.cost_micros);
+    const spend = micros !== undefined ? micros / 1e6 : num(row.cost);
     if (spend !== undefined) out.spend = s(spend);
 
     const impressions = num(row.impressions);

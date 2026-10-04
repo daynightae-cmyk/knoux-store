@@ -29,7 +29,7 @@
  * and the blocker is documented in docs/growth/KNOUX-AI-INTEGRATION.md.
  */
 
-import type { CallFailure } from '../states';
+import type { CallFailure } from '../../states';
 import {
   USER_FACING_AI_NAME,
   type IntelligenceFamily,
@@ -37,7 +37,7 @@ import {
   type IntelligenceResponse,
   type KnouxIntelligence,
   type ProviderProbe,
-} from './types';
+} from '../types';
 
 /**
  * Families the agent can serve today.
