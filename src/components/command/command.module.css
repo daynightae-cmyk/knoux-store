@@ -1,0 +1,1233 @@
+/*
+ * KNOuX Social Command Center.
+ *
+ * The visual ancestor is the accepted KNOuX operational surfaces: matte near
+ * black, graphite, off-white, silver, restrained lavender, thin technical rules
+ * and a quiet architectural grid. Every colour below is derived from the global
+ * tokens in `globals.css`, so this surface cannot drift into a second theme.
+ *
+ * The organising idea is a machine, not a dashboard. There are panes, sectional
+ * rules, a context bar, a mode rail and a status rail. There are no floating
+ * rounded cards and no gradients. Platform brand colours appear only inside
+ * their own platform marks, never as chrome.
+ *
+ * Every state in here is legible. A connection that needs configuration looks
+ * different from one that is connected, and neither of them looks like success.
+ */
+
+/* ------------------------------------------------------------------ shell */
+
+.command {
+  /* Derived from global primitives. Declared once, used everywhere. */
+  --cc-line-faint: color-mix(in srgb, var(--line) 55%, transparent);
+  --cc-line: var(--line);
+  --cc-line-bright: var(--line-strong);
+  --cc-ink: var(--text);
+  --cc-ink-2: var(--text-dim);
+  --cc-ink-3: var(--muted);
+  --cc-ink-4: var(--dim);
+  --cc-violet: var(--violet);
+  --cc-violet-soft: var(--violet-soft);
+  --cc-green: var(--signal-green);
+  --cc-amber: var(--signal-amber);
+  --cc-red: var(--signal-red);
+  --cc-mono: var(--mono);
+  --cc-sans: var(--sans);
+  --cc-rail: 232px;
+  --cc-bar: 52px;
+
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--cc-ink);
+  font-family: var(--cc-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  /* The architectural substrate. Barely visible; it reads as material. */
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--cc-line-faint) 26%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--cc-line-faint) 16%, transparent) 1px, transparent 1px);
+  background-size: 96px 96px;
+}
+
+/* Essential state must exist in DOM, not only on a canvas. */
+.command__srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ----------------------------------------------------------------- header */
+
+.command__bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: stretch;
+  height: var(--cc-bar);
+  border-bottom: 1px solid var(--cc-line);
+  background: linear-gradient(180deg, #0c0d0f 0%, var(--panel) 100%);
+}
+
+.command__ident {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  min-width: 0;
+}
+
+.command__glyph {
+  width: 15px;
+  height: 21px;
+  flex: none;
+  opacity: 0.92;
+}
+
+.command__identText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.command__name {
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.command__sub {
+  font-family: var(--cc-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cc-ink-4);
+  white-space: nowrap;
+}
+
+.command__strip {
+  display: flex;
+  align-items: stretch;
+  margin-left: auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Facts separated by rules, not by cards. */
+.command__fact {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  padding: 0 14px;
+  border-left: 1px solid var(--cc-line);
+  min-width: 0;
+}
+
+.command__factLabel {
+  font-family: var(--cc-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--cc-ink-4);
+  white-space: nowrap;
+}
+
+.command__factValue {
+  font-size: 12px;
+  color: var(--cc-ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* -------------------------------------------------------------- body grid */
+
+.command__body {
+  display: grid;
+  grid-template-columns: var(--cc-rail) minmax(0, 1fr);
+  align-items: start;
+}
+
+.command__rail {
+  position: sticky;
+  top: var(--cc-bar);
+  height: calc(100vh - var(--cc-bar));
+  overflow-y: auto;
+  border-right: 1px solid var(--cc-line);
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
+  padding-bottom: 28px;
+}
+
+.command__main {
+  min-width: 0;
+  padding: 0 0 96px;
+}
+
+/* -------------------------------------------------------------- rail items */
+
+.command__railGroup {
+  border-bottom: 1px solid var(--cc-line-faint);
+  padding: 14px 0 12px;
+}
+
+.command__railLabel {
+  font-family: var(--cc-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cc-ink-4);
+  padding: 0 16px 8px;
+}
+
+.command__navItem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 16px;
+  color: var(--cc-ink-3);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: color 120ms linear, background 120ms linear;
+}
+
+.command__navItem:hover,
+.command__navItem:focus-visible {
+  color: var(--cc-ink);
+  background: color-mix(in srgb, var(--cc-line-faint) 40%, transparent);
+  outline: none;
+}
+
+.command__navItem[aria-current='page'] {
+  color: var(--cc-ink);
+  border-left-color: var(--cc-violet);
+  background: color-mix(in srgb, var(--cc-violet) 8%, transparent);
+}
+
+.command__navCode {
+  font-family: var(--cc-mono);
+  font-size: 9px;
+  color: var(--cc-ink-4);
+  margin-left: auto;
+  flex: none;
+}
+
+.command__navBadge {
+  font-family: var(--cc-mono);
+  font-size: 9px;
+  color: var(--cc-amber);
+  flex: none;
+}
+
+/* ------------------------------------------------------------- client switch */
+
+.command__switch {
+  border-bottom: 1px solid var(--cc-line-faint);
+  padding: 14px 16px;
+}
+
+.command__switchLabel {
+  font-family: var(--cc-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cc-ink-4);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.command__switchRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.command__client {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--cc-ink-3);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 120ms linear, color 120ms linear;
+}
+
+.command__client:hover {
+  color: var(--cc-ink);
+  border-color: var(--cc-line);
+}
+
+.command__client[aria-pressed='true'] {
+  color: var(--cc-ink);
+  border-color: color-mix(in srgb, var(--cc-violet) 40%, var(--cc-line));
+  background: color-mix(in srgb, var(--cc-violet) 7%, transparent);
+}
+
+.command__clientDot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  background: var(--cc-ink-4);
+}
+
+.command__clientName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------------------- page head */
+
+.command__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid var(--cc-line);
+}
+
+.command__headText {
+  min-width: 0;
+}
+
+.command__eyebrow {
+  font-family: var(--cc-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cc-ink-4);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.command__title {
+  font-size: 21px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  margin: 0;
+  color: var(--cc-ink);
+}
+
+.command__lede {
+  font-size: 12.5px;
+  color: var(--cc-ink-3);
+  margin: 6px 0 0;
+  max-width: 68ch;
+}
+
+.command__headActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ---------------------------------------------------------------- sections */
+
+.command__section {
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--cc-line-faint);
+}
+
+.command__sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.command__sectionTitle {
+  font-family: var(--cc-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cc-ink-2);
+  margin: 0;
+}
+
+.command__sectionNote {
+  font-size: 11.5px;
+  color: var(--cc-ink-4);
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------ grids */
+
+.command__grid2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 0;
+  border: 1px solid var(--cc-line);
+}
+
+.command__grid3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0;
+  border: 1px solid var(--cc-line);
+}
+
+.command__grid4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0;
+  border: 1px solid var(--cc-line);
+}
+
+.command__grid2 > *,
+.command__grid3 > *,
+.command__grid4 > * {
+  border-right: 1px solid var(--cc-line-faint);
+  border-bottom: 1px solid var(--cc-line-faint);
+  min-width: 0;
+}
+
+/* --------------------------------------------------------------- metric cell */
+
+.ccMetric {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ccMetric__label {
+  font-family: var(--cc-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--cc-ink-4);
+}
+
+.ccMetric__value {
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  color: var(--cc-ink);
+  line-height: 1.15;
+}
+
+.ccMetric__value--absent {
+  font-size: 13px;
+  color: var(--cc-ink-4);
+  font-style: italic;
+}
+
+.ccMetric__meta {
+  font-family: var(--cc-mono);
+  font-size: 9px;
+  color: var(--cc-ink-4);
+  letter-spacing: 0.04em;
+}
+
+/* ------------------------------------------------------------------- table */
+
+.ccTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.ccTable caption {
+  text-align: left;
+  font-family: var(--cc-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cc-ink-4);
+  padding-bottom: 8px;
+}
+
+.ccTable th {
+  font-family: var(--cc-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--cc-ink-4);
+  font-weight: 400;
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--cc-line);
+  white-space: nowrap;
+}
+
+.ccTable td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--cc-line-faint);
+  color: var(--cc-ink-2);
+  vertical-align: top;
+}
+
+.ccTable tbody tr:hover td {
+  background: color-mix(in srgb, var(--cc-line-faint) 28%, transparent);
+}
+
+.ccTable__num {
+  text-align: right;
+  font-family: var(--cc-mono);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.ccTable__absent {
+  color: var(--cc-ink-4);
+  font-style: italic;
+}
+
+.ccTableWrap {
+  border: 1px solid var(--cc-line);
+  overflow-x: auto;
+}
+
+/* ------------------------------------------------------------------- panes */
+
+.ccPane {
+  border: 1px solid var(--cc-line);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ccPane__title {
+  font-family: var(--cc-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cc-ink-2);
+  margin: 0;
+}
+
+.ccPane__body {
+  font-size: 12.5px;
+  color: var(--cc-ink-3);
+  margin: 0;
+}
+
+.ccPane__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--cc-ink-3);
+}
+
+/* ------------------------------------------------------------------ states */
+
+/*
+ * State vocabulary. A state is never conveyed by colour alone — every badge
+ * carries its code as text, so it survives greyscale, colour-blindness and a
+ * screenshot in a slide.
+ */
+.ccState {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--cc-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border: 1px solid var(--cc-line);
+  color: var(--cc-ink-3);
+  white-space: nowrap;
+}
+
+.ccState--live { border-color: color-mix(in srgb, var(--cc-green) 45%, var(--cc-line)); color: var(--cc-green); }
+.ccState--warn { border-color: color-mix(in srgb, var(--cc-amber) 45%, var(--cc-line)); color: var(--cc-amber); }
+.ccState--bad { border-color: color-mix(in srgb, var(--cc-red) 45%, var(--cc-line)); color: var(--cc-red); }
+.ccState--info { border-color: color-mix(in srgb, var(--cc-violet) 42%, var(--cc-line)); color: var(--cc-violet-soft); }
+.ccState--demo { border-style: dashed; color: var(--cc-ink-3); }
+
+/*
+ * CSS-module-safe tone selectors.
+ *
+ * A class name containing `--` cannot be referenced through the module's typed
+ * export map, so the tones are declared a second time under identifiers that
+ * can be. Both sets carry identical declarations; the stylesheet is the single
+ * source of truth and these are the names `primitives.tsx` resolves.
+ */
+.ccStateLive { border-color: color-mix(in srgb, var(--cc-green) 45%, var(--cc-line)); color: var(--cc-green); }
+.ccStateWarn { border-color: color-mix(in srgb, var(--cc-amber) 45%, var(--cc-line)); color: var(--cc-amber); }
+.ccStateBad { border-color: color-mix(in srgb, var(--cc-red) 45%, var(--cc-line)); color: var(--cc-red); }
+.ccStateInfo { border-color: color-mix(in srgb, var(--cc-violet) 42%, var(--cc-line)); color: var(--cc-violet-soft); }
+.ccStateDemo { border-style: dashed; color: var(--cc-ink-3); }
+
+/* Visually-hidden text that must still reach a screen reader. */
+.ccOriginLive {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--cc-green);
+  letter-spacing: 0.08em;
+}
+
+.ccStateDot {
+  width: 5px;
+  height: 5px;
+  flex: none;
+  background: currentColor;
+}
+
+/* ------------------------------------------------------------------ notice */
+
+/*
+ * The demo boundary. This is the most important element in the file: it is what
+ * stops a fixture number reading as a production number.
+ */
+.ccDemo {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px dashed color-mix(in srgb, var(--cc-amber) 40%, var(--cc-line));
+  background: color-mix(in srgb, var(--cc-amber) 5%, transparent);
+  font-size: 11.5px;
+  color: var(--cc-ink-3);
+}
+
+.ccDemo__mark {
+  font-family: var(--cc-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cc-amber);
+  flex: none;
+  padding-top: 1px;
+}
+
+/* ----------------------------------------------------------------- buttons */
+
+.ccButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  font-family: var(--cc-mono);
+  font-size: 10px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--cc-ink-2);
+  background: transparent;
+  border: 1px solid var(--cc-line-bright);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 120ms linear, border-color 120ms linear, background 120ms linear;
+}
+
+.ccButton:hover:not(:disabled),
+.ccButton:focus-visible {
+  color: var(--cc-ink);
+  border-color: var(--cc-violet);
+  background: color-mix(in srgb, var(--cc-violet) 9%, transparent);
+  outline: none;
+}
+
+.ccButton:disabled {
+  color: var(--cc-ink-4);
+  border-color: var(--cc-line);
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.ccButton--primary {
+  color: var(--cc-ink);
+  border-color: color-mix(in srgb, var(--cc-violet) 55%, var(--cc-line-bright));
+}
+
+.ccButton--danger:hover:not(:disabled),
+.ccButton--danger:focus-visible {
+  border-color: var(--cc-red);
+  color: var(--cc-red);
+  background: color-mix(in srgb, var(--cc-red) 9%, transparent);
+}
+
+.ccButton--sm {
+  padding: 3px 8px;
+  font-size: 9px;
+}
+
+/* ------------------------------------------------------------- empty state */
+
+.ccEmpty {
+  padding: 34px 24px;
+  text-align: center;
+  border: 1px dashed var(--cc-line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.ccEmpty__title {
+  font-family: var(--cc-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cc-ink-2);
+}
+
+.ccEmpty__body {
+  font-size: 12px;
+  color: var(--cc-ink-4);
+  max-width: 52ch;
+  margin: 0;
+}
+
+/* ----------------------------------------------------------- community card */
+
+.ccCommunity {
+  border: 1px solid var(--cc-line);
+  padding: 13px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ccCommunity__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ccCommunity__name {
+  font-size: 13px;
+  color: var(--cc-ink);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.ccCommunity__where {
+  font-family: var(--cc-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cc-ink-4);
+  margin: 3px 0 0;
+}
+
+.ccCommunity__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-family: var(--cc-mono);
+  font-size: 9px;
+  color: var(--cc-ink-4);
+  letter-spacing: 0.05em;
+}
+
+.ccCommunity__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ccTag {
+  font-family: var(--cc-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--cc-ink-4);
+  border: 1px solid var(--cc-line-faint);
+  padding: 1px 5px;
+}
+
+.ccCommunity__actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+  border-top: 1px solid var(--cc-line-faint);
+  margin-top: 2px;
+}
+
+/* -------------------------------------------------------------- platform mark */
+
+/*
+ * Platform brand colour is confined to the platform's own mark. The chrome
+ * around it stays KNOuX.
+ */
+.ccPlatform {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  font-family: var(--cc-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: #fff;
+  text-transform: none;
+}
+
+.ccPlatform--facebook { background: #1877f2; }
+.ccPlatform--instagram { background: linear-gradient(135deg, #f9ce34 0%, #ee2a7b 50%, #6228d7 100%); }
+.ccPlatform--meta_ads { background: #0084ff; }
+.ccPlatform--google_ads { background: #4285f4; }
+.ccPlatform--google_business { background: #34a853; }
+.ccPlatform--ga4 { background: #e8710a; }
+.ccPlatform--search_console { background: #1a73e8; }
+.ccPlatform--youtube { background: #ff0000; }
+.ccPlatform--whatsapp { background: #25d366; color: #06301a; }
+.ccPlatform--tiktok { background: #000; border: 1px solid var(--cc-line-bright); }
+.ccPlatform--linkedin { background: #0a66c2; }
+.ccPlatform--snapchat { background: #fffc00; color: #000; }
+
+/* --------------------------------------------------------------- timeline */
+
+.ccTimeline {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ccTimeline__item {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--cc-line-faint);
+}
+
+.ccTimeline__when {
+  font-family: var(--cc-mono);
+  font-size: 9.5px;
+  color: var(--cc-ink-4);
+  letter-spacing: 0.05em;
+  padding-top: 2px;
+}
+
+.ccTimeline__what {
+  font-size: 12.5px;
+  color: var(--cc-ink-2);
+  min-width: 0;
+}
+
+.ccTimeline__detail {
+  font-size: 11.5px;
+  color: var(--cc-ink-4);
+  margin: 3px 0 0;
+}
+
+/* ------------------------------------------------------------- command dock */
+
+/*
+ * The contextual command dock. It is docked, not floating: it sits under the
+ * context bar and carries the client's actual state, which is what makes KNOuX
+ * contextual rather than a generic chat box.
+ */
+.ccDock {
+  border-bottom: 1px solid var(--cc-line);
+  background: color-mix(in srgb, var(--panel) 80%, transparent);
+}
+
+.ccDock__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 24px;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  color: var(--cc-ink-3);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.ccDock__head:hover,
+.ccDock__head:focus-visible {
+  color: var(--cc-ink);
+  outline: none;
+}
+
+.ccDock__mark {
+  width: 15px;
+  height: 21px;
+  flex: none;
+  opacity: 0.9;
+}
+
+.ccDock__text {
+  min-width: 0;
+  flex: 1;
+}
+
+.ccDock__title {
+  font-family: var(--cc-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cc-ink-2);
+}
+
+.ccDock__context {
+  font-size: 11px;
+  color: var(--cc-ink-4);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ccDock__hint {
+  font-family: var(--cc-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--cc-ink-4);
+  flex: none;
+}
+
+.ccDock__body {
+  padding: 0 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ccDock__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ccDock__reply {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--cc-line);
+  padding: 14px 16px;
+}
+
+.ccDock__summary {
+  font-size: 13px;
+  color: var(--cc-ink);
+  margin: 0;
+}
+
+.ccDock__section {
+  border-top: 1px solid var(--cc-line-faint);
+  padding-top: 9px;
+}
+
+.ccDock__sectionHead {
+  font-family: var(--cc-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cc-ink-4);
+  margin: 0 0 6px;
+}
+
+.ccDock__sectionBody {
+  font-size: 12.5px;
+  color: var(--cc-ink-3);
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.ccDock__limitation {
+  display: flex;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--cc-amber);
+  font-family: var(--cc-mono);
+  letter-spacing: 0.03em;
+}
+
+.ccDock__evidence {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--cc-mono);
+  font-size: 9.5px;
+  color: var(--cc-ink-4);
+}
+
+/* ------------------------------------------------------------- approval */
+
+.ccApproval {
+  border: 1px solid color-mix(in srgb, var(--cc-violet) 35%, var(--cc-line));
+  background: color-mix(in srgb, var(--cc-violet) 4%, transparent);
+}
+
+.ccApproval__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1px;
+  background: var(--cc-line-faint);
+  border: 1px solid var(--cc-line-faint);
+  margin: 10px 0;
+}
+
+.ccApproval__fact {
+  background: var(--panel);
+  padding: 9px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ccApproval__factLabel {
+  font-family: var(--cc-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--cc-ink-4);
+}
+
+.ccApproval__factValue {
+  font-size: 15px;
+  color: var(--cc-ink);
+}
+
+.ccApproval__actions {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  border-top: 1px solid var(--cc-line-faint);
+}
+
+.ccApproval__refusal {
+  font-size: 12px;
+  color: var(--cc-red);
+  margin: 8px 0 0;
+}
+
+/* ------------------------------------------------------------- calendar */
+
+.ccCalendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border: 1px solid var(--cc-line);
+}
+
+.ccCalendar__dow {
+  font-family: var(--cc-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cc-ink-4);
+  padding: 7px 8px;
+  border-right: 1px solid var(--cc-line-faint);
+  border-bottom: 1px solid var(--cc-line);
+}
+
+.ccCalendar__day {
+  min-height: 82px;
+  padding: 6px 7px;
+  border-right: 1px solid var(--cc-line-faint);
+  border-bottom: 1px solid var(--cc-line-faint);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ccCalendar__day--empty {
+  background: color-mix(in srgb, var(--panel-2) 60%, transparent);
+}
+
+.ccCalendar__dayNum {
+  font-family: var(--cc-mono);
+  font-size: 9.5px;
+  color: var(--cc-ink-4);
+}
+
+.ccCalendar__day--today .ccCalendar__dayNum {
+  color: var(--cc-violet-soft);
+}
+
+.ccCalendar__entry {
+  font-size: 10px;
+  line-height: 1.35;
+  color: var(--cc-ink-3);
+  border-left: 2px solid var(--cc-line-bright);
+  padding-left: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.ccCalendar__entry--approval { border-left-color: var(--cc-amber); }
+.ccCalendar__entry--scheduled { border-left-color: var(--cc-violet); }
+.ccCalendar__entry--draft { border-left-color: var(--cc-ink-4); }
+
+/* --------------------------------------------------------------- filters */
+
+.ccFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: flex-end;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--cc-line-faint);
+}
+
+.ccField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ccField__label {
+  font-family: var(--cc-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--cc-ink-4);
+}
+
+.ccField__control {
+  background: var(--panel);
+  border: 1px solid var(--cc-line);
+  color: var(--cc-ink);
+  font-family: var(--cc-sans);
+  font-size: 12.5px;
+  padding: 5px 9px;
+  min-width: 148px;
+}
+
+.ccField__control:focus-visible {
+  border-color: var(--cc-violet);
+  outline: none;
+}
+
+.ccField__control::placeholder {
+  color: var(--cc-ink-4);
+}
+
+/* ------------------------------------------------------------------ bars */
+
+.ccBar {
+  height: 5px;
+  background: color-mix(in srgb, var(--cc-line-faint) 70%, transparent);
+  overflow: hidden;
+}
+
+.ccBar__fill {
+  height: 100%;
+  background: color-mix(in srgb, var(--cc-violet) 70%, transparent);
+}
+
+.ccBar__fill--fixture {
+  background: repeating-linear-gradient(
+    45deg,
+    color-mix(in srgb, var(--cc-ink-4) 55%, transparent) 0 3px,
+    transparent 3px 6px
+  );
+}
+
+/* -------------------------------------------------------------- footnote */
+
+.ccFoot {
+  font-family: var(--cc-mono);
+  font-size: 9px;
+  line-height: 1.7;
+  letter-spacing: 0.06em;
+  color: var(--cc-ink-4);
+  padding: 14px 24px 0;
+}
+
+.ccFoot strong {
+  color: var(--cc-ink-3);
+  font-weight: 400;
+}
+
+/* ------------------------------------------------------------- responsive */
+
+@media (max-width: 1080px) {
+  .command__rail {
+    position: static;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--cc-line);
+  }
+  .command__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .command__railNav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .command__bar {
+    height: auto;
+    flex-wrap: wrap;
+  }
+  .command__strip {
+    width: 100%;
+    margin-left: 0;
+    border-top: 1px solid var(--cc-line);
+    overflow-x: auto;
+  }
+  .command__section,
+  .command__head,
+  .command__filters,
+  .ccDock__body,
+  .ccDock__head {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .command__title {
+    font-size: 18px;
+  }
+  .ccCalendar {
+    grid-template-columns: repeat(7, minmax(96px, 1fr));
+    overflow-x: auto;
+  }
+  .ccTimeline__item {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 3px;
+  }
+}
+
+@media print {
+  .command__rail,
+  .ccDock,
+  .command__bar {
+    display: none;
+  }
+  .command__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .command {
+    background: #fff;
+    color: #000;
+    background-image: none;
+  }
+}
