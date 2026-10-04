@@ -15,6 +15,7 @@ import hashlib
 import json
 from pathlib import Path
 from typing import Any
+from .path_guard import artifact_path, carrier_map_path
 
 TARGET_COUNTRIES = {"EG", "AE", "SA", "KW", "QA", "BH", "OM"}
 
@@ -123,9 +124,9 @@ def main() -> int:
     parser.add_argument("--ui-map", default="src/lib/signal/generated/carrierPrefixes.json")
     args = parser.parse_args()
 
-    raw = Path(args.raw_dir)
-    manifests = Path(args.manifests_dir)
-    processed = Path(args.processed_dir)
+    raw = artifact_path(args.raw_dir)
+    manifests = artifact_path(args.manifests_dir)
+    processed = artifact_path(args.processed_dir)
     processed.mkdir(parents=True, exist_ok=True)
 
     networks = network_rows(raw, manifests)
@@ -140,7 +141,7 @@ def main() -> int:
         encoding="utf-8",
     )
 
-    ui_path = Path(args.ui_map)
+    ui_path = carrier_map_path(args.ui_map)
     ui_path.parent.mkdir(parents=True, exist_ok=True)
     ui_path.write_text(
         json.dumps(ui_map, ensure_ascii=False, separators=(",", ":"), sort_keys=True),

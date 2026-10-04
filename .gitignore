@@ -72,6 +72,7 @@ public/knoux-particles.bin
 !/scripts/signal/**
 !/scripts/signal/*.py
 .venv-signal/
+.venv-signal-boundary/
 __pycache__/
 *.pyc
 

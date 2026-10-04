@@ -135,6 +135,9 @@ class Worker implements ControlPlaneWorker {
   private enrollmentToken: string | null = process.env.KNOUX_CONTROL_PLANE_ENROLLMENT_TOKEN?.trim() || null;
 
   constructor(options: ControlPlaneWorkerOptions) {
+    if (!['127.0.0.1', 'localhost', '::1', '[::1]'].includes(options.config.host)) {
+      throw new Error('The outbound worker requires a loopback bridge host.');
+    }
     this.options = options;
     this.fetchImpl = options.fetchImpl ?? fetch;
     this.baseUrl = normalizeBaseUrl(options.baseUrl);
@@ -344,7 +347,10 @@ class Worker implements ControlPlaneWorker {
     tool: string,
     args: Record<string, unknown>,
   ): Promise<unknown> {
-    const origin = 'http://' + this.options.config.host + ':' + this.options.config.port;
+    // The constructor restricts the host to loopback; the local HTTP listener
+    // uses process-local authentication and intentionally does not offer TLS.
+    const host = this.options.config.host === '::1' ? '[::1]' : this.options.config.host;
+    const origin = 'http://' + host + ':' + this.options.config.port; // NOSONAR: strictly authenticated loopback transport.
     let path = '';
     const method = 'GET';
 

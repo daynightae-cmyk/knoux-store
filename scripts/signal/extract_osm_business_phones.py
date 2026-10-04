@@ -14,6 +14,7 @@ from typing import Any
 
 import osmium
 import phonenumbers
+from .path_guard import artifact_path
 
 TARGET = {"EG", "AE", "SA", "KW", "QA", "BH", "OM"}
 CALLING = {
@@ -102,6 +103,7 @@ class PhoneHandler(osmium.SimpleHandler):
     ) -> None:
         super().__init__()
         self.default_country = default_country
+        output_dir = artifact_path(output_dir)
         self.output_dir = output_dir
         self.dataset_id = dataset_id
         self.batch_size = batch_size

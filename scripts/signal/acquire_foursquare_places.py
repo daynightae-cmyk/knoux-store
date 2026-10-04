@@ -18,10 +18,12 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 import duckdb
 
 from .config import load_config
+from .path_guard import artifact_path
 from .signal_storage import ensure_free_space, processed_dir, raw_dir
 
 SOURCE_ID = "foursquare_os_places"
@@ -40,6 +42,16 @@ MIRROR_SNAPSHOT = "2024-11-19"
 REQUIRED_FREE_BYTES = 2 * 1024**3
 
 
+def mirror_url(value: str) -> str:
+    parsed = urlparse(value)
+    if (parsed.scheme != "https" or parsed.hostname != "huggingface.co"
+            or parsed.username or parsed.password or parsed.port not in (None, 443)
+            or not parsed.path.startswith("/datasets/")
+            or any(character in value for character in ("'", "\0", "\n", "\r"))):
+        raise ValueError("Expected an HTTPS Hugging Face dataset mirror URL")
+    return value
+
+
 def _connect() -> duckdb.DuckDBPyConnection:
     con = duckdb.connect()
     con.execute("INSTALL httpfs; LOAD httpfs;")
@@ -51,6 +63,7 @@ def _connect() -> duckdb.DuckDBPyConnection:
 
 
 def scan(con: duckdb.DuckDBPyConnection, url: str) -> int:
+    url = mirror_url(url)
     return int(
         con.execute(
             f"""
@@ -65,6 +78,8 @@ def scan(con: duckdb.DuckDBPyConnection, url: str) -> int:
 
 
 def extract(con: duckdb.DuckDBPyConnection, url: str, destination: Path) -> int:
+    url = mirror_url(url)
+    destination = artifact_path(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
     con.execute(
         f"""
@@ -147,7 +162,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.out
         else processed_dir(SOURCE_ID, config) / f"{SOURCE_ID}_gcc.parquet"
     )
-    ensure_free_space(REQUIRED_FREE_BYTES)
+    destination = artifact_path(destination)
+    ensure_free_space(REQUIRED_FREE_BYTES, destination)
 
     con = _connect()
     print(f"[{SOURCE_ID}] raw root  : {raw_dir(SOURCE_ID, config)}")
