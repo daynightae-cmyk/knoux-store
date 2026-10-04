@@ -37,8 +37,10 @@ const READING_LINE = '-46% 0px -46% 0px';
 const PANEL_ID = 'systems-register-panel';
 
 function readTier(): Tier {
-  const saved = localStorage.getItem('knoux-quality');
-  if (saved === 'high' || saved === 'balanced' || saved === 'low') return saved;
+  try {
+    const saved = localStorage.getItem('knoux-quality');
+    if (saved === 'high' || saved === 'balanced' || saved === 'low') return saved;
+  } catch { /* Storage can be unavailable in private or restricted contexts. */ }
   const cores = navigator.hardwareConcurrency || 8;
   return cores <= 4 ? 'low' : cores >= 12 ? 'high' : 'balanced';
 }
@@ -179,7 +181,7 @@ export function SystemsRegister() {
     };
 
     const start = () => {
-      if (running || motion.matches || !onScreen) return;
+      if (running || motion.matches || !onScreen || document.hidden) return;
       running = true;
       previousTime = 0;
       frame = requestAnimationFrame(tick);

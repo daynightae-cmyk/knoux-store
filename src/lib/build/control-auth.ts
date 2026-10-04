@@ -25,7 +25,7 @@ export interface RegistrationPayload {
   enrollmentToken?: string;
 }
 
-export interface RegistrationEnvelope {
+interface RegistrationEnvelope {
   payload: string;
   signature: string;
 }
