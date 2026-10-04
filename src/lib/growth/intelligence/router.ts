@@ -119,8 +119,15 @@ export class KnouxIntelligenceRouter {
         identity: USER_FACING_AI_NAME,
         provisional: chosen.provider.tier !== 'primary',
         servedBy: {
+          // The adapter's own provenance is preserved: a fallback that records
+          // which primary it degraded from is the difference between a labelled
+          // substitution and a silent one.
+          ...response.servedBy,
           providerId: chosen.provider.providerId,
           tier: chosen.provider.tier,
+          ...(chosen.provider.tier === 'fallback' && !response.servedBy.degradedFrom
+            ? { degradedFrom: 'knoux-agent' }
+            : {}),
           latencyMs: this.now() - started,
         },
       };
