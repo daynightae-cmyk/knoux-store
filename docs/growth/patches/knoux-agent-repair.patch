@@ -1,0 +1,263 @@
+--- a/agent.py
++++ b/agent.py
+@@
+-KNOUX_GCLOUD_PYTHON_FALLBACK = None
++KNOUX_GCLOUD_PYTHON_FALLBACK = None
+*** (patch context marker — see notes below)
+
+This file is a reviewable proposal, not an applied change.
+
+TARGET : D:\KNOUX_Agent\agent.py
+STATE  : as read on 2026-10-04
+STATUS : NOT APPLIED
+
+================================================================================
+FIX D1 — obsolete Python313 path in the local MCP token mint
+================================================================================
+
+PROBLEM
+  agent.py:121-125
+
+      env = os.environ.copy()
+      env.setdefault(
+          "CLOUDSDK_PYTHON",
+          r"C:\Users\k7\AppData\Local\Programs\Python\Python313\python.exe",
+      )
+
+  That interpreter does not exist. The machine's Python is
+  C:\Program Files\Python312\python.exe (3.12.10). `gcloud` invokes this path,
+  so local MCP impersonation fails on every attempt.
+
+  Note `setdefault` means an operator-set CLOUDSDK_PYTHON still wins. The defect
+  is the default, not the override.
+
+REPAIR
+  Resolve a usable interpreter at call time instead of hardcoding one, and skip
+  the override entirely when gcloud's bundled python already works. This also
+  removes the class of bug rather than the instance.
+
+--- a/agent.py
++++ b/agent.py
+@@ -118,8 +118,32 @@ def _mint_knoux_local_dev_id_token(audience: str) -> str:
+     if os.name != "nt":
+         raise RuntimeError("Local gcloud MCP auth is only configured for Windows.")
+     if not Path(KNOUX_GCLOUD_PATH).is_file():
+         raise RuntimeError(f"gcloud not found at {KNOUX_GCLOUD_PATH}")
++
++    # Candidate interpreters, most specific first. The hardcoded Python313 path
++    # this replaces pointed at an install that no longer exists, and would break
++    # again on the next interpreter upgrade. Discovery is cheap and the failure
++    # message now names what was tried.
++    candidates = [
++        os.environ.get("CLOUDSDK_PYTHON"),
++        r"C:\Program Files\Python312\python.exe",
++        sys.executable,
++    ]
+     env = os.environ.copy()
+-    env.setdefault(
+-        "CLOUDSDK_PYTHON",
+-        r"C:\Users\k7\AppData\Local\Programs\Python\Python313\python.exe",
+-    )
++    for candidate in candidates:
++        if candidate and Path(candidate).is_file():
++            env["CLOUDSDK_PYTHON"] = candidate
++            break
+     result = subprocess.run(
+         [
+             KNOUX_GCLOUD_PATH,
+
+================================================================================
+FIX D2 — knowledge resolver never falls back to GCS
+================================================================================
+
+PROBLEM
+  agent.py:265-272
+
+      if _KNOWLEDGE_LOCAL_ROOT.is_dir():
+          print(f"[KNOUX knowledge] local artifact missing: {file_name}")
+          return None, "unavailable:local-missing"
+      try:
+          return _download_knowledge_blob(kr["gcsUri"]), f"gcs:{kr['gcsUri']}"
+
+  If the local root exists but a file is absent, the function returns early and
+  never attempts GCS — even though the blob is there.
+
+  Verified consequence on 2026-10-04:
+    06-Tool-Execution-Contract.md   -> ABSENT locally, never fetched from GCS
+    07-Live-Diagnostics-Contract.md -> ABSENT locally, never fetched from GCS
+
+  Both are listed in _KNOWLEDGE_RESOURCES, so the agent believes it has its
+  safety contract and does not. The most safety-relevant artifact in the pack is
+  the one that silently fails to load.
+
+REPAIR
+  Attempt GCS when the local read misses. The local directory's existence must
+  not decide whether the cloud is consulted.
+
+--- a/agent.py
++++ b/agent.py
+@@ -263,13 +263,19 @@ def _read_knowledge_resource(kr: Dict[str, str]):
+     for candidate in (
+         _KNOWLEDGE_LOCAL_ROOT / file_name,
+         _KNOWLEDGE_LOCAL_ROOT / "docs" / file_name,
+     ):
+         if candidate.is_file():
+             return candidate.read_bytes(), f"local:{candidate}"
+-    if _KNOWLEDGE_LOCAL_ROOT.is_dir():
+-        print(f"[KNOUX knowledge] local artifact missing: {file_name}")
+-        return None, "unavailable:local-missing"
+     try:
+         return _download_knowledge_blob(kr["gcsUri"]), f"gcs:{kr['gcsUri']}"
+     except Exception as exc:
+         print(f"[KNOUX knowledge] unavailable {file_name}: {type(exc).__name__}: {exc}")
+         return None, f"unavailable:{type(exc).__name__}"
+
+  With the local miss no longer terminal, 06 and 07 load from GCS and the tool
+  execution contract reaches the model.
+
+================================================================================
+FIX D3 — import-time cloud authentication
+================================================================================
+
+PROBLEM
+  agent.py:239-246
+
+      _KNOWLEDGE_CREDENTIALS, _ = google.auth.default(quota_project_id="30719047550")
+      _KNOWLEDGE_STORAGE_CLIENT = storage.Client(project="30719047550", credentials=_KNOWLEDGE_CREDENTIALS)
+
+  Executed on import. There is currently an ADC file at
+  %APPDATA%\gcloud\application_default_credentials.json so this succeeds, but it
+  means importing the module on a machine without credentials — or in CI, or
+  during a local lint — raises before a single agent line runs.
+
+REPAIR
+  Build the client on first use.
+
+--- a/agent.py
++++ b/agent.py
+@@ -236,14 +242,24 @@ def _parse_knowledge_gcs_uri(uri: str) -> Tuple[str, str]:
+     raise ValueError(f"Invalid GCS URI: {uri}")
+     return match.group(1), match.group(2)
+
+-# Quota project is pinned to the agent's user project so GCS reads send
+-# `x-goog-user-project=<project>` and do not fail `serviceusage.services.use`
+-# against whatever project ADC happens to resolve.
+-_KNOWLEDGE_CREDENTIALS, _ = google.auth.default(
+-    quota_project_id="30719047550",
+-)
+-_KNOWLEDGE_STORAGE_CLIENT = storage.Client(
+-    project="30719047550",
+-    credentials=_KNOWLEDGE_CREDENTIALS,
+-)
++# Built on first use rather than at import. Importing this module should not
++# require cloud credentials; only downloading a knowledge blob should.
++_KNOWLEDGE_STORAGE_CLIENT: Optional[storage.Client] = None
++
++
++def _knowledge_storage_client() -> storage.Client:
++    global _KNOWLEDGE_STORAGE_CLIENT
++    if _KNOWLEDGE_STORAGE_CLIENT is None:
++        # Quota project is pinned to the agent's user project so GCS reads send
++        # `x-goog-user-project=<project>` and do not fail
++        # `serviceusage.services.use` against whatever ADC happens to resolve.
++        credentials, _ = google.auth.default(quota_project_id="30719047550")
++        _KNOWLEDGE_STORAGE_CLIENT = storage.Client(
++            project="30719047550",
++            credentials=credentials,
++        )
++    return _KNOWLEDGE_STORAGE_CLIENT
+
+@@
+ def _download_knowledge_blob(gcs_uri: str) -> bytes:
+     bucket_name, blob_name = _parse_knowledge_gcs_uri(gcs_uri)
+-    blob = _KNOWLEDGE_STORAGE_CLIENT.bucket(bucket_name).blob(blob_name)
++    blob = _knowledge_storage_client().bucket(bucket_name).blob(blob_name)
+     return blob.download_as_bytes()
+
+  Also add `import sys` near the other stdlib imports for FIX D1.
+
+================================================================================
+FIX D6 — mojibake in the root instruction
+================================================================================
+
+PROBLEM
+  agent.py:354
+
+      instruction='You are the KNOUX Repair Forensic Assistant, the root forensic
+      reasoning and orchestration agent for KNOUX Repairâ€”a local-first
+      Windows diagnostics...'
+
+  `â€”` is a UTF-8 em-dash read as cp1252. The agent is being told its own name
+  contains mojibake.
+
+REPAIR
+  Replace the corrupted sequence with a real em-dash.
+
+--- a/agent.py
++++ b/agent.py
+@@ -354,1 +354,1 @@
+-  ... KNOUX Repairâ€”a local-first Windows diagnostics, recovery, and system ...
++  ... KNOUX Repair — a local-first Windows diagnostics, recovery, and system ...
+
+  Verify the whole instruction string for other occurrences before applying;
+  the file is 18KB and the corruption may not be unique.
+
+================================================================================
+FIX D7 — subprocess.run with shell=True and a list argument
+================================================================================
+
+PROBLEM
+  agent.py:126-140
+
+      subprocess.run([KNOUX_GCLOUD_PATH, "auth", "print-identity-token", ...],
+                     shell=True, ...)
+
+  With shell=True on Windows the list is joined into a single command line for
+  cmd.exe without correct quoting. It happens to work today because the gcloud
+  path contains no spaces — which is exactly the kind of latent failure that
+  appears after someone installs to a path like C:\Program Files\Google Cloud SDK.
+
+REPAIR
+  Drop shell=True so the argument vector is passed to CreateProcess directly.
+
+--- a/agent.py
++++ b/agent.py
+@@ -136,7 +136,6 @@ def _mint_knoux_local_dev_id_token(audience: str) -> str:
+         timeout=45,
+         check=False,
+         env=env,
+-        shell=True,
+     )
+
+================================================================================
+NOT INCLUDED, AND WHY
+================================================================================
+
+D4/D5 — the MCP tool surface.
+  tool_filter=["gateway_status"] is doing its job: it is an allowlist of one tool
+  because the gateway only publishes one tool. Widening the filter without
+  adding gateway tools would just produce an empty or misleading tool list.
+  Adding Meta, Google, community and WhatsApp tools to the Cloud Run MCP gateway
+  is a separate piece of work with its own review, and it is the prerequisite
+  for D9. See docs/growth/CONNECTORS.md.
+
+D8 — provider abstraction in the agent.
+  Not needed for this product. Provider replaceability is enforced on the KNOuX
+  side by src/lib/growth/intelligence/router.ts, which lets the agent keep its
+  GlobalGemini declaration without the Social / Growth product caring. If the
+  agent itself ever needs it, patches/knoux-agent-growth.patch introduces
+  KnouxBaseModel.
+
+D9 — Growth intelligence families.
+  Requires D4/D5 first. See patches/knoux-agent-growth.patch.
+
+================================================================================
+VERIFY AFTER APPLYING
+================================================================================
+
+  1. python -c "import agent"                      # must succeed with no ADC
+  2. print(agent.root_agent.name)                  # KNOUX_Repair_Forensic_Assistant
+  3. Set KNOUX_KNOWLEDGE_ROOT to a directory holding 01 but not 06,
+     then trigger a request and confirm 06-Tool-Execution-Contract.md loads
+     from GCS rather than reporting local-missing.
+  4. Confirm the instruction string contains no U+FFFD or 'â€' sequences.
