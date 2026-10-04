@@ -37,6 +37,7 @@ qa-*.png
 
 scripts/
 *.py
+!/gateway/*.py
 KNOuX_VISUAL_REFERENCES_MASTER.txt
 KNOuX_WORK_EXECUTION_PROMPT.txt
 New Text Document.txt
@@ -88,3 +89,7 @@ node_modules*/
 # stay local. Ignore the awareness report family only; anything else placed under
 # .claude/ may be hand-maintained repository configuration and must stay trackable.
 .claude/*mcp-skills-awareness*.md
+# KNOuX Store MCP Gateway local artifacts
+gateway/.venv/
+gateway/__pycache__/
+gateway/*.pyc
