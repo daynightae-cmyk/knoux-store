@@ -65,6 +65,88 @@ test("grok transport is OpenRouter, not xAI", () => {
   assert.ok(!grok.requiredEnv.includes("XAI_API_KEY"));
 });
 
+test("Grok discovery recognises the OpenRouter x-ai namespace", () => {
+  const grok = registry.getAdapter("grok");
+
+  // Adapter-level identity — transport OpenRouter, GROK_OPENROUTER_API_KEY
+  // and no XAI_API_KEY — is asserted by the test directly above; this covers
+  // the catalog filter, which is what previously matched nothing.
+  const payload = {
+    data: [
+      { id: "x-ai/grok-4.7", name: "Grok 4.7", context_length: 200_000 },
+      { id: "x-ai/grok-4.5", name: "Grok 4.5", context_length: 131_072 },
+      { id: "xai/grok-legacy", name: "Grok Legacy" },
+      { id: "openai/gpt-4o", name: "GPT-4o" },
+      { id: "anthropic/claude-sonnet-4", name: "Claude Sonnet 4" },
+      { id: "groq/llama-3.3-70b", name: "Llama 3.3 70B" },
+      { id: "mistralai/ministral-3b-latest", name: "Ministral 3B" },
+      { id: "google/gemini-2.5-flash", name: "Gemini 2.5 Flash" },
+      { id: "openrouter/auto", name: "Auto" },
+    ],
+  };
+
+  const models = grok.parseModelList(payload);
+  const ids = models.map((m) => m.modelId);
+
+  assert.deepEqual(
+    ids,
+    ["x-ai/grok-4.7", "x-ai/grok-4.5", "xai/grok-legacy"],
+    "the live OpenRouter namespace must be recognised; xai/ retained as alias",
+  );
+
+  for (const unrelated of [
+    "openai/gpt-4o",
+    "anthropic/claude-sonnet-4",
+    "groq/llama-3.3-70b",
+    "mistralai/ministral-3b-latest",
+    "google/gemini-2.5-flash",
+    "openrouter/auto",
+  ]) {
+    assert.ok(
+      !ids.includes(unrelated),
+      `${unrelated} must not be presented as a Grok model`,
+    );
+  }
+
+  // Parsed output stays owned by this adapter and carries the real catalog
+  // name, so the UI still reads as Grok delivered over OpenRouter.
+  assert.equal(models[0].providerId, "grok");
+  assert.equal(models[0].displayName, "Grok 4.7");
+  assert.equal(models[0].contextWindow, 200_000);
+});
+
+test("Grok discovery is not empty against the real OpenRouter namespace", () => {
+  // Before the fix this returned [] because the filter spelled the namespace
+  // `xai/`, and an empty result is indistinguishable from failed discovery.
+  const grok = registry.getAdapter("grok");
+  const models = grok.parseModelList({
+    data: [{ id: "x-ai/grok-4.7", name: "Grok 4.7" }],
+  });
+  assert.equal(models.length, 1, "an x-ai model must be discovered");
+});
+
+test("Qwen base URL is selectable per region and defaults to the documented host", async () => {
+  const { QwenAdapter } = await loadTypeScript("../src/lib/ai/adapters/qwen.ts");
+  const CN = "https://dashscope.aliyuncs.com/compatible-mode/v1";
+  const INTL = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1";
+
+  // Default keeps the region this adapter has always documented.
+  delete process.env.DASHSCOPE_BASE_URL;
+  assert.equal(new QwenAdapter().config.baseUrl, CN);
+
+  // A credential issued in one region is refused by the other host, so the
+  // region must be selectable rather than hardcoded.
+  process.env.DASHSCOPE_BASE_URL = INTL;
+  assert.equal(new QwenAdapter().config.baseUrl, INTL);
+
+  // A trailing slash is normalized so the request path cannot double up.
+  process.env.DASHSCOPE_BASE_URL = "https://example.test/compatible-mode/v1/";
+  assert.equal(new QwenAdapter().config.baseUrl, "https://example.test/compatible-mode/v1");
+
+  delete process.env.DASHSCOPE_BASE_URL;
+  assert.equal(new QwenAdapter().config.baseUrl, CN);
+});
+
 test("returns null for unknown provider", () => {
   assert.equal(registry.getAdapter("nonexistent"), null);
 });

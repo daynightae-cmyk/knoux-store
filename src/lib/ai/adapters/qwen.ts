@@ -7,7 +7,17 @@ import { OpenAICompatibleAdapter } from './base';
  * Credential: DASHSCOPE_API_KEY
  * Supports: text, streaming, tools.
  *
- * Base URL: https://dashscope.aliyuncs.com/compatible-mode/v1
+ * Base URL: https://dashscope.aliyuncs.com/compatible-mode/v1 by default,
+ * overridable with DASHSCOPE_BASE_URL.
+ *
+ * The region is not cosmetic. Model Studio issues credentials per region: a
+ * China-region key is refused by the international host with 401
+ * `invalid_api_key`, and an international key is refused by the China host the
+ * same way. Both hosts speak the same OpenAI-compatible contract, so the only
+ * difference that matters here is which one the credential belongs to. The
+ * default stays the China host this adapter has always documented, and
+ * DASHSCOPE_BASE_URL selects the other — the same escape hatch ollama,
+ * lm-studio and opencode-go already provide for their endpoints.
  */
 export class QwenAdapter extends OpenAICompatibleAdapter {
   constructor() {
@@ -15,7 +25,7 @@ export class QwenAdapter extends OpenAICompatibleAdapter {
       id: 'qwen',
       displayName: 'QwenCloud',
       transport: 'Alibaba Model Studio',
-      baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+      baseUrl: process.env.DASHSCOPE_BASE_URL?.replace(/\/$/, '') ?? 'https://dashscope.aliyuncs.com/compatible-mode/v1',
       authHeader: 'bearer',
       requiredEnv: ['DASHSCOPE_API_KEY'],
       supportsVision: true,

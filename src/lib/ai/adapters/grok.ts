@@ -10,6 +10,24 @@ import { OpenAICompatibleAdapter } from './base';
  * Display truthfully as: "Grok, Transport: OpenRouter"
  * Credential: GROK_OPENROUTER_API_KEY (not XAI_API_KEY)
  */
+/**
+ * How OpenRouter names the Grok models it hosts.
+ *
+ * The live catalog publishes them under the `x-ai` namespace (`x-ai/grok-4.7`,
+ * `x-ai/grok-4.5`, …), never as `xai/…`. Matching the wrong spelling returned
+ * an empty list, and an empty list is indistinguishable from a failed
+ * discovery — so the prefix is named here once and covered by a regression
+ * test rather than being spelled inline in a filter.
+ *
+ * `xai/` is kept as an alias for the same namespace rather than deleted:
+ * matching it costs nothing, and removing it would reintroduce the silent
+ * zero-result failure if a proxy ever normalizes the spelling. `grok` covers an
+ * id published without a namespace.
+ *
+ * Every prefix is the Grok family. Nothing else is admitted.
+ */
+const GROK_MODEL_PREFIXES = ['x-ai/', 'xai/', 'grok'] as const;
+
 export class GrokAdapter extends OpenAICompatibleAdapter {
   constructor() {
     super({
@@ -31,7 +49,9 @@ export class GrokAdapter extends OpenAICompatibleAdapter {
 
   protected parseModelList(json: unknown): import('../types').NormalizedModel[] {
     const data = json as { data?: Array<{ id: string; name?: string; context_length?: number; pricing?: { prompt?: string; completion?: string } }> };
-    const list = (data?.data ?? []).filter((m) => m.id.startsWith('xai/') || m.id.startsWith('grok'));
+    const list = (data?.data ?? []).filter((m) =>
+      GROK_MODEL_PREFIXES.some((prefix) => m.id.startsWith(prefix)),
+    );
     return list.map((entry) => {
       const model = this.normalizeModel(entry.id);
       model.displayName = entry.name ?? entry.id;
