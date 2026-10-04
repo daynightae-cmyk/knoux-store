@@ -37,7 +37,7 @@ export function generateIdentity(): BridgeIdentity {
   // The raw key is the last 32 bytes of the DER SPKI structure.
   const raw = rawPublic.subarray(rawPublic.length - 32);
   return {
-    publicKey: publicKey.export({ format: 'pem', type: 'pkcs8' }).toString(),
+    publicKey: publicKey.export({ format: 'pem', type: 'spki' }).toString(),
     privateKey: privateKey.export({ format: 'pem', type: 'pkcs8' }).toString(),
     fingerprint: fingerprintPublicKey(raw),
   };

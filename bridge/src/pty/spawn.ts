@@ -294,7 +294,7 @@ export function spawnPty(options: SpawnOptions): PtyInstance {
       releasePtyHandles(ptyProcess);
     },
     onData: (callback) => ptyProcess.onData(callback),
-    onExit: (callback) => ptyProcess.onExit(({ exitCode, signal }) => {
+    onExit: (callback) => ptyProcess.onExit(({ exitCode, signal }: { exitCode: number; signal?: number }) => {
       // The shell exited on its own, so kill() was never called and nothing has
       // released the handles. Do it here, on the path node-pty took instead.
       releasePtyHandles(ptyProcess);

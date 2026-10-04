@@ -1,0 +1,12 @@
+[project]
+name = "knoux-store-mcp-gateway"
+version = "0.1.0"
+description = "Private outbound-control-plane MCP gateway for KNOuX Store"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp==2.13.1",
+    "httpx==0.28.1",
+]
+
+[tool.uv]
+package = false
