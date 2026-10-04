@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { createHash, createPublicKey } from 'node:crypto';
 import test from 'node:test';
 
 import { createControlPlaneWorker, controlPlaneUrlFromEnv } from '../dist/control-plane.js';
@@ -12,16 +11,20 @@ test('control plane refuses insecure public HTTP', () => {
   );
   assert.equal(
     controlPlaneUrlFromEnv({ KNOUX_CONTROL_PLANE_URL: 'http://127.0.0.1:3000' }),
-    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3000/api/build/bridge/control',
+  );
+  assert.equal(
+    controlPlaneUrlFromEnv({
+      KNOUX_CONTROL_PLANE_URL:
+        'https://example.supabase.co/functions/v1/knoux-bridge-control/',
+    }),
+    'https://example.supabase.co/functions/v1/knoux-bridge-control',
   );
 });
 
-test('outbound worker registers, claims a read-only job, executes locally and reports result', async () => {
+test('outbound worker registers, claims a read-only job, executes through process-local auth and reports result', async () => {
   const identity = generateIdentity();
-  const issuer = generateIdentity();
-  const issuerDer = createPublicKey(issuer.publicKey).export({ format: 'der', type: 'spki' });
-  const issuerFingerprint = createHash('sha256').update(issuerDer).digest('hex');
-  let trustedIssuer = null;
+  const internalControlToken = 'I'.repeat(43);
   const calls = [];
   let pollCount = 0;
   let reported = null;
@@ -49,8 +52,6 @@ test('outbound worker registers, claims a read-only job, executes locally and re
         expiresAt: new Date(Date.now() + 60_000).toISOString(),
         heartbeatIntervalMs: 10_000,
         idlePollMs: 2_000,
-        issuerPublicKey: issuer.publicKey,
-        issuerFingerprint,
       });
     }
 
@@ -60,6 +61,7 @@ test('outbound worker registers, claims a read-only job, executes locally and re
     }
 
     if (url.endsWith('/poll')) {
+      assert.equal(headers.get('authorization'), 'Bearer ' + 'A'.repeat(43));
       pollCount += 1;
       if (pollCount === 1) {
         return Response.json({
@@ -70,14 +72,14 @@ test('outbound worker registers, claims a read-only job, executes locally and re
             args: {},
             expiresAt: new Date(Date.now() + 60_000).toISOString(),
           },
-          bridgeTicket: 'bridge-ticket',
         });
       }
       return new Response(null, { status: 204 });
     }
 
     if (url === 'http://127.0.0.1:7331/v1/git/status') {
-      assert.equal(headers.get('authorization'), 'Bearer bridge-ticket');
+      assert.equal(headers.get('x-knoux-internal-token'), internalControlToken);
+      assert.equal(headers.get('authorization'), null);
       return Response.json({
         available: true,
         branch: 'feat/test',
@@ -90,6 +92,7 @@ test('outbound worker registers, claims a read-only job, executes locally and re
     }
 
     if (url.endsWith('/result')) {
+      assert.equal(headers.get('authorization'), 'Bearer ' + 'A'.repeat(43));
       reported = body;
       return Response.json({ ok: true });
     }
@@ -98,13 +101,11 @@ test('outbound worker registers, claims a read-only job, executes locally and re
   };
 
   const worker = createControlPlaneWorker({
-    baseUrl: 'https://knoux.store',
+    baseUrl: 'https://example.supabase.co/functions/v1/knoux-bridge-control',
     bridgeId: identity.fingerprint.slice(0, 16),
     version: 'test',
     identity,
-    onIssuerTrust: (fingerprint, publicKey) => {
-      trustedIssuer = { fingerprint, publicKey };
-    },
+    internalControlToken,
     config: {
       root: 'D:/Knoux Store',
       port: 7331,
@@ -135,10 +136,6 @@ test('outbound worker registers, claims a read-only job, executes locally and re
   await worker.stop();
 
   assert.ok(reported, 'expected the worker to report a job result');
-  assert.deepEqual(trustedIssuer, {
-    fingerprint: issuerFingerprint,
-    publicKey: issuer.publicKey,
-  });
   assert.equal(reported.jobId, '11111111-1111-4111-8111-111111111111');
   assert.equal(reported.ok, true);
   assert.equal(reported.result.branch, 'feat/test');

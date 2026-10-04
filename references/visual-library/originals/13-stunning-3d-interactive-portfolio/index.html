@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Remix: Stunning 3D Interactive Portfolio</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  :root {
+    --purple-deep: #0d0a1a;
+    --purple-mid: #1a1035;
+    --purple-accent: #3d1f6e;
+    --purple-light: #7c3aed;
+    --lavender: #a78bfa;
+    --white: #f5f0ff;
+    --muted: #6b5f8a;
+    --cyan: #22d3ee;
+    --pink: #f472b6;
+    --gold: #fbbf24;
+  }
+
+  html, body {
+    width:100%; height:100%;
+    background: var(--purple-deep);
+    color: var(--white);
+    font-family: 'Space Grotesk', sans-serif;
+    overflow: hidden;
+  }
+
+  canvas#bg {
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    z-index:0;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  .noise {
+    position: fixed; inset:0; z-index:1;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events:none;
+    opacity:0.5;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: fixed; top:0; left:0; right:0;
+    z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 24px 40px;
+    background: linear-gradient(to bottom, rgba(13,10,26,0.95), transparent);
+  }
+  .logo {
+    font-family:'Space Mono', monospace;
+    font-size:22px; font-weight:700; letter-spacing:4px;
+    color: var(--white);
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+  .logo span { color: var(--lavender); }
+
+  nav { display:flex; gap:32px; align-items:center; }
+  nav a {
+    font-size:11px; letter-spacing:2.5px; text-transform:uppercase;
+    color: var(--muted); text-decoration:none;
+    transition: color .3s;
+    cursor:pointer;
+  }
+  nav a:hover, nav a.active { color: var(--white); }
+  .nav-dot {
+    width:6px; height:6px; border-radius:50%;
+    background: var(--lavender); opacity:.6;
+  }
+
+  /* ─── HERO SECTION ─── */
+  #hero {
+    position: fixed; inset:0; z-index:10;
+    display:flex; align-items:center; justify-content:center;
+    pointer-events:none;
+  }
+  .hero-content {
+    text-align:center;
+    pointer-events:auto;
+  }
+  .hero-eyebrow {
+    font-size:11px; letter-spacing:5px; text-transform:uppercase;
+    color: var(--lavender); margin-bottom:20px;
+    opacity:0; animation: fadeUp .8s .3s forwards;
+  }
+  .hero-title {
+    font-size: clamp(52px, 8vw, 110px);
+    font-weight:700; line-height:1;
+    letter-spacing:-2px;
+    opacity:0; animation: fadeUp .9s .5s forwards;
+  }
+  .hero-title .line { display:block; overflow:hidden; }
+  .hero-title .accent { color: var(--lavender); font-style:italic; }
+  .hero-title .outline {
+    -webkit-text-stroke: 1px var(--lavender);
+    color: transparent;
+  }
+  .hero-sub {
+    margin-top:28px; font-size:14px; color: var(--muted);
+    letter-spacing:1px; max-width:420px; line-height:1.7;
+    margin-left:auto; margin-right:auto;
+    opacity:0; animation: fadeUp .8s .8s forwards;
+  }
+  .hero-btns {
+    margin-top:44px; display:flex; gap:16px; justify-content:center;
+    opacity:0; animation: fadeUp .8s 1s forwards;
+  }
+  .btn-primary {
+    padding:14px 36px; border-radius:2px;
+    background: var(--purple-light); color:#fff;
+    font-size:11px; letter-spacing:3px; text-transform:uppercase;
+    border:none; cursor:pointer;
+    transition: background .3s, transform .2s, box-shadow .3s;
+    font-family:'Space Grotesk',sans-serif;
+  }
+  .btn-primary:hover {
+    background: #9333ea;
+    box-shadow: 0 0 30px rgba(124,58,237,.5);
+    transform: translateY(-2px);
+  }
+  .btn-ghost {
+    padding:14px 36px; border-radius:2px;
+    background: transparent; color: var(--white);
+    font-size:11px; letter-spacing:3px; text-transform:uppercase;
+    border:1px solid var(--muted); cursor:pointer;
+    transition: border-color .3s, color .3s, transform .2s;
+    font-family:'Space Grotesk',sans-serif;
+  }
+  .btn-ghost:hover {
+    border-color: var(--lavender); color: var(--lavender);
+    transform: translateY(-2px);
+  }
+
+  /* ─── SIDEBAR ─── */
+  #sidebar {
+    position:fixed; left:0; top:0; bottom:0;
+    width:340px; z-index:50;
+    background: rgba(10,8,22,.97);
+    border-right:1px solid rgba(124,58,237,.15);
+    display:flex; flex-direction:column;
+    transform: translateX(-100%);
+    transition: transform .6s cubic-bezier(.16,1,.3,1);
+    overflow-y:auto;
+  }
+  #sidebar.open { transform: translateX(0); }
+
+  .sidebar-header {
+    padding:28px 28px 20px;
+    display:flex; justify-content:space-between; align-items:center;
+    border-bottom:1px solid rgba(124,58,237,.1);
+  }
+  .sidebar-logo {
+    font-family:'Space Mono',monospace;
+    font-size:16px; letter-spacing:3px; color: var(--white);
+  }
+  .close-btn {
+    width:32px; height:32px; border-radius:50%;
+    background:rgba(124,58,237,.15);
+    border:1px solid rgba(124,58,237,.3);
+    color: var(--lavender); cursor:pointer;
+    font-size:16px;
+    display:flex; align-items:center; justify-content:center;
+    transition: background .2s;
+  }
+  .close-btn:hover { background: rgba(124,58,237,.35); }
+
+  .sidebar-category {
+    padding:24px 28px 8px;
+    font-size:9px; letter-spacing:4px; text-transform:uppercase;
+    color: var(--lavender); font-weight:600;
+  }
+  .sidebar-item {
+    padding:10px 28px;
+    display:flex; align-items:center; gap:12px;
+    cursor:pointer;
+    transition: background .2s;
+    border-left:2px solid transparent;
+  }
+  .sidebar-item:hover {
+    background: rgba(124,58,237,.08);
+    border-left-color: var(--lavender);
+  }
+  .sidebar-item .tag {
+    font-size:8px; letter-spacing:2px; text-transform:uppercase;
+    color: var(--purple-light); font-family:'Space Mono',monospace;
+    min-width:72px;
+  }
+  .sidebar-item .name {
+    font-size:12px; color: var(--white); font-weight:400;
+    transition: color .2s;
+  }
+  .sidebar-item:hover .name { color: var(--lavender); }
+
+  /* ─── PANELS ─── */
+  .panel {
+    position:fixed; inset:0; z-index:200;
+    background: var(--purple-deep);
+    display:flex; flex-direction:column;
+    overflow-y:auto;
+    transform: translateY(100%);
+    transition: transform .7s cubic-bezier(.16,1,.3,1);
+  }
+  .panel.active { transform: translateY(0); }
+
+  .panel-close {
+    position:fixed; top:28px; right:40px;
+    width:44px; height:44px; border-radius:50%;
+    background: rgba(124,58,237,.2); border:1px solid rgba(124,58,237,.4);
+    color: var(--lavender); cursor:pointer; font-size:20px;
+    display:flex; align-items:center; justify-content:center;
+    z-index:201; transition:background .2s, transform .2s;
+  }
+  .panel-close:hover { background: rgba(124,58,237,.4); transform:rotate(90deg); }
+
+  /* ─── ABOUT PANEL ─── */
+  #panel-about .panel-inner {
+    max-width:900px; margin:0 auto;
+    padding:100px 40px 80px;
+  }
+  .panel-tag {
+    font-size:9px; letter-spacing:5px; text-transform:uppercase;
+    color: var(--lavender); margin-bottom:20px;
+  }
+  .panel-title {
+    font-size: clamp(36px, 5vw, 68px);
+    font-weight:700; line-height:1.1; letter-spacing:-1px;
+    margin-bottom:32px;
+  }
+  .panel-title em { color: var(--lavender); font-style:italic; }
+
+  .about-grid {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:60px; margin-top:60px;
+  }
+  .about-text p {
+    font-size:15px; line-height:1.9; color:#c4b8d9;
+    margin-bottom:20px;
+  }
+  .stats-grid {
+    display:grid; grid-template-columns:1fr 1fr; gap:24px;
+  }
+  .stat-card {
+    background: rgba(124,58,237,.08);
+    border:1px solid rgba(124,58,237,.15);
+    border-radius:4px; padding:24px;
+    transition: border-color .3s, transform .3s;
+  }
+  .stat-card:hover {
+    border-color: var(--lavender);
+    transform: translateY(-4px);
+  }
+  .stat-num {
+    font-size:42px; font-weight:700; color: var(--lavender);
+    font-family:'Space Mono',monospace; line-height:1;
+  }
+  .stat-label {
+    font-size:10px; letter-spacing:2px; text-transform:uppercase;
+    color: var(--muted); margin-top:8px;
+  }
+
+  .skills-list {
+    margin-top:40px; display:flex; flex-wrap:wrap; gap:10px;
+  }
+  .skill-tag {
+    padding:6px 16px; border-radius:100px;
+    background: rgba(124,58,237,.12);
+    border:1px solid rgba(124,58,237,.25);
+    font-size:11px; letter-spacing:1px;
+    color: var(--lavender);
+    transition:background .2s, transform .2s;
+    cursor:default;
+  }
+  .skill-tag:hover {
+    background: rgba(124,58,237,.28);
+    transform:scale(1.05);
+  }
+
+  /* ─── WORK PANEL ─── */
+  #panel-work .panel-inner {
+    max-width:1100px; margin:0 auto;
+    padding:100px 40px 80px;
+  }
+  .work-filter {
+    display:flex; gap:8px; margin:32px 0 48px; flex-wrap:wrap;
+  }
+  .filter-btn {
+    padding:7px 20px; border-radius:100px;
+    background:transparent;
+    border:1px solid rgba(124,58,237,.25);
+    color: var(--muted); font-size:10px;
+    letter-spacing:2px; text-transform:uppercase;
+    cursor:pointer; transition: all .2s;
+    font-family:'Space Grotesk',sans-serif;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--purple-light);
+    border-color: var(--purple-light);
+    color:#fff;
+  }
+  .work-grid {
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:20px;
+  }
+  .work-card {
+    border-radius:4px; overflow:hidden;
+    background: rgba(124,58,237,.06);
+    border:1px solid rgba(124,58,237,.12);
+    cursor:pointer;
+    transition:transform .35s, box-shadow .35s, border-color .35s;
+    position:relative;
+  }
+  .work-card:hover {
+    transform:translateY(-8px);
+    box-shadow:0 24px 60px rgba(124,58,237,.25);
+    border-color: rgba(124,58,237,.5);
+  }
+  .work-card-visual {
+    height:200px; position:relative; overflow:hidden;
+  }
+  .work-card-visual canvas {
+    width:100%; height:100%; display:block;
+  }
+  .work-overlay {
+    position:absolute; inset:0;
+    background:linear-gradient(to top, rgba(13,10,26,.9), transparent);
+    opacity:0; transition:opacity .3s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .work-card:hover .work-overlay { opacity:1; }
+  .work-overlay-icon {
+    width:44px; height:44px; border-radius:50%;
+    background: var(--purple-light);
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px;
+    transform:scale(.7); transition:transform .3s;
+  }
+  .work-card:hover .work-overlay-icon { transform:scale(1); }
+  .work-card-body { padding:18px 20px; }
+  .work-card-cat {
+    font-size:9px; letter-spacing:3px; text-transform:uppercase;
+    color: var(--lavender); margin-bottom:8px;
+  }
+  .work-card-title {
+    font-size:14px; font-weight:600; color: var(--white);
+    margin-bottom:6px;
+  }
+  .work-card-client {
+    font-size:11px; color: var(--muted);
+  }
+
+  /* ─── CONTACT PANEL ─── */
+  #panel-contact .panel-inner {
+    max-width:700px; margin:0 auto;
+    padding:100px 40px 80px;
+  }
+  .contact-form { margin-top:48px; }
+  .form-row { margin-bottom:24px; }
+  .form-row label {
+    display:block; font-size:9px; letter-spacing:3px;
+    text-transform:uppercase; color: var(--lavender);
+    margin-bottom:10px;
+  }
+  .form-row input, .form-row textarea, .form-row select {
+    width:100%; padding:14px 18px;
+    background: rgba(124,58,237,.06);
+    border:1px solid rgba(124,58,237,.2);
+    border-radius:3px; color: var(--white);
+    font-size:14px; font-family:'Space Grotesk',sans-serif;
+    transition:border-color .2s, box-shadow .2s;
+    outline:none;
+    -webkit-appearance:none;
+  }
+  .form-row input:focus, .form-row textarea:focus {
+    border-color: var(--purple-light);
+    box-shadow:0 0 0 3px rgba(124,58,237,.12);
+  }
+  .form-row textarea { resize:vertical; min-height:130px; }
+  .form-row select option { background:#1a1035; }
+  .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .submit-btn {
+    width:100%; padding:16px;
+    background: var(--purple-light); color:#fff;
+    border:none; border-radius:3px; font-size:11px;
+    letter-spacing:4px; text-transform:uppercase;
+    cursor:pointer; margin-top:8px;
+    font-family:'Space Grotesk',sans-serif;
+    transition:background .3s, box-shadow .3s, transform .2s;
+  }
+  .submit-btn:hover {
+    background:#9333ea;
+    box-shadow:0 0 40px rgba(124,58,237,.4);
+    transform:translateY(-2px);
+  }
+  .contact-socials {
+    margin-top:60px; padding-top:40px;
+    border-top:1px solid rgba(124,58,237,.1);
+    display:flex; gap:20px; flex-wrap:wrap;
+  }
+  .social-chip {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 20px; border-radius:100px;
+    background: rgba(124,58,237,.08);
+    border:1px solid rgba(124,58,237,.15);
+    font-size:12px; color: var(--white);
+    cursor:pointer;
+    transition:background .2s, border-color .2s, transform .2s;
+  }
+  .social-chip:hover {
+    background: rgba(124,58,237,.2);
+    border-color: var(--lavender);
+    transform:translateY(-2px);
+  }
+  .social-chip span { font-size:16px; }
+
+  /* ─── SCROLL INDICATOR ─── */
+  .scroll-hint {
+    position:fixed; bottom:36px; left:50%;
+    transform:translateX(-50%);
+    z-index:50; display:flex; flex-direction:column;
+    align-items:center; gap:8px;
+    opacity:0; animation:fadeUp .8s 1.5s forwards;
+  }
+  .scroll-hint-text {
+    font-size:9px; letter-spacing:3px; text-transform:uppercase;
+    color: var(--muted);
+  }
+  .scroll-line {
+    width:1px; height:48px;
+    background:linear-gradient(to bottom, var(--lavender), transparent);
+    animation: scrollPulse 2s infinite;
+  }
+  @keyframes scrollPulse {
+    0%,100%{opacity:.3;transform:scaleY(.8)} 50%{opacity:1;transform:scaleY(1)}
+  }
+
+  /* ─── MENU TRIGGER ─── */
+  .menu-btn {
+    position:fixed; bottom:36px; left:36px;
+    z-index:100;
+    width:52px; height:52px; border-radius:50%;
+    background:rgba(124,58,237,.15);
+    border:1px solid rgba(124,58,237,.35);
+    cursor:pointer; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:5px;
+    transition:background .3s;
+  }
+  .menu-btn:hover { background:rgba(124,58,237,.3); }
+  .menu-btn span {
+    display:block; width:20px; height:1.5px;
+    background:var(--lavender);
+    transition:transform .3s, opacity .3s;
+  }
+  .menu-btn.open span:nth-child(1) {transform:rotate(45deg) translate(4.7px,4.7px);}
+  .menu-btn.open span:nth-child(2) {opacity:0;}
+  .menu-btn.open span:nth-child(3) {transform:rotate(-45deg) translate(4.7px,-4.7px);}
+
+  /* ─── TICKER ─── */
+  .ticker-wrap {
+    position:fixed; bottom:0; left:0; right:0;
+    z-index:50; overflow:hidden;
+    border-top:1px solid rgba(124,58,237,.1);
+    background:rgba(10,8,22,.85);
+    backdrop-filter:blur(10px);
+    height:36px; display:flex; align-items:center;
+  }
+  .ticker {
+    display:flex; gap:0;
+    animation: ticker 28s linear infinite;
+    white-space:nowrap;
+  }
+  .ticker-item {
+    display:flex; align-items:center; gap:16px;
+    padding:0 32px;
+    font-size:9px; letter-spacing:3px; text-transform:uppercase;
+    color: var(--muted);
+  }
+  .ticker-item .dot { color: var(--lavender); }
+  @keyframes ticker {
+    0%{transform:translateX(0)} 100%{transform:translateX(-50%)}
+  }
+
+  /* ─── CURSOR ─── */
+  .cursor {
+    position:fixed; z-index:9999;
+    pointer-events:none;
+  }
+  .cursor-dot {
+    width:8px; height:8px; border-radius:50%;
+    background:var(--lavender);
+    position:fixed; transform:translate(-50%,-50%);
+    transition:transform .1s;
+  }
+  .cursor-ring {
+    width:36px; height:36px; border-radius:50%;
+    border:1px solid rgba(167,139,250,.4);
+    position:fixed; transform:translate(-50%,-50%);
+    transition:width .3s, height .3s, border-color .3s;
+  }
+  body.cursor-hover .cursor-ring {
+    width:56px; height:56px;
+    border-color: var(--lavender);
+  }
+
+  /* ─── TOAST ─── */
+  .toast {
+    position:fixed; bottom:60px; right:30px; z-index:999;
+    padding:14px 24px; border-radius:4px;
+    background:rgba(124,58,237,.9);
+    border:1px solid rgba(167,139,250,.3);
+    font-size:13px; color:#fff;
+    backdrop-filter:blur(10px);
+    transform:translateX(120%); transition:transform .4s;
+  }
+  .toast.show { transform:translateX(0); }
+
+  @keyframes fadeUp {
+    from{opacity:0;transform:translateY(24px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  @media(max-width:768px){
+    .work-grid{grid-template-columns:1fr;}
+    .about-grid{grid-template-columns:1fr;}
+    .form-row-2{grid-template-columns:1fr;}
+    .hero-title{font-size:clamp(40px,10vw,80px);}
+    #sidebar{width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NOISE -->
+<div class="noise"></div>
+
+<!-- THREE.JS CANVAS -->
+<canvas id="bg"></canvas>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">BRAV<span>Ò</span></div>
+  <nav>
+    <a class="active" onclick="showPanel(null)">Home</a>
+    <div class="nav-dot"></div>
+    <a onclick="showPanel('about')">About</a>
+    <div class="nav-dot"></div>
+    <a onclick="showPanel('work')">Work</a>
+    <div class="nav-dot"></div>
+    <a onclick="showPanel('contact')">Contact</a>
+  </nav>
+  <nav>
+    <a onclick="showPanel('contact')" style="color:var(--lavender)">HIRE ME</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<div id="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">Creative Director &amp; 3D Artist</div>
+    <h1 class="hero-title">
+      <span class="line">Alex <span class="accent">Rivera</span></span>
+      <span class="line outline">Portfolio</span>
+    </h1>
+    <p class="hero-sub">Crafting immersive digital experiences that blur the line between art and technology. Available for creative projects worldwide.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="showPanel('work')">View Work</button>
+      <button class="btn-ghost" onclick="showPanel('about')">About Me</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCROLL HINT -->
+<div class="scroll-hint">
+  <div class="scroll-hint-text">Scroll to explore</div>
+  <div class="scroll-line"></div>
+</div>
+
+<!-- MENU BTN -->
+<button class="menu-btn" id="menuBtn" onclick="toggleSidebar()">
+  <span></span><span></span><span></span>
+</button>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <div class="ticker-item"><span>Creative Direction</span><span class="dot">✦</span></div>
+    <div class="ticker-item"><span>3D Visualization</span><span class="dot">✦</span></div>
+    <div class="ticker-item"><span>Motion Design</span><span class="dot">✦</span></div>
+    <div class="ticker-item"><span>Brand Identity</span><span class="dot">✦</span></div>
+    <div class="ticker-item"><span>UI / UX Design</span><span class="dot">✦</span></div>
+    <div class="ticker-item"><span>Web Development</span><span class="dot">✦</span></div>
+    <div class="ticker-item"><span>Art Direction</span><span class="dot">✦</span></div>
+    <div class="ticker-item"><span>Photography</span><span class="dot">✦</span></div>
+    <!-- duplicate for seamless loop -->
+    <div class="ticker-item"><span>Creative Direction</span><span class="dot">✦</span></div>
+    <div class="ticker-item"><span>3D Visualization</span><span class="dot">✦</span></div>
+    <div class="ticker-item"><span>Motion Design</span><span class="dot">✦</span></div>
+    <div class="ticker-item"><span>Brand Identity</span><span class="dot">✦</span></div>
+    <div class="ticker-item"><span>UI / UX Design</span><span class="dot">✦</span></div>
+    <div class="ticker-item"><span>Web Development</span><span class="dot">✦</span></div>
+    <div class="ticker-item"><span>Art Direction</span><span class="dot">✦</span></div>
+    <div class="ticker-item"><span>Photography</span><span class="dot">✦</span></div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">BRAV<span style="color:var(--lavender)">Ò</span></div>
+    <button class="close-btn" onclick="toggleSidebar()">✕</button>
+  </div>
+  <div class="sidebar-category">Creative</div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">CREATIVE</span><span class="name">A Journey to the South</span></div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">CREATIVE</span><span class="name">STAR for Golden Goose</span></div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">CREATIVE</span><span class="name">Billie Eilish for Spotify</span></div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">CREATIVE</span><span class="name">The Promise of Spring</span></div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">CREATIVE</span><span class="name">Explore What You Love</span></div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">CREATIVE</span><span class="name">Meek Mill for Spotify</span></div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">CREATIVE</span><span class="name">Medusa Beat — Versace</span></div>
+  <div class="sidebar-category">Production</div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">PROD</span><span class="name">Timberland × Spring Studios</span></div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">PROD</span><span class="name">Samsung with RGA</span></div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">PROD</span><span class="name">Napapijri with Golab</span></div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">PROD</span><span class="name">Michelin with TBWA</span></div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">PROD</span><span class="name">Campari × Wunderman</span></div>
+  <div class="sidebar-category">Studio</div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">STUDIO</span><span class="name">Can't Nobody Else Love You</span></div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">STUDIO</span><span class="name">The Last Singer on Nowness</span></div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">STUDIO</span><span class="name">Mixes on POV PBS</span></div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">STUDIO</span><span class="name">Forgotten — Short of Week</span></div>
+  <div class="sidebar-item" onclick="showPanel('work')"><span class="tag">STUDIO</span><span class="name">The 1000 Days on Aeon</span></div>
+  <div style="padding:20px 28px; margin-top:auto; border-top:1px solid rgba(124,58,237,.1)">
+    <div style="font-size:10px;color:var(--muted);letter-spacing:1px;">Available for projects worldwide</div>
+    <div style="font-size:12px;color:var(--lavender);margin-top:6px;cursor:pointer;" onclick="showPanel('contact')">alex@bravo.studio →</div>
+  </div>
+</div>
+
+<!-- ABOUT PANEL -->
+<div class="panel" id="panel-about">
+  <button class="panel-close" onclick="showPanel(null)">✕</button>
+  <div class="panel-inner">
+    <div class="panel-tag">About Me</div>
+    <h2 class="panel-title">Creative mind,<br><em>technical soul</em></h2>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>I'm Alex Rivera, a multi-disciplinary creative director and 3D artist based in Milan, with over a decade of experience crafting stunning visual narratives for global brands, record labels, and luxury fashion houses.</p>
+        <p>My work lives at the intersection of art and technology — where immersive 3D environments meet bold graphic design and cinematic storytelling. I believe great design isn't just seen; it's felt.</p>
+        <p>From campaign ideation to final delivery, I bring an obsessive attention to detail and a relentless pursuit of the unexpected.</p>
+        <div class="skills-list">
+          <span class="skill-tag">Three.js</span>
+          <span class="skill-tag">Cinema 4D</span>
+          <span class="skill-tag">Blender</span>
+          <span class="skill-tag">After Effects</span>
+          <span class="skill-tag">WebGL</span>
+          <span class="skill-tag">GLSL Shaders</span>
+          <span class="skill-tag">Figma</span>
+          <span class="skill-tag">Brand Strategy</span>
+          <span class="skill-tag">Art Direction</span>
+          <span class="skill-tag">Photography</span>
+          <span class="skill-tag">GSAP</span>
+          <span class="skill-tag">React</span>
+        </div>
+      </div>
+      <div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-num">10+</div><div class="stat-label">Years Experience</div></div>
+          <div class="stat-card"><div class="stat-num">87</div><div class="stat-label">Projects Completed</div></div>
+          <div class="stat-card"><div class="stat-num">34</div><div class="stat-label">Global Clients</div></div>
+          <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">Awards Won</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WORK PANEL -->
+<div class="panel" id="panel-work">
+  <button class="panel-close" onclick="showPanel(null)">✕</button>
+  <div class="panel-inner">
+    <div class="panel-tag">Selected Work</div>
+    <h2 class="panel-title">Projects &amp; <em>Campaigns</em></h2>
+    <div class="work-filter">
+      <button class="filter-btn active" onclick="filterWork(this,'all')">All</button>
+      <button class="filter-btn" onclick="filterWork(this,'creative')">Creative</button>
+      <button class="filter-btn" onclick="filterWork(this,'production')">Production</button>
+      <button class="filter-btn" onclick="filterWork(this,'studio')">Studio</button>
+    </div>
+    <div class="work-grid" id="workGrid"></div>
+  </div>
+</div>
+
+<!-- CONTACT PANEL -->
+<div class="panel" id="panel-contact">
+  <button class="panel-close" onclick="showPanel(null)">✕</button>
+  <div class="panel-inner">
+    <div class="panel-tag">Get in Touch</div>
+    <h2 class="panel-title">Let's create<br><em>something bold</em></h2>
+    <div class="contact-form">
+      <div class="form-row-2">
+        <div class="form-row"><label>First Name</label><input type="text" placeholder="Alex"/></div>
+        <div class="form-row"><label>Last Name</label><input type="text" placeholder="Rivera"/></div>
+      </div>
+      <div class="form-row"><label>Email</label><input type="email" placeholder="hello@company.com"/></div>
+      <div class="form-row">
+        <label>Project Type</label>
+        <select>
+          <option>Creative Direction</option>
+          <option>3D Visualization</option>
+          <option>Brand Campaign</option>
+          <option>Motion Design</option>
+          <option>Web Experience</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-row"><label>Message</label><textarea placeholder="Tell me about your project…"></textarea></div>
+      <button class="submit-btn" onclick="handleSubmit()">Send Message →</button>
+    </div>
+    <div class="contact-socials">
+      <div class="social-chip"><span>𝕏</span> Twitter</div>
+      <div class="social-chip"><span>𝗶𝗻</span> LinkedIn</div>
+      <div class="social-chip"><span>◈</span> Behance</div>
+      <div class="social-chip"><span>⬡</span> Dribbble</div>
+      <div class="social-chip"><span>◎</span> Instagram</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">Message sent! I'll get back to you soon ✦</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ─── CURSOR ───────────────────────────────────────────
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e=>{
+  mx=e.clientX; my=e.clientY;
+  dot.style.left=mx+'px'; dot.style.top=my+'px';
+});
+function animCursor(){
+  rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(animCursor);
+}
+animCursor();
+document.querySelectorAll('a,button,.work-card,.sidebar-item,.skill-tag,.social-chip').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('cursor-hover'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('cursor-hover'));
+});
+
+// ─── THREE.JS BG ──────────────────────────────────────
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+camera.position.z = 5;
+
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg'), antialias:true, alpha:true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setClearColor(0x0d0a1a, 1);
+
+// Ambient + point lights
+const ambLight = new THREE.AmbientLight(0x3d1f6e, 0.8);
+scene.add(ambLight);
+const pLight1 = new THREE.PointLight(0x7c3aed, 3, 20);
+pLight1.position.set(4, 4, 3);
+scene.add(pLight1);
+const pLight2 = new THREE.PointLight(0x22d3ee, 2, 20);
+pLight2.position.set(-4, -2, 2);
+scene.add(pLight2);
+const pLight3 = new THREE.PointLight(0xf472b6, 1.5, 15);
+pLight3.position.set(0, -4, 4);
+scene.add(pLight3);
+
+// CONFETTI PARTICLES ─ colourful rectangles
+const confettiCount = 280;
+const confettiMeshes = [];
+const confettiColors = [0x7c3aed, 0xa78bfa, 0x22d3ee, 0xf472b6, 0xfbbf24, 0x34d399, 0xfb7185, 0x818cf8];
+for(let i=0;i<confettiCount;i++){
+  const w=0.04+Math.random()*0.09, h=0.12+Math.random()*0.18;
+  const geo = new THREE.PlaneGeometry(w, h);
+  const mat = new THREE.MeshBasicMaterial({
+    color: confettiColors[Math.floor(Math.random()*confettiColors.length)],
+    side:THREE.DoubleSide,
+    transparent:true, opacity:0.75+Math.random()*.25
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set((Math.random()-0.5)*18,(Math.random()-0.5)*12,(Math.random()-0.5)*8);
+  mesh.rotation.set(Math.random()*Math.PI,Math.random()*Math.PI,Math.random()*Math.PI);
+  mesh.userData = {
+    vy: -(0.006+Math.random()*0.012),
+    vr: new THREE.Vector3((Math.random()-.5)*.04,(Math.random()-.5)*.04,(Math.random()-.5)*.04),
+    startY: mesh.position.y
+  };
+  scene.add(mesh);
+  confettiMeshes.push(mesh);
+}
+
+// STAR PARTICLES
+const starGeo = new THREE.BufferGeometry();
+const starCount = 1800;
+const starPos = new Float32Array(starCount*3);
+for(let i=0;i<starCount*3;i++) starPos[i]=(Math.random()-0.5)*40;
+starGeo.setAttribute('position', new THREE.BufferAttribute(starPos,3));
+const starMat = new THREE.PointsMaterial({color:0xc4b8ff, size:.04, transparent:true, opacity:.6});
+const stars = new THREE.Points(starGeo, starMat);
+scene.add(stars);
+
+// CENTRE GLOWING SPHERE
+const sphereGeo = new THREE.IcosahedronGeometry(1.2, 4);
+const sphereMat = new THREE.MeshPhongMaterial({
+  color: 0x3d1f6e, emissive:0x1a0a3a, shininess:80,
+  transparent:true, opacity:.45, wireframe:false
+});
+const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+scene.add(sphere);
+
+const wireMat = new THREE.MeshBasicMaterial({color:0x7c3aed, wireframe:true, transparent:true, opacity:.12});
+const wireSphere = new THREE.Mesh(sphereGeo.clone(), wireMat);
+scene.add(wireSphere);
+
+// RINGS
+function makeRing(r1,r2,col,op){
+  const geo = new THREE.TorusGeometry(r1, r2, 4, 120);
+  const mat = new THREE.MeshBasicMaterial({color:col, transparent:true, opacity:op});
+  return new THREE.Mesh(geo, mat);
+}
+const ring1 = makeRing(2.4, .004, 0x7c3aed, .35); ring1.rotation.x=Math.PI/2.5; scene.add(ring1);
+const ring2 = makeRing(3.1, .003, 0xa78bfa, .2); ring2.rotation.x=Math.PI/3; ring2.rotation.y=.4; scene.add(ring2);
+const ring3 = makeRing(1.8, .003, 0x22d3ee, .15); ring3.rotation.z=Math.PI/4; scene.add(ring3);
+
+// MOUSE PARALLAX
+let mouseX=0, mouseY=0;
+document.addEventListener('mousemove',e=>{
+  mouseX=(e.clientX/innerWidth-.5)*2;
+  mouseY=-(e.clientY/innerHeight-.5)*2;
+});
+
+let t=0;
+function animate(){
+  requestAnimationFrame(animate);
+  t+=0.01;
+
+  // Sphere pulse
+  const s=1+Math.sin(t*.7)*.04;
+  sphere.scale.setScalar(s);
+  wireSphere.scale.setScalar(s*1.02);
+  sphere.rotation.y=t*.15;
+  wireSphere.rotation.y=-t*.1;
+
+  // Rings
+  ring1.rotation.z=t*.12;
+  ring2.rotation.y=t*.08;
+  ring3.rotation.x=t*.1;
+
+  // Point lights orbit
+  pLight1.position.x=Math.cos(t*.4)*5;
+  pLight1.position.z=Math.sin(t*.4)*4;
+  pLight2.position.x=Math.cos(t*.3+2)*5;
+  pLight2.position.z=Math.sin(t*.3+2)*4;
+  pLight3.position.y=Math.sin(t*.5)*4;
+
+  // Confetti fall
+  confettiMeshes.forEach(m=>{
+    m.position.y += m.userData.vy;
+    m.rotation.x += m.userData.vr.x;
+    m.rotation.y += m.userData.vr.y;
+    m.rotation.z += m.userData.vr.z;
+    if(m.position.y < -7) m.position.y = 7;
+  });
+
+  // Stars slow rotate
+  stars.rotation.y = t*.015;
+  stars.rotation.x = t*.008;
+
+  // Camera parallax
+  camera.position.x += (mouseX*.6 - camera.position.x)*.04;
+  camera.position.y += (mouseY*.4 - camera.position.y)*.04;
+  camera.lookAt(scene.position);
+
+  renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+// ─── MINI CANVAS FOR WORK CARDS ───────────────────────
+function drawWorkCardCanvas(canvas, index){
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width=canvas.offsetWidth||320, H=canvas.height=200;
+  const palettes=[
+    ['#7c3aed','#a78bfa','#22d3ee'],
+    ['#f472b6','#7c3aed','#fbbf24'],
+    ['#22d3ee','#818cf8','#34d399'],
+    ['#fbbf24','#f472b6','#7c3aed'],
+    ['#34d399','#22d3ee','#a78bfa'],
+    ['#fb7185','#7c3aed','#fbbf24'],
+    ['#818cf8','#f472b6','#22d3ee'],
+    ['#a78bfa','#34d399','#fb7185'],
+    ['#22d3ee','#fbbf24','#f472b6'],
+  ];
+  const pal = palettes[index % palettes.length];
+  // bg gradient
+  const grad = ctx.createLinearGradient(0,0,W,H);
+  grad.addColorStop(0,'#0d0a1a'); grad.addColorStop(1,pal[0]+'33');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+  // confetti dots
+  for(let i=0;i<60;i++){
+    ctx.save();
+    ctx.globalAlpha=.4+Math.random()*.4;
+    ctx.fillStyle=pal[Math.floor(Math.random()*pal.length)];
+    const x=Math.random()*W, y=Math.random()*H;
+    ctx.translate(x,y); ctx.rotate(Math.random()*Math.PI);
+    ctx.fillRect(-8,-2,16,4);
+    ctx.restore();
+  }
+  // centre glow
+  const cg=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,W*.45);
+  cg.addColorStop(0,pal[0]+'55'); cg.addColorStop(1,'transparent');
+  ctx.fillStyle=cg; ctx.fillRect(0,0,W,H);
+  // circle outline
+  ctx.strokeStyle=pal[1]+'55'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.arc(W/2,H/2,55,0,Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(W/2,H/2,35,0,Math.PI*2); ctx.stroke();
+}
+
+// ─── WORK DATA ────────────────────────────────────────
+const workItems=[
+  {cat:'creative',title:'A Journey to the South',client:'Alanui',year:'2024'},
+  {cat:'creative',title:'STAR Campaign',client:'Golden Goose',year:'2024'},
+  {cat:'creative',title:'Sacred Feminine',client:'Billie Eilish × Spotify',year:'2023'},
+  {cat:'creative',title:'The Promise of Spring',client:'Armani',year:'2023'},
+  {cat:'creative',title:'Explore What You Love',client:'Tumblr',year:'2023'},
+  {cat:'creative',title:'Medusa Beat',client:'Versace Jeans Couture',year:'2022'},
+  {cat:'production',title:'Timberland × Spring',client:'Spring Studios',year:'2024'},
+  {cat:'production',title:'Galaxy S24 Launch',client:'Samsung × RGA',year:'2024'},
+  {cat:'production',title:'Field Campaign',client:'Napapijri with Golab',year:'2023'},
+  {cat:'production',title:'Peroni Nastro',client:'Hey Human',year:'2022'},
+  {cat:'studio',title:"Can't Nobody Else Love You",client:'Dazed Media',year:'2024'},
+  {cat:'studio',title:'The Last Singer',client:'Nowness',year:'2023'},
+  {cat:'studio',title:'Glow',client:'Nowness',year:'2023'},
+  {cat:'studio',title:'Tears Of The Mountain',client:'Nowness',year:'2022'},
+  {cat:'studio',title:'Forgotten',client:'Short of the Week',year:'2022'},
+  {cat:'studio',title:'The 1000 Days',client:'Aeon',year:'2021'},
+];
+
+function buildWorkGrid(filter='all'){
+  const grid=document.getElementById('workGrid');
+  grid.innerHTML='';
+  const items=filter==='all'?workItems:workItems.filter(w=>w.cat===filter);
+  items.forEach((w,i)=>{
+    const card=document.createElement('div');
+    card.className='work-card';
+    card.dataset.cat=w.cat;
+    card.innerHTML=`
+      <div class="work-card-visual">
+        <canvas></canvas>
+        <div class="work-overlay"><div class="work-overlay-icon">→</div></div>
+      </div>
+      <div class="work-card-body">
+        <div class="work-card-cat">${w.cat.toUpperCase()} · ${w.year}</div>
+        <div class="work-card-title">${w.title}</div>
+        <div class="work-card-client">${w.client}</div>
+      </div>
+    `;
+    grid.appendChild(card);
+    const cvs=card.querySelector('canvas');
+    setTimeout(()=>drawWorkCardCanvas(cvs,i),50);
+  });
+}
+buildWorkGrid();
+
+function filterWork(btn, cat){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  buildWorkGrid(cat);
+}
+
+// ─── PANELS ───────────────────────────────────────────
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  const hero=document.getElementById('hero');
+  const hint=document.querySelector('.scroll-hint');
+  if(id){
+    const p=document.getElementById('panel-'+id);
+    if(p) p.classList.add('active');
+    hero.style.opacity='0';
+    hint.style.opacity='0';
+    if(id==='work') buildWorkGrid();
+  } else {
+    hero.style.opacity='1'; hint.style.opacity='1';
+  }
+  hero.style.transition='opacity .4s';
+  hint.style.transition='opacity .4s';
+  // close sidebar if open
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('menuBtn').classList.remove('open');
+}
+
+// ─── SIDEBAR ──────────────────────────────────────────
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const btn=document.getElementById('menuBtn');
+  sb.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+
+// ─── CONTACT SUBMIT ───────────────────────────────────
+function handleSubmit(){
+  const toast=document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'),3500);
+}
+</script>
+</body>
+</html>

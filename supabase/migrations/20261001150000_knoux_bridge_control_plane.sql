@@ -1,6 +1,6 @@
 -- KNOuX Store Local Bridge Control Plane.
 -- Outbound-only machine registration, heartbeat, durable job queue and audit.
--- Registration proves possession of the already-paired Ed25519 bridge identity.
+-- First enrollment binds a signed Ed25519 bridge identity to a one-time owner token.
 -- Session bearer tokens are stored only as SHA-256 hashes.
 
 create table if not exists public.knoux_bridge_enrollments (
@@ -125,7 +125,7 @@ $$;
 
 revoke all on function public.knoux_bridge_enroll_machine(
   text,text,text,text,text,text,text,text,jsonb
-) from public;
+) from public, anon, authenticated;
 grant execute on function public.knoux_bridge_enroll_machine(
   text,text,text,text,text,text,text,text,jsonb
 ) to service_role;
@@ -167,7 +167,7 @@ create table if not exists public.knoux_bridge_jobs (
   args jsonb not null default '{}'::jsonb,
   required_scopes text[] not null default '{}',
   mutating boolean not null default false,
-  approval_id uuid references public.knoux_build_approvals(id) on delete set null,
+  approval_id uuid,
   idempotency_key text,
   status text not null default 'queued',
   claimed_session_id uuid references public.knoux_bridge_sessions(id) on delete set null,
@@ -265,7 +265,7 @@ begin
 end;
 $$;
 
-revoke all on function public.knoux_bridge_claim_job(uuid, uuid) from public;
+revoke all on function public.knoux_bridge_claim_job(uuid, uuid) from public, anon, authenticated;
 grant execute on function public.knoux_bridge_claim_job(uuid, uuid) to service_role;
 
 comment on table public.knoux_bridge_machines is
