@@ -58,10 +58,6 @@ const META_TOKEN = /\bEAA?[A-Za-z0-9]{20,}\b/g;
 /** A long hex run: a fingerprint, a checksum, or a key in hex. */
 const LONG_HEX = /\b[0-9a-f]{32,}\b/gi;
 
-/** Anything that names a credential. Also used to decide whether a key is sensitive. */
-const SECRET_LABEL =
-  /(?:key|token|secret|password|passwd|pwd|credential|authorization|bearer|private[_-]?key)/i;
-
 /** Redact a string, preserving prose. */
 export function redactSecrets(input: string): string {
   // `Bearer` runs first on purpose. `AUTHORIZATION=Bearer abc123` is two
@@ -75,9 +71,4 @@ export function redactSecrets(input: string): string {
     .replace(PREFIXED_TOKEN, '[REDACTED]')
     .replace(META_TOKEN, '[REDACTED]')
     .replace(LONG_HEX, '[REDACTED_HEX]');
-}
-
-/** True when a string carries something that looks like a credential. */
-export function looksLikeSecret(input: string): boolean {
-  return SECRET_LABEL.test(input);
 }
