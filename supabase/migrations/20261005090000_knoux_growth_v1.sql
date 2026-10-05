@@ -15,7 +15,9 @@
 --
 --   2. Membership is the single source of authority. There is no role column on
 --      a business table. A user's role is a property of their membership, so
---      revoking access is deleting one row rather than updating many.
+--      revoking access is deleting one row rather than updating many. A role is
+--      grantable only by an existing OWNER of that workspace, so a user cannot
+--      raise their own role by writing to the membership table.
 --
 --   3. No credential is stored. `knoux_growth_connections` holds a reference to
 --      a secret held in an external vault, plus presence and expiry metadata.
@@ -216,6 +218,13 @@ create table if not exists public.knoux_growth_campaigns (
   -- Incremented on every mutation. An approval references the version it
   -- approved, so an edit after approval is detectable rather than assumed away.
   version integer not null default 1,
+  -- Declared here, not by a later ADD COLUMN, because the
+  -- knoux_growth_campaigns_live_requires_provider check below references it. A
+  -- CHECK in CREATE TABLE cannot name a column that does not exist yet, so
+  -- declaring it afterwards made this migration fail at apply time.
+  -- One campaign can exist on several platforms (see campaign_channels), but
+  -- only one may ever be serving, so one provider id belongs here.
+  provider_campaign_id text,
   created_by uuid references auth.users(id) on delete set null,
   updated_by uuid references auth.users(id) on delete set null,
   origin text not null default 'LIVE',
@@ -238,8 +247,8 @@ create table if not exists public.knoux_growth_campaigns (
   )
 );
 
--- provider_campaign_id lives here rather than in a child table because one
--- campaign can exist on several platforms, but only one may ever be serving.
+-- Kept as an idempotent no-op for a database where the column is somehow absent.
+-- On a fresh apply the column is already present from the CREATE TABLE above.
 alter table public.knoux_growth_campaigns
   add column if not exists provider_campaign_id text;
 
@@ -357,15 +366,76 @@ alter table public.knoux_growth_campaigns enable row level security;
 alter table public.knoux_growth_campaign_channels enable row level security;
 alter table public.knoux_growth_campaign_approvals enable row level security;
 
--- Membership: a person reads and writes their own rows. Reading another
--- person's membership is how a client-role user would discover which other
--- workspaces exist, so it is not permitted.
+-- Ownership test, as a function, because the membership write policy has to ask
+-- "is the caller an owner of this client?" about a table whose own policy is the
+-- thing being evaluated. Written inline that is a self-referencing policy, and
+-- Postgres rejects it with `infinite recursion detected in policy` rather than
+-- quietly returning false. SECURITY DEFINER resolves it by reading the
+-- memberships as the table owner, which RLS does not apply to.
+--
+-- `set search_path` is pinned so the body cannot be redirected by a caller-settable
+-- search_path, and the function takes only a client id, so it exposes nothing
+-- beyond an ownership answer the caller could already infer.
+create or replace function public.knoux_growth_is_client_owner(p_client_id text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+      from public.knoux_growth_memberships m
+     where m.client_id = p_client_id
+       and m.user_id = auth.uid()
+       and m.role = 'OWNER'
+  );
+$$;
+
+revoke all on function public.knoux_growth_is_client_owner(text) from anon;
+grant execute on function public.knoux_growth_is_client_owner(text) to authenticated;
+
+comment on function public.knoux_growth_is_client_owner(text) is
+  'True when the calling user holds OWNER on the given workspace. SECURITY DEFINER to avoid infinite recursion in the membership policy.';
+
+-- Membership: a person reads only their own rows. Reading another person's
+-- membership is how a client-role user would discover which other workspaces
+-- exist, so it is not permitted.
+--
+-- Writes are NOT self-scoped. An earlier version used `for all` with
+-- `with check (user_id = auth.uid())`, which combined with the authenticated
+-- insert/update/delete grant below let any logged-in user mint an OWNER
+-- membership for any client id, or promote their own row to OWNER — and OWNER
+-- then unlocks knoux_growth_clients_owner_write. Holding only your own row open
+-- for writes is what made that escalation possible. Writes now require already
+-- being an owner of that client, which is the one role that cannot be acquired
+-- by writing.
 drop policy if exists knoux_growth_memberships_self on public.knoux_growth_memberships;
-create policy knoux_growth_memberships_self on public.knoux_growth_memberships
-  for all
+create policy knoux_growth_memberships_read_self on public.knoux_growth_memberships
+  for select
   to authenticated
-  using (user_id = auth.uid())
-  with check (user_id = auth.uid());
+  using (user_id = auth.uid());
+
+drop policy if exists knoux_growth_memberships_insert_owner on public.knoux_growth_memberships;
+create policy knoux_growth_memberships_insert_owner on public.knoux_growth_memberships
+  for insert
+  to authenticated
+  with check (public.knoux_growth_is_client_owner(client_id));
+
+drop policy if exists knoux_growth_memberships_update_owner on public.knoux_growth_memberships;
+create policy knoux_growth_memberships_update_owner on public.knoux_growth_memberships
+  for update
+  to authenticated
+  using (public.knoux_growth_is_client_owner(client_id))
+  with check (public.knoux_growth_is_client_owner(client_id));
+
+-- Leaving is always allowed, and removing a member is an owner's action. Neither
+-- direction can raise a role, so neither is an escalation path.
+drop policy if exists knoux_growth_memberships_delete on public.knoux_growth_memberships;
+create policy knoux_growth_memberships_delete on public.knoux_growth_memberships
+  for delete
+  to authenticated
+  using (user_id = auth.uid() or public.knoux_growth_is_client_owner(client_id));
 
 -- Clients: visible to members of that workspace.
 drop policy if exists knoux_growth_clients_member_read on public.knoux_growth_clients;
@@ -554,3 +624,47 @@ grant select, insert, update, delete on table public.knoux_growth_campaign_appro
 -- select conname, pg_get_constraintdef(oid)
 --   from pg_constraint
 --  where conname = 'knoux_growth_campaigns_live_requires_provider';
+--
+-- 5. No policy lets a user write their own membership. This is the escalation
+--    check: if any membership policy still has INSERT or UPDATE with a
+--    `with check` that does not call knoux_growth_is_client_owner, any
+--    authenticated user can promote themselves to OWNER of any workspace.
+--
+-- select polname, polcmd, pg_get_expr(polqual, polrelid)  as using_expr,
+--        pg_get_expr(polwithcheck, polrelid) as with_check_expr
+--   from pg_policy
+--  where polrelid = 'public.knoux_growth_memberships'::regclass
+--    and polcmd in ('a', 'w', 'd', '*')
+--  order by polname;
+--
+-- Expect: SELECT policy with `user_id = auth.uid()`; INSERT and UPDATE policies
+-- whose with_check calls knoux_growth_is_client_owner(client_id); DELETE policy
+-- allowing `user_id = auth.uid() or knoux_growth_is_client_owner(...)`.
+-- A `for all` policy here is the defect, not the fix.
+--
+-- 6. The ownership helper is SECURITY DEFINER with a pinned search_path.
+--
+-- select prosecdef, proconfig, proname
+--   from pg_proc
+--  where proname = 'knoux_growth_is_client_owner';
+--
+-- Expect prosecdef = true and proconfig containing search_path=public. Without
+-- SECURITY DEFINER the membership write policies cannot be written at all
+-- (infinite recursion); without a pinned search_path the function body is
+-- redirectable.
+--
+-- ---------------------------------------------------------------------------
+-- Bootstrap
+-- ---------------------------------------------------------------------------
+--
+-- Membership writes now require an existing OWNER of that client, which means
+-- the first owner cannot be created through the API — there is nobody to
+-- authorise it. Seed it with a role that bypasses RLS, which is not reachable
+-- from a browser session:
+--
+--   insert into public.knoux_growth_memberships (user_id, client_id, role, created_by)
+--   values ('<auth.users.id>', '<client id>', 'OWNER', '<auth.users.id>');
+--
+-- Run it from the Supabase SQL editor, or with the service_role key from a
+-- trusted backend. Do not add a policy that permits self-granting: that is
+-- exactly the escalation check in query 5 above.

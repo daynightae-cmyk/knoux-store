@@ -79,6 +79,10 @@ create table if not exists public.knoux_growth_content (
   origin text not null default 'LIVE',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
+  -- Declared here rather than by a later ADD COLUMN: the
+  -- knoux_growth_content_published_requires_provider check below names it, and a
+  -- CHECK in CREATE TABLE cannot reference a column that does not exist yet.
+  provider_post_id text,
   constraint knoux_growth_content_status check (
     status in ('DRAFT', 'SCHEDULED', 'PUBLISHED', 'FAILED', 'APPROVAL_REQUIRED')
   ),
@@ -89,6 +93,7 @@ create table if not exists public.knoux_growth_content (
   )
 );
 
+-- Idempotent no-op on a fresh apply; the column comes from the CREATE TABLE above.
 alter table public.knoux_growth_content
   add column if not exists provider_post_id text;
 
