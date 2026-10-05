@@ -44,7 +44,7 @@ function Leads() {
   const [status, setStatus] = useState<string>('all');
   const [source, setSource] = useState<string>('all');
 
-  const sources = useMemo(() => [...new Set(leads.map((lead) => lead.source))].sort(), [leads]);
+  const sources = useMemo(() => [...new Set(leads.map((lead) => lead.source))].sort((a, b) => a.localeCompare(b)), [leads]);
 
   const filtered = leads
     .filter((lead) => (status === 'all' ? true : lead.status === status))

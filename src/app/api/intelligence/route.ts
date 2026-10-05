@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { randomUUID } from 'node:crypto';
 import { buildRouter } from '@/lib/growth/server/runtime';
 import { INTELLIGENCE_INTENTS, type IntelligenceFamily, type IntelligenceRequest } from '@/lib/growth/intelligence/types';
 import { INTELLIGENCE_FAMILIES } from '@/lib/growth/intelligence/types';
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
     : DEFAULT_AUTONOMY;
 
   const intelligenceRequest: IntelligenceRequest = {
-    requestId: `ir_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+    requestId: `ir_${randomUUID()}`,
     intent: intent as IntelligenceRequest['intent'],
     prompt: typeof body.prompt === 'string' ? body.prompt.slice(0, 2000) : '',
     inputs: isRecord(body.inputs) ? body.inputs : {},

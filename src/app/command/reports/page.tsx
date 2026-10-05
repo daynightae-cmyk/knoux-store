@@ -99,11 +99,11 @@ function Reports() {
                   <tr key={row.key}>
                     <td>{row.platformLabel}</td>
                     <Money value={row.metrics.spend} currency={currency} />
-                    <Number value={row.metrics.impressions} />
-                    <Number value={row.metrics.reach} />
-                    <Number value={row.metrics.leads} />
+                    <ReportNumber value={row.metrics.impressions} />
+                    <ReportNumber value={row.metrics.reach} />
+                    <ReportNumber value={row.metrics.leads} />
                     <Money value={row.derived.costPerLead} currency={currency} />
-                    <Number value={row.derived.roas} />
+                    <ReportNumber value={row.derived.roas} />
                     <td>
                       <OriginLabel origin={row.metrics.spend?.origin ?? 'FIXTURE'} />
                     </td>
@@ -245,7 +245,7 @@ function Reports() {
             </p>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               <CodeBadge tone="live">AVAILABLE</CodeBadge>
-              <button type="button" className={`${styles.ccButton ?? ''} ${styles.ccButtonSm ?? ''}`}>
+              <button type="button" onClick={() => window.print()} className={`${styles.ccButton ?? ''} ${styles.ccButtonSm ?? ''}`}>
                 Print
               </button>
             </div>
@@ -286,7 +286,7 @@ function Money({
   );
 }
 
-function Number({ value }: { value: { value: number; origin: string } | null | undefined }) {
+function ReportNumber({ value }: { value: { value: number; origin: string } | null | undefined }) {
   if (!value) return <td className={`${styles.ccTableNum ?? ''} ${styles.ccTableAbsent ?? ''}`}>Not reported</td>;
   return (
     <td className={styles.ccTableNum ?? ''}>{value.value.toLocaleString('en-AE', { maximumFractionDigits: 2 })}</td>
