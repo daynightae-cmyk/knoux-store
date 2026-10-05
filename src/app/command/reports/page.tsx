@@ -80,7 +80,7 @@ function Reports() {
             A report needs provider data. Nothing is estimated from campaign budget.
           </EmptyState>
         ) : (
-          <div className={styles.ccTableWrap ?? ''}>
+          <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
             <table className={styles.ccTable ?? ''}>
               <thead>
                 <tr>
@@ -129,7 +129,7 @@ function Reports() {
       </Section>
 
       <Section title="Community distribution" note="Manual-assisted posting, counted from operator confirmations.">
-        <div className={styles.ccTableWrap ?? ''}>
+        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>
@@ -173,7 +173,7 @@ function Reports() {
       </Section>
 
       <Section title="Content output" note="Volume only. Quality is not scored here.">
-        <div className={styles.ccTableWrap ?? ''}>
+        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>
@@ -198,7 +198,7 @@ function Reports() {
       </Section>
 
       <Section title="Campaign ledger" note="Committed budget by plan.">
-        <div className={styles.ccTableWrap ?? ''}>
+        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>

@@ -532,21 +532,6 @@ export const DEMO_COMMUNITIES: readonly Community[] = [
   },
 ];
 
-/* ------------------------------------------------------------- the states */
-
-/**
- * Records kept to show every state the UI must render. These are separate from
- * the main list so the state gallery is deliberate rather than accidental.
- */
-export const COMMUNITY_STATE_EXAMPLES = {
-  VERIFIED: 'cm_ae_ad_swim',
-  NEEDS_REVIEW: 'cm_ae_ad_parents',
-  BROKEN_LINK: null,
-  PRIVATE: null,
-  UNAVAILABLE: null,
-  UNKNOWN: 'cm_ae_fuj_local',
-} as const;
-
 /* ------------------------------------------------------ distribution lists */
 
 export const DEMO_DISTRIBUTION_LISTS: readonly DistributionList[] = [
@@ -598,11 +583,6 @@ export const DEMO_DISTRIBUTION_LISTS: readonly DistributionList[] = [
 
 export function communityById(id: string): Community | undefined {
   return DEMO_COMMUNITIES.find((community) => community.id === id);
-}
-
-export function communitiesByIds(ids: string[]): Community[] {
-  const set = new Set(ids);
-  return DEMO_COMMUNITIES.filter((community) => set.has(community.id));
 }
 
 export function distributionListsFor(clientId: string): DistributionList[] {

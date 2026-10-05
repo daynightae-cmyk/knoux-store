@@ -144,7 +144,7 @@ function Overview() {
       </Section>
 
       <Section title="Connection state" note="Truthful states only. Nothing here reads as connected without a credential.">
-        <div className={styles.ccTableWrap ?? ''}>
+        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <caption>Platform connections for {activeClient.name}</caption>
             <thead>

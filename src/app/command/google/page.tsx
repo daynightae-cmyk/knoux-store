@@ -127,7 +127,7 @@ function GooglePresence() {
       </Section>
 
       <Section title="Maps visibility and keywords" note="Shown as architecture. No data source is connected.">
-        <div className={styles.ccTableWrap ?? ''}>
+        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>

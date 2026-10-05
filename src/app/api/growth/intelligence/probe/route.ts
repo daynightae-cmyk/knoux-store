@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { buildRouter } from '@/lib/growth/server/runtime';
+import { guardGrowthProviderAccess } from '@/lib/growth/server/access';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +15,9 @@ export const dynamic = 'force-dynamic';
  * The response deliberately omits the endpoint URL and any token detail: an
  * operator needs to know the agent is unreachable, not where it lives.
  */
-export async function GET() {
+export async function GET(request: Request) {
+  const denied = await guardGrowthProviderAccess(request);
+  if (denied) return denied;
   const router = buildRouter();
   const survey = await router.survey();
   const primary = survey.find((entry) => entry.provider.tier === 'primary');

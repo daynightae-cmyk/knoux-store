@@ -415,10 +415,6 @@ export function capabilityById(id: string): CapabilityDefinition | undefined {
   return CAPABILITIES.find((capability) => capability.id === id);
 }
 
-export function capabilitiesByFamily(family: CapabilityFamily): CapabilityDefinition[] {
-  return CAPABILITIES.filter((capability) => capability.family === family);
-}
-
 /** Every capability that would need credentials before it could return data. */
 export function requiredEnvNames(): string[] {
   return [...new Set(CAPABILITIES.flatMap((capability) => capability.requiredEnv))].sort();

@@ -154,7 +154,7 @@ function Social() {
         {visible.length === 0 ? (
           <EmptyState title="Nothing scheduled for this filter" />
         ) : (
-          <div style={{ overflowX: 'auto' }}>
+          <div tabIndex={0} role="group" aria-label="Scrollable calendar" style={{ overflowX: 'auto' }}>
             <div className={styles.ccCalendar ?? ''} style={{ minWidth: 640 }}>
               {WEEKDAYS.map((day) => (
                 <div key={day} className={styles.ccCalendarDow ?? ''}>
@@ -189,7 +189,7 @@ function Social() {
         {visible.length === 0 ? (
           <EmptyState title="No content items" />
         ) : (
-          <div className={styles.ccTableWrap ?? ''}>
+          <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
             <table className={styles.ccTable ?? ''}>
               <thead>
                 <tr>

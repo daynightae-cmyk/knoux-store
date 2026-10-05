@@ -210,7 +210,3 @@ export const DEMO_CLIENTS: readonly Client[] = [
 export function clientById(id: string): Client | undefined {
   return DEMO_CLIENTS.find((client) => client.id === id);
 }
-
-export function allClientIds(): string[] {
-  return DEMO_CLIENTS.map((client) => client.id);
-}

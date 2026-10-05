@@ -50,9 +50,6 @@ export const PLATFORM_IDS: readonly PlatformId[] = [
   'snapchat',
 ];
 
-/** Platforms the mission marks as future-facing rather than shipped. */
-export const FUTURE_PLATFORM_IDS: readonly PlatformId[] = ['tiktok', 'linkedin', 'snapchat'];
-
 export type CountryCode = 'AE' | 'EG';
 export type LanguageCode = 'ar' | 'en';
 
@@ -83,21 +80,6 @@ export type BrandProfile = {
   /** Creatives that historically performed, referenced by id. */
   previousWinningCreativeIds: string[];
   products: string[];
-};
-
-/**
- * The AI memory a client workspace carries. It is assembled into the KNOuX
- * Intelligence context for every request scoped to this client, which is what
- * makes KNOuX contextual rather than a generic chat box.
- */
-export type AiMemory = {
-  /** Short statements the operator has confirmed. */
-  confirmedFacts: string[];
-  /** Things KNOuX must not assume about this client. */
-  openQuestions: string[];
-  /** What the operator is trying to achieve this quarter. */
-  objectives: string[];
-  updatedAt: string;
 };
 
 export type Client = {
@@ -177,18 +159,6 @@ export type CampaignStatus =
   | 'COMPLETED'
   | 'FAILED';
 
-export const CAMPAIGN_STATUSES: readonly CampaignStatus[] = [
-  'DRAFT',
-  'READY_FOR_REVIEW',
-  'CHANGES_REQUESTED',
-  'APPROVED',
-  'LAUNCH_PENDING',
-  'LIVE',
-  'PAUSED',
-  'COMPLETED',
-  'FAILED',
-];
-
 export const CAMPAIGN_STATUS_MEANING: Readonly<Record<CampaignStatus, string>> = {
   DRAFT: 'Being written. Not visible to a client approver.',
   READY_FOR_REVIEW: 'Submitted. Waiting on a named approver.',
@@ -266,15 +236,6 @@ export type CommunityVerification =
   | 'PRIVATE'
   | 'UNKNOWN';
 
-export const COMMUNITY_VERIFICATIONS: readonly CommunityVerification[] = [
-  'VERIFIED',
-  'NEEDS_REVIEW',
-  'UNAVAILABLE',
-  'BROKEN_LINK',
-  'PRIVATE',
-  'UNKNOWN',
-];
-
 export type CommunityVisibility = 'PUBLIC' | 'PRIVATE' | 'UNKNOWN';
 
 export type PromotionPolicy = 'ALLOWED' | 'ASK_ADMIN' | 'RESTRICTED' | 'UNKNOWN';
@@ -350,17 +311,6 @@ export type DistributionList = {
   entries: DistributionEntry[];
   createdAt: string;
   updatedAt: string;
-};
-
-export type CommunityFilter = {
-  keywords?: string[];
-  country?: CountryCode;
-  region?: string;
-  city?: string;
-  language?: LanguageCode;
-  platform?: CommunityPlatform;
-  businessCategory?: string;
-  verificationStatus?: CommunityVerification;
 };
 
 /* ------------------------------------------------------------------- leads */
@@ -504,16 +454,6 @@ export type PerformanceRow = {
   platformLabel: string;
   metrics: CanonicalMetrics;
   derived: DerivedMetrics;
-};
-
-/* -------------------------------------------------------- google presence */
-
-export type GooglePresenceMetric = {
-  key: string;
-  label: string;
-  value?: Sourced<number>;
-  /** Explains a gap rather than hiding it. */
-  unavailableReason?: string;
 };
 
 export type GoogleLocation = {

@@ -201,9 +201,6 @@ export function autonomyPermits(mode: AutonomyMode, risk: RiskLevel): boolean {
  */
 export type DataOrigin = 'LIVE' | 'FIXTURE';
 
-export const FIXTURE_NOTICE =
-  'DEMO DATA — non-production fixtures. Not a live platform value.';
-
 export function isFixtureSourced(origin: DataOrigin): boolean {
   return origin === 'FIXTURE';
 }
@@ -225,10 +222,6 @@ export function live<T>(value: T, evidence: string): Sourced<T> {
 
 export function fixture<T>(value: T): Sourced<T> {
   return { value, origin: 'FIXTURE' };
-}
-
-export function mapSourced<T, U>(source: Sourced<T>, fn: (value: T) => U): Sourced<U> {
-  return { value: fn(source.value), origin: source.origin, evidence: source.evidence };
 }
 
 /** Reads a sourced value, returning `null` when it must not be displayed as real. */

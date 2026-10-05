@@ -47,7 +47,7 @@ function Connections() {
   const connections = connectionsFor(activeClient.id);
 
   const [capabilities, setCapabilities] = useState<{
-    data: SafeCapabilityView[];
+    capabilities: SafeCapabilityView[];
     requiredEnv: string[];
     notice: string;
   } | null>(null);
@@ -60,25 +60,25 @@ function Connections() {
         if (!cancelled) setCapabilities(payload);
       })
       .catch(() => {
-        if (!cancelled) setCapabilities({ data: [], requiredEnv: [], notice: 'Registry unavailable.' });
+        if (!cancelled) setCapabilities({ capabilities: [], requiredEnv: [], notice: 'Registry unavailable.' });
       });
     return () => {
       cancelled = true;
     };
   }, []);
 
-  const byFamily = groupByFamily(capabilities?.data ?? []);
+  const byFamily = groupByFamily(capabilities?.capabilities ?? []);
 
   return (
     <CommandShell
       area={area}
       dock={{
         surface: 'connections',
-        contextLine: `${activeClient.name} · ${connections.length} connection record(s) · ${capabilities?.data.length ?? 0} registered capabilities`,
+        contextLine: `${activeClient.name} · ${connections.length} connection record(s) · ${capabilities?.capabilities.length ?? 0} registered capabilities`,
       }}
       facts={[
         { label: 'Connected', value: String(connections.filter((c) => c.state === 'CONNECTED').length) },
-        { label: 'Registered', value: String(capabilities?.data.length ?? 0) },
+        { label: 'Registered', value: String(capabilities?.capabilities.length ?? 0) },
       ]}
     >
       <div style={{ padding: '16px 24px 0' }}>
@@ -195,7 +195,7 @@ function Connections() {
                 <p className={styles.ccPaneTitle ?? ''} style={{ marginBottom: 6 }}>
                   {family}
                 </p>
-                <div className={styles.ccTableWrap ?? ''}>
+                <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
                   <table className={styles.ccTable ?? ''}>
                     <thead>
                       <tr>

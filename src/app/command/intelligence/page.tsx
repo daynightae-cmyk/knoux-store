@@ -230,7 +230,7 @@ function Intelligence() {
       </Section>
 
       <Section title="Naming rule" note="Enforced in code and asserted by tests.">
-        <div className={styles.ccTableWrap ?? ''}>
+        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>
@@ -279,7 +279,7 @@ function CapabilityTable({ capabilities }: { capabilities: SafeCapabilityView[] 
         <CodeBadge>REGISTERED {capabilities.length}</CodeBadge>
       </div>
 
-      <div className={styles.ccTableWrap ?? ''}>
+      <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
         <table className={styles.ccTable ?? ''}>
           <thead>
             <tr>

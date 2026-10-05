@@ -169,10 +169,6 @@ export function campaignsFor(clientId: string): Campaign[] {
   return DEMO_CAMPAIGNS.filter((campaign) => campaign.clientId === clientId);
 }
 
-export function campaignById(id: string): Campaign | undefined {
-  return DEMO_CAMPAIGNS.find((campaign) => campaign.id === id);
-}
-
 /* ---------------------------------------------------- performance rows */
 
 /**
