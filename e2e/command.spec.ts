@@ -34,3 +34,12 @@ test('Intelligence refuses cross-site, invalid and oversized requests and labels
   expect(body.response.servedBy.degradedFrom).toBe('knoux-agent');
   expect(body.response.provisional).toBe(true);
 });
+
+test('Report client selection and print control execute', async ({ page }) => {
+  await page.goto('/command/reports');
+  await page.getByRole('button', { name: 'North Bay Clinic', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'North Bay Clinic', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.evaluate(() => { window.print = () => { document.body.dataset.printRequested = 'yes'; }; });
+  await page.getByRole('button', { name: 'Print', exact: true }).click();
+  await expect(page.locator('body')).toHaveAttribute('data-print-requested', 'yes');
+});

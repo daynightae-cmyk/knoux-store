@@ -417,7 +417,7 @@ export function capabilityById(id: string): CapabilityDefinition | undefined {
 
 /** Every capability that would need credentials before it could return data. */
 export function requiredEnvNames(): string[] {
-  return [...new Set(CAPABILITIES.flatMap((capability) => capability.requiredEnv))].sort();
+  return [...new Set(CAPABILITIES.flatMap((capability) => capability.requiredEnv))].sort((a, b) => a.localeCompare(b));
 }
 
 /* ------------------------------------------------------------- resolution */
