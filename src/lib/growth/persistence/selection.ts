@@ -19,7 +19,6 @@ import 'server-only';
  * misconfigured Supabase produces `unavailable`, never fixtures.
  */
 
-import { createClient } from '@/lib/supabase/server';
 import {
   FixtureGrowthRepository,
   SupabaseGrowthRepository,
@@ -28,6 +27,18 @@ import {
   type RepositoryFailure,
   type SupabaseLike,
 } from './repository';
+
+/*
+ * The Supabase client is imported lazily, inside `selectRepository`, rather than
+ * at module scope.
+ *
+ * Two reasons, one practical and one about layering. Practically: importing the
+ * server client drags in `next/headers`, which cannot be resolved outside a
+ * Next request context, so a module-scope import would make this file untestable
+ * and make `configuredDataSource` — a pure function — unavailable outside the app.
+ * In terms of layering: this module's own logic is configuration and selection;
+ * it should not depend on a request-bound client to be reasoned about.
+ */
 
 export type DataSource = 'supabase' | 'fixture' | 'unavailable';
 
@@ -76,6 +87,7 @@ export async function selectRepository(
   }
 
   try {
+    const { createClient } = await import('@/lib/supabase/server');
     const supabase = await createClient();
     return {
       source: 'supabase',
@@ -101,29 +113,37 @@ export async function selectRepository(
 }
 
 /**
- * The message shown when a configured production store fails.
+ * The message shown when a configured production store cannot answer.
  *
- * Phrased so an operator reads it as the database problem it is, rather than as
- * a request to accept demo data.
+ * Every branch says plainly that fixtures were NOT substituted. That sentence is
+ * the whole point of the function: an operator reading "no data source is
+ * configured" could reasonably assume the product quietly served demo records,
+ * which is the failure this refusal exists to make impossible. So the message
+ * states both the state and the non-substitution.
+ *
+ * Phrased so an operator reads it as the store problem it is, rather than as a
+ * request to accept demo data.
  */
 export function refusalMessage(failure: RepositoryFailure, detail?: string): string {
   switch (failure) {
     case 'SCHEMA_ABSENT':
-      return 'The Growth schema is not deployed in this project. Apply the Growth migrations. Demo fixtures are not substituted.';
+      return 'Growth data source state: SCHEMA_ABSENT. Fixtures were not substituted. Apply the Growth migrations to this project, then retry.';
     case 'AUTH_REQUIRED':
-      return 'The Growth store rejected the session. Sign in again. Demo fixtures are not substituted.';
+      return 'Growth data source state: AUTH_REQUIRED. Fixtures were not substituted. Sign in again so the Growth store can verify the session.';
     case 'PERMISSION_MISSING':
-      return 'This principal may not read that client workspace. Demo fixtures are not substituted.';
+      return 'Growth data source state: PERMISSION_MISSING. Fixtures were not substituted. This principal may not read that client workspace.';
     case 'NOT_CONFIGURED':
-      return 'No Growth data source is configured. Set KNOUX_GROWTH_DATA_SOURCE, or explicitly select fixture mode for demo use.';
+      return 'Growth data source state: NOT_CONFIGURED. Fixtures were not substituted. Set KNOUX_GROWTH_DATA_SOURCE, or explicitly select fixture mode for demo use.';
     case 'QUERY_FAILED':
-      return `The Growth store could not answer.${detail ? ` Provider detail: ${detail}` : ''} Demo fixtures are not substituted.`;
+      return `Growth data source state: QUERY_FAILED. Fixtures were not substituted.${detail ? ` Provider detail: ${detail}` : ''}`;
     case 'FIXTURE_FALLBACK_REFUSED':
-      return 'A production store failed and the system declined to substitute demo data.';
+      return 'Growth data source state: FIXTURE_FALLBACK_REFUSED. Fixtures were not substituted. A production store failed and the system declined to fall back to demo data.';
     case 'NOT_FOUND':
-      return 'That record does not exist in the Growth store.';
+      return 'Growth data source state: NOT_FOUND. Fixtures were not substituted. That record does not exist in the Growth store.';
+    case 'INVALID_INPUT':
+      return 'Growth data source state: INVALID_INPUT. Fixtures were not substituted. The request was rejected before it reached the store.';
     default:
-      return 'The Growth store is unavailable.';
+      return 'Growth data source state: UNAVAILABLE. Fixtures were not substituted.';
   }
 }
 

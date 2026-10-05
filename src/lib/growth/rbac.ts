@@ -90,6 +90,21 @@ const VIEWER: Permission[] = [
   'intelligence.use',
 ];
 
+/*
+ * Designer and Content Creator.
+ *
+ * `budget.view` is removed deliberately. Both roles inherit the VIEWER set, which
+ * includes it, and that contradicted their documented meaning — "No campaign
+ * budget access". The documented meaning is the specification here: a creative
+ * role does not need to see what a campaign costs, and leaving it visible is both
+ * a minor disclosure and an inconsistency a reader would eventually trip over.
+ *
+ * `budget.edit` was never held, so no change there.
+ */
+const NO_BUDGET: readonly Permission[] = VIEWER.filter(
+  (permission) => permission !== 'budget.view',
+);
+
 export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
   VIEWER: VIEWER,
   CLIENT: [
@@ -99,14 +114,14 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     'report.generate',
   ],
   CONTENT_CREATOR: [
-    ...VIEWER,
+    ...NO_BUDGET,
     'content.create',
     'content.schedule',
     'creative.create',
     'campaign.create',
     'campaign.edit',
   ],
-  DESIGNER: [...VIEWER, 'creative.create', 'creative.approve', 'content.create'],
+  DESIGNER: [...NO_BUDGET, 'creative.create', 'creative.approve', 'content.create'],
   ADS_SPECIALIST: [
     ...VIEWER,
     'campaign.create',

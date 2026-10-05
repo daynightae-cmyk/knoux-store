@@ -176,7 +176,18 @@ export class FixtureGrowthRepository implements GrowthRepository {
 
   private readonly meta: RecordMeta;
 
-  constructor(private readonly data: FixtureDataset) {
+  /*
+   * An explicit field rather than a TypeScript parameter property
+   * (`constructor(private readonly data: …)`). This repository's tests are
+   * executed by Node's type-stripping loader, which does not support parameter
+   * properties — they are erased along with their types, so the field would be
+   * missing at runtime and the constructor would silently leave `data`
+   * undefined. Explicit fields work under the bundler and under the test runner.
+   */
+  private readonly data: FixtureDataset;
+
+  constructor(data: FixtureDataset) {
+    this.data = data;
     this.meta = { origin: 'FIXTURE', store: 'fixture', stored: false };
   }
 
@@ -313,11 +324,16 @@ export class SupabaseGrowthRepository implements GrowthRepository {
     stored: true,
   };
 
-  constructor(
-    private readonly supabase: SupabaseLike,
-    /** Restricts every query to the clients this principal may see. */
-    private readonly allowedClientIds: readonly string[],
-  ) {}
+  // Explicit fields, for the same type-stripping reason documented on
+  // FixtureGrowthRepository: parameter properties are erased by Node's
+  // strip-only loader, which would leave these undefined at runtime in tests.
+  private readonly supabase: SupabaseLike;
+  private readonly allowedClientIds: readonly string[];
+
+  constructor(supabase: SupabaseLike, allowedClientIds: readonly string[]) {
+    this.supabase = supabase;
+    this.allowedClientIds = allowedClientIds;
+  }
 
   private ok<T>(value: T): RepositoryResult<T> {
     return { ok: true, data: { value, meta: this.meta } };
@@ -535,12 +551,21 @@ export class SupabaseGrowthRepository implements GrowthRepository {
  * boundary already refuses to return a credential, and no caller should have one
  * to log. It exists so that a mistake produces a redacted entry rather than a
  * durable leak.
+ *
+ * The key pattern is written to match environment-variable *names* as well as
+ * prose. `\b` does not fire inside `META_APP_SECRET`, because an underscore is a
+ * word character — so a naive `\b(secret)\s*=` silently fails on exactly the
+ * shape this most needs to catch. The `[_\-\s]*` join is what makes
+ * `META_APP_SECRET=` and `app secret:` both match.
  */
 const REDACTIONS: ReadonlyArray<[RegExp, string]> = [
   [/Bearer\s+[A-Za-z0-9\-._~+/]+=*/gi, 'Bearer [REDACTED]'],
   [/\bey[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{5,}\b/g, '[REDACTED_JWT]'],
   [/\b(EA[A-Za-z0-9]{20,}|EAA[A-Za-z0-9]{20,})\b/g, '[REDACTED_META_TOKEN]'],
-  [/\b(sk|pk|app|client|secret)[_-]?(id|secret|key)\s*[=:]\s*\S+/gi, '$1_$2=[REDACTED]'],
+  // Env-var and prose forms: SECRET=, APP_SECRET:, "client secret" =
+  [/\b[A-Za-z]*[_\- ]*(sk|pk|app|client|secret|access|refresh|bearer|token|apikey|api_key)[_\- ]*(id|secret|key|token)?[_\- ]*\s*[:=]\s*["']?[^\s"',;]+/gi, '[REDACTED]'],
+  // Bare UPPER_SNAKE names that look like credentials, whatever follows them.
+  [/\b[A-Z][A-Z0-9]*_(SECRET|TOKEN|PASSWORD|PRIVATE_KEY|API_KEY)[A-Z0-9_]*\b/g, '[REDACTED_ENV_NAME]'],
   [/\b[0-9a-f]{64}\b/gi, '[REDACTED_HEX]'],
 ];
 

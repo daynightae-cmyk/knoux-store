@@ -167,8 +167,16 @@ export type GoogleConfig = {
   redirectUri?: string;
 };
 
-export type ConnectorConfigState =
-  | { state: 'CONFIGURED'; config: Required<MetaConfig> }
+/**
+ * Configuration state for either provider.
+ *
+ * Generic over the config shape rather than hardcoded to Meta: `googleConfigState`
+ * returns `clientId`/`clientSecret`, so a single non-generic variant would force
+ * one provider's field names onto the other and lose type checking exactly where a
+ * wrong field name would be a runtime failure in a URL builder.
+ */
+export type ConnectorConfigState<T = Required<MetaConfig> | Required<GoogleConfig>> =
+  | { state: 'CONFIGURED'; config: T }
   | { state: 'CONFIG_REQUIRED'; missing: string[]; message: string };
 
 /**
@@ -177,7 +185,7 @@ export type ConnectorConfigState =
  * CONFIG_REQUIRED names exactly which variable is absent, because "Meta is not
  * configured" is not an actionable instruction.
  */
-export function metaConfigState(env: Record<string, string | undefined>): ConnectorConfigState {
+export function metaConfigState(env: Record<string, string | undefined>): ConnectorConfigState<Required<MetaConfig>> {
   const missing: string[] = [];
   if (!env.META_APP_ID?.trim()) missing.push('META_APP_ID');
   if (!env.META_APP_SECRET?.trim()) missing.push('META_APP_SECRET');
@@ -198,7 +206,7 @@ export function metaConfigState(env: Record<string, string | undefined>): Connec
   };
 }
 
-export function googleConfigState(env: Record<string, string | undefined>): ConnectorConfigState {
+export function googleConfigState(env: Record<string, string | undefined>): ConnectorConfigState<Required<GoogleConfig>> {
   const missing: string[] = [];
   if (!env.GOOGLE_CLIENT_ID?.trim()) missing.push('GOOGLE_CLIENT_ID');
   if (!env.GOOGLE_CLIENT_SECRET?.trim()) missing.push('GOOGLE_CLIENT_SECRET');
