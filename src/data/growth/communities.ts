@@ -1,0 +1,383 @@
+/**
+ * KNOuX Growth — Community Hub demo records.
+ *
+ * DEMO DATA, and this is the most important file in the product to read
+ * carefully, because communities are the area where an overreach would cause
+ * real harm to a real person.
+ *
+ * What these records are: invented examples of the *shape* of a community
+ * record, with the geography and category taxonomy that KNOuX actually reasons
+ * over. No group named here is a real group. No URL here resolves. No admin
+ * contact here is a real address — the field exists because real operators do
+ * need a published partnership contact, and it is populated only where the
+ * operator themselves supplied it.
+ *
+ * What is deliberately absent:
+ *  - No member counts. KNOuX does not collect them.
+ *  - No member lists, ever.
+ *  - No private or closed groups.
+ *  - No scraped contact details.
+ *
+ * `activityEstimate` is an operator judgement stored on the record, not a metric
+ * read from a platform. `verificationStatus` describes the stored metadata, not
+ * the group's willingness to accept promotion.
+ */
+
+import type { Community, DistributionList } from '@/lib/growth/types';
+
+const T = '2026-10-04T00:00:00.000Z';
+const CHECKED = '2026-09-28T09:00:00.000Z';
+
+type CommunityFixtureFacts = Omit<Community, 'origin' | 'createdAt' | 'updatedAt' | 'visibility' | 'verificationStatus' | 'lastCheckedAt' | 'platform' | 'country' | 'language' | 'activityEstimate' | 'promotionPolicy' | 'adminApprovalRequired'> & Partial<Pick<Community, 'visibility' | 'verificationStatus' | 'lastCheckedAt' | 'platform' | 'country' | 'language' | 'activityEstimate' | 'promotionPolicy' | 'adminApprovalRequired'>>;
+function communityFixture(facts: CommunityFixtureFacts): Community {
+  return { platform: 'facebook', country: 'AE', language: 'en', activityEstimate: 'MEDIUM', promotionPolicy: 'ASK_ADMIN', adminApprovalRequired: true, origin: 'FIXTURE', createdAt: T, updatedAt: T, lastCheckedAt: CHECKED, visibility: 'PUBLIC', verificationStatus: 'NEEDS_REVIEW', ...facts };
+}
+
+/**
+ * Demo records. `publicUrl` values use the reserved `.invalid` TLD so that any
+ * accidental fetch fails immediately rather than reaching a real host. That is
+ * a deliberate safety choice, not a placeholder convenience.
+ */
+export const DEMO_COMMUNITIES: readonly Community[] = [
+  communityFixture({
+    id: 'cm_ae_ad_parents',
+    name: 'Abu Dhabi Parents & Family (demo record)',
+    region: 'Abu Dhabi Island',
+    city: 'abu-dhabi',
+    category: 'parents',
+    language: 'ar',
+    activityEstimate: 'HIGH',
+    notes:
+      'Demo record. Large parent group. Admin approval is expected before any promotional post; KNOuX does not message the admin.',
+    relevanceTags: ['parents', 'family', 'abu-dhabi', 'kids-activities'],
+    businessCategories: ['swimming', 'education', 'family-restaurant', 'healthcare'],
+  }),
+  communityFixture({
+    id: 'cm_ae_ad_sports',
+    name: 'Abu Dhabi Sports Clubs (demo record)',
+    region: 'Khalifa City',
+    city: 'abu-dhabi',
+    category: 'sports',
+    notes: 'Demo record. Sport and club operators discuss facilities and trials.',
+    relevanceTags: ['sports', 'clubs', 'abu-dhabi', 'swimming'],
+    businessCategories: ['swimming', 'fitness', 'sportswear'],
+  }),
+  communityFixture({
+    id: 'cm_ae_ad_swim',
+    name: 'UAE Swimming Parents (demo record)',
+    region: 'Abu Dhabi',
+    city: 'abu-dhabi',
+    category: 'swimming',
+    promotionPolicy: 'ALLOWED',
+    adminApprovalRequired: false,
+    notes: 'Demo record. Self-identified as open to swim-provider announcements.',
+    relevanceTags: ['swimming', 'aquatics', 'parents', 'uae'],
+    businessCategories: ['swimming', 'fitness', 'sportswear'],
+  }),
+  communityFixture({
+    id: 'cm_ae_ad_local',
+    name: 'Khalifa City Community (demo record)',
+    region: 'Khalifa City',
+    city: 'abu-dhabi',
+    category: 'local-communities',
+    language: 'ar',
+    promotionPolicy: 'ALLOWED',
+    adminApprovalRequired: false,
+    notes: 'Demo record. Neighbourhood group. Used to demonstrate the open-group posting queue.',
+    relevanceTags: ['khalifa-city', 'local', 'abu-dhabi'],
+    businessCategories: ['services', 'retail', 'hospitality'],
+  }),
+  communityFixture({
+    id: 'cm_ae_ad_mums',
+    name: 'Abu Dhabi Mums Network (demo record)',
+    region: 'Al Wahda',
+    city: 'abu-dhabi',
+    category: 'women',
+    language: 'ar',
+    activityEstimate: 'HIGH',
+    promotionPolicy: 'RESTRICTED',
+    notes:
+      'Demo record. Restrictive promotion policy recorded by the operator. KNOuX lowers its relevance score for these and holds them for approval.',
+    relevanceTags: ['women', 'mothers', 'abu-dhabi', 'family'],
+    businessCategories: ['healthcare', 'education', 'family-restaurant'],
+  }),
+  communityFixture({
+    id: 'cm_ae_dxb_buysell',
+    name: 'Dubai Buy & Sell (demo record)',
+    region: 'Dubai',
+    city: 'dubai',
+    category: 'buy-sell',
+    activityEstimate: 'HIGH',
+    promotionPolicy: 'RESTRICTED',
+    notes: 'Demo record. Very high volume, restrictive on business promotion.',
+    relevanceTags: ['buy-sell', 'classifieds', 'dubai', 'deals'],
+    businessCategories: ['retail', 'ecommerce'],
+  }),
+  communityFixture({
+    id: 'cm_ae_dxb_business',
+    name: 'Dubai Small Business Network (demo record)',
+    region: 'Business Bay',
+    city: 'dubai',
+    category: 'local-business',
+    promotionPolicy: 'ALLOWED',
+    adminApprovalRequired: false,
+    notes: 'Demo record. B2B operator group; accepts supplier announcements.',
+    relevanceTags: ['business', 'networking', 'dubai', 'b2b'],
+    businessCategories: ['services', 'retail', 'hospitality'],
+  }),
+  communityFixture({
+    id: 'cm_ae_dxb_schools',
+    name: 'Dubai Schools Parents (demo record)',
+    region: 'Jebel Ali',
+    city: 'dubai',
+    category: 'schools',
+    notes: 'Demo record. School parent groups are tightly moderated.',
+    relevanceTags: ['schools', 'parents', 'dubai', 'education'],
+    businessCategories: ['education', 'swimming', 'transport'],
+  }),
+  communityFixture({
+    id: 'cm_ae_dxb_health',
+    name: 'Dubai Health & Wellness (demo record)',
+    region: 'Jumeirah',
+    city: 'dubai',
+    category: 'services',
+    notes: 'Demo record. Relevant to the North Bay Clinic demo workspace.',
+    relevanceTags: ['health', 'wellness', 'dubai', 'clinic'],
+    businessCategories: ['healthcare', 'fitness', 'physiotherapy'],
+  }),
+  communityFixture({
+    id: 'cm_ae_dxb_interior',
+    name: 'Dubai Interiors & Design (demo record)',
+    region: 'Design District',
+    city: 'dubai',
+    category: 'local-business',
+    activityEstimate: 'LOW',
+    promotionPolicy: 'ALLOWED',
+    adminApprovalRequired: false,
+    notes: 'Demo record. Trade group. Relevant to the Sands & Stone demo workspace.',
+    relevanceTags: ['interiors', 'design', 'dubai', 'trades'],
+    businessCategories: ['services', 'retail'],
+  }),
+  communityFixture({
+    id: 'cm_ae_shj_local',
+    name: 'Sharjah Community Board (demo record)',
+    region: 'Al Majaz',
+    city: 'sharjah',
+    category: 'local-communities',
+    language: 'ar',
+    notes: 'Demo record. Sharjah local board. Relevant to the North Bay Al Majaz branch.',
+    relevanceTags: ['sharjah', 'local', 'al-majaz'],
+    businessCategories: ['services', 'retail', 'hospitality'],
+  }),
+  communityFixture({
+    id: 'cm_ae_ajm_buysell',
+    name: 'Ajman Buy & Sell (demo record)',
+    region: 'Al Jurf',
+    city: 'ajman',
+    category: 'buy-sell',
+    language: 'ar',
+    promotionPolicy: 'ALLOWED',
+    adminApprovalRequired: false,
+    notes: 'Demo record. Smaller market, permissive on local business posts.',
+    relevanceTags: ['ajman', 'buy-sell', 'classifieds'],
+    businessCategories: ['retail', 'ecommerce', 'services'],
+  }),
+  communityFixture({
+    id: 'cm_ae_rak_residents',
+    name: 'Ras Al Khaimah Residents (demo record)',
+    region: 'Al Hamra',
+    city: 'ras-al-khaimah',
+    category: 'residents',
+    language: 'ar',
+    activityEstimate: 'LOW',
+    promotionPolicy: 'ALLOWED',
+    adminApprovalRequired: false,
+    notes: 'Demo record.',
+    relevanceTags: ['rak', 'residents', 'expat', 'community'],
+    businessCategories: ['services', 'hospitality', 'real-estate'],
+  }),
+  communityFixture({
+    id: 'cm_ae_fuj_local',
+    name: 'Fujairah Community (demo record)',
+    region: 'Al Fujairah',
+    city: 'fujairah',
+    category: 'local-communities',
+    language: 'ar',
+    activityEstimate: 'LOW',
+    promotionPolicy: 'UNKNOWN',
+    lastCheckedAt: undefined,
+    verificationStatus: 'UNKNOWN',
+    notes: 'Demo record. Never checked, promotion policy unknown. Renders as an explicit unknown.',
+    relevanceTags: ['fujairah', 'local'],
+    businessCategories: ['services', 'retail'],
+  }),
+  communityFixture({
+    id: 'cm_ae_uaq_residents',
+    name: 'Umm Al Quwain Residents (demo record)',
+    region: 'Al Khor',
+    city: 'umm-al-quwain',
+    category: 'residents',
+    language: 'ar',
+    activityEstimate: 'LOW',
+    lastCheckedAt: undefined,
+    notes: 'Demo record.',
+    relevanceTags: ['uaq', 'residents', 'northern-emirates'],
+    businessCategories: ['services', 'hospitality'],
+  }),
+  communityFixture({
+    id: 'cm_eg_cir_families',
+    name: 'Cairo Families (demo record)',
+    country: 'EG',
+    region: 'Zamalek',
+    city: 'cairo',
+    category: 'families',
+    language: 'ar',
+    activityEstimate: 'HIGH',
+    notes: 'Demo record. Relevant to the Nile Craft demo workspace.',
+    relevanceTags: ['cairo', 'families', 'parents', 'kids'],
+    businessCategories: ['family-restaurant', 'retail', 'education'],
+  }),
+  communityFixture({
+    id: 'cm_eg_cir_craft',
+    name: 'Egyptian Handicrafts & Craft (demo record)',
+    country: 'EG',
+    region: 'Zamalek',
+    city: 'cairo',
+    category: 'local-business',
+    language: 'ar',
+    promotionPolicy: 'ALLOWED',
+    adminApprovalRequired: false,
+    notes: 'Demo record. Trade group for makers and suppliers.',
+    relevanceTags: ['craft', 'handmade', 'cairo', 'makers'],
+    businessCategories: ['retail', 'services'],
+  }),
+  communityFixture({
+    id: 'cm_eg_giz_families',
+    name: 'Giza Family Community (demo record)',
+    country: 'EG',
+    region: 'Dokki',
+    city: 'giza',
+    category: 'families',
+    language: 'ar',
+    notes: 'Demo record.',
+    relevanceTags: ['giza', 'families', 'cairo-metro'],
+    businessCategories: ['family-restaurant', 'retail', 'healthcare'],
+  }),
+  communityFixture({
+    id: 'cm_eg_alx_local',
+    name: 'Alexandria Local Board (demo record)',
+    country: 'EG',
+    region: 'Smouha',
+    city: 'alexandria',
+    category: 'local-communities',
+    language: 'ar',
+    promotionPolicy: 'ALLOWED',
+    adminApprovalRequired: false,
+    notes: 'Demo record.',
+    relevanceTags: ['alexandria', 'local', 'delta'],
+    businessCategories: ['services', 'retail', 'hospitality'],
+  }),
+  communityFixture({
+    id: 'cm_eg_mans_local',
+    name: 'Mansoura Community (demo record)',
+    country: 'EG',
+    region: 'Mansoura',
+    city: 'mansoura',
+    category: 'local-communities',
+    language: 'ar',
+    activityEstimate: 'LOW',
+    promotionPolicy: 'UNKNOWN',
+    lastCheckedAt: undefined,
+    verificationStatus: 'UNKNOWN',
+    notes: 'Demo record. Delta city, never checked.',
+    relevanceTags: ['mansoura', 'delta', 'local'],
+    businessCategories: ['services', 'retail'],
+  }),
+  communityFixture({
+    id: 'cm_dir_ae_biz',
+    name: 'UAE Business Directory (demo record)',
+    platform: 'directory',
+    region: 'UAE',
+    city: 'dubai',
+    category: 'directories',
+    promotionPolicy: 'ALLOWED',
+    adminApprovalRequired: false,
+    notes:
+      'Demo record. Directories accept structured submissions under their own rules, which is why automaticPosting is permitted for this platform type.',
+    relevanceTags: ['directory', 'listings', 'uae', 'seo'],
+    businessCategories: ['services', 'retail', 'hospitality'],
+  }),
+  communityFixture({
+    id: 'cm_dir_eg_biz',
+    name: 'Egypt Business Directory (demo record)',
+    platform: 'directory',
+    country: 'EG',
+    region: 'Egypt',
+    city: 'cairo',
+    category: 'directories',
+    language: 'ar',
+    activityEstimate: 'LOW',
+    promotionPolicy: 'ALLOWED',
+    adminApprovalRequired: false,
+    notes: 'Demo record.',
+    relevanceTags: ['directory', 'listings', 'egypt', 'seo'],
+    businessCategories: ['services', 'retail'],
+  }),
+];
+
+/* ------------------------------------------------------ distribution lists */
+
+export const DEMO_DISTRIBUTION_LISTS: readonly DistributionList[] = [
+  {
+    id: 'dl_ad_parents',
+    clientId: 'cl_swimfit',
+    name: 'Abu Dhabi Parents',
+    description:
+      'Demo record. Parent-facing destinations in Abu Dhabi for the SwimFit Academy demo workspace.',
+    communityIds: ['cm_ae_ad_parents', 'cm_ae_ad_local', 'cm_ae_ad_mums', 'cm_ae_ad_swim'],
+    entries: [
+      { id: 'de_1', listId: 'dl_ad_parents', communityId: 'cm_ae_ad_parents', status: 'NEEDS_APPROVAL' },
+      { id: 'de_2', listId: 'dl_ad_parents', communityId: 'cm_ae_ad_local', status: 'QUEUED' },
+      { id: 'de_3', listId: 'dl_ad_parents', communityId: 'cm_ae_ad_mums', status: 'NEEDS_APPROVAL' },
+      { id: 'de_4', listId: 'dl_ad_parents', communityId: 'cm_ae_ad_swim', status: 'QUEUED' },
+    ],
+    createdAt: T,
+    updatedAt: T,
+  },
+  {
+    id: 'dl_dxb_multi',
+    clientId: 'cl_northbay',
+    name: 'Dubai Health & Wellness',
+    description: 'Demo record. Health-adjacent destinations in Dubai for the North Bay demo workspace.',
+    communityIds: ['cm_ae_dxb_health', 'cm_ae_dxb_schools', 'cm_ae_dxb_business'],
+    entries: [
+      { id: 'de_5', listId: 'dl_dxb_multi', communityId: 'cm_ae_dxb_health', status: 'NEEDS_APPROVAL' },
+      { id: 'de_6', listId: 'dl_dxb_multi', communityId: 'cm_ae_dxb_schools', status: 'SKIPPED', skipReason: 'Demo: unrelated to healthcare positioning.' },
+      { id: 'de_7', listId: 'dl_dxb_multi', communityId: 'cm_ae_dxb_business', status: 'QUEUED' },
+    ],
+    createdAt: T,
+    updatedAt: T,
+  },
+  {
+    id: 'dl_sands_interior',
+    clientId: 'cl_sands',
+    name: 'Dubai Interiors & Trade',
+    description: 'Demo record. Trade and design destinations for the Sands & Stone demo workspace.',
+    communityIds: ['cm_ae_dxb_interior', 'cm_dir_ae_biz', 'cm_ae_dxb_business'],
+    entries: [
+      { id: 'de_8', listId: 'dl_sands_interior', communityId: 'cm_ae_dxb_interior', status: 'QUEUED' },
+      { id: 'de_9', listId: 'dl_sands_interior', communityId: 'cm_dir_ae_biz', status: 'QUEUED' },
+      { id: 'de_10', listId: 'dl_sands_interior', communityId: 'cm_ae_dxb_business', status: 'SKIPPED', skipReason: 'Demo: too general for a B2B fit-out service.' },
+    ],
+    createdAt: T,
+    updatedAt: T,
+  },
+];
+
+export function communityById(id: string): Community | undefined {
+  return DEMO_COMMUNITIES.find((community) => community.id === id);
+}
+
+export function distributionListsFor(clientId: string): DistributionList[] {
+  return DEMO_DISTRIBUTION_LISTS.filter((list) => list.clientId === clientId);
+}

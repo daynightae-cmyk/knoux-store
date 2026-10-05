@@ -81,7 +81,7 @@ export type IntakeVerdict = { ok: true } | { ok: false; reason: IntakeRejection;
  * that actually arrive, which is the only check that holds against a client
  * that under-reports.
  */
-export async function readBoundedJson(request: Request): Promise<
+export async function readBoundedJson(request: Request, maxBytes = MAX_BODY_BYTES): Promise<
   { ok: true; value: unknown } | { ok: false; reason: 'body-too-large' | 'body-unreadable' }
 > {
   const body = request.body;
@@ -97,7 +97,7 @@ export async function readBoundedJson(request: Request): Promise<
       if (done) break;
       if (!value) continue;
       total += value.byteLength;
-      if (total > MAX_BODY_BYTES) {
+      if (total > maxBytes) {
         await reader.cancel();
         return { ok: false, reason: 'body-too-large' };
       }

@@ -80,7 +80,9 @@ export function buildContentSecurityPolicy(options: HeaderPolicyOptions): string
     ['form-action', ["'self'"]],
     // Product previews are framed by this origin. Foreign origins remain
     // blocked; X-Frame-Options mirrors this for older browsers.
-    ['frame-ancestors', ["'self'"]],
+    // In development the Base44 preview embeds this app from a different
+    // origin, so frame-ancestors is opened to allow it.
+    ['frame-ancestors', dev ? ['*'] : ["'self'"]],
   ];
 
   // A development page is served over plain http on localhost; telling the
@@ -96,7 +98,9 @@ export function buildSecurityHeaders(options: HeaderPolicyOptions): Header[] {
   const headers: Header[] = [
     { key: 'Content-Security-Policy', value: buildContentSecurityPolicy(options) },
     { key: 'X-Content-Type-Options', value: 'nosniff' },
-    { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+    // X-Frame-Options is omitted in development so the Base44 preview iframe
+    // (a different origin) can embed the app; production keeps SAMEORIGIN.
+    ...(options.isDevelopment ? [] : [{ key: 'X-Frame-Options', value: 'SAMEORIGIN' } as Header]),
     { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
     {
       key: 'Permissions-Policy',

@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remix: Cinematic 3D Scroll Experience</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --black:    #070708;
+      --off-black: #0d0d0f;
+      --amber:    #f5a623;
+      --blue:     #3b82f6;
+      --white:    #f2f0eb;
+      --muted:    #55556a;
+    }
+
+    html { scroll-behavior: auto; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CURSOR ── */
+    #cursor {
+      position: fixed; top: 0; left: 0;
+      width: 10px; height: 10px;
+      background: var(--white);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: width .22s, height .22s, background .22s, border .22s, opacity .22s;
+      mix-blend-mode: difference;
+    }
+    #cursor.ring {
+      width: 34px; height: 34px;
+      background: transparent;
+      border: 1.5px solid rgba(242,240,235,0.9);
+    }
+    #cursor.hidden { opacity: 0; }
+
+    /* ── GRAIN ── */
+    #grain {
+      position: fixed; inset: 0; z-index: 200;
+      pointer-events: none;
+      opacity: 0.028;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+      animation: grain .1s steps(1) infinite;
+    }
+    @keyframes grain {
+      0%  { background-position:   0   0; }
+      25% { background-position: -25px 15px; }
+      50% { background-position:  15px -10px; }
+      75% { background-position: -10px -25px; }
+    }
+
+    /* ── LOADER ── */
+    #loader {
+      position: fixed; inset: 0; z-index: 400;
+      background: var(--black);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 36px;
+    }
+    #loader.out { pointer-events: none; }
+    .loader-logo {
+      font-size: clamp(2.4rem, 6vw, 5.5rem);
+      font-weight: 100;
+      letter-spacing: .45em;
+      text-transform: uppercase;
+    }
+    .loader-track {
+      width: 200px; height: 1px;
+      background: #18181f;
+      position: relative; overflow: hidden;
+    }
+    .loader-fill {
+      position: absolute; top: 0; left: 0;
+      height: 100%; background: var(--amber);
+      width: 0%; transition: width .08s linear;
+    }
+    .loader-pct {
+      font-size: .62rem; letter-spacing: .22em; color: var(--muted);
+    }
+
+    /* ── WEBGL CANVAS ── */
+    #bg {
+      position: fixed; inset: 0; z-index: 0;
+      width: 100%; height: 100%;
+    }
+
+    /* ── SCROLL WRAPPER ── */
+    #wrap { position: relative; z-index: 10; }
+
+    /* ── SECTIONS ── */
+    section {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+
+    /* ─── S1 HERO ─── */
+    #s1 {
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 8vw 10vh;
+      gap: 0;
+    }
+    .h-eyebrow {
+      font-size: clamp(.58rem,1.1vw,.72rem);
+      letter-spacing: .42em; text-transform: uppercase;
+      color: var(--amber); overflow: hidden; margin-bottom: 14px;
+    }
+    .h-title {
+      font-size: clamp(3.8rem, 9.5vw, 10rem);
+      font-weight: 100; line-height: .9;
+      letter-spacing: -.025em;
+      margin-bottom: 24px;
+    }
+    .h-sub {
+      font-size: clamp(.75rem,1.4vw,.88rem);
+      color: var(--muted); line-height: 1.9;
+      max-width: 300px; margin-bottom: 32px; overflow: hidden;
+    }
+
+    .char-wrap { overflow: hidden; display: inline-block; }
+    .char      { display: inline-block; transform: translateY(115%); will-change: transform; }
+
+    /* ── CTA BUTTON ── */
+    .cta {
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 13px 26px;
+      border: 1px solid rgba(242,240,235,.14);
+      font-size: .68rem; letter-spacing: .28em; text-transform: uppercase;
+      color: var(--white); text-decoration: none;
+      position: relative; overflow: hidden;
+      transition: border-color .4s; cursor: none; width: fit-content;
+    }
+    .cta::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(245,166,35,.07);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .45s cubic-bezier(.19,1,.22,1);
+    }
+    .cta:hover::before    { transform: scaleX(1); }
+    .cta:hover            { border-color: rgba(245,166,35,.4); }
+
+    /* ── SCROLL HINT ── */
+    .scroll-hint {
+      position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      font-size: .58rem; letter-spacing: .28em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .s-line {
+      width: 1px; height: 48px;
+      background: linear-gradient(to bottom, transparent, rgba(242,240,235,.2));
+      animation: lineFloat 2s ease-in-out infinite;
+    }
+    @keyframes lineFloat {
+      0%,100% { transform: scaleY(1);   opacity: .6; }
+      50%      { transform: scaleY(.6); opacity: 1; }
+    }
+
+    /* ─── SHARED CONTENT PANEL ─── */
+    .panel {
+      display: flex; flex-direction: column; gap: 22px;
+    }
+    .sec-num {
+      font-size: .6rem; letter-spacing: .32em;
+      color: var(--amber); font-weight: 400;
+    }
+    .sec-title {
+      font-size: clamp(2.2rem,5vw,4.8rem);
+      font-weight: 100; line-height: 1.02;
+      letter-spacing: -.022em;
+    }
+    .sec-body {
+      font-size: clamp(.78rem,1.3vw,.88rem);
+      color: var(--muted); line-height: 2;
+      max-width: 380px;
+    }
+
+    /* ─── S2 DISSOLVE ─── */
+    #s2 { min-height: 220vh; align-items: flex-start; padding: 18vh 8vw; }
+    #s2 .panel { position: sticky; top: 22vh; max-width: 480px; }
+
+    /* ─── S3 TUNNEL ─── */
+    #s3 { min-height: 250vh; justify-content: flex-end; padding: 18vh 8vw; }
+    #s3 .panel {
+      position: sticky; top: 22vh;
+      max-width: 480px; align-items: flex-end; text-align: right;
+    }
+
+    /* ─── S4 SURFACE ─── */
+    #s4 { min-height: 200vh; flex-direction: column; padding: 22vh 8vw; justify-content: flex-start; }
+    #s4 .panel {
+      position: sticky; top: 22vh;
+      align-items: center; text-align: center; width: 100%; gap: 28px;
+    }
+    #s4 .sec-title { font-size: clamp(2rem,4.5vw,4rem); }
+
+    /* ── GLASS CARDS ── */
+    .cards {
+      display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+      margin-top: 10px;
+    }
+    .card {
+      width: clamp(150px,20vw,230px);
+      aspect-ratio: 4/5;
+      background: rgba(255,255,255,.025);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,.07);
+      padding: 22px 18px;
+      display: flex; flex-direction: column; justify-content: flex-end; gap: 6px;
+      transform-style: preserve-3d;
+      transition: transform .35s cubic-bezier(.19,1,.22,1),
+                  border-color .35s;
+      cursor: none;
+    }
+    .card:hover { border-color: rgba(245,166,35,.22); }
+    .card-num  { font-size: .58rem; letter-spacing: .28em; color: var(--amber); }
+    .card-name { font-size: .78rem; letter-spacing: .12em; font-weight: 400; }
+
+    /* ─── S5 CLOSE ─── */
+    #s5 {
+      min-height: 100vh; flex-direction: column; gap: 28px;
+      padding: 0 8vw; justify-content: center;
+    }
+    .close-title {
+      font-size: clamp(3rem, 8vw, 9rem);
+      font-weight: 100; line-height: .92;
+      letter-spacing: -.025em; text-align: center;
+    }
+    .close-sub {
+      font-size: .68rem; letter-spacing: .28em;
+      text-transform: uppercase; color: var(--muted);
+    }
+
+    /* ── MAG BTN ── */
+    .mag-btn {
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 15px 32px;
+      border: 1px solid rgba(245,166,35,.35);
+      font-size: .68rem; letter-spacing: .28em; text-transform: uppercase;
+      color: var(--amber); background: rgba(245,166,35,.04);
+      cursor: none; font-family: inherit;
+      transition: background .3s, border-color .3s;
+    }
+    .mag-btn:hover { background: rgba(245,166,35,.1); border-color: var(--amber); }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 10;
+      padding: 36px 8vw;
+      border-top: 1px solid rgba(255,255,255,.05);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: .6rem; letter-spacing: .18em; color: var(--muted);
+    }
+
+    /* ── PROGRESS BAR (top) ── */
+    #progress-bar {
+      position: fixed; top: 0; left: 0; z-index: 300;
+      height: 1px; width: 0%;
+      background: linear-gradient(to right, var(--amber), var(--blue));
+      transition: width .05s linear;
+    }
+
+    /* ── SECTION INDICATOR ── */
+    #sec-indicator {
+      position: fixed; right: 28px; top: 50%;
+      transform: translateY(-50%);
+      z-index: 150; display: flex; flex-direction: column; gap: 10px;
+    }
+    .sec-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--muted);
+      transition: background .4s, transform .4s;
+      cursor: none;
+    }
+    .sec-dot.active { background: var(--amber); transform: scale(1.5); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      #s2, #s3 { padding: 12vh 6vw; }
+      .cards { gap: 8px; }
+      .card { width: clamp(130px,42vw,180px); }
+      #sec-indicator { display: none; }
+    }
+    @media (max-width: 375px) {
+      .h-title { font-size: 3rem; }
+    }
+
+    /* ── REDUCED MOTION ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      #bg { display: none !important; }
+      body { cursor: auto !important; }
+      #cursor { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="grain"></div>
+<div id="progress-bar"></div>
+
+<!-- SECTION INDICATOR -->
+<div id="sec-indicator">
+  <div class="sec-dot active" data-i="0"></div>
+  <div class="sec-dot" data-i="1"></div>
+  <div class="sec-dot" data-i="2"></div>
+  <div class="sec-dot" data-i="3"></div>
+  <div class="sec-dot" data-i="4"></div>
+</div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo">VOID</div>
+  <div class="loader-track"><div class="loader-fill" id="lf"></div></div>
+  <div class="loader-pct" id="lp">0%</div>
+</div>
+
+<!-- WEBGL -->
+<canvas id="bg"></canvas>
+
+<!-- CONTENT -->
+<div id="wrap">
+
+  <!-- S1 — HERO -->
+  <section id="s1">
+    <div class="h-eyebrow"><span class="char-wrap"><span class="char">Experience the unseen</span></span></div>
+    <div class="h-title">
+      <div><span class="char-wrap"><span class="char">INTO</span></span></div>
+      <div><span class="char-wrap"><span class="char">THE</span></span></div>
+      <div><span class="char-wrap"><span class="char">VOID</span></span></div>
+    </div>
+    <div class="h-sub">
+      <span class="char-wrap"><span class="char">A cinematic journey through form, light, and the space between dimensions.</span></span>
+    </div>
+    <a href="#s2" class="cta interactive" id="cta-enter">
+      <span>Enter</span>
+      <svg width="16" height="8" viewBox="0 0 16 8" fill="none"><path d="M0 4h14M11 1l3 3-3 3" stroke="currentColor" stroke-width="1"/></svg>
+    </a>
+    <div class="scroll-hint"><div class="s-line"></div><span>Scroll</span></div>
+  </section>
+
+  <!-- S2 — DISSOLVE -->
+  <section id="s2">
+    <div class="panel" id="p2">
+      <div class="sec-num">01 — DISSOLVE</div>
+      <div class="sec-title">Matter<br>becomes<br>light.</div>
+      <div class="sec-body">Solid geometry fractures into luminous particles — each one a fragment of the original form, drifting in weightless choreography.</div>
+      <a href="#s3" class="cta interactive">Descend</a>
+    </div>
+  </section>
+
+  <!-- S3 — TUNNEL -->
+  <section id="s3">
+    <div class="panel" id="p3">
+      <div class="sec-num">02 — TRAVERSE</div>
+      <div class="sec-title">Through<br>the<br>corridor.</div>
+      <div class="sec-body">The camera dives into a luminous ring-gate, each archway casting prismatic light as depth compresses and perspective warps into pure velocity.</div>
+      <a href="#s4" class="cta interactive" style="align-self:flex-end">Continue</a>
+    </div>
+  </section>
+
+  <!-- S4 — SURFACE -->
+  <section id="s4">
+    <div class="panel" id="p4">
+      <div class="sec-num">03 — SURFACE</div>
+      <div class="sec-title">Where worlds<br>crystallize.</div>
+      <div class="cards" id="cards">
+        <div class="card interactive"><div class="card-num">001</div><div class="card-name">FORM</div></div>
+        <div class="card interactive"><div class="card-num">002</div><div class="card-name">SPACE</div></div>
+        <div class="card interactive"><div class="card-num">003</div><div class="card-name">TIME</div></div>
+        <div class="card interactive"><div class="card-num">004</div><div class="card-name">LIGHT</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- S5 — CLOSING -->
+  <section id="s5">
+    <div class="close-title" id="ct">Beyond<br>perception.</div>
+    <div class="close-sub">The next chapter awaits</div>
+    <button class="mag-btn interactive" id="mb">
+      Begin the journey
+      <svg width="18" height="8" viewBox="0 0 18 8" fill="none"><path d="M0 4h16M13 1l3 3-3 3" stroke="currentColor" stroke-width="1"/></svg>
+    </button>
+  </section>
+
+</div><!-- /wrap -->
+
+<footer>
+  <span>VOID © 2025</span>
+  <span>Cinematic 3D Experience</span>
+  <span>WebGL · Three.js · GSAP</span>
+</footer>
+
+<!-- CDN SCRIPTS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+
+<script>
+/* ============================================================
+   GLOBALS
+============================================================ */
+const lerp   = (a,b,t) => a+(b-a)*t;
+const clamp  = (v,lo,hi) => Math.max(lo,Math.min(hi,v));
+const mobile = () => window.innerWidth < 768;
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+gsap.registerPlugin(ScrollTrigger);
+
+/* ============================================================
+   LOADER
+============================================================ */
+const loaderEl = document.getElementById('loader');
+const lf       = document.getElementById('lf');
+const lp       = document.getElementById('lp');
+let   loadVal  = 0;
+
+const loadTick = setInterval(() => {
+  loadVal += 3.5 + Math.random() * 14;
+  if (loadVal >= 100) { loadVal = 100; clearInterval(loadTick); onLoaded(); }
+  lf.style.width = loadVal + '%';
+  lp.textContent = Math.round(loadVal) + '%';
+}, 70);
+
+function onLoaded() {
+  gsap.to(loaderEl, {
+    opacity: 0, duration: .85, ease: 'power2.inOut',
+    onComplete() { loaderEl.style.display = 'none'; revealHero(); }
+  });
+}
+
+/* ============================================================
+   CURSOR
+============================================================ */
+const cur = document.getElementById('cursor');
+let mx=0, my=0, cx=0, cy=0;
+
+window.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; cur.classList.remove('hidden'); });
+document.addEventListener('mouseleave', () => cur.classList.add('hidden'));
+
+;(function cursorLoop() {
+  cx = lerp(cx, mx, .13);
+  cy = lerp(cy, my, .13);
+  cur.style.transform = `translate(${cx-cur.offsetWidth/2}px,${cy-cur.offsetHeight/2}px)`;
+  requestAnimationFrame(cursorLoop);
+})();
+
+document.querySelectorAll('.interactive').forEach(el => {
+  el.addEventListener('mouseenter', () => cur.classList.add('ring'));
+  el.addEventListener('mouseleave', () => cur.classList.remove('ring'));
+});
+
+/* ============================================================
+   HERO TEXT REVEAL
+============================================================ */
+function revealHero() {
+  if (reducedMotion) {
+    document.querySelectorAll('.char').forEach(c => c.style.transform = 'none');
+    return;
+  }
+  gsap.to('#s1 .char', {
+    translateY: '0%',
+    duration: 1.15,
+    ease: 'cubic-bezier(0.19,1,0.22,1)',
+    stagger: 0.08
+  });
+}
+
+/* ============================================================
+   PROGRESS BAR
+============================================================ */
+const progressBar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+  progressBar.style.width = (pct * 100) + '%';
+});
+
+/* ============================================================
+   SECTION INDICATOR
+============================================================ */
+const dots    = document.querySelectorAll('.sec-dot');
+const sections = ['#s1','#s2','#s3','#s4','#s5'];
+sections.forEach((sel, i) => {
+  ScrollTrigger.create({
+    trigger: sel,
+    start: 'top center',
+    end: 'bottom center',
+    onEnter()      { activateDot(i); },
+    onEnterBack()  { activateDot(i); }
+  });
+});
+function activateDot(i) {
+  dots.forEach((d,j) => d.classList.toggle('active', j===i));
+}
+
+/* ============================================================
+   MAGNETIC BUTTON
+============================================================ */
+const mb = document.getElementById('mb');
+if (mb) {
+  mb.addEventListener('mousemove', e => {
+    const r  = mb.getBoundingClientRect();
+    const ox = e.clientX - r.left - r.width/2;
+    const oy = e.clientY - r.top  - r.height/2;
+    gsap.to(mb, { x: ox*.38, y: oy*.38, duration: .4, ease: 'power2.out' });
+  });
+  mb.addEventListener('mouseleave', () => {
+    gsap.to(mb, { x: 0, y: 0, duration: .7, ease: 'elastic.out(1,.5)' });
+  });
+}
+
+/* ============================================================
+   3D CARD TILT
+============================================================ */
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r  = card.getBoundingClientRect();
+    const ox = (e.clientX - r.left)  / r.width  - .5;
+    const oy = (e.clientY - r.top)   / r.height - .5;
+    gsap.to(card, { rotateY: ox*14, rotateX: -oy*14, duration: .28, ease: 'power2.out' });
+  });
+  card.addEventListener('mouseleave', () => {
+    gsap.to(card, { rotateY: 0, rotateX: 0, duration: .65, ease: 'elastic.out(1,.5)' });
+  });
+});
+
+/* ============================================================
+   TEXT SCROLL REVEALS
+============================================================ */
+const revealCfg = (trigger, delay=0) => ({
+  scrollTrigger: { trigger, start: 'top 82%' },
+  y: 55, opacity: 0, duration: 1.1,
+  ease: 'cubic-bezier(0.19,1,0.22,1)', delay
+});
+
+gsap.from('#p2 .sec-num',   revealCfg('#p2'));
+gsap.from('#p2 .sec-title', revealCfg('#p2', .08));
+gsap.from('#p2 .sec-body',  revealCfg('#p2', .18));
+gsap.from('#p2 .cta',       revealCfg('#p2', .28));
+
+gsap.from('#p3 .sec-num',   revealCfg('#p3'));
+gsap.from('#p3 .sec-title', revealCfg('#p3', .08));
+gsap.from('#p3 .sec-body',  revealCfg('#p3', .18));
+gsap.from('#p3 .cta',       revealCfg('#p3', .28));
+
+gsap.from('#p4 .sec-num',   revealCfg('#p4'));
+gsap.from('#p4 .sec-title', revealCfg('#p4', .08));
+gsap.from('#cards .card', {
+  scrollTrigger: { trigger: '#cards', start: 'top 82%' },
+  y: 70, opacity: 0, duration: 1.0,
+  stagger: .09, ease: 'cubic-bezier(0.19,1,0.22,1)'
+});
+
+gsap.from('#ct', revealCfg('#ct'));
+gsap.from('#mb', revealCfg('#mb', .14));
+
+/* ============================================================
+   WEBGL SCENE
+============================================================ */
+if (!reducedMotion) initWebGL();
+
+function initWebGL() {
+
+  /* ── RENDERER ── */
+  const canvas   = document.getElementById('bg');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
+  renderer.setClearColor(0x070708, 1);
+  renderer.toneMapping        = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.1;
+
+  /* ── SCENE + CAMERA ── */
+  const scene  = new THREE.Scene();
+  scene.fog    = new THREE.FogExp2(0x070708, 0.038);
+  const camera = new THREE.PerspectiveCamera(62, window.innerWidth/window.innerHeight, 0.05, 180);
+  camera.position.set(0, 0, 8);
+
+  /* ── LIGHTS ── */
+  scene.add(new THREE.HemisphereLight(0xf5c27a, 0x0b0b1e, 0.22));
+
+  const key = new THREE.DirectionalLight(0xfaecd8, 1.8);
+  key.position.set(5, 7, 4);
+  key.castShadow = true;
+  key.shadow.mapSize.set(1024,1024);
+  key.shadow.camera.near = .5; key.shadow.camera.far = 80;
+  key.shadow.bias = -.0015; key.shadow.normalBias = .02;
+  scene.add(key);
+
+  const fill = new THREE.PointLight(0x3b82f6, 1.4, 35);
+  fill.position.set(-6, 2, 3);
+  scene.add(fill);
+
+  const rim = new THREE.PointLight(0xf5a623, 0.9, 22);
+  rim.position.set(4, -4, -4);
+  scene.add(rim);
+
+  /* ── STARS ── */
+  const starN   = mobile() ? 1400 : 3200;
+  const starBuf = new Float32Array(starN*3);
+  for (let i=0; i<starN*3; i++) starBuf[i] = (Math.random()-.5)*140;
+  const starGeo = new THREE.BufferGeometry();
+  starGeo.setAttribute('position', new THREE.BufferAttribute(starBuf, 3));
+  const stars = new THREE.Points(starGeo,
+    new THREE.PointsMaterial({ color: 0xf2f0eb, size: .055, sizeAttenuation: true, transparent: true, opacity: .5 }));
+  scene.add(stars);
+
+  /* ── HERO SCULPTURE GROUP ── */
+  const sculptGroup = new THREE.Group();
+  scene.add(sculptGroup);
+
+  // Metallic icosahedron
+  const icoMat = new THREE.MeshStandardMaterial({
+    color: 0x18182a, metalness: .88, roughness: .16
+  });
+  const icoMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(1.65, 2), icoMat);
+  icoMesh.castShadow = true;
+  sculptGroup.add(icoMesh);
+
+  // Ghostly inner wireframe
+  const wMat  = new THREE.MeshBasicMaterial({ color: 0xf5a623, wireframe: true, opacity: .1, transparent: true });
+  const wMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(1.72, 1), wMat);
+  sculptGroup.add(wMesh);
+
+  // Orbit rings
+  const ringMatA = new THREE.MeshStandardMaterial({ color: 0xf5a623, emissive: 0xf5a623, emissiveIntensity: .65, metalness: 1, roughness: .08 });
+  const ringMatB = new THREE.MeshStandardMaterial({ color: 0x3b82f6, emissive: 0x3b82f6, emissiveIntensity: .55, metalness: 1, roughness: .08 });
+
+  const ring1 = new THREE.Mesh(new THREE.TorusGeometry(2.55, .019, 6, 110), ringMatA.clone());
+  ring1.rotation.set(Math.PI/3, 0, 0);
+  sculptGroup.add(ring1);
+
+  const ring2 = new THREE.Mesh(new THREE.TorusGeometry(3.1, .013, 4, 130), ringMatB.clone());
+  ring2.rotation.set(-Math.PI/5, 0, Math.PI/7);
+  sculptGroup.add(ring2);
+
+  const ring3 = new THREE.Mesh(new THREE.TorusGeometry(2.0, .010, 4, 90), ringMatA.clone());
+  ring3.rotation.set(Math.PI/2, Math.PI/4, 0);
+  sculptGroup.add(ring3);
+
+  /* ── PARTICLE CLOUD (dissolve) ── */
+  const pN      = mobile() ? 2000 : 6000;
+  const pOrig   = new Float32Array(pN*3);
+  const pTarget = new Float32Array(pN*3);
+  // sphere target shell
+  for (let i=0; i<pN; i++) {
+    const th = Math.random()*Math.PI*2;
+    const ph = Math.acos(2*Math.random()-1);
+    const r  = 2.3 + (Math.random()-.5)*.25;
+    pTarget[i*3]   = r*Math.sin(ph)*Math.cos(th);
+    pTarget[i*3+1] = r*Math.sin(ph)*Math.sin(th);
+    pTarget[i*3+2] = r*Math.cos(ph);
+  }
+  // start scattered
+  for (let i=0; i<pN*3; i++) pOrig[i] = (Math.random()-.5)*22;
+
+  const pBuf  = new Float32Array(pN*3);
+  for (let i=0; i<pN*3; i++) pBuf[i] = pOrig[i];
+  const pGeo  = new THREE.BufferGeometry();
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pBuf, 3));
+  const pMat  = new THREE.PointsMaterial({ color: 0xf5a623, size: mobile()?.045:.028, sizeAttenuation: true, transparent: true, opacity: 0 });
+  const pMesh = new THREE.Points(pGeo, pMat);
+  scene.add(pMesh);
+
+  /* ── TUNNEL GROUP ── */
+  const tunnelGroup = new THREE.Group();
+  tunnelGroup.visible = false;
+  scene.add(tunnelGroup);
+
+  const tRingCount = 22;
+  for (let i=0; i<tRingCount; i++) {
+    const r   = 4.2 - i*.05;
+    const mat = new THREE.MeshStandardMaterial({
+      color: i%2===0?0xf5a623:0x3b82f6,
+      emissive: i%2===0?0xf5a623:0x3b82f6,
+      emissiveIntensity: .38, metalness: .9, roughness: .12,
+      transparent: true, opacity: .65
+    });
+    const mesh = new THREE.Mesh(new THREE.TorusGeometry(r, .026, 8, 80), mat);
+    mesh.position.z = -i*5;
+    tunnelGroup.add(mesh);
+  }
+
+  /* ── GROUND / GRID GROUP ── */
+  const groundGroup = new THREE.Group();
+  groundGroup.visible = false;
+  scene.add(groundGroup);
+
+  const gMat = new THREE.MeshStandardMaterial({ color: 0x0c0c14, metalness: .55, roughness: .55 });
+  const gMesh = new THREE.Mesh(new THREE.PlaneGeometry(50, 50, 32, 32), gMat);
+  gMesh.rotation.x = -Math.PI/2;
+  gMesh.position.y = -3.5;
+  gMesh.receiveShadow = true;
+  groundGroup.add(gMesh);
+
+  const grid = new THREE.GridHelper(50, 32, 0xf5a623, 0x18181f);
+  grid.material.opacity = .18; grid.material.transparent = true;
+  grid.position.y = -3.44;
+  groundGroup.add(grid);
+
+  /* ── CRYSTALS ── */
+  const crystalGroup = new THREE.Group();
+  crystalGroup.visible = false;
+  scene.add(crystalGroup);
+
+  const cCount = mobile() ? 5 : 10;
+  for (let i=0; i<cCount; i++) {
+    const h   = .7 + Math.random()*1.4;
+    const mat = new THREE.MeshStandardMaterial({
+      color: i%2===0?0xf5a623:0x3b82f6,
+      emissive: i%2===0?0xf5a623:0x3b82f6,
+      emissiveIntensity: .28, metalness: .82, roughness: .18,
+      transparent: true, opacity: .88
+    });
+    const m = new THREE.Mesh(new THREE.ConeGeometry(.2, h, 5), mat);
+    m.position.set(
+      (Math.random()-.5)*18,
+      -1.8 + Math.random()*3.5,
+      (Math.random()-.5)*10 - 5
+    );
+    m.rotation.set((Math.random()-.5)*.3, 0, (Math.random()-.5)*.3);
+    crystalGroup.add(m);
+  }
+
+  /* ──────────────────────────────────────────
+     SCROLL-DRIVEN LOGIC
+  ────────────────────────────────────────── */
+  let morphT = 0;   // 0=solid, 1=particles
+  let tunnelT= 0;
+  let groundT= 0;
+  let mouseX = 0, mouseY = 0;
+  let scrollVel = 0, lastSY = 0;
+  let camZ  = 8, camY = 0;
+
+  /* Mouse / touch */
+  window.addEventListener('mousemove', e => {
+    mouseX = (e.clientX/window.innerWidth -.5)*2;
+    mouseY = (e.clientY/window.innerHeight-.5)*2;
+  });
+  window.addEventListener('touchmove', e => {
+    const t = e.touches[0];
+    mouseX = (t.clientX/window.innerWidth -.5)*2;
+    mouseY = (t.clientY/window.innerHeight-.5)*2;
+  }, { passive:true });
+
+  /* S2 — DISSOLVE */
+  ScrollTrigger.create({
+    trigger: '#s2', start: 'top bottom', end: 'bottom top',
+    onUpdate(self) {
+      const t = self.progress;
+      morphT = clamp(t*1.8, 0, 1);
+      camZ   = 8 - t*3;
+      camY   = t*1.2;
+
+      const pos = pGeo.attributes.position.array;
+      for (let i=0; i<pN; i++) {
+        const j = i*3;
+        pos[j]   = lerp(pOrig[j],   pTarget[j],   morphT);
+        pos[j+1] = lerp(pOrig[j+1], pTarget[j+1], morphT);
+        pos[j+2] = lerp(pOrig[j+2], pTarget[j+2], morphT);
+      }
+      pGeo.attributes.position.needsUpdate = true;
+      pMat.opacity = morphT * .85;
+
+      // Fade sculpture
+      icoMat.opacity = 1 - morphT;
+      icoMat.transparent = true;
+      wMat.opacity  = (1-morphT) * .1;
+      ring1.material.opacity = 1 - morphT*.75;
+      ring1.material.transparent = true;
+      ring2.material.opacity = 1 - morphT*.75;
+      ring2.material.transparent = true;
+      ring3.material.opacity = 1 - morphT*.75;
+      ring3.material.transparent = true;
+    }
+  });
+
+  /* S3 — TUNNEL */
+  ScrollTrigger.create({
+    trigger: '#s3', start: 'top bottom', end: 'bottom top',
+    onUpdate(self) {
+      tunnelT = self.progress;
+      tunnelGroup.visible = tunnelT > .04;
+      camera.fov = 62 + tunnelT * 28;
+      camera.updateProjectionMatrix();
+      tunnelGroup.position.z = tunnelT * 65;
+      camera.position.z = clamp(camZ + tunnelT * 32, 2, 40);
+    }
+  });
+
+  /* S4 — GROUND */
+  ScrollTrigger.create({
+    trigger: '#s4', start: 'top bottom', end: 'bottom top',
+    onUpdate(self) {
+      groundT = self.progress;
+      groundGroup.visible  = groundT > .04;
+      crystalGroup.visible = groundT > .22;
+      groundGroup.position.y  = lerp(-10, 0, clamp(groundT*2.2, 0, 1));
+      crystalGroup.position.y = lerp(-8,  0, clamp((groundT-.2)*2, 0, 1));
+      camera.fov = lerp(90, 62, groundT);
+      camera.position.z = lerp(40, 8, groundT);
+      camera.position.y = lerp(0, -1.4, groundT);
+      camera.updateProjectionMatrix();
+    }
+  });
+
+  /* ── RENDER LOOP ── */
+  let t0 = 0;
+  function animate(ts) {
+    requestAnimationFrame(animate);
+    const dt = Math.min((ts - t0) * .001, .033);
+    t0 = ts;
+    const T = ts * .001;
+
+    // Scroll velocity
+    scrollVel = lerp(scrollVel, (window.scrollY - lastSY) * .12, .15);
+    lastSY    = window.scrollY;
+
+    // Camera mouse parallax (only when not in tunnel/ground)
+    const inSpecial = tunnelT > .1 || groundT > .1;
+    if (!inSpecial) {
+      camera.position.x = lerp(camera.position.x, mouseX * .65, .04);
+      camera.position.y = lerp(camera.position.y, camY - mouseY * .38, .04);
+      camera.position.z = lerp(camera.position.z, camZ, .06);
+    }
+
+    // Idle sculpture rotation
+    sculptGroup.rotation.y += .0028 + Math.abs(scrollVel) * .018;
+    sculptGroup.rotation.x  = Math.sin(T * .28) * .13;
+    wMesh.rotation.y       -= .004;
+    ring1.rotation.z       += .0045;
+    ring2.rotation.y       += .0032;
+    ring3.rotation.z       += .0056;
+
+    // Particle idle
+    pMesh.rotation.y += .0009;
+
+    // Stars
+    stars.rotation.y += .000065;
+    stars.rotation.x += .000025;
+
+    // Tunnel ring pulse
+    if (tunnelGroup.visible) {
+      tunnelGroup.children.forEach((r,i) => {
+        r.rotation.z += .005 + i*.0004;
+        r.material.emissiveIntensity = .25 + Math.sin(T + i*.55) * .18;
+      });
+    }
+
+    // Crystal float
+    if (crystalGroup.visible) {
+      crystalGroup.children.forEach((c,i) => {
+        c.position.y += Math.sin(T + i*.9) * .003;
+        c.rotation.y += .004;
+      });
+    }
+
+    // Fill light pulse
+    fill.intensity = 1.1 + Math.sin(T * .7) * .25;
+    rim.intensity  = .7  + Math.sin(T * .5 + 1) * .2;
+
+    renderer.render(scene, camera);
+  }
+  requestAnimationFrame(animate);
+
+  /* ── RESIZE ── */
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  });
+
+} // end initWebGL
+</script>
+</body>
+</html>

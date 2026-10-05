@@ -1,0 +1,4 @@
+name: KNOuX maintained runtime source
+paths-ignore:
+  - references/**
+  - .claude/**

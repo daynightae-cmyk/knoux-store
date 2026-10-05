@@ -14,7 +14,7 @@
 
 import { createServer, type Server as HttpServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import type { Duplex } from 'node:stream';
-import { randomUUID, createHash, createPublicKey } from 'node:crypto';
+import { randomUUID, createHash, createPublicKey, timingSafeEqual } from 'node:crypto';
 import { dirname, resolve } from 'node:path';
 import { readdirSync, statSync, readFileSync, writeFileSync, renameSync, existsSync, mkdirSync, unlinkSync, rmSync, openSync, fstatSync, readSync, closeSync } from 'node:fs';
 import { hostname } from 'node:os';
@@ -61,6 +61,8 @@ export interface BridgeServerOptions {
   bridgeId: string;
   /** Trusted issuer public keys, keyed by fingerprint. */
   trustedIssuers: Map<string, string>;
+  /** Process-local token shared only with the outbound control worker. */
+  internalControlToken?: string;
   /**
    * Pending pairing codes. The key is empty when the code was minted by `init`
    * before any issuer existed; the first successful pair binds it.
@@ -301,43 +303,58 @@ export class BridgeServer {
       return;
     }
 
-    const token = bearerToken(req);
-    if (!token) {
-      error(res, 401, 'unauthorized', 'A signed ticket is required.');
-      return;
-    }
-
     const requiredScope = this.scopeForPath(path);
     if (!requiredScope) {
       error(res, 404, 'not-found', 'Unknown route.');
       return;
     }
 
-    const verified = verifyTicket(
-      token,
-      [...this.options.trustedIssuers.values()],
-      this.options.bridgeId,
-      requiredScope,
-    );
+    let claims: { sub: string; cwd?: string };
 
-    if (!verified.ok) {
+    if (
+      method === 'GET' &&
+      INTERNAL_CONTROL_PATHS.has(path) &&
+      internalControlTokenMatches(req, this.options.internalControlToken ?? '')
+    ) {
+      claims = { sub: 'control-plane' };
       this.options.audit.append({
-        action: 'auth.denied',
-        actor: 'unknown',
+        action: 'auth.internal',
+        actor: 'control-plane',
         target: `${method} ${path}`,
-        outcome: 'denied',
-        detail: verified.reason ?? 'Ticket verification failed',
+        outcome: 'success',
+        detail: 'Authorized through the process-local outbound control token.',
         approvalId: null,
       });
-      // The status code and error code are constant for every rejection reason.
-      // A client cannot learn whether its signature, audience, expiry, jti or
-      // scope was the problem, so this endpoint is not an oracle. The specific
-      // reason went to the local audit log above.
-      error(res, 403, verified.error, 'The ticket was rejected.');
-      return;
+    } else {
+      const token = bearerToken(req);
+      if (!token) {
+        error(res, 401, 'unauthorized', 'A signed ticket is required.');
+        return;
+      }
+
+      const verified = verifyTicket(
+        token,
+        [...this.options.trustedIssuers.values()],
+        this.options.bridgeId,
+        requiredScope,
+      );
+
+      if (!verified.ok) {
+        this.options.audit.append({
+          action: 'auth.denied',
+          actor: 'unknown',
+          target: `${method} ${path}`,
+          outcome: 'denied',
+          detail: verified.reason ?? 'Ticket verification failed',
+          approvalId: null,
+        });
+        error(res, 403, verified.error, 'The ticket was rejected.');
+        return;
+      }
+
+      claims = verified.claims!;
     }
 
-    const claims = verified.claims!;
     const root = this.rootFor(claims.cwd);
 
     try {
@@ -1448,6 +1465,29 @@ export class BridgeServer {
 // ---------------------------------------------------------------------------
 // helpers
 // ---------------------------------------------------------------------------
+
+const INTERNAL_CONTROL_PATHS = new Set([
+  '/v1/handshake',
+  '/v1/git/status',
+  '/v1/metrics',
+  '/v1/proc/list',
+  '/v1/logs',
+  '/v1/audit',
+  '/v1/fs/list',
+  '/v1/fs/read',
+]);
+
+function internalControlTokenMatches(req: IncomingMessage, expected: string): boolean {
+  const raw = req.headers['x-knoux-internal-token'];
+  const value = Array.isArray(raw) ? raw[0] ?? '' : raw ?? '';
+  if (!value || value.length !== expected.length) return false;
+  try {
+    return timingSafeEqual(Buffer.from(value, 'utf8'), Buffer.from(expected, 'utf8'));
+  } catch {
+    return false;
+  }
+}
+
 
 function bearerToken(req: IncomingMessage): string {
   const header = req.headers['authorization'];

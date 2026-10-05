@@ -6,22 +6,22 @@
     "id": "custom",
     "label": "CUSTOM"
   },
-  "at": "2026-10-02T20:01:01.011Z",
+  "at": "2026-10-02T22:46:11.367Z",
   "branch": "feat/build-real-integrations-os",
-  "sha": "28f8676dc65d90b51945cd664d4eaea449459210",
+  "sha": "687778e7f294aa550474730200c6f3ecd41e72ed",
   "document": "same-origin loaded",
   "observations": [
     {
-      "id": 1790971256178,
+      "id": 1790981152664,
       "kind": "error",
       "message": "Preview observation token=[REDACTED]",
-      "at": "2026-10-02T20:00:56.178Z"
+      "at": "2026-10-02T22:45:52.664Z"
     },
     {
-      "id": 1790971256203,
+      "id": 1790981153113,
       "kind": "resource",
       "message": "img failed to load: /not-a-real-preview-image.png",
-      "at": "2026-10-02T20:00:56.202Z"
+      "at": "2026-10-02T22:45:53.110Z"
     }
   ],
   "inspected": {

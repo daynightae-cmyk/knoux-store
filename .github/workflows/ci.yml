@@ -69,6 +69,12 @@ jobs:
       - name: Unit and integration tests
         run: npm test
 
+      - name: Signal artifact path boundaries
+        run: |
+          python3 -m venv .venv-signal-boundary
+          .venv-signal-boundary/bin/python -m pip install PyYAML==6.0.3
+          .venv-signal-boundary/bin/python -m unittest scripts.signal.test_path_guard
+
       - name: Coverage
         run: npm run test:coverage
 
@@ -162,6 +168,7 @@ jobs:
         with:
           languages: javascript-typescript
           queries: security-and-quality
+          config-file: ./.github/codeql-config.yml
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@60168efe1c415ce0f5521ea06d5c2062adbeed1b # v3.28.17

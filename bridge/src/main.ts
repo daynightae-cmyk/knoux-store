@@ -17,7 +17,8 @@ import { AuditLog } from './audit.js';
 import { SessionManager } from './pty/session.js';
 import { ProcessRegistry } from './proc/registry.js';
 import { BridgeServer } from './server.js';
-import { createHash, randomInt } from 'node:crypto';
+import { createControlPlaneWorker, controlPlaneUrlFromEnv } from './control-plane.js';
+import { createHash, randomBytes, randomInt } from 'node:crypto';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -166,6 +167,7 @@ async function cmdStart(): Promise<void> {
 
   const trustedIssuers = loadTrustedIssuers();
   const pendingCodes = loadPendingCodes();
+  const internalControlToken = randomBytes(32).toString('base64url');
 
   const server = new BridgeServer({
     config,
@@ -175,6 +177,7 @@ async function cmdStart(): Promise<void> {
     processes,
     bridgeId,
     trustedIssuers,
+    internalControlToken,
     pendingCodes,
   });
 
@@ -194,6 +197,33 @@ async function cmdStart(): Promise<void> {
   console.log(`  Processes:  ${Object.keys(config.processProfiles).join(', ') || 'none'}`);
 
   await server.listen(config.port, config.host);
+
+  let controlPlane: ReturnType<typeof createControlPlaneWorker> | null = null;
+  const controlPlaneUrl = controlPlaneUrlFromEnv();
+  if (controlPlaneUrl) {
+    controlPlane = createControlPlaneWorker({
+      baseUrl: controlPlaneUrl,
+      bridgeId,
+      version: VERSION,
+      identity,
+      config,
+      internalControlToken,
+      onAudit: (action, outcome, detail) => {
+        audit.append({
+          action,
+          actor: 'control-plane',
+          target: bridgeId,
+          outcome,
+          detail,
+          approvalId: null,
+        });
+      },
+    });
+    controlPlane.start();
+    console.log('  Control plane: ' + controlPlaneUrl + ' (outbound-only)');
+  } else {
+    console.log('  Control plane: disabled (set KNOUX_CONTROL_PLANE_URL to enable)');
+  }
 
   audit.append({
     action: 'bridge.start',
@@ -222,6 +252,7 @@ async function cmdStart(): Promise<void> {
       approvalId: null,
     });
     persistPairing();
+    if (controlPlane) await controlPlane.stop();
     processes.stopAll();
     sessions.dispose();
     await server.close();
