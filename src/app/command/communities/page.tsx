@@ -301,7 +301,7 @@ function Communities() {
                 {list.description ? (
                   <p className={styles.ccPaneBody ?? ''}>{list.description}</p>
                 ) : null}
-                <div className={styles.ccTableWrap ?? ''} style={{ marginTop: 6 }}>
+                <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''} style={{ marginTop: 6 }}>
                   <table className={styles.ccTable ?? ''}>
                     <thead>
                       <tr>

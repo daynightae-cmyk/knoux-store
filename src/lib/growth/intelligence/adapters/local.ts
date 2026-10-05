@@ -19,7 +19,6 @@ import { formatMetric } from '../../metrics';
 import type { CanonicalMetrics, Community, PerformanceRow } from '../../types';
 import type {
   Evidence,
-  IntelligenceFamily,
   IntelligenceRequest,
   IntelligenceResponse,
   KnouxIntelligence,
@@ -360,11 +359,3 @@ export function scoreCommunity(community: Community, terms: string[], city?: str
 
   return Math.max(0, score);
 }
-
-export const FAMILY_SUPPORTED_BY_LOCAL: readonly IntelligenceFamily[] = [
-  'GROWTH',
-  'SOCIAL',
-  'ADVERTISING',
-  'COMMUNITY',
-  'ANALYTICS',
-];

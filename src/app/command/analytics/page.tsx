@@ -108,7 +108,7 @@ function Analytics() {
         {filtered.length === 0 ? (
           <EmptyState title="No rows for this filter" />
         ) : (
-          <div className={styles.ccTableWrap ?? ''}>
+          <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
             <table className={styles.ccTable ?? ''}>
               <caption>Canonical metrics. A blank cell means the provider did not report it.</caption>
               <thead>
@@ -142,7 +142,7 @@ function Analytics() {
       </Section>
 
       <Section title="Derived metrics" note="A ratio is computed only when both inputs exist and the divisor is non-zero.">
-        <div className={styles.ccTableWrap ?? ''}>
+        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>
@@ -175,7 +175,7 @@ function Analytics() {
       </Section>
 
       <Section title="Why cells are blank" note="Stated rather than assumed, so an operator can tell a gap from a zero.">
-        <div className={styles.ccTableWrap ?? ''}>
+        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>

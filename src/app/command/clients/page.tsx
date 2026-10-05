@@ -211,7 +211,7 @@ function Clients() {
         {activeClient.branches.length === 0 ? (
           <EmptyState title="No branches recorded" />
         ) : (
-          <div className={styles.ccTableWrap ?? ''}>
+          <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
             <table className={styles.ccTable ?? ''}>
               <thead>
                 <tr>
@@ -268,7 +268,7 @@ function Clients() {
       </Section>
 
       <Section title="Products and services" note="The catalogue creative and landing pages reason over.">
-        <div className={styles.ccTableWrap ?? ''}>
+        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <tbody>
               {activeClient.brand.products.map((product, index) => (

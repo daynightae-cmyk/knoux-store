@@ -65,10 +65,6 @@ export function countryByCode(code: CountryCode): CountryNode | undefined {
   return COMMUNITY_GEOGRAPHY.find((country) => country.code === code);
 }
 
-export function cityBySlug(countryCode: CountryCode, citySlug: string): CityNode | undefined {
-  return countryByCode(countryCode)?.cities.find((city) => city.slug === citySlug);
-}
-
 export function citiesFor(code: CountryCode): CityNode[] {
   return countryByCode(code)?.cities ?? [];
 }
@@ -105,10 +101,6 @@ export const COMMUNITY_CATEGORIES: readonly CategoryNode[] = [
   { slug: 'local-communities', label: 'Local Communities', businessCategories: ['services', 'retail', 'hospitality'] },
   { slug: 'directories', label: 'Directories', businessCategories: ['services', 'retail', 'hospitality'] },
 ];
-
-export function categoryBySlug(slug: string): CategoryNode | undefined {
-  return COMMUNITY_CATEGORIES.find((category) => category.slug === slug);
-}
 
 /* --------------------------------------------------------------- platforms */
 

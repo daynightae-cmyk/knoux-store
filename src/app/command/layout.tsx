@@ -16,7 +16,8 @@ export const viewport = {
 };
 
 /**
- * The Command Center is an authenticated operating surface, not a public page.
+ * The Command Center currently shows public, explicitly labelled demo workspaces.
+ * Configured agent calls require an authenticated operator at the server boundary.
  *
  * It sits outside the marketing layout on purpose: the public site header, footer
  * and command palette are for the storefront, and putting a console inside them

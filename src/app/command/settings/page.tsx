@@ -98,7 +98,7 @@ function Settings() {
       </Section>
 
       <Section title="Roles and permissions" note="Client scope is checked before any permission, so no role can cross clients.">
-        <div className={styles.ccTableWrap ?? ''}>
+        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>
@@ -125,7 +125,7 @@ function Settings() {
       </Section>
 
       <Section title="Separation of duties" note="An approval record only proves something if the approver is not the author.">
-        <div className={styles.ccGrid2Fallback ?? ''}>
+        <div className={styles.commandGrid2 ?? ''}>
           <Pane title="Campaign approval">
             <ul className={styles.ccPaneList ?? ''}>
               <li>The author of a plan cannot approve it.</li>

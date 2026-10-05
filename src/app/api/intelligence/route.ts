@@ -5,6 +5,8 @@ import { INTELLIGENCE_FAMILIES } from '@/lib/growth/intelligence/types';
 import { AUTONOMY_MODES, DEFAULT_AUTONOMY } from '@/lib/growth/states';
 import { clientById } from '@/data/growth/clients';
 import { clientAddress, rateLimit } from '@/lib/http/rate-limit';
+import { readBoundedJson } from '@/lib/contact/intake-guard';
+import { guardGrowthProviderAccess } from '@/lib/growth/server/access';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,6 +27,8 @@ const MAX_BODY_BYTES = 24 * 1024;
  * tell a rate limit from a malformed request cannot act on either.
  */
 export async function POST(request: NextRequest) {
+  const denied = await guardGrowthProviderAccess(request);
+  if (denied) return denied;
   const limit = rateLimit(`intelligence:${clientAddress(request.headers)}`, {
     max: MAX_REQUESTS_PER_MINUTE,
   });
@@ -44,22 +48,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let body: Record<string, unknown>;
-  try {
-    const raw = await request.text();
-    if (raw.length > MAX_BODY_BYTES) {
-      return NextResponse.json(
-        { reason: 'Body exceeds the ceiling.' },
-        { status: 413, headers: { 'cache-control': 'no-store' } },
-      );
-    }
-    body = JSON.parse(raw) as Record<string, unknown>;
-  } catch {
+  const parsed = await readBoundedJson(request, MAX_BODY_BYTES);
+  if (!parsed.ok) {
     return NextResponse.json(
-      { reason: 'The request body was not valid JSON.' },
-      { status: 400, headers: { 'cache-control': 'no-store' } },
+      { reason: parsed.reason === 'body-too-large' ? 'Body exceeds the ceiling.' : 'The request body was not valid JSON.' },
+      { status: parsed.reason === 'body-too-large' ? 413 : 400, headers: { 'cache-control': 'no-store' } },
     );
   }
+  if (!isRecord(parsed.value)) return NextResponse.json({ reason: 'Expected a JSON object.' }, { status: 400 });
+  const body = parsed.value;
 
   const intent = typeof body.intent === 'string' ? body.intent : '';
   if (!INTELLIGENCE_INTENTS.includes(intent as (typeof INTELLIGENCE_INTENTS)[number])) {

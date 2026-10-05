@@ -88,7 +88,7 @@ function Campaigns() {
             A campaign starts as a draft and becomes spendable only through a recorded approval.
           </EmptyState>
         ) : (
-          <div className={styles.ccTableWrap ?? ''}>
+          <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
             <table className={styles.ccTable ?? ''}>
               <thead>
                 <tr>
@@ -236,7 +236,7 @@ function Campaigns() {
         {rows.length === 0 ? (
           <EmptyState title="No performance rows" />
         ) : (
-          <div className={styles.ccTableWrap ?? ''}>
+          <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
             <table className={styles.ccTable ?? ''}>
               <thead>
                 <tr>

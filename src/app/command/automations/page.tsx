@@ -100,7 +100,7 @@ function Automations() {
       </Section>
 
       <Section title="Rules" note="Templates ship per client. Threshold rules start disabled.">
-        <div className={styles.ccTableWrap ?? ''}>
+        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>

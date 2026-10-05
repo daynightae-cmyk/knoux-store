@@ -124,7 +124,7 @@ function Leads() {
             fill this table.
           </EmptyState>
         ) : (
-          <div className={styles.ccTableWrap ?? ''}>
+          <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
             <table className={styles.ccTable ?? ''}>
               <thead>
                 <tr>
@@ -179,7 +179,7 @@ function Leads() {
       </Section>
 
       <Section title="Source attribution" note="Where enquiries actually came from, including manual community posts.">
-        <div className={styles.ccTableWrap ?? ''}>
+        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>

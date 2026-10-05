@@ -50,17 +50,3 @@ export function buildRouter(env: Record<string, string | undefined> = process.en
 
   return new KnouxIntelligenceRouter({ providers });
 }
-
-/**
- * The workspace snapshot the local reasoner reads.
- *
- * Until a workspace is loaded from storage it is the demo fixture set. When the
- * Supabase-backed repository lands, this is the single seam that changes — the
- * reasoner itself is already a pure function of its snapshot.
- */
-export function currentSnapshot() {
-  return {
-    performanceRows: [...DEMO_PERFORMANCE_ROWS],
-    communities: [...DEMO_COMMUNITIES],
-  };
-}
