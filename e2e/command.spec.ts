@@ -13,6 +13,9 @@ test('Recovered Command Center routes render and fit the viewport', async ({ pag
     expect(response?.status()).toBe(200);
     await expect(page.locator('.command-root h1')).toHaveCount(1);
     await expect(page.getByRole('navigation', { name: 'Command Center sections' })).toBeVisible();
+    const indicators = page.getByRole('group', { name: 'Workspace status indicators' });
+    await indicators.focus();
+    await expect(indicators).toBeFocused();
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
     const violations = (await new AxeBuilder({ page }).include('.command-root').withTags(['wcag2a', 'wcag2aa']).analyze()).violations;
     expect(violations, `Accessibility: /command/${area}`).toEqual([]);
