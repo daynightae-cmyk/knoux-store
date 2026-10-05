@@ -5,6 +5,7 @@ import { INTELLIGENCE_FAMILIES } from '@/lib/growth/intelligence/types';
 import { AUTONOMY_MODES, DEFAULT_AUTONOMY } from '@/lib/growth/states';
 import { clientById } from '@/data/growth/clients';
 import { clientAddress, rateLimit } from '@/lib/http/rate-limit';
+import { guardGrowth } from '@/lib/growth/auth/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,6 +26,23 @@ const MAX_BODY_BYTES = 24 * 1024;
  * tell a rate limit from a malformed request cannot act on either.
  */
 export async function POST(request: NextRequest) {
+  /*
+   * Server-side authorisation, before anything else.
+   *
+   * The middleware already refuses anonymous callers, but the authoritative check
+   * lives here for two reasons: an API route must not depend on a matcher
+   * continuing to cover it, and middleware can only see "is there a session",
+   * which is a different question from "may this principal reason about this
+   * client". This resolves membership and the client boundary.
+   */
+  const guard = await guardGrowth({ permission: 'intelligence.use' });
+  if (!guard.ok) {
+    return NextResponse.json(
+      { ok: false, code: guard.failure.code, message: guard.failure.message },
+      { status: guard.failure.status, headers: { 'cache-control': 'no-store' } },
+    );
+  }
+
   const limit = rateLimit(`intelligence:${clientAddress(request.headers)}`, {
     max: MAX_REQUESTS_PER_MINUTE,
   });
@@ -75,6 +93,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { reason: 'Unknown client workspace.' },
       { status: 400, headers: { 'cache-control': 'no-store' } },
+    );
+  }
+
+  /*
+   * The client boundary, checked against the requested workspace rather than the
+   * route. `intelligence.use` alone does not authorise reasoning about *any*
+   * client: a CLIENT-role principal holds that permission and must still be
+   * refused for a workspace they are not bound to.
+   */
+  const boundary = await guardGrowth({ permission: 'intelligence.use', clientId });
+  if (!boundary.ok) {
+    return NextResponse.json(
+      { ok: false, code: boundary.failure.code, message: boundary.failure.message },
+      { status: boundary.failure.status, headers: { 'cache-control': 'no-store' } },
     );
   }
 

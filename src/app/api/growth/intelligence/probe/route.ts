@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { buildRouter } from '@/lib/growth/server/runtime';
+import { guardGrowth } from '@/lib/growth/auth/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,6 +16,14 @@ export const dynamic = 'force-dynamic';
  * operator needs to know the agent is unreachable, not where it lives.
  */
 export async function GET() {
+  const guard = await guardGrowth({ permission: 'intelligence.use' });
+  if (!guard.ok) {
+    return NextResponse.json(
+      { ok: false, code: guard.failure.code, message: guard.failure.message },
+      { status: guard.failure.status, headers: { 'cache-control': 'no-store' } },
+    );
+  }
+
   const router = buildRouter();
   const survey = await router.survey();
   const primary = survey.find((entry) => entry.provider.tier === 'primary');

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { describeCapabilities } from '@/lib/growth/connectors/boundary';
 import { resolveAll, summariseCapabilities, requiredEnvNames } from '@/lib/growth/connectors/registry';
+import { guardGrowth } from '@/lib/growth/auth/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,6 +17,19 @@ export const dynamic = 'force-dynamic';
  * this endpoint safe to expose. Only presence counts and env var names leave.
  */
 export async function GET() {
+  /*
+   * Gated. The registry reveals which platforms this deployment is configured
+   * for and which environment variables are missing, which is deployment
+   * information rather than public documentation.
+   */
+  const guard = await guardGrowth({ permission: 'connection.view' });
+  if (!guard.ok) {
+    return NextResponse.json(
+      { ok: false, code: guard.failure.code, message: guard.failure.message },
+      { status: guard.failure.status, headers: { 'cache-control': 'no-store' } },
+    );
+  }
+
   const capabilities = describeCapabilities(process.env);
   const summary = summariseCapabilities(resolveAll(process.env));
 
