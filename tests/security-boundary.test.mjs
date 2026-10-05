@@ -21,6 +21,12 @@ const {
   buildSecurityHeaders,
 } = (await loadTypeScript('../src/lib/security/headers.ts'));
 
+const { redactSecrets } = (await loadTypeScript('../src/lib/security/redact.ts'));
+
+const { safePreviewText } = (await loadTypeScript('../src/lib/build/preview-instrumentation.ts'));
+
+const { normalizeError } = (await loadTypeScript('../src/lib/ai/errors.ts'));
+
 const { evaluateBuildAccess, authorizeBuildAccess, BUILD_API_DENIED } = (await loadTypeScript('../src/lib/build/deployment.ts'));
 const { guardBuildApi } = (await loadTypeScript('../src/lib/build/api-guard.ts'));
 const { clientAddress, rateLimit, resetRateLimits } = (await loadTypeScript('../src/lib/http/rate-limit.ts'));
@@ -517,4 +523,82 @@ test('no route handler returns a workspace payload before the guard runs', () =>
       assert.ok(guardAt >= 0 && guardAt < adapterAt, `/api/build/${route} must guard before constructing the adapter`);
     }
   }
+});
+
+/* ======================================================= secret redaction */
+
+/**
+ * Redaction — behavioural.
+ *
+ * Each case executes the shipped redactor. This property was previously
+ * satisfied only by a source-text check on the bridge, while `Authorization:
+ * Bearer …`, every bare JWT and every `META_APP_SECRET=…` value passed straight
+ * through into audit rows and API responses, so a green test here was not
+ * evidence of anything. The credentials below are the shapes this deployment
+ * can actually produce: the Meta and Google OAuth exchange, the Supabase
+ * service-role key, the enrollment token, and a provider error body.
+ */
+test('no credential shape survives redaction, labelled or not', () => {
+  const credentials = [
+    ['META_APP_SECRET=super-secret-value', 'super-secret-value'],
+    ['GOOGLE_CLIENT_SECRET: another-secret', 'another-secret'],
+    ['CLIENT_SECRET=abc123def456', 'abc123def456'],
+    ['ACCESS_TOKEN=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.abcdefghij', 'eyJhbGciOiJIUzI1NiJ9'],
+    ['REFRESH_TOKEN=rt-1234567890abcdef', 'rt-1234567890abcdef'],
+    ['DB_PASSWORD=hunter2secret', 'hunter2secret'],
+    ['API_KEY=sk-proj-1234567890', 'sk-proj-1234567890'],
+    ['AUTHORIZATION=Bearer abc123def456ghi789', 'abc123def456ghi789'],
+    ['Authorization: Bearer abc123def456ghi789', 'abc123def456ghi789'],
+    ['SUPABASE_SERVICE_ROLE_KEY=sbp_1234567890abcdefghij', 'sbp_1234567890abcdefghij'],
+    ['webhook secret whsec_abcdefghijklmnop', 'whsec_abcdefghijklmnop'],
+    ['x-api-key: 12345abcdef0123456789abcdef', '12345abcdef0123456789abcdef'],
+    ['KNOUX_AGENT_TOKEN=knx_9f8e7d6c5b4a3210', 'knx_9f8e7d6c5b4a3210'],
+    ['KNOUX_CONTROL_PLANE_ENROLLMENT_TOKEN=abc123def456ghi', 'abc123def456ghi'],
+    ['eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.abcdefghij', 'eyJhbGciOiJIUzI1NiJ9'],
+    ['EAABwzLixnjYBO7ZBqtwf1Bs8kZB1a1FQh1EJZ1m0ZC2nL', 'EAABwzLixnjYBO7ZBqtwf1Bs8kZB1a1FQh1EJZ1m0ZC2nL'],
+  ];
+  for (const [input, secret] of credentials) {
+    const out = redactSecrets(input);
+    assert.ok(!out.includes(secret), `leaked ${secret} from ${input} -> ${out}`);
+    assert.match(out, /REDACTED/, `${input} was not redacted at all`);
+  }
+});
+
+test('an underscore inside a credential label does not hide the value', () => {
+  // The specific regression: `\b` does not fire inside `META_APP_SECRET`,
+  // because an underscore is a word character, so the original `\b(secret)\s*=`
+  // shape was blind to exactly the environment variables this system reads.
+  assert.ok(!redactSecrets('META_APP_SECRET=super-secret-value').includes('super-secret-value'));
+  assert.ok(!redactSecrets('a=b; SUPABASE_SERVICE_ROLE_KEY=sbp_leaked_value').includes('sbp_leaked_value'));
+});
+
+test('every surface that reports diagnostics redacts through one implementation', () => {
+  // The provider error normaliser and the browser preview capture both reach
+  // the user's screen. Each previously carried a private pattern list, and each
+  // leaked something the other did not.
+  const providerError = normalizeError(401, 'META_APP_SECRET=super-secret-value');
+  assert.ok(!providerError.safeMessage.includes('super-secret-value'));
+  assert.ok(providerError.safeMessage.includes('[REDACTED]'));
+
+  assert.ok(!safePreviewText('Authorization: Bearer abc123def456ghi789').includes('abc123def456ghi789'));
+  assert.ok(!safePreviewText('eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.abcdefghij').includes('eyJhbGciOiJIUzI1NiJ9'));
+});
+
+test('redaction preserves the diagnostics it is supposed to preserve', () => {
+  const prose = [
+    'Budget changed from AED 750.00 to AED 800.00 after the client asked for 7 days.',
+    'Campaign cmp_0192c3 for client cl_helix moved from DRAFT to APPROVED.',
+    'Meta reported 1204 impressions and 61 link clicks for the week ending 2026-10-02.',
+    'Operator approved the AED 45000.00 Q4 launch plan on 2026-10-04.',
+  ];
+  for (const detail of prose) {
+    assert.equal(redactSecrets(detail), detail, `redaction rewrote useful prose: ${detail}`);
+  }
+});
+
+test('redaction happens before truncation, so a cut credential is still removed', () => {
+  // The other order leaves a credential intact whenever it straddles the
+  // length cut, which is exactly where a long provider token sits.
+  const padded = 'B'.repeat(380) + 'META_APP_SECRET=super-secret-value';
+  assert.ok(!safePreviewText(padded).includes('super-secret-value'));
 });
