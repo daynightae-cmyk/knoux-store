@@ -48,7 +48,7 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
           </span>
         </div>
 
-        <div className={styles.commandStrip ?? ''}>
+        <div className={styles.commandStrip ?? ''} tabIndex={0} role="group" aria-label="Workspace status indicators">
           {facts.map((fact) => (
             <div key={fact.label} className={styles.commandFact ?? ''}>
               <span className={styles.commandFactLabel ?? ''}>{fact.label}</span>

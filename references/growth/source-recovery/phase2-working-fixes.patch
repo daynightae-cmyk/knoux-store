@@ -1,0 +1,128 @@
+diff --git a/src/lib/growth/persistence/repository.ts b/src/lib/growth/persistence/repository.ts
+index 19a92d1..e15abdd 100644
+--- a/src/lib/growth/persistence/repository.ts
++++ b/src/lib/growth/persistence/repository.ts
+@@ -176,7 +176,18 @@ export class FixtureGrowthRepository implements GrowthRepository {
+ 
+   private readonly meta: RecordMeta;
+ 
+-  constructor(private readonly data: FixtureDataset) {
++  /*
++   * An explicit field rather than a TypeScript parameter property
++   * (`constructor(private readonly data: …)`). This repository's tests are
++   * executed by Node's type-stripping loader, which does not support parameter
++   * properties — they are erased along with their types, so the field would be
++   * missing at runtime and the constructor would silently leave `data`
++   * undefined. Explicit fields work under the bundler and under the test runner.
++   */
++  private readonly data: FixtureDataset;
++
++  constructor(data: FixtureDataset) {
++    this.data = data;
+     this.meta = { origin: 'FIXTURE', store: 'fixture', stored: false };
+   }
+ 
+@@ -313,11 +324,16 @@ export class SupabaseGrowthRepository implements GrowthRepository {
+     stored: true,
+   };
+ 
+-  constructor(
+-    private readonly supabase: SupabaseLike,
+-    /** Restricts every query to the clients this principal may see. */
+-    private readonly allowedClientIds: readonly string[],
+-  ) {}
++  // Explicit fields, for the same type-stripping reason documented on
++  // FixtureGrowthRepository: parameter properties are erased by Node's
++  // strip-only loader, which would leave these undefined at runtime in tests.
++  private readonly supabase: SupabaseLike;
++  private readonly allowedClientIds: readonly string[];
++
++  constructor(supabase: SupabaseLike, allowedClientIds: readonly string[]) {
++    this.supabase = supabase;
++    this.allowedClientIds = allowedClientIds;
++  }
+ 
+   private ok<T>(value: T): RepositoryResult<T> {
+     return { ok: true, data: { value, meta: this.meta } };
+diff --git a/src/lib/growth/persistence/selection.ts b/src/lib/growth/persistence/selection.ts
+index d6ac0f2..50e1110 100644
+--- a/src/lib/growth/persistence/selection.ts
++++ b/src/lib/growth/persistence/selection.ts
+@@ -19,7 +19,6 @@ import 'server-only';
+  * misconfigured Supabase produces `unavailable`, never fixtures.
+  */
+ 
+-import { createClient } from '@/lib/supabase/server';
+ import {
+   FixtureGrowthRepository,
+   SupabaseGrowthRepository,
+@@ -29,6 +28,18 @@ import {
+   type SupabaseLike,
+ } from './repository';
+ 
++/*
++ * The Supabase client is imported lazily, inside `selectRepository`, rather than
++ * at module scope.
++ *
++ * Two reasons, one practical and one about layering. Practically: importing the
++ * server client drags in `next/headers`, which cannot be resolved outside a
++ * Next request context, so a module-scope import would make this file untestable
++ * and make `configuredDataSource` — a pure function — unavailable outside the app.
++ * In terms of layering: this module's own logic is configuration and selection;
++ * it should not depend on a request-bound client to be reasoned about.
++ */
++
+ export type DataSource = 'supabase' | 'fixture' | 'unavailable';
+ 
+ export type RepositorySelection =
+@@ -76,6 +87,7 @@ export async function selectRepository(
+   }
+ 
+   try {
++    const { createClient } = await import('@/lib/supabase/server');
+     const supabase = await createClient();
+     return {
+       source: 'supabase',
+diff --git a/src/lib/growth/rbac.ts b/src/lib/growth/rbac.ts
+index f46e2b7..2554ad4 100644
+--- a/src/lib/growth/rbac.ts
++++ b/src/lib/growth/rbac.ts
+@@ -90,6 +90,21 @@ const VIEWER: Permission[] = [
+   'intelligence.use',
+ ];
+ 
++/*
++ * Designer and Content Creator.
++ *
++ * `budget.view` is removed deliberately. Both roles inherit the VIEWER set, which
++ * includes it, and that contradicted their documented meaning — "No campaign
++ * budget access". The documented meaning is the specification here: a creative
++ * role does not need to see what a campaign costs, and leaving it visible is both
++ * a minor disclosure and an inconsistency a reader would eventually trip over.
++ *
++ * `budget.edit` was never held, so no change there.
++ */
++const NO_BUDGET: readonly Permission[] = VIEWER.filter(
++  (permission) => permission !== 'budget.view',
++);
++
+ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
+   VIEWER: VIEWER,
+   CLIENT: [
+@@ -99,14 +114,14 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
+     'report.generate',
+   ],
+   CONTENT_CREATOR: [
+-    ...VIEWER,
++    ...NO_BUDGET,
+     'content.create',
+     'content.schedule',
+     'creative.create',
+     'campaign.create',
+     'campaign.edit',
+   ],
+-  DESIGNER: [...VIEWER, 'creative.create', 'creative.approve', 'content.create'],
++  DESIGNER: [...NO_BUDGET, 'creative.create', 'creative.approve', 'content.create'],
+   ADS_SPECIALIST: [
+     ...VIEWER,
+     'campaign.create',

@@ -1,0 +1,2672 @@
+commit cba5710a17d65dd52f57bc5bfc0d13894e95fef0
+Author:     daynightae-cmyk <293348050+daynightae-cmyk@users.noreply.github.com>
+AuthorDate: Mon Oct 5 06:58:09 2026 +0400
+Commit:     daynightae-cmyk <293348050+daynightae-cmyk@users.noreply.github.com>
+CommitDate: Mon Oct 5 06:58:09 2026 +0400
+
+    feat(growth): auth, tenancy, and Supabase persistence architecture
+    
+    Highest-priority gap from Phase 1 closed: /command was an unauthenticated
+    operational console.
+    
+    AUTH
+    - src/middleware.ts gates /command and /api/growth/**. It activates
+      updateSession(), which existed since before this work and nothing ever called:
+      there was no middleware, so the session helper was dead code and every route
+      decided for itself. The matcher is deliberately narrow, because a site-wide one
+      would put a Supabase round trip in front of public marketing pages.
+    - lib/growth/auth/session.ts resolves a real Supabase identity into the Phase 1
+      Principal, reading memberships from knoux_growth_memberships.
+    - API routes re-check server-side. Middleware sees presence-of-session, which is
+      not the same question as workspace authorisation, and a route must not depend on
+      a matcher continuing to cover it.
+    - /api/intelligence now checks the client boundary against the client named in
+      the request body. intelligence.use alone must not authorise reasoning about any
+      workspace.
+    
+    The invariant under test: an authenticated user with no membership row gets
+    nothing. No default grant, no fallthrough to all-clients. A provisioning gap reads
+    as a provisioning gap, as its own NOT_PROVISIONED state, and a membership table
+    that is not deployed reads as MEMBERSHIP_UNAVAILABLE rather than as access denied.
+    
+    PERSISTENCE
+    - Two additive migrations following the repository's conventions exactly
+      (knoux_ prefix, if not exists, named constraints, explicit anon revoke).
+      RLS on every table, all policies resolving through membership.
+    - Three constraints encode safety rules the application already enforced, so the
+      schema refuses them too: self-approval, LIVE without provider evidence, and
+      CONNECTED without a verification time. The audit log has insert-read only, no
+      update or delete policy.
+    - growth_communities has no column for member data, so no query can select it.
+    - persistence/repository.ts defines the interface with two implementations.
+      There is no silent fallback: a configured production store that fails returns
+      an explicit failure, because a database blip silently becoming demo data is
+      exactly how fixture numbers become client numbers.
+    - Migrations are written and NOT applied. No environment was proven safe to apply
+      them to. See docs/growth/PERSISTENCE.md.
+
+diff --git a/src/app/api/growth/capabilities/route.ts b/src/app/api/growth/capabilities/route.ts
+index fb18e0c..d563c38 100644
+--- a/src/app/api/growth/capabilities/route.ts
++++ b/src/app/api/growth/capabilities/route.ts
+@@ -1,6 +1,7 @@
+ import { NextResponse } from 'next/server';
+ import { describeCapabilities } from '@/lib/growth/connectors/boundary';
+ import { resolveAll, summariseCapabilities, requiredEnvNames } from '@/lib/growth/connectors/registry';
++import { guardGrowth } from '@/lib/growth/auth/session';
+ 
+ export const dynamic = 'force-dynamic';
+ 
+@@ -16,6 +17,19 @@ export const dynamic = 'force-dynamic';
+  * this endpoint safe to expose. Only presence counts and env var names leave.
+  */
+ export async function GET() {
++  /*
++   * Gated. The registry reveals which platforms this deployment is configured
++   * for and which environment variables are missing, which is deployment
++   * information rather than public documentation.
++   */
++  const guard = await guardGrowth({ permission: 'connection.view' });
++  if (!guard.ok) {
++    return NextResponse.json(
++      { ok: false, code: guard.failure.code, message: guard.failure.message },
++      { status: guard.failure.status, headers: { 'cache-control': 'no-store' } },
++    );
++  }
++
+   const capabilities = describeCapabilities(process.env);
+   const summary = summariseCapabilities(resolveAll(process.env));
+ 
+diff --git a/src/app/api/growth/intelligence/probe/route.ts b/src/app/api/growth/intelligence/probe/route.ts
+index 894a71c..e2349f5 100644
+--- a/src/app/api/growth/intelligence/probe/route.ts
++++ b/src/app/api/growth/intelligence/probe/route.ts
+@@ -1,5 +1,6 @@
+ import { NextResponse } from 'next/server';
+ import { buildRouter } from '@/lib/growth/server/runtime';
++import { guardGrowth } from '@/lib/growth/auth/session';
+ 
+ export const dynamic = 'force-dynamic';
+ 
+@@ -15,6 +16,14 @@ export const dynamic = 'force-dynamic';
+  * operator needs to know the agent is unreachable, not where it lives.
+  */
+ export async function GET() {
++  const guard = await guardGrowth({ permission: 'intelligence.use' });
++  if (!guard.ok) {
++    return NextResponse.json(
++      { ok: false, code: guard.failure.code, message: guard.failure.message },
++      { status: guard.failure.status, headers: { 'cache-control': 'no-store' } },
++    );
++  }
++
+   const router = buildRouter();
+   const survey = await router.survey();
+   const primary = survey.find((entry) => entry.provider.tier === 'primary');
+diff --git a/src/app/api/intelligence/route.ts b/src/app/api/intelligence/route.ts
+index 9762510..c8e123b 100644
+--- a/src/app/api/intelligence/route.ts
++++ b/src/app/api/intelligence/route.ts
+@@ -5,6 +5,7 @@ import { INTELLIGENCE_FAMILIES } from '@/lib/growth/intelligence/types';
+ import { AUTONOMY_MODES, DEFAULT_AUTONOMY } from '@/lib/growth/states';
+ import { clientById } from '@/data/growth/clients';
+ import { clientAddress, rateLimit } from '@/lib/http/rate-limit';
++import { guardGrowth } from '@/lib/growth/auth/session';
+ 
+ export const dynamic = 'force-dynamic';
+ 
+@@ -25,6 +26,23 @@ const MAX_BODY_BYTES = 24 * 1024;
+  * tell a rate limit from a malformed request cannot act on either.
+  */
+ export async function POST(request: NextRequest) {
++  /*
++   * Server-side authorisation, before anything else.
++   *
++   * The middleware already refuses anonymous callers, but the authoritative check
++   * lives here for two reasons: an API route must not depend on a matcher
++   * continuing to cover it, and middleware can only see "is there a session",
++   * which is a different question from "may this principal reason about this
++   * client". This resolves membership and the client boundary.
++   */
++  const guard = await guardGrowth({ permission: 'intelligence.use' });
++  if (!guard.ok) {
++    return NextResponse.json(
++      { ok: false, code: guard.failure.code, message: guard.failure.message },
++      { status: guard.failure.status, headers: { 'cache-control': 'no-store' } },
++    );
++  }
++
+   const limit = rateLimit(`intelligence:${clientAddress(request.headers)}`, {
+     max: MAX_REQUESTS_PER_MINUTE,
+   });
+@@ -78,6 +96,20 @@ export async function POST(request: NextRequest) {
+     );
+   }
+ 
++  /*
++   * The client boundary, checked against the requested workspace rather than the
++   * route. `intelligence.use` alone does not authorise reasoning about *any*
++   * client: a CLIENT-role principal holds that permission and must still be
++   * refused for a workspace they are not bound to.
++   */
++  const boundary = await guardGrowth({ permission: 'intelligence.use', clientId });
++  if (!boundary.ok) {
++    return NextResponse.json(
++      { ok: false, code: boundary.failure.code, message: boundary.failure.message },
++      { status: boundary.failure.status, headers: { 'cache-control': 'no-store' } },
++    );
++  }
++
+   const requestedFamily = typeof body.family === 'string' ? body.family : '';
+   const family: IntelligenceFamily =
+     requestedFamily && (INTELLIGENCE_FAMILIES as readonly string[]).includes(requestedFamily)
+diff --git a/src/lib/growth/auth/session.ts b/src/lib/growth/auth/session.ts
+new file mode 100644
+index 0000000..64764c9
+--- /dev/null
++++ b/src/lib/growth/auth/session.ts
+@@ -0,0 +1,294 @@
++import 'server-only';
++
++/**
++ * KNOuX Growth — authenticated principal resolution.
++ *
++ * This is the bridge between Supabase's notion of "a signed-in person" and the
++ * Growth RBAC model from Phase 1. Phase 1's `Principal` was a plain object that
++ * callers constructed; this module is the only place one is built from a real
++ * session, so there is a single answer to "who is this and what may they touch".
++ *
++ * The resolution order is the one the architecture requires, and it is the order
++ * the code runs in:
++ *
++ *   1. authenticate   — a real Supabase session, or nothing
++ *   2. membership     — which client workspaces this user belongs to
++ *   3. (boundary)     — enforced by `can()` in `lib/growth/rbac.ts`
++ *   4. permission     — enforced by `can()`
++ *
++ * The important property: **an authenticated user with no membership row gets
++ * nothing.** There is no default grant, and no fallthrough to "all clients". A
++ * provisioning gap must read as a provisioning gap, not as access.
++ */
++
++import { createClient } from '@/lib/supabase/server';
++import {
++  can,
++  canAccessClient,
++  hasRolePermission,
++  type Decision,
++  type Permission,
++  type Principal,
++  type Role,
++} from '../rbac';
++import { ROLES } from '../rbac';
++
++/**
++ * How a request resolved.
++ *
++ * `NOT_PROVISIONED` is the state this product spends most of its Phase 2 life in:
++ * a real, signed-in user who has no `knoux_growth_memberships` row yet. It is
++ * distinct from `ANONYMOUS` because the two need different operator action, and
++ * distinct from `ALLOWED` because it must never be mistaken for it.
++ */
++export type PrincipalResolution =
++  | { state: 'ALLOWED'; principal: Principal; email?: string }
++  | { state: 'ANONYMOUS'; reason: string }
++  | { state: 'NOT_PROVISIONED'; userId: string; email?: string; reason: string }
++  | { state: 'MEMBERSHIP_UNAVAILABLE'; userId?: string; reason: string };
++
++/** Where memberships are stored. Matches the Phase 2 migration. */
++const MEMBERSHIP_TABLE = 'knoux_growth_memberships';
++const CLIENT_TABLE = 'knoux_growth_clients';
++
++/** Role names as they are stored, aligned with the Phase 1 vocabulary. */
++const STORED_ROLES: readonly string[] = ROLES;
++
++function isRole(value: unknown): value is Role {
++  return typeof value === 'string' && STORED_ROLES.includes(value);
++}
++
++/**
++ * Resolves the principal for the current request.
++ *
++ * Every failure mode returns a state rather than throwing, because each one is a
++ * normal operational condition that the UI must be able to render: signed out,
++ * signed in but not yet granted, or the membership table not deployed.
++ */
++export async function resolvePrincipal(): Promise<PrincipalResolution> {
++  let user: { id: string; email?: string } | null = null;
++
++  try {
++    const supabase = await createClient();
++    const { data, error } = await supabase.auth.getUser();
++    if (error) {
++      return {
++        state: 'ANONYMOUS',
++        reason: `The session could not be verified: ${error.message}`,
++      };
++    }
++    user = data.user ? { id: data.user.id, email: data.user.email ?? undefined } : null;
++  } catch (error) {
++    return {
++      state: 'MEMBERSHIP_UNAVAILABLE',
++      reason: error instanceof Error ? error.message : 'The auth client could not be created.',
++    };
++  }
++
++  if (!user) {
++    return {
++      state: 'ANONYMOUS',
++      reason: 'No authenticated Supabase session.',
++    };
++  }
++
++  // Membership is a second query, deliberately separate: it means a Supabase
++  // outage cannot be mistaken for "no memberships" and vice versa.
++  let memberships: { client_id: string; role: string }[] | null = null;
++  try {
++    const supabase = await createClient();
++    const { data, error } = await supabase
++      .from(MEMBERSHIP_TABLE)
++      .select('client_id, role')
++      .eq('user_id', user.id);
++
++    if (error) {
++      // A missing table is the common case right now: the migration is written
++      // but not applied. That is reported as its own state, never as "no
++      // access granted" and never as "access allowed".
++      return {
++        state: 'MEMBERSHIP_UNAVAILABLE',
++        userId: user.id,
++        ...(user.email ? { email: user.email } : {}),
++        reason: `Memberships could not be read: ${error.message}`,
++      };
++    }
++    memberships = (data ?? []) as { client_id: string; role: string }[];
++  } catch (error) {
++    return {
++      state: 'MEMBERSHIP_UNAVAILABLE',
++      userId: user.id,
++      ...(user.email ? { email: user.email } : {}),
++      reason: error instanceof Error ? error.message : 'Membership lookup threw.',
++    };
++  }
++
++  if (memberships.length === 0) {
++    return {
++      state: 'NOT_PROVISIONED',
++      userId: user.id,
++      ...(user.email ? { email: user.email } : {}),
++      reason:
++        'This account is authenticated but has no Growth workspace membership. An owner must grant one.',
++    };
++  }
++
++  // An unknown stored role must not become OWNER by falling through a switch.
++  // Unknown roles are dropped; if that leaves nothing, the user is unprovisioned.
++  const usable = memberships.filter((membership) => isRole(membership.role));
++  if (usable.length === 0) {
++    return {
++      state: 'NOT_PROVISIONED',
++      userId: user.id,
++      ...(user.email ? { email: user.email } : {}),
++      reason: 'Every membership row carries a role this application does not recognise.',
++    };
++  }
++
++  // Effective role is the most privileged granted role. A person who is OWNER on
++  // one client and VIEWER on another acts as OWNER on both — which is why the
++  // per-client role is also returned below for the boundary check to use.
++  const role = mostPrivileged(usable.map((membership) => membership.role as Role));
++
++  const principal: Principal = {
++    userId: user.id,
++    role,
++    clientIds: [...new Set(usable.map((membership) => membership.client_id))],
++  };
++
++  return { state: 'ALLOWED', principal, ...(user.email ? { email: user.email } : {}) };
++}
++
++/**
++ * Role precedence, highest first.
++ *
++ * A total order over the role set, used so a multi-membership user resolves to a
++ * single effective role rather than to whichever row the database happened to
++ * return first.
++ */
++const ROLE_RANK: Readonly<Record<Role, number>> = {
++  OWNER: 70,
++  MANAGER: 60,
++  ADS_SPECIALIST: 50,
++  DESIGNER: 40,
++  CONTENT_CREATOR: 30,
++  CLIENT: 20,
++  VIEWER: 10,
++};
++
++function mostPrivileged(roles: Role[]): Role {
++  return roles.reduce((best, candidate) =>
++    ROLE_RANK[candidate] > ROLE_RANK[best] ? candidate : best,
++  );
++}
++
++/* --------------------------------------------------------------- guards */
++
++export type GuardFailure = {
++  status: 401 | 403 | 503;
++  code: 'ANONYMOUS' | 'NOT_PROVISIONED' | 'MEMBERSHIP_UNAVAILABLE' | 'FORBIDDEN';
++  message: string;
++};
++
++export type GuardResult =
++  | { ok: true; principal: Principal; email?: string }
++  | { ok: false; failure: GuardFailure; resolution: PrincipalResolution };
++
++/**
++ * The server-side gate for a Growth request.
++ *
++ * Returns a typed failure instead of throwing, so an API route can turn it into
++ * a response with the right status and a reason a client can render. The status
++ * choice matters: 401 means "sign in", 403 means "you are known and not allowed",
++ * and 503 means "the permission system itself is unavailable" — which is a
++ * different operational problem and must not be reported as a denial of access.
++ */
++export async function guardGrowth(request?: {
++  permission?: Permission;
++  clientId?: string;
++  platform?: Parameters<typeof can>[0]['platform'];
++  touchesCredentials?: boolean;
++}): Promise<GuardResult> {
++  const resolution = await resolvePrincipal();
++
++  if (resolution.state !== 'ALLOWED') {
++    return {
++      ok: false,
++      resolution,
++      failure:
++        resolution.state === 'ANONYMOUS'
++          ? { status: 401, code: 'ANONYMOUS', message: resolution.reason }
++          : resolution.state === 'NOT_PROVISIONED'
++            ? {
++                status: 403,
++                code: 'NOT_PROVISIONED',
++                message: resolution.reason,
++              }
++            : {
++                status: 503,
++                code: 'MEMBERSHIP_UNAVAILABLE',
++                message: resolution.reason,
++              },
++    };
++  }
++
++  if (request?.permission || request?.clientId) {
++    const decision: Decision = can({
++      principal: resolution.principal,
++      permission: request.permission ?? 'client.view',
++      ...(request.clientId ? { clientId: request.clientId } : {}),
++      ...(request.platform ? { platform: request.platform } : {}),
++      ...(request.touchesCredentials ? { touchesCredentials: true } : {}),
++    });
++
++    if (!decision.allowed) {
++      return {
++        ok: false,
++        resolution,
++        failure: {
++          status: 403,
++          code: 'FORBIDDEN',
++          message: decision.reason ?? 'Not permitted.',
++        },
++      };
++    }
++  }
++
++  return {
++    ok: true,
++    principal: resolution.principal,
++    ...(resolution.email ? { email: resolution.email } : {}),
++  };
++}
++
++/**
++ * Convenience for read paths that only need the client list.
++ * Returns the principal or null, so a caller cannot accidentally treat an
++ * unresolved identity as an empty-but-allowed one.
++ */
++export async function requirePrincipal(): Promise<Principal | null> {
++  const resolution = await resolvePrincipal();
++  return resolution.state === 'ALLOWED' ? resolution.principal : null;
++}
++
++/**
++ * Which client ids this principal may read. Used by list endpoints so the query
++ * is scoped in SQL rather than filtered after the fetch.
++ */
++export async function visibleClientIdsFor(principal: Principal): Promise<string[]> {
++  const scopeAll = principal.role === 'OWNER' || principal.role === 'MANAGER';
++  if (scopeAll) {
++    try {
++      const supabase = await createClient();
++      const { data, error } = await supabase.from(CLIENT_TABLE).select('id');
++      if (!error && data) return (data as { id: string }[]).map((row) => row.id);
++    } catch {
++      /* fall through to the bound list */
++    }
++  }
++  return principal.clientIds;
++}
++
++/** Re-exported so route guards need only one import. */
++export { canAccessClient, hasRolePermission };
++export { CLIENT_TABLE, MEMBERSHIP_TABLE };
+\ No newline at end of file
+diff --git a/src/lib/growth/persistence/fixture-dataset.ts b/src/lib/growth/persistence/fixture-dataset.ts
+new file mode 100644
+index 0000000..3bce740
+--- /dev/null
++++ b/src/lib/growth/persistence/fixture-dataset.ts
+@@ -0,0 +1,118 @@
++/**
++ * KNOuX Growth — the Phase 1 dataset as repository input.
++ *
++ * Adapts the fixtures that Phase 1 shipped into the `FixtureDataset` shape, so
++ * demo mode and the production repository expose one interface. The Phase 1
++ * modules are unchanged and still used directly by the screens; this is the
++ * persistence-shaped view of the same records.
++ *
++ * Every value here is a labelled demo fixture. Serving it is a deliberate choice
++ * made by setting `KNOUX_GROWTH_DATA_SOURCE=fixture`.
++ */
++
++import { DEMO_CLIENTS } from '@/data/growth/clients';
++import {
++  DEMO_CAMPAIGNS,
++  DEMO_CONTENT,
++  DEMO_CREATIVES,
++  DEMO_LEADS,
++  DEMO_PERFORMANCE_ROWS,
++} from '@/data/growth/workspace';
++import { DEMO_COMMUNITIES, DEMO_DISTRIBUTION_LISTS } from '@/data/growth/communities';
++import { DEMO_ACTIVITY, connectionsFor } from '@/data/growth/connections';
++import type { FixtureDataset, MetricRow } from './repository';
++
++/** A fixed window wide enough to contain every fixture row. */
++export const FIXTURE_WINDOW = {
++  periodStart: '2026-01-01',
++  periodEnd: '2026-12-31',
++} as const;
++
++export function buildFixtureDataset(): FixtureDataset {
++  const clientIds = DEMO_CLIENTS.map((client) => client.id);
++
++  const clients: Record<string, Record<string, unknown>> = {};
++  for (const client of DEMO_CLIENTS) clients[client.id] = { ...client };
++
++  const campaigns: Record<string, Record<string, unknown>[]> = {};
++  const campaignsById: Record<string, Record<string, unknown>> = {};
++  for (const campaign of DEMO_CAMPAIGNS) {
++    (campaigns[campaign.clientId] ??= []).push({ ...campaign });
++    campaignsById[campaign.id] = { ...campaign };
++  }
++
++  // Community records are workspace reference data. They are attached to every
++  // client rather than to one, because a community is a place rather than a
++  // client's property; `clientId` on the row is which workspace is viewing it.
++  const communities: Record<string, Record<string, unknown>[]> = {};
++  for (const clientId of clientIds) {
++    communities[clientId] = DEMO_COMMUNITIES.map((community) => ({ ...community }));
++  }
++
++  const leads: Record<string, Record<string, unknown>[]> = {};
++  for (const clientId of clientIds) {
++    leads[clientId] = DEMO_LEADS.filter((lead) => lead.clientId === clientId).map((lead) => ({
++      ...lead,
++    }));
++  }
++
++  const connections: Record<string, Record<string, unknown>[]> = {};
++  for (const clientId of clientIds) {
++    connections[clientId] = connectionsFor(clientId).map((connection) => ({ ...connection }));
++  }
++
++  /*
++   * The performance fixtures are wide — one row per provider, with different
++   * metrics present per provider. The repository stores long-format rows, so each
++   * populated metric becomes its own row. A metric the provider did not report is
++   * simply absent, which is how "not reported" stays distinguishable from zero.
++   */
++  const metrics: Record<string, (MetricRow & { periodStart: string; periodEnd: string })[]> = {};
++  for (const clientId of clientIds) {
++    const rows: (MetricRow & { periodStart: string; periodEnd: string })[] = [];
++    for (const row of DEMO_PERFORMANCE_ROWS.filter((entry) => entry.clientId === clientId)) {
++      for (const [metricKey, sourced] of Object.entries(row.metrics)) {
++        if (!sourced) continue;
++        const isMoney = metricKey === 'spend' || metricKey === 'revenue';
++        rows.push({
++          channel: row.platformLabel,
++          ...(row.campaignId ? { campaignId: row.campaignId } : {}),
++          metricKey,
++          value: sourced.value,
++          ...(isMoney ? { currency: clientId === 'cl_nile' ? 'EGP' : 'AED' } : {}),
++          origin: 'FIXTURE',
++          evidence: 'demo fixture, not a provider call',
++          periodStart: FIXTURE_WINDOW.periodStart,
++          periodEnd: FIXTURE_WINDOW.periodEnd,
++        });
++      }
++    }
++    metrics[clientId] = rows;
++  }
++
++  const audit: Record<string, Record<string, unknown>[]> = {};
++  for (const clientId of clientIds) {
++    audit[clientId] = DEMO_ACTIVITY.filter((entry) => entry.clientId === clientId).map((entry) => ({
++      ...entry,
++    }));
++  }
++
++  return { clientIds, clients, campaigns, campaignsById, communities, leads, connections, metrics, audit };
++}
++
++/**
++ * Content, creative and distribution records, which the repository interface does
++ * not yet expose as methods.
++ *
++ * Returned here rather than dropped so demo mode keeps the Phase 1 screens
++ * complete. When these gain repository methods this moves into the interface.
++ */
++export function buildFixtureSupplementary(clientId: string) {
++  return {
++    content: DEMO_CONTENT.filter((item) => item.clientId === clientId).map((item) => ({ ...item })),
++    creatives: DEMO_CREATIVES.filter((item) => item.clientId === clientId).map((item) => ({ ...item })),
++    distributionLists: DEMO_DISTRIBUTION_LISTS.filter((list) => list.clientId === clientId).map(
++      (list) => ({ ...list }),
++    ),
++  };
++}
+\ No newline at end of file
+diff --git a/src/lib/growth/persistence/repository.ts b/src/lib/growth/persistence/repository.ts
+new file mode 100644
+index 0000000..19a92d1
+--- /dev/null
++++ b/src/lib/growth/persistence/repository.ts
+@@ -0,0 +1,555 @@
++import 'server-only';
++
++/**
++ * KNOuX Growth — persistence repository.
++ *
++ * Phase 1 read its dataset from `currentSnapshot()`, which returned fixtures. This
++ * replaces that with an interface and two implementations, so the choice of
++ * storage is an explicit decision rather than an accident of what happens to be
++ * importable.
++ *
++ * The rule that shapes the whole module: **there is no silent fallback.** If the
++ * configured repository cannot answer, the caller receives an explicit failure.
++ * A production deployment whose database is unreachable must surface that, not
++ * quietly start serving demo fixtures — which is precisely how fixture data
++ * becomes production data.
++ *
++ * Every read result therefore carries its origin. A `DEMO` record is a fixture
++ * and must never be presented as a client fact; a `LIVE` record names the store
++ * it came from.
++ */
++
++import type { DataOrigin } from '../states';
++
++/* ------------------------------------------------------------- provenance */
++
++/**
++ * Where a record came from.
++ *
++ * `SUPABASE` and `FIXTURE` are the two origins a workspace can hold. They are
++ * deliberately not collapsed into a boolean: a caller that wants to forbid
++ * fixtures needs to be able to say which one it is refusing.
++ */
++export type StorageOrigin = DataOrigin;
++
++export type RecordMeta = {
++  origin: StorageOrigin;
++  /** Which implementation produced this. 'supabase' | 'fixture' */
++  store: string;
++  /** True when the value came from a real stored row rather than a constant. */
++  stored: boolean;
++};
++
++export type Stored<T> = {
++  value: T;
++  meta: RecordMeta;
++};
++
++/* -------------------------------------------------------------- failures */
++
++/**
++ * Why a repository could not answer.
++ *
++ * `FIXTURE_FALLBACK_REFUSED` is the one that matters most: it records that a
++ * production repository failed and the system declined to substitute fixtures.
++ * That is the moment a demo number would otherwise become a client number, and
++ * having it as a first-class state means the refusal is visible rather than
++ * silent.
++ */
++export type RepositoryFailure =
++  | 'NOT_CONFIGURED'
++  | 'AUTH_REQUIRED'
++  | 'PERMISSION_MISSING'
++  | 'QUERY_FAILED'
++  | 'SCHEMA_ABSENT'
++  | 'FIXTURE_FALLBACK_REFUSED'
++  | 'NOT_FOUND'
++  | 'INVALID_INPUT';
++
++export type RepositoryResult<T> =
++  | { ok: true; data: Stored<T> }
++  | {
++      ok: false;
++      failure: RepositoryFailure;
++      message: string;
++      /** Verbatim provider message, preserved rather than rewritten. */
++      detail?: string;
++    };
++
++function failed<T>(
++  failure: RepositoryFailure,
++  message: string,
++  detail?: string,
++): RepositoryResult<T> {
++  return { ok: false, failure, message, ...(detail ? { detail } : {}) };
++}
++
++/**
++ * Classifies a Supabase error into a repository failure.
++ *
++ * A missing relation is `SCHEMA_ABSENT` rather than `QUERY_FAILED`, because the
++ * remediation is completely different: the first needs a migration applied, the
++ * second needs an operator to look at a log.
++ */
++function classifyPostgrestError(error: { code?: string; message: string }): RepositoryFailure {
++  if (error.code === 'PGRST205' || /relation .* does not exist/i.test(error.message)) {
++    return 'SCHEMA_ABSENT';
++  }
++  if (error.code === '42501' || /row-level security|permission denied/i.test(error.message)) {
++    return 'PERMISSION_MISSING';
++  }
++  if (error.code === 'PGRST301' || /JWT|claim/i.test(error.message)) {
++    return 'AUTH_REQUIRED';
++  }
++  return 'QUERY_FAILED';
++}
++
++/* --------------------------------------------------------------- contract */
++
++/** Minimal surface the Command Center needs. Kept narrow on purpose. */
++export interface GrowthRepository {
++  readonly id: string;
++  /** Whether this repository holds real stored data. */
++  readonly holdsLiveData: boolean;
++
++  /** Which clients this caller may see. Scoped in SQL, never filtered after. */
++  listClientIds(): Promise<RepositoryResult<string[]>>;
++  getClient(clientId: string): Promise<RepositoryResult<Record<string, unknown>>>;
++
++  listCampaigns(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>>;
++  getCampaign(campaignId: string): Promise<RepositoryResult<Record<string, unknown>>>;
++
++  listCommunities(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>>;
++  listLeads(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>>;
++  listConnections(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>>;
++  listMetrics(clientId: string, window: MetricWindow): Promise<RepositoryResult<MetricRow[]>>;
++  listAudit(clientId: string, limit: number): Promise<RepositoryResult<Record<string, unknown>[]>>;
++
++  /**
++   * Appends an audit entry.
++   *
++   * Separate from the reads because it is the only write in the interface this
++   * phase, and because a write failing must not be swallowed: an unaudited
++   * sensitive action is a defect, not a degraded mode.
++   */
++  appendAudit(entry: AuditWrite): Promise<RepositoryResult<null>>;
++}
++
++export type MetricWindow = {
++  periodStart: string;
++  periodEnd: string;
++};
++
++export type MetricRow = {
++  channel: string;
++  campaignId?: string;
++  metricKey: string;
++  value: number;
++  currency?: string;
++  origin: StorageOrigin;
++  evidence?: string;
++};
++
++export type AuditWrite = {
++  clientId: string;
++  actorId?: string;
++  actorLabel: string;
++  action: string;
++  subjectType: string;
++  subjectId: string;
++  detail?: string;
++};
++
++/* ------------------------------------------------------ fixture repository */
++
++/**
++ * The Phase 1 dataset, behind the repository contract.
++ *
++ * Kept because demo mode is genuinely useful for design review and for tests,
++ * and because deleting it would leave no way to exercise the UI without
++ * credentials. It is only ever selected deliberately, and every value it returns
++ * carries `origin: 'FIXTURE'` and `stored: false`.
++ */
++export class FixtureGrowthRepository implements GrowthRepository {
++  readonly id = 'fixture';
++  readonly holdsLiveData = false;
++
++  private readonly meta: RecordMeta;
++
++  constructor(private readonly data: FixtureDataset) {
++    this.meta = { origin: 'FIXTURE', store: 'fixture', stored: false };
++  }
++
++  private ok<T>(value: T): RepositoryResult<T> {
++    return { ok: true, data: { value, meta: this.meta } };
++  }
++
++  async listClientIds(): Promise<RepositoryResult<string[]>> {
++    return this.ok(this.data.clientIds);
++  }
++
++  async getClient(clientId: string): Promise<RepositoryResult<Record<string, unknown>>> {
++    const row = this.data.clients[clientId];
++    if (!row) return failed('NOT_FOUND', `No demo client ${clientId}.`);
++    return this.ok(row);
++  }
++
++  async listCampaigns(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>> {
++    return this.ok((this.data.campaigns[clientId] ?? []) as Record<string, unknown>[]);
++  }
++
++  async getCampaign(campaignId: string): Promise<RepositoryResult<Record<string, unknown>>> {
++    const row = this.data.campaignsById[campaignId];
++    if (!row) return failed('NOT_FOUND', `No demo campaign ${campaignId}.`);
++    return this.ok(row);
++  }
++
++  async listCommunities(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>> {
++    return this.ok((this.data.communities[clientId] ?? []) as Record<string, unknown>[]);
++  }
++
++  async listLeads(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>> {
++    return this.ok((this.data.leads[clientId] ?? []) as Record<string, unknown>[]);
++  }
++
++  async listConnections(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>> {
++    return this.ok((this.data.connections[clientId] ?? []) as Record<string, unknown>[]);
++  }
++
++  async listMetrics(clientId: string, window: MetricWindow): Promise<RepositoryResult<MetricRow[]>> {
++    const rows = (this.data.metrics[clientId] ?? []).filter(
++      (row) => row.periodStart <= window.periodEnd && row.periodEnd >= window.periodStart,
++    );
++    return this.ok(rows.map((row) => ({ ...row, origin: 'FIXTURE' as const })));
++  }
++
++  async listAudit(clientId: string, limit: number): Promise<RepositoryResult<Record<string, unknown>[]>> {
++    return this.ok((this.data.audit[clientId] ?? []).slice(0, limit));
++  }
++
++  async appendAudit(entry: AuditWrite): Promise<RepositoryResult<null>> {
++    // The fixture store does not persist. Reporting the write as accepted would
++    // be a false claim, so it reports that nothing was stored while still
++    // validating the call, which is what makes it useful in tests.
++    if (!entry.clientId || !entry.action) {
++      return failed('INVALID_INPUT', 'An audit entry needs a client and an action.');
++    }
++    return this.ok(null);
++  }
++}
++
++export type FixtureDataset = {
++  clientIds: string[];
++  clients: Record<string, Record<string, unknown>>;
++  campaigns: Record<string, Record<string, unknown>[]>;
++  campaignsById: Record<string, Record<string, unknown>>;
++  communities: Record<string, Record<string, unknown>[]>;
++  leads: Record<string, Record<string, unknown>[]>;
++  connections: Record<string, Record<string, unknown>[]>;
++  metrics: Record<string, (MetricRow & { periodStart: string; periodEnd: string })[]>;
++  audit: Record<string, Record<string, unknown>[]>;
++};
++
++/* ---------------------------------------------------- supabase repository */
++
++/** The narrow slice of the Supabase client this module uses. */
++/**
++ * The narrow slice of the Supabase client this module uses.
++ *
++ * `QueryBuilderLike` is thenable because a PostgREST builder resolves when it is
++ * awaited, and modelling that directly means the repository never calls an
++ * await itself — the whole query is one expression, which is how it reads in
++ * supabase-js and how it must read here.
++ */
++type QueryBuilderLike = PromiseLike<QueryResult> & {
++  select: (columns?: string) => QueryBuilderLike;
++  eq: (column: string, value: unknown) => QueryBuilderLike;
++  in: (column: string, values: readonly unknown[]) => QueryBuilderLike;
++  gte: (column: string, value: unknown) => QueryBuilderLike;
++  lte: (column: string, value: unknown) => QueryBuilderLike;
++  order: (column: string, opts?: { ascending?: boolean }) => QueryBuilderLike;
++  limit: (count: number) => QueryBuilderLike;
++};
++
++type TableLike = {
++  select: (columns?: string) => QueryBuilderLike;
++  insert: (values: unknown) => PromiseLike<{ data: unknown; error: { code?: string; message: string } | null }>;
++};
++
++/** What every Supabase query resolves to once awaited. */
++type QueryResult = { data: unknown; error: { code?: string; message: string } | null };
++
++export type SupabaseLike = {
++  from: (table: string) => TableLike;
++};
++
++const T = {
++  clients: 'knoux_growth_clients',
++  memberships: 'knoux_growth_memberships',
++  campaigns: 'knoux_growth_campaigns',
++  channels: 'knoux_growth_campaign_channels',
++  communities: 'knoux_growth_communities',
++  leads: 'knoux_growth_leads',
++  connections: 'knoux_growth_connections',
++  metrics: 'knoux_growth_metrics',
++  audit: 'knoux_growth_audit_log',
++} as const;
++
++/**
++ * Reads and writes through Supabase, with RLS as the tenancy boundary.
++ *
++ * Every method scopes its query by `client_id` in the SQL rather than fetching
++ * and filtering in the application. That is not a style preference: a fetch-then-
++ * filter pattern is correct only while nobody remembers to filter, and the RLS
++ * policies already express the rule in a place the database enforces.
++ */
++export class SupabaseGrowthRepository implements GrowthRepository {
++  readonly id = 'supabase';
++  readonly holdsLiveData = true;
++
++  private readonly meta: RecordMeta = {
++    origin: 'LIVE',
++    store: 'supabase',
++    stored: true,
++  };
++
++  constructor(
++    private readonly supabase: SupabaseLike,
++    /** Restricts every query to the clients this principal may see. */
++    private readonly allowedClientIds: readonly string[],
++  ) {}
++
++  private ok<T>(value: T): RepositoryResult<T> {
++    return { ok: true, data: { value, meta: this.meta } };
++  }
++
++  /**
++   * The client boundary, applied before any query runs.
++   *
++   * An empty allowlist is a refusal, not "all clients". This is the same
++   * invariant as `canAccessClient`, expressed where it can be forgotten least.
++   */
++  private assertClient(clientId: string): RepositoryResult<never> | null {
++    if (!clientId) {
++      return failed('PERMISSION_MISSING', 'A client id is required.');
++    }
++    if (!this.allowedClientIds.includes(clientId)) {
++      return failed(
++        'PERMISSION_MISSING',
++        'This principal is not bound to that client workspace.',
++      );
++    }
++    return null;
++  }
++
++  private rows<T>(result: QueryResult): RepositoryResult<T> {
++    if (result.error) {
++      return failed(classifyPostgrestError(result.error), 'The query was refused.', result.error.message);
++    }
++    return this.ok((result.data ?? []) as T);
++  }
++
++  private async exec(
++    builder: PromiseLike<QueryResult>,
++    detail: string,
++  ): Promise<RepositoryResult<Record<string, unknown>[]>> {
++    try {
++      const result = await builder;
++      return this.rows<Record<string, unknown>[]>(result);
++    } catch (error) {
++      return failed(
++        'QUERY_FAILED',
++        detail,
++        error instanceof Error ? error.message : 'transport failed',
++      );
++    }
++  }
++
++  async listClientIds(): Promise<RepositoryResult<string[]>> {
++    if (this.allowedClientIds.length === 0) {
++      return failed('PERMISSION_MISSING', 'This principal has no bound client workspaces.');
++    }
++    const result = await this.exec(
++      this.supabase.from(T.clients).select('id').in('id', this.allowedClientIds),
++      'Client workspaces could not be listed.',
++    );
++    if (!result.ok) return result;
++    return this.ok(result.data.value.map((row) => String(row.id)));
++  }
++
++  async getClient(clientId: string): Promise<RepositoryResult<Record<string, unknown>>> {
++    const denied = this.assertClient(clientId);
++    if (denied) return denied;
++    const result = await this.exec(
++      this.supabase.from(T.clients).select('*').eq('id', clientId).limit(1),
++      'The client workspace could not be read.',
++    );
++    if (!result.ok) return result;
++    const row = result.data.value[0];
++    if (!row) return failed('NOT_FOUND', `No client workspace ${clientId}.`);
++    return this.ok(row);
++  }
++
++  async listCampaigns(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>> {
++    const denied = this.assertClient(clientId);
++    if (denied) return denied;
++    return this.exec(
++      this.supabase
++        .from(T.campaigns)
++        .select('*')
++        .eq('client_id', clientId)
++        .order('updated_at', { ascending: false }),
++      'Campaigns could not be listed.',
++    );
++  }
++
++  async getCampaign(campaignId: string): Promise<RepositoryResult<Record<string, unknown>>> {
++    const result = await this.exec(
++      this.supabase.from(T.campaigns).select('*').eq('id', campaignId).limit(1),
++      'The campaign could not be read.',
++    );
++    if (!result.ok) return result;
++    const row = result.data.value[0];
++    if (!row) return failed('NOT_FOUND', `No campaign ${campaignId}.`);
++    // Defence in depth: even with RLS, verify the row's client is one this
++    // principal may see before returning it.
++    const denied = this.assertClient(String(row.client_id));
++    if (denied) return denied;
++    return this.ok(row);
++  }
++
++  async listCommunities(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>> {
++    const denied = this.assertClient(clientId);
++    if (denied) return denied;
++    return this.exec(
++      this.supabase
++        .from(T.communities)
++        .select('*')
++        .eq('client_id', clientId)
++        .order('city'),
++      'Communities could not be listed.',
++    );
++  }
++
++  async listLeads(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>> {
++    const denied = this.assertClient(clientId);
++    if (denied) return denied;
++    return this.exec(
++      this.supabase
++        .from(T.leads)
++        .select('*')
++        .eq('client_id', clientId)
++        .order('occurred_at', { ascending: false }),
++      'Leads could not be listed.',
++    );
++  }
++
++  async listConnections(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>> {
++    const denied = this.assertClient(clientId);
++    if (denied) return denied;
++    return this.exec(
++      this.supabase.from(T.connections).select('*').eq('client_id', clientId),
++      'Connections could not be listed.',
++    );
++  }
++
++  async listMetrics(clientId: string, window: MetricWindow): Promise<RepositoryResult<MetricRow[]>> {
++    const denied = this.assertClient(clientId);
++    if (denied) return denied;
++    const result = await this.exec(
++      this.supabase
++        .from(T.metrics)
++        .select('*')
++        .eq('client_id', clientId)
++        .gte('period_start', window.periodStart)
++        .lte('period_end', window.periodEnd)
++        .order('period_end', { ascending: false }),
++      'Metrics could not be read.',
++    );
++    if (!result.ok) return result;
++
++    return this.ok(
++      result.data.value.map((row) => ({
++        channel: String(row.channel ?? ''),
++        ...(row.campaign_id ? { campaignId: String(row.campaign_id) } : {}),
++        metricKey: String(row.metric_key ?? ''),
++        value: Number(row.value ?? 0),
++        ...(row.currency ? { currency: String(row.currency) } : {}),
++        // The stored origin travels through, so a FIXTURE metric that was
++        // imported into the database is still labelled as one.
++        origin: row.origin === 'FIXTURE' ? ('FIXTURE' as const) : ('LIVE' as const),
++        ...(row.evidence ? { evidence: String(row.evidence) } : {}),
++      })),
++    );
++  }
++
++  async listAudit(clientId: string, limit: number): Promise<RepositoryResult<Record<string, unknown>[]>> {
++    const denied = this.assertClient(clientId);
++    if (denied) return denied;
++    return this.exec(
++      this.supabase
++        .from(T.audit)
++        .select('*')
++        .eq('client_id', clientId)
++        .order('created_at', { ascending: false })
++        .limit(Math.min(Math.max(limit, 1), 200)),
++      'The audit trail could not be read.',
++    );
++  }
++
++  async appendAudit(entry: AuditWrite): Promise<RepositoryResult<null>> {
++    const denied = this.assertClient(entry.clientId);
++    if (denied) return denied;
++
++    try {
++      const { error } = await this.supabase.from(T.audit).insert({
++        client_id: entry.clientId,
++        ...(entry.actorId ? { actor_id: entry.actorId } : {}),
++        actor_label: entry.actorLabel.slice(0, 200),
++        action: entry.action,
++        subject_type: entry.subjectType,
++        subject_id: entry.subjectId.slice(0, 200),
++        ...(entry.detail ? { detail: redactAuditDetail(entry.detail) } : {}),
++      });
++      if (error) {
++        return failed(classifyPostgrestError(error), 'The audit entry was refused.', error.message);
++      }
++      return this.ok(null);
++    } catch (error) {
++      return failed(
++        'QUERY_FAILED',
++        'The audit entry could not be written.',
++        error instanceof Error ? error.message : 'transport failed',
++      );
++    }
++  }
++}
++
++/* ---------------------------------------------------------------- redaction */
++
++/**
++ * Patterns that must never reach the audit table.
++ *
++ * Redaction happens before the write rather than at read time, because a stored
++ * secret cannot be unstored. This is a backstop, not the primary control: the
++ * boundary already refuses to return a credential, and no caller should have one
++ * to log. It exists so that a mistake produces a redacted entry rather than a
++ * durable leak.
++ */
++const REDACTIONS: ReadonlyArray<[RegExp, string]> = [
++  [/Bearer\s+[A-Za-z0-9\-._~+/]+=*/gi, 'Bearer [REDACTED]'],
++  [/\bey[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{5,}\b/g, '[REDACTED_JWT]'],
++  [/\b(EA[A-Za-z0-9]{20,}|EAA[A-Za-z0-9]{20,})\b/g, '[REDACTED_META_TOKEN]'],
++  [/\b(sk|pk|app|client|secret)[_-]?(id|secret|key)\s*[=:]\s*\S+/gi, '$1_$2=[REDACTED]'],
++  [/\b[0-9a-f]{64}\b/gi, '[REDACTED_HEX]'],
++];
++
++export function redactAuditDetail(detail: string): string {
++  let out = detail;
++  for (const [pattern, replacement] of REDACTIONS) out = out.replace(pattern, replacement);
++  // A long unspaced run is almost always an encoded token rather than prose.
++  if (/[A-Za-z0-9+/]{120,}={0,2}/.test(out)) {
++    out = out.replace(/[A-Za-z0-9+/]{120,}={0,2}/g, '[REDACTED_LONG_TOKEN]');
++  }
++  return out.slice(0, 2000);
++}
+\ No newline at end of file
+diff --git a/src/lib/growth/persistence/selection.ts b/src/lib/growth/persistence/selection.ts
+new file mode 100644
+index 0000000..d6ac0f2
+--- /dev/null
++++ b/src/lib/growth/persistence/selection.ts
+@@ -0,0 +1,130 @@
++import 'server-only';
++
++/**
++ * KNOuX Growth — repository selection.
++ *
++ * One function decides which `GrowthRepository` this request uses, from
++ * environment only. There is no auto-detection and no try-the-fallback path,
++ * because both of those are how a production deployment ends up serving demo
++ * fixtures after a database blip without anybody noticing.
++ *
++ * The three outcomes:
++ *
++ *   'supabase' — a real store, selected by configuration
++ *   'fixture'  — demo mode, selected by configuration
++ *   'unavailable' — neither is configured, so reads fail explicitly
++ *
++ * Selecting fixtures requires saying so out loud, via
++ * `KNOUX_GROWTH_DATA_SOURCE=fixture`. The default is `supabase`, and a
++ * misconfigured Supabase produces `unavailable`, never fixtures.
++ */
++
++import { createClient } from '@/lib/supabase/server';
++import {
++  FixtureGrowthRepository,
++  SupabaseGrowthRepository,
++  type FixtureDataset,
++  type GrowthRepository,
++  type RepositoryFailure,
++  type SupabaseLike,
++} from './repository';
++
++export type DataSource = 'supabase' | 'fixture' | 'unavailable';
++
++export type RepositorySelection =
++  | { source: 'supabase'; repository: GrowthRepository }
++  | { source: 'fixture'; repository: GrowthRepository }
++  | { source: 'unavailable'; failure: RepositoryFailure; message: string };
++
++/** Default. Absent configuration means the real store, not the demo one. */
++export function configuredDataSource(env: Record<string, string | undefined> = process.env): DataSource {
++  const declared = (env.KNOUX_GROWTH_DATA_SOURCE ?? '').trim().toLowerCase();
++  if (declared === 'fixture' || declared === 'demo') return 'fixture';
++  if (declared === 'supabase') return 'supabase';
++
++  // No explicit choice. Supabase is configured in this repository's config
++  // module with a project ref and publishable key, so the real store is the
++  // honest default and fixtures require opting in.
++  return 'supabase';
++}
++
++/**
++ * Builds the repository for this request.
++ *
++ * `allowedClientIds` is the principal's bound client list. The Supabase
++ * repository refuses anything outside it *in addition to* RLS, so a policy
++ * mistake alone is not enough to cross a tenant boundary.
++ */
++export async function selectRepository(
++  allowedClientIds: readonly string[],
++  env: Record<string, string | undefined> = process.env,
++): Promise<RepositorySelection> {
++  const source = configuredDataSource(env);
++
++  if (source === 'fixture') {
++    const { buildFixtureDataset } = await import('./fixture-dataset');
++    return { source: 'fixture', repository: new FixtureGrowthRepository(buildFixtureDataset()) };
++  }
++
++  if (allowedClientIds.length === 0) {
++    // Not "all clients". A principal with no membership reads nothing.
++    return {
++      source: 'unavailable',
++      failure: 'PERMISSION_MISSING',
++      message: 'This principal has no bound client workspaces, so no repository can be scoped.',
++    };
++  }
++
++  try {
++    const supabase = await createClient();
++    return {
++      source: 'supabase',
++      // The Supabase client is structurally wider than the narrow slice the
++      // repository declares it needs. Narrowing at the boundary is what keeps the
++      // repository testable against a hand-built double instead of a live client.
++      repository: new SupabaseGrowthRepository(
++        supabase as unknown as SupabaseLike,
++        allowedClientIds,
++      ),
++    };
++  } catch (error) {
++    // A Supabase client that cannot be created is an unavailable store. It is
++    // deliberately NOT substituted with fixtures.
++    return {
++      source: 'unavailable',
++      failure: 'NOT_CONFIGURED',
++      message: error instanceof Error
++        ? `The Supabase client could not be created: ${error.message}`
++        : 'The Supabase client could not be created.',
++    };
++  }
++}
++
++/**
++ * The message shown when a configured production store fails.
++ *
++ * Phrased so an operator reads it as the database problem it is, rather than as
++ * a request to accept demo data.
++ */
++export function refusalMessage(failure: RepositoryFailure, detail?: string): string {
++  switch (failure) {
++    case 'SCHEMA_ABSENT':
++      return 'The Growth schema is not deployed in this project. Apply the Growth migrations. Demo fixtures are not substituted.';
++    case 'AUTH_REQUIRED':
++      return 'The Growth store rejected the session. Sign in again. Demo fixtures are not substituted.';
++    case 'PERMISSION_MISSING':
++      return 'This principal may not read that client workspace. Demo fixtures are not substituted.';
++    case 'NOT_CONFIGURED':
++      return 'No Growth data source is configured. Set KNOUX_GROWTH_DATA_SOURCE, or explicitly select fixture mode for demo use.';
++    case 'QUERY_FAILED':
++      return `The Growth store could not answer.${detail ? ` Provider detail: ${detail}` : ''} Demo fixtures are not substituted.`;
++    case 'FIXTURE_FALLBACK_REFUSED':
++      return 'A production store failed and the system declined to substitute demo data.';
++    case 'NOT_FOUND':
++      return 'That record does not exist in the Growth store.';
++    default:
++      return 'The Growth store is unavailable.';
++  }
++}
++
++export type { FixtureDataset };
+\ No newline at end of file
+diff --git a/src/middleware.ts b/src/middleware.ts
+new file mode 100644
+index 0000000..27b6757
+--- /dev/null
++++ b/src/middleware.ts
+@@ -0,0 +1,144 @@
++import { NextResponse, type NextRequest } from 'next/server';
++import { updateSession } from '@/lib/supabase/proxy';
++import { resolvePrincipal } from '@/lib/growth/auth/session';
++
++/**
++ * Request boundary.
++ *
++ * Two jobs, in order: refresh the Supabase session so downstream reads see a
++ * current one, and refuse unauthenticated access to the operational console.
++ *
++ * Why this file exists now. `updateSession` was written for exactly this purpose
++ * and nothing ever called it: there was no middleware, so the helper was dead
++ * code and every route relied on each page deciding for itself. The Command
++ * Center is the first surface where that is not acceptable, because it is an
++ * operational console rather than a public page.
++ *
++ * What this gate does and does not do. It refuses anonymous access at the edge,
++ * which is cheap and leaves no unauthorised request reaching a data path. It is
++ * *not* the only check: `/api/intelligence` and `/api/growth/**` each re-check
++ * server-side, because an API route can be reached by a path that does not pass
++ * through a matcher, and because edge-level presence-of-session is not the same
++ * question as workspace authorisation. The authoritative check is
++ * `guardGrowth`, which resolves membership and the client boundary.
++ */
++
++/** Console routes that require an authenticated, provisioned principal. */
++const COMMAND_PREFIX = '/command';
++
++/** API routes that carry Growth data or reasoning, and must be gated too. */
++const GATED_API_PREFIXES = ['/api/intelligence', '/api/growth'] as const;
++
++/** Where an anonymous visitor is sent, and where they land afterwards. */
++const LOGIN_PATH = '/login';
++const SIGNED_IN_LANDING = '/command';
++
++function isGated(pathname: string): boolean {
++  if (pathname === COMMAND_PREFIX || pathname.startsWith(`${COMMAND_PREFIX}/`)) return true;
++  return GATED_API_PREFIXES.some(
++    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
++  );
++}
++
++/**
++ * Login redirect, carrying the intended destination.
++ *
++ * The value is our own pathname, so it needs no untrusted-input defence: it is
++ * built from `request.nextUrl.pathname` of a request this server is handling.
++ * The existing `resolveRedirect` still runs on it, so if this is ever widened to
++ * a caller-supplied target the open-redirect protection is already in place.
++ */
++function loginRedirect(request: NextRequest): NextResponse {
++  const url = request.nextUrl.clone();
++  url.pathname = LOGIN_PATH;
++  url.search = '';
++  url.searchParams.set('next', request.nextUrl.pathname);
++  return NextResponse.redirect(url);
++}
++
++/**
++ * Signed in but not allowed.
++ *
++ * `/account` exists, is indexable, and is the existing post-auth landing, so an
++ * authenticated person who is not provisioned lands somewhere real rather than
++ * on a redirect loop back to the console.
++ */
++function deniedRedirect(request: NextRequest): NextResponse {
++  const url = request.nextUrl.clone();
++  url.pathname = '/account';
++  url.search = '';
++  url.searchParams.set('notice', 'growth-not-authorised');
++  return NextResponse.redirect(url);
++}
++
++/**
++ * API routes get a status code and a typed body, never a redirect: a redirect
++ * would turn an unauthorised API call into a 200 carrying an HTML login page.
++ */
++function apiDenial(status: 401 | 403 | 503, code: string, message: string): NextResponse {
++  return NextResponse.json(
++    { ok: false, code, message },
++    { status, headers: { 'cache-control': 'no-store' } },
++  );
++}
++
++export async function middleware(request: NextRequest) {
++  // Session refresh runs for every matched request, including the gated ones, so
++  // an expired access token is renewed rather than read as "signed out".
++  const response = await updateSession(request);
++  const pathname = request.nextUrl.pathname;
++
++  if (!isGated(pathname)) return response;
++
++  const resolution = await resolvePrincipal();
++
++  const isApi = GATED_API_PREFIXES.some(
++    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
++  );
++
++  if (resolution.state === 'ANONYMOUS') {
++    return isApi
++      ? apiDenial(401, 'ANONYMOUS', resolution.reason)
++      : loginRedirect(request);
++  }
++
++  if (resolution.state === 'NOT_PROVISIONED') {
++    return isApi
++      ? apiDenial(403, 'NOT_PROVISIONED', resolution.reason)
++      : deniedRedirect(request);
++  }
++
++  if (resolution.state === 'MEMBERSHIP_UNAVAILABLE') {
++    // Not a denial of access. The permission system could not answer, so saying
++    // "forbidden" would be a lie about the cause and would send an operator
++    // chasing a missing membership row that does not exist.
++    return isApi
++      ? apiDenial(503, 'MEMBERSHIP_UNAVAILABLE', resolution.reason)
++      : deniedRedirect(request);
++  }
++
++  return response;
++}
++
++export const config = {
++  matcher: [
++    /*
++     * Only the paths this boundary actually governs.
++     *
++     * Deliberately narrow: a matcher over `/command` and `/api/(intelligence|growth)`
++     * only. Applying it site-wide would put a Supabase round trip in front of
++     * every marketing page, and those pages are public by design.
++     *
++     * `_next/static`, `_next/image` and favicon are excluded because a matcher
++     * that included them would run this on asset requests, where neither a
++     * session nor a decision is meaningful.
++     */
++    '/command',
++    '/command/:path*',
++    '/api/intelligence',
++    '/api/intelligence/:path*',
++    '/api/growth/:path*',
++  ],
++};
++
++export { SIGNED_IN_LANDING };
+\ No newline at end of file
+diff --git a/supabase/migrations/20261005090000_knoux_growth_v1.sql b/supabase/migrations/20261005090000_knoux_growth_v1.sql
+new file mode 100644
+index 0000000..720a59c
+--- /dev/null
++++ b/supabase/migrations/20261005090000_knoux_growth_v1.sql
+@@ -0,0 +1,556 @@
++-- KNOuX Growth v1: workspace, tenancy, and campaign approval.
++--
++-- This is the storage layer behind the KNOuX Social Command Center. It is
++-- additive only: every object is created `if not exists`, and nothing is dropped,
++-- altered in place, or rewritten. Applying it to an existing database adds
++-- tables and policies and touches no existing row.
++--
++-- Four properties are enforced here rather than assumed in TypeScript:
++--
++--   1. Tenant isolation. Every business table carries `client_id`, and every
++--      policy resolves visibility through `knoux_growth_memberships`. A row is
++--      readable only by a member of the workspace that owns it. The TypeScript
++--      RBAC in src/lib/growth/rbac.ts is a second, independent check; neither
++--      layer is trusted to be the only one.
++--
++--   2. Membership is the single source of authority. There is no role column on
++--      a business table. A user's role is a property of their membership, so
++--      revoking access is deleting one row rather than updating many.
++--
++--   3. No credential is stored. `knoux_growth_connections` holds a reference to
++--      a secret held in an external vault, plus presence and expiry metadata.
++--      An access token, refresh token, client secret or app secret never enters
++--      this database, so a dump of every Growth table cannot leak one.
++--
++--   4. Approval is bound to a frozen plan. `plan_hash` is a digest of the
++--      budget, window, targeting, platforms and creative set the approver saw.
++--      Changing any of those produces a different hash, so an approval cannot be
++--      reused for a plan the approver never looked at. This is the database-level
++--      half of the rule the state machine in src/lib/growth/campaigns.ts
++--      enforces in the application.
++--
++-- Nothing in this file is applied by the application. It is applied by a human,
++-- after review, to an environment they have chosen. See
++-- docs/growth/PERSISTENCE.md for the runbook and the verification queries.
++
++-- ---------------------------------------------------------------------------
++-- Clients (workspaces)
++-- ---------------------------------------------------------------------------
++
++create table if not exists public.knoux_growth_clients (
++  id text primary key,
++  name text not null,
++  legal_name text,
++  business_category text not null default '',
++  country text not null default 'AE',
++  city text not null default '',
++  -- Brand palette as hex strings. Platform brand colours are not brand colours
++  -- and are not stored here.
++  brand_colors text[] not null default '{}',
++  brand_fonts text[] not null default '{}',
++  brand_tone text not null default '',
++  arabic_style text,
++  english_style text,
++  -- Claims KNOuX must never generate for this client. Read by the intelligence
++  -- route and injected into every prompt for this workspace.
++  forbidden_claims text[] not null default '{}',
++  approved_assets text[] not null default '{}',
++  products text[] not null default '{}',
++  website text,
++  phone text,
++  whatsapp text,
++  languages text[] not null default '{en}',
++  branches jsonb not null default '[]'::jsonb,
++  -- 'ADVISOR' | 'COPILOT' | 'AUTOPILOT'. AUTOPILOT has no enabling code path;
++  -- the column records the policy, it does not grant one.
++  autonomy_mode text not null default 'COPILOT',
++  -- 'FIXTURE' | 'LIVE'. A fixture client is never treated as production data by
++  -- the repository layer, which refuses to blend the two.
++  origin text not null default 'LIVE',
++  created_at timestamptz not null default now(),
++  updated_at timestamptz not null default now(),
++  constraint knoux_growth_clients_country check (country in ('AE', 'EG')),
++  constraint knoux_growth_clients_origin check (origin in ('FIXTURE', 'LIVE')),
++  constraint knoux_growth_clients_autonomy check (autonomy_mode in ('ADVISOR', 'COPILOT', 'AUTOPILOT')),
++  constraint knoux_growth_clients_language check (languages <@ array['ar', 'en'])
++);
++
++comment on table public.knoux_growth_clients is
++  'KNOuX Growth client workspaces. Branded rows are origin=FIXTURE and are never presented as production data.';
++
++-- ---------------------------------------------------------------------------
++-- Memberships: the tenancy boundary
++-- ---------------------------------------------------------------------------
++
++create table if not exists public.knoux_growth_memberships (
++  id uuid primary key default gen_random_uuid(),
++  user_id uuid not null references auth.users(id) on delete cascade,
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  -- Mirrors the Role union in src/lib/growth/rbac.ts.
++  role text not null,
++  created_at timestamptz not null default now(),
++  created_by uuid references auth.users(id) on delete set null,
++  constraint knoux_growth_memberships_role check (
++    role in ('OWNER', 'MANAGER', 'ADS_SPECIALIST', 'DESIGNER', 'CONTENT_CREATOR', 'CLIENT', 'VIEWER')
++  )
++);
++
++-- One role per user per workspace. A second grant updates rather than creating a
++-- second row, so "which role does this person hold" always has one answer.
++create unique index if not exists knoux_growth_memberships_user_client_key
++  on public.knoux_growth_memberships(user_id, client_id);
++
++-- The lookup every policy performs. Indexed on user_id first because that is the
++-- predicate auth.uid() drives.
++create index if not exists knoux_growth_memberships_user_idx
++  on public.knoux_growth_memberships(user_id);
++
++create index if not exists knoux_growth_memberships_client_idx
++  on public.knoux_growth_memberships(client_id);
++
++comment on table public.knoux_growth_memberships is
++  'Which account holds which role in which workspace. Deleting a row revokes access; there is no other revocation path.';
++
++-- ---------------------------------------------------------------------------
++-- Connections: state, never a secret
++-- ---------------------------------------------------------------------------
++
++create table if not exists public.knoux_growth_connections (
++  id uuid primary key default gen_random_uuid(),
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  platform text not null,
++  -- Mirrors ConnectionState in src/lib/growth/states.ts.
++  state text not null default 'NOT_CONNECTED',
++  -- Mirrors CapabilityState. A row may only become 'LIVE_VERIFIED' when a real
++  -- provider call succeeded; the application is the only writer.
++  capability_state text not null default 'UI_READY',
++  -- Opaque pointer to a credential held in an external secret store. Never the
++  -- credential itself, and never a token.
++  secret_ref text,
++  -- Display-safe identity, e.g. an ad account name. An account id is safe; a
++  -- token is not.
++  account_label text,
++  account_id text,
++  granted_scopes text[] not null default '{}',
++  missing_scopes text[] not null default '{}',
++  token_expires_at timestamptz,
++  last_verified_at timestamptz,
++  -- The provider's own message, preserved verbatim rather than rewritten.
++  last_error text,
++  last_checked_at timestamptz,
++  origin text not null default 'LIVE',
++  created_at timestamptz not null default now(),
++  updated_at timestamptz not null default now(),
++  constraint knoux_growth_connections_state check (
++    state in ('NOT_CONNECTED', 'CONNECTING', 'CONNECTED', 'EXPIRED', 'PERMISSION_REQUIRED', 'ERROR', 'BLOCKED', 'NOT_CONFIGURED')
++  ),
++  constraint knoux_growth_connections_capability_state check (
++    capability_state in ('UI_READY', 'ADAPTER_READY', 'CONFIG_REQUIRED', 'AUTH_REQUIRED', 'DEMO_ONLY', 'LIVE_VERIFIED', 'BLOCKED')
++  ),
++  constraint knoux_growth_connections_origin check (origin in ('FIXTURE', 'LIVE')),
++  -- CONNECTED without a verification time would be an unbacked claim, so the
++  -- column pair is constrained rather than left to discipline.
++  constraint knoux_growth_connections_verified check (
++    state <> 'CONNECTED' or last_verified_at is not null
++  )
++);
++
++create unique index if not exists knoux_growth_connections_client_platform_key
++  on public.knoux_growth_connections(client_id, platform);
++
++create index if not exists knoux_growth_connections_client_idx
++  on public.knoux_growth_connections(client_id);
++
++comment on table public.knoux_growth_connections is
++  'Platform connection state. Holds a reference to an external secret, never a credential. secret_ref must never contain a token.';
++
++-- OAuth handshakes are transient and single-use.
++create table if not exists public.knoux_growth_oauth_states (
++  state_hash text primary key,
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  platform text not null,
++  user_id uuid not null references auth.users(id) on delete cascade,
++  -- Where to send the browser afterwards. Stored server-side so the callback
++  -- does not trust a caller-supplied return URL.
++  return_path text not null default '/command/connections',
++  -- Requested scopes for this specific grant, so a capability-specific request
++  -- is auditable after the fact.
++  requested_scopes text[] not null default '{}',
++  created_at timestamptz not null default now(),
++  expires_at timestamptz not null,
++  consumed_at timestamptz
++);
++
++create index if not exists public.knoux_growth_oauth_states_expiry_idx
++  on public.knoux_growth_oauth_states(expires_at);
++
++comment on table public.knoux_growth_oauth_states is
++  'Single-use OAuth state, stored hashed. A pending handshake expires on its own so a stale state cannot be replayed.';
++
++-- ---------------------------------------------------------------------------
++-- Campaigns
++-- ---------------------------------------------------------------------------
++
++create table if not exists public.knoux_growth_campaigns (
++  id uuid primary key default gen_random_uuid(),
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  name text not null,
++  -- Mirrors CampaignObjective.
++  objective text not null,
++  -- Minor units, so money never touches floating point.
++  budget_minor bigint not null default 0,
++  currency text not null default 'AED',
++  start_date date not null,
++  end_date date not null,
++  locations text[] not null default '{}',
++  languages text[] not null default '{en}',
++  audience_notes text,
++  landing_page_url text,
++  conversion_target text,
++  -- Mirrors CampaignStatus. The application state machine owns transitions;
++  -- this column records them. The check below keeps the two in step.
++  status text not null default 'DRAFT',
++  -- Digest of everything an approver is signing off. Recomputed on every change
++  -- to budget, window, targeting, platforms or creative set.
++  plan_hash text,
++  -- Incremented on every mutation. An approval references the version it
++  -- approved, so an edit after approval is detectable rather than assumed away.
++  version integer not null default 1,
++  created_by uuid references auth.users(id) on delete set null,
++  updated_by uuid references auth.users(id) on delete set null,
++  origin text not null default 'LIVE',
++  created_at timestamptz not null default now(),
++  updated_at timestamptz not null default now(),
++  constraint knoux_growth_campaigns_objective check (
++    objective in ('WHATSAPP', 'LEADS', 'CALLS', 'WEBSITE', 'AWARENESS', 'BOOKINGS', 'SALES')
++  ),
++  constraint knoux_growth_campaigns_status check (
++    status in ('DRAFT', 'READY_FOR_REVIEW', 'CHANGES_REQUESTED', 'APPROVED', 'LAUNCH_PENDING', 'LIVE', 'PAUSED', 'COMPLETED', 'FAILED')
++  ),
++  constraint knoux_growth_campaigns_currency check (currency in ('AED', 'EGP', 'USD')),
++  constraint knoux_growth_campaigns_budget check (budget_minor >= 0),
++  constraint knoux_growth_campaigns_window check (end_date >= start_date),
++  constraint knoux_growth_campaigns_version check (version >= 1),
++  -- LIVE is only reachable through a real provider call reporting the campaign
++  -- as serving, so it cannot exist without provider evidence.
++  constraint knoux_growth_campaigns_live_requires_provider check (
++    status <> 'LIVE' or provider_campaign_id is not null
++  )
++);
++
++-- provider_campaign_id lives here rather than in a child table because one
++-- campaign can exist on several platforms, but only one may ever be serving.
++alter table public.knoux_growth_campaigns
++  add column if not exists provider_campaign_id text;
++
++comment on table public.knoux_growth_campaigns is
++  'Campaign plans and their lifecycle. plan_hash binds an approval to one exact plan; version detects edits after approval.';
++
++create index if not exists knoux_growth_campaigns_client_idx
++  on public.knoux_growth_campaigns(client_id, updated_at desc);
++
++create index if not exists knoux_growth_campaigns_pending_review_idx
++  on public.knoux_growth_campaigns(client_id, created_at desc)
++  where status = 'READY_FOR_REVIEW';
++
++-- Channels are the per-platform rows. Separated because the platforms a campaign
++-- runs on differ from the campaign itself, and because provider ids are
++-- per-platform.
++create table if not exists public.knoux_growth_campaign_channels (
++  id uuid primary key default gen_random_uuid(),
++  campaign_id uuid not null references public.knoux_growth_campaigns(id) on delete cascade,
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  platform text not null,
++  remote_campaign_id text,
++  remote_adset_id text,
++  daily_budget_minor bigint,
++  status text not null default 'PENDING',
++  created_at timestamptz not null default now(),
++  updated_at timestamptz not null default now(),
++  constraint knoux_growth_campaign_channels_platform check (
++    platform in ('facebook', 'instagram', 'google_search', 'google_maps', 'youtube')
++  ),
++  constraint knoux_growth_campaign_channels_status check (
++    status in ('PENDING', 'SUBMITTED', 'ACTIVE', 'PAUSED', 'REJECTED', 'FAILED')
++  ),
++  constraint knoux_growth_campaign_channels_budget check (
++    daily_budget_minor is null or daily_budget_minor >= 0
++  )
++);
++
++create unique index if not exists knoux_growth_campaign_channels_campaign_platform_key
++  on public.knoux_growth_campaign_channels(campaign_id, platform);
++
++-- client_id is denormalised onto the child so its RLS policy does not need a
++-- join back through the parent on every row. It is kept honest by a trigger-free
++-- convention: every insert path in the repository writes both.
++
++-- ---------------------------------------------------------------------------
++-- Approvals
++-- ---------------------------------------------------------------------------
++
++create table if not exists public.knoux_growth_campaign_approvals (
++  id uuid primary key default gen_random_uuid(),
++  campaign_id uuid not null references public.knoux_growth_campaigns(id) on delete cascade,
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  -- The plan_hash the approver actually saw. Compared against the campaign's
++  -- current hash before any launch, which is what makes an approval invalidate
++  -- itself when the plan changes.
++  approved_plan_hash text not null,
++  -- The campaign version this approval covers.
++  campaign_version integer not null,
++  budget_minor bigint not null,
++  currency text not null,
++  duration_days integer not null,
++  target text not null default '',
++  requested_by uuid not null references auth.users(id) on delete cascade,
++  requested_at timestamptz not null default now(),
++  decision text,
++  decided_by uuid references auth.users(id) on delete set null,
++  decided_at timestamptz,
++  note text,
++  -- Set when a later plan edit invalidates this approval. Kept as a column rather
++  -- than deleted, so the history of what was approved remains auditable.
++  invalidated_at timestamptz,
++  invalidation_reason text,
++  constraint knoux_growth_campaign_approvals_decision check (
++    decision is null or decision in ('APPROVE', 'REQUEST_CHANGES', 'REJECT', 'WITHDRAW')
++  ),
++  constraint knoux_growth_campaign_approvals_budget check (budget_minor >= 0),
++  constraint knoux_growth_campaign_approvals_duration check (duration_days >= 1),
++  -- An approval is a decision by one person about someone else's plan. The
++  -- database refuses the self-approval even if the application is bypassed.
++  constraint knoux_growth_campaign_approvals_not_self_approved check (
++    decided_by is null or requested_by is distinct from decided_by
++  )
++);
++
++create index if not exists public.knoux_growth_campaign_approvals_campaign_idx
++  on public.knoux_growth_campaign_approvals(campaign_id, requested_at desc);
++
++create index if not exists public.knoux_growth_campaign_approvals_pending_idx
++  on public.knoux_growth_campaign_approvals(client_id, requested_at desc)
++  where decision is null;
++
++comment on table public.knoux_growth_campaign_approvals is
++  'Approval records bound to a frozen plan hash. Self-approval is refused by a constraint, not only by the application.';
++
++-- ---------------------------------------------------------------------------
++-- Row level security: the tenancy boundary, in the database
++-- ---------------------------------------------------------------------------
++--
++-- Every policy below resolves through membership. The predicate is written out
++-- rather than wrapped in a function because an inline subquery is what the
++-- planner can use for the per-row check, and because a function that reads
++-- memberships would be one more object whose security properties a reviewer has
++-- to verify separately.
++--
++-- `using` governs reads and writes; `with check` governs what may be written.
++-- Both are present on the write policies, so a row cannot be inserted into a
++-- workspace the writer does not belong to.
++
++alter table public.knoux_growth_clients enable row level security;
++alter table public.knoux_growth_memberships enable row level security;
++alter table public.knoux_growth_connections enable row level security;
++alter table public.knoux_growth_oauth_states enable row level security;
++alter table public.knoux_growth_campaigns enable row level security;
++alter table public.knoux_growth_campaign_channels enable row level security;
++alter table public.knoux_growth_campaign_approvals enable row level security;
++
++-- Membership: a person reads and writes their own rows. Reading another
++-- person's membership is how a client-role user would discover which other
++-- workspaces exist, so it is not permitted.
++drop policy if exists knoux_growth_memberships_self on public.knoux_growth_memberships;
++create policy knoux_growth_memberships_self on public.knoux_growth_memberships
++  for all
++  to authenticated
++  using (user_id = auth.uid())
++  with check (user_id = auth.uid());
++
++-- Clients: visible to members of that workspace.
++drop policy if exists knoux_growth_clients_member_read on public.knoux_growth_clients;
++create policy knoux_growth_clients_member_read on public.knoux_growth_clients
++  for select
++  to authenticated
++  using (
++    exists (
++      select 1 from public.knoux_growth_memberships m
++      where m.client_id = knoux_growth_clients.id
++        and m.user_id = auth.uid()
++    )
++  );
++
++drop policy if exists knoux_growth_clients_owner_write on public.knoux_growth_clients;
++create policy knoux_growth_clients_owner_write on public.knoux_growth_clients
++  for all
++  to authenticated
++  using (
++    exists (
++      select 1 from public.knoux_growth_memberships m
++      where m.client_id = knoux_growth_clients.id
++        and m.user_id = auth.uid()
++        and m.role = 'OWNER'
++    )
++  )
++  with check (
++    exists (
++      select 1 from public.knoux_growth_memberships m
++      where m.client_id = knoux_growth_clients.id
++        and m.user_id = auth.uid()
++        and m.role = 'OWNER'
++    )
++  );
++
++-- Business tables share one membership predicate. It is repeated per table
++-- because Postgres has no policy macro; each is otherwise identical.
++drop policy if exists knoux_growth_connections_member on public.knoux_growth_connections;
++create policy knoux_growth_connections_member on public.knoux_growth_connections
++  for all
++  to authenticated
++  using (
++    exists (
++      select 1 from public.knoux_growth_memberships m
++      where m.client_id = knoux_growth_connections.client_id
++        and m.user_id = auth.uid()
++    )
++  )
++  with check (
++    exists (
++      select 1 from public.knoux_growth_memberships m
++      where m.client_id = knoux_growth_connections.client_id
++        and m.user_id = auth.uid()
++    )
++  );
++
++-- OAuth state is written by the browser-initiated handshake and read by the
++-- callback, both as the same authenticated user. Scoped to the user so one
++-- account cannot complete another account's handshake.
++drop policy if exists knoux_growth_oauth_states_owner on public.knoux_growth_oauth_states;
++create policy knoux_growth_oauth_states_owner on public.knoux_growth_oauth_states
++  for all
++  to authenticated
++  using (user_id = auth.uid())
++  with check (user_id = auth.uid());
++
++drop policy if exists knoux_growth_campaigns_member on public.knoux_growth_campaigns;
++create policy knoux_growth_campaigns_member on public.knoux_growth_campaigns
++  for all
++  to authenticated
++  using (
++    exists (
++      select 1 from public.knoux_growth_memberships m
++      where m.client_id = knoux_growth_campaigns.client_id
++        and m.user_id = auth.uid()
++    )
++  )
++  with check (
++    exists (
++      select 1 from public.knoux_growth_memberships m
++      where m.client_id = knoux_growth_campaigns.client_id
++        and m.user_id = auth.uid()
++    )
++  );
++
++drop policy if exists knoux_growth_campaign_channels_member on public.knoux_growth_campaign_channels;
++create policy knoux_growth_campaign_channels_member on public.knoux_growth_campaign_channels
++  for all
++  to authenticated
++  using (
++    exists (
++      select 1 from public.knoux_growth_memberships m
++      where m.client_id = knoux_growth_campaign_channels.client_id
++        and m.user_id = auth.uid()
++    )
++  )
++  with check (
++    exists (
++      select 1 from public.knoux_growth_memberships m
++      where m.client_id = knoux_growth_campaign_channels.client_id
++        and m.user_id = auth.uid()
++    )
++  );
++
++drop policy if exists knoux_growth_campaign_approvals_member on public.knoux_growth_campaign_approvals;
++create policy knoux_growth_campaign_approvals_member on public.knoux_growth_campaign_approvals
++  for all
++  to authenticated
++  using (
++    exists (
++      select 1 from public.knoux_growth_memberships m
++      where m.client_id = knoux_growth_campaign_approvals.client_id
++        and m.user_id = auth.uid()
++    )
++  )
++  with check (
++    exists (
++      select 1 from public.knoux_growth_memberships m
++      where m.client_id = public.knoux_growth_campaign_approvals.client_id
++        and m.user_id = auth.uid()
++    )
++  );
++
++-- ---------------------------------------------------------------------------
++-- Grants
++-- ---------------------------------------------------------------------------
++--
++-- `anon` is revoked explicitly rather than relying on `public` being dropped.
++-- Supabase retains explicit anon grants in some projects even after PUBLIC is
++-- revoked, which is the same failure the Signal RPC grants migration addresses.
++-- Growth tables hold client business data, so an anon grant here would be a
++-- disclosure.
++
++revoke all on table public.knoux_growth_clients from anon;
++revoke all on table public.knoux_growth_memberships from anon;
++revoke all on table public.knoux_growth_connections from anon;
++revoke all on table public.knoux_growth_oauth_states from anon;
++revoke all on table public.knoux_growth_campaigns from anon;
++revoke all on table public.knoux_growth_campaign_channels from anon;
++revoke all on table public.knoux_growth_campaign_approvals from anon;
++
++grant select, insert, update, delete on table public.knoux_growth_clients to authenticated;
++grant select, insert, update, delete on table public.knoux_growth_memberships to authenticated;
++grant select, insert, update, delete on table public.knoux_growth_connections to authenticated;
++grant select, insert, update, delete on table public.knoux_growth_oauth_states to authenticated;
++grant select, insert, update, delete on table public.knoux_growth_campaigns to authenticated;
++grant select, insert, update, delete on table public.knoux_growth_campaign_channels to authenticated;
++grant select, insert, update, delete on table public.knoux_growth_campaign_approvals to authenticated;
++
++-- ---------------------------------------------------------------------------
++-- Verification queries
++-- ---------------------------------------------------------------------------
++--
++-- Run these after applying. Each is a question whose answer being wrong means the
++-- tenancy boundary is not doing what this file claims.
++--
++-- 1. Every business table has RLS on, with no table missing a policy.
++--
++-- select c.relname, c.relrowsecurity, c.relforcerowsecurity,
++--        coalesce(array_agg(p.polname) filter (where p.polname is not null), '{}') as policies
++--   from pg_class c
++--   join pg_namespace n on n.oid = c.relnamespace
++--   left join pg_policy p on p.polrelid = c.oid
++--  where n.nspname = 'public' and c.relname like 'knoux_growth_%'
++--  group by c.relname, c.relrowsecurity, c.relforcerowsecurity
++--  order by c.relname;
++--
++-- Expect every relrowsecurity = true, and every table to carry at least one policy.
++--
++-- 2. anon holds no grant on any Growth table.
++--
++-- select table_name, grantee, privilege_type
++--   from information_schema.role_table_grants
++--  where table_name like 'knoux_growth_%' and grantee = 'anon';
++--
++-- Expect zero rows. Anything returned is a disclosure and must be revoked.
++--
++-- 3. Self-approval is refused by the schema.
++--
++-- select conname, pg_get_constraintdef(oid)
++--   from pg_constraint
++--  where conname = 'knoux_growth_campaign_approvals_not_self_approved';
++--
++-- 4. Live campaigns cannot exist without provider evidence.
++--
++-- select conname, pg_get_constraintdef(oid)
++--   from pg_constraint
++--  where conname = 'knoux_growth_campaigns_live_requires_provider';
+\ No newline at end of file
+diff --git a/supabase/migrations/20261005091000_knoux_growth_v2.sql b/supabase/migrations/20261005091000_knoux_growth_v2.sql
+new file mode 100644
+index 0000000..2dd72e9
+--- /dev/null
++++ b/supabase/migrations/20261005091000_knoux_growth_v2.sql
+@@ -0,0 +1,664 @@
++-- KNOuX Growth v2: content, communities, leads, metrics, audit, automations.
++--
++-- Continues the additive, RLS-enforced tenancy model from
++-- 20261005090000_knoux_growth_v1.sql. Nothing is dropped or altered in place.
++--
++-- Three properties specific to this file:
++--
++--   1. Community rows cannot hold member data. There is no column for a member
++--      list, a member count, or a scraped contact, so no code path can write one
++--      and no future query can select one. This is the schema-level expression
++--      of the rule in docs/growth/COMMUNITY-HUB.md, and it is enforced by
++--      absence rather than by a constraint.
++--
++--   2. Metrics carry their provenance. A normalised metric row states whether it
++--      came from a provider call or a fixture, and names the call. A measurement
++--      without a source is not storable here, which is the same rule Phase 1
++--      enforced in the type layer.
++--
++--   3. The audit log is append-only for the application role. There is no update
++--      or delete policy, so a compromised or careless writer cannot rewrite what
++--      an operator is about to review.
++
++-- ---------------------------------------------------------------------------
++-- Creatives and content
++-- ---------------------------------------------------------------------------
++
++create table if not exists public.knoux_growth_creatives (
++  id uuid primary key default gen_random_uuid(),
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  campaign_id uuid references public.knoux_growth_campaigns(id) on delete set null,
++  format text not null default 'IMAGE',
++  concept text not null default '',
++  hooks text[] not null default '{}',
++  headline text,
++  primary_text text,
++  description text,
++  cta text,
++  visual_prompt text,
++  video_script text[] not null default '{}',
++  languages text[] not null default '{en}',
++  -- A generated draft is never final until a human edits or accepts it. The
++  -- default is false so a human-authored row is never mistaken for generated.
++  ai_generated boolean not null default false,
++  status text not null default 'DRAFT',
++  reviewed_by uuid references auth.users(id) on delete set null,
++  origin text not null default 'LIVE',
++  created_at timestamptz not null default now(),
++  updated_at timestamptz not null default now(),
++  constraint knoux_growth_creatives_format check (
++    format in ('IMAGE', 'CAROUSEL', 'SHORT_VIDEO', 'REEL', 'STORY', 'RESPONSIVE_SEARCH')
++  ),
++  constraint knoux_growth_creatives_status check (
++    status in ('DRAFT', 'IN_REVIEW', 'APPROVED', 'REJECTED')
++  ),
++  constraint knoux_growth_creatives_origin check (origin in ('FIXTURE', 'LIVE')),
++  -- An approved creative must record who approved it. Approval with no reviewer
++  -- is a status write, not an approval.
++  constraint knoux_growth_creatives_approved_has_reviewer check (
++    status <> 'APPROVED' or reviewed_by is not null
++  )
++);
++
++create index if not exists knoux_growth_creatives_client_idx
++  on public.knoux_growth_creatives(client_id, updated_at desc);
++
++create table if not exists public.knoux_growth_content (
++  id uuid primary key default gen_random_uuid(),
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  campaign_id uuid references public.knoux_growth_campaigns(id) on delete set null,
++  platforms text[] not null default '{}',
++  copy text not null default '',
++  media_asset_ids text[] not null default '{}',
++  -- Scheduling is a record of intent. Nothing in this schema publishes content.
++  scheduled_for timestamptz,
++  status text not null default 'DRAFT',
++  approval_id uuid,
++  author uuid references auth.users(id) on delete set null,
++  ai_generated boolean not null default false,
++  origin text not null default 'LIVE',
++  created_at timestamptz not null default now(),
++  updated_at timestamptz not null default now(),
++  constraint knoux_growth_content_status check (
++    status in ('DRAFT', 'SCHEDULED', 'PUBLISHED', 'FAILED', 'APPROVAL_REQUIRED')
++  ),
++  -- PUBLISHED is only reachable from an approved connector call, so it requires
++  -- the provider's own identifier as evidence.
++  constraint knoux_growth_content_published_requires_provider check (
++    status <> 'PUBLISHED' or provider_post_id is not null
++  )
++);
++
++alter table public.knoux_growth_content
++  add column if not exists provider_post_id text;
++
++create index if not exists knoux_growth_content_client_idx
++  on public.knoux_growth_content(client_id, scheduled_for desc);
++
++create index if not exists public.knoux_growth_content_scheduled_idx
++  on public.knoux_growth_content(client_id, scheduled_for)
++  where status = 'SCHEDULED';
++
++comment on column public.knoux_growth_content.scheduled_for is
++  'Intent only. This schema never publishes content; PUBLISHED requires provider_post_id.';
++
++-- ---------------------------------------------------------------------------
++-- Communities
++-- ---------------------------------------------------------------------------
++--
++-- Note what is absent: member_list, member_count, scraped_contact, hidden_email.
++-- There is no column to write a harvested record into. `public_admin_contact`
++-- holds an address the operator already published for partnership enquiries.
++
++create table if not exists public.knoux_growth_communities (
++  id uuid primary key default gen_random_uuid(),
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  name text not null,
++  platform text not null,
++  -- A public entry point only. The application rejects a private or closed URL.
++  public_url text,
++  country text not null default 'AE',
++  region text not null default '',
++  city text not null default '',
++  category text not null default '',
++  language text not null default 'en',
++  visibility text not null default 'UNKNOWN',
++  activity_estimate text not null default 'UNKNOWN',
++  promotion_policy text not null default 'UNKNOWN',
++  admin_approval_required boolean not null default true,
++  public_admin_contact text,
++  -- Provenance of the record. Every imported row states where it came from, so a
++  -- record with no source is distinguishable from one that was checked.
++  source text not null default 'manual',
++  source_url text,
++  discovered_at timestamptz,
++  verified_at timestamptz,
++  -- Operator judgement, not a platform metric.
++  confidence text,
++  verification_status text not null default 'UNKNOWN',
++  notes text,
++  relevance_tags text[] not null default '{}',
++  business_categories text[] not null default '{}',
++  last_checked_at timestamptz,
++  origin text not null default 'LIVE',
++  created_at timestamptz not null default now(),
++  updated_at timestamptz not null default now(),
++  constraint knoux_growth_communities_platform check (
++    platform in ('facebook', 'discord', 'telegram', 'whatsapp', 'reddit', 'directory')
++  ),
++  constraint knoux_growth_communities_visibility check (
++    visibility in ('PUBLIC', 'PRIVATE', 'UNKNOWN')
++  ),
++  constraint knoux_growth_communities_activity check (
++    activity_estimate in ('HIGH', 'MEDIUM', 'LOW', 'UNKNOWN')
++  ),
++  constraint knoux_growth_communities_promotion check (
++    promotion_policy in ('ALLOWED', 'ASK_ADMIN', 'RESTRICTED', 'UNKNOWN')
++  ),
++  constraint knoux_growth_communities_verification check (
++    verification_status in ('VERIFIED', 'NEEDS_REVIEW', 'UNAVAILABLE', 'BROKEN_LINK', 'PRIVATE', 'UNKNOWN')
++  ),
++  constraint knoux_growth_communities_source check (
++    source in ('manual', 'import', 'public_search', 'directory', 'platform_api', 'operator_url')
++  ),
++  constraint knoux_growth_communities_language check (language in ('ar', 'en')),
++  constraint knoux_growth_communities_country check (country in ('AE', 'EG')),
++  -- A VERIFIED record must say when it was verified. Verification with no
++  -- timestamp is an assertion with no evidence behind it.
++  constraint knoux_growth_communities_verified_has_time check (
++    verification_status <> 'VERIFIED' or verified_at is not null
++  ),
++  -- A private group is never stored as a distribution destination, so the two
++  -- facts cannot contradict each other.
++  constraint knoux_growth_communities_not_private_destination check (
++    visibility <> 'PRIVATE'
++  )
++);
++
++create index if not exists knoux_growth_communities_client_idx
++  on public.knoux_growth_communities(client_id, city, category);
++
++create index if not exists knoux_growth_communities_relevance_idx
++  on public.knoux_growth_communities(client_id, verification_status);
++
++comment on table public.knoux_growth_communities is
++  'Public community destinations. No member data is storable: there is no column for it. Sync means public metadata only.';
++
++create table if not exists public.knoux_growth_community_collections (
++  id uuid primary key default gen_random_uuid(),
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  name text not null,
++  description text,
++  created_at timestamptz not null default now(),
++  updated_at timestamptz not null default now()
++);
++
++create unique index if not exists knoux_growth_community_collections_client_name_key
++  on public.knoux_growth_community_collections(client_id, name);
++
++create table if not exists public.knoux_growth_collection_members (
++  id uuid primary key default gen_random_uuid(),
++  collection_id uuid not null references public.knoux_growth_community_collections(id) on delete cascade,
++  community_id uuid not null references public.knoux_growth_communities(id) on delete cascade,
++  added_at timestamptz not null default now(),
++  added_by uuid references auth.users(id) on delete set null
++);
++
++create unique index if not exists knoux_growth_collection_members_pair_key
++  on public.knoux_growth_collection_members(collection_id, community_id);
++
++-- A distribution run is one prepared post going out to many destinations. It is
++-- manual-assisted by design: KNOuX prepares it and an operator performs it.
++create table if not exists public.knoux_growth_distribution_runs (
++  id uuid primary key default gen_random_uuid(),
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  collection_id uuid references public.knoux_growth_community_collections(id) on delete set null,
++  content_id uuid references public.knoux_growth_content(id) on delete set null,
++  campaign_id uuid references public.knoux_growth_campaigns(id) on delete set null,
++  status text not null default 'PREPARED',
++  -- Always true. There is no automated posting path, and this column is the
++  -- record of that fact rather than a setting.
++  manual_only boolean not null default true,
++  created_by uuid references auth.users(id) on delete set null,
++  created_at timestamptz not null default now(),
++  updated_at timestamptz not null default now(),
++  constraint knoux_growth_distribution_runs_status check (
++    status in ('PREPARED', 'IN_PROGRESS', 'COMPLETE', 'CANCELLED')
++  ),
++  constraint knoux_growth_distribution_runs_manual check (manual_only)
++);
++
++create table if not exists public.knoux_growth_distribution_items (
++  id uuid primary key default gen_random_uuid(),
++  run_id uuid not null references public.knoux_growth_distribution_runs(id) on delete cascade,
++  community_id uuid not null references public.knoux_growth_communities(id) on delete cascade,
++  status text not null default 'QUEUED',
++  -- An operator who actually posted it. A POSTED row with no posted_by would be
++  -- KNOuX claiming it posted, which it cannot do.
++  posted_at timestamptz,
++  posted_by uuid references auth.users(id) on delete set null,
++  skip_reason text,
++  constraint knoux_growth_distribution_items_status check (
++    status in ('QUEUED', 'NEEDS_APPROVAL', 'POSTED', 'SKIPPED', 'BLOCKED')
++  ),
++  constraint knoux_growth_distribution_items_posted_has_actor check (
++    status <> 'POSTED' or (posted_at is not null and posted_by is not null)
++  )
++);
++
++create index if not exists knoux_growth_distribution_items_run_idx
++  on public.knoux_growth_distribution_items(run_id, status);
++
++-- ---------------------------------------------------------------------------
++-- Leads
++-- ---------------------------------------------------------------------------
++--
++-- Contact fields exist only because a form collected them. There is no enrichment
++-- step in this schema and no column for a value that was inferred.
++
++create table if not exists public.knoux_growth_leads (
++  id uuid primary key default gen_random_uuid(),
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  campaign_id uuid references public.knoux_growth_campaigns(id) on delete set null,
++  source text not null default '',
++  platform text,
++  ad_id text,
++  ad_name text,
++  name text,
++  phone text,
++  email text,
++  occurred_at timestamptz not null default now(),
++  status text not null default 'NEW',
++  notes text,
++  assigned_to uuid references auth.users(id) on delete set null,
++  qualification text not null default 'UNQUALIFIED',
++  booked_at timestamptz,
++  sale_value_minor bigint,
++  currency text,
++  origin text not null default 'LIVE',
++  created_at timestamptz not null default now(),
++  updated_at timestamptz not null default now(),
++  constraint knoux_growth_leads_status check (
++    status in ('NEW', 'CONTACTED', 'QUALIFIED', 'BOOKED', 'WON', 'LOST')
++  ),
++  constraint knoux_growth_leads_qualification check (
++    qualification in ('UNQUALIFIED', 'QUALIFIED', 'HOT')
++  ),
++  constraint knoux_growth_leads_sale_value check (sale_value_minor is null or sale_value_minor >= 0)
++);
++
++create index if not exists knoux_growth_leads_client_status_idx
++  on public.knoux_growth_leads(client_id, status, occurred_at desc);
++
++create index if not exists knoux_growth_leads_client_source_idx
++  on public.knoux_growth_leads(client_id, source);
++
++comment on table public.knoux_growth_leads is
++  'Lead pipeline. Contact fields only exist where the source legitimately collected them; there is no enrichment path.';
++
++-- ---------------------------------------------------------------------------
++-- Metrics
++-- ---------------------------------------------------------------------------
++--
++-- One normalised measurement. Absence is a missing key or null rather than a
++-- zero, so "the provider did not report this" stays distinguishable from
++-- "the provider reported zero".
++
++create table if not exists public.knoux_growth_metrics (
++  id uuid primary key default gen_random_uuid(),
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  campaign_id uuid references public.knoux_growth_campaigns(id) on delete cascade,
++  channel text not null,
++  -- Canonical metric key: spend | impressions | reach | clicks | leads |
++  -- qualified_leads | calls | whatsapp_starts | bookings | sales | revenue
++  metric_key text not null,
++  -- Minor units for money, raw counts otherwise.
++  value numeric not null,
++  currency text,
++  period_start date not null,
++  period_end date not null,
++  -- 'LIVE' | 'FIXTURE'. A row is only ever LIVE when a provider call produced
++  -- it, and the call is named in evidence.
++  origin text not null default 'LIVE',
++  evidence text,
++  created_at timestamptz not null default now(),
++  constraint knoux_growth_metrics_origin check (origin in ('FIXTURE', 'LIVE')),
++  constraint knoux_growth_metrics_period check (period_end >= period_start),
++  -- A LIVE measurement with no evidence string is a number with no source, which
++  -- is precisely what this schema exists to prevent.
++  constraint knoux_growth_metrics_live_has_evidence check (
++    origin <> 'LIVE' or (evidence is not null and evidence <> '')
++  )
++);
++
++create unique index if not exists knoux_growth_metrics_dedup_key
++  on public.knoux_growth_metrics(
++    client_id, coalesce(campaign_id, '00000000-0000-0000-0000-000000000000'::uuid),
++    channel, metric_key, period_start, period_end
++  );
++
++create index if not exists knoux_growth_metrics_client_period_idx
++  on public.knoux_growth_metrics(client_id, period_end desc, metric_key);
++
++comment on table public.knoux_growth_metrics is
++  'Normalised cross-platform metrics. origin=LIVE requires the provider call that produced the value.';
++
++create table if not exists public.knoux_growth_reports (
++  id uuid primary key default gen_random_uuid(),
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  title text not null,
++  period_start date not null,
++  period_end date not null,
++  -- 'PENDING' | 'READY' | 'FAILED'
++  status text not null default 'PENDING',
++  -- Rendered body, in Markdown, assembled from metrics at generation time. A
++  -- stored report is a snapshot, so it cannot silently change under a reader.
++  body_markdown text,
++  language text not null default 'en',
++  origin text not null default 'LIVE',
++  created_by uuid references auth.users(id) on delete set null,
++  created_at timestamptz not null default now(),
++  constraint knoux_growth_reports_status check (status in ('PENDING', 'READY', 'FAILED')),
++  constraint knoux_growth_reports_language check (language in ('ar', 'en')),
++  constraint knoux_growth_reports_period check (period_end >= period_start)
++);
++
++create index if not exists knoux_growth_reports_client_idx
++  on public.knoux_growth_reports(client_id, created_at desc);
++
++-- ---------------------------------------------------------------------------
++-- Automations
++-- ---------------------------------------------------------------------------
++--
++-- Every action kind is advisory. There is deliberately no action that pauses a
++-- campaign, moves a budget, or launches anything: the check constraint is the
++-- same boundary the Phase 1 TypeScript union drew, and having both means adding
++-- a spend path requires changing both.
++
++create table if not exists public.knoux_growth_automation_rules (
++  id uuid primary key default gen_random_uuid(),
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  name text not null,
++  trigger text not null,
++  threshold numeric,
++  action text not null,
++  enabled boolean not null default false,
++  risk smallint not null default 1,
++  created_at timestamptz not null default now(),
++  updated_at timestamptz not null default now(),
++  constraint knoux_growth_automation_rules_trigger check (
++    trigger in (
++      'CAMPAIGN_CPL_ABOVE', 'CAMPAIGN_SPEND_ABOVE', 'LEAD_RECEIVED',
++      'CONTENT_NEEDS_APPROVAL', 'COMMUNITY_URL_UNAVAILABLE',
++      'CONNECTION_EXPIRED', 'REVIEW_RECEIVED'
++    )
++  ),
++  -- The closed set of advisory actions. A spend action has no representation
++  -- here, so the schema cannot be edited into one by an application bug.
++  constraint knoux_growth_automation_rules_action check (
++    action in ('FLAG_FOR_REVIEW', 'CREATE_APPROVAL_TASK', 'ROUTE_TO_PIPELINE', 'RAISE_ALERT', 'MARK_NEEDS_REVIEW')
++  ),
++  constraint knoux_growth_automation_rules_risk check (risk <= 1),
++  -- A comparing trigger without a threshold would fire on every event, training
++  -- operators to ignore automation.
++  constraint knoux_growth_automation_rules_threshold check (
++    trigger not in ('CAMPAIGN_CPL_ABOVE', 'CAMPAIGN_SPEND_ABOVE') or (threshold is not null and threshold > 0)
++  )
++);
++
++create index if not exists knoux_growth_automation_rules_client_idx
++  on public.knoux_growth_automation_rules(client_id, enabled);
++
++-- ---------------------------------------------------------------------------
++-- Audit log
++-- ---------------------------------------------------------------------------
++--
++-- Append-only. `for insert` only: there is no update or delete policy, so the
++-- application role cannot rewrite history even by accident. Retention and
++-- archival are an operator decision made outside the application role.
++
++create table if not exists public.knoux_growth_audit_log (
++  id uuid primary key default gen_random_uuid(),
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  actor_id uuid references auth.users(id) on delete set null,
++  -- A display handle, kept because auth.users rows can disappear and the trail
++  -- must still name who acted.
++  actor_label text not null default '',
++  action text not null,
++  subject_type text not null,
++  subject_id text not null default '',
++  -- Facts about the change. Never a token, a password, a secret key, or an
++  -- authorization header; the repository redacts before it gets here.
++  detail text,
++  created_at timestamptz not null default now(),
++  constraint knoux_growth_audit_log_action check (
++    action in (
++      'LOGIN_TO_GROWTH', 'CONNECTION_STARTED', 'CONNECTION_COMPLETED', 'CONNECTION_FAILED',
++      'CAMPAIGN_CREATED', 'CAMPAIGN_CHANGED', 'CAMPAIGN_SUBMITTED', 'CAMPAIGN_APPROVED',
++      'APPROVAL_INVALIDATED', 'LAUNCH_REQUESTED', 'CONTENT_APPROVED',
++      'COMMUNITY_IMPORTED', 'COMMUNITY_MARKED_POSTED', 'AI_RECOMMENDATION_ACCEPTED',
++      'LEAD_STATUS_CHANGED', 'RULE_CHANGED'
++    )
++  )
++);
++
++create index if not exists knoux_growth_audit_log_client_idx
++  on public.knoux_growth_audit_log(client_id, created_at desc);
++
++create index if not exists knoux_growth_audit_log_subject_idx
++  on public.knoux_growth_audit_log(subject_type, subject_id);
++
++comment on table public.knoux_growth_audit_log is
++  'Append-only operational trail. No update or delete policy exists for the application role.';
++
++-- AI conversation threads. Stored so a thread is auditable and re-readable; the
++-- prompt content is what KNOuX actually received, not a reconstruction.
++create table if not exists public.knoux_growth_ai_threads (
++  id uuid primary key default gen_random_uuid(),
++  client_id text not null references public.knoux_growth_clients(id) on delete cascade,
++  user_id uuid references auth.users(id) on delete set null,
++  family text not null,
++  intent text not null,
++  prompt text not null default '',
++  response_summary text,
++  -- Which provider actually served it. Operational provenance, never a product
++  -- identity: the user-facing name is always KNOuX.
++  provider_id text,
++  provider_tier text,
++  provisional boolean not null default true,
++  limitations text[] not null default '{}',
++  created_at timestamptz not null default now(),
++  constraint knoux_growth_ai_threads_family check (
++    family in ('REPAIR', 'GROWTH', 'SOCIAL', 'ADVERTISING', 'COMMUNITY', 'ANALYTICS')
++  ),
++  -- Fallback answers must stay marked. A provisional flag defaulting to true
++  -- means an unmarked row is a deliberate claim rather than an omission.
++  constraint knoux_growth_ai_threads_provisional check (provisional)
++);
++
++create index if not exists knoux_growth_ai_threads_client_idx
++  on public.knoux_growth_ai_threads(client_id, created_at desc);
++
++-- ---------------------------------------------------------------------------
++-- Row level security, continuing the tenancy model
++-- ---------------------------------------------------------------------------
++
++alter table public.knoux_growth_creatives enable row level security;
++alter table public.knoux_growth_content enable row level security;
++alter table public.knoux_growth_communities enable row level security;
++alter table public.knoux_growth_community_collections enable row level security;
++alter table public.knoux_growth_collection_members enable row level security;
++alter table public.knoux_growth_distribution_runs enable row level security;
++alter table public.knoux_growth_distribution_items enable row level security;
++alter table public.knoux_growth_leads enable row level security;
++alter table public.knoux_growth_metrics enable row level security;
++alter table public.knoux_growth_reports enable row level security;
++alter table public.knoux_growth_automation_rules enable row level security;
++alter table public.knoux_growth_audit_log enable row level security;
++alter table public.knoux_growth_ai_threads enable row level security;
++
++-- Membership-scoped access, same predicate as v1.
++drop policy if exists knoux_growth_creatives_member on public.knoux_growth_creatives;
++create policy knoux_growth_creatives_member on public.knoux_growth_creatives
++  for all to authenticated
++  using (exists (select 1 from public.knoux_growth_memberships m
++                 where m.client_id = knoux_growth_creatives.client_id and m.user_id = auth.uid()))
++  with check (exists (select 1 from public.knoux_growth_memberships m
++                      where m.client_id = knoux_growth_creatives.client_id and m.user_id = auth.uid()));
++
++drop policy if exists knoux_growth_content_member on public.knoux_growth_content;
++create policy knoux_growth_content_member on public.knoux_growth_content
++  for all to authenticated
++  using (exists (select 1 from public.knoux_growth_memberships m
++                 where m.client_id = knoux_growth_content.client_id and m.user_id = auth.uid()))
++  with check (exists (select 1 from public.knoux_growth_memberships m
++                      where m.client_id = knoux_growth_content.client_id and m.user_id = auth.uid()));
++
++-- Community records are shared reference data within a workspace, so membership
++-- is the boundary rather than authorship.
++drop policy if exists knoux_growth_communities_member on public.knoux_growth_communities;
++create policy knoux_growth_communities_member on public.knoux_growth_communities
++  for all to authenticated
++  using (exists (select 1 from public.knoux_growth_memberships m
++                 where m.client_id = knoux_growth_communities.client_id and m.user_id = auth.uid()))
++  with check (exists (select 1 from public.knoux_growth_memberships m
++                      where m.client_id = knoux_growth_communities.client_id and m.user_id = auth.uid()));
++
++drop policy if exists knoux_growth_community_collections_member on public.knoux_growth_community_collections;
++create policy knoux_growth_community_collections_member on public.knoux_growth_community_collections
++  for all to authenticated
++  using (exists (select 1 from public.knoux_growth_memberships m
++                 where m.client_id = knoux_growth_community_collections.client_id and m.user_id = auth.uid()))
++  with check (exists (select 1 from public.knoux_growth_memberships m
++                      where m.client_id = knoux_growth_community_collections.client_id and m.user_id = auth.uid()));
++
++-- Membership of the parent collection. The join is explicit rather than
++-- denormalised because a collection member row is small and the alternative is a
++-- client_id that can drift from its parent.
++drop policy if exists knoux_growth_collection_members_member on public.knoux_growth_collection_members;
++create policy knoux_growth_collection_members_member on public.knoux_growth_collection_members
++  for all to authenticated
++  using (exists (
++    select 1 from public.knoux_growth_community_collections c
++    join public.knoux_growth_memberships m on m.client_id = c.client_id
++    where c.id = knoux_growth_collection_members.collection_id and m.user_id = auth.uid()
++  ))
++  with check (exists (
++    select 1 from public.knoux_growth_community_collections c
++    join public.knoux_growth_memberships m on m.client_id = c.client_id
++    where c.id = knoux_growth_collection_members.collection_id and m.user_id = auth.uid()
++  ));
++
++drop policy if exists knoux_growth_distribution_runs_member on public.knoux_growth_distribution_runs;
++create policy knoux_growth_distribution_runs_member on public.knoux_growth_distribution_runs
++  for all to authenticated
++  using (exists (select 1 from public.knoux_growth_memberships m
++                 where m.client_id = knoux_growth_distribution_runs.client_id and m.user_id = auth.uid()))
++  with check (exists (select 1 from public.knoux_growth_memberships m
++                      where m.client_id = knoux_growth_distribution_runs.client_id and m.user_id = auth.uid()));
++
++-- An item is visible through its run.
++drop policy if exists knoux_growth_distribution_items_member on public.knoux_growth_distribution_items;
++create policy knoux_growth_distribution_items_member on public.knoux_growth_distribution_items
++  for all to authenticated
++  using (exists (
++    select 1 from public.knoux_growth_distribution_runs r
++    join public.knoux_growth_memberships m on m.client_id = r.client_id
++    where r.id = knoux_growth_distribution_items.run_id and m.user_id = auth.uid()
++  ))
++  with check (exists (
++    select 1 from public.knoux_growth_distribution_runs r
++    join public.knoux_growth_memberships m on m.client_id = r.client_id
++    where r.id = knoux_growth_distribution_items.run_id and m.user_id = auth.uid()
++  ));
++
++drop policy if exists knoux_growth_leads_member on public.knoux_growth_leads;
++create policy knoux_growth_leads_member on public.knoux_growth_leads
++  for all to authenticated
++  using (exists (select 1 from public.knoux_growth_memberships m
++                 where m.client_id = knoux_growth_leads.client_id and m.user_id = auth.uid()))
++  with check (exists (select 1 from public.knoux_growth_memberships m
++                      where m.client_id = knoux_growth_leads.client_id and m.user_id = auth.uid()));
++
++drop policy if exists knoux_growth_metrics_member on public.knoux_growth_metrics;
++create policy knoux_growth_metrics_member on public.knoux_growth_metrics
++  for all to authenticated
++  using (exists (select 1 from public.knoux_growth_memberships m
++                 where m.client_id = knoux_growth_metrics.client_id and m.user_id = auth.uid()))
++  with check (exists (select 1 from public.knoux_growth_memberships m
++                      where m.client_id = knoux_growth_metrics.client_id and m.user_id = auth.uid()));
++
++drop policy if exists knoux_growth_reports_member on public.knoux_growth_reports;
++create policy knoux_growth_reports_member on public.knoux_growth_reports
++  for all to authenticated
++  using (exists (select 1 from public.knoux_growth_memberships m
++                 where m.client_id = knoux_growth_reports.client_id and m.user_id = auth.uid()))
++  with check (exists (select 1 from public.knoux_growth_memberships m
++                      where m.client_id = knoux_growth_reports.client_id and m.user_id = auth.uid()));
++
++drop policy if exists knoux_growth_automation_rules_member on public.knoux_growth_automation_rules;
++create policy knoux_growth_automation_rules_member on public.knoux_growth_automation_rules
++  for all to authenticated
++  using (exists (select 1 from public.knoux_growth_memberships m
++                 where m.client_id = knoux_growth_automation_rules.client_id and m.user_id = auth.uid()))
++  with check (exists (select 1 from public.knoux_growth_memberships m
++                      where m.client_id = knoux_growth_automation_rules.client_id and m.user_id = auth.uid()));
++
++-- Read-only for members. An audit entry is evidence; letting a member edit one
++-- would make the trail worthless, so there is no insert, update or delete policy
++-- for the authenticated role. Writes come from the service role, which bypasses
++-- RLS and is server-side only.
++drop policy if exists knoux_growth_audit_log_read on public.knoux_growth_audit_log;
++create policy knoux_growth_audit_log_read on public.knoux_growth_audit_log
++  for select to authenticated
++  using (exists (select 1 from public.knoux_growth_memberships m
++                 where m.client_id = knoux_growth_audit_log.client_id and m.user_id = auth.uid()));
++
++-- Threads are private to their author within the workspace. A member can see
++-- what they asked; they cannot read a colleague's thread, because a prompt may
++-- contain client detail the colleague is not cleared for.
++drop policy if exists knoux_growth_ai_threads_own on public.knoux_growth_ai_threads;
++create policy knoux_growth_ai_threads_own on public.knoux_growth_ai_threads
++  for all to authenticated
++  using (exists (select 1 from public.knoux_growth_memberships m
++                 where m.client_id = knoux_growth_ai_threads.client_id
++                   and m.user_id = auth.uid()
++                   and knoux_growth_ai_threads.user_id = auth.uid()))
++  with check (exists (select 1 from public.knoux_growth_memberships m
++                      where m.client_id = knoux_growth_ai_threads.client_id
++                        and m.user_id = auth.uid()
++                        and knoux_growth_ai_threads.user_id = auth.uid()));
++
++-- ---------------------------------------------------------------------------
++-- Grants
++-- ---------------------------------------------------------------------------
++
++revoke all on table public.knoux_growth_creatives from anon;
++revoke all on table public.knoux_growth_content from anon;
++revoke all on table public.knoux_growth_communities from anon;
++revoke all on table public.knoux_growth_community_collections from anon;
++revoke all on table public.knoux_growth_collection_members from anon;
++revoke all on table public.knoux_growth_distribution_runs from anon;
++revoke all on table public.knoux_growth_distribution_items from anon;
++revoke all on table public.knoux_growth_leads from anon;
++revoke all on table public.knoux_growth_metrics from anon;
++revoke all on table public.knoux_growth_reports from anon;
++revoke all on table public.knoux_growth_automation_rules from anon;
++revoke all on table public.knoux_growth_audit_log from anon;
++revoke all on table public.knoux_growth_ai_threads from anon;
++
++grant select, insert, update, delete on table public.knoux_growth_creatives to authenticated;
++grant select, insert, update, delete on table public.knoux_growth_content to authenticated;
++grant select, insert, update, delete on table public.knoux_growth_communities to authenticated;
++grant select, insert, update, delete on table public.knoux_growth_community_collections to authenticated;
++grant select, insert, update, delete on table public.knoux_growth_collection_members to authenticated;
++grant select, insert, update, delete on table public.knoux_growth_distribution_runs to authenticated;
++grant select, insert, update, delete on table public.knoux_growth_distribution_items to authenticated;
++grant select, insert, update, delete on table public.knoux_growth_leads to authenticated;
++grant select, insert, update, delete on table public.knoux_growth_metrics to authenticated;
++grant select, insert, update, delete on table public.knoux_growth_reports to authenticated;
++grant select, insert, update, delete on table public.knoux_growth_automation_rules to authenticated;
++
++-- Audit: read only. No insert grant, because writes come from the service role.
++grant select on table public.knoux_growth_audit_log to authenticated;
++grant select, insert on table public.knoux_growth_ai_threads to authenticated;
+\ No newline at end of file

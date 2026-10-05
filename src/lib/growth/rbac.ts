@@ -90,6 +90,8 @@ const VIEWER: Permission[] = [
   'intelligence.use',
 ];
 
+const CREATIVE_READ_PERMISSIONS = VIEWER.filter(permission => permission !== 'budget.view');
+
 export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
   VIEWER: VIEWER,
   CLIENT: [
@@ -99,14 +101,14 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     'report.generate',
   ],
   CONTENT_CREATOR: [
-    ...VIEWER,
+    ...CREATIVE_READ_PERMISSIONS,
     'content.create',
     'content.schedule',
     'creative.create',
     'campaign.create',
     'campaign.edit',
   ],
-  DESIGNER: [...VIEWER, 'creative.create', 'creative.approve', 'content.create'],
+  DESIGNER: [...CREATIVE_READ_PERMISSIONS, 'creative.create', 'creative.approve', 'content.create'],
   ADS_SPECIALIST: [
     ...VIEWER,
     'campaign.create',
