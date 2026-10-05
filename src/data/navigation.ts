@@ -2,6 +2,7 @@ import { divisions, type DivisionId } from '@/lib/entities';
 import type { CapabilityDivisionId } from '@/data/capabilities';
 import { creativeDisciplines, findCreativeDiscipline, findWebSystem, webSystems } from '@/data/services';
 import { signalRoutes } from '@/data/signal';
+import { COMMAND_AREAS_BY_SLUG } from '@/data/growth/areas';
 
 /**
  * Site navigation.
@@ -78,6 +79,9 @@ export const divisionSubnavs: readonly DivisionSubnav[] = [
     label: 'Growth',
     items: [
       { label: 'Overview', href: '/growth', code: 'GR' },
+      // The operational workspace sits beside the public division rather than
+      // replacing it: /growth is the marketing page and stays that way.
+      { label: 'Command Center', href: '/command', code: 'GR-OPS' },
       { label: 'Google Ads', href: '/growth/google-ads', code: 'GR-01' },
       { label: 'Meta Ads', href: '/growth/meta-ads', code: 'GR-02' },
       { label: 'Social', href: '/growth/social', code: 'GR-03' },
@@ -122,6 +126,7 @@ export function breadcrumbFor(path: string): Breadcrumb[] {
     wordpress: { label: 'WordPress', href: '/wordpress' },
     web: { label: 'Web', href: '/web' },
     growth: { label: 'Growth', href: '/growth' },
+    command: { label: 'Command Center', href: '/command' },
     creative: { label: 'Creative', href: '/creative' },
     solutions: { label: 'Solutions', href: '/solutions' },
     build: { label: 'Composer', href: null },
@@ -132,6 +137,17 @@ export function breadcrumbFor(path: string): Breadcrumb[] {
     about: { label: 'About', href: null },
     contact: { label: 'Contact', href: null },
   };
+
+  // The Command Center has its own area names, which are more specific than a
+  // generic segment de-slugging would produce ("Community Hub", not "communities").
+  if (first === 'command') {
+    trail.push({ label: 'Command Center', href: '/command' });
+    if (second) {
+      const area = COMMAND_AREAS_BY_SLUG[second];
+      trail.push({ label: area?.label ?? second.replace(/-/g, ' '), href: null });
+    }
+    return trail;
+  }
 
   if (first === 'products' && second) {
     trail.push({ label: 'Software', href: '/products' });

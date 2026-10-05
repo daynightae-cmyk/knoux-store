@@ -1,0 +1,40 @@
+/*
+ * Command Center route group.
+ *
+ * An operating console, not a division page. The public site renders a fixed
+ * masthead, a footer and a command palette around every route, and those belong
+ * to the storefront. On this surface they would frame a client switcher as a
+ * marketing page and add a global command palette that competes with the
+ * contextual KNOuX dock.
+ *
+ * The scoping is `:has()` on `<body>` rather than a descendant selector, because
+ * the masthead and footer are *siblings* of this route's tree — CSS cannot reach
+ * a preceding sibling otherwise. This keeps the rule in one stylesheet instead of
+ * threading a surface flag through the root layout.
+ */
+
+body:has(.command-root) .site-header,
+body:has(.command-root) .site-footer,
+body:has(.command-root) .skip-link {
+  display: none;
+}
+
+.command-root {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+}
+
+/* The console supplies its own skip target and focus behaviour. */
+.command-root :where(main:focus) {
+  outline: none;
+}
+
+.command-root a {
+  color: inherit;
+}
+
+.command-root ::selection {
+  background: color-mix(in srgb, var(--violet) 30%, transparent);
+}

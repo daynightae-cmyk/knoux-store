@@ -1,0 +1,507 @@
+KNOuX STORE — KNOuX CREATIVE / DIGITAL ATELIER V2
+CLAUDE SONNET — VISUAL EXECUTION PROMPT
+
+CONTINUE THE EXISTING KNOuX STORE PROJECT.
+
+THIS IS A VISUAL / INTERACTION MISSION.
+DO NOT START FROM SCRATCH.
+DO NOT REDESIGN THE GLOBAL SITE.
+DO NOT REPLACE THE ACCEPTED HOME HERO.
+DO NOT TOUCH PRODUCT CINEMATIC V2 INTERNAL SCENES.
+DO NOT TOUCH DEV BRIDGE / NODE-PTY WORK.
+DO NOT INVENT CLIENTS, PROJECTS, METRICS, TESTIMONIALS OR CAMPAIGN OUTCOMES.
+
+==================================================
+1. FIRST — VERIFY CURRENT REPOSITORY REALITY
+==================================================
+
+Repository:
+daynightae-cmyk/knoux-store
+
+Project root:
+D:\Knoux Store
+
+Known recent main after Product Cinematic V2 merge:
+e620263e73fef7b2399b866562dec1bc300bfc96
+
+This is a handoff SHA, NOT permanent authority.
+
+Run:
+
+git fetch origin --prune
+git rev-parse origin/main
+git log -10 origin/main --oneline --decorate
+
+Check current required GitHub Actions / production state before claiming a clean baseline.
+
+Create a DEDICATED worktree from the verified current origin/main.
+
+Preferred:
+
+BRANCH:
+feat/creative-digital-atelier-v2
+
+WORKTREE:
+D:\Knoux Store-worktrees\creative-digital-atelier-v2
+
+Before editing:
+
+pwd
+git rev-parse --show-toplevel
+git branch --show-current
+git rev-parse HEAD
+git status --porcelain=v2 --branch
+
+Do not reset, clean, stash, force-push, or touch another worktree.
+
+==================================================
+2. MASTER MAP IS BINDING
+==================================================
+
+READ FIRST:
+
+references/KNOuX_VISUAL_REFERENCE_MASTER_MAP.md
+
+For THIS mission the reference allowlist is EXACTLY:
+
+references/visual-library/originals/01-vanta-digital-atelier/
+
+IGNORE EVERY OTHER visual reference folder for this task.
+
+Do not inspect another reference "for extra inspiration".
+Do not blend references.
+
+The Vanta reference is READ ONLY.
+
+DO NOT:
+- edit it
+- format it
+- refactor it
+- copy its branding
+- copy its text
+- copy its palette
+- import it wholesale into production
+
+Extract only the mapped mechanics:
+- monochrome editorial pacing
+- large typographic hierarchy
+- numbered collection rhythm
+- particles-as-material
+- controlled reveal
+- atelier / crafted-system atmosphere
+
+==================================================
+3. CURRENT KNOuX CREATIVE TRUTH
+==================================================
+
+Audit the current production source first:
+
+src/app/creative/page.tsx
+src/components/SpatialExperiences.tsx
+src/data/services.ts
+relevant creative detail routes
+relevant CSS/design tokens
+
+Current `/creative` already has:
+- real `creativeDisciplines`
+- `MaterialLab`
+- discipline navigation
+- deliverables
+- principles
+- real cross-division relationships
+- truthful enquiry links
+- an explicit honest state saying no verified Creative project archive is currently published
+
+PRESERVE THIS TRUTH.
+
+No fake gallery.
+No fake client names.
+No fake campaign media.
+No fake project cards.
+No fake metrics.
+
+==================================================
+4. PRIMARY VISUAL MISSION
+==================================================
+
+Transform `/creative` into:
+
+KNOuX CREATIVE
+DIGITAL ATELIER / MATERIAL SYSTEMS
+
+The page should feel like KNOuX is crafting visual systems, not displaying a generic agency portfolio.
+
+The experience must communicate:
+
+- creative disciplines as engineered materials
+- specification before decoration
+- visual systems that can be handed to implementation
+- controlled experimentation
+- strong typography
+- tactile computational material
+- premium black-space composition
+- quiet but memorable motion
+
+==================================================
+5. PROTECTED KNOuX IDENTITY
+==================================================
+
+Use:
+
+BLACK
+MATTE NEAR-BLACK
+GRAPHITE
+OFF-WHITE
+SILVER
+PLATINUM
+VERY MUTED LAVENDER
+
+Thin borders.
+Architectural alignment.
+Strong negative space.
+Near-zero glow.
+Controlled depth.
+
+NO:
+- Vanta brand colors
+- gold
+- bright gradients
+- blue/purple cyberpunk
+- rainbow shaders
+- glass-card spam
+- generic SaaS UI
+- huge glowing pills
+- random 3D objects
+
+==================================================
+6. EVOLVE MATERIAL LAB — DO NOT DELETE ITS TRUTH
+==================================================
+
+`MaterialLab` already selects real `creativeDisciplines`.
+
+Do not replace it with decorative fake content.
+
+Evolve it into a visual atelier instrument.
+
+Suggested behavior:
+
+LEFT / CONTEXT:
+- material index
+- discipline code
+- discipline name
+
+CENTER / MATERIAL FIELD:
+- one living computational material study
+- changes deterministically by selected discipline
+- the material should communicate character without pretending to be finished client work
+
+RIGHT / SPECIFICATION:
+- statement
+- selected deliverables
+- principles
+- route into discipline detail
+
+The exact layout may change after browser inspection.
+
+==================================================
+7. MATERIAL FIELD
+==================================================
+
+Prefer a restrained implementation:
+
+Canvas 2D + DOM/SVG
+or existing lightweight mechanisms
+
+Do not add Three.js simply because the reference uses 3D.
+
+If the existing page can achieve the result without a new WebGL context, do so.
+
+Each discipline may have a deterministic visual grammar derived from its existing ID/code, for example:
+- line density
+- particle grouping
+- geometric rhythm
+- masking
+- grid deformation
+- typographic fragments
+
+But do NOT invent semantic data.
+
+Visual variation is allowed.
+Business facts are not.
+
+==================================================
+8. INTERACTION
+==================================================
+
+Desktop:
+- hover/focus/select a discipline
+- material field transitions
+- specification updates
+- selected state stays visually clear
+- no React rerender on every pointermove
+- no global pointer follower duplication
+
+Keyboard:
+- every discipline reachable
+- selected state follows focus
+- visible focus ring
+
+Touch:
+- tap selection
+- no hover dependency
+
+Reduced motion:
+- stable material state
+- no continuous decorative RAF
+- no hidden content
+
+==================================================
+9. PAGE COMPOSITION
+==================================================
+
+Do not make `/creative` a list of cards.
+
+Preferred authored flow:
+
+01 — Creative intro
+02 — Digital Atelier / Material Lab
+03 — Creative discipline index
+04 — specification-led discipline records
+05 — honest archive state
+06 — cross-division bridge
+
+Preserve useful existing sections where they work.
+
+The page should feel continuous, not six disconnected widgets.
+
+==================================================
+10. HONEST ARCHIVE STATE
+==================================================
+
+The current page explicitly says no verified Creative project archive is published.
+
+KEEP THAT HONESTY.
+
+You may redesign the visual presentation of this state so it feels intentional and premium.
+
+Do NOT replace it with fake thumbnails.
+
+Do NOT use the Vanta "collection" as if KNOuX has projects it does not have.
+
+The "collection" mechanic may map to the REAL creative disciplines, not fictional work.
+
+==================================================
+11. PERFORMANCE
+==================================================
+
+Required:
+
+- deterministic rendering
+- no Math.random() in production visual state
+- no state update per pointermove
+- RAF only while needed
+- stop when offscreen / hidden
+- DPR cap
+- no unnecessary package
+- no new global WebGL context without proof
+- no performance-budget increase
+
+Measure `/creative` before and after.
+
+==================================================
+12. ACCESSIBILITY
+==================================================
+
+Required:
+
+- semantic controls for disciplines
+- decorative canvas/SVG aria-hidden
+- keyboard selection
+- visible focus
+- no information available only by color
+- reduced-motion path
+- no horizontal overflow
+- Axe 0 critical / 0 serious
+
+Do not suppress Axe findings.
+
+==================================================
+13. RESPONSIVE QA
+==================================================
+
+Physically inspect:
+
+1600x1000
+1440x900
+1280x800
+1024x768
+900x900
+768x1024
+430x932
+390x844
+375x812
+
+Check:
+- Material Lab proportions
+- typography
+- long discipline names
+- selection state
+- touch targets >= 44px
+- no clipping
+- no overlap
+- no horizontal overflow
+- no console/page errors
+
+Mobile must be a real document layout, not a miniature desktop stage.
+
+==================================================
+14. TESTS / GATES
+==================================================
+
+Add focused tests for:
+- Material Lab derives only from real `creativeDisciplines`
+- no invented gallery/project content
+- deterministic selected visual state
+- keyboard selection
+- reduced motion
+- no pointermove React state loop
+- no scroll hijacking
+- semantic discipline links remain present
+
+Run:
+
+npm ci
+npm run lint
+npm run typecheck
+npm test
+npm run build
+git diff --check
+
+Run appropriate browser / Playwright verification.
+
+Capture real exit codes.
+
+Do not reuse old PASS evidence.
+
+==================================================
+15. GIT / PR
+==================================================
+
+Commit only in:
+
+D:\Knoux Store-worktrees\creative-digital-atelier-v2
+
+Push:
+
+feat/creative-digital-atelier-v2
+
+Open ONE PR.
+
+Do not merge until:
+- exact head known
+- worktree clean
+- required CI green
+- CodeQL green
+- Vercel preview ready
+- browser QA complete
+- Home Hero unchanged
+- Product Cinematic V2 unchanged
+- no performance regression
+
+==================================================
+16. FINAL REPORT
+==================================================
+
+Return:
+
+BASE MAIN SHA
+FEATURE HEAD
+FILES CHANGED
+
+REFERENCE USED:
+01-vanta-digital-atelier only
+
+REFERENCE FILES MODIFIED:
+must be NO
+
+CURRENT CREATIVE DATA PRESERVED:
+yes/no + exact sources
+
+VISUAL ARCHITECTURE:
+material renderer
+selection model
+responsive model
+reduced-motion model
+
+TRUTH:
+real discipline count
+fake projects added = 0
+fake metrics added = 0
+
+PERFORMANCE:
+before
+after
+delta
+new dependencies
+new WebGL contexts
+
+ACCESSIBILITY:
+keyboard
+Axe
+reduced motion
+
+QA:
+all viewports
+overflow
+console errors
+page errors
+
+GATES:
+npm ci
+lint
+typecheck
+tests
+build
+diff-check
+Playwright
+
+GIT:
+commit
+push
+remote SHA
+
+PR:
+number
+exact head
+CI
+Vercel
+
+FINAL STATUS:
+COMPLETE / PARTIAL / BLOCKED
+
+==================================================
+FINAL DIRECTIVE
+==================================================
+
+THIS IS KNOuX CREATIVE, NOT A VANTA CLONE.
+
+USE THE VANTA REFERENCE ONLY FOR ITS ASSIGNED
+EDITORIAL / MATERIAL / MOTION MECHANICS.
+
+KEEP KNOuX IDENTITY.
+
+KEEP THE CURRENT TRUTH.
+
+NO FAKE PORTFOLIO.
+NO GENERIC CARDS.
+NO GLOBAL REDESIGN.
+NO SECOND HOME HERO.
+NO PERFORMANCE CHEATING.
+NO FAKE PASS.
+
+AUDIT.
+RENDER.
+INSPECT.
+CORRECT.
+VERIFY.
+THEN REPORT.

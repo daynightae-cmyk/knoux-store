@@ -23,6 +23,15 @@ sources:
     license_url: "https://www.apache.org/licenses/LICENSE-2.0"
     source_url: "https://github.com/google/libphonenumber"
     mode: library
+    download_urls:
+      metadata: "https://raw.githubusercontent.com/google/libphonenumber/master/resources/PhoneNumberMetadata.xml"
+      carrier_eg: "https://raw.githubusercontent.com/google/libphonenumber/master/resources/carrier/en/20.txt"
+      carrier_ae: "https://raw.githubusercontent.com/google/libphonenumber/master/resources/carrier/en/971.txt"
+      carrier_sa: "https://raw.githubusercontent.com/google/libphonenumber/master/resources/carrier/en/966.txt"
+      carrier_kw: "https://raw.githubusercontent.com/google/libphonenumber/master/resources/carrier/en/965.txt"
+      carrier_qa: "https://raw.githubusercontent.com/google/libphonenumber/master/resources/carrier/en/974.txt"
+      carrier_bh: "https://raw.githubusercontent.com/google/libphonenumber/master/resources/carrier/en/973.txt"
+      carrier_om: "https://raw.githubusercontent.com/google/libphonenumber/master/resources/carrier/en/968.txt"
     contains:
       telecom_metadata: true
       phone_business: false
@@ -31,7 +40,7 @@ sources:
   - id: wikidata_phones
     name: "Wikidata official phone statements"
     status: APPROVED
-    enabled: false
+    enabled: true
     priority: 1
     countries: [EG, AE, SA, KW, QA, BH, OM]
     publisher: "Wikimedia Foundation"
@@ -43,36 +52,54 @@ sources:
       phone_business: true
       phone_person: true
       phone_alias: false
-    notes: "Disabled until bounded SPARQL ingestion and privacy review are complete."
+    notes: "Enabled only for bounded country-scoped P1329 acquisition that excludes explicit human items (Q5); validate normalized output before each promotion."
 
   - id: openstreetmap
     name: "OpenStreetMap public places"
     status: APPROVED
-    enabled: false
+    enabled: true
     priority: 1
     countries: [EG, AE, SA, KW, QA, BH, OM]
-    publisher: "OpenStreetMap Foundation"
+    publisher: "OpenStreetMap Foundation / Geofabrik"
     license: "ODbL-1.0"
     license_url: "https://opendatacommons.org/licenses/odbl/1-0/"
     source_url: "https://www.openstreetmap.org"
-    mode: overpass
+    mode: bulk_pbf
+    download_urls:
+      egypt: "https://download.geofabrik.de/africa/egypt-260929.osm.pbf"
+      gcc_states: "https://download.geofabrik.de/asia/gcc-states-260929.osm.pbf"
+    commercial_use: true
+    redistribution: true
+    attribution_required: true
+    automated_access_allowed: true
     contains:
       phone_business: true
       phone_person: false
-    notes: "Enable only for bounded business/place queries with attribution."
+    notes: "Geofabrik 2026-09-29 extracts; contributor identity metadata excluded; ODbL attribution required."
 
   - id: itu_numbering
-    name: "ITU numbering plans"
+    name: "ITU national numbering plans"
     status: APPROVED
-    enabled: false
+    enabled: true
     priority: 3
     countries: [EG, AE, SA, KW, QA, BH, OM]
     publisher: "International Telecommunication Union"
-    source_url: "https://www.itu.int"
+    source_url: "https://www.itu.int/oth/T0202"
     mode: document
+    download_urls:
+      egypt: "https://www.itu.int/dms_pub/itu-t/oth/02/02/T020200003E0004PDFE.pdf"
+      uae: "https://www.itu.int/dms_pub/itu-t/oth/02/02/T02020000DC0001PDFE.pdf"
+      saudi: "https://www.itu.int/dms_pub/itu-t/oth/02/02/T02020000B70006PDFE.pdf"
+      kuwait: "https://www.itu.int/dms_pub/itu-t/oth/02/02/T02020000730012PDFE.pdf"
+      qatar: "https://www.itu.int/dms_pub/itu-t/oth/02/02/T02020000AB0002PDFE.pdf"
+      bahrain: "https://www.itu.int/dms_pub/itu-t/oth/02/02/T02020000110008PDFE.pdf"
+      oman: "https://www.itu.int/dms_pub/itu-t/oth/02/02/T020200009F0009PDFE.pdf"
+    automated_access_allowed: true
+    redistribution: false
+    attribution_required: true
     contains:
       telecom_metadata: true
-    notes: "Reference documents only until reuse terms and extraction are verified."
+    notes: "Official free-access ITU numbering-plan PDFs; ingest factual numbering allocations with provenance. Do not redistribute the source PDFs."
 
   - id: dubai_pulse_ded_commerce
     name: "Dubai Pulse DED commerce"
@@ -118,16 +145,64 @@ sources:
 
   - id: mcc_mnc_org
     name: "MCC/MNC global network codes"
-    status: QUARANTINED
-    enabled: false
-    priority: 3
+    status: APPROVED
+    enabled: true
+    priority: 2
     countries: [EG, AE, SA, KW, QA, BH, OM]
     publisher: "mcc-mnc.org"
+    license: "Free commercial and non-commercial use; attribution requested for public use"
+    license_url: "https://mcc-mnc.org/downloads"
+    commercial_use: true
+    redistribution: true
+    attribution_required: true
+    automated_access_allowed: true
     source_url: "https://mcc-mnc.org"
+    download_url: "https://mcc-mnc.org/downloads/networks.csv"
     mode: bulk
-    quarantine_reason: "Reuse/license evidence must be retained before production download."
     contains:
       telecom_metadata: true
+
+  - id: opensanctions_targets
+    name: "OpenSanctions Public Entity Targets"
+    status: APPROVED
+    enabled: true
+    priority: 1
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    publisher: "OpenSanctions Community"
+    license: "CC-BY-4.0"
+    license_url: "https://creativecommons.org/licenses/by/4.0/"
+    source_url: "https://data.opensanctions.org/datasets/latest/default/targets.simple.csv"
+    mode: stream
+    commercial_use: true
+    redistribution: true
+    attribution_required: true
+    automated_access_allowed: true
+    contains:
+      phone_business: true
+      phone_person: true
+      phone_alias: true
+    notes: "Sanctions, PEPs, and public entity targets dataset with high-confidence phone numbers, person identities, business identities, and aliases across MENA."
+
+  - id: overture_foursquare_places
+    name: "Overture Maps x Foursquare OS Places"
+    status: APPROVED
+    enabled: true
+    priority: 1
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    publisher: "Placekey / Foursquare Open Source Places / Overture Maps Foundation"
+    license: "Apache-2.0"
+    license_url: "https://www.apache.org/licenses/LICENSE-2.0"
+    source_url: "https://huggingface.co/datasets/Placekey/FOURSQUARE_OPEN_SOURCE_PLACES_x_OVERTURE_INNER_JOIN"
+    mode: bulk_parquet
+    commercial_use: true
+    redistribution: true
+    attribution_required: true
+    automated_access_allowed: true
+    contains:
+      phone_business: true
+      phone_person: false
+      phone_alias: false
+    notes: "Joined Apache 2.0 commercial POI and place dataset with verified telephone numbers and categories across all 7 target MENA countries."
 
   - id: opencorporates
     name: "OpenCorporates"

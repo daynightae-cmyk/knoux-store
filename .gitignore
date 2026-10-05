@@ -37,6 +37,7 @@ qa-*.png
 
 scripts/
 *.py
+!/gateway/*.py
 KNOuX_VISUAL_REFERENCES_MASTER.txt
 KNOuX_WORK_EXECUTION_PROMPT.txt
 New Text Document.txt
@@ -45,6 +46,25 @@ public/knoux-particles.bin
 # KNOuX Signal local server logs
 .signal-server.*
 
+# Build, lint and typecheck provenance written by the ad-hoc proof scripts, plus the
+# QA harness and smoke fixtures they drive. Each run overwrites its own files, so they
+# are evidence of one local run rather than source. The harness scripts are regenerated
+# by hand when a check needs to change.
+.signal-*.log
+.signal-*.code
+.signal-*.err
+.signal-*.cmd
+.signal-*.ps1
+.signal-*.mjs
+.signal-normalize-smoke.*
+
+# Screenshots and QA result JSON from manual visual passes. Reproducible from the
+# running server; the PNG pattern above already covers the images.
+/audit/
+
+# Supabase CLI scratch (link state, cached project ids).
+/supabase/.temp/
+
 # KNOuX Signal ingestion pipeline is tracked; other legacy scripts remain ignored.
 !/scripts/
 /scripts/*
@@ -52,6 +72,7 @@ public/knoux-particles.bin
 !/scripts/signal/**
 !/scripts/signal/*.py
 .venv-signal/
+.venv-signal-boundary/
 __pycache__/
 *.pyc
 
@@ -88,3 +109,17 @@ node_modules*/
 # stay local. Ignore the awareness report family only; anything else placed under
 # .claude/ may be hand-maintained repository configuration and must stay trackable.
 .claude/*mcp-skills-awareness*.md
+# KNOuX Store MCP Gateway local artifacts
+gateway/.venv/
+gateway/__pycache__/
+gateway/*.pyc
+
+# Generated content exports and local Supabase state; regenerate from the tracked seed tool.
+supabase/.temp/
+supabase/.seed-batches/
+supabase/content-registry.generated.json
+supabase/seed.generated.sql
+gateway/.venv*/
+
+# Local recovery bundles and snapshots never belong in the product history.
+/.knoux-recovery/

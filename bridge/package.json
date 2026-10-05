@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/launch.json",
   "version": "0.1.0",
   "name": "knoux-bridge",
-  "description": "KNOuX Build Bridge — authenticated local shell, filesystem and process service for the DEV workspace",
+  "description": "KNOuX Build Bridge \u2014 authenticated local shell, filesystem and process service for the DEV workspace",
   "type": "module",
   "private": true,
   "license": "UNLICENSED",
@@ -17,7 +17,7 @@
     "start": "node dist/main.js",
     "doctor": "node dist/main.js doctor",
     "pretest": "tsc",
-    "test": "node --test --test test/projects.test.mjs test/policy.test.mjs test/ticket.test.mjs test/session.test.mjs test/config.test.mjs test/server.test.mjs && node --test --test test/node-pty-contract.test.mjs && node --test --test-force-exit --test test/terminal.test.mjs"
+    "test": "node --test --test test/projects.test.mjs test/policy.test.mjs test/ticket.test.mjs test/session.test.mjs test/config.test.mjs test/server.test.mjs test/control-plane.test.mjs && node --test --test test/node-pty-contract.test.mjs && node --test --test-force-exit --test test/terminal.test.mjs"
   },
   "dependencies": {
     "node-pty": "1.1.0",

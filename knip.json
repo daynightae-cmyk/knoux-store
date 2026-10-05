@@ -11,7 +11,12 @@
     "e2e/**/*.ts",
     "playwright.config.ts"
   ],
-  "project": ["src/**/*.{ts,tsx}", "e2e/**/*.ts", "tests/**/*.mjs", "*.{ts,mjs}"],
+  "project": [
+    "src/**/*.{ts,tsx}",
+    "e2e/**/*.ts",
+    "tests/**/*.mjs",
+    "*.{ts,mjs}"
+  ],
   "ignore": [
     "references/**",
     "remix-regal-portrait-with-imme/**",
@@ -45,6 +50,7 @@
     "src/lib/http/rate-limit.ts": ["exports", "types"],
     "src/lib/contact/intake-guard.ts": ["exports", "types"],
     "src/lib/security/headers.ts": ["exports", "types"],
+    "src/lib/ai/context-manager.ts": ["exports", "types"],
     "src/lib/wordpress/wordpress-org.ts": ["exports", "types"],
     "src/lib/wordpress/asset-policy.ts": ["exports", "types"],
     "src/lib/auth/redirect.ts": ["exports", "types"],
@@ -67,7 +73,10 @@
     "src/components/three/LivingParticleMark.tsx": ["exports", "types"],
     "src/components/wordpress/ExternalMarketplace.tsx": ["exports", "types"],
     "src/components/RequestForm.tsx": ["exports", "types"],
-    "src/components/build/workspace/KnouxBuildWorkspace.tsx": ["exports", "types"],
+    "src/components/build/workspace/KnouxBuildWorkspace.tsx": [
+      "exports",
+      "types"
+    ],
     "src/components/build/dev/BuildEntryGate.tsx": ["exports", "types"],
     "src/components/build/spatial/ProjectHud.tsx": ["exports", "types"],
     "src/lib/build/providers.ts": ["exports", "types"],

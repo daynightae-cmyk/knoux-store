@@ -1,0 +1,9 @@
+[project]
+name = "knoux-store-mcp-gateway"
+version = "0.2.0"
+description = "Google-OIDC authenticated MCP gateway for the KNOuX Store outbound control plane"
+requires-python = ">=3.13"
+dependencies = [
+  "fastmcp==2.13.1",
+  "httpx==0.28.1",
+]

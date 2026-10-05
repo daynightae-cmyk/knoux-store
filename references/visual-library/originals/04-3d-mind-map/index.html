@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Interactive Mind Map</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0f;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  #tooltip {
+    position: fixed;
+    background: rgba(18, 18, 24, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: #e0e0e0;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 100;
+    max-width: 220px;
+    line-height: 1.4;
+  }
+
+  #ui-overlay {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  #title-bar {
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0 4px;
+    color: #e0e0e0;
+  }
+
+  #title-bar h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+
+  #title-bar p {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 400;
+  }
+
+  #controls {
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0 4px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .ctrl-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #c0c0c0;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .ctrl-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+  }
+
+  .ctrl-btn.active {
+    background: rgba(100, 140, 255, 0.2);
+    border-color: rgba(100, 140, 255, 0.4);
+    color: #8aafff;
+  }
+
+  #map-switcher {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    z-index: 50;
+    display: flex;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+
+  .map-btn {
+    background: rgba(18, 18, 24, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: rgba(255,255,255,0.5);
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+  }
+
+  .map-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .map-btn.active {
+    background: rgba(100, 140, 255, 0.15);
+    border-color: rgba(100, 140, 255, 0.4);
+    color: #8aafff;
+  }
+
+  #legend {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    background: rgba(18, 18, 24, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 12px 16px;
+    z-index: 50;
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 400;
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  #fallback-msg {
+    display: none;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: #e0e0e0;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    z-index: 200;
+    background: rgba(18, 18, 24, 0.95);
+    padding: 24px 32px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  #fallback-msg h2 { font-size: 18px; margin-bottom: 8px; }
+  #fallback-msg p { font-size: 13px; color: rgba(255,255,255,0.5); }
+
+  /* Settings toggle */
+  #settings-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    background: rgba(18, 18, 24, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: #c0c0c0;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 60;
+    transition: all 0.3s ease;
+    user-select: none;
+  }
+  #settings-toggle:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+  /* Settings panel */
+  #settings-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100vh;
+    background: rgba(14, 14, 20, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 150;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0 0 24px 0;
+  }
+  #settings-panel.open { transform: translateX(0); }
+
+  #settings-panel::-webkit-scrollbar { width: 4px; }
+  #settings-panel::-webkit-scrollbar-track { background: transparent; }
+  #settings-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+  .sp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    position: sticky;
+    top: 0;
+    background: rgba(14, 14, 20, 0.98);
+    z-index: 2;
+  }
+  .sp-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e0e0e0;
+    letter-spacing: -0.3px;
+  }
+  .sp-close {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    color: #aaa;
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .sp-close:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+  .sp-section {
+    padding: 14px 18px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .sp-section-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 10px;
+  }
+  .sp-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    gap: 10px;
+  }
+  .sp-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    font-weight: 400;
+    white-space: nowrap;
+    min-width: 80px;
+  }
+  .sp-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.1);
+    outline: none;
+    cursor: pointer;
+  }
+  .sp-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #8aafff;
+    border: 2px solid rgba(14,14,20,0.9);
+    cursor: pointer;
+  }
+  .sp-select {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    color: #c0c0c0;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    padding: 5px 8px;
+    outline: none;
+    cursor: pointer;
+  }
+  .sp-select option { background: #1a1a24; }
+  .sp-color-input {
+    width: 32px;
+    height: 24px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+  }
+  .sp-color-input::-webkit-color-swatch-wrapper { padding: 2px; }
+  .sp-color-input::-webkit-color-swatch { border: none; border-radius: 2px; }
+  .sp-toggle {
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.1);
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+  }
+  .sp-toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #666;
+    transition: all 0.2s;
+  }
+  .sp-toggle.active { background: rgba(100,140,255,0.3); }
+  .sp-toggle.active::after { left: 19px; background: #8aafff; }
+
+  .sp-value {
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    font-weight: 500;
+    min-width: 28px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+</head>
+<body>
+<div id="tooltip"></div>
+<div id="fallback-msg">
+  <h2>WebGPU Not Available</h2>
+  <p>Your browser does not support WebGPU. Please use Chrome 113+ or Edge 113+.</p>
+</div>
+
+<div id="ui-overlay">
+  <div id="title-bar">
+    <h1>3D Mind Map — Creative Thinking</h1>
+    <p>Drag nodes · Scroll to zoom · Click to expand/collapse · Right-drag to rotate</p>
+  </div>
+  <div id="controls">
+    <button class="ctrl-btn" onclick="resetView()">Reset View</button>
+    <button class="ctrl-btn" onclick="togglePhysics()" id="physicsBtn">Pause Physics</button>
+    <button class="ctrl-btn" onclick="expandAll()">Expand All</button>
+    <button class="ctrl-btn" onclick="collapseAll()">Collapse All</button>
+  </div>
+</div>
+
+<div id="map-switcher">
+  <button class="map-btn active" onclick="switchMindMap('creative')">🧠 Creative</button>
+  <button class="map-btn" onclick="switchMindMap('startup')">🚀 Startup</button>
+  <button class="map-btn" onclick="switchMindMap('wellness')">🌿 Wellness</button>
+  <button class="map-btn" onclick="switchMindMap('music')">🎵 Music</button>
+</div>
+
+<div id="legend"></div>
+
+<div id="settings-toggle" onclick="toggleSettings()">⚙</div>
+<div id="settings-panel">
+  <div class="sp-header">
+    <h3>Scene Settings</h3>
+    <button class="sp-close" onclick="toggleSettings()">✕</button>
+  </div>
+
+  <!-- HDR / Background -->
+  <div class="sp-section">
+    <div class="sp-section-title">Environment</div>
+    <div class="sp-row">
+      <span class="sp-label">HDR Map</span>
+      <select class="sp-select" id="hdr-select" onchange="changeHDR(this.value)">
+        <option value="starry_sky">Starry Sky</option>
+        <option value="kloppenheim_02">Kloppenheim</option>
+        <option value="moonless_golf" selected>Moonless Golf</option>
+        <option value="industrial_sunset_02_puresky">Sunset</option>
+        <option value="shanghai_bund">Shanghai Bund</option>
+        <option value="none">None (Dark)</option>
+      </select>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">BG Blur</span>
+      <input type="range" class="sp-slider" min="0" max="100" value="0" oninput="setBGBlur(this.value)">
+      <span class="sp-value" id="val-bg-blur">0</span>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">BG Intensity</span>
+      <input type="range" class="sp-slider" min="0" max="100" value="0" oninput="setBGIntensity(this.value)">
+      <span class="sp-value" id="val-bg-intensity">0</span>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Env Intensity</span>
+      <input type="range" class="sp-slider" min="0" max="100" value="60" oninput="setEnvIntensity(this.value)">
+      <span class="sp-value" id="val-env-intensity">60</span>
+    </div>
+  </div>
+
+  <!-- Lighting -->
+  <div class="sp-section">
+    <div class="sp-section-title">Lighting</div>
+    <div class="sp-row">
+      <span class="sp-label">Ambient</span>
+      <input type="range" class="sp-slider" min="0" max="100" value="60" id="ambientSlider" oninput="setAmbient(this.value)">
+      <span class="sp-value" id="val-ambient">60</span>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Ambient Color</span>
+      <input type="color" class="sp-color-input" value="#ffffff" oninput="setAmbientColor(this.value)">
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Key Light</span>
+      <input type="range" class="sp-slider" min="0" max="100" value="80" oninput="setKeyLight(this.value)">
+      <span class="sp-value" id="val-key-light">80</span>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Key Color</span>
+      <input type="color" class="sp-color-input" value="#ffffff" oninput="setKeyColor(this.value)">
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Fill Light</span>
+      <input type="range" class="sp-slider" min="0" max="100" value="30" oninput="setFillLight(this.value)">
+      <span class="sp-value" id="val-fill-light">30</span>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Fill Color</span>
+      <input type="color" class="sp-color-input" value="#6688ff" oninput="setFillColor(this.value)">
+    </div>
+  </div>
+
+  <!-- Material -->
+  <div class="sp-section">
+    <div class="sp-section-title">Material</div>
+    <div class="sp-row">
+      <span class="sp-label">Roughness</span>
+      <input type="range" class="sp-slider" min="0" max="100" value="30" oninput="setRoughness(this.value)">
+      <span class="sp-value" id="val-roughness">30</span>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Metalness</span>
+      <input type="range" class="sp-slider" min="0" max="100" value="10" oninput="setMetalness(this.value)">
+      <span class="sp-value" id="val-metalness">10</span>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Emissive</span>
+      <input type="range" class="sp-slider" min="0" max="100" value="35" oninput="setEmissive(this.value)">
+      <span class="sp-value" id="val-emissive">35</span>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Glow Opacity</span>
+      <input type="range" class="sp-slider" min="0" max="100" value="5" oninput="setGlowOpacity(this.value)">
+      <span class="sp-value" id="val-glow-opacity">5</span>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Glow Size</span>
+      <input type="range" class="sp-slider" min="100" max="500" value="200" oninput="setGlowSize(this.value)">
+      <span class="sp-value" id="val-glow-size">200</span>
+    </div>
+  </div>
+
+  <!-- Post / Rendering -->
+  <div class="sp-section">
+    <div class="sp-section-title">Bloom</div>
+    <div class="sp-row">
+      <span class="sp-label">Strength</span>
+      <input type="range" class="sp-slider" min="0" max="500" value="250" oninput="setBloomStrength(this.value)">
+      <span class="sp-value" id="val-bloom-strength">250</span>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Threshold</span>
+      <input type="range" class="sp-slider" min="0" max="100" value="0" oninput="setBloomThreshold(this.value)">
+      <span class="sp-value" id="val-bloom-threshold">0</span>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Radius</span>
+      <input type="range" class="sp-slider" min="0" max="100" value="50" oninput="setBloomRadius(this.value)">
+      <span class="sp-value" id="val-bloom-radius">50</span>
+    </div>
+  </div>
+
+  <div class="sp-section">
+    <div class="sp-section-title">Rendering</div>
+    <div class="sp-row">
+      <span class="sp-label">Tone Mapping</span>
+      <select class="sp-select" onchange="setToneMapping(this.value)">
+        <option value="aces" selected>ACES Filmic</option>
+        <option value="linear">Linear</option>
+        <option value="reinhard">Reinhard</option>
+        <option value="cineon">Cineon</option>
+        <option value="agx">AgX</option>
+        <option value="neutral">Neutral</option>
+      </select>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Exposure</span>
+      <input type="range" class="sp-slider" min="10" max="300" value="120" oninput="setExposure(this.value)">
+      <span class="sp-value" id="val-exposure">120</span>
+    </div>
+  </div>
+
+  <!-- Particles -->
+  <div class="sp-section">
+    <div class="sp-section-title">Particles</div>
+    <div class="sp-row">
+      <span class="sp-label">Dust Visible</span>
+      <div class="sp-toggle active" id="dustToggle" onclick="toggleDust()"></div>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Dust Opacity</span>
+      <input type="range" class="sp-slider" min="0" max="100" value="50" oninput="setDustOpacity(this.value)">
+      <span class="sp-value" id="val-dust-opacity">50</span>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Dust Size</span>
+      <input type="range" class="sp-slider" min="1" max="10" value="3" oninput="setDustSize(this.value)">
+      <span class="sp-value" id="val-dust-size">3</span>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Dust Color</span>
+      <input type="color" class="sp-color-input" value="#6688cc" oninput="setDustColor(this.value)">
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Link Particles</span>
+      <div class="sp-toggle active" id="linkParticleToggle" onclick="toggleLinkParticles()"></div>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label">Link Opacity</span>
+      <input type="range" class="sp-slider" min="5" max="80" value="30" oninput="setLinkOpacity(this.value)">
+      <span class="sp-value" id="val-link-opacity">30</span>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.183.0/build/three.webgpu.js",
+    "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.183.0/build/three.webgpu.js",
+    "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.183.0/build/three.tsl.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.183.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three/webgpu';
+import { pass, mrt, output, emissive } from 'three/tsl';
+import { bloom } from 'three/addons/tsl/display/BloomNode.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+
+// ── Setup ──
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0a0f);
+
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+camera.position.set(0, 150, 400);
+
+let renderer;
+try {
+  renderer = new THREE.WebGPURenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
+  document.body.appendChild(renderer.domElement);
+} catch(e) {
+  console.error('WebGPU renderer creation failed:', e);
+  document.getElementById('fallback-msg').style.display = 'block';
+  document.getElementById('ui-overlay').style.display = 'none';
+  document.getElementById('legend').style.display = 'none';
+  throw e;
+}
+
+// Controls
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 80;
+controls.maxDistance = 900;
+controls.target.set(0, 0, 0);
+
+// Lights
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+ambientLight.name = 'ambientLight';
+scene.add(ambientLight);
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+dirLight.name = 'dirLight';
+dirLight.position.set(100, 200, 150);
+scene.add(dirLight);
+const dirLight2 = new THREE.DirectionalLight(0x6688ff, 0.3);
+dirLight2.name = 'dirLight2';
+dirLight2.position.set(-100, -50, -100);
+scene.add(dirLight2);
+
+// ── HDR Environment ──
+new RGBELoader()
+  .load('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/moonless_golf_1k.hdr', (hdrTexture) => {
+    hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
+    scene.background = hdrTexture;
+    scene.backgroundBlurriness = 0;
+    scene.backgroundIntensity = 0;
+    scene.environment = hdrTexture;
+    scene.environmentIntensity = 0.6;
+    currentHDRTexture = hdrTexture;
+  }, undefined, () => {
+    // Fallback
+    new RGBELoader()
+      .load('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/starry_sky_1k.hdr', (hdrTexture) => {
+        hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
+        scene.background = hdrTexture;
+        scene.backgroundBlurriness = 0;
+        scene.backgroundIntensity = 0;
+        scene.environment = hdrTexture;
+        scene.environmentIntensity = 0.6;
+        currentHDRTexture = hdrTexture;
+      }, undefined, () => {
+        console.warn('HDR loading failed, keeping dark background');
+      });
+  });
+
+// ── Palettes per map ──
+const PALETTES = {
+  creative: {
+    root:       { bg: 0x6C5CE7, border: 0xa29bfe, hex: '#6C5CE7' },
+    Design:     { bg: 0xE17055, border: 0xfab1a0, hex: '#E17055' },
+    Technology: { bg: 0x00B894, border: 0x55efc4, hex: '#00B894' },
+    Strategy:   { bg: 0x0984E3, border: 0x74b9ff, hex: '#0984E3' },
+    Research:   { bg: 0xFDCB6E, border: 0xffeaa7, hex: '#FDCB6E' },
+    Culture:    { bg: 0xE84393, border: 0xfd79a8, hex: '#E84393' },
+  },
+  startup: {
+    root:       { bg: 0xFF6B6B, border: 0xff8e8e, hex: '#FF6B6B' },
+    Product:    { bg: 0x4ECDC4, border: 0x7eddd6, hex: '#4ECDC4' },
+    Growth:     { bg: 0xFFE66D, border: 0xfff0a0, hex: '#FFE66D' },
+    Engineering:{ bg: 0x45B7D1, border: 0x7dcde0, hex: '#45B7D1' },
+    Finance:    { bg: 0x96CEB4, border: 0xb8e0cf, hex: '#96CEB4' },
+    Team:       { bg: 0xDDA0DD, border: 0xe8c0e8, hex: '#DDA0DD' },
+  },
+  wellness: {
+    root:       { bg: 0x2D6A4F, border: 0x52b788, hex: '#2D6A4F' },
+    Body:       { bg: 0xE76F51, border: 0xf09a84, hex: '#E76F51' },
+    Mind:       { bg: 0x457B9D, border: 0x7aabca, hex: '#457B9D' },
+    Nutrition:  { bg: 0xE9C46A, border: 0xf0d88f, hex: '#E9C46A' },
+    Social:     { bg: 0xF4A261, border: 0xf7bf8e, hex: '#F4A261' },
+    Rest:       { bg: 0x8B5CF6, border: 0xab8df8, hex: '#8B5CF6' },
+  },
+  music: {
+    root:       { bg: 0xBE185D, border: 0xe04888, hex: '#BE185D' },
+    Production: { bg: 0x7C3AED, border: 0x9f6ef2, hex: '#7C3AED' },
+    Theory:     { bg: 0x2563EB, border: 0x5b8ef0, hex: '#2563EB' },
+    Instruments:{ bg: 0xD97706, border: 0xe89b3e, hex: '#D97706' },
+    Genres:     { bg: 0x059669, border: 0x34b890, hex: '#059669' },
+    Business:   { bg: 0xDC2626, border: 0xe65c5c, hex: '#DC2626' },
+  },
+};
+
+let PALETTE = PALETTES.creative;
+
+// ── All mind map data ──
+const MIND_MAPS = {
+  creative: {
+    id: 'root', label: 'Creative\nThinking', category: 'root',
+    desc: 'The central hub connecting all creative domains',
+    children: [
+      { id: 'design', label: 'Design', category: 'Design',
+        desc: 'Visual and interaction design disciplines',
+        children: [
+          { id: 'd1', label: 'UI/UX', category: 'Design', desc: 'User interface & experience design',
+            children: [
+              { id: 'd1a', label: 'Wireframing', category: 'Design', desc: 'Low-fidelity layout planning' },
+              { id: 'd1b', label: 'Prototyping', category: 'Design', desc: 'Interactive mock-ups' },
+              { id: 'd1c', label: 'User Testing', category: 'Design', desc: 'Validating designs with real users' },
+            ]},
+          { id: 'd2', label: 'Typography', category: 'Design', desc: 'The art of arranging type',
+            children: [
+              { id: 'd2a', label: 'Font Pairing', category: 'Design', desc: 'Combining complementary typefaces' },
+              { id: 'd2b', label: 'Hierarchy', category: 'Design', desc: 'Visual importance through type scale' },
+            ]},
+          { id: 'd3', label: 'Color Theory', category: 'Design', desc: 'The science and art of color',
+            children: [
+              { id: 'd3a', label: 'Palettes', category: 'Design', desc: 'Curated color combinations' },
+              { id: 'd3b', label: 'Accessibility', category: 'Design', desc: 'Color contrast & inclusivity' },
+            ]},
+          { id: 'd4', label: 'Motion', category: 'Design', desc: 'Animation and transitions' },
+        ]},
+      { id: 'tech', label: 'Technology', category: 'Technology',
+        desc: 'Tools and platforms for building',
+        children: [
+          { id: 't1', label: 'Frontend', category: 'Technology', desc: 'Client-side development',
+            children: [
+              { id: 't1a', label: 'React', category: 'Technology', desc: 'Component-based UI library' },
+              { id: 't1b', label: 'Three.js', category: 'Technology', desc: '3D graphics in the browser' },
+              { id: 't1c', label: 'CSS', category: 'Technology', desc: 'Styling and layout' },
+            ]},
+          { id: 't2', label: 'Backend', category: 'Technology', desc: 'Server-side logic',
+            children: [
+              { id: 't2a', label: 'APIs', category: 'Technology', desc: 'Data interchange endpoints' },
+              { id: 't2b', label: 'Databases', category: 'Technology', desc: 'Persistent data storage' },
+            ]},
+          { id: 't3', label: 'AI / ML', category: 'Technology', desc: 'Artificial intelligence and machine learning',
+            children: [
+              { id: 't3a', label: 'LLMs', category: 'Technology', desc: 'Large Language Models' },
+              { id: 't3b', label: 'Vision', category: 'Technology', desc: 'Computer vision tasks' },
+            ]},
+        ]},
+      { id: 'strategy', label: 'Strategy', category: 'Strategy',
+        desc: 'Planning and decision-making',
+        children: [
+          { id: 's1', label: 'Roadmapping', category: 'Strategy', desc: 'Long-term planning and milestones' },
+          { id: 's2', label: 'Prioritization', category: 'Strategy', desc: 'Focusing on high-impact work',
+            children: [
+              { id: 's2a', label: 'MoSCoW', category: 'Strategy', desc: 'Must/Should/Could/Won\'t framework' },
+              { id: 's2b', label: 'RICE', category: 'Strategy', desc: 'Reach, Impact, Confidence, Effort' },
+            ]},
+          { id: 's3', label: 'OKRs', category: 'Strategy', desc: 'Objectives & key results' },
+        ]},
+      { id: 'research', label: 'Research', category: 'Research',
+        desc: 'Discovery and validation',
+        children: [
+          { id: 'r1', label: 'User Research', category: 'Research', desc: 'Understanding user needs',
+            children: [
+              { id: 'r1a', label: 'Interviews', category: 'Research', desc: 'In-depth qualitative insights' },
+              { id: 'r1b', label: 'Surveys', category: 'Research', desc: 'Quantitative data collection' },
+            ]},
+          { id: 'r2', label: 'Competitive\nAnalysis', category: 'Research', desc: 'Evaluating the market landscape' },
+          { id: 'r3', label: 'Data Analysis', category: 'Research', desc: 'Interpreting metrics and trends' },
+        ]},
+      { id: 'culture', label: 'Culture', category: 'Culture',
+        desc: 'Team dynamics and collaboration',
+        children: [
+          { id: 'c1', label: 'Collaboration', category: 'Culture', desc: 'Working effectively together',
+            children: [
+              { id: 'c1a', label: 'Workshops', category: 'Culture', desc: 'Facilitated group activities' },
+              { id: 'c1b', label: 'Brainstorming', category: 'Culture', desc: 'Ideation sessions' },
+            ]},
+          { id: 'c2', label: 'Mentorship', category: 'Culture', desc: 'Knowledge transfer and growth' },
+          { id: 'c3', label: 'Feedback', category: 'Culture', desc: 'Constructive critique loops' },
+        ]},
+    ]
+  },
+  startup: {
+    id: 'root', label: 'Startup\nPlaybook', category: 'root',
+    desc: 'Everything needed to launch and scale',
+    children: [
+      { id: 'product', label: 'Product', category: 'Product',
+        desc: 'Building what users need',
+        children: [
+          { id: 'p1', label: 'MVP', category: 'Product', desc: 'Minimum viable product',
+            children: [
+              { id: 'p1a', label: 'Validation', category: 'Product', desc: 'Testing core assumptions' },
+              { id: 'p1b', label: 'Iteration', category: 'Product', desc: 'Rapid build-measure-learn cycles' },
+            ]},
+          { id: 'p2', label: 'Roadmap', category: 'Product', desc: 'Feature planning & sequencing' },
+          { id: 'p3', label: 'Analytics', category: 'Product', desc: 'Data-driven product decisions' },
+        ]},
+      { id: 'growth', label: 'Growth', category: 'Growth',
+        desc: 'Scaling user acquisition',
+        children: [
+          { id: 'g1', label: 'SEO', category: 'Growth', desc: 'Organic search optimization' },
+          { id: 'g2', label: 'Viral Loops', category: 'Growth', desc: 'Built-in sharing mechanics',
+            children: [
+              { id: 'g2a', label: 'Referrals', category: 'Growth', desc: 'User-to-user invitations' },
+              { id: 'g2b', label: 'Network FX', category: 'Growth', desc: 'Value grows with users' },
+            ]},
+          { id: 'g3', label: 'Content', category: 'Growth', desc: 'Content marketing strategy' },
+        ]},
+      { id: 'eng', label: 'Engineering', category: 'Engineering',
+        desc: 'Technical foundation',
+        children: [
+          { id: 'e1', label: 'Architecture', category: 'Engineering', desc: 'System design & scalability' },
+          { id: 'e2', label: 'DevOps', category: 'Engineering', desc: 'CI/CD & infrastructure',
+            children: [
+              { id: 'e2a', label: 'Cloud', category: 'Engineering', desc: 'AWS / GCP / Azure' },
+              { id: 'e2b', label: 'Monitoring', category: 'Engineering', desc: 'Observability & alerting' },
+            ]},
+          { id: 'e3', label: 'Security', category: 'Engineering', desc: 'Data protection & compliance' },
+        ]},
+      { id: 'finance', label: 'Finance', category: 'Finance',
+        desc: 'Funding and financial health',
+        children: [
+          { id: 'f1', label: 'Fundraising', category: 'Finance', desc: 'Raising capital from investors',
+            children: [
+              { id: 'f1a', label: 'Seed', category: 'Finance', desc: 'Early-stage funding' },
+              { id: 'f1b', label: 'Series A', category: 'Finance', desc: 'Growth-stage capital' },
+            ]},
+          { id: 'f2', label: 'Unit Econ', category: 'Finance', desc: 'LTV, CAC & margin analysis' },
+          { id: 'f3', label: 'Burn Rate', category: 'Finance', desc: 'Cash runway management' },
+        ]},
+      { id: 'team', label: 'Team', category: 'Team',
+        desc: 'People and culture',
+        children: [
+          { id: 'tm1', label: 'Hiring', category: 'Team', desc: 'Recruiting top talent' },
+          { id: 'tm2', label: 'Culture', category: 'Team', desc: 'Values and ways of working',
+            children: [
+              { id: 'tm2a', label: 'Remote', category: 'Team', desc: 'Distributed team practices' },
+              { id: 'tm2b', label: 'Rituals', category: 'Team', desc: 'Standups, retros & demos' },
+            ]},
+          { id: 'tm3', label: 'Equity', category: 'Team', desc: 'Stock options & vesting' },
+        ]},
+    ]
+  },
+  wellness: {
+    id: 'root', label: 'Holistic\nWellness', category: 'root',
+    desc: 'A balanced approach to health and well-being',
+    children: [
+      { id: 'body', label: 'Body', category: 'Body',
+        desc: 'Physical fitness and movement',
+        children: [
+          { id: 'b1', label: 'Strength', category: 'Body', desc: 'Resistance training & muscle',
+            children: [
+              { id: 'b1a', label: 'Weights', category: 'Body', desc: 'Free weights & machines' },
+              { id: 'b1b', label: 'Calisthenics', category: 'Body', desc: 'Bodyweight exercises' },
+            ]},
+          { id: 'b2', label: 'Cardio', category: 'Body', desc: 'Cardiovascular endurance' },
+          { id: 'b3', label: 'Flexibility', category: 'Body', desc: 'Stretching & mobility work' },
+        ]},
+      { id: 'mind', label: 'Mind', category: 'Mind',
+        desc: 'Mental health and clarity',
+        children: [
+          { id: 'm1', label: 'Meditation', category: 'Mind', desc: 'Mindfulness and presence',
+            children: [
+              { id: 'm1a', label: 'Breathwork', category: 'Mind', desc: 'Controlled breathing techniques' },
+              { id: 'm1b', label: 'Visualization', category: 'Mind', desc: 'Guided mental imagery' },
+            ]},
+          { id: 'm2', label: 'Journaling', category: 'Mind', desc: 'Reflective writing practice' },
+          { id: 'm3', label: 'Therapy', category: 'Mind', desc: 'Professional mental health support' },
+        ]},
+      { id: 'nutrition', label: 'Nutrition', category: 'Nutrition',
+        desc: 'Fueling the body properly',
+        children: [
+          { id: 'n1', label: 'Whole Foods', category: 'Nutrition', desc: 'Unprocessed, natural ingredients' },
+          { id: 'n2', label: 'Hydration', category: 'Nutrition', desc: 'Water intake & electrolytes',
+            children: [
+              { id: 'n2a', label: 'Water', category: 'Nutrition', desc: 'Daily water goals' },
+              { id: 'n2b', label: 'Electrolytes', category: 'Nutrition', desc: 'Mineral balance' },
+            ]},
+          { id: 'n3', label: 'Supplements', category: 'Nutrition', desc: 'Vitamins & micronutrients' },
+        ]},
+      { id: 'social', label: 'Social', category: 'Social',
+        desc: 'Connection and community',
+        children: [
+          { id: 'so1', label: 'Relationships', category: 'Social', desc: 'Deep personal bonds' },
+          { id: 'so2', label: 'Community', category: 'Social', desc: 'Group belonging & support',
+            children: [
+              { id: 'so2a', label: 'Volunteering', category: 'Social', desc: 'Giving back to others' },
+              { id: 'so2b', label: 'Groups', category: 'Social', desc: 'Shared interest communities' },
+            ]},
+        ]},
+      { id: 'rest', label: 'Rest', category: 'Rest',
+        desc: 'Recovery and rejuvenation',
+        children: [
+          { id: 'rs1', label: 'Sleep', category: 'Rest', desc: 'Quality sleep hygiene',
+            children: [
+              { id: 'rs1a', label: 'Routine', category: 'Rest', desc: 'Consistent bedtime rituals' },
+              { id: 'rs1b', label: 'Environment', category: 'Rest', desc: 'Dark, cool, quiet space' },
+            ]},
+          { id: 'rs2', label: 'Downtime', category: 'Rest', desc: 'Unstructured relaxation' },
+          { id: 'rs3', label: 'Nature', category: 'Rest', desc: 'Time outdoors in green spaces' },
+        ]},
+    ]
+  },
+  music: {
+    id: 'root', label: 'Music\nUniverse', category: 'root',
+    desc: 'The world of sound and rhythm',
+    children: [
+      { id: 'prod', label: 'Production', category: 'Production',
+        desc: 'Creating and recording music',
+        children: [
+          { id: 'pr1', label: 'DAW', category: 'Production', desc: 'Digital audio workstations',
+            children: [
+              { id: 'pr1a', label: 'Ableton', category: 'Production', desc: 'Live performance & production' },
+              { id: 'pr1b', label: 'Logic Pro', category: 'Production', desc: 'Apple\'s pro DAW' },
+            ]},
+          { id: 'pr2', label: 'Mixing', category: 'Production', desc: 'Balancing tracks & EQ' },
+          { id: 'pr3', label: 'Mastering', category: 'Production', desc: 'Final polish & loudness' },
+        ]},
+      { id: 'theory', label: 'Theory', category: 'Theory',
+        desc: 'Understanding music structure',
+        children: [
+          { id: 'th1', label: 'Harmony', category: 'Theory', desc: 'Chords & progressions',
+            children: [
+              { id: 'th1a', label: 'Scales', category: 'Theory', desc: 'Major, minor & modes' },
+              { id: 'th1b', label: 'Chords', category: 'Theory', desc: 'Triads, 7ths & extensions' },
+            ]},
+          { id: 'th2', label: 'Rhythm', category: 'Theory', desc: 'Time signatures & groove' },
+          { id: 'th3', label: 'Melody', category: 'Theory', desc: 'Memorable note sequences' },
+        ]},
+      { id: 'instruments', label: 'Instruments', category: 'Instruments',
+        desc: 'Tools for making sound',
+        children: [
+          { id: 'i1', label: 'Guitar', category: 'Instruments', desc: 'Acoustic & electric guitar' },
+          { id: 'i2', label: 'Piano', category: 'Instruments', desc: 'Keys & synthesis',
+            children: [
+              { id: 'i2a', label: 'Acoustic', category: 'Instruments', desc: 'Grand & upright pianos' },
+              { id: 'i2b', label: 'Synths', category: 'Instruments', desc: 'Analog & digital synthesis' },
+            ]},
+          { id: 'i3', label: 'Drums', category: 'Instruments', desc: 'Percussion & beat-making' },
+          { id: 'i4', label: 'Voice', category: 'Instruments', desc: 'Vocal performance & technique' },
+        ]},
+      { id: 'genres', label: 'Genres', category: 'Genres',
+        desc: 'Musical styles and traditions',
+        children: [
+          { id: 'ge1', label: 'Electronic', category: 'Genres', desc: 'Synthesized & digital music',
+            children: [
+              { id: 'ge1a', label: 'House', category: 'Genres', desc: 'Four-on-the-floor dance music' },
+              { id: 'ge1b', label: 'Ambient', category: 'Genres', desc: 'Atmospheric soundscapes' },
+            ]},
+          { id: 'ge2', label: 'Jazz', category: 'Genres', desc: 'Improvisation & swing' },
+          { id: 'ge3', label: 'Classical', category: 'Genres', desc: 'Orchestral & chamber music' },
+        ]},
+      { id: 'biz', label: 'Business', category: 'Business',
+        desc: 'The music industry',
+        children: [
+          { id: 'bz1', label: 'Streaming', category: 'Business', desc: 'Spotify, Apple Music & more' },
+          { id: 'bz2', label: 'Licensing', category: 'Business', desc: 'Sync, royalties & rights',
+            children: [
+              { id: 'bz2a', label: 'Sync', category: 'Business', desc: 'Music in film & TV' },
+              { id: 'bz2b', label: 'Royalties', category: 'Business', desc: 'Mechanical & performance' },
+            ]},
+          { id: 'bz3', label: 'Live Shows', category: 'Business', desc: 'Touring & performances' },
+        ]},
+    ]
+  },
+};
+
+let DATA = MIND_MAPS.creative;
+
+// ── Build graph ──
+let nodes = [];
+let links = [];
+let nodeMap = {};
+let currentMapKey = 'creative';
+
+function buildGraph(data, parent, depth, theta, phi, spread) {
+  const node = {
+    id: data.id,
+    label: data.label,
+    category: data.category,
+    desc: data.desc || '',
+    depth,
+    x: 0, y: 0, z: 0,
+    vx: 0, vy: 0, vz: 0,
+    radius: depth === 0 ? 12 : depth === 1 ? 8 : depth === 2 ? 5.5 : 4,
+    collapsed: depth >= 2,
+    childrenIds: [],
+    parentId: parent ? parent.id : null,
+    visible: depth < 3,
+    pulsePhase: Math.random() * Math.PI * 2,
+    mesh: null,
+    glowMesh: null,
+    labelSprite: null,
+    indicatorMesh: null,
+    linkLine: null,
+    particleMesh: null,
+    scaleTarget: 1,
+    currentScale: 0.01,
+  };
+
+  if (depth === 0) {
+    node.x = 0; node.y = 0; node.z = 0;
+  } else {
+    const dist = depth === 1 ? 120 : depth === 2 ? 70 : 50;
+    node.x = parent.x + Math.sin(theta) * Math.cos(phi) * dist + (Math.random() - 0.5) * 20;
+    node.y = parent.y + Math.cos(theta) * dist * 0.6 + (Math.random() - 0.5) * 20;
+    node.z = parent.z + Math.sin(theta) * Math.sin(phi) * dist + (Math.random() - 0.5) * 20;
+  }
+
+  nodes.push(node);
+  nodeMap[node.id] = node;
+
+  if (parent) {
+    links.push({ source: parent.id, target: node.id });
+    parent.childrenIds.push(node.id);
+  }
+
+  if (data.children) {
+    const childCount = data.children.length;
+    data.children.forEach((child, i) => {
+      let childTheta, childPhi;
+      if (depth === 0) {
+        childTheta = (i / childCount) * Math.PI * 2;
+        childPhi = (Math.random() - 0.5) * Math.PI * 0.5;
+      } else {
+        const arc = spread * 0.7;
+        childTheta = theta - arc / 2 + (arc / Math.max(1, childCount - 1)) * i;
+        childPhi = phi + (Math.random() - 0.5) * 0.6;
+      }
+      buildGraph(child, node, depth + 1, childTheta, childPhi, spread / childCount);
+    });
+  }
+}
+
+buildGraph(DATA, null, 0, 0, 0, Math.PI * 2);
+
+// ── Legend ──
+function rebuildLegend() {
+  const legendEl = document.getElementById('legend');
+  legendEl.innerHTML = '';
+  Object.entries(PALETTE).forEach(([key, val]) => {
+    if (key === 'root') return;
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `<span class="legend-dot" style="background:${val.hex}"></span>${key}`;
+    legendEl.appendChild(item);
+  });
+}
+rebuildLegend();
+
+// ── Create 3D objects ──
+const sphereGeoHigh = new THREE.SphereGeometry(1, 32, 32);
+const sphereGeoLow = new THREE.SphereGeometry(1, 16, 16);
+
+const materialCache = {};
+function getNodeMaterial(category) {
+  if (!materialCache[category]) {
+    const p = PALETTE[category] || PALETTE.root;
+    materialCache[category] = new THREE.MeshStandardMaterial({
+      color: p.bg,
+      emissive: p.bg,
+      emissiveIntensity: 0.35,
+      roughness: 0.3,
+      metalness: 0.1,
+    });
+  }
+  return materialCache[category];
+}
+
+const glowMaterialCache = {};
+function getGlowMaterial(category) {
+  if (!glowMaterialCache[category]) {
+    const p = PALETTE[category] || PALETTE.root;
+    glowMaterialCache[category] = new THREE.MeshBasicMaterial({
+    color: p.bg,
+    transparent: true,
+    opacity: 0.05,
+    side: THREE.BackSide,
+    });
+  }
+  return glowMaterialCache[category];
+}
+
+function createLabelTexture(text, category) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const lines = text.split('\n');
+  const fontSize = 48;
+  canvas.width = 512;
+  canvas.height = 128 * Math.max(1, lines.length);
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.font = `600 ${fontSize}px Inter, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#ffffff';
+
+  const lineH = fontSize * 1.3;
+  const startY = canvas.height / 2 - (lines.length - 1) * lineH / 2;
+  lines.forEach((line, i) => {
+    ctx.fillText(line, canvas.width / 2, startY + i * lineH);
+  });
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  return tex;
+}
+
+const nodesGroup = new THREE.Group();
+nodesGroup.name = 'nodesGroup';
+scene.add(nodesGroup);
+const linksGroup = new THREE.Group();
+linksGroup.name = 'linksGroup';
+scene.add(linksGroup);
+
+nodes.forEach(node => {
+  const geo = node.depth <= 1 ? sphereGeoHigh : sphereGeoLow;
+  const mat = getNodeMaterial(node.category);
+
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.name = `node_${node.id}`;
+  mesh.scale.setScalar(node.radius);
+  mesh.position.set(node.x, node.y, node.z);
+  mesh.userData = { nodeId: node.id };
+  nodesGroup.add(mesh);
+  node.mesh = mesh;
+
+  const glowMat = getGlowMaterial(node.category);
+  const glowMesh = new THREE.Mesh(geo, glowMat);
+  glowMesh.name = `glow_${node.id}`;
+  glowMesh.scale.setScalar(node.radius * 2.5);
+  glowMesh.position.copy(mesh.position);
+  nodesGroup.add(glowMesh);
+  node.glowMesh = glowMesh;
+
+  const labelTex = createLabelTexture(node.label, node.category);
+  const spriteMat = new THREE.SpriteMaterial({
+    map: labelTex,
+    transparent: true,
+    depthWrite: false,
+    sizeAttenuation: true,
+  });
+  const sprite = new THREE.Sprite(spriteMat);
+  sprite.name = `label_${node.id}`;
+  const aspect = labelTex.image.width / labelTex.image.height;
+  const spriteH = node.depth === 0 ? 16 : node.depth === 1 ? 11 : 8;
+  sprite.scale.set(spriteH * aspect, spriteH, 1);
+  sprite.position.set(node.x, node.y + node.radius + spriteH * 0.6, node.z);
+  nodesGroup.add(sprite);
+  node.labelSprite = sprite;
+
+  const vis = node.visible;
+  mesh.visible = vis;
+  glowMesh.visible = vis;
+  sprite.visible = vis;
+  node.currentScale = vis ? 1 : 0.01;
+  if (!vis) {
+    mesh.scale.setScalar(0.01);
+    glowMesh.scale.setScalar(0.01);
+    sprite.scale.setScalar(0.01);
+  }
+});
+
+nodes.forEach(node => {
+  const hasChildren = nodes.some(n => n.parentId === node.id);
+    if (hasChildren) {
+    const indicatorGeo = new THREE.SphereGeometry(1, 12, 12);
+    const indicatorMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const indicator = new THREE.Mesh(indicatorGeo, indicatorMat);
+    indicator.name = `indicator_${node.id}`;
+    const ir = node.depth === 0 ? 3 : 2;
+    indicator.scale.setScalar(ir);
+    indicator.visible = node.visible;
+    nodesGroup.add(indicator);
+    node.indicatorMesh = indicator;
+    node.indicatorRadius = ir;
+  }
+});
+
+const linkMaterialCache = {};
+function getLinkMaterial(category) {
+  if (!linkMaterialCache[category]) {
+    const p = PALETTE[category] || PALETTE.root;
+    linkMaterialCache[category] = new THREE.LineBasicMaterial({
+      color: p.bg,
+      transparent: true,
+      opacity: 0.3,
+      linewidth: 1,
+    });
+  }
+  return linkMaterialCache[category];
+}
+
+links.forEach(link => {
+  const s = nodeMap[link.source];
+  const t = nodeMap[link.target];
+
+  const curve = new THREE.QuadraticBezierCurve3(
+    new THREE.Vector3(s.x, s.y, s.z),
+    new THREE.Vector3((s.x + t.x) / 2, (s.y + t.y) / 2 + 10, (s.z + t.z) / 2),
+    new THREE.Vector3(t.x, t.y, t.z)
+  );
+  const points = curve.getPoints(20);
+  const geo = new THREE.BufferGeometry().setFromPoints(points);
+  const mat = getLinkMaterial(t.category);
+  const line = new THREE.Line(geo, mat);
+  line.name = `link_${s.id}_${t.id}`;
+  line.visible = s.visible && t.visible;
+  linksGroup.add(line);
+  link.line = line;
+
+  const particleGeo = new THREE.SphereGeometry(1.2, 8, 8);
+  const particleMat = new THREE.MeshBasicMaterial({
+    color: (PALETTE[t.category] || PALETTE.root).bg,
+    transparent: true,
+    opacity: 0.6,
+  });
+  const particle = new THREE.Mesh(particleGeo, particleMat);
+  particle.name = `particle_${s.id}_${t.id}`;
+  particle.visible = s.visible && t.visible;
+  linksGroup.add(particle);
+  link.particle = particle;
+});
+
+const particleCount = 400;
+const particlePositions = new Float32Array(particleCount * 3);
+for (let i = 0; i < particleCount; i++) {
+  particlePositions[i * 3] = (Math.random() - 0.5) * 800;
+  particlePositions[i * 3 + 1] = (Math.random() - 0.5) * 500;
+  particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 800;
+}
+const ambientParticleGeo = new THREE.BufferGeometry();
+ambientParticleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+const ambientParticleMat = new THREE.PointsMaterial({
+  color: 0x6688cc,
+  size: 3,
+  transparent: true,
+  opacity: 0.5,
+  sizeAttenuation: true,
+});
+const ambientParticles = new THREE.Points(ambientParticleGeo, ambientParticleMat);
+ambientParticles.name = 'ambientParticles';
+scene.add(ambientParticles);
+
+// ── Physics ──
+let physicsEnabled = true;
+
+function simulate() {
+  if (!physicsEnabled) return;
+
+  const visibleNodes = nodes.filter(n => n.visible);
+
+  for (let i = 0; i < visibleNodes.length; i++) {
+    for (let j = i + 1; j < visibleNodes.length; j++) {
+      const a = visibleNodes[i];
+      const b = visibleNodes[j];
+      let dx = a.x - b.x;
+      let dy = a.y - b.y;
+      let dz = a.z - b.z;
+      let dist = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1;
+      const minDist = (a.radius + b.radius) * 5;
+      if (dist < minDist) {
+        const force = (minDist - dist) / dist * 0.4;
+        a.vx += dx * force * 0.1;
+        a.vy += dy * force * 0.1;
+        a.vz += dz * force * 0.1;
+        b.vx -= dx * force * 0.1;
+        b.vy -= dy * force * 0.1;
+        b.vz -= dz * force * 0.1;
+      }
+    }
+  }
+
+  links.forEach(link => {
+    const s = nodeMap[link.source];
+    const t = nodeMap[link.target];
+    if (!s.visible || !t.visible) return;
+    const dx = t.x - s.x;
+    const dy = t.y - s.y;
+    const dz = t.z - s.z;
+    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1;
+    const idealDist = s.depth === 0 ? 120 : s.depth === 1 ? 80 : 55;
+    const force = (dist - idealDist) / dist * 0.02;
+    s.vx += dx * force;
+    s.vy += dy * force;
+    s.vz += dz * force;
+    t.vx -= dx * force;
+    t.vy -= dy * force;
+    t.vz -= dz * force;
+  });
+
+  const rootNode = nodeMap['root'];
+  rootNode.vx += (0 - rootNode.x) * 0.01;
+  rootNode.vy += (0 - rootNode.y) * 0.01;
+  rootNode.vz += (0 - rootNode.z) * 0.01;
+
+  visibleNodes.forEach(n => {
+    if (n === draggedNode) return;
+    n.vx *= 0.88;
+    n.vy *= 0.88;
+    n.vz *= 0.88;
+    n.x += n.vx;
+    n.y += n.vy;
+    n.z += n.vz;
+
+    const speed = Math.abs(n.vx) + Math.abs(n.vy) + Math.abs(n.vz);
+    if (speed < 0.3) {
+      const time = performance.now() * 0.001;
+      const p = n.pulsePhase;
+      n.x += Math.sin(time * 0.4 + p) * 0.04;
+      n.y += Math.cos(time * 0.3 + p * 1.3) * 0.06;
+      n.z += Math.sin(time * 0.35 + p * 0.7) * 0.04;
+    }
+  });
+}
+
+// ── Interaction ──
+const tooltip = document.getElementById('tooltip');
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let hoveredNode = null;
+let draggedNode = null;
+let dragPlane = new THREE.Plane();
+let dragOffset = new THREE.Vector3();
+let clickStartTime = 0;
+let isDragging = false;
+let tooltipTimer = null;
+let tooltipReady = false;
+
+function getIntersectedNode(event) {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+
+  const meshes = nodes.filter(n => n.visible).map(n => n.mesh);
+  const intersects = raycaster.intersectObjects(meshes);
+  if (intersects.length > 0) {
+    const nodeId = intersects[0].object.userData.nodeId;
+    return nodeMap[nodeId];
+  }
+  return null;
+}
+
+renderer.domElement.addEventListener('pointerdown', e => {
+  if (e.button !== 0) return;
+  const hit = getIntersectedNode(e);
+  clickStartTime = Date.now();
+  isDragging = false;
+
+  if (hit) {
+    draggedNode = hit;
+    controls.enabled = false;
+
+    const camDir = new THREE.Vector3();
+    camera.getWorldDirection(camDir);
+    dragPlane.setFromNormalAndCoplanarPoint(camDir.negate(), hit.mesh.position);
+
+    const intersectPoint = new THREE.Vector3();
+    raycaster.ray.intersectPlane(dragPlane, intersectPoint);
+    dragOffset.copy(hit.mesh.position).sub(intersectPoint);
+  }
+});
+
+renderer.domElement.addEventListener('pointermove', e => {
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+
+  if (draggedNode) {
+    isDragging = true;
+    const intersectPoint = new THREE.Vector3();
+    raycaster.ray.intersectPlane(dragPlane, intersectPoint);
+    if (intersectPoint) {
+      intersectPoint.add(dragOffset);
+      draggedNode.x = intersectPoint.x;
+      draggedNode.y = intersectPoint.y;
+      draggedNode.z = intersectPoint.z;
+      draggedNode.vx = 0;
+      draggedNode.vy = 0;
+      draggedNode.vz = 0;
+    }
+    return;
+  }
+
+  const hit = getIntersectedNode(e);
+  if (hit !== hoveredNode) {
+    hoveredNode = hit;
+    renderer.domElement.style.cursor = hit ? 'pointer' : 'default';
+    tooltip.style.opacity = '0';
+    tooltipReady = false;
+    if (tooltipTimer) { clearTimeout(tooltipTimer); tooltipTimer = null; }
+    if (hit) {
+      tooltipTimer = setTimeout(() => { tooltipReady = true; }, 1000);
+    }
+  }
+
+  if (hit) {
+    tooltip.style.left = (e.clientX + 16) + 'px';
+    tooltip.style.top = (e.clientY - 10) + 'px';
+    tooltip.textContent = hit.desc || hit.label.replace('\n', ' ');
+    if (tooltipReady) {
+      tooltip.style.opacity = '1';
+    }
+  } else {
+    tooltip.style.opacity = '0';
+  }
+});
+
+renderer.domElement.addEventListener('pointerup', e => {
+  if (draggedNode) {
+    const elapsed = Date.now() - clickStartTime;
+    if (elapsed < 250 && !isDragging) {
+      toggleNode(draggedNode);
+    }
+    draggedNode = null;
+    controls.enabled = true;
+  }
+});
+
+function toggleNode(node) {
+  const directChildren = nodes.filter(n => n.parentId === node.id);
+  if (directChildren.length === 0) return;
+
+  const wasCollapsed = !directChildren[0].visible;
+
+  if (wasCollapsed) {
+    directChildren.forEach(c => {
+      c.visible = true;
+      c.x = node.x + (Math.random() - 0.5) * 30;
+      c.y = node.y + (Math.random() - 0.5) * 30;
+      c.z = node.z + (Math.random() - 0.5) * 30;
+      c.currentScale = 0.01;
+      c.scaleTarget = 1;
+    });
+    node.collapsed = false;
+  } else {
+    const descendants = getDescendants(node);
+    descendants.forEach(c => {
+      c.visible = false;
+      c.collapsed = true;
+      c.scaleTarget = 0.01;
+    });
+    node.collapsed = true;
+  }
+}
+
+function getDescendants(node) {
+  let result = [];
+  nodes.forEach(n => {
+    if (n.parentId === node.id) {
+      result.push(n);
+      result = result.concat(getDescendants(n));
+    }
+  });
+  return result;
+}
+
+// ── Settings panel ──
+let settingsOpen = false;
+window.toggleSettings = function() {
+  settingsOpen = !settingsOpen;
+  document.getElementById('settings-panel').classList.toggle('open', settingsOpen);
+  document.getElementById('settings-toggle').style.opacity = settingsOpen ? '0' : '1';
+  document.getElementById('settings-toggle').style.pointerEvents = settingsOpen ? 'none' : 'all';
+};
+
+const hdrMap = {
+  starry_sky: 'starry_sky',
+  kloppenheim_02: 'kloppenheim_02',
+  moonless_golf: 'moonless_golf',
+  industrial_sunset_02_puresky: 'industrial_sunset_02_puresky',
+  shanghai_bund: 'shanghai_bund',
+};
+let currentHDRTexture = null;
+
+window.changeHDR = function(key) {
+  if (key === 'none') {
+    scene.background = new THREE.Color(0x0a0a0f);
+    scene.environment = null;
+    currentHDRTexture = null;
+    return;
+  }
+  const url = `https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/${key}_1k.hdr`;
+  new RGBELoader().load(url, (tex) => {
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    scene.background = tex;
+    scene.environment = tex;
+    currentHDRTexture = tex;
+  }, undefined, () => { console.warn('HDR load failed:', key); });
+};
+
+function updateVal(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+
+window.setBGBlur = function(v) { scene.backgroundBlurriness = v / 100; updateVal('val-bg-blur', v); };
+window.setBGIntensity = function(v) { scene.backgroundIntensity = v / 100; updateVal('val-bg-intensity', v); };
+window.setEnvIntensity = function(v) { scene.environmentIntensity = v / 100; updateVal('val-env-intensity', v); };
+
+window.setAmbient = function(v) {
+  scene.getObjectByName('ambientLight').intensity = v / 100;
+  updateVal('val-ambient', v);
+};
+window.setAmbientColor = function(v) {
+  scene.getObjectByName('ambientLight').color.set(v);
+};
+window.setKeyLight = function(v) {
+  scene.getObjectByName('dirLight').intensity = v / 100;
+  updateVal('val-key-light', v);
+};
+window.setKeyColor = function(v) {
+  scene.getObjectByName('dirLight').color.set(v);
+};
+window.setFillLight = function(v) {
+  scene.getObjectByName('dirLight2').intensity = v / 100;
+  updateVal('val-fill-light', v);
+};
+window.setFillColor = function(v) {
+  scene.getObjectByName('dirLight2').color.set(v);
+};
+
+window.setRoughness = function(v) {
+  Object.values(materialCache).forEach(m => { m.roughness = v / 100; });
+  updateVal('val-roughness', v);
+};
+window.setMetalness = function(v) {
+  Object.values(materialCache).forEach(m => { m.metalness = v / 100; });
+  updateVal('val-metalness', v);
+};
+window.setEmissive = function(v) {
+  Object.values(materialCache).forEach(m => { m.emissiveIntensity = v / 100; });
+  updateVal('val-emissive', v);
+};
+window.setGlowOpacity = function(v) {
+  Object.values(glowMaterialCache).forEach(m => { m.opacity = v / 100; });
+  updateVal('val-glow-opacity', v);
+};
+window.setGlowSize = function(v) {
+  const scale = v / 100;
+  nodes.forEach(n => { n._glowScale = scale; });
+  updateVal('val-glow-size', v);
+};
+nodes.forEach(n => { n._glowScale = 2.0; });
+
+window.setToneMapping = function(v) {
+  const map = {
+    aces: THREE.ACESFilmicToneMapping,
+    linear: THREE.LinearToneMapping,
+    reinhard: THREE.ReinhardToneMapping,
+    cineon: THREE.CineonToneMapping,
+    agx: THREE.AgXToneMapping,
+    neutral: THREE.NeutralToneMapping,
+  };
+  renderer.toneMapping = map[v] || THREE.ACESFilmicToneMapping;
+};
+window.setExposure = function(v) { renderer.toneMappingExposure = v / 100; updateVal('val-exposure', v); };
+
+window.setBloomStrength = function(v) {
+  const val = v / 100;
+  try { bloomPass.strength.value = val; } catch(e) {}
+  updateVal('val-bloom-strength', v);
+};
+window.setBloomThreshold = function(v) {
+  const val = v / 100;
+  try { bloomPass.threshold.value = val; } catch(e) {}
+  updateVal('val-bloom-threshold', v);
+};
+window.setBloomRadius = function(v) {
+  const val = v / 100;
+  try { bloomPass.radius.value = val; } catch(e) {}
+  updateVal('val-bloom-radius', v);
+};
+
+window.toggleDust = function() {
+  const btn = document.getElementById('dustToggle');
+  btn.classList.toggle('active');
+  ambientParticles.visible = btn.classList.contains('active');
+};
+window.setDustOpacity = function(v) { ambientParticleMat.opacity = v / 100; updateVal('val-dust-opacity', v); };
+window.setDustSize = function(v) { ambientParticleMat.size = parseFloat(v); updateVal('val-dust-size', v); };
+window.setDustColor = function(v) { ambientParticleMat.color.set(v); };
+
+let linkParticlesVisible = true;
+window.toggleLinkParticles = function() {
+  const btn = document.getElementById('linkParticleToggle');
+  btn.classList.toggle('active');
+  linkParticlesVisible = btn.classList.contains('active');
+};
+window.setLinkOpacity = function(v) {
+  Object.values(linkMaterialCache).forEach(m => { m.opacity = v / 100; });
+  updateVal('val-link-opacity', v);
+};
+
+// ── Mind Map Switching ──
+window.switchMindMap = function(key) {
+  if (key === currentMapKey) return;
+  currentMapKey = key;
+  PALETTE = PALETTES[key];
+  DATA = MIND_MAPS[key];
+
+  // Update button states
+  document.querySelectorAll('.map-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelector(`.map-btn[onclick="switchMindMap('${key}')"]`).classList.add('active');
+
+  // Update title
+  const titles = {
+    creative: 'Creative Thinking',
+    startup: 'Startup Playbook',
+    wellness: 'Holistic Wellness',
+    music: 'Music Universe',
+  };
+  document.querySelector('#title-bar h1').textContent = `3D Mind Map — ${titles[key]}`;
+
+  // Clear old scene objects
+  while (nodesGroup.children.length) nodesGroup.remove(nodesGroup.children[0]);
+  while (linksGroup.children.length) linksGroup.remove(linksGroup.children[0]);
+
+  // Clear caches
+  Object.keys(materialCache).forEach(k => delete materialCache[k]);
+  Object.keys(glowMaterialCache).forEach(k => delete glowMaterialCache[k]);
+  Object.keys(linkMaterialCache).forEach(k => delete linkMaterialCache[k]);
+
+  // Rebuild graph
+  nodes = [];
+  links = [];
+  nodeMap = {};
+  hoveredNode = null;
+  draggedNode = null;
+
+  buildGraph(DATA, null, 0, 0, 0, Math.PI * 2);
+
+  // Recreate all 3D objects
+  nodes.forEach(node => {
+    const geo = node.depth <= 1 ? sphereGeoHigh : sphereGeoLow;
+    const mat = getNodeMaterial(node.category);
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.name = `node_${node.id}`;
+    mesh.scale.setScalar(node.radius);
+    mesh.position.set(node.x, node.y, node.z);
+    mesh.userData = { nodeId: node.id };
+    nodesGroup.add(mesh);
+    node.mesh = mesh;
+
+    const glowMat = getGlowMaterial(node.category);
+    const glowMesh = new THREE.Mesh(geo, glowMat);
+    glowMesh.name = `glow_${node.id}`;
+    glowMesh.scale.setScalar(node.radius * 2.5);
+    glowMesh.position.copy(mesh.position);
+    nodesGroup.add(glowMesh);
+    node.glowMesh = glowMesh;
+
+    const labelTex = createLabelTexture(node.label, node.category);
+    const spriteMat = new THREE.SpriteMaterial({
+      map: labelTex, transparent: true, depthWrite: false, sizeAttenuation: true,
+    });
+    const sprite = new THREE.Sprite(spriteMat);
+    sprite.name = `label_${node.id}`;
+    const aspect = labelTex.image.width / labelTex.image.height;
+    const spriteH = node.depth === 0 ? 16 : node.depth === 1 ? 11 : 8;
+    sprite.scale.set(spriteH * aspect, spriteH, 1);
+    sprite.position.set(node.x, node.y + node.radius + spriteH * 0.6, node.z);
+    nodesGroup.add(sprite);
+    node.labelSprite = sprite;
+
+    const vis = node.visible;
+    mesh.visible = vis;
+    glowMesh.visible = vis;
+    sprite.visible = vis;
+    node.currentScale = vis ? 1 : 0.01;
+    node._glowScale = 2.0;
+    if (!vis) {
+      mesh.scale.setScalar(0.01);
+      glowMesh.scale.setScalar(0.01);
+      sprite.scale.setScalar(0.01);
+    }
+  });
+
+  nodes.forEach(node => {
+    const hasChildren = nodes.some(n => n.parentId === node.id);
+    if (hasChildren) {
+      const indicatorGeo = new THREE.SphereGeometry(1, 12, 12);
+      const indicatorMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      const indicator = new THREE.Mesh(indicatorGeo, indicatorMat);
+      indicator.name = `indicator_${node.id}`;
+      const ir = node.depth === 0 ? 3 : 2;
+      indicator.scale.setScalar(ir);
+      indicator.visible = node.visible;
+      nodesGroup.add(indicator);
+      node.indicatorMesh = indicator;
+      node.indicatorRadius = ir;
+    }
+  });
+
+  links.forEach(link => {
+    const s = nodeMap[link.source];
+    const t = nodeMap[link.target];
+    const curve = new THREE.QuadraticBezierCurve3(
+      new THREE.Vector3(s.x, s.y, s.z),
+      new THREE.Vector3((s.x + t.x) / 2, (s.y + t.y) / 2 + 10, (s.z + t.z) / 2),
+      new THREE.Vector3(t.x, t.y, t.z)
+    );
+    const points = curve.getPoints(20);
+    const geo = new THREE.BufferGeometry().setFromPoints(points);
+    const mat = getLinkMaterial(t.category);
+    const line = new THREE.Line(geo, mat);
+    line.name = `link_${s.id}_${t.id}`;
+    line.visible = s.visible && t.visible;
+    linksGroup.add(line);
+    link.line = line;
+
+    const particleGeo = new THREE.SphereGeometry(1.2, 8, 8);
+    const particleMat = new THREE.MeshBasicMaterial({
+      color: (PALETTE[t.category] || PALETTE.root).bg,
+      transparent: true, opacity: 0.6,
+    });
+    const particle = new THREE.Mesh(particleGeo, particleMat);
+    particle.name = `particle_${s.id}_${t.id}`;
+    particle.visible = s.visible && t.visible;
+    linksGroup.add(particle);
+    link.particle = particle;
+  });
+
+  rebuildLegend();
+
+  // Reset camera
+  controls.target.set(0, 0, 0);
+  camera.position.set(0, 150, 400);
+};
+
+// ── Global controls ──
+window.resetView = function() {
+  controls.target.set(0, 0, 0);
+  camera.position.set(0, 150, 400);
+};
+
+window.togglePhysics = function() {
+  physicsEnabled = !physicsEnabled;
+  const btn = document.getElementById('physicsBtn');
+  btn.textContent = physicsEnabled ? 'Pause Physics' : 'Resume Physics';
+  btn.classList.toggle('active', !physicsEnabled);
+};
+
+window.expandAll = function() {
+  nodes.forEach(n => {
+    n.visible = true;
+    n.collapsed = false;
+    n.scaleTarget = 1;
+    if (n.currentScale < 0.1) {
+      n.currentScale = 0.01;
+      const parent = nodeMap[n.parentId];
+      if (parent) {
+        n.x = parent.x + (Math.random() - 0.5) * 30;
+        n.y = parent.y + (Math.random() - 0.5) * 30;
+        n.z = parent.z + (Math.random() - 0.5) * 30;
+      }
+    }
+  });
+};
+
+window.collapseAll = function() {
+  nodes.forEach(n => {
+    if (n.depth >= 2) {
+      n.visible = false;
+      n.scaleTarget = 0.01;
+    }
+    if (n.depth >= 1) {
+      n.collapsed = true;
+    }
+  });
+  nodeMap['root'].collapsed = false;
+};
+
+// ── Animation loop ──
+const clock = new THREE.Clock();
+
+function animate() {
+  const t = clock.getElapsedTime();
+
+  simulate();
+  controls.update();
+
+  nodes.forEach(node => {
+    const target = node.visible ? 1 : 0.01;
+    node.currentScale += (target - node.currentScale) * 0.12;
+
+    const pulse = Math.sin(t * 2 + node.pulsePhase) * 0.06 + 1;
+    const isHov = node === hoveredNode;
+
+    if (!node._hoverFactor) node._hoverFactor = 0;
+    const hoverTarget = isHov ? 1 : 0;
+    node._hoverFactor += (hoverTarget - node._hoverFactor) * 0.08;
+    const hoverScale = 1 + node._hoverFactor * 0.25;
+
+    node.mesh.position.set(node.x, node.y, node.z);
+    node.mesh.scale.setScalar(node.radius * node.currentScale * pulse * hoverScale);
+    node.mesh.visible = node.currentScale > 0.02;
+
+    node.glowMesh.position.set(node.x, node.y, node.z);
+    node.glowMesh.scale.setScalar(node.radius * (node._glowScale || 2.5) * node.currentScale);
+    node.glowMesh.visible = node.currentScale > 0.02;
+
+    const spriteH = node.depth === 0 ? 16 : node.depth === 1 ? 11 : 8;
+    node.labelSprite.position.set(node.x, node.y + node.radius * node.currentScale + spriteH * 0.6, node.z);
+    node.labelSprite.visible = node.currentScale > 0.3;
+    const labelScale = node.currentScale;
+    const aspect = node.labelSprite.material.map.image.width / node.labelSprite.material.map.image.height;
+    node.labelSprite.scale.set(spriteH * aspect * labelScale, spriteH * labelScale, 1);
+
+    if (node.indicatorMesh) {
+      const showIndicator = node.visible && node.currentScale > 0.5 && node.collapsed;
+      node.indicatorMesh.visible = showIndicator;
+      if (showIndicator) {
+        const ir = node.indicatorRadius;
+        const speed = node.collapsed ? 2 : 1.2;
+        const orbitRadius = node.radius * node.currentScale + ir + 2;
+        const ang = t * speed + node.pulsePhase;
+        node.indicatorMesh.position.set(
+          node.x + Math.cos(ang) * orbitRadius,
+          node.y + Math.sin(ang * 0.7) * ir * 1.5,
+          node.z + Math.sin(ang) * orbitRadius
+        );
+        const indicatorScale = node.collapsed ? ir : ir * 0.6;
+        node.indicatorMesh.scale.setScalar(indicatorScale);
+        node.indicatorMesh.material.opacity = node.collapsed ? 1 : 0.5;
+      }
+    }
+  });
+
+  links.forEach(link => {
+    const s = nodeMap[link.source];
+    const tgt = nodeMap[link.target];
+    const vis = s.visible && tgt.visible && s.currentScale > 0.1 && tgt.currentScale > 0.1;
+    link.line.visible = vis;
+    link.particle.visible = vis && linkParticlesVisible;
+
+    if (vis) {
+      const sp = new THREE.Vector3(s.x, s.y, s.z);
+      const tp = new THREE.Vector3(tgt.x, tgt.y, tgt.z);
+      const mid = new THREE.Vector3().addVectors(sp, tp).multiplyScalar(0.5);
+      mid.y += 8;
+
+      const curve = new THREE.QuadraticBezierCurve3(sp, mid, tp);
+      const points = curve.getPoints(20);
+      link.line.geometry.setFromPoints(points);
+      link.line.geometry.computeBoundingSphere();
+
+      const pt = ((t * 0.3 + s.pulsePhase) % 1);
+      const pos = curve.getPoint(pt);
+      link.particle.position.copy(pos);
+    }
+  });
+
+  const positions = ambientParticleGeo.attributes.position.array;
+  for (let i = 0; i < particleCount; i++) {
+    positions[i * 3] += Math.sin(t * 0.5 + i * 0.7) * 0.03;
+    positions[i * 3 + 1] += Math.cos(t * 0.3 + i) * 0.04;
+    positions[i * 3 + 2] += Math.sin(t * 0.4 + i * 1.3) * 0.03;
+  }
+  ambientParticleGeo.attributes.position.needsUpdate = true;
+
+  postProcessing.render();
+}
+
+// ── Post Processing ──
+await renderer.init();
+
+const postProcessing = new THREE.PostProcessing(renderer);
+const scenePass = pass(scene, camera);
+scenePass.setMRT(mrt({
+  output: output,
+  emissive: emissive
+}));
+const scenePassColor = scenePass.getTextureNode('output');
+const scenePassEmissive = scenePass.getTextureNode('emissive');
+
+// Create bloom using the emissive channel with correct parameter order: node, strength, radius, threshold
+const bloomPass = bloom(scenePassEmissive, 2.5, 0.5, 0.0);
+postProcessing.outputNode = scenePassColor.add(bloomPass);
+
+renderer.setAnimationLoop(animate);
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
