@@ -8,6 +8,9 @@ import { clientById } from '@/data/growth/clients';
 import { clientAddress, rateLimit } from '@/lib/http/rate-limit';
 import { readBoundedJson } from '@/lib/contact/intake-guard';
 import { guardGrowthProviderAccess } from '@/lib/growth/server/access';
+import { growthAuthEnforced } from '@/lib/growth/auth/enforcement';
+import { guardGrowth } from '@/lib/growth/auth/session';
+import { can } from '@/lib/growth/rbac';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,6 +33,14 @@ const MAX_BODY_BYTES = 24 * 1024;
 export async function POST(request: NextRequest) {
   const denied = await guardGrowthProviderAccess(request);
   if (denied) return denied;
+
+  const authGuard = growthAuthEnforced() ? await guardGrowth() : null;
+  if (authGuard && !authGuard.ok) {
+    return NextResponse.json(
+      { ok: false, code: authGuard.failure.code, message: authGuard.failure.message },
+      { status: authGuard.failure.status, headers: { 'cache-control': 'no-store' } },
+    );
+  }
   const limit = rateLimit(`intelligence:${clientAddress(request.headers)}`, {
     max: MAX_REQUESTS_PER_MINUTE,
   });
@@ -74,6 +85,20 @@ export async function POST(request: NextRequest) {
       { reason: 'Unknown client workspace.' },
       { status: 400, headers: { 'cache-control': 'no-store' } },
     );
+  }
+
+  if (authGuard?.ok) {
+    const boundary = can({
+      principal: authGuard.principal,
+      permission: 'intelligence.use',
+      clientId,
+    });
+    if (!boundary.allowed) {
+      return NextResponse.json(
+        { ok: false, code: 'FORBIDDEN', message: boundary.reason ?? 'Not permitted.' },
+        { status: 403, headers: { 'cache-control': 'no-store' } },
+      );
+    }
   }
 
   const requestedFamily = typeof body.family === 'string' ? body.family : '';
