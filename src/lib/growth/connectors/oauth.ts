@@ -358,6 +358,8 @@ export async function exchangeMetaCode(params: {
   tokenUrl?: string;
   fetchImpl?: typeof fetch;
   secretStore?: SecretStore;
+  /** Resolved by the authenticated callback, never taken from provider config. */
+  owner?: { clientId: string; userId: string };
   now?: () => number;
 }): Promise<TokenExchange> {
   if (!params.config.redirectUri) {
@@ -370,6 +372,16 @@ export async function exchangeMetaCode(params: {
   if (!params.code || params.code.trim() === '') {
     return { ok: false, failure: 'INVALID_INPUT', message: 'No authorisation code was returned.' };
   }
+
+  if (!params.secretStore || !params.owner?.clientId || !params.owner.userId) {
+    return {
+      ok: false,
+      failure: 'CONFIG_REQUIRED',
+      message: 'A server secret store and authenticated client/user context are required.',
+    };
+  }
+  const secretStore = params.secretStore;
+  const owner = params.owner;
 
   const doFetch = params.fetchImpl ?? fetch;
   const body = new URLSearchParams({
@@ -405,13 +417,10 @@ export async function exchangeMetaCode(params: {
 
     const now = (params.now ?? Date.now)();
     const token: StoredToken = {
-      secretRef: params.secretStore
-        ? await params.secretStore.put(payload.access_token, {
-            kind: 'meta-access-token',
-            clientId: params.config.appId,
-            userId: params.config.appId,
-          })
-        : `unmanaged://meta/${hashState(payload.access_token).slice(0, 32)}`,
+      secretRef: await secretStore.put(payload.access_token, {
+        kind: 'meta-access-token',
+        ...owner,
+      }),
       ...(payload.expires_in
         ? { accessTokenExpiresAt: new Date(now + payload.expires_in * 1000).toISOString() }
         : {}),
@@ -420,12 +429,11 @@ export async function exchangeMetaCode(params: {
     };
 
     return { ok: true, token, grantedScopes: token.scopes };
-  } catch (error) {
+  } catch {
     return {
       ok: false,
       failure: 'API_ERROR',
-      message: 'The token exchange could not be completed.',
-      providerDetail: error instanceof Error ? error.message : 'transport failed',
+      message: 'The token exchange or secret storage could not be completed.',
     };
   }
 }
@@ -437,6 +445,8 @@ export async function exchangeGoogleCode(params: {
   tokenUrl?: string;
   fetchImpl?: typeof fetch;
   secretStore?: SecretStore;
+  /** Resolved by the authenticated callback, never taken from provider config. */
+  owner?: { clientId: string; userId: string };
   now?: () => number;
 }): Promise<TokenExchange> {
   if (!params.config.redirectUri) {
@@ -449,6 +459,16 @@ export async function exchangeGoogleCode(params: {
   if (!params.code || params.code.trim() === '') {
     return { ok: false, failure: 'INVALID_INPUT', message: 'No authorisation code was returned.' };
   }
+
+  if (!params.secretStore || !params.owner?.clientId || !params.owner.userId) {
+    return {
+      ok: false,
+      failure: 'CONFIG_REQUIRED',
+      message: 'A server secret store and authenticated client/user context are required.',
+    };
+  }
+  const secretStore = params.secretStore;
+  const owner = params.owner;
 
   const doFetch = params.fetchImpl ?? fetch;
   const body = new URLSearchParams({
@@ -489,19 +509,15 @@ export async function exchangeGoogleCode(params: {
     const scopes = payload.scope ? payload.scope.split(' ').filter(Boolean).sort((a, b) => a.localeCompare(b)) : [];
 
     const token: StoredToken = {
-      secretRef: params.secretStore
-        ? await params.secretStore.put(payload.access_token, {
-            kind: 'google-access-token',
-            clientId: params.config.clientId,
-            userId: params.config.clientId,
-          })
-        : `unmanaged://google/${hashState(payload.access_token).slice(0, 32)}`,
-      ...(payload.refresh_token && params.secretStore
+      secretRef: await secretStore.put(payload.access_token, {
+        kind: 'google-access-token',
+        ...owner,
+      }),
+      ...(payload.refresh_token
         ? {
-            refreshTokenSecretRef: await params.secretStore.put(payload.refresh_token, {
+            refreshTokenSecretRef: await secretStore.put(payload.refresh_token, {
               kind: 'google-refresh-token',
-              clientId: params.config.clientId,
-              userId: params.config.clientId,
+              ...owner,
             }),
           }
         : {}),
@@ -513,12 +529,11 @@ export async function exchangeGoogleCode(params: {
     };
 
     return { ok: true, token, grantedScopes: scopes };
-  } catch (error) {
+  } catch {
     return {
       ok: false,
       failure: 'API_ERROR',
-      message: 'The token exchange could not be completed.',
-      providerDetail: error instanceof Error ? error.message : 'transport failed',
+      message: 'The token exchange or secret storage could not be completed.',
     };
   }
 }
