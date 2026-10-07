@@ -1,0 +1,223 @@
+{
+  "recordedAt": "2026-10-07 22:02:28 UTC",
+  "project": "cnkddxxhcfceokxzaaot",
+  "sourceHead": "71adb779b1595cb078f1253e77e9d2bedc6c6001",
+  "deployment": "Atomic four-migration transaction; migration history recorded in same transaction",
+  "tables": [
+    {
+      "rls": true,
+      "table": "knoux_growth_ai_threads",
+      "anonAccess": false,
+      "browserWrite": true
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_clients",
+      "anonAccess": false,
+      "browserWrite": true
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_memberships",
+      "anonAccess": false,
+      "browserWrite": true
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_campaigns",
+      "anonAccess": false,
+      "browserWrite": false
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_campaign_channels",
+      "anonAccess": false,
+      "browserWrite": false
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_campaign_approvals",
+      "anonAccess": false,
+      "browserWrite": false
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_creatives",
+      "anonAccess": false,
+      "browserWrite": false
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_content",
+      "anonAccess": false,
+      "browserWrite": false
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_communities",
+      "anonAccess": false,
+      "browserWrite": false
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_community_collections",
+      "anonAccess": false,
+      "browserWrite": false
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_collection_members",
+      "anonAccess": false,
+      "browserWrite": false
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_distribution_runs",
+      "anonAccess": false,
+      "browserWrite": false
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_distribution_items",
+      "anonAccess": false,
+      "browserWrite": false
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_leads",
+      "anonAccess": false,
+      "browserWrite": false
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_metrics",
+      "anonAccess": false,
+      "browserWrite": false
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_reports",
+      "anonAccess": false,
+      "browserWrite": false
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_automation_rules",
+      "anonAccess": false,
+      "browserWrite": false
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_audit_log",
+      "anonAccess": false,
+      "browserWrite": false
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_oauth_states",
+      "anonAccess": false,
+      "browserWrite": false
+    },
+    {
+      "rls": true,
+      "table": "knoux_growth_connections",
+      "anonAccess": false,
+      "browserWrite": false
+    }
+  ],
+  "oauthRpcs": [
+    {
+      "rpc": "knoux_growth_secret_put",
+      "config": [
+        "search_path=\"\""
+      ],
+      "anonExecute": false,
+      "serverExecute": true,
+      "browserExecute": false,
+      "securityDefiner": true
+    },
+    {
+      "rpc": "knoux_growth_oauth_begin",
+      "config": [
+        "search_path=\"\""
+      ],
+      "anonExecute": false,
+      "serverExecute": true,
+      "browserExecute": false,
+      "securityDefiner": true
+    },
+    {
+      "rpc": "knoux_growth_oauth_finish",
+      "config": [
+        "search_path=\"\""
+      ],
+      "anonExecute": false,
+      "serverExecute": true,
+      "browserExecute": false,
+      "securityDefiner": true
+    },
+    {
+      "rpc": "knoux_growth_oauth_consume",
+      "config": [
+        "search_path=\"\""
+      ],
+      "anonExecute": false,
+      "serverExecute": true,
+      "browserExecute": false,
+      "securityDefiner": true
+    },
+    {
+      "rpc": "knoux_growth_secret_get",
+      "config": [
+        "search_path=\"\""
+      ],
+      "anonExecute": false,
+      "serverExecute": true,
+      "browserExecute": false,
+      "securityDefiner": true
+    },
+    {
+      "rpc": "knoux_growth_secret_delete",
+      "config": [
+        "search_path=\"\""
+      ],
+      "anonExecute": false,
+      "serverExecute": true,
+      "browserExecute": false,
+      "securityDefiner": true
+    },
+    {
+      "rpc": "knoux_growth_connection_remove",
+      "config": [
+        "search_path=\"\""
+      ],
+      "anonExecute": false,
+      "serverExecute": true,
+      "browserExecute": false,
+      "securityDefiner": true
+    }
+  ],
+  "migrations": [
+    {
+      "name": "knoux_growth_v1",
+      "version": "20261005090000"
+    },
+    {
+      "name": "knoux_growth_v2",
+      "version": "20261005091000"
+    },
+    {
+      "name": "knoux_growth_write_boundaries",
+      "version": "20261007100000"
+    },
+    {
+      "name": "knoux_growth_durable_oauth",
+      "version": "20261007110000"
+    }
+  ],
+  "clients": 0,
+  "memberships": 0,
+  "oauthSecrets": 0,
+  "ownerBootstrap": "AWAITING_EXPLICIT_ACCOUNT_AND_CLIENT",
+  "actualProviderConsent": "UNTESTED"
+}

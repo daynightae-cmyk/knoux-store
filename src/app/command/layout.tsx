@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 import { WorkspaceProvider } from '@/components/command/workspace-context';
 import { growthAuthEnforced } from '@/lib/growth/auth/enforcement';
 import { resolvePrincipal } from '@/lib/growth/auth/session';
@@ -30,6 +31,9 @@ export const viewport = {
  * shell, client switcher and command dock.
  */
 export default async function CommandLayout({ children }: Readonly<{ children: ReactNode }>) {
+  // Selection must happen for the actual request, even when the build was
+  // produced in demo mode. Never prerender a fixture snapshot for live users.
+  await connection();
   let initialData: WorkspaceDataset;
   if (growthAuthEnforced()) {
     const resolution = await resolvePrincipal();
