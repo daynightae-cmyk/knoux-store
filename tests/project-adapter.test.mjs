@@ -77,13 +77,13 @@ function makeTree() {
 
   /**
    * The attack this test exists for: a link *inside* the allowlisted `src/`
-   * tree that resolves outside the root. Every textual guard passes — the path
-   * has no dot segment, it starts with `src/`, and `path.resolve` keeps it
-   * inside the root. Only `fs.realpath` reveals where it actually points.
+   * tree that resolves outside the root. Use a directory junction on Windows:
+   * unlike a file symlink it does not require Developer Mode, while realpath
+   * still proves the same containment property.
    */
-  symlinkSync(secret, join(base, 'src', 'lib', 'escape.ts'));
+  symlinkSync(elsewhere, join(base, 'src', 'lib', 'escape'), 'junction');
 
-  return { base, elsewhere, secretFile: secret };
+  return { base, elsewhere, secretFile: secret, escapePath: 'src/lib/escape/secret.txt' };
 }
 
 test('readFile returns a repository file it is allowed to show', async (t) => {
@@ -100,11 +100,11 @@ test('readFile returns a repository file it is allowed to show', async (t) => {
 });
 
 test('a symlink out of the allowlisted tree is refused, not followed', async (t) => {
-  const { base, elsewhere } = makeTree();
+  const { base, elsewhere, escapePath } = makeTree();
   t.after(() => { rmSync(base, { recursive: true, force: true }); rmSync(elsewhere, { recursive: true, force: true }); });
 
   const adapter = new FsProjectAdapter({ root: base, environment: 'local', label: 'test' });
-  const file = await adapter.readFile('src/lib/escape.ts');
+  const file = await adapter.readFile(escapePath);
 
   assert.equal(
     file,
@@ -172,10 +172,14 @@ test('a directory is refused even when its path is allowlisted', async (t) => {
 test('an in-checkout symlink cannot cross the readable-file allowlist', async (t) => {
   const { base, elsewhere } = makeTree();
   t.after(() => { rmSync(base, { recursive: true, force: true }); rmSync(elsewhere, { recursive: true, force: true }); });
-  symlinkSync(join(base, '.env'), join(base, 'src', 'lib', 'hidden.ts'));
-  symlinkSync(join(base, 'server.key'), join(base, 'src', 'lib', 'key.ts'));
+
+  const privateDir = join(base, 'private');
+  mkdirSync(privateDir, { recursive: true });
+  writeFileSync(join(privateDir, 'hidden.ts'), 'SECRET=1\n');
+  writeFileSync(join(privateDir, 'key.ts'), 'PRIVATE=1\n');
+  symlinkSync(privateDir, join(base, 'src', 'lib', 'private-link'), 'junction');
 
   const adapter = new FsProjectAdapter({ root: base, environment: 'local', label: 'test' });
-  assert.equal(await adapter.readFile('src/lib/hidden.ts'), null);
-  assert.equal(await adapter.readFile('src/lib/key.ts'), null);
+  assert.equal(await adapter.readFile('src/lib/private-link/hidden.ts'), null);
+  assert.equal(await adapter.readFile('src/lib/private-link/key.ts'), null);
 });
