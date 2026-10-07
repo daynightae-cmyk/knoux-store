@@ -30,7 +30,7 @@ import {
 } from '@/lib/build/workspace-state';
 import { compileBuildIntent } from '@/lib/build/intent';
 import { summariseIntent } from '@/lib/build/intent';
-import { routeModel } from '@/lib/build/model-router';
+import type { RoutingDecision } from '@/lib/build/types';
 import { parsePreferences, PREFERENCES_KEY } from '@/lib/build/preferences';
 import { WorkspaceModeSwitcher } from './WorkspaceModeSwitcher';
 import { BuildWorkspaceHeader } from './BuildWorkspaceHeader';
@@ -227,16 +227,7 @@ export function KnouxBuildWorkspace() {
     };
   }, []);
 
-  // Re-route whenever the task class or the provider set changes, so the
-  // header can never show a decision that was made against a stale list.
-  useEffect(() => {
-    if (state.ai.providers.length === 0) return;
-    const routing = routeModel(state.ai.task, state.ai.routingMode, state.ai.providers, {
-      providerId: state.ai.providerId ?? '',
-      modelId: state.ai.modelId ?? '',
-    });
-    dispatch({ type: 'routing/resolved', routing });
-  }, [state.ai.task, state.ai.routingMode, state.ai.providers, state.ai.providerId, state.ai.modelId]);
+  useRuntimeRouting(state, dispatch);
 
   const compile = useCallback((raw: string) => {
     dispatch({ type: 'intent/compiled', intent: compileBuildIntent(raw) });
@@ -291,10 +282,36 @@ export function BuildStateProvider({ children }: { children: ReactNode }) {
     return () => { document.documentElement.classList.remove('dev-shell--compact', 'dev-shell--less-evidence'); };
   }, [state.preferences.compact, state.preferences.showEvidence]);
 
-  useEffect(() => {
-    if (state.ai.providers.length === 0) return;
-    dispatch({ type: 'routing/resolved', routing: routeModel(state.ai.task, state.ai.routingMode, state.ai.providers, { providerId: state.ai.providerId ?? '', modelId: state.ai.modelId ?? '' }) });
-  }, [state.ai.task, state.ai.routingMode, state.ai.providers, state.ai.providerId, state.ai.modelId]);
+  useRuntimeRouting(state, dispatch);
+
   const value = useMemo(() => ({ state, dispatch, refresh }), [state, refresh]);
   return <BuildStateContext.Provider value={value}>{children}</BuildStateContext.Provider>;
+}
+
+/** Fetch the canonical server router; cancelled requests cannot overwrite newer intent. */
+function useRuntimeRouting(state: BuildWorkspaceState, dispatch: (action: BuildAction) => void) {
+  const { task, routingMode, providerId, modelId } = state.ai;
+  const hasProviders = state.ai.providers.length > 0;
+  useEffect(() => {
+    if (!hasProviders) return;
+    const controller = new AbortController();
+    const params = new URLSearchParams({ task, mode: routingMode });
+    if (providerId) params.set('provider', providerId);
+    if (modelId) params.set('model', modelId);
+    async function load() {
+      try {
+        const response = await fetch(`/api/build/providers?${params}`, { cache: 'no-store', signal: controller.signal });
+        if (!response.ok) throw new Error('Runtime routing unavailable.');
+        const result: { routing: RoutingDecision } = await response.json();
+        if (!controller.signal.aborted) dispatch({ type: 'routing/resolved', routing: result.routing });
+      } catch {
+        if (!controller.signal.aborted) dispatch({ type: 'routing/resolved', routing: {
+          task, mode: routingMode, providerId: null, modelId: null, reason: [],
+          status: 'unavailable', blocker: 'The canonical runtime router could not be read. No catalog fallback was substituted.',
+        } });
+      }
+    }
+    void load();
+    return () => controller.abort();
+  }, [task, routingMode, providerId, modelId, hasProviders, dispatch]);
 }

@@ -17,9 +17,9 @@ export const dynamic = 'force-dynamic';
  * `describeCapabilities` has no return path for a secret, which is what makes
  * this endpoint safe to expose. Only presence counts and env var names leave.
  */
-export async function GET() {
+export async function GET(request: Request) {
   if (growthAuthEnforced()) {
-    const guard = await guardGrowth({ permission: 'connection.view' });
+    const guard = await guardGrowth({ permission: 'connection.view', clientId: new URL(request.url).searchParams.get('clientId') ?? undefined });
     if (!guard.ok) {
       return NextResponse.json(
         { ok: false, code: guard.failure.code, message: guard.failure.message },

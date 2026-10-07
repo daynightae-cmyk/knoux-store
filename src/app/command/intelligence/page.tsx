@@ -65,7 +65,8 @@ function Intelligence() {
     // the agent is reachable.
     void (async () => {
       try {
-        const res = await fetch('/api/growth/intelligence/probe', { cache: 'no-store' });
+        const res = await fetch(`/api/growth/intelligence/probe?clientId=${encodeURIComponent(activeClient.id)}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Intelligence probe access refused.');
         const payload = (await res.json()) as {
           failure?: string | null;
           detail?: string;
@@ -84,8 +85,11 @@ function Intelligence() {
       }
     })();
 
-    void fetch('/api/growth/capabilities', { cache: 'no-store' })
-      .then((res) => res.json())
+    void fetch(`/api/growth/capabilities?clientId=${encodeURIComponent(activeClient.id)}`, { cache: 'no-store' })
+      .then((res) => {
+        if (!res.ok) throw new Error('Capability access refused.');
+        return res.json();
+      })
       .then((payload: { capabilities?: SafeCapabilityView[] }) => {
         if (!cancelled) setCapabilities(payload.capabilities ?? []);
       })
@@ -96,7 +100,7 @@ function Intelligence() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [activeClient.id]);
 
   return (
     <CommandShell
