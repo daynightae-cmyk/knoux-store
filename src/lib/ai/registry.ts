@@ -223,8 +223,9 @@ function acceptanceOf(
     case "VISION_VERIFIED":
     case "STRUCTURED_OUTPUT_VERIFIED":
     case "VERIFIED":
-    case "SUPPORTED":
       return "PASS";
+    case "SUPPORTED":
+      return "UNTESTED";
     case "FAILED":
     case "RATE_LIMITED":
     case "DEGRADED":

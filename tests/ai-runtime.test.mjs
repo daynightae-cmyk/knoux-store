@@ -36,6 +36,14 @@ test("registers all 13 required providers", () => {
   assert.equal(adapters.length, 13);
 });
 
+test("declared capabilities do not pass runtime acceptance without execution", () => {
+  const health = registry.allProviderHealth({ DEEPSEEK_API_KEY: 'test-only-credential' }).find(p => p.providerId === 'deepseek');
+  assert.equal(health.acceptance.tools, 'UNTESTED');
+  assert.equal(health.acceptance.structuredOutput, 'UNTESTED');
+  assert.equal(health.acceptance.generation, 'UNTESTED');
+  assert.equal(health.acceptance.streaming, 'UNTESTED');
+});
+
 test("includes all required provider IDs", () => {
   const ids = registry.getAdapters().map((a) => a.id);
   for (const expected of [

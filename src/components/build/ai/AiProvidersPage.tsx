@@ -11,7 +11,7 @@ type ProbeResult = {
   latencyMs: number;
 };
 
-export function AiProvidersPage() {
+export function AiProvidersPage({ embedded = false }: Readonly<{ embedded?: boolean }> = {}) {
   const [providers, setProviders] = useState<ProviderHealth[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
@@ -68,6 +68,7 @@ export function AiProvidersPage() {
         body: JSON.stringify({ provider: providerId }),
       });
       const result: ProbeResult = await res.json();
+      if (!res.ok) throw new Error('Provider probe was refused by the server.');
       setProbes((old) => ({ ...old, [providerId]: result }));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Probe failed");
@@ -87,6 +88,7 @@ export function AiProvidersPage() {
         body: JSON.stringify(providerId ? { provider: providerId } : {}),
       });
       const data = await res.json();
+      if (!res.ok) throw new Error('Model discovery was refused by the server.');
       if (providerId) {
         const result = data.providers?.[0];
         if (result) {
@@ -141,13 +143,13 @@ export function AiProvidersPage() {
 
   if (loading)
     return (
-      <AiCenterPage heading={null}>
+      <AiCenterPage embedded={embedded} heading={null}>
         <p className="dev-note">Loading provider health…</p>
       </AiCenterPage>
     );
 
   return (
-    <AiCenterPage
+    <AiCenterPage embedded={embedded}
       heading={
         <header className="dev-page-heading" style={{ marginBottom: 16 }}>
           <span className="dev-mini-label">AI RUNTIME / PROVIDERS</span>
@@ -166,7 +168,7 @@ export function AiProvidersPage() {
       <div className="dev-actions" style={{ marginBottom: 16 }}>
         <button
           type="button"
-          disabled={busy === "__all__"}
+          disabled={busy !== null || !providers.some(provider => provider.configured)}
           onClick={() => void refreshModels()}
         >
           REFRESH ALL MODELS
@@ -205,6 +207,7 @@ export function AiProvidersPage() {
                   </span>
                 </div>
 
+                <div style={{ overflowX: 'auto', maxWidth: '100%' }}>
                 <table
                   className="dev-kv-table"
                   style={{ marginTop: 10, width: "100%" }}
@@ -269,6 +272,7 @@ export function AiProvidersPage() {
                     </tr>
                   </tbody>
                 </table>
+                </div>
 
                 {provider.lastError ? (
                   <p

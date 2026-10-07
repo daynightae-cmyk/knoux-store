@@ -13,5 +13,7 @@ export type GrowthAuthEnvironment = Record<string, string | undefined> & {
 export function growthAuthEnforced(
   env: GrowthAuthEnvironment = process.env,
 ): boolean {
+  // Selecting durable client data always enables auth; an explicit false cannot bypass it.
+  if (env.KNOUX_GROWTH_DATA_SOURCE?.trim().toLowerCase() === 'supabase') return true;
   return env.KNOUX_GROWTH_AUTH_ENFORCED?.trim().toLowerCase() === 'true';
 }

@@ -17,7 +17,7 @@ import 'server-only';
  *    default rather than something an operator has to remember.
  */
 
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 
 /* ------------------------------------------------------------------ state */
 
@@ -31,7 +31,7 @@ import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
  */
 export type OAuthState = {
   value: string;
-  /** SHA-256 of the nonce. The raw nonce is never persisted. */
+  /** Domain-separated HMAC digest of the nonce. The raw nonce is never persisted. */
   stateHash: string;
   expiresAt: Date;
 };
@@ -48,9 +48,16 @@ export function createOAuthState(now: () => number = Date.now): OAuthState {
   };
 }
 
-/** Stored form. The raw nonce is never written, only its digest. */
+const OAUTH_STATE_DIGEST_DOMAIN = 'knoux-growth-oauth-state-v1';
+
+/**
+ * One-way digest for high-entropy OAuth state and opaque secret references.
+ * This is not password hashing: inputs are random provider/state secrets, and
+ * HMAC domain separation prevents this digest from being confused with a
+ * general-purpose password hash.
+ */
 export function hashState(value: string): string {
-  return createHash('sha256').update(value).digest('hex');
+  return createHmac('sha256', OAUTH_STATE_DIGEST_DOMAIN).update(value).digest('hex');
 }
 
 export type StateVerdict =
@@ -146,7 +153,7 @@ export function scopesFor(capabilities: readonly OAuthCapability[]): string[] {
   for (const capability of capabilities) {
     for (const scope of META_SCOPES[capability] ?? []) set.add(scope);
   }
-  return [...set].sort();
+  return [...set].sort((a, b) => a.localeCompare(b));
 }
 
 /** Capabilities whose scope set would permit spending money. */
@@ -408,7 +415,7 @@ export async function exchangeMetaCode(params: {
       ...(payload.expires_in
         ? { accessTokenExpiresAt: new Date(now + payload.expires_in * 1000).toISOString() }
         : {}),
-      scopes: payload.scope ? payload.scope.split(',').map((entry) => entry.trim()).sort() : [],
+      scopes: payload.scope ? payload.scope.split(',').map((entry) => entry.trim()).sort((a, b) => a.localeCompare(b)) : [],
       grantedAt: new Date(now).toISOString(),
     };
 
@@ -479,7 +486,7 @@ export async function exchangeGoogleCode(params: {
     }
 
     const now = (params.now ?? Date.now)();
-    const scopes = payload.scope ? payload.scope.split(' ').filter(Boolean).sort() : [];
+    const scopes = payload.scope ? payload.scope.split(' ').filter(Boolean).sort((a, b) => a.localeCompare(b)) : [];
 
     const token: StoredToken = {
       secretRef: params.secretStore

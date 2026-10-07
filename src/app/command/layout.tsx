@@ -27,7 +27,7 @@ export const viewport = {
  * would frame an operational tool as a division. The workspace provides its own
  * shell, client switcher and command dock.
  */
-export default async function CommandLayout({ children }: { children: ReactNode }) {
+export default async function CommandLayout({ children }: Readonly<{ children: ReactNode }>) {
   if (growthAuthEnforced()) {
     const resolution = await resolvePrincipal();
     if (resolution.state === 'ANONYMOUS') redirect('/login?next=/command');

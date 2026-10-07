@@ -26,37 +26,46 @@ const SENSITIVE_LABEL = /(?:key|token|secret|password|passwd|pwd|credential|auth
 const LABEL_CHAR = /[A-Za-z0-9_.-]/;
 const VALUE_END = /[\s,;)\]}]/;
 
-/** Scan each assignment separator once; a nonsensitive field cannot swallow a later secret. */
+function sensitiveLabelAt(input: string, separator: number): boolean {
+  let end = separator - 1;
+  while (end >= 0 && /[ \t]/.test(input[end])) end--;
+  if (input[end] === '"' || input[end] === "'") end--;
+  let start = end;
+  while (start >= 0 && LABEL_CHAR.test(input[start])) start--;
+  return SENSITIVE_LABEL.test(input.slice(start + 1, end + 1));
+}
+
+function assignmentEnd(input: string, start: number): number {
+  const quote = input[start];
+  let end = start;
+  if (quote !== '"' && quote !== "'") {
+    while (end < input.length && !VALUE_END.test(input[end])) end++;
+    return end;
+  }
+  end++;
+  while (end < input.length && input[end] !== quote) {
+    if (input[end] === '\\') end++;
+    end++;
+  }
+  return Math.min(end + 1, input.length);
+}
+
+/** Walk separators monotonically; no backtracking regex consumes credential values. */
 function redactAssignments(input: string): string {
   let output = '';
   let copied = 0;
-  for (let separator = 0; separator < input.length; separator++) {
-    if (input[separator] !== ':' && input[separator] !== '=') continue;
-    let labelEnd = separator - 1;
-    while (labelEnd >= 0 && (input[labelEnd] === ' ' || input[labelEnd] === '\t')) labelEnd--;
-    if (input[labelEnd] === '"' || input[labelEnd] === "'") labelEnd--;
-    let labelStart = labelEnd;
-    while (labelStart >= 0 && LABEL_CHAR.test(input[labelStart])) labelStart--;
-    if (!SENSITIVE_LABEL.test(input.slice(labelStart + 1, labelEnd + 1))) continue;
-
-    let valueStart = separator + 1;
-    while (input[valueStart] === ' ' || input[valueStart] === '\t') valueStart++;
-    let valueEnd = valueStart;
-    const quote = input[valueStart] === '"' || input[valueStart] === "'" ? input[valueStart] : null;
-    if (quote) {
-      valueEnd++;
-      while (valueEnd < input.length && input[valueEnd] !== quote) {
-        if (input[valueEnd] === '\\') valueEnd++;
-        valueEnd++;
-      }
-      if (valueEnd < input.length) valueEnd++;
-    } else {
-      while (valueEnd < input.length && !VALUE_END.test(input[valueEnd])) valueEnd++;
-    }
-    if (valueEnd <= valueStart) continue;
-    output += input.slice(copied, valueStart) + '[REDACTED]';
-    copied = valueEnd;
-    separator = valueEnd - 1;
+  let separator = 0;
+  while (separator < input.length) {
+    const position = separator++;
+    if (input[position] !== ':' && input[position] !== '=') continue;
+    if (!sensitiveLabelAt(input, position)) continue;
+    let start = position + 1;
+    while (input[start] === ' ' || input[start] === '\t') start++;
+    const end = assignmentEnd(input, start);
+    if (end <= start) continue;
+    output += input.slice(copied, start) + '[REDACTED]';
+    copied = end;
+    separator = end;
   }
   return output + input.slice(copied);
 }
@@ -68,7 +77,7 @@ function redactAssignments(input: string): string {
 const CREDENTIAL_ENV_NAME = /\b[A-Z][A-Z0-9]*_(?:SECRET|SECRET_KEY|TOKEN|ACCESS_TOKEN|REFRESH_TOKEN|PASSWORD|PRIVATE_KEY|API_KEY|APIKEY|KEY|CREDENTIALS?|WEBHOOK_SECRET|APP_ID|CLIENT_ID)\b/g;
 
 /** Bearer credentials, with or without a label in front of them. */
-const BEARER = /\bBearer[ \t]+[\w.~+\/=\-]+/gi;
+const BEARER = /\bBearer[ \t]+[\w.~+/=-]+/gi;
 
 /** A three-segment JWT. */
 const JWT = /\bey[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{5,}\b/g;

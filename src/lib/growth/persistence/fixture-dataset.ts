@@ -37,7 +37,8 @@ export function buildFixtureDataset(): FixtureDataset {
   const campaigns: Record<string, Record<string, unknown>[]> = {};
   const campaignsById: Record<string, Record<string, unknown>> = {};
   for (const campaign of DEMO_CAMPAIGNS) {
-    (campaigns[campaign.clientId] ??= []).push({ ...campaign });
+    campaigns[campaign.clientId] ??= [];
+    campaigns[campaign.clientId].push({ ...campaign });
     campaignsById[campaign.id] = { ...campaign };
   }
 
@@ -69,25 +70,7 @@ export function buildFixtureDataset(): FixtureDataset {
    */
   const metrics: Record<string, (MetricRow & { periodStart: string; periodEnd: string })[]> = {};
   for (const clientId of clientIds) {
-    const rows: (MetricRow & { periodStart: string; periodEnd: string })[] = [];
-    for (const row of DEMO_PERFORMANCE_ROWS.filter((entry) => entry.clientId === clientId)) {
-      for (const [metricKey, sourced] of Object.entries(row.metrics)) {
-        if (!sourced) continue;
-        const isMoney = metricKey === 'spend' || metricKey === 'revenue';
-        rows.push({
-          channel: row.platformLabel,
-          ...(row.campaignId ? { campaignId: row.campaignId } : {}),
-          metricKey,
-          value: sourced.value,
-          ...(isMoney ? { currency: clientId === 'cl_nile' ? 'EGP' : 'AED' } : {}),
-          origin: 'FIXTURE',
-          evidence: 'demo fixture, not a provider call',
-          periodStart: FIXTURE_WINDOW.periodStart,
-          periodEnd: FIXTURE_WINDOW.periodEnd,
-        });
-      }
-    }
-    metrics[clientId] = rows;
+    metrics[clientId] = fixtureMetrics(clientId);
   }
 
   const audit: Record<string, Record<string, unknown>[]> = {};
@@ -115,4 +98,25 @@ export function buildFixtureSupplementary(clientId: string) {
       (list) => ({ ...list }),
     ),
   };
+}
+function fixtureMetrics(clientId: string): (MetricRow & { periodStart: string; periodEnd: string })[] {
+    const rows: (MetricRow & { periodStart: string; periodEnd: string })[] = [];
+    for (const row of DEMO_PERFORMANCE_ROWS.filter((entry) => entry.clientId === clientId)) {
+      for (const [metricKey, sourced] of Object.entries(row.metrics)) {
+        if (!sourced) continue;
+        const isMoney = metricKey === 'spend' || metricKey === 'revenue';
+        rows.push({
+          channel: row.platformLabel,
+          ...(row.campaignId ? { campaignId: row.campaignId } : {}),
+          metricKey,
+          value: sourced.value,
+          ...(isMoney ? { currency: clientId === 'cl_nile' ? 'EGP' : 'AED' } : {}),
+          origin: 'FIXTURE',
+          evidence: 'demo fixture, not a provider call',
+          periodStart: FIXTURE_WINDOW.periodStart,
+          periodEnd: FIXTURE_WINDOW.periodEnd,
+        });
+      }
+    }
+    return rows;
 }
