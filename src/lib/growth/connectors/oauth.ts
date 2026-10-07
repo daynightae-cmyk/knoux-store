@@ -346,14 +346,7 @@ export interface SecretStore {
   delete(ref: string): Promise<boolean>;
 }
 
-/**
- * Exchanges an authorisation code for tokens and stores the result.
- *
- * Returns a reference, never a token. The exchange itself needs the app secret,
- * which is why the secret is read here and never by the caller.
- */
-export async function exchangeMetaCode(params: {
-  config: Required<MetaConfig>;
+type CodeExchangeOptions = {
   code: string;
   tokenUrl?: string;
   fetchImpl?: typeof fetch;
@@ -361,18 +354,17 @@ export async function exchangeMetaCode(params: {
   /** Resolved by the authenticated callback, never taken from provider config. */
   owner?: { clientId: string; userId: string };
   now?: () => number;
-}): Promise<TokenExchange> {
-  if (!params.config.redirectUri) {
-    return {
-      ok: false,
-      failure: 'CONFIG_REQUIRED',
-      message: 'META_OAUTH_REDIRECT_URI is not set, so the code exchange cannot be completed.',
-    };
+};
+
+function prepareCodeExchange(params: CodeExchangeOptions, redirectUri: string):
+  | Extract<TokenExchange, { ok: false }>
+  | { ok: true; secretStore: SecretStore; owner: { clientId: string; userId: string }; doFetch: typeof fetch } {
+  if (!redirectUri) {
+    return { ok: false, failure: 'CONFIG_REQUIRED', message: 'The OAuth redirect URI is not configured.' };
   }
-  if (!params.code || params.code.trim() === '') {
+  if (!params.code?.trim()) {
     return { ok: false, failure: 'INVALID_INPUT', message: 'No authorisation code was returned.' };
   }
-
   if (!params.secretStore || !params.owner?.clientId || !params.owner.userId) {
     return {
       ok: false,
@@ -380,10 +372,19 @@ export async function exchangeMetaCode(params: {
       message: 'A server secret store and authenticated client/user context are required.',
     };
   }
-  const secretStore = params.secretStore;
-  const owner = params.owner;
+  return { ok: true, secretStore: params.secretStore, owner: params.owner, doFetch: params.fetchImpl ?? fetch };
+}
 
-  const doFetch = params.fetchImpl ?? fetch;
+/**
+ * Exchanges an authorisation code for tokens and stores the result.
+ *
+ * Returns a reference, never a token. The exchange itself needs the app secret,
+ * which is why the secret is read here and never by the caller.
+ */
+export async function exchangeMetaCode(params: CodeExchangeOptions & { config: Required<MetaConfig> }): Promise<TokenExchange> {
+  const prepared = prepareCodeExchange(params, params.config.redirectUri);
+  if (!prepared.ok) return prepared;
+  const { secretStore, owner, doFetch } = prepared;
   const body = new URLSearchParams({
     client_id: params.config.appId,
     client_secret: params.config.appSecret,
@@ -439,38 +440,10 @@ export async function exchangeMetaCode(params: {
 }
 
 /** Google's equivalent. Returns both an access token and a refresh token ref. */
-export async function exchangeGoogleCode(params: {
-  config: Required<GoogleConfig>;
-  code: string;
-  tokenUrl?: string;
-  fetchImpl?: typeof fetch;
-  secretStore?: SecretStore;
-  /** Resolved by the authenticated callback, never taken from provider config. */
-  owner?: { clientId: string; userId: string };
-  now?: () => number;
-}): Promise<TokenExchange> {
-  if (!params.config.redirectUri) {
-    return {
-      ok: false,
-      failure: 'CONFIG_REQUIRED',
-      message: 'GOOGLE_OAUTH_REDIRECT_URI is not set, so the code exchange cannot be completed.',
-    };
-  }
-  if (!params.code || params.code.trim() === '') {
-    return { ok: false, failure: 'INVALID_INPUT', message: 'No authorisation code was returned.' };
-  }
-
-  if (!params.secretStore || !params.owner?.clientId || !params.owner.userId) {
-    return {
-      ok: false,
-      failure: 'CONFIG_REQUIRED',
-      message: 'A server secret store and authenticated client/user context are required.',
-    };
-  }
-  const secretStore = params.secretStore;
-  const owner = params.owner;
-
-  const doFetch = params.fetchImpl ?? fetch;
+export async function exchangeGoogleCode(params: CodeExchangeOptions & { config: Required<GoogleConfig> }): Promise<TokenExchange> {
+  const prepared = prepareCodeExchange(params, params.config.redirectUri);
+  if (!prepared.ok) return prepared;
+  const { secretStore, owner, doFetch } = prepared;
   const body = new URLSearchParams({
     client_id: params.config.clientId,
     client_secret: params.config.clientSecret,
