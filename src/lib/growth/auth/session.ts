@@ -49,7 +49,6 @@ export type PrincipalResolution =
 
 /** Where memberships are stored. Matches the Phase 2 migration. */
 const MEMBERSHIP_TABLE = 'knoux_growth_memberships';
-const CLIENT_TABLE = 'knoux_growth_clients';
 
 /** Role names as they are stored, aligned with the Phase 1 vocabulary. */
 const STORED_ROLES: readonly string[] = ROLES;
@@ -261,34 +260,6 @@ export async function guardGrowth(request?: {
   };
 }
 
-/**
- * Convenience for read paths that only need the client list.
- * Returns the principal or null, so a caller cannot accidentally treat an
- * unresolved identity as an empty-but-allowed one.
- */
-export async function requirePrincipal(): Promise<Principal | null> {
-  const resolution = await resolvePrincipal();
-  return resolution.state === 'ALLOWED' ? resolution.principal : null;
-}
-
-/**
- * Which client ids this principal may read. Used by list endpoints so the query
- * is scoped in SQL rather than filtered after the fetch.
- */
-export async function visibleClientIdsFor(principal: Principal): Promise<string[]> {
-  const scopeAll = principal.role === 'OWNER' || principal.role === 'MANAGER';
-  if (scopeAll) {
-    try {
-      const supabase = await createClient();
-      const { data, error } = await supabase.from(CLIENT_TABLE).select('id');
-      if (!error && data) return (data as { id: string }[]).map((row) => row.id);
-    } catch {
-      /* fall through to the bound list */
-    }
-  }
-  return principal.clientIds;
-}
-
 /** Re-exported so route guards need only one import. */
 export { canAccessClient, hasRolePermission };
-export { CLIENT_TABLE, MEMBERSHIP_TABLE };
+export { MEMBERSHIP_TABLE };

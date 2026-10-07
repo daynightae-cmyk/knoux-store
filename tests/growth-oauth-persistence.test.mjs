@@ -39,9 +39,9 @@ const {
   redactAuditDetail,
 } = await import('../src/lib/growth/persistence/repository.ts');
 
-const { buildFixtureDataset } = await import('../src/lib/growth/persistence/fixture-dataset.ts');
+const { buildFixtureDataset, buildFixtureSupplementary } = await import('../src/lib/growth/persistence/fixture-dataset.ts');
 
-const { configuredDataSource, refusalMessage } = await import(
+const { configuredDataSource, selectRepository, refusalMessage } = await import(
   '../src/lib/growth/persistence/selection.ts'
 );
 
@@ -307,6 +307,33 @@ test('a fixture miss is NOT_FOUND, not an empty result', async () => {
   const result = await repo.getClient('cl_does_not_exist');
   assert.equal(result.ok, false);
   assert.equal(result.failure, 'NOT_FOUND');
+});
+
+test('supplementary fixture records stay scoped to the requested client', () => {
+  const dataset = buildFixtureDataset();
+  assert.ok(dataset.clientIds.length > 0, 'fixture data must expose at least one client');
+  for (const clientId of dataset.clientIds) {
+    const supplementary = buildFixtureSupplementary(clientId);
+    for (const record of [
+      ...supplementary.content,
+      ...supplementary.creatives,
+      ...supplementary.distributionLists,
+    ]) {
+      assert.equal(record.clientId, clientId, 'supplementary fixture data crossed the client boundary');
+    }
+  }
+});
+
+test('repository selection enters fixture mode only when explicitly requested', async () => {
+  const selection = await selectRepository([], { KNOUX_GROWTH_DATA_SOURCE: 'fixture' });
+  assert.equal(selection.source, 'fixture');
+  assert.equal(selection.repository.holdsLiveData, false);
+
+  const ids = await selection.repository.listClientIds();
+  assert.equal(ids.ok, true);
+  assert.ok(ids.data.value.length > 0);
+  assert.equal(ids.data.meta.origin, 'FIXTURE');
+  assert.equal(ids.data.meta.stored, false);
 });
 
 /* ------------------------------------------------------ repository selection */
