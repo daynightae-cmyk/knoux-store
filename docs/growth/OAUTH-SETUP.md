@@ -187,13 +187,32 @@ is not representable in either layer.
 
 ---
 
-## 7. Not built
+## 7. Durable lifecycle and remaining configuration
+
+State creation stores only domain-separated digests; an HttpOnly callback cookie
+binds the handshake to the initiating browser session, authenticated user and
+client. Postgres imposes a ten-minute TTL and atomically consumes each state
+once. Callback completion rechecks current OWNER membership, requires encrypted
+Vault persistence and records scopes, expiry and verification metadata. Missing
+scopes remain PERMISSION_REQUIRED; failed verification remains CONNECTING.
+Google Ads verification remains pending until a provider-specific account probe
+is configured. No declared adapter readiness implies a verified connection.
+
+Register the exact `/api/growth/oauth/meta/callback` and
+`/api/growth/oauth/google/callback` URLs using the corresponding
+`META_OAUTH_REDIRECT_URI` and `GOOGLE_OAUTH_REDIRECT_URI` server variables.
+`SUPABASE_SERVICE_ROLE_KEY` is required server-side for scoped OAuth RPCs;
+browser data reads use the authenticated session, never this key. Reauthorization
+preserves a scoped existing Google refresh reference when omitted by the provider,
+and atomically removes obsolete access references. Removal deletes the stored
+connection and its scoped Vault secrets; provider-side consent is managed at the
+provider independently. Real account consent is not exercised by offline tests.
 
 | Item | Why |
 |---|---|
-| The route handlers themselves | `buildMetaAuthorisationUrl` and the exchange are complete and tested; the Next route wrappers are not written. Deliberate: an OAuth route without a working callback would look finished and fail at the first handshake. |
+| Route handlers | Complete: authenticated POST `/api/growth/oauth/{meta,google}/start`, GET callback, and owner-only connection removal. Covered by durable lifecycle and Postgres tests. Real user authorization remains configuration-dependent. |
 | Token refresh | The refresh-token **reference** is stored. A refresh scheduler is not built. |
-| Secret store implementation | Needs a chosen provider. The interface is the contract. |
+| Secret store implementation | Complete: existing Supabase Vault, private client/user ownership metadata, service-only RPCs and cleanup of newly minted references on persistence failure. Tokens and references never reach workspace responses. |
 | Any mutating grant | `META_ADS_WRITE` is declared so a future launch path has a defined scope set, and is never requested by a read flow. |
 
 ---

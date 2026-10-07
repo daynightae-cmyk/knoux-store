@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation';
 import { WorkspaceProvider } from '@/components/command/workspace-context';
 import { growthAuthEnforced } from '@/lib/growth/auth/enforcement';
 import { resolvePrincipal } from '@/lib/growth/auth/session';
+import { loadDemoWorkspace, loadLiveWorkspace } from '@/lib/growth/persistence/workspace';
+import type { WorkspaceDataset } from '@/lib/growth/persistence/workspace-data';
 import './command-shell.css';
 
 export const metadata: Metadata = {
@@ -28,15 +30,22 @@ export const viewport = {
  * shell, client switcher and command dock.
  */
 export default async function CommandLayout({ children }: Readonly<{ children: ReactNode }>) {
+  let initialData: WorkspaceDataset;
   if (growthAuthEnforced()) {
     const resolution = await resolvePrincipal();
     if (resolution.state === 'ANONYMOUS') redirect('/login?next=/command');
     if (resolution.state !== 'ALLOWED') redirect('/account?notice=growth-not-authorised');
+    const stored = await loadLiveWorkspace(resolution.principal.clientIds);
+    if (!stored.ok) return <div className="command-root"><h1>Growth workspace unavailable</h1><p>{stored.failure}: {stored.message}</p><p>Live data could not be loaded. No demo data was substituted.</p></div>;
+    initialData = stored.data.value;
+    if (initialData.clients.length === 0) return <div className="command-root"><h1>No accessible client workspaces</h1><p>Your authenticated memberships have no stored client records.</p></div>;
+  } else {
+    initialData = await loadDemoWorkspace();
   }
 
   return (
     <div className="command-root">
-      <WorkspaceProvider>{children}</WorkspaceProvider>
+      <WorkspaceProvider initialData={initialData}>{children}</WorkspaceProvider>
     </div>
   );
 }

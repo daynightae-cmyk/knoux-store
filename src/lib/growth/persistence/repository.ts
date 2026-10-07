@@ -22,6 +22,15 @@ import 'server-only';
 import type { DataOrigin } from '../states';
 import { redactSecrets } from '../../security/redact';
 
+export const WORKSPACE_RESOURCES = {
+  content: 'knoux_growth_content',
+  creatives: 'knoux_growth_creatives',
+  collections: 'knoux_growth_community_collections',
+  distribution: 'knoux_growth_distribution_runs',
+  automations: 'knoux_growth_automation_rules',
+} as const;
+export type WorkspaceResource = keyof typeof WORKSPACE_RESOURCES;
+
 /* ------------------------------------------------------------- provenance */
 
 /**
@@ -117,6 +126,7 @@ export interface GrowthRepository {
   listClientIds(): Promise<RepositoryResult<string[]>>;
   getClient(clientId: string): Promise<RepositoryResult<Record<string, unknown>>>;
 
+  listWorkspaceRecords(clientId: string, resource: WorkspaceResource): Promise<RepositoryResult<Record<string, unknown>[]>>;
   listCampaigns(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>>;
   getCampaign(campaignId: string): Promise<RepositoryResult<Record<string, unknown>>>;
 
@@ -206,6 +216,10 @@ export class FixtureGrowthRepository implements GrowthRepository {
     return this.ok(row);
   }
 
+  async listWorkspaceRecords(clientId: string, resource: WorkspaceResource): Promise<RepositoryResult<Record<string, unknown>[]>> {
+    return this.ok(this.data.supplementary?.[resource]?.[clientId] ?? []);
+  }
+
   async listCampaigns(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>> {
     return this.ok((this.data.campaigns[clientId] ?? []) as Record<string, unknown>[]);
   }
@@ -251,6 +265,7 @@ export class FixtureGrowthRepository implements GrowthRepository {
 }
 
 export type FixtureDataset = {
+  supplementary?: Partial<Record<WorkspaceResource, Record<string, Record<string, unknown>[]>>>;
   clientIds: string[];
   clients: Record<string, Record<string, unknown>>;
   campaigns: Record<string, Record<string, unknown>[]>;
@@ -407,13 +422,24 @@ export class SupabaseGrowthRepository implements GrowthRepository {
     return this.ok(row);
   }
 
+  async listWorkspaceRecords(clientId: string, resource: WorkspaceResource): Promise<RepositoryResult<Record<string, unknown>[]>> {
+    const denied = this.assertClient(clientId);
+    if (denied) return denied;
+    const table = WORKSPACE_RESOURCES[resource];
+    if (!table) return failed('INVALID_INPUT', 'Unknown workspace resource.');
+    let columns = '*';
+    if (resource === 'collections') columns = '*,knoux_growth_collection_members(community_id)';
+    if (resource === 'distribution') columns = '*,knoux_growth_distribution_items(*)';
+    return this.exec(this.supabase.from(table).select(columns).eq('client_id', clientId), 'Workspace records could not be read.');
+  }
+
   async listCampaigns(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>> {
     const denied = this.assertClient(clientId);
     if (denied) return denied;
     return this.exec(
       this.supabase
         .from(T.campaigns)
-        .select('*')
+        .select('*,knoux_growth_campaign_channels(platform,provider_campaign_id)')
         .eq('client_id', clientId)
         .order('updated_at', { ascending: false }),
       'Campaigns could not be listed.',
@@ -465,7 +491,7 @@ export class SupabaseGrowthRepository implements GrowthRepository {
     const denied = this.assertClient(clientId);
     if (denied) return denied;
     return this.exec(
-      this.supabase.from(T.connections).select('*').eq('client_id', clientId),
+      this.supabase.from(T.connections).select('id,client_id,platform,state,account_label,account_id,granted_scopes,missing_scopes,token_expires_at,last_verified_at,last_error,capability_state,origin,updated_at').eq('client_id', clientId),
       'Connections could not be listed.',
     );
   }
@@ -485,12 +511,18 @@ export class SupabaseGrowthRepository implements GrowthRepository {
     );
     if (!result.ok) return result;
 
+    if (result.data.value.some(row =>
+      !['LIVE', 'FIXTURE'].includes(String(row.origin)) ||
+      (typeof row.value !== 'number' && typeof row.value !== 'string') ||
+      String(row.value).trim() === '' || !Number.isFinite(Number(row.value))
+    )) return { ok: false, failure: 'QUERY_FAILED', message: 'Stored metrics contain invalid values or provenance. Fixtures were not substituted.' };
+
     return this.ok(
       result.data.value.map((row) => ({
         channel: String(row.channel ?? ''),
         ...(row.campaign_id ? { campaignId: String(row.campaign_id) } : {}),
         metricKey: String(row.metric_key ?? ''),
-        value: Number(row.value ?? 0),
+        value: Number(row.value),
         ...(row.currency ? { currency: String(row.currency) } : {}),
         // The stored origin travels through, so a FIXTURE metric that was
         // imported into the database is still labelled as one.

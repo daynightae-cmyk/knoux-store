@@ -22,9 +22,11 @@ test('membership-only business policies cannot authorize direct browser mutation
   assert.ok(hardening.includes('knoux_growth_audit_log from authenticated;'));
 });
 
-test('hardening is transactional and preserves all recovered rows and read policies', () => {
+test('hardening is transactional, preserves recovered rows and narrows sensitive reads', () => {
   assert.match(hardening, /^begin;$/m);
   assert.match(hardening, /^commit;$/m);
-  assert.doesNotMatch(hardening, /^(?:drop|delete|truncate|update|alter table)\s/im);
+  assert.doesNotMatch(hardening, /^(?:drop (?:table|schema)|delete from|truncate|update|alter table)\s/im);
+  assert.match(hardening, /knoux_growth_campaigns_budget_read/);
+  assert.match(hardening, /metric_key not in \('spend', 'revenue'\)/);
   assert.match(hardening, /revoke all on function public\.knoux_growth_is_client_owner\(text\) from public, anon;/);
 });

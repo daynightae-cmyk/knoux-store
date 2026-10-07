@@ -535,6 +535,17 @@ export type AutomationRule = {
 /* ------------------------------------------------------------------- audit */
 
 export type AuditAction =
+  | 'LOGIN_TO_GROWTH'
+  | 'CONNECTION_STARTED'
+  | 'CONNECTION_COMPLETED'
+  | 'CONNECTION_FAILED'
+  | 'CAMPAIGN_CREATED'
+  | 'APPROVAL_INVALIDATED'
+  | 'LAUNCH_REQUESTED'
+  | 'COMMUNITY_IMPORTED'
+  | 'COMMUNITY_MARKED_POSTED'
+  | 'LEAD_STATUS_CHANGED'
+  | 'RULE_CHANGED'
   | 'CONNECTION_CREATED'
   | 'CONNECTION_REMOVED'
   | 'CAMPAIGN_SUBMITTED'

@@ -2450,7 +2450,7 @@
       "sha": "e784824f95975e584ccdc240d2feeb30bb2822fb",
       "mergeBase": "dac60f15a9ce6294ccb8d98ae4a0b0c39d7a5c05",
       "uniqueCommits": 9,
-      "classification": "UNIQUE_UNMERGED",
+      "classification": "PORTED",
       "cleanup": "UNIQUE_DO_NOT_REMOVE",
       "changedSourceFiles": [
         "M\tbridge/package.json",
@@ -2625,7 +2625,9 @@
         "classification": "UNIQUE_USEFUL / SUPERSEDED_BY_VERIFIED_MAIN",
         "evidence": "Four accepted product commits recovered; later complete source patches and working drafts preserved; budget correction integrated; PHASE2-RECOVERY-DECISION.md records concrete incompatible and unverified execution paths",
         "source": "docs/recovery/KNOuX_STORE_CONVERGENCE_LEDGER_20261004.md"
-      }
+      },
+      "semanticDecision": "Recovered at 4b876a7: auth/session, repository/selection, OAuth exchange, v1/v2 schemas and domain logic ported. Canonical fixture factory removes duplicated defaults without removing community identities; legacy types reconciled to canonical types. Client-scoped RBAC and credential/write boundaries subsequently hardened. Current server workspace projection and durable OAuth complete previously missing paths; 713 application tests pass including runtime/SQL security tests. External Agent mutation journal retained as historical evidence, not current execution proof.",
+      "semanticReviewedAt": "2026-10-07"
     },
     {
       "ref": "refs/heads/fix/about-origin-room-v2",
@@ -3333,7 +3335,7 @@
       "sha": "9f3497480933236483a860b338dc352d1aa2931d",
       "mergeBase": "dac60f15a9ce6294ccb8d98ae4a0b0c39d7a5c05",
       "uniqueCommits": 1,
-      "classification": "UNIQUE_UNMERGED",
+      "classification": "REFERENCE_ONLY",
       "cleanup": "UNIQUE_DO_NOT_REMOVE",
       "changedSourceFiles": [
         "M\tbridge/package.json",
@@ -3530,7 +3532,9 @@
         "M\ttests/security-boundary.test.mjs",
         "M\ttests/wordpress-marketplace.test.mjs"
       ],
-      "decision": "Retain; inspect alongside existing per-file convergence ledger. Ancestry alone cannot prove semantic supersession."
+      "decision": "Retain; inspect alongside existing per-file convergence ledger. Ancestry alone cannot prove semantic supersession.",
+      "semanticDecision": "Unique commit adds no src/bridge/supabase/tests/e2e application changes: diff-tree 9f34974 (Traycer refs) or first-parent diff bbdef3f (unpublished ancestry merge) is empty for operational source. Historical reference/log and ancestry preservation retained; no production code to integrate.",
+      "semanticReviewedAt": "2026-10-07"
     },
     {
       "ref": "refs/heads/traycer/knoux-store-jolly-sparrow",
@@ -3617,7 +3621,7 @@
       "sha": "9f3497480933236483a860b338dc352d1aa2931d",
       "mergeBase": "dac60f15a9ce6294ccb8d98ae4a0b0c39d7a5c05",
       "uniqueCommits": 1,
-      "classification": "UNIQUE_UNMERGED",
+      "classification": "REFERENCE_ONLY",
       "cleanup": "UNIQUE_DO_NOT_REMOVE",
       "changedSourceFiles": [
         "M\tbridge/package.json",
@@ -3814,7 +3818,9 @@
         "M\ttests/security-boundary.test.mjs",
         "M\ttests/wordpress-marketplace.test.mjs"
       ],
-      "decision": "Retain; inspect alongside existing per-file convergence ledger. Ancestry alone cannot prove semantic supersession."
+      "decision": "Retain; inspect alongside existing per-file convergence ledger. Ancestry alone cannot prove semantic supersession.",
+      "semanticDecision": "Unique commit adds no src/bridge/supabase/tests/e2e application changes: diff-tree 9f34974 (Traycer refs) or first-parent diff bbdef3f (unpublished ancestry merge) is empty for operational source. Historical reference/log and ancestry preservation retained; no production code to integrate.",
+      "semanticReviewedAt": "2026-10-07"
     },
     {
       "ref": "refs/heads/traycer/lucid-panda",
@@ -3851,7 +3857,7 @@
       "sha": "1fcbfa4823a00e26aeb48144b94f1402da090c3b",
       "mergeBase": "dac60f15a9ce6294ccb8d98ae4a0b0c39d7a5c05",
       "uniqueCommits": 7,
-      "classification": "UNIQUE_UNMERGED",
+      "classification": "SUPERSEDED",
       "cleanup": "UNIQUE_DO_NOT_REMOVE",
       "changedSourceFiles": [
         "M\tbridge/package.json",
@@ -4027,14 +4033,16 @@
         "M\ttests/security-boundary.test.mjs",
         "M\ttests/wordpress-marketplace.test.mjs"
       ],
-      "decision": "Retain; inspect alongside existing per-file convergence ledger. Ancestry alone cannot prove semantic supersession."
+      "decision": "Retain; inspect alongside existing per-file convergence ledger. Ancestry alone cannot prove semantic supersession.",
+      "semanticDecision": "Exact ref remains an ancestor of e784824 Growth donor (merge-base --is-ancestor exit 0). Donor auth/repository/OAuth/domain implementation semantically ported at 4b876a7 and current closure; preserving original source and recovery ref.",
+      "semanticReviewedAt": "2026-10-07"
     },
     {
       "ref": "refs/recovery/growth-phase2-source",
       "sha": "cba5710a17d65dd52f57bc5bfc0d13894e95fef0",
       "mergeBase": "dac60f15a9ce6294ccb8d98ae4a0b0c39d7a5c05",
       "uniqueCommits": 6,
-      "classification": "UNIQUE_UNMERGED",
+      "classification": "SUPERSEDED",
       "cleanup": "UNIQUE_DO_NOT_REMOVE",
       "changedSourceFiles": [
         "M\tbridge/package.json",
@@ -4210,7 +4218,9 @@
         "M\ttests/security-boundary.test.mjs",
         "M\ttests/wordpress-marketplace.test.mjs"
       ],
-      "decision": "Retain; inspect alongside existing per-file convergence ledger. Ancestry alone cannot prove semantic supersession."
+      "decision": "Retain; inspect alongside existing per-file convergence ledger. Ancestry alone cannot prove semantic supersession.",
+      "semanticDecision": "Exact ref remains an ancestor of e784824 Growth donor (merge-base --is-ancestor exit 0). Donor auth/repository/OAuth/domain implementation semantically ported at 4b876a7 and current closure; preserving original source and recovery ref.",
+      "semanticReviewedAt": "2026-10-07"
     },
     {
       "ref": "refs/recovery/orphans/059a2ad6d929b1cb4f21188d66327adca11a296b",
@@ -16721,7 +16731,7 @@
       "sha": "bbdef3fe60e6ddce6d7b6da51987bfc18f207192",
       "mergeBase": "fcdb6a87c395a752c0d97e1eb776622f32da8088",
       "uniqueCommits": 2,
-      "classification": "UNIQUE_UNMERGED",
+      "classification": "REFERENCE_ONLY",
       "cleanup": "UNIQUE_DO_NOT_REMOVE",
       "changedSourceFiles": [
         "M\tbridge/package.json",
@@ -16813,7 +16823,9 @@
         "M\ttests/project-adapter.test.mjs",
         "M\ttests/security-boundary.test.mjs"
       ],
-      "decision": "Retain; inspect alongside existing per-file convergence ledger. Ancestry alone cannot prove semantic supersession."
+      "decision": "Retain; inspect alongside existing per-file convergence ledger. Ancestry alone cannot prove semantic supersession.",
+      "semanticDecision": "Unique commit adds no src/bridge/supabase/tests/e2e application changes: diff-tree 9f34974 (Traycer refs) or first-parent diff bbdef3f (unpublished ancestry merge) is empty for operational source. Historical reference/log and ancestry preservation retained; no production code to integrate.",
+      "semanticReviewedAt": "2026-10-07"
     },
     {
       "ref": "refs/remotes/origin/HEAD",
@@ -20431,5 +20443,5 @@
     "3eb805e9caf20d8b1dd647b15348276984168665 feat(auth): build KNOuX Arrival Chamber experience",
     "8ce417e1d1a5d83122b62325283e4989ff3b802d feat: add analytics event tracking module"
   ],
-  "status": "IN PROGRESS"
+  "status": "RECOVERY_DECISIONS_CLOSED_REFS_RETAINED"
 }

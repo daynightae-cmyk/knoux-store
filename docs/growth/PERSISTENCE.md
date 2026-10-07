@@ -1,6 +1,22 @@
 # KNOuX Growth — Persistence
 
-Status: **MIGRATION_READY_NOT_APPLIED**
+Status: **SERVER_WIRING_VERIFIED; REMOTE_GROWTH_SCHEMA_NOT_APPLIED** (2026-10-07).
+
+All operational command screens now receive an authenticated server repository
+snapshot when `KNOUX_GROWTH_DATA_SOURCE=supabase` is selected. This selection
+enforces authentication regardless of the optional auth switch. Tenancy is
+checked in the repository and Postgres RLS. Missing schema, transport failures,
+invalid stored metrics and empty stores never substitute demonstration records.
+Fixture selection and imported fixture provenance remain visibly DEMO/FIXTURE.
+
+The four Growth migrations execute successfully in isolated Postgres through
+`tests/growth-postgres-security.test.mjs`. Browser roles cannot mutate business
+tables or call privileged OAuth/Vault RPCs; creative-only roles cannot read
+campaign budgets or spend/revenue metrics. The 20261007 security migration
+supersedes the historical browser-write examples below. Apply the complete
+reviewed set atomically when provisioning, so intermediate grants are never
+exposed. A read-only check of project `cnkddxxhcfceokxzaaot` found Vault present
+and Growth tables absent. No real provider token was used in SQL tests.
 
 Source: `supabase/migrations/20261005090000_knoux_growth_v1.sql`,
 `20261005091000_knoux_growth_v2.sql`,
@@ -443,7 +459,7 @@ self-reference — so a missing function here means the migration did not apply.
 
 ```sql
 insert into public.knoux_growth_memberships (user_id, client_id, role, created_by)
-select id, 'cl_a', 'OWNER', id from auth.users limit 1;
+values ('<explicit-approved-user-uuid>', '<explicit-client-id>', 'OWNER', '<explicit-approved-user-uuid>');
 ```
 Run from the SQL editor or with `service_role`. Until this row exists, every
 authenticated user resolves to `NOT_PROVISIONED` — which is the correct and
@@ -459,6 +475,6 @@ intended closed state, not a bug.
 3. Seed the first `OWNER` membership with a role that bypasses RLS (§3a). **Until
    that exists, every authenticated user resolves to `NOT_PROVISIONED`**, which is
    the intended closed state — do not open it with a self-grant policy.
-4. Swap the Command Center screens from fixtures to the repository. The seam is
-   `currentSnapshot()` / `selectRepository()`; the screens already filter by
-   client id.
+4. Command Center repository wiring is complete through `loadLiveWorkspace()` /
+   `assembleLiveWorkspace()`. Provision the explicitly identified first owner;
+   never infer ownership from whichever auth user happens to be first.

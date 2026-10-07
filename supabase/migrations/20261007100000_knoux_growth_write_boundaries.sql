@@ -49,4 +49,21 @@ revoke insert, update, delete, truncate, references, trigger on table public.kno
 revoke all on function public.knoux_growth_is_client_owner(text) from public, anon;
 grant execute on function public.knoux_growth_is_client_owner(text) to authenticated;
 
+-- Creative-only roles cannot inspect budgets through a direct PostgREST read.
+-- A campaign row contains its budget, so its read requires budget visibility.
+create or replace function public.knoux_growth_may_read_budget(p_client text)
+returns boolean language sql stable security definer set search_path = '' as $$
+  select exists (select 1 from public.knoux_growth_memberships m where m.client_id = p_client
+    and m.user_id = auth.uid() and m.role in ('OWNER', 'MANAGER', 'ADS_SPECIALIST', 'CLIENT', 'VIEWER'));
+$$;
+revoke all on function public.knoux_growth_may_read_budget(text) from public, anon;
+grant execute on function public.knoux_growth_may_read_budget(text) to authenticated;
+drop policy if exists knoux_growth_campaigns_member on public.knoux_growth_campaigns;
+create policy knoux_growth_campaigns_budget_read on public.knoux_growth_campaigns for select to authenticated
+  using (public.knoux_growth_may_read_budget(client_id));
+drop policy if exists knoux_growth_metrics_member on public.knoux_growth_metrics;
+create policy knoux_growth_metrics_scoped_read on public.knoux_growth_metrics for select to authenticated
+  using (exists (select 1 from public.knoux_growth_memberships m where m.client_id = knoux_growth_metrics.client_id and m.user_id = auth.uid())
+    and (metric_key not in ('spend', 'revenue') or public.knoux_growth_may_read_budget(client_id)));
+
 commit;

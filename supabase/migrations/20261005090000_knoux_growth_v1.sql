@@ -183,7 +183,7 @@ create table if not exists public.knoux_growth_oauth_states (
   consumed_at timestamptz
 );
 
-create index if not exists public.knoux_growth_oauth_states_expiry_idx
+create index if not exists knoux_growth_oauth_states_expiry_idx
   on public.knoux_growth_oauth_states(expires_at);
 
 comment on table public.knoux_growth_oauth_states is
@@ -334,10 +334,10 @@ create table if not exists public.knoux_growth_campaign_approvals (
   )
 );
 
-create index if not exists public.knoux_growth_campaign_approvals_campaign_idx
+create index if not exists knoux_growth_campaign_approvals_campaign_idx
   on public.knoux_growth_campaign_approvals(campaign_id, requested_at desc);
 
-create index if not exists public.knoux_growth_campaign_approvals_pending_idx
+create index if not exists knoux_growth_campaign_approvals_pending_idx
   on public.knoux_growth_campaign_approvals(client_id, requested_at desc)
   where decision is null;
 
@@ -411,6 +411,7 @@ comment on function public.knoux_growth_is_client_owner(text) is
 -- being an owner of that client, which is the one role that cannot be acquired
 -- by writing.
 drop policy if exists knoux_growth_memberships_self on public.knoux_growth_memberships;
+drop policy if exists knoux_growth_memberships_read_self on public.knoux_growth_memberships;
 create policy knoux_growth_memberships_read_self on public.knoux_growth_memberships
   for select
   to authenticated

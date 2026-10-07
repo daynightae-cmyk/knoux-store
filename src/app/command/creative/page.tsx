@@ -16,7 +16,7 @@ import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
 import { CodeBadge, DemoNotice, EmptyState, OriginLabel, Pane, Section } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-import { creativesFor } from '@/data/growth/workspace';
+
 import styles from '@/components/command/command.module.css';
 
 export default function CreativePage() {
@@ -24,9 +24,9 @@ export default function CreativePage() {
 }
 
 function Creative() {
-  const { activeClient } = useWorkspace();
+  const { records, activeClient } = useWorkspace();
   const area = areaBySlug('creative')!;
-  const creatives = creativesFor(activeClient.id);
+  const creatives = records.creatives;
 
   return (
     <CommandShell
