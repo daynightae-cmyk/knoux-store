@@ -17,13 +17,13 @@ Remote main remains 63102b0d3865f11e608bdf13a8f8617e1c9acd32. Starting PR #34 he
 
 | Gate | Result | Evidence |
 |---|---|---|
-| Root application tests | VERIFIED: 687 pass, zero failures/skips | mission-runtime-tests.log |
+| Root application tests | VERIFIED: 694 pass, zero failures/skips | mission-security-final-tests.log |
 | Growth + provider targeted tests | VERIFIED: 249 pass (172 Growth + 77 provider/runtime) | mission-router-targeted.log |
 | Bridge | VERIFIED: 144 core + 11 control-plane + 21 terminal = 176 pass | mission-bridge.log |
 | Security/auth/audit targeted tests | VERIFIED: 88 pass before additional runtime regression test | mission-targeted.log |
-| Typecheck | VERIFIED | mission-types-verified.log |
-| Lint | VERIFIED | mission-canonical-lint.log |
-| Production build | VERIFIED | mission-canonical-build.log |
+| Typecheck | VERIFIED | mission-security-final-types.log |
+| Lint | VERIFIED | mission-security-final-lint.log |
+| Production build | VERIFIED | mission-security-final-build.log |
 | Dead-code audit | VERIFIED; seven configuration hints | mission-runtime-dead.log |
 | Production dependencies | VERIFIED: zero vulnerabilities | mission-audit.log |
 | Targeted browser tests | VERIFIED: 47 pass, four existing redundant-profile skips | mission-e2e-chrome.log |
@@ -60,3 +60,13 @@ The preserved constant HMAC key triggered Sonar S6437 on 54728aa. It was replace
 Workspace environment and provider endpoints use src/lib/build/providers.ts as a compatibility facade over src/lib/ai/registry.ts. Both workspace shells request the shared server Router V2; missing discovery stays unavailable. The historical declared catalog was preserved in tests/fixtures/historical-provider-catalog.ts for legacy deterministic contract tests. Growth capability/probe requests now include the selected client and check its server-resolved grant; HTTP refusals no longer masquerade as successful payloads.
 
 KNOuX Agent source at D:/KNOUX_Agent exists. No separate agent was created or deployed. Agent runtime/MCP execution remains UNTESTED.
+
+## Growth write-boundary follow-up
+
+Recovered v1/v2 SQL still granted authenticated members direct writes through membership-only FOR ALL policies. The additive 20261007100000_knoux_growth_write_boundaries.sql revokes business/OAuth-state browser mutations while preserving rows, read predicates and owner-only membership management. PUBLIC and anon privileges are explicitly revoked on all recovered Growth tables. Audit remains read-only. Operational writes require audited server transactions before these grants can safely be restored; this restriction is not evidence of a complete live persistence feature.
+
+Migration status: STATIC_VERIFIED / NOT_APPLIED. Three regression checks enumerate the actual recovered schema/grants to detect omitted tables; no development Postgres was available, so live catalog/advisor/RLS execution is still required. No production schema was changed. Supabase permission reference: https://supabase.com/docs/guides/database/postgres/roles and https://supabase.com/docs/guides/database/postgres/row-level-security.
+
+Meta/Google code exchange now refuses missing secret storage or authenticated tenant/user context before contacting the provider. Token references come only from the store; provider app ids no longer stand in for client/user ids. Secret-store exceptions are not reflected into API failures. Four additional behavioral tests verify these boundaries. Durable callback/atomic state consumption is still NOT_VERIFIED.
+
+At 2d3bc296c4dce2a3accfa8179286eeb73c31712b: verification unit/build/audit and CodeQL checks SUCCESS; Sonar SUCCESS; Vercel SUCCESS. Full browser CI was still running when this follow-up was prepared. New commits require new exact-head checks.
