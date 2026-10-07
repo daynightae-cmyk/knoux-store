@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { buildRouter } from '@/lib/growth/server/runtime';
 import { guardGrowthProviderAccess } from '@/lib/growth/server/access';
+import { growthAuthEnforced } from '@/lib/growth/auth/enforcement';
+import { guardGrowth } from '@/lib/growth/auth/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,6 +20,17 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
   const denied = await guardGrowthProviderAccess(request);
   if (denied) return denied;
+
+  if (growthAuthEnforced()) {
+    const guard = await guardGrowth({ permission: 'intelligence.use' });
+    if (!guard.ok) {
+      return NextResponse.json(
+        { ok: false, code: guard.failure.code, message: guard.failure.message },
+        { status: guard.failure.status, headers: { 'cache-control': 'no-store' } },
+      );
+    }
+  }
+
   const router = buildRouter();
   const survey = await router.survey();
   const primary = survey.find((entry) => entry.provider.tier === 'primary');

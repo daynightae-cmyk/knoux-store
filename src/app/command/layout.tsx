@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { redirect } from 'next/navigation';
 import { WorkspaceProvider } from '@/components/command/workspace-context';
+import { growthAuthEnforced } from '@/lib/growth/auth/enforcement';
+import { resolvePrincipal } from '@/lib/growth/auth/session';
 import './command-shell.css';
 
 export const metadata: Metadata = {
@@ -24,7 +27,13 @@ export const viewport = {
  * would frame an operational tool as a division. The workspace provides its own
  * shell, client switcher and command dock.
  */
-export default function CommandLayout({ children }: { children: ReactNode }) {
+export default async function CommandLayout({ children }: { children: ReactNode }) {
+  if (growthAuthEnforced()) {
+    const resolution = await resolvePrincipal();
+    if (resolution.state === 'ANONYMOUS') redirect('/login?next=/command');
+    if (resolution.state !== 'ALLOWED') redirect('/account?notice=growth-not-authorised');
+  }
+
   return (
     <div className="command-root">
       <WorkspaceProvider>{children}</WorkspaceProvider>
