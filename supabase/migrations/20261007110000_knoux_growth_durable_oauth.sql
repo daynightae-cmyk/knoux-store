@@ -92,6 +92,9 @@ begin
   select * into state_row from public.knoux_growth_oauth_states where state_hash = p_hash and user_id = p_user and consumed_at is not null and expires_at > now() for update;
   if not found then raise exception 'Consumed OAuth state required'; end if;
   perform public.knoux_growth_require_owner(state_row.client_id, p_user);
+  -- Different valid handshakes for one platform must not race to replace
+  -- credentials and strand the losing handshake's Vault references.
+  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(state_row.client_id || ':' || p_platform, 0));
   if (state_row.platform = 'meta' and p_platform not in ('facebook', 'instagram', 'meta_ads', 'whatsapp')) or
      (state_row.platform = 'google' and p_platform not in ('google_ads', 'google_business', 'ga4', 'search_console', 'youtube')) then raise exception 'Provider platform mismatch'; end if;
   if not exists (select 1 from knoux_growth_private.secret_owners where id::text = replace(p_ref, 'vault://growth/', '') and client_id = state_row.client_id and user_id = p_user and kind = state_row.platform || '-access-token') then raise exception 'Scoped vault reference required'; end if;
