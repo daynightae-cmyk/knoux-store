@@ -23,8 +23,8 @@ import {
   Section,
 } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-import { locationsFor } from '@/data/growth/workspace';
-import { connectionsFor } from '@/data/growth/connections';
+
+
 import styles from '@/components/command/command.module.css';
 
 export default function GooglePage() {
@@ -40,10 +40,10 @@ const GOOGLE_SURFACES = [
 ] as const;
 
 function GooglePresence() {
-  const { activeClient } = useWorkspace();
+  const { records, activeClient } = useWorkspace();
   const area = areaBySlug('google')!;
-  const locations = locationsFor(activeClient.id);
-  const connections = connectionsFor(activeClient.id);
+  const locations = records.locations;
+  const connections = records.connections;
 
   return (
     <CommandShell

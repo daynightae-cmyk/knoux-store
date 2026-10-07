@@ -100,7 +100,7 @@ alter table public.knoux_growth_content
 create index if not exists knoux_growth_content_client_idx
   on public.knoux_growth_content(client_id, scheduled_for desc);
 
-create index if not exists public.knoux_growth_content_scheduled_idx
+create index if not exists knoux_growth_content_scheduled_idx
   on public.knoux_growth_content(client_id, scheduled_for)
   where status = 'SCHEDULED';
 

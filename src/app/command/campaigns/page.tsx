@@ -26,7 +26,7 @@ import {
   Section,
 } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-import { campaignsFor, performanceRowsFor } from '@/data/growth/workspace';
+
 import {
   daysInclusive,
   formatBudget,
@@ -46,10 +46,10 @@ export default function CampaignsPage() {
 }
 
 function Campaigns() {
-  const { activeClient } = useWorkspace();
+  const { records, activeClient } = useWorkspace();
   const area = areaBySlug('campaigns')!;
-  const campaigns = campaignsFor(activeClient.id);
-  const rows = performanceRowsFor(activeClient.id);
+  const campaigns = records.campaigns;
+  const rows = records.performanceRows;
   const currency = activeClient.country === 'EG' ? 'EGP' : 'AED';
 
   const [selectedId, setSelectedId] = useState<string>(

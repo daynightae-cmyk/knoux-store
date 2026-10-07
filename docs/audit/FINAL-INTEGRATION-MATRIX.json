@@ -46,7 +46,7 @@
       "currentImplementation": "src/lib/ai/adapters/deepseek.ts",
       "uniqueFiles": "See FINAL-RECOVERY-INVENTORY.json and convergence-sources-20261004.json",
       "overlappingFiles": "See historical per-file convergence ledger",
-      "runtimeStatus": "UNTESTED",
+      "runtimeStatus": "BLOCKED: direct adapter auth/discovery verified; generation HTTP 402; streaming did not complete.",
       "securityStatus": "UNTESTED",
       "testStatus": "STATIC_VERIFIED: offline application tests; live configuration remains separate",
       "decision": "PORTED; preserve canonical implementation",

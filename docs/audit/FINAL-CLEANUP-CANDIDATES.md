@@ -165,3 +165,7 @@ No branches, worktrees, stashes, or recovery artifacts were deleted. Ancestry me
 | D:/Knoux Store-worktrees/wordpress-ecosystem-v2 | bb05950aab397b00c1e67a00d82b25522db40674 | 0 | MERGED_SAFE_TO_REMOVE |
 
 Exact dirty and untracked paths are preserved in FINAL-RECOVERY-INVENTORY.json. Missing paths are not evidence that their refs are disposable. All .knoux-recovery artifacts: RECOVERY_EVIDENCE_DO_NOT_REMOVE.
+
+## Final six unique-ancestry decisions (2026-10-07)
+
+The Growth donor is PORTED; its two recovery ancestors are SUPERSEDED by that reviewed donor. The two Traycer heads and unpublished-root ancestry merge are REFERENCE_ONLY: their unique commits contain no operational application-source changes. Exact ref identities were rechecked before this decision. Every one remains UNIQUE_DO_NOT_REMOVE. No ref, worktree, stash or recovery artifact was deleted or pruned. Details and semantic differences are recorded in FINAL-RECOVERY-INVENTORY.json.

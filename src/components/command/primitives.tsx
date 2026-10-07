@@ -15,6 +15,7 @@ import type { CapabilityState, ConnectionState, DataOrigin } from '@/lib/growth/
 import { CAPABILITY_STATE_MEANING, CONNECTION_STATE_MEANING } from '@/lib/growth/states';
 import type { Sourced } from '@/lib/growth/states';
 import styles from './command.module.css';
+import { useWorkspace } from './workspace-context';
 
 /* ------------------------------------------------------------ state badge */
 
@@ -194,6 +195,8 @@ export function MetricCell({
 /* ----------------------------------------------------------------- notice */
 
 export function DemoNotice({ children }: { children?: ReactNode }) {
+  const { isDemoWorkspace } = useWorkspace();
+  if (!isDemoWorkspace) return null;
   return (
     <div className={styles.ccDemo ?? ''} role="note">
       <span className={styles.ccDemoMark ?? ''}>DEMO</span>
