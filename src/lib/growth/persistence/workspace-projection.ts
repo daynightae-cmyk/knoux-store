@@ -45,8 +45,12 @@ export function projectClient(row: Row): Client {
 export function projectPerformance(clientId: string, input: MetricRow[]): PerformanceRow[] {
   const groups = new Map<string, PerformanceRow>();
   const keys = new Set(['spend', 'impressions', 'reach', 'clicks', 'leads', 'qualifiedLeads', 'calls', 'whatsappStarts', 'bookings', 'sales', 'revenue']);
+  // The repository orders newest reporting windows first. A ratio must never
+  // pair a recent numerator with an older denominator from a different window.
+  const latest = input.find(metric => keys.has(metric.metricKey) && Number.isFinite(metric.value) && metric.periodStart && metric.periodEnd);
   for (const metric of input) {
     if (!keys.has(metric.metricKey) || !Number.isFinite(metric.value)) continue;
+    if (latest && (metric.periodStart !== latest.periodStart || metric.periodEnd !== latest.periodEnd)) continue;
     const key = `${metric.channel}:${metric.campaignId ?? ''}`;
     let row = groups.get(key);
     if (!row) {
