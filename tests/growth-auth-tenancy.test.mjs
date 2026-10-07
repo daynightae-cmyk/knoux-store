@@ -57,6 +57,17 @@ const specialist = { userId: 'u_ads', role: 'ADS_SPECIALIST', clientIds: ['cl_a'
 const managerUser = { userId: 'u_mgr', role: 'MANAGER', clientIds: [] };
 const ownerUser = { userId: 'u_owner', role: 'OWNER', clientIds: [] };
 
+test('server membership grants prevent owner escalation across clients', () => {
+  const principal = { userId: 'u_mixed', role: 'OWNER', clientIds: ['cl_a', 'cl_b'], clientRoles: { cl_a: 'OWNER', cl_b: 'VIEWER' } };
+  assert.equal(can({ principal, permission: 'client.manage', clientId: 'cl_a' }).allowed, true);
+  assert.equal(can({ principal, permission: 'client.manage', clientId: 'cl_b' }).allowed, false);
+  assert.equal(can({ principal, permission: 'client.view', clientId: 'cl_b' }).allowed, true);
+  assert.equal(can({ principal, permission: 'client.view', clientId: 'cl_c' }).allowed, false);
+  assert.equal(can({ principal, permission: 'connection.manage', clientId: 'cl_b', touchesCredentials: true }).allowed, false);
+  assert.equal(can({ principal, permission: 'settings.manage' }).allowed, false);
+  assert.deepEqual(visibleClientIds(principal, clients), ['cl_a', 'cl_b']);
+});
+
 test('a client cannot read another client workspace', () => {
   const decision = canAccessClient(clientUser, 'cl_b');
   assert.equal(decision.allowed, false);

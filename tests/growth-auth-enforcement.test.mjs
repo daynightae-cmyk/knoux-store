@@ -12,6 +12,7 @@ test('Growth auth enforcement is opt-in until persistence is provisioned', () =>
   assert.equal(growthAuthEnforced({}), false);
   assert.equal(growthAuthEnforced({ KNOUX_GROWTH_AUTH_ENFORCED: 'false' }), false);
   assert.equal(growthAuthEnforced({ KNOUX_GROWTH_AUTH_ENFORCED: ' true ' }), true);
+  assert.equal(growthAuthEnforced({ KNOUX_GROWTH_DATA_SOURCE: 'supabase', KNOUX_GROWTH_AUTH_ENFORCED: 'false' }), true);
 });
 
 test('the reconciled routes preserve existing guards and wire the tenant boundary', async () => {
