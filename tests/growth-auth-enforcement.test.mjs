@@ -38,6 +38,7 @@ test('the reconciled routes preserve existing guards and wire the tenant boundar
 
   assert.match(layout, /growthAuthEnforced/);
   assert.match(layout, /resolvePrincipal/);
+  assert.ok(layout.indexOf('await connection()') < layout.indexOf('if (growthAuthEnforced())'), 'workspace selection must occur after the request-time boundary, never in a prerendered fixture shell');
 });
 
 test('Next 16 uses proxy session refresh for Growth routes, not a legacy middleware file', async () => {

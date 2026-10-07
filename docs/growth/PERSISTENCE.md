@@ -1,6 +1,6 @@
 # KNOuX Growth — Persistence
 
-Status: **SERVER_WIRING_VERIFIED; REMOTE_GROWTH_SCHEMA_NOT_APPLIED** (2026-10-07).
+Status: **SERVER_WIRING_VERIFIED; REMOTE_GROWTH_SCHEMA_APPLIED_ATOMICALLY** (2026-10-07).
 
 All operational command screens now receive an authenticated server repository
 snapshot when `KNOUX_GROWTH_DATA_SOURCE=supabase` is selected. This selection
@@ -16,7 +16,7 @@ campaign budgets or spend/revenue metrics. The 20261007 security migration
 supersedes the historical browser-write examples below. Apply the complete
 reviewed set atomically when provisioning, so intermediate grants are never
 exposed. A read-only check of project `cnkddxxhcfceokxzaaot` found Vault present
-and Growth tables absent. No real provider token was used in SQL tests.
+and Growth tables initially absent. After local validation, all four migrations were applied atomically and their exact versions recorded. Post-apply RLS/privilege evidence is in docs/audit/FINAL-GROWTH-LIVE-SCHEMA.json. No client, user, membership or token was inserted; first-owner provisioning awaits an explicit identity. No real provider token was used in SQL tests.
 
 Source: `supabase/migrations/20261005090000_knoux_growth_v1.sql`,
 `20261005091000_knoux_growth_v2.sql`,
