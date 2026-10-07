@@ -104,7 +104,6 @@ export function verifyOAuthState(params: {
 
 /* ----------------------------------------------------------------- scopes */
 
-export type OAuthProvider = 'meta' | 'google';
 export type OAuthCapability =
   | 'META_PAGES'
   | 'META_INSTAGRAM'
