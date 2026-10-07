@@ -159,6 +159,8 @@ export type MetricRow = {
   currency?: string;
   origin: StorageOrigin;
   evidence?: string;
+  periodStart?: string;
+  periodEnd?: string;
 };
 
 export type AuditWrite = {
@@ -523,6 +525,8 @@ export class SupabaseGrowthRepository implements GrowthRepository {
         ...(row.campaign_id ? { campaignId: String(row.campaign_id) } : {}),
         metricKey: String(row.metric_key ?? ''),
         value: Number(row.value),
+        periodStart: String(row.period_start),
+        periodEnd: String(row.period_end),
         ...(row.currency ? { currency: String(row.currency) } : {}),
         // The stored origin travels through, so a FIXTURE metric that was
         // imported into the database is still labelled as one.

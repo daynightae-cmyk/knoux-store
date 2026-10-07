@@ -56,4 +56,8 @@ test('metrics preserve evidence, reject non-finite observations and do not add o
   const result = projectPerformance('allowed', [row, { ...row, value: 9 }, { ...row, metricKey: 'spend', value: NaN }]);
   assert.deepEqual(result[0].metrics.clicks, { value: 4, origin: 'FIXTURE', evidence: 'imported fixture' });
   assert.equal(result[0].metrics.spend, undefined);
+  const latest = { ...row, periodStart: '2026-10-01', periodEnd: '2026-10-07' };
+  const previous = { ...latest, metricKey: 'spend', value: 100, periodEnd: '2026-10-06' };
+  const scoped = projectPerformance('allowed', [latest, previous]);
+  assert.equal(scoped[0].metrics.spend, undefined, 'an earlier window cannot supply the denominator of a current derived ratio');
 });
