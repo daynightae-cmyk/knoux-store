@@ -54,8 +54,11 @@ function Connections() {
 
   useEffect(() => {
     let cancelled = false;
-    void fetch('/api/growth/capabilities', { cache: 'no-store' })
-      .then((res) => res.json())
+    void fetch(`/api/growth/capabilities?clientId=${encodeURIComponent(activeClient.id)}`, { cache: 'no-store' })
+      .then((res) => {
+        if (!res.ok) throw new Error('Capability access refused.');
+        return res.json();
+      })
       .then((payload) => {
         if (!cancelled) setCapabilities(payload);
       })
@@ -65,7 +68,7 @@ function Connections() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [activeClient.id]);
 
   const byFamily = groupByFamily(capabilities?.capabilities ?? []);
 

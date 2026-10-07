@@ -17,7 +17,7 @@ import 'server-only';
  *    default rather than something an operator has to remember.
  */
 
-import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { scryptSync, randomBytes, timingSafeEqual } from 'node:crypto';
 
 /* ------------------------------------------------------------------ state */
 
@@ -31,7 +31,7 @@ import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
  */
 export type OAuthState = {
   value: string;
-  /** Domain-separated HMAC digest of the nonce. The raw nonce is never persisted. */
+  /** Domain-separated memory-hard digest. The raw nonce is never persisted. */
   stateHash: string;
   expiresAt: Date;
 };
@@ -52,12 +52,12 @@ const OAUTH_STATE_DIGEST_DOMAIN = 'knoux-growth-oauth-state-v1';
 
 /**
  * One-way digest for high-entropy OAuth state and opaque secret references.
- * This is not password hashing: inputs are random provider/state secrets, and
- * HMAC domain separation prevents this digest from being confused with a
- * general-purpose password hash.
+ * Inputs are random state/opaque references. The domain is a public salt, not
+ * an embedded HMAC secret. Scrypt adds a memory-hard backstop and requires no
+ * new secret mechanism. Existing state expires after ten minutes.
  */
 export function hashState(value: string): string {
-  return createHmac('sha256', OAUTH_STATE_DIGEST_DOMAIN).update(value).digest('hex');
+  return scryptSync(value, OAUTH_STATE_DIGEST_DOMAIN, 32).toString('hex');
 }
 
 export type StateVerdict =

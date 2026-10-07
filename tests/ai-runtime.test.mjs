@@ -44,6 +44,18 @@ test("declared capabilities do not pass runtime acceptance without execution", (
   assert.equal(health.acceptance.streaming, 'UNTESTED');
 });
 
+test("workspace provider projection uses recovered adapters and discovered models only", async () => {
+  const { runtimeProviderStatuses, runtimeRouting } = await loadTypeScript('../src/lib/build/provider-runtime.ts');
+  registry.clearDiscoveryCache('deepseek');
+  const env = { DEEPSEEK_API_KEY: 'test-only-credential' };
+  const statuses = runtimeProviderStatuses(env);
+  assert.deepEqual(statuses.map(p => p.id), registry.getAdapters().map(p => p.id));
+  assert.deepEqual(statuses.find(p => p.id === 'deepseek').models, []);
+  const decision = runtimeRouting('general', 'auto', env);
+  assert.equal(decision.status, 'unavailable');
+  assert.equal(JSON.stringify(statuses).includes(env.DEEPSEEK_API_KEY), false);
+});
+
 test("includes all required provider IDs", () => {
   const ids = registry.getAdapters().map((a) => a.id);
   for (const expected of [

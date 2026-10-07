@@ -1,5 +1,6 @@
 /**
- * Deterministic model router.
+ * Historical deterministic routing rules retained for task taxonomy and fixture tests.
+ * Live workspace decisions use the canonical server Router V2.
  *
  * AUTO routing is a total function over declared metadata. It never guesses a
  * property: every rule below names a capability that the candidate model

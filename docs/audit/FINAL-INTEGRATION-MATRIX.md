@@ -1,6 +1,6 @@
 # Integration matrix — 2026-10-07
 
-Status: IN PROGRESS. Source presence and offline tests are static evidence; configuration and live calls are separate. The canonical provider page now consumes the recovered runtime and the old runtime provider page redirects to it. Build Composer still uses its declared stack catalog; unifying every routing consumer remains pending. Growth screens still use labelled demo fixtures; the recovered persistence repository is not yet wired to every screen. OAuth callbacks and durable state consumption require deployment verification.
+Status: IN PROGRESS. Source presence and offline tests are static evidence; configuration and live calls are separate. The canonical provider page now consumes the recovered runtime and the old runtime provider page redirects to it. Workspace provider status and routing now use a compatibility projection of the shared runtime registry and Router V2; no catalog fallback is substituted. Authenticated routing remains UNTESTED. Growth screens still use labelled demo fixtures; the recovered persistence repository is not yet wired to every screen. OAuth callbacks and durable state consumption require deployment verification.
 
 | Feature | Source | Canonical implementation | Runtime | Decision |
 |---|---|---|---|---|

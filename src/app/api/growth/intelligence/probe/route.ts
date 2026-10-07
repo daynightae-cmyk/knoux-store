@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   if (denied) return denied;
 
   if (growthAuthEnforced()) {
-    const guard = await guardGrowth({ permission: 'intelligence.use' });
+    const guard = await guardGrowth({ permission: 'intelligence.use', clientId: new URL(request.url).searchParams.get('clientId') ?? undefined });
     if (!guard.ok) {
       return NextResponse.json(
         { ok: false, code: guard.failure.code, message: guard.failure.message },

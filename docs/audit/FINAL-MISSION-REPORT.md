@@ -8,7 +8,7 @@ Remote main remains 63102b0d3865f11e608bdf13a8f8617e1c9acd32. Starting PR #34 he
 
 - Server-derived Growth principals retain each client's role. Owner membership on one client cannot elevate VIEWER access on another or reach an unrelated client. Workspace-wide calls with only client grants fail closed. Selecting Supabase persistence automatically enables auth even if the optional auth switch says false.
 - Growth audit entries now use the canonical credential scanner before truncation, removing the recovered giant backtracking expression. Root and Bridge scanners retain secret handling while simplifying control flow; ordinary prose survives.
-- Preserved dirty OAuth changes use a domain-separated digest of random, high-entropy state, never raw nonce persistence. Meta/Google scope ordering is deterministic. Current live OAuth verification remains UNTESTED.
+- Preserved dirty OAuth changes use a domain-separated memory-hard scrypt digest of random, high-entropy state, never raw nonce persistence. Meta/Google scope ordering is deterministic. Current live OAuth verification remains UNTESTED.
 - /build/providers renders the recovered 13-adapter provider runtime. Development platform, local agent, custom metadata and disabled secret-save controls remain. /build/ai/providers redirects to the canonical page.
 - Declared SUPPORTED capabilities do not count as runtime acceptance PASS. Discovery/probe server refusals now surface as errors; the provider table scrolls within its container.
 - Preserved lockfile patch upgrades source-map-js 1.2.1 to 1.2.2. Production dependency audit: VERIFIED, zero vulnerabilities.
@@ -17,14 +17,14 @@ Remote main remains 63102b0d3865f11e608bdf13a8f8617e1c9acd32. Starting PR #34 he
 
 | Gate | Result | Evidence |
 |---|---|---|
-| Root application tests | VERIFIED: 686 pass, zero failures/skips | mission-root-verified.log |
-| Growth + provider targeted tests | VERIFIED: 248 pass | mission-growth-provider.log |
+| Root application tests | VERIFIED: 687 pass, zero failures/skips | mission-runtime-tests.log |
+| Growth + provider targeted tests | VERIFIED: 249 pass (172 Growth + 77 provider/runtime) | mission-router-targeted.log |
 | Bridge | VERIFIED: 144 core + 11 control-plane + 21 terminal = 176 pass | mission-bridge.log |
 | Security/auth/audit targeted tests | VERIFIED: 88 pass before additional runtime regression test | mission-targeted.log |
 | Typecheck | VERIFIED | mission-types-verified.log |
-| Lint | VERIFIED | mission-lint-verified.log |
-| Production build | VERIFIED | mission-build-final.log |
-| Dead-code audit | VERIFIED; seven configuration hints | mission-dead-verified.log |
+| Lint | VERIFIED | mission-canonical-lint.log |
+| Production build | VERIFIED | mission-canonical-build.log |
+| Dead-code audit | VERIFIED; seven configuration hints | mission-runtime-dead.log |
 | Production dependencies | VERIFIED: zero vulnerabilities | mission-audit.log |
 | Targeted browser tests | VERIFIED: 47 pass, four existing redundant-profile skips | mission-e2e-chrome.log |
 | Full E2E | UNTESTED for this checkpoint; exact-head CI required | PR #34 |
@@ -45,10 +45,18 @@ Provider/model details: FINAL-PROVIDER-TRUTH.json and .md. Context/pricing remai
 - BLOCKED: restore private server environment read access for the migrated Windows account, then retest configured providers, including tiny DeepSeek generation/streaming probes.
 - NOT_VERIFIED: every historical unique source requires a final decision, with newly encountered orphan checkpoint differences recorded in FINAL-RECOVERY-INVENTORY.json.
 - NOT_VERIFIED: Growth screens still read labelled fixtures; recovered repository persistence is not yet wired to every operational screen. Durable OAuth callbacks and atomic state consumption require deployment/integration work.
-- NOT_VERIFIED: Build Composer uses the legacy declared stack catalog while runtime routing uses Router V2. The provider page is canonical, but all consumers have not yet converged.
+- NOT_VERIFIED: Workspace environment and provider responses now project discovered models from the recovered registry; both workspace shells request Router V2 decisions server-side. The historical catalog is retained for reference tests. End-to-end authenticated routing remains UNTESTED.
 - UNTESTED: live Growth RLS/migrations, Meta/Google authorization, KNOuX Agent execution, mutating MCP approval flow. Existing registration/patches are STATIC evidence only.
 - NOT_VERIFIED: full exact-head CI, preview verification, merge eligibility and post-merge production verification.
 
 Generated QA JSON, historical .artifacts/.kilo, installer, spreadsheet, YAML and reference experiment folders remain unstaged. Root dirty documentation, scratch and empty historical test were preserved. Cleanup-candidate report is audit-only and does not authorize deletion.
 
 Matrices: FINAL-INTEGRATION-MATRIX.json/.md, FINAL-PROVIDER-TRUTH.json/.md, FINAL-RECOVERY-INVENTORY.json, FINAL-CLEANUP-CANDIDATES.md.
+
+## Follow-up convergence evidence
+
+The preserved constant HMAC key triggered Sonar S6437 on 54728aa. It was replaced with a public-domain salt and memory-hard scrypt digest; 28 OAuth/persistence tests pass. No security finding was dismissed. The first push's verification and CodeQL jobs passed; Vercel preview was successful. Full browser CI remains in progress, and the follow-up requires its own exact-head checks.
+
+Workspace environment and provider endpoints use src/lib/build/providers.ts as a compatibility facade over src/lib/ai/registry.ts. Both workspace shells request the shared server Router V2; missing discovery stays unavailable. The historical declared catalog was preserved in tests/fixtures/historical-provider-catalog.ts for legacy deterministic contract tests. Growth capability/probe requests now include the selected client and check its server-resolved grant; HTTP refusals no longer masquerade as successful payloads.
+
+KNOuX Agent source at D:/KNOUX_Agent exists. No separate agent was created or deployed. Agent runtime/MCP execution remains UNTESTED.
