@@ -15,7 +15,7 @@
  * Server-only. Nothing in this module may be imported by a client component.
  */
 
-import { promises as fs, existsSync, constants } from 'node:fs';
+import { promises as fs, existsSync, constants, realpathSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import {
@@ -199,7 +199,15 @@ export class FsProjectAdapter implements ProjectAdapter {
   readonly root: string;
 
   constructor(options: AdapterOptions) {
-    this.root = path.resolve(options.root);
+    const resolvedRoot = path.resolve(options.root);
+    // Windows may supply an 8.3 short path (DAYNIG~1) while fs.realpath
+    // returns the long path. Compare canonical roots, never raw aliases.
+    try {
+      this.root = realpathSync.native(resolvedRoot);
+    } catch {
+      // An unavailable checkout is reported by the read methods instead.
+      this.root = resolvedRoot;
+    }
     this.environment = options.environment;
     this.label = options.label;
   }

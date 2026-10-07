@@ -91,6 +91,7 @@ test('readFile returns a repository file it is allowed to show', async (t) => {
   t.after(() => { rmSync(base, { recursive: true, force: true }); rmSync(elsewhere, { recursive: true, force: true }); });
 
   const adapter = new FsProjectAdapter({ root: base, environment: 'local', label: 'test' });
+  assert.equal(adapter.root, nodeFs.realpathSync.native(base), 'containment must use the canonical checkout root');
   const file = await adapter.readFile('src/lib/real.ts');
 
   assert.ok(file, 'an allowlisted source file must be readable');
