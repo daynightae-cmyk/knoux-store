@@ -29,6 +29,10 @@ import {
   type BuildWorkspaceState,
 } from '@/lib/build/workspace-state';
 import { compileBuildIntent } from '@/lib/build/intent';
+import { useSetStarfieldVisual } from '@/components/identity/StoreStarfieldProvider';
+import { stageToSkyPhase } from '@/lib/build/generator-state';
+import { deriveTopology } from '@/lib/build/topology/derive';
+import { layoutTopology } from '@/lib/build/topology/layout';
 import { summariseIntent } from '@/lib/build/intent';
 import type { RoutingDecision } from '@/lib/build/types';
 import { parsePreferences, PREFERENCES_KEY } from '@/lib/build/preferences';
@@ -265,6 +269,13 @@ export function KnouxBuildWorkspace() {
 export type { BuildWorkspaceState };
 export function BuildStateProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(buildReducer, initialBuildState);
+  const setSky = useSetStarfieldVisual();
+  const formation = useMemo(() => {
+    const topology = deriveTopology(state.engineering.plan ?? state.engineering.draftPlan ?? {});
+    return { nodes: layoutTopology(topology).slice(0, 32), edges: topology.edges };
+  }, [state.engineering.plan, state.engineering.draftPlan]);
+  useEffect(() => { setSky?.({ phase: stageToSkyPhase(state.engineering.stage), ...formation }); }, [setSky, state.engineering.stage, formation]);
+  useEffect(() => () => { setSky?.({ phase: 'ambient', nodes: [], edges: [] }); }, [setSky]);
   const generation = useRef(0);
   const refresh = useCallback(async () => {
     const current = ++generation.current;
