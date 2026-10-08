@@ -111,9 +111,9 @@ function Reports() {
       <Section title="Lead quality" note="Source attribution across every channel.">
         <div className={styles.commandGrid4 ?? ''}>
           {LEAD_STATUSES.map((status) => (
-            <div key={status} className={styles.ccPane ?? ''}>
-              <span className={styles.ccPaneTitle ?? ''}>{status}</span>
-              <span style={{ fontSize: 22, color: 'var(--cc-ink)' }}>
+            <div key={status} className={styles.ccMetric ?? ''}>
+              <span className={styles.ccMetricLabel ?? ''}>{status}</span>
+              <span className={styles.ccMetricValue ?? ''}>
                 {leads.filter((lead) => lead.status === status).length}
               </span>
             </div>

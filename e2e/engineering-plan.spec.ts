@@ -23,10 +23,16 @@ test('main Build prompt calls the canonical stream and renders a reviewable prop
   expect(requests[0]?.providerId).toBe('groq');
   expect(requests[0]?.modelId).toBe('contract-model');
   expect(requests[0]?.system).toContain('Return ONLY one JSON object');
+  await expect(page.locator('.dev-plan-sections details')).toHaveCount(14);
+  await page.getByRole('navigation', { name: 'Plan architecture' }).getByRole('link', { name: 'EXECUTION PLAN', exact: true }).click();
+  await expect(page.locator('#plan-13')).toHaveAttribute('open', '');
+  await expect(page.locator('#plan-13')).toContainText('Proposed execution plan for a customer portal.');
+  await expect(page.locator('.dev-living-mark canvas')).toHaveAttribute('data-state', 'PLANNED');
   await page.getByRole('button', { name: 'Review plan', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Review before execution' })).toBeVisible();
   await page.getByRole('button', { name: 'Check execution availability' }).click();
   await expect(page.getByText('This plan has no structured write executor.', { exact: false })).toBeVisible();
+  await expect(page.locator('.dev-living-mark canvas')).toHaveAttribute('data-state', 'EXECUTOR_NOT_CONNECTED');
   const menu = page.getByRole('button', { name: 'Open workspace navigation' });
   if (await menu.isVisible()) await menu.click();
   await page.locator('.dev-nav-link[href="/build/engineering"]').click();
@@ -45,6 +51,7 @@ test('main Build refuses to manufacture a plan when no provider is eligible', as
   await expect(page.locator('.dev-plan-error[role="alert"]')).toContainText('No configured provider');
   await expect(page.getByRole('region', { name: 'Engineering plan', exact: true })).toHaveCount(0);
   expect(streamCalled).toBe(false);
+  await expect(page.locator('.dev-living-mark canvas')).toHaveAttribute('data-state', 'CONFIG_REQUIRED');
 });
 
 test('a provider error stream remains blocked without a success artifact', async ({ page }) => {

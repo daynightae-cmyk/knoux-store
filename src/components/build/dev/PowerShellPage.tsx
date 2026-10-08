@@ -338,7 +338,7 @@ export function PowerShellPage() {
       
       <div className="dev-route__grid">
         <DevPanel title="PowerShell session">
-          <div className="dev-console dev-console--terminal">
+          <div className={`dev-console dev-console--terminal ${live ? '' : 'dev-console--blocked'}`}>
             <div className="dev-console__bar">
               <span>{profile ? profile.toUpperCase() : 'POWERSHELL'}</span>
               <span>{bridgeStatus}</span>

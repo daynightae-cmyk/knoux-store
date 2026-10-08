@@ -76,6 +76,8 @@ function buildRail(root) {
 
 function setInfo(root, index) {
   const product = PRODUCTS[index];
+  const spotlight = root.querySelector('.ksu-spotlight img');
+  if (spotlight) spotlight.src = product.image;
   const info = root.querySelector('.ksu-info');
   info.querySelector('.ksu-info-badge').textContent = `${String(index + 1).padStart(2, '0')} / ${String(PRODUCTS.length).padStart(2, '0')}`;
   info.querySelector('.ksu-info-name').textContent = product.name;

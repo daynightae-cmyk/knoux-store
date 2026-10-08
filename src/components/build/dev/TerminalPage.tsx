@@ -316,7 +316,7 @@ export function TerminalPage() {
       />
       <div className="dev-route__grid">
         <DevPanel title="Session">
-          <div className="dev-console dev-console--terminal">
+          <div className={`dev-console dev-console--terminal ${live ? '' : 'dev-console--blocked'}`}>
             <div className="dev-console__bar">
               <span>TERMINAL / SESSION</span>
               <span aria-live="polite">

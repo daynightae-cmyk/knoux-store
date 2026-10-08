@@ -12,6 +12,22 @@ import { join } from 'node:path';
 
 const slug = (route: string) => route.replace(/^\//, '').replace(/\//g, '-') || 'home';
 
+test('Home wing descriptions remain fully readable with keyboard focus at narrow widths', async ({ page }) => {
+  for (const width of [1440, 820, 768, 390, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    await page.evaluate(() => document.fonts.ready);
+    const descriptions = page.locator('.architecture-map__detail');
+    await expect(descriptions).toHaveCount(8);
+    for (const description of await descriptions.all()) {
+      await expect(description).toBeVisible();
+      expect(await description.evaluate(element => element.scrollHeight - element.clientHeight), `Unfocused description at ${width}px`).toBeLessThanOrEqual(1);
+      await description.locator('..').focus();
+      expect(await description.evaluate(element => element.scrollHeight - element.clientHeight), `Focused description at ${width}px`).toBeLessThanOrEqual(1);
+    }
+  }
+});
+
 test.describe('route rendering', () => {
   for (const route of PRIMARY_ROUTES) {
     test(`${route} renders with a heading and a language`, async ({ page }) => {
@@ -137,7 +153,7 @@ test.describe('responsive geometry', () => {
  * this reports.
  */
 test.describe('composition', () => {
-  test('the Build canvas dominates the viewport and centers its composer', async ({ page }) => {
+  test('the Build workspace centers a usable prompt plane within its available space', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.addInitScript(() => sessionStorage.setItem('knoux-dev-entry-intent', 'Build a web app'));
     await page.goto('/build', { waitUntil: 'load' });
@@ -149,8 +165,15 @@ test.describe('composition', () => {
     });
     expect(geometry.stage).toBeGreaterThan(1440 * .8);
     expect(geometry.composer).toBeGreaterThan(560);
-    expect(geometry.composer).toBeLessThan(650);
+    expect(geometry.composer).toBeLessThan(geometry.stage - 32);
     expect(geometry.offset).toBeLessThan(2);
+    const prompt = page.getByLabel('Describe what you want to build', { exact: true });
+    await expect(prompt).toBeEditable();
+    await prompt.fill('Build a customer portal with authenticated project records');
+    await expect(prompt).toHaveValue('Build a customer portal with authenticated project records');
+    await prompt.focus();
+    await expect(prompt).toBeFocused();
+    await expect(prompt).toBeInViewport();
   });
   test('desktop content uses a meaningful share of the viewport', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
