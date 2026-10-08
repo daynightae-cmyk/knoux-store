@@ -1,0 +1,132 @@
+{
+  "recovery": {
+    "ancestorChecks": "PASS",
+    "semanticDecisions": "UNCHANGED: PORTED, SUPERSEDED, SUPERSEDED, REFERENCE_ONLY, REFERENCE_ONLY, REFERENCE_ONLY",
+    "checkedAt": "2026-10-08T00:48:28.3548808Z",
+    "worktreeCount": 36,
+    "refCount": 137,
+    "deletions": "NONE",
+    "refs": [
+      {
+        "sha": "e784824f95975e584ccdc240d2feeb30bb2822fb",
+        "ref": "refs/heads/feature/knoux-growth-command-center",
+        "retained": true
+      },
+      {
+        "sha": "1fcbfa4823a00e26aeb48144b94f1402da090c3b",
+        "ref": "refs/recovery/growth-latest-observed",
+        "retained": true
+      },
+      {
+        "sha": "cba5710a17d65dd52f57bc5bfc0d13894e95fef0",
+        "ref": "refs/recovery/growth-phase2-source",
+        "retained": true
+      },
+      {
+        "sha": "9f3497480933236483a860b338dc352d1aa2931d",
+        "ref": "refs/heads/traycer/knoux-store-fierce-walrus",
+        "retained": true
+      },
+      {
+        "sha": "9f3497480933236483a860b338dc352d1aa2931d",
+        "ref": "refs/heads/traycer/knoux-store-zesty-owl",
+        "retained": true
+      },
+      {
+        "sha": "bbdef3fe60e6ddce6d7b6da51987bfc18f207192",
+        "ref": "refs/recovery/unpublished-root-ancestry",
+        "retained": true
+      }
+    ],
+    "sourceHead": "d6177fec7118293ed3d05602f32e14832cb8f9cf",
+    "referenceOnlyApplicationDiffs": "EMPTY"
+  },
+  "buildBrowserContract": {
+    "fixture": true,
+    "passed": 9
+  },
+  "finalBrowserSelection": 489,
+  "visual": {
+    "overflowFailures": 0,
+    "routeViewportCaptures": 70,
+    "widths": [
+      1904,
+      1440,
+      1280,
+      1024,
+      768,
+      390,
+      360
+    ],
+    "motion": "Reduced motion; animated/particle performance is separately tested",
+    "families": [
+      "home",
+      "products",
+      "creative",
+      "web",
+      "growth",
+      "wordpress",
+      "solutions",
+      "build",
+      "command",
+      "auth"
+    ],
+    "creativeAsset": "ILLUSTRATIVE_MATERIAL_STUDY",
+    "inspection": "Actual screenshots reviewed across all family/width combinations; final mobile mission-selector refinement pending recapture"
+  },
+  "branch": "converge/post33-growth-closure",
+  "pullRequest": 34,
+  "actualBuild": {
+    "measuredAt": "2026-10-08T00:23:59.302Z",
+    "source": "Actual main /build browser flow on local production build; original server environment read only in private process memory",
+    "fixture": false,
+    "runtime": [
+      {
+        "route": "prepare",
+        "status": 200,
+        "state": "ROUTING",
+        "selected": {
+          "providerId": "gemini",
+          "modelId": "gemini-3-flash-preview",
+          "displayName": "Gemini 3 Flash Preview"
+        },
+        "reasons": [
+          "Manual selection honoured: gemini/gemini-3-flash-preview."
+        ]
+      },
+      {
+        "route": "stream",
+        "status": 200
+      }
+    ],
+    "sections": 14,
+    "measurements": "Agent\nKNOuX Architect · logical planning profile\nRuntime\ngemini / gemini-3-flash-preview\nWorktree\nD:\\Knoux Store-worktrees\\full-reality-20261004\nMeasurements\n6003 ms · input 298 / output 474 tokens · cost UNKNOWN",
+    "clientNavigationPersistence": "PASS",
+    "execution": "EXECUTOR_NOT_CONNECTED",
+    "sourceMutation": "NONE",
+    "secretOutput": "NONE"
+  },
+  "historicalGitHubBrowser": {
+    "appliesToFinalHead": false,
+    "conclusion": "SUCCESS",
+    "run": 37694020626,
+    "head": "8568e1ba886f42f63646867312d58c1525e70d5e",
+    "skipped": 8,
+    "selected": 480,
+    "passed": 472
+  },
+  "recordedAt": "2026-10-08T02:05:03.5081053Z",
+  "rootTests": {
+    "failed": 0,
+    "passed": 731
+  },
+  "externalBoundaries": [
+    "First real Growth OWNER/client authorization",
+    "Server service role and Meta/Google consent configuration",
+    "WordPress executor configuration",
+    "Paired mutating agent and external capability adapters",
+    "DeepSeek billing / OpenAI rate limit"
+  ],
+  "productionVerification": "PENDING_MERGE_AND_EXACT_SHA_PROOF",
+  "status": "PRE_MERGE_FINAL_HEAD_GATES_PENDING"
+}

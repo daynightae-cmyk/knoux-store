@@ -69,6 +69,9 @@
 .system-blueprint__head .mono,.system-blueprint__systems button small{font-size:11px}
 .system-blueprint__foot p{font-size:15px;line-height:1.75}
 .system-blueprint__diagram path{stroke-dasharray:none;opacity:.6}
+.mission-path__node{border:0;border-radius:50%;background:#645775}
+.mission-path__station small,.mission-path__layers{font-size:11px}
+@media(max-width:768px){.mission-path__station{border:0;border-bottom:2px solid transparent;padding-inline:0;min-width:180px}.mission-path__station.is-active{border-bottom-color:var(--violet);transform:none}.mission-path__focus{border-top:0}}
 @media(max-width:768px){.system-blueprint__node{font-size:10px}}
 :is(.atelier-lab,.process-architecture,.ksu){scroll-margin-top:100px}
 .auth-panel::before,.auth-panel::after{border:0}
