@@ -153,7 +153,7 @@ test.describe('responsive geometry', () => {
  * this reports.
  */
 test.describe('composition', () => {
-  test('the Build canvas dominates the viewport and centers its composer', async ({ page }) => {
+  test('the Build workspace centers a usable prompt plane within its available space', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.addInitScript(() => sessionStorage.setItem('knoux-dev-entry-intent', 'Build a web app'));
     await page.goto('/build', { waitUntil: 'load' });
@@ -165,8 +165,15 @@ test.describe('composition', () => {
     });
     expect(geometry.stage).toBeGreaterThan(1440 * .8);
     expect(geometry.composer).toBeGreaterThan(560);
-    expect(geometry.composer).toBeLessThan(650);
+    expect(geometry.composer).toBeLessThan(geometry.stage - 32);
     expect(geometry.offset).toBeLessThan(2);
+    const prompt = page.getByLabel('Describe what you want to build', { exact: true });
+    await expect(prompt).toBeEditable();
+    await prompt.fill('Build a customer portal with authenticated project records');
+    await expect(prompt).toHaveValue('Build a customer portal with authenticated project records');
+    await prompt.focus();
+    await expect(prompt).toBeFocused();
+    await expect(prompt).toBeInViewport();
   });
   test('desktop content uses a meaningful share of the viewport', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
