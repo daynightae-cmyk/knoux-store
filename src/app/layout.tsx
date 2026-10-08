@@ -4,6 +4,7 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { CommandPalette } from '@/components/CommandPalette';
 import { KnouxSentinel } from '@/components/identity/KnouxSentinel';
+import { StoreStarfield } from '@/components/identity/StoreStarfield';
 import { motionTokens } from '@/lib/motion';
 import './globals.css';
 import './visual-system-v2.css';
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body style={motionTokens() as React.CSSProperties}>
+        <StoreStarfield />
         <a className="skip-link" href="#main-content">
           Skip to content
         </a>
