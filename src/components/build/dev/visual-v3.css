@@ -1,0 +1,81 @@
+/* Engineering space: open hierarchy, a stateful identity and one input plane. */
+.dev-cinematic{background:#08090b;padding:16px 20px 16px 0}
+.dev-cinematic .dev-shell__stage{border:0;border-radius:0;background:transparent;box-shadow:none}
+.dev-cinematic .dev-shell__content{padding:0 32px 32px}
+.dev-cinematic .dev-nav-link{font-size:13px;min-height:40px;border:0;border-radius:0}
+.dev-cinematic .dev-nav-link--active{background:linear-gradient(90deg,#b9a8d218,transparent);box-shadow:inset 2px 0 #b9a8d2}
+.dev-cinematic .dev-mini-label{font-size:11px;color:#bcb6c6}
+.dev-context-rail{position:relative;z-index:3;margin:4px 0 20px}
+.dev-context-rail>summary{display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px;cursor:pointer;list-style:none;font-size:12px;color:#beb9c6;padding:14px 0}
+.dev-context-rail>summary span+span:before{content:'/';margin-right:16px;color:#706878}
+.dev-context-rail b{margin-left:auto;font-weight:400;color:#eee6f3}
+.dev-context-rail .dev-home-context{padding:20px 0;border:0;grid-template-columns:repeat(3,minmax(0,1fr))}
+.dev-context-rail dd{font-size:13px}
+.dev-cinematic .dev-universe{min-height:620px;padding:20px 0 70px;overflow:visible}
+.dev-cinematic .dev-build-center{width:min(760px,100%);margin:0;text-align:left}
+.dev-cinematic .dev-build-center__eyebrow{font:11px var(--font-mono,monospace);letter-spacing:.18em;color:#b9aec9;margin-bottom:16px}
+.dev-cinematic .dev-build-center h1{font-size:clamp(38px,4.6vw,66px);max-width:16ch;color:#f2eee8;letter-spacing:-.055em;line-height:1.04;margin:0}
+.dev-engine{position:relative;height:160px;isolation:isolate;text-align:center}
+.dev-shell--landing .dev-living-mark{opacity:.9;z-index:1;mask-image:none;filter:none;mix-blend-mode:normal}
+.dev-shell--landing .dev-living-mark canvas{background:none}
+.dev-engine p{position:absolute;bottom:0;width:100%;margin:0;display:grid;gap:7px;color:#d6cadf;font:11px var(--font-mono,monospace)}
+.dev-engine small{font:13px/1.5 var(--font-sans,Arial);color:#b1aaba}
+.dev-cinematic .dev-floating-compose{border:0;border-radius:18px 18px 8px 8px;background:linear-gradient(150deg,#d8c7ef14,#16161ccf 45%);padding:20px;box-shadow:0 16px 54px #0005}
+.dev-cinematic .dev-floating-compose:focus-within{outline:2px solid #bda8d1;outline-offset:4px}
+.dev-cinematic .dev-floating-compose textarea{font-size:17px;min-height:86px}
+.dev-cinematic .dev-compose-actions a,.dev-cinematic .dev-compose-actions button{min-width:44px;min-height:44px}
+.dev-cinematic .dev-composer-routing{margin:22px 0 12px;display:flex;align-items:end;gap:16px;flex-wrap:wrap}
+.dev-cinematic .dev-composer-routing label{font-size:13px;flex:1;min-width:140px;max-width:100%}
+.dev-cinematic .dev-composer-routing select{font-size:13px;min-height:44px;background:#121217;border:0;border-bottom:1px solid #b9a8d250;border-radius:0;max-width:100%}
+.dev-cinematic .dev-quick-intents{justify-content:flex-start;gap:8px 20px}
+.dev-cinematic .dev-quick-intents button{background:none;border:0;border-radius:0;font-size:11px;min-height:44px;padding:6px 0}
+.dev-cinematic .dev-compiler-note,.dev-cinematic .dev-intent-reading{font-size:12px;text-align:left;margin:14px 0}
+.dev-cinematic .dev-universe__caption{font-size:10px}
+.dev-cinematic .dev-access-note{font-size:13px;flex-wrap:wrap}
+.dev-cinematic .dev-status-rail{font-size:11px;border:0;background:#08090bed;gap:14px;padding:14px 20px}
+.dev-cinematic .dev-panel{background:transparent;border:0;border-radius:0;padding:24px 0;box-shadow:none}
+.dev-cinematic .dev-card{background:transparent;border:0;border-radius:0;box-shadow:none}
+.dev-cinematic .dev-card__head{border:0;padding:20px 0;font-size:14px}
+.dev-cinematic .dev-card__body{padding:16px 0}
+.dev-cinematic .dev-shell--operational .dev-living-mark{opacity:.15}
+.dev-shell--operational .dev-living-mark{opacity:.12;mask-image:radial-gradient(ellipse at 85% 15%,#000,transparent 65%)}
+.dev-shell--operational .dev-cosmic-field{opacity:.12}
+.dev-cinematic .dev-tabs{display:flex;gap:20px;flex-wrap:wrap;margin:24px 0}
+.dev-cinematic .dev-tab{border:0;background:none;padding:10px 0;font-size:14px;min-height:44px}
+.dev-cinematic .dev-tab--active{border-bottom:2px solid #b9a8d2}
+.dev-cinematic .dev-route :is(input:not([type=checkbox]),textarea:not(.xterm-helper-textarea),select){background:#15141a;color:#f2edf6;border:0;border-bottom:1px solid #b9a8d250;border-radius:4px 4px 0 0;padding:12px;font-size:15px;min-height:44px;max-width:100%}
+.dev-cinematic .dev-route input::placeholder,.dev-cinematic .dev-route textarea::placeholder{color:#ada4b9}
+.dev-cinematic .dev-route :is(input,textarea,select):focus-visible{outline:2px solid #c7b4df;outline-offset:3px}
+.dev-cinematic .dev-dialog-tabs button{border:0;border-radius:0;background:transparent;min-height:44px;font-size:12px}
+.dev-cinematic .dev-dialog-tabs button[aria-pressed=true]{border-bottom:2px solid #b9a8d2}
+.dev-cinematic .dev-empty{padding:28px 0;text-align:left}
+.dev-cinematic .dev-page-heading h1{font-size:clamp(38px,4vw,62px);letter-spacing:-.05em}
+.dev-cinematic .dev-page-heading p,.dev-cinematic .dev-note,.dev-cinematic .dev-kv{font-size:14px;line-height:1.7}
+.dev-cinematic .dev-integration-ledger{display:block}
+.dev-cinematic .dev-integration-ledger>article{padding:28px 0;border:0;border-bottom:1px solid #e1d7ed1a;background:transparent;border-radius:0}
+.dev-cinematic .dev-kv-table{font-size:12px}
+.dev-plan-index{display:flex;gap:10px 24px;flex-wrap:wrap;padding:24px 0;font-size:12px}
+.dev-plan-index a{min-height:36px;display:flex;align-items:center;color:#c8b9d9}
+.dev-cinematic .dev-plan-sections{display:block}
+.dev-plan-sections details{border-bottom:1px solid #e1d7ed20;padding:20px 0;scroll-margin-top:30px}
+.dev-plan-sections summary{display:flex;align-items:center;gap:24px;cursor:pointer}
+.dev-plan-sections summary>span{font:12px var(--font-mono,monospace);color:#bcb2c7}
+.dev-plan-sections summary>span:last-child{margin-left:auto}
+.dev-plan-sections h3{font-size:clamp(19px,2.3vw,30px);font-weight:400;margin:0;letter-spacing:-.025em}
+.dev-plan-sections ul{font-size:15px;line-height:1.85;padding-left:48px;max-width:85ch}
+.dev-cinematic :is(a,button,summary):focus-visible{outline:2px solid #dac5ef;outline-offset:4px}
+.dev-cinematic button:active{transform:translateY(1px)}
+.dev-cinematic button:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:1024px){.dev-cinematic{padding:0}.dev-cinematic .dev-shell__content{padding:0 28px 30px}.dev-context-rail>summary{gap:8px 12px}.dev-cinematic .dev-universe{min-height:600px}.dev-cinematic .dev-shell__top{background:#08090b}}
+@media(max-width:600px){.dev-cinematic .dev-shell__content{padding:0 20px 32px}.dev-stage-head{gap:8px}.dev-stage-views button{padding:8px;font-size:10px}.dev-stage-head>.dev-mini-label{max-width:13ch}.dev-context-rail>summary{font-size:11px;gap:9px}.dev-context-rail>summary span:nth-child(2),.dev-context-rail>summary span:nth-child(3),.dev-context-rail>summary span:nth-child(4){display:none}.dev-context-rail>summary span+span:before{margin-right:9px}.dev-context-rail b{margin-left:0}.dev-context-rail .dev-home-context{grid-template-columns:1fr}.dev-cinematic .dev-universe{padding:12px 0 60px;min-height:0}.dev-cinematic .dev-build-center h1{font-size:42px;max-width:13ch;margin:0}.dev-engine{height:150px}.dev-cinematic .dev-floating-compose{padding:16px}.dev-cinematic .dev-floating-compose textarea{font-size:16px}.dev-cinematic .dev-status-rail{position:static;font-size:10px;gap:10px;flex-wrap:wrap}.dev-plan-sections summary{gap:12px}.dev-plan-sections ul{padding-left:24px}.dev-cinematic .dev-plan-context{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.dev-cinematic *, .dev-cinematic *::before,.dev-cinematic *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.dev-cinematic .dev-console--blocked{min-height:0;border:0;background:none;border-radius:0;padding-bottom:24px}
+.dev-cinematic .dev-universe__orbit{width:100%;left:0;top:85%;height:15%;border-radius:50% 50% 0 0}
+.dev-machine__ring{pointer-events:none}
+.dev-cinematic .dev-panel__head{border:0;padding:18px 0}
+.dev-cinematic .dev-panel__body{padding:14px 0}
+.dev-cinematic .dev-dialog-tabs button{border:0!important;border-radius:0!important}
+.dev-cinematic .dev-list small,.dev-cinematic .dev-selector small{font-size:12px;line-height:1.65}
+.dev-cinematic .dev-list strong,.dev-cinematic .dev-selector strong{font-size:14px}
+.dev-cinematic .dev-crumb{font-size:11px}
+.dev-cinematic .dev-card__body p,.dev-cinematic .dev-card__body li{font-size:14px;line-height:1.75}
