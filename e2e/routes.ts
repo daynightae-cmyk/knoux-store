@@ -156,6 +156,8 @@ function largestBlankBand() {
   const occupied = new Uint8Array(docHeight);
 
   for (const element of document.querySelectorAll('body *')) {
+    // Ambient decorative light must never disguise a genuinely empty content band.
+    if (element.matches('.store-starfield')) continue;
     const style = getComputedStyle(element);
     if (element.offsetParent === null && style.position !== 'fixed') continue;
 
