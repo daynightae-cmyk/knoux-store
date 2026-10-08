@@ -76,6 +76,7 @@ type ProjectResponse = {
 };
 
 type EnvironmentResponse = {
+  host?: { name: string; os: string; kind: string };
   environment: 'local' | 'preview' | 'production';
   signals: { name: string; present: boolean; scope: 'server-only' | 'public'; purpose: string }[];
   providers: BuildWorkspaceState['ai']['providers'];
@@ -174,6 +175,7 @@ export async function readWorkspaceFacts(
 
   if (isCancelled()) return;
   if (environment.ok) {
+    if (environment.value.host) dispatch({ type: 'engineering/update', patch: { host: environment.value.host } });
     dispatch({ type: 'environment/resolved', signals: environment.value.signals, fetchedAt: new Date().toISOString() });
     dispatch({ type: 'providers/resolved', providers: environment.value.providers });
     dispatch({
