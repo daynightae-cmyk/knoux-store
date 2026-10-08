@@ -82,3 +82,4 @@ button:disabled{cursor:not-allowed}
 .dossier-card .action{font-size:12px!important;padding-left:0!important}
 .chamber-page .auth-panel{background:transparent}
 @media(max-width:760px){.architecture-map__zone,.architecture-map__zone:hover,.architecture-map__zone:focus-visible,.architecture-map__zone.is-active{transform:none;padding:22px 0}.architecture-map__detail{font-size:14px}.architecture-map__core{width:124px;height:124px}}
+@media(max-width:760px){.architecture-map__zone,.architecture-map__zone:hover,.architecture-map__zone:focus-visible,.architecture-map__zone.is-active{padding:24px 24px 24px 28px}.architecture-map__detail{display:block;max-height:none;overflow:visible}.architecture-map__zone::before{left:0;top:28px;transform:none}.architecture-map__zone:not(:last-of-type)::after{left:3px;top:36px;height:calc(100% - 8px)}.architecture-map__enter{opacity:1;right:0;top:26px;font-size:0}.architecture-map__enter::after{content:"↗";font-size:18px}}
