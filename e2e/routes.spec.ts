@@ -12,6 +12,22 @@ import { join } from 'node:path';
 
 const slug = (route: string) => route.replace(/^\//, '').replace(/\//g, '-') || 'home';
 
+test('Home wing descriptions remain fully readable with keyboard focus at narrow widths', async ({ page }) => {
+  for (const width of [1440, 820, 768, 390, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    await page.evaluate(() => document.fonts.ready);
+    const descriptions = page.locator('.architecture-map__detail');
+    await expect(descriptions).toHaveCount(8);
+    for (const description of await descriptions.all()) {
+      await expect(description).toBeVisible();
+      expect(await description.evaluate(element => element.scrollHeight - element.clientHeight), `Unfocused description at ${width}px`).toBeLessThanOrEqual(1);
+      await description.locator('..').focus();
+      expect(await description.evaluate(element => element.scrollHeight - element.clientHeight), `Focused description at ${width}px`).toBeLessThanOrEqual(1);
+    }
+  }
+});
+
 test.describe('route rendering', () => {
   for (const route of PRIMARY_ROUTES) {
     test(`${route} renders with a heading and a language`, async ({ page }) => {
