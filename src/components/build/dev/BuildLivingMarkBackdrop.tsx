@@ -10,8 +10,33 @@ export function BuildLivingMarkBackdrop() {
   const transition = useRef(0);
   const pathname = usePathname();
   const { state } = useBuildWorkspace();
+  const stage = useRef(state.engineering.stage);
+  const landing = useRef(pathname === '/build');
 
-  useEffect(() => { transition.current = performance.now(); }, [pathname, state.engineering.stage]);
+  useEffect(() => { stage.current = state.engineering.stage; landing.current = pathname === '/build'; transition.current = performance.now(); window.dispatchEvent(new Event('knoux:engineering-visual-state')); }, [pathname, state.engineering.stage]);
+
+  // Keep the canonical particle pool mounted while positioning it over the
+  // landing engine aperture. Layout changes never imply runtime transitions.
+  useEffect(() => {
+    const mark = canvas.current?.parentElement;
+    const aperture = document.querySelector('.dev-engine');
+    const container = mark?.parentElement;
+    if (!mark || !container) return;
+    if (!aperture) { mark.style.cssText = ''; return; }
+    const place = () => {
+      const target = aperture.getBoundingClientRect();
+      const parent = container.getBoundingClientRect();
+      Object.assign(mark.style, { inset: 'auto', left: `${target.left - parent.left}px`, top: `${target.top - parent.top}px`, width: `${target.width}px`, height: `${target.height}px` });
+      window.dispatchEvent(new Event('resize'));
+    };
+    const observer = new ResizeObserver(place);
+    observer.observe(aperture); observer.observe(container);
+    const content = container.querySelector('main');
+    content?.addEventListener('scroll', place, { passive: true });
+    content?.addEventListener('toggle', place, true);
+    place();
+    return () => { observer.disconnect(); content?.removeEventListener('scroll', place); content?.removeEventListener('toggle', place, true); };
+  }, [pathname, state.workspace.activeSurface]);
 
   useEffect(() => {
     const surface = canvas.current;
@@ -43,15 +68,22 @@ export function BuildLivingMarkBackdrop() {
       last = now;
 
       const paintStarted = performance.now();
+      const active = ['RESOLVING', 'ROUTING', 'GENERATING', 'EXECUTING', 'VERIFYING'].includes(stage.current);
+      const blocked = ['AUTH_REQUIRED', 'CONFIG_REQUIRED', 'PROVIDER_BLOCKED', 'EXECUTOR_NOT_CONNECTED'].includes(stage.current);
+      const resolved = ['PLANNED', 'REVIEWING', 'COMPLETE'].includes(stage.current);
+      const centered = landing.current;
+      const centerX = width * (centered ? 0.5 : 0.69);
+      const centerY = height * (centered ? 0.4 : 0.48);
+      surface.dataset.state = stage.current;
       context.clearRect(0, 0, width, height);
 
       const halo = context.createRadialGradient(
-        width * 0.68,
-        height * 0.5,
+        centerX,
+        centerY,
         0,
-        width * 0.68,
-        height * 0.5,
-        Math.max(width, height) * 0.78,
+        centerX,
+        centerY,
+        centered ? height * 0.6 : Math.max(width, height) * 0.78,
       );
       halo.addColorStop(0, 'rgba(206,196,244,0.25)');
       halo.addColorStop(0.2, 'rgba(151,130,204,0.18)');
@@ -60,14 +92,14 @@ export function BuildLivingMarkBackdrop() {
       context.fillStyle = halo;
       context.fillRect(0, 0, width, height);
 
-      const scale = Math.min(width * 0.68 / 3, height * 0.8 / 5);
+      const scale = Math.min(width * 0.68 / 3, height * (centered ? 0.65 : 0.8) / 5);
       const impulse = reduced() ? 0 : Math.exp(-Math.max(0, now - transition.current) / 900) * 0.11;
-      const scatter = reduced() ? 0 : Math.pow(Math.max(0, Math.sin(elapsed / 6.2)), 10) * 0.042 + impulse;
-      const pulse = reduced() ? 1 : 1 + Math.sin(elapsed * 1.25) * 0.05;
+      const scatter = reduced() || blocked || resolved ? 0 : Math.pow(Math.max(0, Math.sin(elapsed / (active ? 3 : 6.2))), 10) * (active ? 0.1 : 0.025) + impulse;
+      const pulse = reduced() || blocked ? 1 : 1 + Math.sin(elapsed * (active ? 2 : 0.8)) * (active ? 0.08 : 0.025);
       const wave = reduced() ? 0 : Math.sin(elapsed * 0.9) * 0.018;
 
       context.save();
-      context.fillStyle = '#eef1ff';
+      context.fillStyle = blocked ? '#a89fac' : resolved ? '#fff7e7' : '#eef1ff';
       context.shadowBlur = reduced() ? 8 : isCompact ? 17 : 24;
       context.shadowColor = 'rgba(170, 157, 216, 0.9)';
       context.beginPath();
@@ -75,10 +107,10 @@ export function BuildLivingMarkBackdrop() {
       for (const particle of samples) {
         const phase = particle.random * Math.PI * 2;
         const breath = reduced() ? 1 : 1 + Math.sin(elapsed / 4.8 + particle.random * 6) * 0.014;
-        const driftX = reduced() ? 0 : Math.sin(now * 0.0005 + particle.random * 10) * (isCompact ? 6 : 9);
-        const driftY = reduced() ? 0 : Math.cos(now * 0.00042 + particle.random * 12) * (isCompact ? 5 : 7);
-        const x = width * 0.69 + (particle.x * breath + Math.cos(phase) * (scatter + wave) * 5 + driftX * 0.3) * scale;
-        const y = height * 0.48 - (particle.y * breath + Math.sin(phase) * (scatter + wave) * 5 + driftY * 0.2) * scale;
+        const driftX = reduced() || blocked || resolved ? 0 : Math.sin(now * 0.0005 + particle.random * 10) * 0.035;
+        const driftY = reduced() || blocked || resolved ? 0 : Math.cos(now * 0.00042 + particle.random * 12) * 0.03;
+        const x = centerX + (particle.x * breath + Math.cos(phase) * (scatter + wave) * 5 + driftX) * scale;
+        const y = centerY - (particle.y * breath + Math.sin(phase) * (scatter + wave) * 5 + driftY) * scale;
         const size = Math.max(0.6, particle.size * scale * 0.24 * pulse * (isCompact ? 0.9 : 1.1));
         context.rect(x, y, size, size);
       }
@@ -118,6 +150,7 @@ export function BuildLivingMarkBackdrop() {
     document.addEventListener('visibilitychange', wake);
     motion.addEventListener('change', wake);
     window.addEventListener('resize', wake);
+    window.addEventListener('knoux:engineering-visual-state', wake);
 
     return () => {
       cancelAnimationFrame(frame);
@@ -125,8 +158,9 @@ export function BuildLivingMarkBackdrop() {
       document.removeEventListener('visibilitychange', wake);
       motion.removeEventListener('change', wake);
       window.removeEventListener('resize', wake);
+      window.removeEventListener('knoux:engineering-visual-state', wake);
     };
   }, [state.preferences.motion, state.preferences.density]);
 
-  return <div className="dev-living-mark" data-engineering-stage={state.engineering.stage} aria-hidden="true"><canvas ref={canvas} /></div>;
+  return <div className="dev-living-mark" data-engineering-stage={state.engineering.stage} aria-hidden="true"><canvas ref={canvas} data-state={state.engineering.stage} /></div>;
 }

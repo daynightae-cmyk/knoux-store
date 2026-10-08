@@ -7,6 +7,7 @@ import { KnouxSentinel } from '@/components/identity/KnouxSentinel';
 import { motionTokens } from '@/lib/motion';
 import './globals.css';
 import './visual-system-v2.css';
+import './visual-system-v3.css';
 
 export const viewport: Viewport = {
   width: 'device-width',

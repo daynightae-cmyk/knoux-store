@@ -12,7 +12,7 @@
  * need `usePathname`, keeping it renderable from a server component too.
  */
 
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { COMMAND_GROUPS, areaHref, type CommandArea } from './navigation';
 import { CommandDock, type DockSurface } from './CommandDock';
@@ -30,6 +30,7 @@ export type CommandShellProps = {
 };
 
 export function CommandShell({ area, children, dock, facts = [] }: CommandShellProps) {
+  const [navigationOpen, setNavigationOpen] = useState(false);
   const { records, clients, activeClient, setActiveClientId, isDemoWorkspace, demoReason } = useWorkspace();
   const connections = records.connections;
   const blocked = connections.filter((connection) => connection.state === 'BLOCKED').length;
@@ -71,7 +72,8 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
       </header>
 
       <div className={styles.commandBody ?? ''}>
-        <nav className={styles.commandRail ?? ''} aria-label="Command Center sections">
+        <button className={styles.commandNavigationToggle} type="button" aria-label={`Workspace navigation for ${activeClient.name}`} aria-expanded={navigationOpen} aria-controls="command-navigation" onClick={() => setNavigationOpen((open) => !open)}>{activeClient.name}<span>{navigationOpen ? 'Close navigation −' : 'Workspace navigation +'}</span></button>
+        <nav id="command-navigation" className={`${styles.commandRail ?? ''} ${navigationOpen ? '' : styles.commandRailCollapsed}`} aria-label="Command Center sections">
           <div className={styles.commandSwitch ?? ''}>
             <span className={styles.commandSwitchLabel ?? ''}>Client workspace</span>
             <div className={styles.commandSwitchRow ?? ''} role="group" aria-label="Select client">
