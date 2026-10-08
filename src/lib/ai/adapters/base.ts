@@ -203,14 +203,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
         providerId: this.id,
         authenticated: false,
         detail: "Endpoint unreachable.",
-        error: {
-          category: "NETWORK",
-          message,
-          safeMessage: message.slice(0, 200),
-          httpStatus: null,
-          providerErrorId: null,
-          retryable: false,
-        },
+        error: networkError(message),
         latencyMs,
       };
     }
