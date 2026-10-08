@@ -11,7 +11,7 @@ export function BuildLivingMarkBackdrop() {
   const pathname = usePathname();
   const { state } = useBuildWorkspace();
 
-  useEffect(() => { transition.current = performance.now(); }, [pathname]);
+  useEffect(() => { transition.current = performance.now(); }, [pathname, state.engineering.stage]);
 
   useEffect(() => {
     const surface = canvas.current;
@@ -128,5 +128,5 @@ export function BuildLivingMarkBackdrop() {
     };
   }, [state.preferences.motion, state.preferences.density]);
 
-  return <div className="dev-living-mark" aria-hidden="true"><canvas ref={canvas} /></div>;
+  return <div className="dev-living-mark" data-engineering-stage={state.engineering.stage} aria-hidden="true"><canvas ref={canvas} /></div>;
 }

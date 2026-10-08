@@ -2,7 +2,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { AiCenterPage } from "./AiCenterLayout";
 import { DevPanel, DevEmpty } from "../dev/DevUI";
-import type { ProviderHealth } from "@/lib/ai/types";
+import type { ProviderHealth as RuntimeProviderHealth } from "@/lib/ai/types";
+import Link from 'next/link';
+type ProviderHealth = RuntimeProviderHealth & { environment?: { name: string; present: boolean }[] };
 
 type ProbeResult = {
   providerId: string;
@@ -20,6 +22,7 @@ export function AiProvidersPage({ embedded = false }: Readonly<{ embedded?: bool
     Record<string, { source: string; count: number; error: string | null }>
   >({});
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
 
   const fetchProviders = useCallback(async () => {
     try {
@@ -166,6 +169,8 @@ export function AiProvidersPage({ embedded = false }: Readonly<{ embedded?: bool
       }
     >
       <div className="dev-actions" style={{ marginBottom: 16 }}>
+        <label className="dev-provider-search">Search all providers<input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Name or transport" /></label>
+        <button type="button" disabled={busy !== null} onClick={() => void fetchProviders()}>REFRESH HEALTH</button>
         <button
           type="button"
           disabled={busy !== null || !providers.some(provider => provider.configured)}
@@ -188,7 +193,7 @@ export function AiProvidersPage({ embedded = false }: Readonly<{ embedded?: bool
       <DevPanel title="Provider Matrix">
         <div className="dev-integration-ledger">
           {providers.length ? (
-            providers.map((provider) => (
+            providers.filter((provider) => `${provider.displayName} ${provider.transport}`.toLowerCase().includes(search.toLowerCase())).map((provider) => (
               <article key={provider.providerId}>
                 <div>
                   <h2>{provider.displayName}</h2>
@@ -203,7 +208,7 @@ export function AiProvidersPage({ embedded = false }: Readonly<{ embedded?: bool
                     className={`dev-tag ${provider.configured ? "" : "warn"}`}
                     style={{ marginLeft: 4 }}
                   >
-                    {provider.configured ? "CONFIGURED" : "UNCONFIGURED"}
+                    {!provider.configured ? 'CONFIG_REQUIRED' : provider.generation === 'GENERATION_VERIFIED' && provider.streaming === 'STREAMING_VERIFIED' ? 'RUNTIME_VERIFIED' : ['BLOCKED', 'FAILED', 'RATE_LIMITED'].includes(provider.generation) ? 'BLOCKED' : provider.auth === 'FAILED' ? 'AUTH_REQUIRED' : 'UNTESTED'}
                   </span>
                 </div>
 
@@ -273,6 +278,8 @@ export function AiProvidersPage({ embedded = false }: Readonly<{ embedded?: bool
                   </tbody>
                 </table>
                 </div>
+
+                <details className="dev-provider-detail"><summary>Environment, permissions & diagnostics</summary><dl className="dev-kv"><dt>Source</dt><dd>Canonical server adapter · {provider.transport}</dd><dt>Last checked</dt><dd>{provider.lastTestedAt ?? 'UNTESTED'}</dd><dt>CLI / args</dt><dd>API provider · no CLI invocation. Local coding tools are measured separately.</dd><dt>Environment</dt><dd>{provider.environment?.length ? provider.environment.map((entry) => <div key={entry.name}>{entry.name} · {entry.present ? 'PRESENT' : 'ABSENT'}</div>) : 'No required variable names declared'}</dd><dt>Permissions</dt><dd>Provider API requests · no shell, Git, browser or file writes</dd><dt>MCP / plugins / skills</dt><dd>No agent binding connected</dd><dt>Models / context / costs</dt><dd>Live discovery only · unknown values remain UNKNOWN</dd></dl><div className="dev-actions"><Link href="/build/ai/models">Models ↗</Link><Link href="/build/ai/usage">Measured usage ↗</Link><Link href="/build/engineering?area=agents">CLI tooling ↗</Link></div></details>
 
                 {provider.lastError ? (
                   <p
