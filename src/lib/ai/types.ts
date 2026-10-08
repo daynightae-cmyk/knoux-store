@@ -180,6 +180,7 @@ export type GenerationControls = {
 };
 
 export type GenerationRequest = {
+  generationProfile?: import('../build/profile').GenerationProfile;
   providerId: string;
   modelId: string;
   messages: ChatMessage[];
@@ -223,6 +224,8 @@ export type CostEstimate = {
 };
 
 export type StreamChunk = {
+  /** Present only when a provider event identifies the model. */
+  modelUsed?: string | null;
   delta: string;
   done: boolean;
   finishReason: string | null;
@@ -274,6 +277,7 @@ export type NormalizedError = {
 // ---------------------------------------------------------------------------
 
 export type RouterInput = {
+  generationProfile?: import('../build/profile').GenerationProfile;
   taskClass: string;
   contextRequirement: number;
   visionRequired: boolean;

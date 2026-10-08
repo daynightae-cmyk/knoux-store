@@ -16,7 +16,7 @@
  * into production source to serve a test concern.
  */
 
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { dirname, join as joinPath, resolve as resolvePath } from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -73,7 +73,7 @@ export async function resolve(specifier, context, nextResolve) {
 
     for (const suffix of SUFFIXES) {
       const candidate = base + suffix;
-      if (existsSync(candidate)) {
+      if (existsSync(candidate) && statSync(candidate).isFile()) {
         return { url: pathToFileURL(candidate).href, shortCircuit: true };
       }
     }

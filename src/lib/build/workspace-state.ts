@@ -17,7 +17,8 @@
  */
 
 import { clamp01 } from './spatial';
-import type { EngineeringSession } from './engineering-plan';
+import { parseEngineeringPlan, type EngineeringSession } from './engineering-plan';
+import { canTransitionPlan } from './generator-state';
 import { DEFAULT_PREFERENCES, type WorkspacePreferences } from './preferences';
 import type { IntegrationSnapshot } from './integration-types';
 import type {
@@ -102,6 +103,7 @@ export type BuildWorkspaceState = {
   terminal: { sessions: TerminalSession[]; activeSessionId: string | null };
   preview: PreviewState;
   ai: {
+    generationProfile: import('./profile').GenerationProfile;
     mode: SenshialMode;
     routingMode: RoutingMode;
     task: TaskClass;
@@ -180,7 +182,7 @@ function undetectedCapabilities(): Record<BuildCapability, CapabilityStatus> {
 export const DEFAULT_PREVIEW_VIEWPORT = { id: 'laptop', label: 'LAPTOP', width: 1440, height: 900 };
 
 export const initialBuildState: BuildWorkspaceState = {
-  engineering: { requestId: null, context: null, host: null, stage: 'LISTENING', plan: null, error: null, selection: null, characters: 0, measurement: null },
+  engineering: { requestId: null, context: null, host: null, stage: 'LISTENING', plan: null, draftPlan: null, streamText: '', requested: null, error: null, selection: null, characters: 0, measurement: null },
   snapshot: null, projectRef: null, recentProjects: [], integrations: null,
   preferences: DEFAULT_PREFERENCES, activity: [],
   adapter: {
@@ -209,6 +211,7 @@ export const initialBuildState: BuildWorkspaceState = {
   terminal: { sessions: [], activeSessionId: null },
   preview: { url: null, viewport: DEFAULT_PREVIEW_VIEWPORT, refreshKey: 0, consoleState: 'idle' },
   ai: {
+    generationProfile: 'BALANCED',
     mode: 'ask',
     routingMode: 'auto',
     task: 'general',
@@ -262,7 +265,8 @@ export type BuildAction =
   | { type: 'stage/select'; stageId: string; progress: number }
   | { type: 'entity/select'; id: string | null }
   | { type: 'diagnostic/select'; id: string | null }
-  | { type: 'engineering/begin'; requestId: string; context: NonNullable<EngineeringSession['context']> }
+  | { type: 'engineering/begin'; requestId: string; context: NonNullable<EngineeringSession['context']>; requested?: EngineeringSession['requested'] }
+  | { type: 'ai/profile'; profile: import('./profile').GenerationProfile }
   | { type: 'engineering/update'; patch: Partial<EngineeringSession>; requestId?: string | null }
   | { type: 'ai/mode'; mode: SenshialMode }
   | { type: 'ai/routing-mode'; mode: RoutingMode }
@@ -284,8 +288,16 @@ export type BuildAction =
 
 export function buildReducer(state: BuildWorkspaceState, action: BuildAction): BuildWorkspaceState {
   switch (action.type) {
-    case 'engineering/begin': return { ...state, engineering: { ...initialBuildState.engineering, host: state.engineering.host, requestId: action.requestId, context: action.context, stage: 'RESOLVING' } };
-    case 'engineering/update': return action.requestId && action.requestId !== state.engineering.requestId ? state : { ...state, engineering: { ...state.engineering, ...action.patch } };
+    case 'engineering/begin': return { ...state, engineering: { ...initialBuildState.engineering, host: state.engineering.host, requestId: action.requestId, context: action.context, requested: action.requested ?? null, stage: 'RESOLVING' } };
+    case 'ai/profile': return { ...state, ai: { ...state.ai, generationProfile: action.profile } };
+    case 'engineering/update': {
+      if (action.requestId && action.requestId !== state.engineering.requestId) return state;
+      if (action.patch.stage && !canTransitionPlan(state.engineering.stage, action.patch.stage)) return state;
+      if (action.patch.stage === 'PLANNED') {
+        try { parseEngineeringPlan(JSON.stringify(action.patch.plan ?? state.engineering.plan)); } catch { return state; }
+      }
+      return { ...state, engineering: { ...state.engineering, ...action.patch } };
+    }
     case 'facts/unavailable': return { ...state, snapshot: null, project: null, graph: null, git: null, verification: null, runtime: initialBuildState.runtime, adapter: { ...initialBuildState.adapter, capabilities: undetectedCapabilities() }, workspace: { ...state.workspace, openFiles: [], selectedFilePath: null, selectedRoute: null } };
     case 'snapshot/resolved': return { ...state, snapshot: action.snapshot };
     case 'project/activate': return { ...initialBuildState, ai: state.ai, preferences: state.preferences, integrations: state.integrations, activity: state.activity, projectRef: action.path, recentProjects: [{ name: action.name, path: action.path }, ...state.recentProjects.filter((p) => p.path !== action.path)].slice(0, 12) };
