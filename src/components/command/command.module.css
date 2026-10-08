@@ -1250,7 +1250,7 @@
 .ccApprovalRefusal,.ccFoot{font-size:13px;line-height:1.7}
 .commandNavItem{min-height:44px}
 .commandNavItem:focus-visible,.commandNavigationToggle:focus-visible{outline:2px solid #c7b4df;outline-offset:-4px}
-@media(max-width:760px){
+@media(max-width:1024px){
  .commandNavigationToggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:18px 20px;background:#16141a;color:var(--cc-ink);border:0;font-size:13px;text-align:left;min-height:54px}
  .commandNavigationToggle span{font-size:12px;color:var(--cc-ink-2)}
  .commandRailCollapsed{display:none}

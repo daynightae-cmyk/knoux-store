@@ -2,7 +2,7 @@
 
 The interface now gives the engineering prompt, product identity and operational decisions more space. Decorative outer frames, nested status cards and repeated panel geometry have been removed across the shared public, Build and Command systems. Functional inputs, approval boundaries, dialogs and runtime consoles retain their necessary surfaces.
 
-Base: `bf727ed88c9625f4d367a9f5982f0c1c38128230`, the verified merged main. Source implementation ends at `a6aca86`; this evidence commit changes no application behavior. The original mission branch, recovery refs and other worktrees remain preserved.
+Base: `bf727ed88c9625f4d367a9f5982f0c1c38128230`, the verified merged main. Implementation and tablet refinements are recorded as separate commits; the accompanying captures document the rendered visual behavior. The original mission branch, recovery refs and other worktrees remain preserved.
 
 ## Evidence reader
 
