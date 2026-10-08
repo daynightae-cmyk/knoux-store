@@ -12,6 +12,12 @@ test('Recovered Command Center routes render and fit the viewport', async ({ pag
     const response = await page.goto(`/command${area ? `/${area}` : ''}`);
     expect(response?.status()).toBe(200);
     await expect(page.locator('.command-root h1')).toHaveCount(1);
+    const navigationToggle = page.getByRole('button', { name: /Workspace navigation/ });
+    if (await navigationToggle.isVisible()) {
+      await expect(page.getByRole('navigation', { name: 'Command Center sections' })).toBeHidden();
+      await navigationToggle.click();
+      await expect(navigationToggle).toHaveAttribute('aria-expanded', 'true');
+    }
     await expect(page.getByRole('navigation', { name: 'Command Center sections' })).toBeVisible();
     const indicators = page.getByRole('group', { name: 'Workspace status indicators' });
     await indicators.focus();
@@ -40,6 +46,8 @@ test('Intelligence refuses cross-site, invalid and oversized requests and labels
 
 test('Report client selection and print control execute', async ({ page }) => {
   await page.goto('/command/reports');
+  const navigationToggle = page.getByRole('button', { name: /Workspace navigation/ });
+  if (await navigationToggle.isVisible()) await navigationToggle.click();
   await page.getByRole('button', { name: 'North Bay Clinic', exact: true }).click();
   await expect(page.getByRole('button', { name: 'North Bay Clinic', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await page.evaluate(() => { window.print = () => { document.body.dataset.printRequested = 'yes'; }; });
