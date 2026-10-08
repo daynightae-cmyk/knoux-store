@@ -45,7 +45,7 @@
     "fixture": true,
     "passed": 9
   },
-  "finalBrowserSelection": 489,
+  "finalBrowserSelection": 495,
   "visual": {
     "overflowFailures": 0,
     "routeViewportCaptures": 70,
@@ -72,7 +72,7 @@
       "auth"
     ],
     "creativeAsset": "ILLUSTRATIVE_MATERIAL_STUDY",
-    "inspection": "Actual screenshots reviewed across all family/width combinations; final mobile mission-selector refinement pending recapture"
+    "inspection": "Actual screenshots reviewed across all family/width combinations; mobile mission refinement reviewed at 390 and 360 px"
   },
   "branch": "converge/post33-growth-closure",
   "pullRequest": 34,
@@ -128,5 +128,20 @@
     "DeepSeek billing / OpenAI rate limit"
   ],
   "productionVerification": "PENDING_MERGE_AND_EXACT_SHA_PROOF",
-  "status": "PRE_MERGE_FINAL_HEAD_GATES_PENDING"
+  "status": "PRE_MERGE_FINAL_HEAD_GATES_PENDING",
+  "securityPatch": {
+    "reason": "Newly published Next.js advisories",
+    "productionAuditVulnerabilities": 0,
+    "eslintConfigNext": "16.3.8",
+    "next": "16.3.8"
+  },
+  "continuationBrowser": {
+    "run": 37720228461,
+    "selected": 495,
+    "failed": 3,
+    "head": "2a7d0cac422767718037470a28b5a4969e3909ae",
+    "passed": 484,
+    "skipped": 8,
+    "failure": "Web selector contrast; corrected before final-head repeat"
+  }
 }

@@ -64,6 +64,8 @@
 
 /* Open spatial composition: decorative frames yield to objects and connected flow. */
 .system-blueprint__head,.system-blueprint__foot,.system-blueprint__systems{border:0}
+.system-blueprint__systems button{color:#b4acbd}
+.system-blueprint__systems button small{color:#b7a6c8}
 .system-blueprint__origin{border:0;border-radius:50%;background:radial-gradient(circle at 30% 24%,#74618855,#251d3488 48%,#0b0b1280 76%);box-shadow:0 20px 60px #a286ca18,inset 0 1px 18px #bda4db18}
 .system-blueprint__node{border:0;background:transparent;font-size:11px;padding:8px 0;text-shadow:0 0 20px #a68aca66}
 .system-blueprint__head .mono,.system-blueprint__systems button small{font-size:11px}
