@@ -70,7 +70,7 @@
 @media(max-width:600px){.dev-cinematic .dev-shell__content{padding:0 20px 32px}.dev-stage-head{gap:8px}.dev-stage-views button{padding:8px;font-size:10px}.dev-stage-head>.dev-mini-label{max-width:13ch}.dev-context-rail>summary{font-size:11px;gap:9px}.dev-context-rail>summary span:nth-child(2),.dev-context-rail>summary span:nth-child(3),.dev-context-rail>summary span:nth-child(4){display:none}.dev-context-rail>summary span+span:before{margin-right:9px}.dev-context-rail b{margin-left:0}.dev-context-rail .dev-home-context{grid-template-columns:1fr}.dev-cinematic .dev-universe{padding:12px 0 60px;min-height:0}.dev-cinematic .dev-build-center h1{font-size:42px;max-width:13ch;margin:0}.dev-engine{height:150px}.dev-cinematic .dev-floating-compose{padding:16px}.dev-cinematic .dev-floating-compose textarea{font-size:16px}.dev-cinematic .dev-status-rail{position:static;font-size:10px;gap:10px;flex-wrap:wrap}.dev-plan-sections summary{gap:12px}.dev-plan-sections ul{padding-left:24px}.dev-cinematic .dev-plan-context{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.dev-cinematic *, .dev-cinematic *::before,.dev-cinematic *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 .dev-cinematic .dev-console--blocked{min-height:0;border:0;background:none;border-radius:0;padding-bottom:24px}
-.dev-cinematic .dev-universe__orbit{width:100%;left:0;top:85%;height:15%;border-radius:50% 50% 0 0}
+.dev-cinematic .dev-universe__orbit{width:100%;left:0;top:85%;height:15%;border:0;border-radius:50% 50% 0 0;box-shadow:none}
 .dev-machine__ring{pointer-events:none}
 .dev-cinematic .dev-panel__head{border:0;padding:18px 0}
 .dev-cinematic .dev-panel__body{padding:14px 0}
