@@ -22,6 +22,7 @@
  */
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { creativeDisciplines } from '@/data/services';
 
@@ -535,15 +536,14 @@ export function AtelierLab() {
       </nav>
 
       {/* CENTER — Canvas 2D material field */}
-      <div className="atelier-lab__field" aria-hidden="true">
+      <div className="atelier-lab__field">
+        <Image src="/creative/material-study-v2.png" alt="An illustrative studio composition of ivory sculpture, smoked glass, photographic frames and film strips." fill sizes="(max-width: 768px) 100vw, 60vw" className="atelier-lab__art" />
         <canvas
           ref={canvasRef}
           className="atelier-lab__canvas"
           aria-hidden="true"
         />
-        <span className="atelier-lab__field-label">
-          K / MATERIAL STUDY
-        </span>
+        <div className="atelier-lab__story"><span className="label">ILLUSTRATIVE MATERIAL STUDY</span><p>One idea.<br /><em>Every expression.</em></p><nav aria-label="Creative workflow"><Link href="/creative/social-content">CREATE ↗</Link><Link href="/creative/motion">ADAPT ↗</Link><Link href="/growth/social">PUBLISH ↗</Link></nav></div>
       </div>
 
       {/* RIGHT — specification */}

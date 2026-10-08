@@ -43,11 +43,7 @@
   font-family: var(--cc-sans);
   font-size: 14px;
   line-height: 1.5;
-  /* The architectural substrate. Barely visible; it reads as material. */
-  background-image:
-    linear-gradient(to right, color-mix(in srgb, var(--cc-line-faint) 26%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in srgb, var(--cc-line-faint) 16%, transparent) 1px, transparent 1px);
-  background-size: 96px 96px;
+  background-image: radial-gradient(ellipse at 82% 8%, color-mix(in srgb, var(--cc-violet) 5%, transparent), transparent 55%);
 }
 
 /* Essential state must exist in DOM, not only on a canvas. */
@@ -100,7 +96,7 @@
 }
 
 .commandName {
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -108,7 +104,7 @@
 
 .commandSub {
   font-family: var(--cc-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--cc-ink-4);
@@ -144,7 +140,7 @@
 }
 
 .commandFactValue {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--cc-ink-2);
   white-space: nowrap;
   overflow: hidden;
@@ -216,7 +212,7 @@
 
 .commandNavCode {
   font-family: var(--cc-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--cc-ink-4);
   margin-left: auto;
   flex: none;
@@ -224,7 +220,7 @@
 
 .commandNavBadge {
   font-family: var(--cc-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--cc-amber);
   flex: none;
 }
@@ -261,7 +257,7 @@
   background: transparent;
   color: var(--cc-ink-3);
   font: inherit;
-  font-size: 12px;
+  font-size: 14px;
   text-align: left;
   cursor: pointer;
   transition: border-color 120ms linear, color 120ms linear;
@@ -309,7 +305,7 @@
 
 .commandEyebrow {
   font-family: var(--cc-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--cc-ink-4);
@@ -357,7 +353,7 @@
 
 .commandSectionTitle {
   font-family: var(--cc-mono);
-  font-size: 10px;
+  font-size: 14px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--cc-ink-2);
@@ -375,29 +371,29 @@
 .commandGrid2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 0;
-  border: 1px solid var(--cc-line);
+  gap: 24px;
+  border: 0;
 }
 
 .commandGrid3 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 0;
-  border: 1px solid var(--cc-line);
+  gap: 24px;
+  border: 0;
 }
 
 .commandGrid4 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 0;
-  border: 1px solid var(--cc-line);
+  gap: 24px;
+  border: 0;
 }
 
 .commandGrid2 > *,
 .commandGrid3 > *,
 .commandGrid4 > * {
-  border-right: 1px solid var(--cc-line-faint);
-  border-bottom: 1px solid var(--cc-line-faint);
+  border-right: 0;
+  border-bottom: 0;
   min-width: 0;
 }
 
@@ -433,7 +429,7 @@
 
 .ccMetricMeta {
   font-family: var(--cc-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--cc-ink-4);
   letter-spacing: 0.04em;
 }
@@ -449,7 +445,7 @@
 .ccTable caption {
   text-align: left;
   font-family: var(--cc-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--cc-ink-4);
@@ -531,7 +527,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--cc-ink-3);
 }
 
@@ -547,7 +543,7 @@
   align-items: center;
   gap: 5px;
   font-family: var(--cc-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 2px 7px;
@@ -579,7 +575,7 @@
 /* Visually-hidden text that must still reach a screen reader. */
 .ccOriginLive {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--cc-green);
   letter-spacing: 0.08em;
 }
@@ -610,7 +606,7 @@
 
 .ccDemoMark {
   font-family: var(--cc-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--cc-amber);
@@ -626,7 +622,7 @@
   gap: 7px;
   padding: 6px 12px;
   font-family: var(--cc-mono);
-  font-size: 10px;
+  font-size: 14px;
   letter-spacing: 0.11em;
   text-transform: uppercase;
   color: var(--cc-ink-2);
@@ -666,7 +662,7 @@
 
 .ccButtonSm {
   padding: 3px 8px;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 /* ------------------------------------------------------------- empty state */
@@ -683,14 +679,14 @@
 
 .ccEmptyTitle {
   font-family: var(--cc-mono);
-  font-size: 10px;
+  font-size: 14px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--cc-ink-2);
 }
 
 .ccEmptyBody {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--cc-ink-4);
   max-width: 52ch;
   margin: 0;
@@ -723,7 +719,7 @@
 
 .ccCommunityWhere {
   font-family: var(--cc-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--cc-ink-4);
@@ -735,7 +731,7 @@
   flex-wrap: wrap;
   gap: 4px 12px;
   font-family: var(--cc-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--cc-ink-4);
   letter-spacing: 0.05em;
 }
@@ -883,7 +879,7 @@
 
 .ccDockTitle {
   font-family: var(--cc-mono);
-  font-size: 10px;
+  font-size: 14px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--cc-ink-2);
@@ -901,7 +897,7 @@
 
 .ccDockHint {
   font-family: var(--cc-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   color: var(--cc-ink-4);
   flex: none;
@@ -941,7 +937,7 @@
 
 .ccDockSectionHead {
   font-family: var(--cc-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--cc-ink-4);
@@ -1022,7 +1018,7 @@
 }
 
 .ccApprovalRefusal {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--cc-red);
   margin: 8px 0 0;
 }
@@ -1072,7 +1068,7 @@
 }
 
 .ccCalendarEntry {
-  font-size: 10px;
+  font-size: 14px;
   line-height: 1.35;
   color: var(--cc-ink-3);
   border-left: 2px solid var(--cc-line-bright);
@@ -1158,7 +1154,7 @@
 
 .ccFoot {
   font-family: var(--cc-mono);
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.7;
   letter-spacing: 0.06em;
   color: var(--cc-ink-4);
@@ -1198,6 +1194,15 @@
     margin-left: 0;
     border-top: 1px solid var(--cc-line);
     overflow-x: auto;
+  }
+  .commandFact {
+    flex: 0 0 auto;
+    min-width: 124px;
+    padding: 10px 14px;
+  }
+  .commandFactLabel {
+    font-size: 10px;
+    letter-spacing: .04em;
   }
   .commandSection,
   .commandHead,

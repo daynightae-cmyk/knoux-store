@@ -12,6 +12,7 @@ import { HostingRack } from '@/components/wordpress/HostingRack';
 import { WordPressLibraryGateway } from '@/components/wordpress/WordPressLibraryGateway';
 import { BuildAndOperate } from '@/components/wordpress/BuildAndOperate';
 import { EcosystemComposer } from '@/components/wordpress/EcosystemComposer';
+import { ProcessArchitecture } from '@/components/ProcessArchitecture';
 
 export const metadata = pageMetadata(
   'WordPress Ecosystem',
@@ -64,6 +65,7 @@ export default async function WordPressPage() {
           below it are part of the hero now, so the page opens once rather than
           twice and a screen reader meets a single top-level heading. */}
       <EcosystemHero />
+      <div className="shell"><ProcessArchitecture kind="wordpress" /></div>
       <SignalRail division="wordpress" path="/wordpress" />
 
       <section className="shell eco-section" id="system" aria-labelledby="system-heading">
