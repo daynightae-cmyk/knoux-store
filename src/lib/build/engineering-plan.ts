@@ -28,7 +28,16 @@ export function parseEngineeringPlan(text: string): EngineeringPlan {
   return Object.fromEntries(entries) as EngineeringPlan;
 }
 
-export type PlanStreamChunk = { delta?: string; done?: boolean; error?: { safeMessage?: string } | null; usage?: { inputTokens: number | null; outputTokens: number | null } | null; latencyMs?: number | null };
+export type PlanStreamChunk = { delta?: string; done?: boolean; error?: { safeMessage?: string; category?: string } | null; usage?: { inputTokens: number | null; outputTokens: number | null } | null; latencyMs?: number | null };
+
+export class PlanStreamError extends Error {
+  readonly category: string | null;
+  constructor(message: string, category: string | null) { super(message); this.category = category; }
+}
+
+export function canFallbackPlanError(cause: unknown) {
+  return !(cause instanceof PlanStreamError && ['AUTHENTICATION', 'INVALID_REQUEST', 'ABORTED', 'CONTEXT_OVERFLOW', 'UNSUPPORTED_CAPABILITY'].includes(cause.category ?? ''));
+}
 
 /** Handles arbitrary UTF-8 and SSE frame boundaries; terminal success is required. */
 export async function consumePlanStream(body: ReadableStream<Uint8Array>, onProgress: (characters: number) => void) {
@@ -39,7 +48,7 @@ export async function consumePlanStream(body: ReadableStream<Uint8Array>, onProg
     const payload = frame.split('\n').filter((line) => line.startsWith('data:')).map((line) => line.slice(5).trimStart()).join('\n');
     if (!payload) return;
     const chunk = JSON.parse(payload) as PlanStreamChunk;
-    if (chunk.error) throw new Error(chunk.error.safeMessage ?? 'Provider stream failed.');
+    if (chunk.error) throw new PlanStreamError(chunk.error.safeMessage ?? 'Provider stream failed.', chunk.error.category ?? null);
     if (chunk.delta) { output += chunk.delta; if (output.length > 120_000) throw new Error('Engineering plan exceeds the artifact limit.'); onProgress(output.length); }
     if (chunk.done) terminal = chunk;
   };

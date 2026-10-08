@@ -319,7 +319,7 @@ export function buildReducer(state: BuildWorkspaceState, action: BuildAction): B
     case 'providers/resolved':
       return { ...state, ai: { ...state.ai, providers: action.providers } };
     case 'routing/resolved':
-      return { ...state, ai: { ...state.ai, routing: action.routing, providerId: action.routing.providerId, modelId: action.routing.modelId } };
+      return { ...state, ai: { ...state.ai, routing: action.routing, ...(state.ai.routingMode === 'manual' ? {} : { providerId: action.routing.providerId, modelId: action.routing.modelId }) } };
     case 'verification/resolved':
       return { ...state, verification: action.snapshot };
     case 'diagnostics/resolved':

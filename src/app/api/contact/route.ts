@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import {
   checkDeclaredLength,
   checkRequestOrigin,
+  publicRequestOrigin,
   intakeRateLimit,
   readBoundedJson,
 } from "@/lib/contact/intake-guard";
@@ -86,23 +87,8 @@ function refuse(
  * have to agree with each other, and the `Sec-Fetch-Site` check is the
  * browser-forged-header signal that this defence actually rests on.
  */
-function publicOrigin(request: Request): string {
-  const headers = request.headers;
-  const host = headers.get("x-forwarded-host") ?? headers.get("host");
-  if (!host) return new URL(request.url).origin;
-
-  const forwardedProto = headers.get("x-forwarded-proto");
-  const proto =
-    forwardedProto ??
-    (host.startsWith("localhost") || host.startsWith("127.0.0.1")
-      ? "http"
-      : "https");
-
-  return `${proto}://${host}`;
-}
-
 export async function POST(request: Request) {
-  const ownOrigin = publicOrigin(request);
+  const ownOrigin = publicRequestOrigin(request);
 
   const origin = checkRequestOrigin(request.headers, ownOrigin);
   if (!origin.ok) {

@@ -40,6 +40,21 @@ test('plan context grants no execution or tool permission', () => {
   assert.match(value.permissions, /requires separate trusted executor approval/);
 });
 
+test('planning fallback refuses authentication and permission-related errors', () => {
+  for (const category of ['AUTHENTICATION', 'INVALID_REQUEST', 'ABORTED', 'CONTEXT_OVERFLOW', 'UNSUPPORTED_CAPABILITY']) {
+    assert.equal(plan.canFallbackPlanError(new plan.PlanStreamError('Refused', category)), false);
+  }
+  assert.equal(plan.canFallbackPlanError(new plan.PlanStreamError('Rate limited', 'RATE_LIMIT')), true);
+});
+
+test('a background routing result cannot overwrite the explicit manual selection', async () => {
+  const { buildReducer, initialBuildState } = await loadTypeScript('../src/lib/build/workspace-state.ts');
+  const selected = { ...initialBuildState, ai: { ...initialBuildState.ai, routingMode: 'manual', providerId: 'gemini', modelId: 'selected' } };
+  const updated = buildReducer(selected, { type: 'routing/resolved', routing: { providerId: null, modelId: null } });
+  assert.equal(updated.ai.providerId, 'gemini');
+  assert.equal(updated.ai.modelId, 'selected');
+});
+
 test('AUTO excludes a discovered provider with generation blocked or auth unverified', async () => {
   const registry = await loadTypeScript('../src/lib/ai/registry.ts');
   const router = await loadTypeScript('../src/lib/ai/router-v2.ts');
@@ -76,5 +91,11 @@ test('canonical fallback reports actual runtime and never repeats the final char
     assert.equal(result.actualProviderId, 'groq');
     assert.equal(result.actualModelId, 'mock-model');
     assert.equal(result.response.ok, false);
+    assert.equal(result.fallbackCount, 1);
+    const usage = await loadTypeScript('../src/lib/ai/usage.ts');
+    const calls = usage.getUsageRecords().filter((record) => ['requested', 'fallback'].includes(record.modelId));
+    assert.equal(calls.length, 2);
+    assert.equal(usage.getUsageSummary().byProvider.groq.cost, null);
+    assert.equal(usage.getUsageSummary().totalEstimatedCost, null);
   } finally { primary.generate = original[0]; secondary.generate = original[1]; }
 });

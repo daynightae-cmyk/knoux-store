@@ -4,13 +4,13 @@ import { getAdapter } from "@/lib/ai/registry";
 import { generateWithFallback } from "@/lib/ai/fallback";
 import { createNormalizedError } from "@/lib/ai/errors";
 import type { GenerationRequest } from "@/lib/ai/types";
-import { checkRequestOrigin } from '@/lib/contact/intake-guard';
+import { publicRequestOrigin, checkRequestOrigin } from '@/lib/contact/intake-guard';
 
 export const dynamic = "force-dynamic";
 
 /** POST /api/build/ai/generate — real text generation with optional fallback. */
 export async function POST(request: NextRequest) {
-  if (!checkRequestOrigin(request.headers, new URL(request.url).origin).ok) return NextResponse.json({ message: 'Cross-site generation request refused.' }, { status: 403 });
+  if (!checkRequestOrigin(request.headers, publicRequestOrigin(request)).ok) return NextResponse.json({ message: 'Cross-site generation request refused.' }, { status: 403 });
   const denied = await guardBuildApi(request, { scope: "ai-generate" });
   if (denied) return denied;
 

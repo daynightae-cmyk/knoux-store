@@ -3,13 +3,13 @@ import { guardBuildApi } from "@/lib/build/api-guard";
 import { getAdapter, updateHealth } from "@/lib/ai/registry";
 import { recordUsage } from "@/lib/ai/usage";
 import type { GenerationRequest, StreamChunk } from "@/lib/ai/types";
-import { checkRequestOrigin } from '@/lib/contact/intake-guard';
+import { publicRequestOrigin, checkRequestOrigin } from '@/lib/contact/intake-guard';
 
 export const dynamic = "force-dynamic";
 
 /** POST /api/build/ai/stream — real server-side streaming via SSE. */
 export async function POST(request: NextRequest) {
-  if (!checkRequestOrigin(request.headers, new URL(request.url).origin).ok) return new Response('Cross-site generation request refused.', { status: 403 });
+  if (!checkRequestOrigin(request.headers, publicRequestOrigin(request)).ok) return new Response('Cross-site generation request refused.', { status: 403 });
   const denied = await guardBuildApi(request, { scope: "ai-stream" });
   if (denied) return denied;
 

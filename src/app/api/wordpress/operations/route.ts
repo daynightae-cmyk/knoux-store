@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { guardBuildApi, resolveBuildOwnerId } from '@/lib/build/api-guard';
 import { isBuildOperator } from '@/lib/build/operator';
-import { checkRequestOrigin } from '@/lib/contact/intake-guard';
+import { publicRequestOrigin, checkRequestOrigin } from '@/lib/contact/intake-guard';
 import { wordpressExecutorConfig, runWordPressOperation } from '@/lib/wordpress/executor';
 
 export const dynamic = 'force-dynamic';
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!checkRequestOrigin(request.headers, new URL(request.url).origin).ok) return NextResponse.json({ state: 'BLOCKED', message: 'Cross-site operation refused.' }, { status: 403 });
+  if (!checkRequestOrigin(request.headers, publicRequestOrigin(request)).ok) return NextResponse.json({ state: 'BLOCKED', message: 'Cross-site operation refused.' }, { status: 403 });
   const guard = await authorized(request); if (guard.denied) return guard.denied;
   if (!guard.ownerId) return NextResponse.json({ state: 'AUTH_REQUIRED' }, { status: 403 });
   let body: unknown; try { body = await request.json(); } catch { return NextResponse.json({ state: 'BLOCKED', message: 'Expected a structured operation.' }, { status: 400 }); }

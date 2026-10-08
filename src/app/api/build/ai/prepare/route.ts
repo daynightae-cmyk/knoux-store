@@ -2,14 +2,14 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { guardBuildApi } from '@/lib/build/api-guard';
 import { getAdapters, allProviderHealth, discoverProviderModels, updateHealth, getDiscoveryCache } from '@/lib/ai/registry';
 import { buildRouterInput, routeV2 } from '@/lib/ai/router-v2';
-import { checkRequestOrigin } from '@/lib/contact/intake-guard';
+import { publicRequestOrigin, checkRequestOrigin } from '@/lib/contact/intake-guard';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 /** Resolves the canonical runtime, without generation charges or project mutations. */
 export async function POST(request: NextRequest) {
-  if (!checkRequestOrigin(request.headers, new URL(request.url).origin).ok) return NextResponse.json({ message: 'Cross-site planning request refused.' }, { status: 403 });
+  if (!checkRequestOrigin(request.headers, publicRequestOrigin(request)).ok) return NextResponse.json({ message: 'Cross-site planning request refused.' }, { status: 403 });
   const denied = await guardBuildApi(request, { scope: 'ai-prepare' });
   if (denied) return denied;
   let body: { prompt?: unknown; mode?: unknown; manualSelection?: { providerId?: unknown; modelId?: unknown } };

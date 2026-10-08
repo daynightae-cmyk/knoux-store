@@ -1,12 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { checkRequestOrigin } from '@/lib/contact/intake-guard';
+import { publicRequestOrigin, checkRequestOrigin } from '@/lib/contact/intake-guard';
 import { guardGrowth } from '@/lib/growth/auth/session';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { PLATFORM_IDS, type PlatformId } from '@/lib/growth/types';
 
 export const dynamic = 'force-dynamic';
 export async function DELETE(request: NextRequest, context: { params: Promise<{ platform: string }> }) {
-  if (!checkRequestOrigin(request.headers, new URL(request.url).origin).ok) return NextResponse.json({ reason: 'Cross-site request refused.' }, { status: 403 });
+  if (!checkRequestOrigin(request.headers, publicRequestOrigin(request)).ok) return NextResponse.json({ reason: 'Cross-site request refused.' }, { status: 403 });
   const { platform } = await context.params;
   const clientId = request.nextUrl.searchParams.get('clientId') ?? '';
   if (!clientId || !PLATFORM_IDS.includes(platform as PlatformId)) return NextResponse.json({ reason: 'Choose a client and platform.' }, { status: 400 });
