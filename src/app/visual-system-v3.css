@@ -74,7 +74,7 @@ button:disabled{cursor:not-allowed}
 .architecture-map__zone:hover,.architecture-map__zone:focus-visible,.architecture-map__zone.is-active{box-shadow:none;background:transparent;transform:translate(-50%,-50%)}
 .architecture-map__zone strong{font-size:clamp(20px,2vw,28px)}
 .architecture-map__index,.architecture-map__enter{font-size:10px}
-.architecture-map__detail{max-height:100px;opacity:1;font-size:13px;line-height:1.65}
+.architecture-map__detail{max-height:none;opacity:1;font-size:13px;line-height:1.65}
 .architecture-map__core{border:0;border-radius:50%;width:150px;height:150px;background:radial-gradient(circle at 35% 25%,#b6a2d033,#0e0c12 65%);box-shadow:0 30px 60px #0007}
 .dossier-card{background:transparent;border:0;padding:0 0 28px}
 .dossier-card__label{font-size:11px;color:var(--text-dim)}
@@ -83,3 +83,4 @@ button:disabled{cursor:not-allowed}
 .chamber-page .auth-panel{background:transparent}
 @media(max-width:760px){.architecture-map__zone,.architecture-map__zone:hover,.architecture-map__zone:focus-visible,.architecture-map__zone.is-active{transform:none;padding:22px 0}.architecture-map__detail{font-size:14px}.architecture-map__core{width:124px;height:124px}}
 @media(max-width:760px){.architecture-map__zone,.architecture-map__zone:hover,.architecture-map__zone:focus-visible,.architecture-map__zone.is-active{padding:24px 24px 24px 28px}.architecture-map__detail{display:block;max-height:none;overflow:visible}.architecture-map__zone::before{left:0;top:28px;transform:none}.architecture-map__zone:not(:last-of-type)::after{left:3px;top:36px;height:calc(100% - 8px)}.architecture-map__enter{opacity:1;right:0;top:26px;font-size:0}.architecture-map__enter::after{content:"↗";font-size:18px}}
+.architecture-map__zone:hover .architecture-map__detail,.architecture-map__zone:focus-visible .architecture-map__detail{max-height:none}
