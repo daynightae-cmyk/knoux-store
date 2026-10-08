@@ -253,7 +253,7 @@ export class AnthropicAdapter extends OpenAICompatibleAdapter {
       latencyMs,
       ttftMs: latencyMs,
       providerRequestId: data.id ?? null,
-      modelUsed: data.model ?? request.modelId,
+      modelUsed: data.model ?? null,
       warnings: [],
       error: null,
       estimatedCost: cost,
@@ -288,6 +288,7 @@ export class AnthropicAdapter extends OpenAICompatibleAdapter {
     // treats a `let` assigned only inside a loop body as its initial value,
     // which collapses the merge target to `never`.
     let usage: TokenUsage | null = null;
+    let modelUsed: string | null = null;
     let usageInputTokens: number | null = null;
     let usageCachedTokens: number | null = null;
 
@@ -301,6 +302,7 @@ export class AnthropicAdapter extends OpenAICompatibleAdapter {
         }
         try {
           const event = JSON.parse(data);
+          if (typeof event.message?.model === 'string') modelUsed = event.message.model;
           if (event.type === "content_block_delta" && event.delta?.text) {
             if (firstTokenTime === null) firstTokenTime = Date.now() - start;
             yield {
@@ -343,7 +345,7 @@ export class AnthropicAdapter extends OpenAICompatibleAdapter {
         }
       }
 
-      yield this.streamComplete(start, firstTokenTime, finishReason, usage);
+      yield { ...this.streamComplete(start, firstTokenTime, finishReason, usage), modelUsed };
     } catch (cause) {
       yield this.streamError(
         cause instanceof DOMException && cause.name === "AbortError"

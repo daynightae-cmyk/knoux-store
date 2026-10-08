@@ -5,6 +5,7 @@ import { generateWithFallback } from "@/lib/ai/fallback";
 import { createNormalizedError } from "@/lib/ai/errors";
 import type { GenerationRequest } from "@/lib/ai/types";
 import { publicRequestOrigin, checkRequestOrigin } from '@/lib/contact/intake-guard';
+import { isGenerationProfile } from '@/lib/build/profile';
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,7 @@ export async function POST(request: NextRequest) {
   }
 
   const adapter = getAdapter(body.providerId);
+  if (body.generationProfile !== undefined && !isGenerationProfile(body.generationProfile)) return NextResponse.json({ message: 'Choose a valid generation profile.' }, { status: 400 });
   if (!adapter)
     return NextResponse.json(
       { message: `Unknown provider: ${body.providerId}` },
@@ -81,6 +83,8 @@ export async function POST(request: NextRequest) {
   return NextResponse.json(
     {
       ...result.response,
+      controlsUsed: result.controlsUsed,
+      routedModelId: result.routedModelId,
       actualProviderId: result.actualProviderId,
       actualModelId: result.actualModelId,
       fallbackUsed: result.fallbackUsed,

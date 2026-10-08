@@ -516,6 +516,7 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
     let firstTokenTime: number | null = null;
     let finishReason: string | null = null;
     let usage: TokenUsage | null = null;
+    let modelUsed: string | null = null;
 
     try {
       for await (const data of this.readStreamData(
@@ -529,6 +530,7 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
         }
         try {
           const chunk = JSON.parse(data);
+          if (typeof chunk.modelVersion === 'string') modelUsed = chunk.modelVersion;
           const text =
             chunk.candidates?.[0]?.content?.parts
               ?.map((p: { text?: string }) => p.text)
@@ -561,7 +563,7 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
         }
       }
 
-      yield this.streamComplete(start, firstTokenTime, finishReason, usage);
+      yield { ...this.streamComplete(start, firstTokenTime, finishReason, usage), modelUsed };
     } catch (cause) {
       yield this.streamError(
         cause instanceof DOMException && cause.name === "AbortError"
@@ -619,6 +621,7 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
     request: GenerationRequest,
   ): GenerationResponse {
     const data = json as {
+      modelVersion?: string;
       candidates?: Array<{
         content?: { parts?: Array<{ text?: string }> };
         finishReason?: string;
@@ -647,7 +650,7 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
       latencyMs,
       ttftMs: latencyMs,
       providerRequestId: null,
-      modelUsed: request.modelId,
+      modelUsed: data.modelVersion ?? null,
       warnings: [],
       error: null,
       estimatedCost: cost,

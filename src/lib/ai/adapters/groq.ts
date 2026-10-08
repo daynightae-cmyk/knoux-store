@@ -30,6 +30,16 @@ export class GroqAdapter extends OpenAICompatibleAdapter {
       const model = this.normalizeModel(entry.id);
       model.contextWindow = entry.context_window ?? null;
       model.maxOutputTokens = entry.max_completion_tokens ?? null;
+      // Provider-documented speech endpoints cannot impersonate chat candidates.
+      // https://console.groq.com/docs/models and /docs/text-to-speech/orpheus
+      const transcription = ['whisper-large-v3', 'whisper-large-v3-turbo'].includes(entry.id);
+      const speech = ['canopylabs/orpheus-v1-english', 'canopylabs/orpheus-arabic-saudi'].includes(entry.id);
+      if (transcription || speech) {
+        model.modalities = { text: false, imageInput: false, audioInput: transcription, audioOutput: speech };
+        model.capabilities = { streaming: 'UNSUPPORTED', tools: 'UNSUPPORTED', reasoning: 'UNSUPPORTED', vision: 'UNSUPPORTED', structuredOutput: 'UNSUPPORTED' };
+        model.lifecycle = 'active';
+        return model;
+      }
       model.capabilities.tools = 'SUPPORTED';
       model.capabilities.structuredOutput = 'SUPPORTED';
       model.lifecycle = 'active';

@@ -1,6 +1,8 @@
 import "server-only";
 import type { GenerationResponse } from './types';
-import { getAdapter, updateHealth } from "./registry";
+import { getAdapter, getDiscoveryCache, updateHealth } from "./registry";
+import { profileToControls } from '../build/profile';
+import { estimateTokens } from './contract';
 import { recordUsage } from "./usage";
 import type { GenerationRequest } from "./types";
 
@@ -18,6 +20,8 @@ import type { GenerationRequest } from "./types";
  */
 
 export type FallbackResult = {
+  routedModelId: string | null;
+  controlsUsed: GenerationRequest['controls'] | null;
   actualProviderId: string | null;
   actualModelId: string | null;
   response: GenerationResponse;
@@ -51,7 +55,9 @@ export async function generateWithFallback(
   let lastResponse: GenerationResponse | null = null;
   let actualProviderId: string | null = null;
   let actualModelId: string | null = null;
+  let routedModelId: string | null = null;
   let attempts = 0;
+  let controlsUsed: GenerationRequest['controls'] | null = null;
 
   for (let i = 0; i < chain.length; i++) {
     const { providerId, modelId } = chain[i];
@@ -64,12 +70,15 @@ export async function generateWithFallback(
       ...request,
       providerId,
       modelId,
+      ...(request.generationProfile ? { controls: profileToControls(request.generationProfile, getDiscoveryCache(providerId)?.models.find((model) => model.modelId === modelId), estimateTokens((request.system ?? '') + request.messages.map((message) => message.content).join('\n'))).controls } : {}),
     };
+    controlsUsed = actualRequest.controls ?? null;
     fallbackCount = attempts++;
     const response = await adapter.generate(actualRequest, env);
     lastResponse = response;
     actualProviderId = providerId;
-    actualModelId = response.modelUsed ?? modelId;
+    routedModelId = modelId;
+    actualModelId = response.modelUsed ?? null;
 
     // Record usage
     recordUsage({
@@ -97,7 +106,7 @@ export async function generateWithFallback(
       });
 
       return {
-        actualProviderId, actualModelId,
+        actualProviderId, actualModelId, routedModelId, controlsUsed,
         response,
         fallbackUsed: i > 0,
         fallbackFrom,
@@ -117,7 +126,7 @@ export async function generateWithFallback(
 
       // For RATE_LIMITED, mark as rate-limited but still try fallback
       return {
-        actualProviderId, actualModelId,
+        actualProviderId, actualModelId, routedModelId, controlsUsed,
         response,
         fallbackUsed: i > 0,
         fallbackFrom,
@@ -145,7 +154,7 @@ export async function generateWithFallback(
 
   // Return the last measured failure; never repeat a charged request to build an error result.
   return {
-    actualProviderId, actualModelId,
+    actualProviderId, actualModelId, routedModelId, controlsUsed,
     response: lastResponse ?? {
       ok: false,
       text: "",
