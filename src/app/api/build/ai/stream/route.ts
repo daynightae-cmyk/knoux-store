@@ -3,11 +3,13 @@ import { guardBuildApi } from "@/lib/build/api-guard";
 import { getAdapter, updateHealth } from "@/lib/ai/registry";
 import { recordUsage } from "@/lib/ai/usage";
 import type { GenerationRequest, StreamChunk } from "@/lib/ai/types";
+import { checkRequestOrigin } from '@/lib/contact/intake-guard';
 
 export const dynamic = "force-dynamic";
 
 /** POST /api/build/ai/stream — real server-side streaming via SSE. */
 export async function POST(request: NextRequest) {
+  if (!checkRequestOrigin(request.headers, new URL(request.url).origin).ok) return new Response('Cross-site generation request refused.', { status: 403 });
   const denied = await guardBuildApi(request, { scope: "ai-stream" });
   if (denied) return denied;
 
@@ -44,6 +46,7 @@ export async function POST(request: NextRequest) {
     async start(controller) {
       const start = Date.now();
       let lastChunk: StreamChunk | null = null;
+      let characters = 0;
 
       try {
         for await (const chunk of adapter.stream(
@@ -52,6 +55,7 @@ export async function POST(request: NextRequest) {
           abortController.signal,
         )) {
           lastChunk = chunk;
+          characters += chunk.delta.length;
           const data = JSON.stringify(chunk);
           controller.enqueue(encoder.encode(`data: ${data}\n\n`));
           if (chunk.done) break;
@@ -77,19 +81,22 @@ export async function POST(request: NextRequest) {
               source: "unknown",
             },
           ),
-          success: !lastChunk?.error,
+          success: lastChunk?.done === true && !lastChunk.error && characters > 0 && !abortController.signal.aborted,
           errorCategory: lastChunk?.error?.category ?? null,
           fallbackCount: 0,
         });
 
-        if (!lastChunk?.error) {
+        if (lastChunk?.done && !lastChunk.error && characters > 0 && !abortController.signal.aborted) {
           updateHealth(body.providerId, {
+            generation: 'GENERATION_VERIFIED',
             streaming: "STREAMING_VERIFIED",
             lastError: null,
             latencyMs: lastChunk?.latencyMs ?? null,
           });
+        } else {
+          updateHealth(body.providerId, { streaming: 'FAILED', generation: lastChunk?.error?.httpStatus === 402 ? 'BLOCKED' : lastChunk?.error?.category === 'RATE_LIMIT' ? 'RATE_LIMITED' : 'FAILED', lastError: lastChunk?.error ?? null });
         }
-      } catch (cause) {
+      } catch {
         const errorChunk: StreamChunk = {
           delta: "",
           done: true,
@@ -97,7 +104,7 @@ export async function POST(request: NextRequest) {
           usage: null,
           error: {
             category: "NETWORK",
-            message: cause instanceof Error ? cause.message : "Stream error",
+            message: "Stream interrupted.",
             safeMessage: "Stream interrupted.",
             httpStatus: null,
             providerErrorId: null,
@@ -109,6 +116,7 @@ export async function POST(request: NextRequest) {
         controller.enqueue(
           encoder.encode(`data: ${JSON.stringify(errorChunk)}\n\n`),
         );
+        updateHealth(body.providerId, { streaming: 'FAILED', lastError: errorChunk.error });
       } finally {
         controller.close();
       }

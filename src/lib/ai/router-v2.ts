@@ -46,6 +46,10 @@ type ScoreFactors = {
   total: number;
 };
 
+function runtimeEligible(health: ProviderHealth | null): boolean {
+  return !!health?.configured && health.auth === 'AUTHENTICATED' && health.discovery === 'DISCOVERY_VERIFIED' && !['BLOCKED', 'FAILED', 'RATE_LIMITED', 'DEGRADED'].includes(health.generation);
+}
+
 function scoreModel(
   model: NormalizedModel,
   health: ProviderHealth | null,
@@ -65,6 +69,10 @@ function scoreModel(
     rateLimitPenalty: 0,
     total: 0,
   };
+
+  if (model.modalities?.text === false || model.lifecycle === 'deprecated') {
+    return { accepted: false, rejectionReason: 'This model is not an active text-generation candidate.', factors };
+  }
 
   // --- Capability requirements ---
   if (input.visionRequired) {
@@ -254,6 +262,10 @@ export function routeV2(
     const model = discovered.find((m) => m.modelId === modelId);
     const displayName = model?.displayName ?? modelId;
 
+    if (['BLOCKED', 'FAILED', 'RATE_LIMITED', 'DEGRADED'].includes(health.generation) || (input.taskClass === 'engineering-plan' && (!runtimeEligible(health) || !model))) {
+      return { taskClass: input.taskClass, mode: 'manual', selected: null, candidates: [], fallbackChain: [], estimatedCost: null, health: {}, contextFit: 'unknown', reasons: ['Manual selection is not runtime eligible. Selection was not overridden.'], status: 'unavailable', blocker: 'Authenticate and discover the selected model; resolve any provider generation blocker.' };
+    }
+
     // Check capability requirements
     if (input.visionRequired && model?.capabilities.vision === "UNSUPPORTED") {
       return {
@@ -317,7 +329,7 @@ export function routeV2(
 
   for (const { providerId, models } of allModels) {
     const health = healthMap.get(providerId) ?? null;
-    if (health && !health.configured) continue;
+    if (!runtimeEligible(health)) continue;
 
     for (const model of models) {
       const { accepted, rejectionReason, factors } = scoreModel(
@@ -376,7 +388,14 @@ export function routeV2(
   else reasons.push(`Weak match: selected as the only available option.`);
 
   // Build fallback chain (next 2 accepted candidates)
-  const fallback = accepted.slice(1, 3).map((c) => ({
+  // Diversify fallbacks across providers; three models on one blocked account
+  // cannot recover a billing or provider-wide quota failure.
+  const seenProviders = new Set([selected.providerId]);
+  const fallback = accepted.filter((candidate) => {
+    if (seenProviders.has(candidate.providerId)) return false;
+    seenProviders.add(candidate.providerId);
+    return true;
+  }).slice(0, 2).map((c) => ({
     providerId: c.providerId,
     modelId: c.modelId,
     displayName: c.displayName,
