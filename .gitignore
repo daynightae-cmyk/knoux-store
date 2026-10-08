@@ -15,6 +15,7 @@ npm-debug.log*
 .qa-*/
 qa-*.png
 *.png
+!public/creative/material-study-v2.png
 
 # Accidental nested checkout of this same repository. It carries its own .git,
 # its own node_modules and its own .next, none of which belong in this tree.

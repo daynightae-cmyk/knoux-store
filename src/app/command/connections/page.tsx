@@ -32,7 +32,7 @@ import {
   Section,
 } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-import { CONNECTION_CATALOGUE, connectionsFor } from '@/data/growth/connections';
+import { CONNECTION_CATALOGUE } from '@/data/growth/connections';
 import type { SafeCapabilityView } from '@/lib/growth/connectors/boundary';
 import { CALL_FAILURE_MEANING } from '@/lib/growth/states';
 import styles from '@/components/command/command.module.css';
@@ -42,9 +42,54 @@ export default function ConnectionsPage() {
 }
 
 function Connections() {
-  const { activeClient } = useWorkspace();
+  const { records, activeClient, isDemoWorkspace } = useWorkspace();
   const area = areaBySlug('connections')!;
-  const connections = connectionsFor(activeClient.id);
+  const connections = records.connections;
+  const [oauthMessage, setOAuthMessage] = useState<string | null>(null);
+  const [oauthBusy, setOAuthBusy] = useState(false);
+
+  async function authorise(platform: string) {
+    const choices: Record<string, { provider: string; capability: string }> = {
+      facebook: { provider: 'meta', capability: 'META_PAGES' },
+      instagram: { provider: 'meta', capability: 'META_INSTAGRAM' },
+      meta_ads: { provider: 'meta', capability: 'META_ADS_READ' },
+      whatsapp: { provider: 'meta', capability: 'META_WHATSAPP' },
+      google_ads: { provider: 'google', capability: 'GOOGLE_ADS' },
+      google_business: { provider: 'google', capability: 'GOOGLE_BUSINESS' },
+      ga4: { provider: 'google', capability: 'GOOGLE_ANALYTICS' },
+      search_console: { provider: 'google', capability: 'GOOGLE_SEARCH_CONSOLE' },
+      youtube: { provider: 'google', capability: 'GOOGLE_YOUTUBE' },
+    };
+    const choice = choices[platform];
+    if (!choice) return;
+    setOAuthBusy(true);
+    setOAuthMessage(null);
+    try {
+      const response = await fetch(`/api/growth/oauth/${choice.provider}/start`, {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ clientId: activeClient.id, capability: choice.capability }),
+      });
+      const result = await response.json() as { url?: string; reason?: string };
+      if (!response.ok || !result.url) throw new Error(result.reason ?? 'Authorization could not be started.');
+      window.location.assign(result.url);
+    } catch (error) {
+      setOAuthMessage(error instanceof Error ? error.message : 'Authorization could not be started.');
+      setOAuthBusy(false);
+    }
+  }
+
+  async function removeConnection(platform: string) {
+    setOAuthBusy(true);
+    setOAuthMessage(null);
+    try {
+      const response = await fetch(`/api/growth/connections/${encodeURIComponent(platform)}?clientId=${encodeURIComponent(activeClient.id)}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('Connection removal was refused. Your stored connection was not reported as removed.');
+      window.location.reload();
+    } catch (error) {
+      setOAuthMessage(error instanceof Error ? error.message : 'Connection removal failed.');
+      setOAuthBusy(false);
+    }
+  }
 
   const [capabilities, setCapabilities] = useState<{
     capabilities: SafeCapabilityView[];
@@ -54,8 +99,11 @@ function Connections() {
 
   useEffect(() => {
     let cancelled = false;
-    void fetch('/api/growth/capabilities', { cache: 'no-store' })
-      .then((res) => res.json())
+    void fetch(`/api/growth/capabilities?clientId=${encodeURIComponent(activeClient.id)}`, { cache: 'no-store' })
+      .then((res) => {
+        if (!res.ok) throw new Error('Capability access refused.');
+        return res.json();
+      })
       .then((payload) => {
         if (!cancelled) setCapabilities(payload);
       })
@@ -65,7 +113,7 @@ function Connections() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [activeClient.id]);
 
   const byFamily = groupByFamily(capabilities?.capabilities ?? []);
 
@@ -83,8 +131,8 @@ function Connections() {
     >
       <div style={{ padding: '16px 24px 0' }}>
         <DemoNotice>
-          No provider credential exists in this deployment. Every card below is in an honest
-          pre-connection state, and the OAuth implementation is ready behind it.
+          This is an explicitly selected DEMO/FIXTURE workspace. Connection cards are
+          demonstrations; live authorization requires an authenticated stored workspace.
         </DemoNotice>
       </div>
 
@@ -92,6 +140,7 @@ function Connections() {
         title="Platform connections"
         note="State is derived from stored credentials, never from a wish."
       >
+        {oauthMessage ? <p role="status">{oauthMessage}</p> : null}
         <div className={styles.commandGrid3 ?? ''}>
           {CONNECTION_CATALOGUE.map((entry) => {
             const record = connections.find((connection) => connection.platform === entry.platform);
@@ -153,20 +202,24 @@ function Connections() {
                     </button>
                   ) : (
                     <>
-                      <button type="button" className={`${styles.ccButton ?? ''} ${styles.ccButtonSm ?? ''}`}>
+                      <button type="button" className={`${styles.ccButton ?? ''} ${styles.ccButtonSm ?? ''}`} onClick={() => setOAuthMessage('Configure the provider app and registered callback URL on the server. Credentials are never entered into this screen.')}>
                         Configure
                       </button>
                       <button
                         type="button"
                         className={`${styles.ccButton ?? ''} ${styles.ccButtonSm ?? ''}`}
-                        disabled
-                        title="Requires a server-side client id and secret before OAuth can begin."
+                        disabled={isDemoWorkspace || oauthBusy}
+                        onClick={() => void authorise(entry.platform)}
+                        title={isDemoWorkspace ? 'Authorisation requires an authenticated stored workspace.' : 'Start owner-authorized OAuth; missing server configuration is reported explicitly.'}
                       >
                         Authorise
                       </button>
                       {record ? (
                         <button
                           type="button"
+                          disabled={isDemoWorkspace || oauthBusy}
+                          onClick={() => void removeConnection(entry.platform)}
+                          title="Remove this workspace's stored connection and credential references. Provider account permissions remain under the provider's controls."
                           className={`${styles.ccButton ?? ''} ${styles.ccButtonSm ?? ''} ${styles.ccButtonDanger ?? ''}`}
                         >
                           Remove

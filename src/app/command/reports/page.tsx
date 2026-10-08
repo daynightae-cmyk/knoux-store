@@ -16,15 +16,8 @@ import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
 import { CodeBadge, DemoNotice, EmptyState, OriginLabel, Section } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-import {
-  campaignsFor,
-  contentFor,
-  creativesFor,
-  leadsFor,
-  locationsFor,
-  performanceRowsFor,
-} from '@/data/growth/workspace';
-import { distributionListsFor } from '@/data/growth/communities';
+
+
 import { formatBudget, daysInclusive } from '@/lib/growth/campaigns';
 import { LEAD_STATUSES } from '@/lib/growth/types';
 import styles from '@/components/command/command.module.css';
@@ -34,16 +27,16 @@ export default function ReportsPage() {
 }
 
 function Reports() {
-  const { activeClient } = useWorkspace();
+  const { records, activeClient } = useWorkspace();
   const area = areaBySlug('reports')!;
 
-  const campaigns = campaignsFor(activeClient.id);
-  const rows = performanceRowsFor(activeClient.id);
-  const leads = leadsFor(activeClient.id);
-  const content = contentFor(activeClient.id);
-  const creatives = creativesFor(activeClient.id);
-  const locations = locationsFor(activeClient.id);
-  const lists = distributionListsFor(activeClient.id);
+  const campaigns = records.campaigns;
+  const rows = records.performanceRows;
+  const leads = records.leads;
+  const content = records.content;
+  const creatives = records.creatives;
+  const locations = records.locations;
+  const lists = records.distributionLists;
   const currency = activeClient.country === 'EG' ? 'EGP' : 'AED';
 
   const committed = campaigns
@@ -63,7 +56,7 @@ function Reports() {
         contextLine: `${activeClient.name} · ${activeClient.city} · reporting period not set`,
       }}
       facts={[
-        { label: 'Committed', value: formatBudget(committed, currency) },
+        { label: 'Committed', value: campaigns.length ? formatBudget(committed, currency) : 'No accessible campaign budgets' },
         { label: 'Locations', value: String(locations.length) },
       ]}
     >

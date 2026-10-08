@@ -17,7 +17,7 @@ import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
 import { CodeBadge, DemoNotice, EmptyState, OriginLabel, Section } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-import { contentFor } from '@/data/growth/workspace';
+
 import { PLATFORM_IDS, type ContentItem, type ContentStatus, type PlatformId } from '@/lib/growth/types';
 import styles from '@/components/command/command.module.css';
 
@@ -36,9 +36,9 @@ export default function SocialPage() {
 }
 
 function Social() {
-  const { activeClient, clients, setActiveClientId } = useWorkspace();
+  const { records, activeClient, clients, setActiveClientId } = useWorkspace();
   const area = areaBySlug('social')!;
-  const items = contentFor(activeClient.id);
+  const items = records.content;
 
   const [clientFilter, setClientFilter] = useState<string>(activeClient.id);
   const [platform, setPlatform] = useState<string>('all');

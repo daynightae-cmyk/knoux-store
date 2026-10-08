@@ -18,7 +18,7 @@ import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
 import { CodeBadge, DemoNotice, EmptyState, OriginLabel, Section } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-import { leadsFor } from '@/data/growth/workspace';
+
 import { LEAD_STATUSES, type LeadStatus } from '@/lib/growth/types';
 import styles from '@/components/command/command.module.css';
 
@@ -36,9 +36,9 @@ const STATUS_TONE: Record<LeadStatus, 'live' | 'info' | 'warn' | 'bad' | 'neutra
 };
 
 function Leads() {
-  const { activeClient } = useWorkspace();
+  const { records, activeClient } = useWorkspace();
   const area = areaBySlug('leads')!;
-  const leads = leadsFor(activeClient.id);
+  const leads = records.leads;
   const currency = activeClient.country === 'EG' ? 'EGP' : 'AED';
 
   const [status, setStatus] = useState<string>('all');

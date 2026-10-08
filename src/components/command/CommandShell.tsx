@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { COMMAND_GROUPS, areaHref, type CommandArea } from './navigation';
 import { CommandDock, type DockSurface } from './CommandDock';
 import { useWorkspace } from './workspace-context';
-import { connectionsFor } from '@/data/growth/connections';
+
 import { CapabilityBadge, ConnectionBadge } from './primitives';
 import styles from './command.module.css';
 
@@ -30,8 +30,8 @@ export type CommandShellProps = {
 };
 
 export function CommandShell({ area, children, dock, facts = [] }: CommandShellProps) {
-  const { clients, activeClient, setActiveClientId, isDemoWorkspace, demoReason } = useWorkspace();
-  const connections = connectionsFor(activeClient.id);
+  const { records, clients, activeClient, setActiveClientId, isDemoWorkspace, demoReason } = useWorkspace();
+  const connections = records.connections;
   const blocked = connections.filter((connection) => connection.state === 'BLOCKED').length;
   const needsWork = connections.filter(
     (connection) => connection.state === 'EXPIRED' || connection.state === 'PERMISSION_REQUIRED',
@@ -98,7 +98,7 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
                 lineHeight: 1.6,
               }}
             >
-              {demoReason ?? 'Live platform credential present.'}
+              {demoReason ?? 'Authenticated stored workspace. Connection health is shown separately.'}
             </p>
           </div>
 

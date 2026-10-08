@@ -1,0 +1,51 @@
+.dev-engineering-plan{margin:24px 0 48px;padding:clamp(20px,3vw,40px);border:1px solid #c7c0dd26;border-radius:16px;background:#101119ed;position:relative;z-index:2;overflow-wrap:anywhere}
+.dev-engineering-plan>header{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.dev-engineering-plan h2{font-size:clamp(28px,3vw,44px);font-weight:400;letter-spacing:-.04em;margin:12px 0 24px}
+.dev-engineering-plan button{background:#cec5e1;color:#15131a;border:0;padding:12px 20px;border-radius:6px;font-size:14px}
+.dev-plan-context{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin:0 0 32px;padding-bottom:24px;border-bottom:1px solid #ffffff15}
+.dev-plan-context dt{font-size:12px;color:#b8aecb;margin-bottom:8px}
+.dev-plan-context dd{font-size:14px;line-height:1.6;margin:0;color:#ece8f1}
+.dev-plan-sections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 36px}
+.dev-plan-sections article{padding:16px 0;border-top:1px solid #ffffff12}
+.dev-plan-sections ul{padding-left:18px;margin:14px 0 0;color:#ded9e6;font-size:15px;line-height:1.75}
+.dev-plan-sections li+li{margin-top:8px}
+.dev-plan-review{margin-top:32px;padding:24px;background:#c0acd90c;border:1px solid #c0acd933;border-radius:10px;font-size:15px;line-height:1.7}
+.dev-plan-review a{display:inline-block;margin:18px;color:#d3c2f1;text-decoration:underline}
+.dev-plan-error{padding:18px 24px;border:1px solid #c3acc54d;border-radius:10px;background:#281b2980;font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+.dev-plan-error a{color:#ddccef;text-decoration:underline}
+.dev-engineering-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 24px}
+.dev-home-context{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;padding:20px 0;margin:0;border-top:1px solid #ffffff12;border-bottom:1px solid #ffffff12;position:relative;z-index:2}
+.dev-home-context dt{font:10px var(--font-mono,monospace);color:#b4a4ca;margin-bottom:7px}
+.dev-home-context dd{font-size:12px;line-height:1.6;overflow-wrap:anywhere;margin:0;color:#e4ddec}
+@media(max-width:768px){.dev-home-context{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.dev-home-context dd{font-size:11px}}
+.dev-engineering-tabs a{padding:10px 14px;border:1px solid #c8bfd329;border-radius:6px;font-size:13px;text-transform:capitalize}
+.dev-engineering-tabs a[aria-current=page]{background:#b9a0df22;color:#f1e7ff;border-color:#b9a0df66}
+.dev-engineering-console .dev-panel{margin:24px 0;background:#0f1017dc}
+.dev-engineering-console .dev-panel__body{padding:clamp(18px,2.5vw,32px)}
+.dev-engineering-console .dev-kv{font-size:14px;line-height:1.7;overflow-wrap:anywhere}
+.dev-engineering-console .dev-list small,.dev-engineering-console .dev-note{font-size:12px;line-height:1.6}
+.dev-worktree-list,.dev-agent-profiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.dev-worktree-list article,.dev-agent-profiles article{padding:24px;border:1px solid #ffffff19;border-radius:10px;overflow-wrap:anywhere;min-width:0}
+.dev-worktree-list h2,.dev-agent-profiles h2{font-size:23px;font-weight:400;letter-spacing:-.03em}
+.dev-worktree-list p,.dev-agent-profiles p{font-size:14px;line-height:1.65;color:#bbb4ca}
+@media(max-width:1024px){.dev-worktree-list,.dev-agent-profiles{grid-template-columns:1fr}}
+.dev-cinematic .dev-nav-link{font-size:13px;min-height:40px}
+.dev-cinematic .dev-mini-label,.dev-cinematic .dev-compiler-note{font-size:11px;line-height:1.6}
+.dev-cinematic .dev-hud{font-size:11px;max-width:240px}
+.dev-cinematic .dev-sidebar__facts,.dev-cinematic .dev-sidebar__facts dd{font-size:11px}
+.dev-cinematic .dev-status-rail,.dev-cinematic .dev-utility-actions button{font-size:10px}
+.dev-cinematic .dev-floating-compose textarea{font-size:16px;min-height:100px}
+.dev-cinematic .dev-quick-intents button,.dev-cinematic .dev-stage-views button,.dev-cinematic .dev-compose-modes :is(span,button,a){font-size:11px}
+.dev-cinematic .dev-intent-reading,.dev-cinematic .dev-access-note{font-size:13px}
+.dev-composer-routing{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:16px;text-align:left}
+.dev-composer-routing label{display:grid;gap:6px;color:#c9c0d5;font-size:11px;flex:1;min-width:140px}
+.dev-composer-routing select,.dev-composer-routing button{padding:10px;border:1px solid #ffffff25;background:#11131c;color:#e9e3f0;border-radius:6px;font-size:12px;max-width:100%}
+@media(max-width:768px){.dev-plan-context,.dev-plan-sections{grid-template-columns:1fr}.dev-plan-review{padding:16px}.dev-engineering-plan{margin-top:16px}.dev-cinematic .dev-hud{position:static;text-align:left;display:none}.dev-cinematic .dev-universe{min-height:540px}.dev-cinematic .dev-status-rail{padding:12px}}
+.dev-engineering-plan{border:0;border-radius:0;background:linear-gradient(120deg,#15121edc,#0b0d14b8);padding-inline:clamp(18px,3vw,40px)}
+.dev-plan-sections article{border:0}
+.dev-plan-review{border:0;border-left:2px solid #c0acd966;border-radius:0;background:transparent}
+.dev-worktree-list,.dev-agent-profiles{display:flex;flex-direction:column;gap:36px}
+.dev-worktree-list article,.dev-agent-profiles article{border:0;border-top:1px solid #ffffff14;border-radius:0;padding:24px 0 0}
+.dev-engineering-console .dev-panel{border:0;background:transparent}
+.dev-engineering-tabs a{border:0;border-radius:0;background:transparent;padding-inline:8px}
+.dev-engineering-tabs a[aria-current=page]{background:transparent;border-bottom:2px solid #b9a0df66}

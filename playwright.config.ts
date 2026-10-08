@@ -42,6 +42,7 @@ export default defineConfig({
 
   use: {
     baseURL: BASE_URL,
+    ...(process.env.KNOUX_E2E_BROWSER_CHANNEL === 'chrome' ? { channel: 'chrome' } : {}),
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     // Reduced motion is honoured throughout: the suite must not be measuring an

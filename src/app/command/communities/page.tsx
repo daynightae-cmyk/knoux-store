@@ -31,7 +31,7 @@ import {
   Section,
 } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-import { DEMO_COMMUNITIES, distributionListsFor } from '@/data/growth/communities';
+
 import {
   COMMUNITY_CATEGORIES,
   COMMUNITY_GEOGRAPHY,
@@ -52,9 +52,9 @@ export default function CommunitiesPage() {
 }
 
 function Communities() {
-  const { activeClient } = useWorkspace();
+  const { records } = useWorkspace();
   const area = areaBySlug('communities')!;
-  const lists = distributionListsFor(activeClient.id);
+  const lists = records.distributionLists;
 
   const [country, setCountry] = useState<CountryCode>('AE');
   const [city, setCity] = useState<string>('');
@@ -69,7 +69,7 @@ function Communities() {
   );
 
   const scored = useMemo(() => {
-    return DEMO_COMMUNITIES.map((community) => ({
+    return records.communities.map((community) => ({
       community,
       score: scoreCommunity(community, terms, city),
     }))
@@ -79,7 +79,7 @@ function Communities() {
       .filter((entry) => (platform ? entry.community.platform === platform : true))
       .filter((entry) => (terms.length > 0 ? entry.score > 0 : true))
       .sort((a, b) => b.score - a.score);
-  }, [country, city, category, platform, terms]);
+  }, [country, city, category, platform, terms, records.communities]);
 
   const bands: Record<RelevanceBand, typeof scored> = {
     HIGH: scored.filter((entry) => entry.score >= 60),
@@ -312,7 +312,7 @@ function Communities() {
                     </thead>
                     <tbody>
                       {list.entries.map((entry) => {
-                        const community = DEMO_COMMUNITIES.find(
+                        const community = records.communities.find(
                           (candidate) => candidate.id === entry.communityId,
                         );
                         return (
@@ -375,8 +375,8 @@ function Communities() {
 
       <p className={styles.ccFoot ?? ''}>
         <strong>Discovery is lawful-only.</strong> KNOuX does not scrape member lists, private
-        profiles, hidden emails or closed content. Discovery is operator-supplied and imported. Every
-        record above is <OriginLabel origin="FIXTURE" />.
+        profiles, hidden emails or closed content. Discovery is operator-supplied and imported.
+        Each record shows its own stored provenance.
       </p>
     </CommandShell>
   );

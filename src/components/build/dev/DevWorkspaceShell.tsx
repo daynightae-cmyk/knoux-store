@@ -15,7 +15,8 @@ const Palette = dynamic(() => import('./WorkspaceUtilities').then((mod) => mod.W
 const Activity = dynamic(() => import('./WorkspaceUtilities').then((mod) => mod.WorkspaceActivity));
 
 export const DEV_DESTINATIONS = [
-  { label: 'Workspace', href: '/build', code: '01', icon: '◱' },
+  { label: 'Getting Started', href: '/build', code: '01', icon: '◱' },
+  { label: 'Engineering', href: '/build/engineering', code: 'OS', icon: '◈' },
   { label: 'Build', href: '/build/pipeline', code: '02', icon: '⌁' },
   { label: 'Apps', href: '/build/apps', code: '03', icon: '⬡' },
   { label: 'Services', href: '/build/services', code: '04', icon: '⌘' },
@@ -24,7 +25,8 @@ export const DEV_DESTINATIONS = [
   { label: 'Terminal', href: '/build/terminal', code: '07', icon: '▸' },
   { label: 'PowerShell', href: '/build/powershell', code: '08', icon: '▷' },
   { label: 'Providers', href: '/build/providers', code: '09', icon: '✣' },
-  { label: 'AI Center', href: '/build/ai', code: 'AI', icon: '◈' },
+  { label: 'Models', href: '/build/ai/models', code: 'AI', icon: '◈' },
+  { label: 'Model Routing', href: '/build/ai/router', code: 'RT', icon: '◈' },
   { label: 'Settings', href: '/build/settings', code: '10', icon: '⚙' },
 ] as const;
 
@@ -64,11 +66,11 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
   }, [navOpen]);
 
   return <div className={`dev-shell dev-cinematic ${pathname === '/build' ? 'dev-shell--landing' : 'dev-shell--operational'}`}>
-    <div className="dev-shell__top"><Link href="/" className="dev-shell__identity" aria-label="KNOuX Store home">KNOuX <strong>DEV</strong></Link><span className="dev-mini-label">{current?.label ?? 'Workspace'}</span><button ref={menu} type="button" className="dev-menu-button" aria-label="Open workspace navigation" aria-expanded={navOpen} aria-controls="dev-sidebar" onClick={() => setNavOpen((open) => !open)}>☰ MENU</button></div>
+    <div className="dev-shell__top"><Link href="/" className="dev-shell__identity" aria-label="KNOuX Store home">KNOuX <strong>BUILD</strong></Link><span className="dev-mini-label">{current?.label ?? 'Workspace'}</span><button ref={menu} type="button" className="dev-menu-button" aria-label="Open workspace navigation" aria-expanded={navOpen} aria-controls="dev-sidebar" onClick={() => setNavOpen((open) => !open)}>☰ MENU</button></div>
     <div className="dev-shell__grid">
       {navOpen ? <button type="button" className="dev-nav-backdrop" tabIndex={-1} aria-label="Close workspace navigation" onClick={() => setNavOpen(false)} /> : null}
       <aside ref={sidebar} id="dev-sidebar" className={`dev-sidebar ${navOpen ? 'dev-sidebar--open' : ''}`} aria-label="KNOuX DEV workspace" role={navOpen ? 'dialog' : undefined} aria-modal={navOpen ? true : undefined}>
-        <div className="dev-sidebar__brand"><Link href="/" aria-label="KNOuX Store home"><span className="dev-dot" aria-hidden="true" />KNOuX <small>DEV</small></Link><button className="dev-sidebar__close" type="button" onClick={() => setNavOpen(false)} aria-label="Close workspace navigation">×</button></div>
+        <div className="dev-sidebar__brand"><Link href="/" aria-label="KNOuX Store home"><span className="dev-dot" aria-hidden="true" />KNOuX <small>BUILD</small></Link><button className="dev-sidebar__close" type="button" onClick={() => setNavOpen(false)} aria-label="Close workspace navigation">×</button></div>
         <button type="button" className="dev-sidebar__action" onClick={() => { setNavOpen(false); setUtility('launcher'); }}>New build <span aria-hidden="true">↗</span></button>
         <nav aria-label="Workspace destinations">{DEV_DESTINATIONS.map((item) => <Link key={item.href} href={item.href} className={`dev-nav-link ${pathname === item.href ? 'dev-nav-link--active' : ''}`} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => setNavOpen(false)}><span aria-hidden="true">{item.icon}</span><small>{item.code}</small>{item.label}</Link>)}</nav>
         <div className="dev-sidebar__projects"><div className="dev-mini-label">PROJECTS <button type="button" onClick={() => { setNavOpen(false); setUtility('launcher'); }} aria-label="Add or open project">+</button></div>{softwareProducts.slice(0, 4).map((product) => <Link key={product.id} href={`/build/apps?product=${product.slug}`} onClick={() => setNavOpen(false)}>{product.name}</Link>)}</div>

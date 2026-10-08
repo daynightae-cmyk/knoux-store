@@ -78,7 +78,16 @@ export function getUsageSummary(): UsageSummary {
     }
   }
 
-  const mergedCost = mergeCostBasis(...allCosts);
+  // A partial priced sum is not a total bill. Preserve unknown costs at every scope.
+  for (const record of records) {
+    if (record.estimatedCost?.amount == null) {
+      byProvider[record.providerId].cost = null;
+      byModel[`${record.providerId}:${record.modelId}`].cost = null;
+    }
+  }
+  const mergedCost = records.some((record) => record.estimatedCost?.amount == null)
+    ? { amount: null, basis: 'UNKNOWN' as const }
+    : mergeCostBasis(...allCosts);
 
   return {
     totalRequests,

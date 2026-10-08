@@ -42,7 +42,7 @@ test('Composer compiles real categories and the registry remains interactive', a
   await page.goto('/build');
   await page.getByRole('button', { name: 'DESKTOP APP', exact: true }).click();
   await expect(page.getByLabel('Describe what you want to build', { exact: true })).toBeFocused();
-  await page.getByRole('button', { name: 'Compile intent', exact: true }).click();
+  await page.getByRole('button', { name: 'Generate engineering plan', exact: true }).click();
   await expect(page.locator('.dev-intent-reading')).toContainText('DESKTOP');
   await page.getByRole('group', { name: 'Workspace view' }).getByRole('button', { name: 'REGISTRY' }).click();
   const products = page.getByRole('group', { name: 'KNOuX products' }).getByRole('button');

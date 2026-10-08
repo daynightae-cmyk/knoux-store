@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { softwareUniverseProductById } from '@/data/software-universe';
-
-const PUBLIC_BASE = '/knoux-universe';
+import Image from 'next/image';
+import { softwareUniverseProductById, softwareUniverseProducts } from '@/data/software-universe';
+import '../../public/knoux-universe/knoux-software-universe.css';
 
 export function KnouxSoftwareUniverse() {
   const rootRef = useRef<HTMLElement | null>(null);
@@ -13,15 +13,6 @@ export function KnouxSoftwareUniverse() {
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
-
-    const cssId = 'knoux-software-universe-css';
-    if (!document.getElementById(cssId)) {
-      const link = document.createElement('link');
-      link.id = cssId;
-      link.rel = 'stylesheet';
-      link.href = PUBLIC_BASE + '/knoux-software-universe.css';
-      document.head.appendChild(link);
-    }
 
     const onSelect = (event: Event) => {
       const detail = (event as CustomEvent<{ id?: string }>).detail;
@@ -48,7 +39,7 @@ export function KnouxSoftwareUniverse() {
   }, [router]);
 
   return (
-    <section className="ksu" id="knoux-software-universe" data-ksu data-task03-universe ref={rootRef}>
+    <section className="ksu ksu--static" id="knoux-software-universe" data-ksu data-task03-universe ref={rootRef}>
       <div className="ksu-stage" tabIndex={0} aria-label="Interactive KNOuX software universe">
         <canvas className="ksu-canvas" aria-hidden="true" />
         <div className="ksu-progress" aria-hidden="true" />
@@ -70,7 +61,7 @@ export function KnouxSoftwareUniverse() {
         <div className="ksu-static-head">
           <span className="ksu-num">KNOuX / SOFTWARE UNIVERSE</span>
           <h2 className="ksu-title">Ten identities. One system.</h2>
-          <p className="ksu-body">A complete selector remains available when motion is reduced or WebGL is unavailable.</p>
+          <p className="ksu-body">Explore ten connected tools for creating, organizing and operating your digital world.</p>
         </div>
 
         <article className="ksu-info" aria-live="polite">
@@ -81,14 +72,14 @@ export function KnouxSoftwareUniverse() {
           <button className="ksu-info-link" type="button">Open record</button>
         </article>
 
-        <ol className="ksu-rail" aria-label="KNOuX software universe products" />
+        <ol className="ksu-rail" aria-label="KNOuX software universe products">{softwareUniverseProducts.map((product) => <li key={product.id}><a href={product.route}><Image src={product.image} alt={product.name} width={112} height={112} /><span>{product.name}</span></a></li>)}</ol>
       </div>
 
       <div className="ksu-content">
         <section className="ksu-sec ksu-s1">
           <div className="ksu-eyebrow">KNOuX / SOFTWARE UNIVERSE</div>
           <h2 className="ksu-h-title" data-ksu-split>Built as one.<br />Shipped as ten.</h2>
-          <p className="ksu-h-sub">The recovered ten-logo constellation, integrated as a visual index beside the audited product topology — not a replacement for it.</p>
+          <p className="ksu-h-sub">Explore the KNOuX constellation. Each identity opens a dedicated product record.</p>
           <button className="ksu-cta" type="button" data-ksu-jump="1"><span>Enter universe</span><span aria-hidden="true">↘</span></button>
           <div className="ksu-scroll" aria-hidden="true"><span>Scroll</span><span className="ksu-s-line" /></div>
         </section>

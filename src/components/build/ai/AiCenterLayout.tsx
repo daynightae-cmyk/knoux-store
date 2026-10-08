@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
 
 const AI_TABS = [
-  { id: 'providers', label: 'Providers', href: '/build/ai/providers', icon: '✣' },
+  { id: 'providers', label: 'Providers', href: '/build/providers', icon: '✣' },
   { id: 'models', label: 'Models', href: '/build/ai/models', icon: '◇' },
   { id: 'control', label: 'Control', href: '/build/ai/control', icon: '⚙' },
   { id: 'router', label: 'Router', href: '/build/ai/router', icon: '⇄' },
@@ -36,7 +36,8 @@ export function AiCenterNav() {
   );
 }
 
-export function AiCenterPage({ heading, children }: { heading: ReactNode; children: ReactNode }) {
+export function AiCenterPage({ heading, children, embedded = false }: Readonly<{ heading: ReactNode; children: ReactNode; embedded?: boolean }>) {
+  if (embedded) return <section aria-label="Provider runtime">{heading}{children}</section>;
   return (
     <div className="dev-route">
       <header className="dev-page-heading">
