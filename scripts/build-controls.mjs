@@ -7,6 +7,8 @@ const files = readdirSync(base)
   .filter((name) => name.endsWith('.tsx') && name !== 'KnouxDevParticleHero.tsx')
   .map((name) => join(base, name).replaceAll('\\', '/'));
 files.push('src/components/build/surfaces/PreviewSurface.tsx', 'src/components/build/workspace/Primitives.tsx');
+files.push(...readdirSync('src/components/build/generator').filter((name) => name.endsWith('.tsx')).map((name) => `src/components/build/generator/${name}`));
+files.push('src/components/build/ai/AiControlPage.tsx', 'src/components/build/ai/AiModelsPage.tsx');
 
 const isBlockedByGuard = (value) => {
   if (!value) return false;
@@ -56,6 +58,7 @@ const buildAuthRequirement = (file, label, destination, handler, disabledValue) 
 };
 
 const buildDataSource = (file) => {
+  if (file.includes('/generator/')) return 'source declaration + canonical provider projections / plan-derived state';
   if (file.includes('PreviewSurface') || file.includes('Primitives')) return 'source declaration + runtime preview surface';
   if (file.includes('Workspace') || file.includes('AppsPage') || file.includes('DevUI') || file.includes('BuildPipelinePage') || file.includes('ProjectLauncher')) {
     return 'source declaration + build state reducer / runtime route';
