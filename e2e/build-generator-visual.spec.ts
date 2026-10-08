@@ -14,7 +14,7 @@ for (const [width,height] of widths) test(`generator visual contract ${width}x${
   const shots: string[] = [];
   const capture = async (state: string) => { const file = path.join(directory, `${state}.png`); await page.screenshot({path:file}); shots.push(path.relative(process.cwd(),file).replaceAll('\\','/')); expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true); };
   await page.goto('/build'); await expect(page.locator('.dev-engine')).toHaveAttribute('data-stage','LISTENING'); await capture('idle-auto');
-  await page.getByRole('button',{name:/INTELLIGENCE/}).click(); const search=page.getByRole('combobox',{name:'Search intelligence'}); await search.fill('gemini'); await capture('navigator-search'); await search.press('ArrowDown'); await search.press('Enter');
+  await page.getByRole('button',{name:/INTELLIGENCE/}).click(); const search=page.getByRole('combobox',{name:'Search intelligence'}); await search.fill('gemini'); if(width<=640){const popupWidth=await search.locator('..').evaluate(element=>element.getBoundingClientRect().width);expect(popupWidth).toBeGreaterThan(width*.8);} await capture('navigator-search'); await search.press('ArrowDown'); await search.press('Enter');
   await expect(page.getByLabel('Routing',{exact:true})).toHaveValue('manual');
   for (const profile of ['FAST','BALANCED','DEEP','MAX']) { await page.getByRole('radio',{name:profile,exact:true}).check(); await capture(`manual-${profile.toLowerCase()}`); }
   const trigger = page.getByRole('button',{name:/INTELLIGENCE/}); await page.keyboard.press('Tab'); await trigger.focus();
