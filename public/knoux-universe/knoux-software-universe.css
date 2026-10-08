@@ -80,11 +80,11 @@
 .ksu-title { font-size: clamp(2.2rem,5vw,4.8rem); font-weight: 100; line-height: 1.02; letter-spacing: -.022em; text-shadow: 0 0 24px rgba(7,7,8,.9); }
 .ksu-body { font-size: clamp(.78rem,1.3vw,.88rem); color: #8a89a0; line-height: 2; max-width: 380px; }
 
-.ksu-s2 { min-height: 220vh; align-items: flex-start; justify-content: flex-start; padding: 18vh 8vw; }
+.ksu-s2 { min-height: 100vh; align-items: flex-start; justify-content: flex-start; padding: 18vh 8vw; }
 .ksu-s2 .ksu-panel { position: sticky; top: 22vh; max-width: 480px; }
-.ksu-s3 { min-height: 250vh; align-items: flex-start; justify-content: flex-end; padding: 18vh 8vw; }
+.ksu-s3 { min-height: 100vh; align-items: flex-start; justify-content: flex-end; padding: 18vh 8vw; }
 .ksu-s3 .ksu-panel { position: sticky; top: 22vh; max-width: 480px; align-items: flex-end; text-align: right; }
-.ksu-s4 { min-height: 200vh; flex-direction: column; justify-content: flex-start; padding: 22vh 8vw; }
+.ksu-s4 { min-height: 100vh; flex-direction: column; justify-content: flex-start; padding: 22vh 8vw; }
 .ksu-s4 .ksu-panel { position: sticky; top: 22vh; align-items: center; text-align: center; width: 100%; gap: 28px; }
 .ksu-s4 .ksu-title { font-size: clamp(2rem,4.5vw,4rem); }
 
@@ -139,6 +139,7 @@
 .ksu--static .ksu-info { width: min(520px, 100%); }
 .ksu--static .ksu-rail { flex-wrap: wrap; overflow: visible; max-width: 980px; gap: 18px; padding: 0; }
 .ksu--static .ksu-rail button { display: grid; justify-items: center; gap: 8px; width: 140px; padding: 10px; }
+.ksu--static .ksu-rail a { display: grid; justify-items: center; gap: 8px; width: 140px; padding: 10px; color: var(--ksu-white); text-decoration: none; font-size: 12px; }
 .ksu--static .ksu-rail img { width: 112px; height: 112px; border-radius: 50%; display: block; }
 .ksu-static-head { text-align: center; display: grid; gap: 12px; }
 
@@ -177,6 +178,14 @@
 .ksu--static .ksu-rail button { background: rgba(255,255,255,.015); }
 .ksu--static .ksu-rail button[aria-pressed="true"] { border-color: rgba(201,189,242,.5); }
 .ksu--static .ksu-rail img { object-fit: contain; filter: drop-shadow(0 14px 28px rgba(0,0,0,.45)); }
+.ksu--static .ksu-info{border:0;background:transparent;backdrop-filter:none;padding:0;gap:10px}
+.ksu--static .ksu-info-badge{border:0;padding:0;font-size:11px}
+.ksu--static .ksu-info-name{font-size:26px;letter-spacing:-.03em}
+.ksu--static .ksu-info-slogan,.ksu--static .ksu-info-role{font-size:14px;line-height:1.7}
+.ksu--static .ksu-rail button,.ksu--static .ksu-rail a{border:0;background:transparent;font-size:12px;letter-spacing:.04em;padding:14px 0;min-height:150px}
+.ksu--static .ksu-rail button[aria-pressed=true]{border:0;background:transparent;color:#e6d8ff;text-decoration:underline;text-underline-offset:6px}
+.ksu--static .ksu-rail li:nth-child(even){padding-top:22px}
+.ksu--static .ksu-stage::after{display:none}
 .ksu-char { transition: transform .8s cubic-bezier(.19,1,.22,1); }
 .ksu-stage:focus-visible { outline: 1px solid rgba(201,189,242,.45); outline-offset: -2px; }
 

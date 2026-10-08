@@ -233,6 +233,7 @@ async function initUniverse(root) {
     return;
   }
 
+  root.classList.remove('ksu--static');
   loader.classList.add('is-done');
   setTimeout(() => loader.remove(), 700);
 

@@ -113,10 +113,8 @@
 .visual {
   position: relative;
   min-height: 520px;
-  border: 1px solid var(--line-strong);
+  border: 0;
   background:
-    repeating-linear-gradient(0deg, transparent 0 48px, #ffffff06 49px),
-    repeating-linear-gradient(90deg, transparent 0 48px, #ffffff06 49px),
     radial-gradient(circle at 50% 46%, #24202d, #0b0c0e 65%);
   overflow: hidden;
   display: flex;
@@ -125,7 +123,7 @@
 }
 .visual:before,
 .visual:after {
-  content: "";
+  content: none;
   position: absolute;
   inset: 25px;
   border: 1px solid #ffffff11;

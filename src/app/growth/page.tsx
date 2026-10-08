@@ -6,6 +6,7 @@ import { pageMetadata } from '@/lib/metadata';
 import { growthChannelsDetail, growthModules } from '@/data/growth';
 import { TrackOnView } from '@/components/TrackOnView';
 import { SignalField } from '@/components/SpatialExperiences';
+import { ProcessArchitecture } from '@/components/ProcessArchitecture';
 
 export const metadata = pageMetadata(
   'Growth',
@@ -25,6 +26,7 @@ export default function GrowthPage() {
         description="Campaign architecture, measurement and content. No target metrics, minimum spends or return claims appear on this site, because none of those are knowable before a scope is agreed."
       />
       <SignalRail division="growth" path="/growth" />
+      <div className="shell"><ProcessArchitecture kind="growth" /></div>
 
       <section className="shell" style={{ paddingTop: 'clamp(60px, 7vw, 120px)' }}><SignalField /></section>
 
