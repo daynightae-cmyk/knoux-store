@@ -98,6 +98,58 @@ test('the actual adapter body does not emit a declared reasoning effort', async 
   }
 });
 
+test('confirmed stream structure excludes unfinished and invalid section arrays', () => {
+  const prefix = '{"GOAL":["A bracket ] and escaped quote \\" survive"],"ROUTES":["/dispatch"],"AUTH":["Unfinished';
+  assert.deepEqual(plans.confirmedPlanSections(prefix), { GOAL: ['A bracket ] and escaped quote " survive'], ROUTES: ['/dispatch'] });
+  assert.deepEqual(plans.confirmedPlanSections('{"GOAL":[null],"AUTH":[]'), {});
+  assert.deepEqual(plans.confirmedPlanSections('A prose response'), {});
+});
+
+test('streamed draft evidence does not require or manufacture a validated artifact', async () => {
+  const frames = [{ delta: '{"GOAL":["Real incoming fixture goal"],', done: false }, { delta: '"ROUTES":["/dispatch"]}', done: true }];
+  const stream = new ReadableStream({ start(controller) { frames.forEach((frame) => controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify(frame)}\n\n`))); controller.close(); } });
+  const drafts = [], text = [];
+  await assert.rejects(plans.consumePlanStream(stream, () => {}, (draft) => drafts.push(draft), (part) => text.push(part)), /Incomplete/);
+  assert.equal(drafts[0].GOAL[0], 'Real incoming fixture goal');
+  assert.equal(text.length, 2);
+  assert.equal(Object.keys(drafts.at(-1)).length, 2);
+});
+
+test('planning transitions never report executing, verifying or complete', async () => {
+  const states = await loadTypeScript('../src/lib/build/generator-state.ts');
+  for (const stage of ['LISTENING', 'RESOLVING', 'ROUTING', 'GENERATING', 'PLANNED', 'REVIEWING', 'EXECUTOR_NOT_CONNECTED']) {
+    for (const prohibited of ['EXECUTING', 'VERIFYING', 'COMPLETE']) assert.equal(states.canTransitionPlan(stage, prohibited), false);
+  }
+  assert.equal(states.canTransitionPlan('GENERATING', 'PLANNED'), true);
+  assert.equal(states.canTransitionPlan('PLANNED', 'REVIEWING'), true);
+  assert.equal(states.stageToSkyPhase('GENERATING'), 'generating');
+  assert.equal(states.stageToSkyPhase('AUTH_REQUIRED'), 'blocked');
+  const { buildReducer, initialBuildState } = await loadTypeScript('../src/lib/build/workspace-state.ts');
+  const begun = buildReducer(initialBuildState, { type: 'engineering/begin', requestId: 'fresh', context: { project: null, worktree: null, branch: null } });
+  assert.equal(buildReducer(begun, { type: 'engineering/update', requestId: 'fresh', patch: { stage: 'COMPLETE' } }).engineering.stage, 'RESOLVING');
+  const cleared = buildReducer({ ...begun, engineering: { ...begun.engineering, plan: fixture('CRM', {}), streamText: 'old', draftPlan: { GOAL: ['old'] } } }, { type: 'engineering/begin', requestId: 'new', context: { project: null, worktree: null, branch: null } });
+  assert.equal(cleared.engineering.plan, null); assert.equal(cleared.engineering.draftPlan, null); assert.equal(cleared.engineering.streamText, '');
+});
+
+test('canonical fallback reapplies the profile to each actual model limit', async () => {
+  const registry = await loadTypeScript('../src/lib/ai/registry.ts');
+  const { generateWithFallback } = await loadTypeScript('../src/lib/ai/fallback.ts');
+  const first = registry.getAdapter('deepseek'), next = registry.getAdapter('groq');
+  const originals = [first.generate, next.generate];
+  const calls = [];
+  registry.setDiscoveryCache('deepseek', [{ ...model, providerId: 'deepseek', modelId: 'fixture-a', maxOutputTokens: 1200 }], 'LIVE');
+  registry.setDiscoveryCache('groq', [{ ...model, providerId: 'groq', modelId: 'fixture-b', maxOutputTokens: 800 }], 'LIVE');
+  const response = { text: '', usage: { inputTokens: null, outputTokens: null, cachedTokens: null, source: 'unknown' }, latencyMs: 1, ttftMs: null, estimatedCost: null, warnings: [], modelUsed: null, finishReason: null, providerRequestId: null };
+  first.generate = async (request) => { calls.push(request); return { ...response, ok: false, error: { category: 'NETWORK', retryable: true, safeMessage: 'Isolated fixture failure' } }; };
+  next.generate = async (request) => { calls.push(request); return { ...response, ok: true, text: 'Explicit fixture output', modelUsed: 'fixture-b-version', error: null }; };
+  try {
+    const result = await generateWithFallback({ providerId: 'deepseek', modelId: 'fixture-a', messages: [], generationProfile: 'MAX', controls: { maxOutputTokens: 999999 } }, {}, [{ providerId: 'groq', modelId: 'fixture-b' }]);
+    assert.deepEqual(calls.map((request) => request.controls.maxOutputTokens), [1200, 800]);
+    assert.equal(result.actualProviderId, 'groq'); assert.equal(result.actualModelId, 'fixture-b-version');
+    assert.equal(result.fallbackCount, 1);
+  } finally { first.generate = originals[0]; next.generate = originals[1]; registry.clearDiscoveryCache(); }
+});
+
 test('probe exceptions redact credential-like strings in the entire browser response', async () => {
   const registry = await loadTypeScript('../src/lib/ai/registry.ts');
   const original = globalThis.fetch;
@@ -142,4 +194,41 @@ test('a rejected arena adapter cannot serialize a raw exception to the browser',
     if (environment === undefined) delete process.env.KNOUX_BUILD_ENVIRONMENT;
     else process.env.KNOUX_BUILD_ENVIRONMENT = environment;
   }
+});
+
+
+test('missing provider model metadata remains UNKNOWN after successful generation', async () => {
+  const registry = await loadTypeScript('../src/lib/ai/registry.ts');
+  const { generateWithFallback } = await loadTypeScript('../src/lib/ai/fallback.ts');
+  const adapter = registry.getAdapter('deepseek');
+  const original = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({ choices: [{ message: { content: 'Explicit fixture response' }, finish_reason: 'stop' }], usage: { prompt_tokens: 2, completion_tokens: 3 } }), { status: 200 });
+  try {
+    const result = await generateWithFallback({ providerId: 'deepseek', modelId: 'fixture-requested', messages: [{ role: 'user', content: 'Isolated fixture' }] }, { DEEPSEEK_API_KEY: 'test-only-credential' }, [], true);
+    assert.equal(result.response.ok, true);
+    assert.equal(result.routedModelId, 'fixture-requested');
+    assert.equal(result.response.modelUsed, null);
+    assert.equal(result.actualModelId, null);
+    const failed = await adapter.generate({ providerId: 'deepseek', modelId: 'fixture-requested', messages: [] }, {});
+    assert.equal(failed.ok, false); assert.equal(failed.modelUsed, null);
+  } finally { globalThis.fetch = original; }
+});
+
+
+test('canonical Groq speech metadata excludes audio models from automatic and exact manual text routing', async () => {
+  const registry = await loadTypeScript('../src/lib/ai/registry.ts');
+  const { routeV2, buildRouterInput } = await loadTypeScript('../src/lib/ai/router-v2.ts');
+  const original = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({ data: [{ id: 'canopylabs/orpheus-arabic-saudi', context_window: 4000 }, { id: 'whisper-large-v3' }] }), { status: 200 });
+  try {
+    const discovered = await registry.getAdapter('groq').discoverModels({ GROQ_API_KEY: 'test-only-credential' });
+    assert.equal(discovered.models.length, 2);
+    assert.ok(discovered.models.every((model) => model.modalities.text === false));
+    registry.clearDiscoveryCache(); registry.setDiscoveryCache('groq', discovered.models, 'LIVE');
+    const health = new Map([['groq', { configured: true, auth: 'AUTHENTICATED', discovery: 'DISCOVERY_VERIFIED', generation: 'CONFIGURED_UNTESTED' }]]);
+    const auto = routeV2(buildRouterInput('engineering-plan', 'auto', 'Build a portal'), health);
+    assert.equal(auto.selected, null);
+    const manual = routeV2(buildRouterInput('engineering-plan', 'manual', 'Build a portal', { manualSelection: { providerId: 'groq', modelId: 'canopylabs/orpheus-arabic-saudi' } }), health);
+    assert.equal(manual.selected, null); assert.equal(manual.fallbackChain.length, 0);
+  } finally { globalThis.fetch = original; registry.clearDiscoveryCache(); }
 });

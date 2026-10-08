@@ -1,6 +1,16 @@
 import type { BuildIntent } from './types';
 
-export type EngineeringSession = { requestId: string | null; context: { project: string | null; worktree: string | null; branch: string | null } | null; host: { name: string; os: string; kind: string } | null; stage: EngineeringStage; plan: EngineeringPlan | null; error: string | null; selection: { providerId: string; modelId: string; reasons: string[] } | null; characters: number; measurement: { latencyMs?: number | null; usage?: { inputTokens: number | null; outputTokens: number | null } | null } | null };
+export type EngineeringSession = {
+  requestId: string | null;
+  context: { project: string | null; worktree: string | null; branch: string | null } | null;
+  host: { name: string; os: string; kind: string } | null;
+  stage: EngineeringStage; plan: EngineeringPlan | null; draftPlan: Partial<EngineeringPlan> | null;
+  streamText: string; error: string | null;
+  requested: { mode: 'auto' | 'manual'; profile: import('./profile').GenerationProfile; providerId: string | null; modelId: string | null } | null;
+  selection: { providerId: string; modelId: string; reasons: string[] } | null;
+  characters: number;
+  measurement: { latencyMs?: number | null; ttftMs?: number | null; actualProviderId?: string | null; actualModelId?: string | null; controlsUsed?: import('../ai/types').GenerationControls | null; estimatedCost?: import('../ai/types').CostEstimate | null; usage?: { inputTokens: number | null; outputTokens: number | null } | null } | null;
+};
 
 export const PLAN_SECTIONS = ['GOAL', 'PRODUCT TYPE', 'ARCHITECTURE', 'STACK', 'ROUTES', 'DATA MODEL', 'AUTH', 'INTEGRATIONS', 'UI SYSTEM', 'FILES / MODULES', 'TEST PLAN', 'DEPLOYMENT PLAN', 'RISKS', 'EXECUTION PLAN'] as const;
 export type EngineeringPlan = Record<(typeof PLAN_SECTIONS)[number], string[]>;
@@ -28,7 +38,45 @@ export function parseEngineeringPlan(text: string): EngineeringPlan {
   return Object.fromEntries(entries) as EngineeringPlan;
 }
 
-export type PlanStreamChunk = { delta?: string; done?: boolean; error?: { safeMessage?: string; category?: string } | null; usage?: { inputTokens: number | null; outputTokens: number | null } | null; latencyMs?: number | null };
+export type PlanStreamChunk = NonNullable<EngineeringSession['measurement']> & { delta?: string; done?: boolean; error?: { safeMessage?: string; category?: string } | null };
+
+/** Complete, valid JSON arrays can be shown as draft evidence before the object closes. */
+export function confirmedPlanSections(text: string): Partial<EngineeringPlan> {
+  const source = text.trim().replace(/^```(?:json)?\s*/i, '');
+  if (!source.startsWith('{')) return {};
+  const result: Partial<EngineeringPlan> = {};
+  let cursor = 1;
+  while (cursor < source.length) {
+    while (/[\s,]/.test(source[cursor] ?? '') && cursor < source.length) cursor++;
+    if (source[cursor] !== '"') break;
+    const keyStart = cursor++;
+    let escaped = false;
+    while (cursor < source.length) { const character = source[cursor++]; if (character === '"' && !escaped) break; escaped = character === '\\' && !escaped; }
+    let key: string;
+    try { key = JSON.parse(source.slice(keyStart, cursor)); } catch { break; }
+    while (/\s/.test(source[cursor] ?? '') && cursor < source.length) cursor++;
+    if (source[cursor++] !== ':') break;
+    while (/\s/.test(source[cursor] ?? '') && cursor < source.length) cursor++;
+    if (source[cursor] !== '[') break;
+    const start = cursor;
+    let depth = 0, quoted = false;
+    escaped = false;
+    let complete = false;
+    while (cursor < source.length) {
+      const character = source[cursor++];
+      if (quoted) { if (character === '"' && !escaped) quoted = false; escaped = character === '\\' && !escaped; continue; }
+      if (character === '"') quoted = true;
+      else if (character === '[') depth++;
+      else if (character === ']' && --depth === 0) { complete = true; break; }
+    }
+    if (!complete) break;
+    try {
+      const lines: unknown = JSON.parse(source.slice(start, cursor));
+      if (PLAN_SECTIONS.includes(key as (typeof PLAN_SECTIONS)[number]) && Array.isArray(lines) && lines.length > 0 && lines.length <= 32 && lines.every((line) => typeof line === 'string' && line.trim() && line.length <= 4000)) result[key as (typeof PLAN_SECTIONS)[number]] = lines.map((line: string) => line.trim());
+    } catch { break; }
+  }
+  return result;
+}
 
 export class PlanStreamError extends Error {
   readonly category: string | null;
@@ -40,16 +88,22 @@ export function canFallbackPlanError(cause: unknown) {
 }
 
 /** Handles arbitrary UTF-8 and SSE frame boundaries; terminal success is required. */
-export async function consumePlanStream(body: ReadableStream<Uint8Array>, onProgress: (characters: number) => void) {
+export async function consumePlanStream(body: ReadableStream<Uint8Array>, onProgress: (characters: number) => void, onSections?: (sections: Partial<EngineeringPlan>) => void, onText?: (text: string) => void) {
   const reader = body.getReader();
   const decoder = new TextDecoder();
   let buffer = '', output = '', terminal: PlanStreamChunk | null = null;
+  let confirmed = '';
   const consume = (frame: string) => {
     const payload = frame.split('\n').filter((line) => line.startsWith('data:')).map((line) => line.slice(5).trimStart()).join('\n');
     if (!payload) return;
     const chunk = JSON.parse(payload) as PlanStreamChunk;
     if (chunk.error) throw new PlanStreamError(chunk.error.safeMessage ?? 'Provider stream failed.', chunk.error.category ?? null);
-    if (chunk.delta) { output += chunk.delta; if (output.length > 120_000) throw new Error('Engineering plan exceeds the artifact limit.'); onProgress(output.length); }
+    if (chunk.delta) {
+      output += chunk.delta;
+      if (output.length > 120_000) throw new Error('Engineering plan exceeds the artifact limit.');
+      onProgress(output.length); onText?.(output);
+      if (onSections) { const sections = confirmedPlanSections(output); const signature = JSON.stringify(sections); if (signature !== confirmed) { confirmed = signature; onSections(sections); } }
+    }
     if (chunk.done) terminal = chunk;
   };
   try {

@@ -1,6 +1,8 @@
 import { type NextRequest } from "next/server";
 import { guardBuildApi } from "@/lib/build/api-guard";
-import { getAdapter, updateHealth } from "@/lib/ai/registry";
+import { getAdapter, getDiscoveryCache, updateHealth } from "@/lib/ai/registry";
+import { isGenerationProfile, profileToControls } from '@/lib/build/profile';
+import { estimateTokens } from '@/lib/ai/contract';
 import { recordUsage } from "@/lib/ai/usage";
 import type { GenerationRequest, StreamChunk } from "@/lib/ai/types";
 import { publicRequestOrigin, checkRequestOrigin } from '@/lib/contact/intake-guard';
@@ -27,6 +29,8 @@ export async function POST(request: NextRequest) {
   }
 
   const adapter = getAdapter(body.providerId);
+  if (body.generationProfile !== undefined && !isGenerationProfile(body.generationProfile)) return new Response('Choose a valid generation profile.', { status: 400 });
+  if (body.generationProfile) body.controls = profileToControls(body.generationProfile, getDiscoveryCache(body.providerId)?.models.find((model) => model.modelId === body.modelId), estimateTokens((body.system ?? '') + body.messages.map((message) => message.content).join('\n'))).controls;
   if (!adapter)
     return new Response(`Unknown provider: ${body.providerId}`, {
       status: 404,
@@ -56,7 +60,7 @@ export async function POST(request: NextRequest) {
         )) {
           lastChunk = chunk;
           characters += chunk.delta.length;
-          const data = JSON.stringify(chunk);
+          const data = JSON.stringify({ ...chunk, actualProviderId: adapter.id, actualModelId: chunk.modelUsed ?? null, ...(chunk.done ? { controlsUsed: body.controls ?? null, estimatedCost: adapter.estimateCost(body.modelId, chunk.usage ?? { inputTokens: null, outputTokens: null, cachedTokens: null, source: 'unknown' }) } : {}) });
           controller.enqueue(encoder.encode(`data: ${data}\n\n`));
           if (chunk.done) break;
         }
