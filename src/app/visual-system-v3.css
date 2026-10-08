@@ -84,3 +84,7 @@ button:disabled{cursor:not-allowed}
 @media(max-width:760px){.architecture-map__zone,.architecture-map__zone:hover,.architecture-map__zone:focus-visible,.architecture-map__zone.is-active{transform:none;padding:22px 0}.architecture-map__detail{font-size:14px}.architecture-map__core{width:124px;height:124px}}
 @media(max-width:760px){.architecture-map__zone,.architecture-map__zone:hover,.architecture-map__zone:focus-visible,.architecture-map__zone.is-active{padding:24px 24px 24px 28px}.architecture-map__detail{display:block;max-height:none;overflow:visible}.architecture-map__zone::before{left:0;top:28px;transform:none}.architecture-map__zone:not(:last-of-type)::after{left:3px;top:36px;height:calc(100% - 8px)}.architecture-map__enter{opacity:1;right:0;top:26px;font-size:0}.architecture-map__enter::after{content:"↗";font-size:18px}}
 .architecture-map__zone:hover .architecture-map__detail,.architecture-map__zone:focus-visible .architecture-map__detail{max-height:none}
+
+/* Transparent light, above opaque page backdrops and below navigation/dialogs.
+   Tiny low-luminance points never intercept input or introduce a framed surface. */
+.store-starfield{position:fixed;inset:0;width:100%;height:100%;z-index:20;pointer-events:none;mix-blend-mode:screen;contain:strict}

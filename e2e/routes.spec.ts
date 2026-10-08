@@ -35,6 +35,8 @@ test.describe('route rendering', () => {
       expect(response?.status(), `${route} must respond 200`).toBe(200);
 
       await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+      await expect(page.locator('.store-starfield')).toHaveCount(1);
+      await expect(page.locator('.store-starfield')).toHaveAttribute('aria-hidden', 'true');
 
       // A page with no h1 is a page whose structure cannot be navigated. One
       // h1 is checked rather than several, because several usually means the
