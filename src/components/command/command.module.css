@@ -1184,7 +1184,7 @@
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 900px) {
   .commandBar {
     height: auto;
     flex-wrap: wrap;

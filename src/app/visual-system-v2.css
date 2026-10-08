@@ -63,6 +63,13 @@
 @media(prefers-reduced-motion:reduce){.process-architecture li a{transition:none}}
 
 /* Open spatial composition: decorative frames yield to objects and connected flow. */
+.system-blueprint__head,.system-blueprint__foot,.system-blueprint__systems{border:0}
+.system-blueprint__origin{border:0;border-radius:50%;background:radial-gradient(circle at 30% 24%,#74618855,#251d3488 48%,#0b0b1280 76%);box-shadow:0 20px 60px #a286ca18,inset 0 1px 18px #bda4db18}
+.system-blueprint__node{border:0;background:transparent;font-size:11px;padding:8px 0;text-shadow:0 0 20px #a68aca66}
+.system-blueprint__head .mono,.system-blueprint__systems button small{font-size:11px}
+.system-blueprint__foot p{font-size:15px;line-height:1.75}
+.system-blueprint__diagram path{stroke-dasharray:none;opacity:.6}
+@media(max-width:768px){.system-blueprint__node{font-size:10px}}
 :is(.atelier-lab,.process-architecture,.ksu){scroll-margin-top:100px}
 .auth-panel::before,.auth-panel::after{border:0}
 :is(.product-card,.dossier-card,.related-card,.systems-panel,.spatial-surface,.origin-room__panel,.library-gateway,.auth-panel,.signature-field,.product-anatomy-panel){border:0;border-radius:0;box-shadow:none;background:transparent}
