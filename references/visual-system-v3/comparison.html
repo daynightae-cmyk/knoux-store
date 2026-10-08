@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KNOuX V3 — captured comparison</title>
+<style>
+:root{color-scheme:dark}body{margin:0;background:#09090b;color:#f1eee7;font:16px/1.6 system-ui,sans-serif}main{max-width:1600px;margin:auto;padding:32px}h1{font-size:clamp(28px,5vw,56px);font-weight:500;letter-spacing:-.04em}p{max-width:85ch;color:#b7b4bd}label{display:inline-block;margin:0 24px 20px 0}select{font:inherit;background:#19171e;color:inherit;padding:10px;border:1px solid #6a6372}section{display:grid;grid-template-columns:1fr 1fr;gap:24px}figure{margin:0;min-width:0}figcaption{margin-bottom:12px;color:#c9c1d4}img{display:block;max-width:100%;height:auto;margin:auto}a{color:#d9c4e8}select:focus-visible,a:focus-visible{outline:2px solid #d9c4e8;outline-offset:4px}.mobile img{max-width:390px}@media(max-width:720px){section{grid-template-columns:1fr}main{padding:20px}}
+</style>
+<main>
+<h1>KNOuX Visual System V3</h1>
+<p>Actual local production screenshots. Before: merged main bf727ed. After: V3 implementation. Reduced motion. These captures show rendered interfaces; they do not prove live provider, account, campaign or executor access.</p>
+<p><a href="REVIEW.md">Read the family review and verification boundaries</a></p>
+<label>Page family <select id="family"></select></label>
+<label>Capture <select id="capture"><option value="1440">Desktop · 1440 × 900</option><option value="390">Mobile · 390 × 844</option></select></label>
+<section id="comparison" aria-label="Before and after screenshots">
+<figure><figcaption>Before · verified merged main</figcaption><a id="before-link"><img id="before" alt="Before screenshot"></a></figure>
+<figure><figcaption>After · Visual System V3</figcaption><a id="after-link"><img id="after" alt="After screenshot"></a></figure>
+</section>
+<p>Each image opens at its original captured resolution. Named focal captures in the before/after directories show the lower compositions. The complete eleven-size matrix is retained with the final local evidence.</p>
+</main>
+<script>
+const families=['home','products','product-detail','creative','creative-detail','web','service-detail','growth','wordpress','solutions','solution-detail','build','providers','models','routing','engineering','apps','services','deployments','terminal','powershell','command','social','analytics','reports','auth','account','register','contact','about','not-found'];
+const family=document.getElementById('family'),capture=document.getElementById('capture');
+for(const name of families){const option=document.createElement('option');option.value=name;option.textContent=name.replaceAll('-',' ');family.append(option);}
+function show(){const name=family.value,width=capture.value;document.getElementById('comparison').classList.toggle('mobile',width==='390');for(const side of ['before','after']){const source=`${side}/${name}-${width}.png`;document.getElementById(side).src=source;document.getElementById(side).alt=`${side} ${name} at ${width} pixels`;document.getElementById(`${side}-link`).href=source;}}
+family.addEventListener('change',show);capture.addEventListener('change',show);show();
+</script>
+</html>
