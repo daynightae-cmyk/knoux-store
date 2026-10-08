@@ -23,7 +23,7 @@ import {
   Section,
 } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-import { performanceRowsFor } from '@/data/growth/workspace';
+
 import { mergeMetrics, PROVIDERS } from '@/lib/growth/metrics';
 import type { Sourced } from '@/lib/growth/states';
 import styles from '@/components/command/command.module.css';
@@ -45,9 +45,9 @@ const METRIC_COLUMNS = [
 ] as const;
 
 function Analytics() {
-  const { activeClient } = useWorkspace();
+  const { records, activeClient } = useWorkspace();
   const area = areaBySlug('analytics')!;
-  const rows = performanceRowsFor(activeClient.id);
+  const rows = records.performanceRows;
   const currency = activeClient.country === 'EG' ? 'EGP' : 'AED';
   const [provider, setProvider] = useState<string>('all');
 

@@ -21,7 +21,6 @@ import {
   ACTION_LABELS,
   TRIGGER_LABELS,
   evaluateRules,
-  templateRules,
   validateRule,
   type AutomationEvent,
 } from '@/lib/growth/automation';
@@ -33,7 +32,7 @@ export default function AutomationsPage() {
 }
 
 function Automations() {
-  const { activeClient } = useWorkspace();
+  const { records, activeClient } = useWorkspace();
   const area = areaBySlug('automations')!;
 
   const [enabled, setEnabled] = useState<Record<string, boolean>>({});
@@ -45,7 +44,7 @@ function Automations() {
     campaignId: 'cmp_demo',
   });
 
-  const rules = templateRules(activeClient.id, '2026-10-04T00:00:00.000Z').map((rule) => ({
+  const rules = records.automations.map((rule) => ({
     ...rule,
     enabled: enabled[rule.id] ?? rule.enabled,
   }));

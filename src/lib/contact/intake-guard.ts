@@ -40,6 +40,15 @@ export type IntakeRejection =
 
 export type OriginVerdict = { ok: true } | { ok: false; reason: 'origin-not-permitted' };
 
+/** Public request origin supplied by the platform edge; never a redirect target. */
+export function publicRequestOrigin(request: Request): string {
+  const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host');
+  if (!host) return new URL(request.url).origin;
+  const proto = request.headers.get('x-forwarded-proto') ?? (host.startsWith('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https');
+  if (!['http', 'https'].includes(proto) || /[\s/@?#,]/.test(host)) return new URL(request.url).origin;
+  try { return new URL(`${proto}://${host}`).origin; } catch { return new URL(request.url).origin; }
+}
+
 /**
  * Cross-site request check.
  *

@@ -8,6 +8,11 @@ import { clientById } from '@/data/growth/clients';
 import { clientAddress, rateLimit } from '@/lib/http/rate-limit';
 import { readBoundedJson } from '@/lib/contact/intake-guard';
 import { guardGrowthProviderAccess } from '@/lib/growth/server/access';
+import { growthAuthEnforced } from '@/lib/growth/auth/enforcement';
+import { guardGrowth } from '@/lib/growth/auth/session';
+import { can } from '@/lib/growth/rbac';
+import { loadLiveWorkspace } from '@/lib/growth/persistence/workspace';
+import type { WorkspaceRecords } from '@/lib/growth/persistence/workspace-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,6 +35,14 @@ const MAX_BODY_BYTES = 24 * 1024;
 export async function POST(request: NextRequest) {
   const denied = await guardGrowthProviderAccess(request);
   if (denied) return denied;
+
+  const authGuard = growthAuthEnforced() ? await guardGrowth() : null;
+  if (authGuard && !authGuard.ok) {
+    return NextResponse.json(
+      { ok: false, code: authGuard.failure.code, message: authGuard.failure.message },
+      { status: authGuard.failure.status, headers: { 'cache-control': 'no-store' } },
+    );
+  }
   const limit = rateLimit(`intelligence:${clientAddress(request.headers)}`, {
     max: MAX_REQUESTS_PER_MINUTE,
   });
@@ -68,12 +81,21 @@ export async function POST(request: NextRequest) {
   }
 
   const clientId = typeof body.clientId === 'string' ? body.clientId : '';
-  const client = clientById(clientId);
-  if (!client) {
-    return NextResponse.json(
-      { reason: 'Unknown client workspace.' },
-      { status: 400, headers: { 'cache-control': 'no-store' } },
-    );
+  let client = authGuard?.ok ? undefined : clientById(clientId);
+  let records: WorkspaceRecords | undefined;
+
+  if (authGuard?.ok) {
+    const boundary = can({
+      principal: authGuard.principal,
+      permission: 'intelligence.use',
+      clientId,
+    });
+    if (!boundary.allowed) {
+      return NextResponse.json(
+        { ok: false, code: 'FORBIDDEN', message: boundary.reason ?? 'Not permitted.' },
+        { status: 403, headers: { 'cache-control': 'no-store' } },
+      );
+    }
   }
 
   const requestedFamily = typeof body.family === 'string' ? body.family : '';
@@ -81,6 +103,14 @@ export async function POST(request: NextRequest) {
     requestedFamily && (INTELLIGENCE_FAMILIES as readonly string[]).includes(requestedFamily)
       ? (requestedFamily as IntelligenceFamily)
       : inferFamily(intent as IntelligenceRequest['intent']);
+
+  if (authGuard?.ok) {
+    const stored = await loadLiveWorkspace([clientId]);
+    if (!stored.ok) return NextResponse.json({ reason: stored.failure, message: stored.message }, { status: 503, headers: { 'cache-control': 'no-store' } });
+    client = stored.data.value.clients.find(row => row.id === clientId);
+    records = stored.data.value.recordsByClient[clientId];
+  }
+  if (!client) return NextResponse.json({ reason: 'Unknown client workspace.' }, { status: 404, headers: { 'cache-control': 'no-store' } });
 
   const autonomy = AUTONOMY_MODES.includes(body.autonomy as (typeof AUTONOMY_MODES)[number])
     ? (body.autonomy as IntelligenceRequest['context']['autonomy'])
@@ -106,14 +136,14 @@ export async function POST(request: NextRequest) {
         ...(client.brandNotes ? [client.brandNotes] : []),
       ],
       forbiddenClaims: client.brand.forbiddenClaims,
-      budgetCeilingMinor: budgetCeilingMinor(client.id),
+      budgetCeilingMinor: records ? records.campaigns.reduce((sum, campaign) => sum + campaign.budgetMinor, 0) : budgetCeilingMinor(client.id),
       currency: client.country === 'EG' ? 'EGP' : 'AED',
       autonomy,
     },
   };
 
   try {
-    const router = buildRouter();
+    const router = buildRouter(process.env, records ? { performanceRows: records.performanceRows, communities: records.communities } : undefined);
     const response = await router.reason(intelligenceRequest);
 
     return NextResponse.json(

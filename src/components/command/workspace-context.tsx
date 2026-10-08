@@ -10,17 +10,18 @@
  */
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
-import { DEMO_CLIENTS } from '@/data/growth/clients';
+import type { WorkspaceDataset, WorkspaceRecords } from '@/lib/growth/persistence/workspace-data';
 import type { Client } from '@/lib/growth/types';
-import { connectionsFor } from '@/data/growth/connections';
+
 
 export type WorkspaceContextValue = {
   clients: readonly Client[];
+  records: WorkspaceRecords;
   activeClient: Client;
   setActiveClientId: (id: string) => void;
-  /** Platform ids with a stored credential for the active client. */
+  /** Platform ids whose stored connection is verified and unexpired. */
   connectedPlatformIds: string[];
-  /** True when no provider credential exists anywhere for this client. */
+  /** Explicit fixture selection or an imported fixture client. */
   isDemoWorkspace: boolean;
   /** Human-readable reason the workspace has no live data, or null. */
   demoReason: string | null;
@@ -28,13 +29,15 @@ export type WorkspaceContextValue = {
 
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 
-export function WorkspaceProvider({ children }: { children: ReactNode }) {
-  const [activeClientId, setActiveClientId] = useState<string>(DEMO_CLIENTS[0]?.id ?? '');
+export function WorkspaceProvider({ children, initialData }: Readonly<{ children: ReactNode; initialData: WorkspaceDataset }>) {
+  const clients = initialData.clients;
+  const [activeClientId, setActiveClientId] = useState<string>(clients[0]?.id ?? '');
 
   const value = useMemo<WorkspaceContextValue>(() => {
-    const activeClient = DEMO_CLIENTS.find((client) => client.id === activeClientId) ?? DEMO_CLIENTS[0];
+    const activeClient = clients.find((client) => client.id === activeClientId) ?? clients[0];
 
-    const connections = activeClient ? connectionsFor(activeClient.id) : [];
+    const records = initialData.recordsByClient[activeClient.id];
+    const connections = records.connections;
     // A platform counts as connected only when a connection record exists AND
     // its state says so. Fixture records never say CONNECTED, so this is empty
     // today — which is the correct reading of a workspace with no credentials.
@@ -42,19 +45,20 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       .filter((connection) => connection.state === 'CONNECTED')
       .map((connection) => connection.platform);
 
-    const liveAnything = connections.some((connection) => connection.state === 'CONNECTED');
+    const isDemoWorkspace = initialData.source === 'FIXTURE' || activeClient.origin === 'FIXTURE';
 
     return {
-      clients: DEMO_CLIENTS,
+      clients,
+      records,
       activeClient,
       setActiveClientId,
       connectedPlatformIds,
-      isDemoWorkspace: !liveAnything,
-      demoReason: liveAnything
+      isDemoWorkspace,
+      demoReason: !isDemoWorkspace
         ? null
-        : 'No platform credential is configured for this workspace. Every value shown is a labelled demo fixture.',
+        : 'This workspace is explicitly DEMO/FIXTURE. Values are demonstration data.',
     };
-  }, [activeClientId]);
+  }, [activeClientId, clients, initialData]);
 
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;
 }

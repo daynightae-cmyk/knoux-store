@@ -12,7 +12,7 @@ import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
 import { CodeBadge, DemoNotice, Pane, Section } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-import { activityFor } from '@/data/growth/connections';
+
 import {
   DEFAULT_AUTONOMY,
   RISK_LEVEL_MEANING,
@@ -39,9 +39,9 @@ const AUDIT_ACTIONS = [
 ] as const;
 
 function Settings() {
-  const { activeClient } = useWorkspace();
+  const { records, activeClient } = useWorkspace();
   const area = areaBySlug('settings')!;
-  const activity = activityFor(activeClient.id);
+  const activity = records.activity;
 
   return (
     <CommandShell

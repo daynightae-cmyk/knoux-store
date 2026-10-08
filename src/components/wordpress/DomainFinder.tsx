@@ -40,9 +40,17 @@ const STATE_COPY: Record<DomainAvailability['state'], { label: string; tone: str
 };
 
 function ResultRow({ result }: { result: DomainAvailability }) {
+  const [review, setReview] = useState<{ state: string; message: string; externalReference: string | null; dns: string; siteConnection: string } | null>(null);
+  const [busy, setBusy] = useState(false);
   const copy = STATE_COPY[result.state];
   const registration = formatMoney(result.registration);
   const renewal = formatMoney(result.renewal);
+  async function reviewRegistration() {
+    setBusy(true);
+    try { const response = await fetch('/api/domain/registration', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ domain: result.domain }) }); const value = await response.json(); setReview(value.state ? value : { state: 'REGISTRATION_REQUIRES_OPERATOR', message: 'Registration capability could not be verified.', externalReference: null, dns: 'UNTESTED', siteConnection: 'NOT_CONNECTED' }); }
+    catch { setReview({ state: 'REGISTRATION_REQUIRES_OPERATOR', message: 'Registration capability could not be verified. No purchase was requested.', externalReference: null, dns: 'UNTESTED', siteConnection: 'NOT_CONNECTED' }); }
+    finally { setBusy(false); }
+  }
 
   return (
     <li className={`domain-row domain-row--${copy.tone}`}>
@@ -81,6 +89,8 @@ function ResultRow({ result }: { result: DomainAvailability }) {
       </dl>
 
       {result.reason ? <p className="domain-row__reason">{result.reason}</p> : null}
+      {result.state === 'available' || result.state === 'premium' ? <button className="action" type="button" disabled={busy} onClick={() => void reviewRegistration()}>{busy ? 'Checking boundary…' : 'Select & review registration ↗'}</button> : null}
+      {review ? <aside className="domain-registration-review" role="status"><strong>{review.state}</strong><p>{result.domain} · {result.provider} · registration {registration ?? 'UNKNOWN'} · renewal {renewal ?? 'UNKNOWN'}. These are the search facts checked at {result.checkedAt}; availability and price must be rechecked before purchase.</p><p>{review.message}</p><p>Receipt: {review.externalReference ?? 'None'} · DNS: {review.dns ?? 'UNTESTED'} · site: {review.siteConnection ?? 'NOT_CONNECTED'}</p><button type="button" className="action" onClick={() => setReview(null)}>Close review</button></aside> : null}
     </li>
   );
 }

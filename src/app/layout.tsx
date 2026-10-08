@@ -6,6 +6,7 @@ import { CommandPalette } from '@/components/CommandPalette';
 import { KnouxSentinel } from '@/components/identity/KnouxSentinel';
 import { motionTokens } from '@/lib/motion';
 import './globals.css';
+import './visual-system-v2.css';
 
 export const viewport: Viewport = {
   width: 'device-width',

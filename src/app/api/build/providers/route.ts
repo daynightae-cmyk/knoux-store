@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createProjectAdapter } from '@/lib/build/adapter-factory';
 import { guardBuildApi } from '@/lib/build/api-guard';
-import { routeModel, taskClasses } from '@/lib/build/model-router';
-import { providerStatuses } from '@/lib/build/providers';
+import { taskClasses } from '@/lib/build/model-router';
+import { providerStatuses, runtimeRouting } from '@/lib/build/providers';
 import type { RoutingMode, TaskClass } from '@/lib/build/types';
 
 export const dynamic = 'force-dynamic';
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       ? { providerId: params.get('provider') as string, modelId: params.get('model') as string }
       : undefined;
 
-  const routing = routeModel(task, mode, providers, manual);
+  const routing = runtimeRouting(task, mode, process.env, manual);
 
   const adapter = createProjectAdapter();
   const execute = adapter.capabilities()['provider.execute'];

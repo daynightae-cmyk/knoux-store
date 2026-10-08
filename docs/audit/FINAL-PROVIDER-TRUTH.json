@@ -1,0 +1,3677 @@
+{
+  "recordedAt": "2026-10-07T21:40:25.979Z",
+  "rows": [
+    {
+      "provider": "openai",
+      "transport": "OpenAI",
+      "adapter": "STATIC_VERIFIED",
+      "registry": "STATIC_VERIFIED",
+      "secretSource": "server environment",
+      "secret": "PRESENT",
+      "auth": "RUNTIME_VERIFIED",
+      "discovery": "RUNTIME_VERIFIED",
+      "generation": "BLOCKED",
+      "streaming": "BLOCKED",
+      "tools": "UNTESTED",
+      "models": [
+        {
+          "id": "gpt-5-2025-08-07",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-mini-transcribe-2025-12-15",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "chat-latest",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "BLOCKED",
+          "streaming": "BLOCKED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.5-pro",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-realtime-translate",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-audio-2025-08-28",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-mini-transcribe-2025-03-20",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.4-pro-2026-03-05",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5-pro-2025-10-06",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "tts-1-1106",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.5-pro-2026-04-23",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-audio-mini-2025-10-06",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.2-pro-2025-12-11",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.6-sol",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "tts-1",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "omni-moderation-2024-09-26",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-realtime-2.1-mini",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-realtime-2025-08-28",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-live-transcribe",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-3.5-turbo-0125",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5-mini",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.4-2026-03-05",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5-mini-2025-08-07",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5-nano",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.6-luna",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-image-2.5-sunburst-2026-09-08",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4.1-nano",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.4-mini-2026-03-17",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "babbage-002",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-image-2",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-3.5-turbo-16k",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.4-pro",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-mini-tts",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-2024-05-13",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-realtime-mini-2025-12-15",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "text-embedding-ada-002",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-2024-08-06",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.1-chat-latest",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.3-chat-latest",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "o3-2025-04-16",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4.1-mini",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.2-2025-12-11",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "sora-2",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "chatgpt-image-latest",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-3.5-turbo",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-mini",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-image-2.5-sunburst",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-image-2.5-flare-2026-09-08",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-6-luna",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "o1-2024-12-17",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-mini-transcribe",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "davinci-002",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-image-2-2026-04-21",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-mini-tts-2025-12-15",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-image-1",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.2-chat-latest",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-audio",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.4-nano",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.3-codex",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "o3-mini",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "sora-2-pro",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-3.5-turbo-instruct",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5-search-api-2025-10-14",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-audio-mini-2025-12-15",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-transcribe",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4.1-nano-2025-04-14",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "omni-moderation-latest",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.4-mini",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "o4-mini-2025-04-16",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-2024-11-20",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "tts-1-hd",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-realtime-1.5",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-realtime-2",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-realtime",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.1",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5-search-api",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.5-2026-04-23",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.1-codex-max",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-realtime-2.1",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "o3",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4.1",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "text-embedding-3-large",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.5",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-mini-search-preview-2025-03-11",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-mini-search-preview",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-6-sol",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.1-codex",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "whisper-1",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5-pro",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-realtime-whisper",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.2-pro",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5-chat-latest",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-live-1",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.2-codex",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5-nano-2025-08-07",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-3.5-turbo-1106",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-mini-tts-2025-03-20",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-audio-mini",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-transcribe",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.2",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "o4-mini",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-mini-2024-07-18",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4.1-2025-04-14",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4.1-mini-2025-04-14",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.1-codex-mini",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.4-nano-2026-03-17",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "o1",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-image-2.5-flare",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-6.1-sol",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "tts-1-hd-1106",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-realtime-mini",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-transcribe-diarize",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "o3-mini-2025-01-31",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.4",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5-codex",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-audio-1.5",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-image-1-mini",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-search-preview-2025-03-11",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-image-1.5",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.1-2025-11-13",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "text-embedding-3-small",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-4o-search-preview",
+          "context": 1047576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-5.6-terra",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-3.5-turbo-instruct-0914",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gpt-6-astra",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        }
+      ],
+      "contextLimit": "UNTESTED",
+      "usage": "UNTESTED",
+      "cost": "UNKNOWN pricing unless measured",
+      "latency": "STATIC_VERIFIED",
+      "fallback": "STATIC_VERIFIED",
+      "errorNormalization": "STATIC_VERIFIED",
+      "sourceSha": "2d5214b09fb8c12f618fc0808a486d49ce3d182c",
+      "sourceBranch": "base44/setup-3259c13c",
+      "status": "BLOCKED",
+      "latencyMs": 1901,
+      "generationError": "RATE_LIMIT"
+    },
+    {
+      "provider": "anthropic",
+      "transport": "Anthropic",
+      "adapter": "STATIC_VERIFIED",
+      "registry": "STATIC_VERIFIED",
+      "secretSource": "server environment",
+      "secret": "PRESENT",
+      "auth": "UNAVAILABLE",
+      "discovery": "UNTESTED",
+      "generation": "UNTESTED",
+      "streaming": "UNTESTED",
+      "tools": "UNTESTED",
+      "models": [],
+      "contextLimit": "UNTESTED",
+      "usage": "STATIC_VERIFIED",
+      "cost": "UNKNOWN pricing unless measured",
+      "latency": "STATIC_VERIFIED",
+      "fallback": "STATIC_VERIFIED",
+      "errorNormalization": "STATIC_VERIFIED",
+      "sourceSha": "2d5214b09fb8c12f618fc0808a486d49ce3d182c",
+      "sourceBranch": "base44/setup-3259c13c",
+      "status": "UNAVAILABLE",
+      "latencyMs": 867
+    },
+    {
+      "provider": "gemini",
+      "transport": "Google Gemini",
+      "adapter": "STATIC_VERIFIED",
+      "registry": "STATIC_VERIFIED",
+      "secretSource": "server environment",
+      "secret": "PRESENT",
+      "auth": "RUNTIME_VERIFIED",
+      "discovery": "RUNTIME_VERIFIED",
+      "generation": "RUNTIME_VERIFIED",
+      "streaming": "RUNTIME_VERIFIED",
+      "tools": "UNTESTED",
+      "models": [
+        {
+          "id": "gemini-2.5-flash",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-2.5-pro",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-2.5-flash-preview-tts",
+          "context": 8192,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-2.5-pro-preview-tts",
+          "context": 8192,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemma-4-26b-a4b-it",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemma-4-31b-it",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-flash-latest",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-flash-lite-latest",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-pro-latest",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-2.5-flash-lite",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-2.5-flash-image",
+          "context": 32768,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3-flash-preview",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "RUNTIME_VERIFIED",
+          "streaming": "RUNTIME_VERIFIED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3.1-pro-preview",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3.1-pro-preview-customtools",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3.1-flash-lite-preview",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3.1-flash-lite",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3-pro-image-preview",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3-pro-image",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "nano-banana-pro-preview",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3.1-flash-image-preview",
+          "context": 65536,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3.1-flash-image",
+          "context": 65536,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3.1-flash-lite-image",
+          "context": 65536,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-nano-banana-2.1",
+          "context": 65536,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3.5-flash",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3.5-flash-lite",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-omni-flash-preview",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-omni-1.1-flash",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3.5-transcribe",
+          "context": 98304,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3.6-flash",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3.7-flash",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3.8-flash",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "lyria-3-clip-preview",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "lyria-3-pro-preview",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "lyria-3.5",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3.1-flash-tts-preview",
+          "context": 8192,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3.8-flash-tts",
+          "context": 8192,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-3.8-flash-lite-tts",
+          "context": 8192,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-robotics-er-2-preview",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "gemini-2.5-computer-use-preview-10-2025",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "antigravity-preview-05-2026",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "antigravity-preview-09-2026",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "antigravity-preview-latest",
+          "context": 1048576,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "deep-research-max-preview-04-2026",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "deep-research-preview-04-2026",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "deep-research-pro-preview-12-2025",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        }
+      ],
+      "contextLimit": "UNTESTED",
+      "usage": "RUNTIME_VERIFIED",
+      "cost": "UNKNOWN pricing unless measured",
+      "latency": "STATIC_VERIFIED",
+      "fallback": "STATIC_VERIFIED",
+      "errorNormalization": "STATIC_VERIFIED",
+      "sourceSha": "2d5214b09fb8c12f618fc0808a486d49ce3d182c",
+      "sourceBranch": "base44/setup-3259c13c",
+      "status": "RUNTIME_VERIFIED",
+      "latencyMs": 574,
+      "generationError": null,
+      "generationHttpStatus": null
+    },
+    {
+      "provider": "openrouter",
+      "transport": "OpenRouter",
+      "adapter": "STATIC_VERIFIED",
+      "registry": "STATIC_VERIFIED",
+      "secretSource": "server environment",
+      "secret": "PRESENT",
+      "auth": "UNAVAILABLE",
+      "discovery": "UNTESTED",
+      "generation": "UNTESTED",
+      "streaming": "UNTESTED",
+      "tools": "UNTESTED",
+      "models": [],
+      "contextLimit": "UNTESTED",
+      "usage": "STATIC_VERIFIED",
+      "cost": "UNKNOWN pricing unless measured",
+      "latency": "STATIC_VERIFIED",
+      "fallback": "STATIC_VERIFIED",
+      "errorNormalization": "STATIC_VERIFIED",
+      "sourceSha": "2d5214b09fb8c12f618fc0808a486d49ce3d182c",
+      "sourceBranch": "base44/setup-3259c13c",
+      "status": "UNAVAILABLE",
+      "latencyMs": 0
+    },
+    {
+      "provider": "groq",
+      "transport": "Groq",
+      "adapter": "STATIC_VERIFIED",
+      "registry": "STATIC_VERIFIED",
+      "secretSource": "server environment",
+      "secret": "PRESENT",
+      "auth": "RUNTIME_VERIFIED",
+      "discovery": "RUNTIME_VERIFIED",
+      "generation": "RUNTIME_VERIFIED",
+      "streaming": "RUNTIME_VERIFIED",
+      "tools": "UNTESTED",
+      "models": [
+        {
+          "id": "whisper-large-v3-turbo",
+          "context": 448,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "meta-llama/llama-prompt-guard-2-86m",
+          "context": 512,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "allam-2-7b",
+          "context": 4096,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "RUNTIME_VERIFIED",
+          "streaming": "RUNTIME_VERIFIED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "openai/gpt-oss-safeguard-20b",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "canopylabs/orpheus-arabic-saudi",
+          "context": 4000,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "whisper-large-v3",
+          "context": 448,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "openai/gpt-oss-120b",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "openai/gpt-oss-20b",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "qwen/qwen3.8-27b",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "canopylabs/orpheus-v1-english",
+          "context": 4000,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "meta-llama/llama-prompt-guard-2-22m",
+          "context": 512,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        }
+      ],
+      "contextLimit": "UNTESTED",
+      "usage": "RUNTIME_VERIFIED",
+      "cost": "UNKNOWN pricing unless measured",
+      "latency": "STATIC_VERIFIED",
+      "fallback": "STATIC_VERIFIED",
+      "errorNormalization": "STATIC_VERIFIED",
+      "sourceSha": "2d5214b09fb8c12f618fc0808a486d49ce3d182c",
+      "sourceBranch": "base44/setup-3259c13c",
+      "status": "RUNTIME_VERIFIED",
+      "latencyMs": 1318,
+      "generationError": null,
+      "generationHttpStatus": null
+    },
+    {
+      "provider": "mistral",
+      "transport": "Mistral",
+      "adapter": "STATIC_VERIFIED",
+      "registry": "STATIC_VERIFIED",
+      "secretSource": "server environment",
+      "secret": "PRESENT",
+      "auth": "RUNTIME_VERIFIED",
+      "discovery": "RUNTIME_VERIFIED",
+      "generation": "RUNTIME_VERIFIED",
+      "streaming": "RUNTIME_VERIFIED",
+      "tools": "UNTESTED",
+      "models": [
+        {
+          "id": "codestral-2508",
+          "context": 256000,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "RUNTIME_VERIFIED",
+          "streaming": "RUNTIME_VERIFIED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "codestral-latest",
+          "context": 256000,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-code-latest",
+          "context": 256000,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-code-fim-latest",
+          "context": 256000,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "labs-leanstral-1-5-1",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "labs-leanstral-1-5",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "ministral-14b-2512",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "ministral-14b-latest",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "ministral-3b-2512",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "ministral-3b-latest",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "ministral-8b-2512",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "ministral-8b-latest",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-medium-latest",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-medium",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-medium-3-5",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-medium-3.5",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-medium-3",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-medium-2604",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-vibe-cli-latest",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-vibe-cli-with-tools",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "magistral-medium-latest",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-small-2603",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-small-latest",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-vibe-cli-fast",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "magistral-small-latest",
+          "context": 262144,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "voxtral-small-2507",
+          "context": 32768,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "voxtral-small-latest",
+          "context": 32768,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "codestral-embed",
+          "context": 8192,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "codestral-embed-2505",
+          "context": 8192,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-embed-2312",
+          "context": 8192,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-embed",
+          "context": 8192,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-moderation-2603",
+          "context": 131072,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-ocr-2512",
+          "context": 16384,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-ocr-3-0",
+          "context": 16384,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-ocr-3",
+          "context": 16384,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-ocr-4-0",
+          "context": 16384,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-ocr-latest",
+          "context": 16384,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-ocr-4",
+          "context": 16384,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "mistral-ocr-4-1",
+          "context": 16384,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "voxtral-mini-2602",
+          "context": 16384,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "voxtral-mini-latest",
+          "context": 16384,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "voxtral-mini-transcribe-realtime-2602",
+          "context": 32768,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "voxtral-mini-realtime-2602",
+          "context": 32768,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "voxtral-mini-realtime-latest",
+          "context": 32768,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "voxtral-mini-tts-2603",
+          "context": 4096,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "voxtral-mini-tts-latest",
+          "context": 4096,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        }
+      ],
+      "contextLimit": "UNTESTED",
+      "usage": "RUNTIME_VERIFIED",
+      "cost": "UNKNOWN pricing unless measured",
+      "latency": "STATIC_VERIFIED",
+      "fallback": "STATIC_VERIFIED",
+      "errorNormalization": "STATIC_VERIFIED",
+      "sourceSha": "2d5214b09fb8c12f618fc0808a486d49ce3d182c",
+      "sourceBranch": "base44/setup-3259c13c",
+      "status": "RUNTIME_VERIFIED",
+      "latencyMs": 777,
+      "generationError": null
+    },
+    {
+      "provider": "deepseek",
+      "transport": "DeepSeek",
+      "adapter": "STATIC_VERIFIED",
+      "registry": "STATIC_VERIFIED",
+      "secretSource": "server environment",
+      "secret": "PRESENT",
+      "auth": "RUNTIME_VERIFIED",
+      "discovery": "RUNTIME_VERIFIED",
+      "generation": "BLOCKED",
+      "streaming": "BLOCKED",
+      "tools": "UNTESTED",
+      "models": [
+        {
+          "id": "deepseek-flash",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "BLOCKED",
+          "streaming": "BLOCKED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "deepseek-v4-pro",
+          "context": null,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": null,
+            "outputPerMillion": null,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        }
+      ],
+      "contextLimit": "UNTESTED",
+      "usage": "UNTESTED",
+      "cost": "UNKNOWN pricing unless measured",
+      "latency": "STATIC_VERIFIED",
+      "fallback": "STATIC_VERIFIED",
+      "errorNormalization": "STATIC_VERIFIED",
+      "sourceSha": "2d5214b09fb8c12f618fc0808a486d49ce3d182c",
+      "sourceBranch": "base44/setup-3259c13c",
+      "status": "BLOCKED",
+      "latencyMs": 334,
+      "generationError": "UNKNOWN",
+      "generationHttpStatus": 402
+    },
+    {
+      "provider": "qwen",
+      "transport": "Alibaba Model Studio",
+      "adapter": "STATIC_VERIFIED",
+      "registry": "STATIC_VERIFIED",
+      "secretSource": "server environment",
+      "secret": "PRESENT",
+      "auth": "AUTH_REQUIRED",
+      "discovery": "UNTESTED",
+      "generation": "UNTESTED",
+      "streaming": "UNTESTED",
+      "tools": "UNTESTED",
+      "models": [],
+      "contextLimit": "UNTESTED",
+      "usage": "STATIC_VERIFIED",
+      "cost": "UNKNOWN pricing unless measured",
+      "latency": "STATIC_VERIFIED",
+      "fallback": "STATIC_VERIFIED",
+      "errorNormalization": "STATIC_VERIFIED",
+      "sourceSha": "2d5214b09fb8c12f618fc0808a486d49ce3d182c",
+      "sourceBranch": "base44/setup-3259c13c",
+      "status": "AUTH_REQUIRED",
+      "latencyMs": 1122
+    },
+    {
+      "provider": "grok",
+      "transport": "OpenRouter",
+      "adapter": "STATIC_VERIFIED",
+      "registry": "STATIC_VERIFIED",
+      "secretSource": "server environment",
+      "secret": "PRESENT",
+      "auth": "RUNTIME_VERIFIED",
+      "discovery": "RUNTIME_VERIFIED",
+      "generation": "RUNTIME_VERIFIED",
+      "streaming": "RUNTIME_VERIFIED",
+      "tools": "UNTESTED",
+      "models": [
+        {
+          "id": "x-ai/grok-4.7",
+          "context": 500000,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "RUNTIME_VERIFIED",
+          "streaming": "RUNTIME_VERIFIED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": 2,
+            "outputPerMillion": 6,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "x-ai/grok-4.6",
+          "context": 500000,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": 2,
+            "outputPerMillion": 6,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "x-ai/grok-4.5",
+          "context": 500000,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": 2,
+            "outputPerMillion": 6,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "x-ai/grok-build-0.1",
+          "context": 256000,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": 1,
+            "outputPerMillion": 2,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "x-ai/grok-4.3",
+          "context": 1000000,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": 1.25,
+            "outputPerMillion": 2.5,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "x-ai/grok-4.3:batch",
+          "context": 1000000,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": 1,
+            "outputPerMillion": 2,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "x-ai/grok-4.20-multi-agent",
+          "context": 2000000,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": 1.25,
+            "outputPerMillion": 2.5,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        },
+        {
+          "id": "x-ai/grok-4.20",
+          "context": 2000000,
+          "discovery": "RUNTIME_VERIFIED",
+          "generation": "UNTESTED",
+          "streaming": "UNTESTED",
+          "tools": "UNTESTED",
+          "pricing": {
+            "inputPerMillion": 1.25,
+            "outputPerMillion": 2.5,
+            "cachedInputPerMillion": null,
+            "currency": "USD"
+          }
+        }
+      ],
+      "contextLimit": "UNTESTED",
+      "usage": "RUNTIME_VERIFIED",
+      "cost": "UNKNOWN pricing unless measured",
+      "latency": "STATIC_VERIFIED",
+      "fallback": "STATIC_VERIFIED",
+      "errorNormalization": "STATIC_VERIFIED",
+      "sourceSha": "2d5214b09fb8c12f618fc0808a486d49ce3d182c",
+      "sourceBranch": "base44/setup-3259c13c",
+      "status": "RUNTIME_VERIFIED",
+      "latencyMs": 1213,
+      "generationError": null
+    },
+    {
+      "provider": "opencode-go",
+      "transport": "OpenCode Go",
+      "adapter": "STATIC_VERIFIED",
+      "registry": "STATIC_VERIFIED",
+      "secretSource": "server environment",
+      "secret": "PRESENT",
+      "auth": "UNAVAILABLE",
+      "discovery": "UNTESTED",
+      "generation": "UNTESTED",
+      "streaming": "UNTESTED",
+      "tools": "UNTESTED",
+      "models": [],
+      "contextLimit": "UNTESTED",
+      "usage": "STATIC_VERIFIED",
+      "cost": "UNKNOWN pricing unless measured",
+      "latency": "STATIC_VERIFIED",
+      "fallback": "STATIC_VERIFIED",
+      "errorNormalization": "STATIC_VERIFIED",
+      "sourceSha": "2d5214b09fb8c12f618fc0808a486d49ce3d182c",
+      "sourceBranch": "base44/setup-3259c13c",
+      "status": "UNAVAILABLE",
+      "latencyMs": 528
+    },
+    {
+      "provider": "ollama",
+      "transport": "Ollama",
+      "adapter": "STATIC_VERIFIED",
+      "registry": "STATIC_VERIFIED",
+      "secretSource": "Local endpoint; no mandatory secret",
+      "secret": "NOT_REQUIRED",
+      "auth": "UNAVAILABLE",
+      "discovery": "UNTESTED",
+      "generation": "UNTESTED",
+      "streaming": "UNTESTED",
+      "tools": "UNTESTED",
+      "models": [],
+      "contextLimit": "UNTESTED",
+      "usage": "STATIC_VERIFIED",
+      "cost": "UNKNOWN pricing unless measured",
+      "latency": "STATIC_VERIFIED",
+      "fallback": "STATIC_VERIFIED",
+      "errorNormalization": "STATIC_VERIFIED",
+      "sourceSha": "2d5214b09fb8c12f618fc0808a486d49ce3d182c",
+      "sourceBranch": "base44/setup-3259c13c",
+      "status": "UNAVAILABLE",
+      "latencyMs": 4
+    },
+    {
+      "provider": "lm-studio",
+      "transport": "LM Studio",
+      "adapter": "STATIC_VERIFIED",
+      "registry": "STATIC_VERIFIED",
+      "secretSource": "Local endpoint; no mandatory secret",
+      "secret": "NOT_REQUIRED",
+      "auth": "UNAVAILABLE",
+      "discovery": "UNTESTED",
+      "generation": "UNTESTED",
+      "streaming": "UNTESTED",
+      "tools": "UNTESTED",
+      "models": [],
+      "contextLimit": "UNTESTED",
+      "usage": "STATIC_VERIFIED",
+      "cost": "UNKNOWN pricing unless measured",
+      "latency": "STATIC_VERIFIED",
+      "fallback": "STATIC_VERIFIED",
+      "errorNormalization": "STATIC_VERIFIED",
+      "sourceSha": "2d5214b09fb8c12f618fc0808a486d49ce3d182c",
+      "sourceBranch": "base44/setup-3259c13c",
+      "status": "UNAVAILABLE",
+      "latencyMs": 4
+    },
+    {
+      "provider": "custom-openai",
+      "transport": "OpenAI-compatible",
+      "adapter": "STATIC_VERIFIED",
+      "registry": "STATIC_VERIFIED",
+      "secretSource": "server environment",
+      "secret": "MISSING",
+      "auth": "UNTESTED",
+      "discovery": "UNTESTED",
+      "generation": "UNTESTED",
+      "streaming": "UNTESTED",
+      "tools": "UNTESTED",
+      "models": [],
+      "contextLimit": "UNTESTED",
+      "usage": "STATIC_VERIFIED",
+      "cost": "UNKNOWN pricing unless measured",
+      "latency": "STATIC_VERIFIED",
+      "fallback": "STATIC_VERIFIED",
+      "errorNormalization": "STATIC_VERIFIED",
+      "sourceSha": "2d5214b09fb8c12f618fc0808a486d49ce3d182c",
+      "sourceBranch": "base44/setup-3259c13c",
+      "status": "CONFIG_REQUIRED"
+    }
+  ]
+}

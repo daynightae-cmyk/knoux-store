@@ -18,6 +18,8 @@ import type { GenerationRequest } from "./types";
  */
 
 export type FallbackResult = {
+  actualProviderId: string | null;
+  actualModelId: string | null;
   response: GenerationResponse;
   fallbackUsed: boolean;
   fallbackFrom: { providerId: string; modelId: string } | null;
@@ -46,6 +48,10 @@ export async function generateWithFallback(
 
   let fallbackCount = 0;
   let fallbackFrom: { providerId: string; modelId: string } | null = null;
+  let lastResponse: GenerationResponse | null = null;
+  let actualProviderId: string | null = null;
+  let actualModelId: string | null = null;
+  let attempts = 0;
 
   for (let i = 0; i < chain.length; i++) {
     const { providerId, modelId } = chain[i];
@@ -59,7 +65,11 @@ export async function generateWithFallback(
       providerId,
       modelId,
     };
+    fallbackCount = attempts++;
     const response = await adapter.generate(actualRequest, env);
+    lastResponse = response;
+    actualProviderId = providerId;
+    actualModelId = response.modelUsed ?? modelId;
 
     // Record usage
     recordUsage({
@@ -87,6 +97,7 @@ export async function generateWithFallback(
       });
 
       return {
+        actualProviderId, actualModelId,
         response,
         fallbackUsed: i > 0,
         fallbackFrom,
@@ -100,12 +111,13 @@ export async function generateWithFallback(
     if (errorCategory && NON_FALLBACKABLE_ERRORS.has(errorCategory)) {
       // Update health: failed
       updateHealth(providerId, {
-        generation: "FAILED",
+        generation: response.error?.httpStatus === 402 ? "BLOCKED" : "FAILED",
         lastError: response.error,
       });
 
       // For RATE_LIMITED, mark as rate-limited but still try fallback
       return {
+        actualProviderId, actualModelId,
         response,
         fallbackUsed: i > 0,
         fallbackFrom,
@@ -122,49 +134,18 @@ export async function generateWithFallback(
       });
     } else {
       updateHealth(providerId, {
-        generation: "FAILED",
+        generation: response.error?.httpStatus === 402 ? "BLOCKED" : "FAILED",
         lastError: response.error,
       });
     }
 
     // Record fallback event
     fallbackFrom = { providerId, modelId };
-    fallbackCount++;
-
-    // Try next in chain
-    if (i < chain.length - 1) {
-      // Log the fallback
-      recordUsage({
-        providerId,
-        modelId,
-        operation: "generate",
-        taskClass: null,
-        inputTokens: null,
-        outputTokens: null,
-        cachedTokens: null,
-        latencyMs: response.latencyMs,
-        ttftMs: null,
-        estimatedCost: null,
-        success: false,
-        errorCategory: errorCategory ?? "UNKNOWN",
-        fallbackCount,
-      });
-    }
   }
 
-  // All providers failed
-  const lastResponse = await getAdapter(
-    chain[chain.length - 1].providerId,
-  )?.generate(
-    {
-      ...request,
-      providerId: chain[chain.length - 1].providerId,
-      modelId: chain[chain.length - 1].modelId,
-    },
-    env,
-  );
-
+  // Return the last measured failure; never repeat a charged request to build an error result.
   return {
+    actualProviderId, actualModelId,
     response: lastResponse ?? {
       ok: false,
       text: "",

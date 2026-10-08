@@ -13,5 +13,8 @@ export const config = {
     '/forgot-password',
     '/update-password',
     '/auth/:path*',
+    '/command/:path*',
+    '/api/intelligence/:path*',
+    '/api/growth/:path*',
   ],
 };

@@ -179,6 +179,8 @@ export type Principal = {
    * one client they belong to; an assigned staff role sees only these.
    */
   clientIds: string[];
+  /** Server-resolved membership grants. Their presence forbids workspace-wide escalation. */
+  clientRoles?: Readonly<Record<string, Role>>;
 };
 
 export type Decision = {
@@ -201,6 +203,10 @@ export function hasRolePermission(role: Role, permission: Permission): boolean {
  * so no permission set can accidentally grant cross-client reach.
  */
 export function canAccessClient(principal: Principal, clientId: string): Decision {
+  if (principal.clientRoles) {
+    return Object.hasOwn(principal.clientRoles, clientId)
+      ? ALLOW : deny('This principal is not bound to that client workspace.');
+  }
   const scope = ROLE_SCOPE[principal.role];
 
   if (scope === 'ALL_CLIENTS') return ALLOW;
@@ -223,24 +229,26 @@ export type AccessRequest = {
 
 export function can(request: AccessRequest): Decision {
   const { principal, permission, clientId, platform, touchesCredentials } = request;
+  const role = clientId && principal.clientRoles
+    ? principal.clientRoles[clientId] : principal.role;
 
   if (clientId) {
     const clientAccess = canAccessClient(principal, clientId);
     if (!clientAccess.allowed) return clientAccess;
-  } else if (ROLE_SCOPE[principal.role] !== 'ALL_CLIENTS') {
+  } else if (principal.clientRoles || ROLE_SCOPE[principal.role] !== 'ALL_CLIENTS') {
     return deny('This action is scoped to a client and none was supplied.');
   }
 
   if (touchesCredentials) {
-    if (principal.role !== 'OWNER') {
+    if (role !== 'OWNER') {
       return deny('Changing a connection credential is restricted to the workspace owner.');
     }
-  } else if (platform && isSensitivePlatform(platform) && !hasRolePermission(principal.role, 'connection.view')) {
+  } else if (platform && isSensitivePlatform(platform) && !hasRolePermission(role, 'connection.view')) {
     return deny('Viewing this platform connection requires the connection.view permission.');
   }
 
-  if (!hasRolePermission(principal.role, permission)) {
-    return deny(`Role ${principal.role} does not hold ${permission}.`);
+  if (!hasRolePermission(role, permission)) {
+    return deny(`Role ${role} does not hold ${permission}.`);
   }
 
   return ALLOW;
@@ -248,6 +256,7 @@ export function can(request: AccessRequest): Decision {
 
 /** Convenience for templates: the client list a principal is allowed to see. */
 export function visibleClientIds(principal: Principal, allClientIds: string[]): string[] {
+  if (principal.clientRoles) return allClientIds.filter(id => Object.hasOwn(principal.clientRoles!, id));
   if (ROLE_SCOPE[principal.role] === 'ALL_CLIENTS') return [...allClientIds];
   const allowed = new Set(principal.clientIds);
   return allClientIds.filter((id) => allowed.has(id));

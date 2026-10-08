@@ -17,6 +17,7 @@
  */
 
 import { clamp01 } from './spatial';
+import type { EngineeringSession } from './engineering-plan';
 import { DEFAULT_PREFERENCES, type WorkspacePreferences } from './preferences';
 import type { IntegrationSnapshot } from './integration-types';
 import type {
@@ -60,6 +61,7 @@ export type OpenFile = SourceFileEntry & {
 };
 
 export type BuildWorkspaceState = {
+  engineering: EngineeringSession;
   snapshot: import('./types').ProjectSnapshot | null;
   projectRef: string | null;
   recentProjects: { name: string; path: string }[];
@@ -178,6 +180,7 @@ function undetectedCapabilities(): Record<BuildCapability, CapabilityStatus> {
 export const DEFAULT_PREVIEW_VIEWPORT = { id: 'laptop', label: 'LAPTOP', width: 1440, height: 900 };
 
 export const initialBuildState: BuildWorkspaceState = {
+  engineering: { requestId: null, context: null, host: null, stage: 'LISTENING', plan: null, error: null, selection: null, characters: 0, measurement: null },
   snapshot: null, projectRef: null, recentProjects: [], integrations: null,
   preferences: DEFAULT_PREFERENCES, activity: [],
   adapter: {
@@ -259,6 +262,8 @@ export type BuildAction =
   | { type: 'stage/select'; stageId: string; progress: number }
   | { type: 'entity/select'; id: string | null }
   | { type: 'diagnostic/select'; id: string | null }
+  | { type: 'engineering/begin'; requestId: string; context: NonNullable<EngineeringSession['context']> }
+  | { type: 'engineering/update'; patch: Partial<EngineeringSession>; requestId?: string | null }
   | { type: 'ai/mode'; mode: SenshialMode }
   | { type: 'ai/routing-mode'; mode: RoutingMode }
   | { type: 'ai/task'; task: TaskClass }
@@ -279,6 +284,8 @@ export type BuildAction =
 
 export function buildReducer(state: BuildWorkspaceState, action: BuildAction): BuildWorkspaceState {
   switch (action.type) {
+    case 'engineering/begin': return { ...state, engineering: { ...initialBuildState.engineering, host: state.engineering.host, requestId: action.requestId, context: action.context, stage: 'RESOLVING' } };
+    case 'engineering/update': return action.requestId && action.requestId !== state.engineering.requestId ? state : { ...state, engineering: { ...state.engineering, ...action.patch } };
     case 'facts/unavailable': return { ...state, snapshot: null, project: null, graph: null, git: null, verification: null, runtime: initialBuildState.runtime, adapter: { ...initialBuildState.adapter, capabilities: undetectedCapabilities() }, workspace: { ...state.workspace, openFiles: [], selectedFilePath: null, selectedRoute: null } };
     case 'snapshot/resolved': return { ...state, snapshot: action.snapshot };
     case 'project/activate': return { ...initialBuildState, ai: state.ai, preferences: state.preferences, integrations: state.integrations, activity: state.activity, projectRef: action.path, recentProjects: [{ name: action.name, path: action.path }, ...state.recentProjects.filter((p) => p.path !== action.path)].slice(0, 12) };
@@ -312,7 +319,7 @@ export function buildReducer(state: BuildWorkspaceState, action: BuildAction): B
     case 'providers/resolved':
       return { ...state, ai: { ...state.ai, providers: action.providers } };
     case 'routing/resolved':
-      return { ...state, ai: { ...state.ai, routing: action.routing, providerId: action.routing.providerId, modelId: action.routing.modelId } };
+      return { ...state, ai: { ...state.ai, routing: action.routing, ...(state.ai.routingMode === 'manual' ? {} : { providerId: action.routing.providerId, modelId: action.routing.modelId }) } };
     case 'verification/resolved':
       return { ...state, verification: action.snapshot };
     case 'diagnostics/resolved':

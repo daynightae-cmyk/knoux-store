@@ -25,8 +25,8 @@ import {
   Section,
 } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-import { connectionsFor } from '@/data/growth/connections';
-import { DEMO_CLIENTS } from '@/data/growth/clients';
+
+
 import { countryByCode } from '@/data/growth/taxonomy';
 import { AUTONOMY_MEANING, type AutonomyMode } from '@/lib/growth/states';
 import styles from '@/components/command/command.module.css';
@@ -36,9 +36,9 @@ export default function ClientsPage() {
 }
 
 function Clients() {
-  const { activeClient, setActiveClientId, clients } = useWorkspace();
+  const { records, activeClient, setActiveClientId, clients } = useWorkspace();
   const area = areaBySlug('clients')!;
-  const connections = connectionsFor(activeClient.id);
+  const connections = records.connections;
   const country = countryByCode(activeClient.country);
 
   return (
@@ -63,7 +63,7 @@ function Clients() {
 
       <Section title="Workspaces" note="Select a workspace to load it into every screen.">
         <div className={styles.commandGrid4 ?? ''}>
-          {DEMO_CLIENTS.map((client) => (
+          {clients.map((client) => (
             <button
               key={client.id}
               type="button"

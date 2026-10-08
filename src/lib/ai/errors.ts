@@ -7,21 +7,12 @@ import type { ErrorCategory, NormalizedError } from "./types";
  * reaches the UI — it never contains secrets, tokens, or raw response bodies.
  */
 
-const REDACT_PATTERNS = [
-  /Bearer\s+[A-Za-z0-9._\-]+/gi,
-  /sk-[A-Za-z0-9]{20,}/g,
-  /api[_-]?key[=:]\s*[A-Za-z0-9._\-]+/gi,
-  /authorization["']?\s*[:=]\s*["']?[A-Za-z0-9._\-]+["']?/gi,
-  /x-api-key["']?\s*[:=]\s*["']?[A-Za-z0-9._\-]+["']?/gi,
-];
+import { redactSecrets } from "@/lib/security/redact";
 
 function redact(text: string): string {
-  let result = text;
-  for (const pattern of REDACT_PATTERNS) {
-    result = result.replace(pattern, "[REDACTED]");
-  }
-  // Limit length to avoid leaking large error bodies
-  return result.slice(0, 500);
+  // Limit length to avoid leaking large error bodies. Truncating after
+  // redaction, so a credential that straddles the cut is still removed.
+  return redactSecrets(text).slice(0, 500);
 }
 
 /**

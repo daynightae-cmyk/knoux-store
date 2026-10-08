@@ -134,11 +134,17 @@ jobs:
       # to claim anything about what a visitor receives.
       - run: npm run build
 
-      - name: Install the browser
-        run: npx playwright install --with-deps chromium
+      # GitHub's Ubuntu image already includes stable Google Chrome. Using
+      # Playwright's supported channel avoids a stalled CDN/apt install while
+      # retaining the complete three-profile browser suite.
+      - name: Verify the runner browser
+        timeout-minutes: 2
+        run: google-chrome --version
 
       - name: End-to-end, responsive and accessibility checks
         run: npm run test:e2e
+        env:
+          KNOUX_E2E_BROWSER_CHANNEL: chrome
 
       - name: Upload visual evidence
         if: always()

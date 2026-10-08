@@ -1,2 +1,2 @@
-import { AiProvidersPage } from '@/components/build/ai/AiProvidersPage';
-export default function Page() { return <AiProvidersPage />; }
+import { redirect } from 'next/navigation';
+export default function Page() { redirect('/build/providers'); }

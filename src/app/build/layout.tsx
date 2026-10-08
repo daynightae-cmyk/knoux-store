@@ -5,6 +5,7 @@ import '@/components/build/workspace/build-os.css';
 import '@/components/build/dev/dev-workspace.css';
 import '@/components/build/dev/dev-cinematic.css';
 import '@/components/build/dev/dev-connected.css';
+import '@/components/build/dev/engineering-os.css';
 
 export const dynamic = 'force-dynamic';
 

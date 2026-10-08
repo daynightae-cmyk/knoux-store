@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { wordPressServices } from '@/data/wordpress';
+import { OperationsConsole } from './OperationsConsole';
 
 /**
  * Build & Operate.
@@ -59,7 +60,7 @@ export function BuildAndOperate() {
     .filter((service): service is NonNullable<typeof service> => Boolean(service));
 
   return (
-    <div className="operate">
+    <><div className="operate">
       <ol className="operate__phases">
         {PHASES.map((entry) => {
           const isActive = entry.id === phase.id;
@@ -106,6 +107,6 @@ export function BuildAndOperate() {
           services, because both depend on the state of the install being worked on.
         </p>
       </div>
-    </div>
+    </div><OperationsConsole /></>
   );
 }

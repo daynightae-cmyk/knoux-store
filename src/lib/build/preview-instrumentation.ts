@@ -1,8 +1,11 @@
+import { redactSecrets } from '@/lib/security/redact';
+
 export type PreviewObservation = { id: number; kind: 'log' | 'warn' | 'error' | 'resource'; message: string; at: string };
 export function safePreviewText(value: unknown): string {
   // Do not serialize objects (request objects and errors can carry credentials).
   const text = typeof value === 'string' ? value : value === null ? 'null' : typeof value === 'number' || typeof value === 'boolean' ? String(value) : '[object withheld]';
-  return text.replace(/\b(?:sk-[A-Za-z0-9_-]+|gh[pousr]_[A-Za-z0-9_]+|Bearer\s+\S+|sb_secret_\S+)/gi, '[REDACTED]').replace(/((?:key|token|secret|password|authorization)\s*[=:]\s*)\S+/gi, '$1[REDACTED]').slice(0, 400);
+  // Redact before truncating, so a credential that straddles the cut is still removed.
+  return redactSecrets(text).slice(0, 400);
 }
 export function domName(element: Element): string {
   const label = element.getAttribute('aria-label'); if (label) return safePreviewText(label);

@@ -3,6 +3,7 @@ import { providerStatuses } from '@/lib/build/providers';
 import { resolveDeploymentEnvironment } from '@/lib/build/adapter-factory';
 import { guardBuildApi } from '@/lib/build/api-guard';
 import type { EnvironmentSignal } from '@/lib/build/types';
+import { hostname, type as osType, release } from 'node:os';
 
 export const dynamic = 'force-dynamic';
 
@@ -64,6 +65,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json(
     {
       environment: resolveDeploymentEnvironment(),
+      host: { name: hostname(), os: `${osType()} ${release()}`, kind: process.env.VERCEL ? 'Deployment server' : 'Active server host' },
       signals,
       providers,
       verificationRunner: {

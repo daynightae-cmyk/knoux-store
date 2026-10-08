@@ -54,7 +54,7 @@ const { compileBuildIntent, summariseIntent } = load('src/lib/build/intent.ts', 
   '@/lib/entities': entities,
 });
 const permissions = load('src/lib/build/permissions.ts');
-const providers = load('src/lib/build/providers.ts');
+const providers = load('tests/fixtures/historical-provider-catalog.ts');
 const router = load('src/lib/build/model-router.ts');
 const verification = load('src/lib/build/verification.ts');
 const diagnostics = load('src/lib/build/diagnostics.ts');
