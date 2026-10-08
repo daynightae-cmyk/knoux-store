@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
         warnings: [],
         error: {
           category: "UNKNOWN" as const,
-          message: result.reason?.message ?? "Arena generation failed",
+          message: "Arena generation failed.",
           safeMessage: "Generation failed in arena.",
           httpStatus: null,
           providerErrorId: null,
