@@ -64,6 +64,8 @@ export function KnouxSoftwareUniverse() {
           <p className="ksu-body">Explore ten connected tools for creating, organizing and operating your digital world.</p>
         </div>
 
+        <div className="ksu-spotlight" aria-hidden="true"><Image unoptimized src={softwareUniverseProducts[0].image} alt="" width={360} height={360} /></div>
+
         <article className="ksu-info" aria-live="polite">
           <span className="ksu-info-badge">01 / 10</span>
           <strong className="ksu-info-name">KNOUX ONE</strong>
