@@ -1,9 +1,12 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { AiCenterPage } from './AiCenterLayout';
-import { DevPanel, DevEmpty } from '../dev/DevUI';
+import { DevPanel } from '../dev/DevUI';
+import { useCanonicalModels } from '../generator/useCanonicalModels';
+import { ModelNavigator } from '../generator/ModelNavigator';
+import { effortSupport } from '@/lib/build/profile';
+import type { NormalizedModel, GenerationControls } from '@/lib/ai/types';
 
-type ModelEntry = { providerId: string; modelId: string; displayName: string };
 
 type GenerationResponse = {
   ok: boolean;
@@ -20,8 +23,8 @@ type GenerationResponse = {
 };
 
 export function AiControlPage() {
-  const [models, setModels] = useState<ModelEntry[]>([]);
-  const [selected, setSelected] = useState<ModelEntry | null>(null);
+  const intelligence = useCanonicalModels();
+  const [selected, setSelected] = useState<NormalizedModel | null>(null);
   const [prompt, setPrompt] = useState('');
   const [system, setSystem] = useState('');
   const [temp, setTemp] = useState(0.7);
@@ -35,20 +38,16 @@ export function AiControlPage() {
   const [streaming, setStreaming] = useState(false);
   const [streamText, setStreamText] = useState('');
 
-  useEffect(() => {
-    void fetch('/api/build/ai/models', { cache: 'no-store' })
-      .then((r) => r.json())
-      .then((data) => {
-        const all: ModelEntry[] = [];
-        for (const p of data.providers ?? []) {
-          for (const m of p.models ?? []) {
-            all.push({ providerId: p.providerId, modelId: m.modelId, displayName: m.displayName ?? m.modelId });
-          }
-        }
-        setModels(all);
-      })
-      .catch(() => {});
-  }, []);
+  function exposedControls(): GenerationControls {
+    if (!selected) return {};
+    return {
+      ...(selected.controls.temperature ? { temperature: temp } : {}),
+      ...(selected.controls.topP ? { topP } : {}),
+      ...(selected.controls.maxTokens ? { maxOutputTokens: Math.max(1, Math.min(maxTokens, selected.maxOutputTokens ?? 4096)) } : {}),
+      ...(selected.controls.seed && seed ? { seed: Number(seed) } : {}),
+      ...(selected.controls.stop && stop ? { stop: stop.split(',').map((item) => item.trim()).filter(Boolean) } : {}),
+    };
+  }
 
   async function generate() {
     if (!selected || !prompt.trim() || loading) return;
@@ -60,13 +59,7 @@ export function AiControlPage() {
         providerId: selected.providerId,
         modelId: selected.modelId,
         messages: [{ role: 'user', content: prompt }],
-        controls: {
-          temperature: temp,
-          topP,
-          maxOutputTokens: maxTokens,
-          ...(seed ? { seed: parseInt(seed, 10) } : {}),
-          ...(stop ? { stop: stop.split(',').map((s) => s.trim()).filter(Boolean) } : {}),
-        },
+        controls: exposedControls(),
       };
       if (system) body.system = system;
       const res = await fetch('/api/build/ai/generate', {
@@ -79,7 +72,7 @@ export function AiControlPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Generation failed');
     } finally {
-      setLoading(false);
+      setLoading(false); intelligence.refresh();
     }
   }
 
@@ -93,7 +86,7 @@ export function AiControlPage() {
         providerId: selected.providerId,
         modelId: selected.modelId,
         messages: [{ role: 'user', content: prompt }],
-        controls: { temperature: temp, topP, maxOutputTokens: maxTokens },
+        controls: exposedControls(),
       };
       if (system) body.system = system;
       const res = await fetch('/api/build/ai/stream', {
@@ -116,6 +109,7 @@ export function AiControlPage() {
           if (!trimmed.startsWith('data: ')) continue;
           try {
             const chunk = JSON.parse(trimmed.slice(6));
+            if (chunk.error) { setError(chunk.error.safeMessage ?? 'Provider stream failed.'); await reader.cancel(); return; }
             if (chunk.delta) setStreamText((prev) => prev + chunk.delta);
             if (chunk.done) break;
           } catch { /* skip */ }
@@ -124,7 +118,7 @@ export function AiControlPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Stream failed');
     } finally {
-      setStreaming(false);
+      setStreaming(false); intelligence.refresh();
     }
   }
 
@@ -137,29 +131,8 @@ export function AiControlPage() {
       </header>
     }>
       <DevPanel title="Model Selection">
-        {models.length === 0 ? (
-          <DevEmpty title="NO MODELS" body="Run model discovery on the Models page first." />
-        ) : (
-          <select
-            className="dev-field"
-            style={{ padding: 8, width: '100%' }}
-            aria-label="Select a model"
-            value={selected ? `${selected.providerId}:${selected.modelId}` : ''}
-            onChange={(e) => {
-              const [p, ...m] = e.target.value.split(':');
-              const modelId = m.join(':');
-              const found = models.find((m2) => m2.providerId === p && m2.modelId === modelId);
-              setSelected(found ?? null);
-            }}
-          >
-            <option value="">Select a model…</option>
-            {models.map((m) => (
-              <option key={`${m.providerId}:${m.modelId}`} value={`${m.providerId}:${m.modelId}`}>
-                {m.providerId} / {m.displayName}
-              </option>
-            ))}
-          </select>
-        )}
+        <ModelNavigator {...intelligence} disabled={loading || streaming} selected={selected} onSelect={setSelected} />
+        <p className="dev-note">Exact model selection · no automatic fallback. Hidden reasoning: {effortSupport(selected).replaceAll('_', ' ')}.</p>
       </DevPanel>
 
       <div style={{ height: 16 }} />
@@ -168,21 +141,31 @@ export function AiControlPage() {
         <>
           <DevPanel title="Controls">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+              {selected.controls.temperature ? <>
               <label className="dev-input-label">Temperature
                 <input type="number" step="0.1" min="0" max="2" value={temp} onChange={(e) => setTemp(parseFloat(e.target.value))} style={{ width: '100%' }} />
               </label>
+              </> : <p className="dev-note">Temperature · FIXED BY PROVIDER</p>}
+              {selected.controls.topP ? <>
               <label className="dev-input-label">Top P
                 <input type="number" step="0.1" min="0" max="1" value={topP} onChange={(e) => setTopP(parseFloat(e.target.value))} style={{ width: '100%' }} />
               </label>
+              </> : <p className="dev-note">Top P · FIXED BY PROVIDER</p>}
+              {selected.controls.maxTokens ? <>
               <label className="dev-input-label">Max output tokens
                 <input type="number" step="64" min="1" value={maxTokens} onChange={(e) => setMaxTokens(parseInt(e.target.value, 10))} style={{ width: '100%' }} />
               </label>
+              </> : <p className="dev-note">Max output tokens · FIXED BY PROVIDER</p>}
+              {selected.controls.seed ? <>
               <label className="dev-input-label">Seed (optional)
                 <input type="text" value={seed} onChange={(e) => setSeed(e.target.value)} placeholder="unset" style={{ width: '100%' }} />
               </label>
+              </> : <p className="dev-note">Seed (optional) · FIXED BY PROVIDER</p>}
+              {selected.controls.stop ? <>
               <label className="dev-input-label">Stop sequences (comma-separated)
                 <input type="text" value={stop} onChange={(e) => setStop(e.target.value)} placeholder="none" style={{ width: '100%' }} />
               </label>
+              </> : <p className="dev-note">Stop sequences (comma-separated) · FIXED BY PROVIDER</p>}
             </div>
           </DevPanel>
 
@@ -221,7 +204,7 @@ export function AiControlPage() {
                   <span className="dev-tag">{response.modelUsed ?? '—'}</span>
                   <span className="dev-tag">{response.latencyMs}ms</span>
                   {response.usage ? <span className="dev-tag">{response.usage.inputTokens ?? '?'}→{response.usage.outputTokens ?? '?'} tok</span> : null}
-                  {response.estimatedCost?.amount != null ? <span className="dev-tag">${response.estimatedCost.amount.toFixed(6)}</span> : null}
+                  {response.estimatedCost?.amount != null ? <span className="dev-tag">{response.estimatedCost.basis} ${response.estimatedCost.amount.toFixed(6)}</span> : <span className="dev-tag">cost UNKNOWN</span>}
                   {response.fallbackCount > 0 ? <span className="dev-tag" data-tone="warn">fallback ×{response.fallbackCount}</span> : null}
                 </div>
                 {response.ok ? (
