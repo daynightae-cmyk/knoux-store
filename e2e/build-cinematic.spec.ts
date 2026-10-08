@@ -29,7 +29,7 @@ for (const width of widths) {
       expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
       expect(await page.locator('#main-content').evaluate((element) => element.scrollWidth - element.clientWidth)).toBeLessThanOrEqual(1);
       if (info.project.name === 'desktop' && (route === '/build' || width === 1440 && ['/build/terminal', '/build/powershell', '/build/apps'].includes(route))) {
-        if (route === '/build') await expect(page.locator('.dev-cosmic-field')).toBeAttached();
+        if (route === '/build') await expect(page.locator('.dev-living-mark canvas')).toBeAttached();
         const name = route === '/build' ? `build-${width === 1440 ? 'desktop' : width === 768 ? 'tablet' : width === 390 ? 'mobile' : 'desktop'}-${width}.png` : `${route.slice(7)}-1440.png`;
         await page.screenshot({ path: join(evidence, name) });
       }
