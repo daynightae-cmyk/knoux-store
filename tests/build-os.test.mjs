@@ -63,7 +63,7 @@ const { tokenize, clampLine } = load('src/lib/build/tokenizer.ts');
 const spatial = load('src/lib/build/spatial.ts');
 const { buildReducer, initialBuildState, capabilityResolutions, dirtyFiles } = load(
   'src/lib/build/workspace-state.ts',
-  { './spatial': spatial, './preferences': load('src/lib/build/preferences.ts') },
+  { './spatial': spatial, './preferences': load('src/lib/build/preferences.ts'), './generator-state': load('src/lib/build/generator-state.ts'), './engineering-plan': load('src/lib/build/engineering-plan.ts') },
 );
 
 /* ------------------------------------------------------------------- intent */

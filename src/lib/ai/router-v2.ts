@@ -190,6 +190,18 @@ function scoreModel(
   }
 
   // --- Compute total ---
+  // Profiles weight existing measurable factors; unknown metadata contributes nothing.
+  if (input.generationProfile === 'FAST') {
+    factors.latencyScore *= 2;
+    factors.costScore *= 2;
+  }
+  if (input.generationProfile === 'DEEP' || input.generationProfile === 'MAX') {
+    if (['SUPPORTED', 'VERIFIED'].includes(model.capabilities.reasoning)) factors.taskMatch += 15;
+    if (input.generationProfile === 'MAX') {
+      if (['SUPPORTED', 'VERIFIED'].includes(model.capabilities.tools)) factors.capabilityMatch += 5;
+      if (model.contextWindow !== null) factors.contextFit += Math.min(15, Math.log2(Math.max(1, model.contextWindow / 4096)) * 2);
+    }
+  }
   factors.total =
     factors.taskMatch +
     factors.contextFit +
@@ -266,7 +278,14 @@ export function routeV2(
       return { taskClass: input.taskClass, mode: 'manual', selected: null, candidates: [], fallbackChain: [], estimatedCost: null, health: {}, contextFit: 'unknown', reasons: ['Manual selection is not runtime eligible. Selection was not overridden.'], status: 'unavailable', blocker: 'Authenticate and discover the selected model; resolve any provider generation blocker.' };
     }
 
+    if (model?.modalities?.text === false || model?.lifecycle === 'deprecated') {
+      return { taskClass: input.taskClass, mode: 'manual', selected: null, candidates: [], fallbackChain: [], estimatedCost: null, health: {}, contextFit: 'unknown', reasons: ['The selected model is not an active text-generation model. Selection was not overridden.'], status: 'unavailable', blocker: 'Explicitly select a discovered text-generation model.' };
+    }
+
     // Check capability requirements
+    if (model?.contextWindow != null && input.contextRequirement > model.contextWindow) {
+      return { taskClass: input.taskClass, mode: 'manual', selected: null, candidates: [], fallbackChain: [], estimatedCost: null, health: {}, contextFit: 'exceeds', reasons: ['The input exceeds the selected model context window. Manual selection was not overridden.'], status: 'unavailable', blocker: 'Reduce the input or explicitly select a model with a larger context window.' };
+    }
     if (input.visionRequired && model?.capabilities.vision === "UNSUPPORTED") {
       return {
         taskClass: input.taskClass,
@@ -376,6 +395,7 @@ export function routeV2(
   }
 
   const selected = accepted[0];
+  if (input.generationProfile) reasons.push(`Generation profile ${input.generationProfile}: real output/temperature controls; preferences use known model capabilities, context, pricing and measured provider latency. Hidden reasoning is not adjusted.`);
   reasons.push(
     `Selected ${selected.providerId}/${selected.modelId} (score: ${selected.score.toFixed(1)}).`,
   );
@@ -469,6 +489,7 @@ export function buildRouterInput(
     structuredOutputRequired?: boolean;
     manualSelection?: { providerId: string; modelId: string };
     noFallback?: boolean;
+    generationProfile?: RouterInput['generationProfile'];
   },
 ): RouterInput {
   const tokenEstimate = estimateTokens(prompt);
@@ -487,5 +508,6 @@ export function buildRouterInput(
     mode,
     manualSelection: options?.manualSelection,
     noFallback: options?.noFallback,
+    generationProfile: options?.generationProfile,
   };
 }

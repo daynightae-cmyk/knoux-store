@@ -203,14 +203,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
         providerId: this.id,
         authenticated: false,
         detail: "Endpoint unreachable.",
-        error: {
-          category: "NETWORK",
-          message,
-          safeMessage: message.slice(0, 200),
-          httpStatus: null,
-          providerErrorId: null,
-          retryable: false,
-        },
+        error: networkError(message),
         latencyMs,
       };
     }
@@ -360,6 +353,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
     let firstTokenTime: number | null = null;
     let finishReason: string | null = null;
     let usage: TokenUsage | null = null;
+    let modelUsed: string | null = null;
 
     try {
       for await (const data of this.readStreamData(
@@ -372,6 +366,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
         if (data === "[DONE]") continue;
         try {
           const chunk = JSON.parse(data);
+          if (typeof chunk.model === 'string') modelUsed = chunk.model;
           const delta = chunk.choices?.[0]?.delta?.content ?? "";
           const reason = chunk.choices?.[0]?.finish_reason ?? null;
           if (delta) {
@@ -401,7 +396,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
         }
       }
 
-      yield this.streamComplete(start, firstTokenTime, finishReason, usage);
+      yield { ...this.streamComplete(start, firstTokenTime, finishReason, usage), modelUsed };
     } catch (cause) {
       yield this.streamError(
         cause instanceof DOMException && cause.name === "AbortError"
@@ -574,7 +569,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
       latencyMs,
       ttftMs: latencyMs,
       providerRequestId: data.id ?? null,
-      modelUsed: data.model ?? request.modelId,
+      modelUsed: data.model ?? null,
       warnings: [],
       error: null,
       estimatedCost: cost,
@@ -584,7 +579,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
   protected errorResponse(
     error: NormalizedError,
     latencyMs: number,
-    modelUsed: string | null,
+    _requestedModel: string | null,
   ): GenerationResponse {
     return {
       ok: false,
@@ -599,7 +594,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
       latencyMs,
       ttftMs: null,
       providerRequestId: null,
-      modelUsed,
+      modelUsed: null,
       warnings: [],
       error,
       estimatedCost: null,

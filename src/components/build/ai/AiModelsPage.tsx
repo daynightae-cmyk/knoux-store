@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AiCenterPage } from "./AiCenterLayout";
 import { DevPanel, DevEmpty } from "../dev/DevUI";
+import { searchModels } from "@/lib/build/model-search";
 import type { NormalizedModel, DiscoverySource } from "@/lib/ai/types";
 
 type ModelEntry = {
@@ -82,29 +83,7 @@ export function AiModelsPage() {
     })),
   );
 
-  const filtered = allModels.filter((m) => {
-    if (
-      filter &&
-      !m.modelId.toLowerCase().includes(filter.toLowerCase()) &&
-      !m.displayName.toLowerCase().includes(filter.toLowerCase())
-    )
-      return false;
-    if (providerFilter && m.providerId !== providerFilter) return false;
-    if (capFilter === "tools" && m.capabilities.tools === "UNSUPPORTED")
-      return false;
-    if (capFilter === "vision" && m.capabilities.vision === "UNSUPPORTED")
-      return false;
-    if (capFilter === "streaming" && m.capabilities.streaming === "UNSUPPORTED")
-      return false;
-    if (capFilter === "reasoning" && m.capabilities.reasoning !== "SUPPORTED")
-      return false;
-    if (
-      capFilter === "structuredOutput" &&
-      m.capabilities.structuredOutput === "UNSUPPORTED"
-    )
-      return false;
-    return true;
-  });
+  const filtered = searchModels(allModels, filter, providerFilter, capFilter ? capFilter as keyof NormalizedModel['capabilities'] : undefined);
 
   const providers = [...new Set(data.map((d) => d.providerId))];
 
@@ -160,7 +139,8 @@ export function AiModelsPage() {
         <input
           className="dev-field"
           style={{ flex: 1, minWidth: 200 }}
-          placeholder="Search by model ID…"
+          aria-label="Search canonical models"
+          placeholder="Model, provider or capability…"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         />
