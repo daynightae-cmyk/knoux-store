@@ -344,7 +344,7 @@ export function ProductUniverse() {
                   Seven verified systems connected to one practice. Move across a node to read its registration, or open
                   it for the full dossier.
                 </p>
-                <p className="mono" style={{ fontSize: 10, color: 'var(--dim)' }}>
+                <p className="mono" style={{ fontSize: 12, color: 'var(--dim)' }}>
                   AUDITED {softwareAuditDate}
                 </p>
               </div>
@@ -377,7 +377,7 @@ export function ProductUniverse() {
                 <span className="node-stream__code">{product.code}</span>
                 <span className="node-stream__name">
                   {product.name}
-                  <small className="mono" style={{ display: 'block', fontSize: 10, color: 'var(--dim)', letterSpacing: 0, marginTop: 3 }}>
+                  <small className="mono" style={{ display: 'block', fontSize: 12, color: 'var(--dim)', letterSpacing: 0, marginTop: 3 }}>
                     {product.tagline}
                   </small>
                 </span>

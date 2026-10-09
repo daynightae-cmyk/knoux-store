@@ -186,7 +186,7 @@ function Intelligence() {
             ) : (
               <span className={styles.ccMetricMeta ?? ''}>Checking…</span>
             )}
-            <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 11.5 }}>
+            <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 12 }}>
               Families available on the deployed agent today: {AGENT_FAMILIES_LIVE.join(', ')}. Growth
               families require the sub-agent patch documented in{' '}
               <code>docs/growth/KNOUX-AI-INTEGRATION.md</code>.
@@ -299,7 +299,7 @@ function CapabilityTable({ capabilities }: { capabilities: SafeCapabilityView[] 
               <tr key={capability.id}>
                 <td>
                   <div>{capability.label}</div>
-                  <small style={{ color: 'var(--cc-ink-4)', fontFamily: 'var(--mono)', fontSize: 9 }}>
+                  <small style={{ color: 'var(--cc-ink-4)', fontFamily: 'var(--mono)', fontSize: 12 }}>
                     {capability.id}
                   </small>
                 </td>

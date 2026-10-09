@@ -78,7 +78,7 @@ export default function CreativePage() {
                       const href = entity?.route ?? (capability?.providedBy.includes('web') ? '/web#matrix' : capability?.providedBy.includes('wordpress') ? '/wordpress' : capability?.providedBy.includes('growth') ? '/growth' : capability?.providedBy.includes('creative') ? '/creative' : capability?.providedBy.includes('software') ? '/products' : null);
                       if (!href) return null;
                       return (
-                        <Link key={pairId} href={href} className="action" style={{ padding: '11px 14px', fontSize: 9 }}>
+                        <Link key={pairId} href={href} className="action" style={{ padding: '11px 14px', fontSize: 12 }}>
                           {entity?.name ?? capability?.label ?? pairId}
                           <span className="action-arrow" aria-hidden="true">
                             ↗
@@ -93,7 +93,7 @@ export default function CreativePage() {
                   <Link
                     href={`/contact?requestType=creative&discipline=${discipline.slug}`}
                     className="action"
-                    style={{ padding: '11px 14px', fontSize: 9 }}
+                    style={{ padding: '11px 14px', fontSize: 12 }}
                   >
                     Request this
                     <span className="action-arrow" aria-hidden="true">

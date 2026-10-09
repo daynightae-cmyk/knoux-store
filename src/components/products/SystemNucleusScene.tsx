@@ -77,28 +77,13 @@ export function SystemNucleusScene({
 
     const draw = (t: number, dt: number) => {
       ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = '#08090a';
-      ctx.fillRect(0, 0, width, height);
+
 
       assembly = Math.min(1, assembly + dt * 0.28);
 
       const cx = width * 0.5;
       const cy = height * 0.5;
       const scale = Math.min(width, height) * 0.42;
-
-      // Star field (subtle, fewer stars)
-      for (const star of layers.stars) {
-        const calm = 1 - assembly * 0.6;
-        const sx = star.x * width + star.driftX * t * width * 800 * calm;
-        const sy = star.y * height + star.driftY * t * height * 800 * calm;
-        const twinkle = star.amplitude * Math.sin(t * star.speed + star.phase);
-        const alpha = Math.max(0.01, Math.min(0.6, star.alpha + twinkle));
-        if (alpha <= 0.02) continue;
-        ctx.beginPath();
-        ctx.arc(sx, sy, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = star.violet ? `rgba(190,168,224,${alpha})` : `rgba(226,224,231,${alpha})`;
-        ctx.fill();
-      }
 
       // Draw orbital ring guides
       const rings = [
@@ -297,12 +282,6 @@ function seeded(seed: number) {
   };
 }
 
-interface Star {
-  x: number; y: number; radius: number; alpha: number;
-  amplitude: number; speed: number; phase: number;
-  layer: 'far' | 'mid' | 'near'; violet: boolean;
-  driftX: number; driftY: number;
-}
 
 interface Module {
   angle: number;
@@ -323,33 +302,6 @@ interface MeshConnection {
 }
 
 function buildLayers(rand: () => number) {
-  // Stars — fewer, subtler
-  const stars: Star[] = [];
-  const starLayers = [
-    { layer: 'far' as const, share: 0.6, radius: 0.45, alpha: 0.22, twinkle: 0.1 },
-    { layer: 'mid' as const, share: 0.3, radius: 0.7, alpha: 0.38, twinkle: 0.16 },
-    { layer: 'near' as const, share: 0.1, radius: 1.1, alpha: 0.55, twinkle: 0.2 },
-  ];
-  const VIOLET_RATIO = 0.04;
-  const count = 80;
-  for (const plan of starLayers) {
-    const total = Math.max(1, Math.round(count * plan.share));
-    for (let i = 0; i < total; i++) {
-      stars.push({
-        x: rand(), y: Math.sqrt(rand()),
-        radius: (plan.radius * (0.7 + rand() * 0.6)) / 1.6,
-        alpha: plan.alpha * (0.6 + rand() * 0.4),
-        amplitude: plan.twinkle * (0.5 + rand()),
-        speed: 0.8 + rand() * 0.9,
-        phase: rand() * Math.PI * 2,
-        layer: plan.layer,
-        violet: rand() < VIOLET_RATIO,
-        driftX: (rand() - 0.5) * 0.0012,
-        driftY: (rand() - 0.5) * 0.0008,
-      });
-    }
-  }
-
   // KNOUX ONE: 19 modules across 3 rings
   // Ring 0 (core): 1 center hex (handled separately)
   // Ring 1 (service): 6 modules — the implemented service categories
@@ -432,5 +384,5 @@ function buildLayers(rand: () => number) {
     meshConnections.push({ a: serviceIdx, b: ring0Count + ring1Count + i, isSpoke: true });
   }
 
-  return { stars, modules, meshConnections };
+  return { modules, meshConnections };
 }

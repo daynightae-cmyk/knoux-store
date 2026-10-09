@@ -352,7 +352,7 @@ export function RequestForm() {
 
       <p className="field__hint">
         Prefer email? Write to <a href={`mailto:${CONTACT_EMAIL}`} style={{ textDecoration: 'underline', textUnderlineOffset: 3 }}>{CONTACT_EMAIL}</a> directly, or
-        <button type="button" className="action action--ghost" style={{ fontSize: 9, marginLeft: 4 }} onClick={() => router.push('/build')}>
+        <button type="button" className="action action--ghost" style={{ fontSize: 12, marginLeft: 4 }} onClick={() => router.push('/build')}>
           assemble a stack first
           <span className="action-arrow" aria-hidden="true">
             ↗

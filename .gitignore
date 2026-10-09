@@ -126,3 +126,7 @@ gateway/.venv*/
 
 # Local recovery bundles and snapshots never belong in the product history.
 /.knoux-recovery/
+
+# Maintained V4 provenance capture and comparison entrypoints.
+!/scripts/visual-v4-capture.mjs
+!/scripts/visual-v4-gallery.mjs
