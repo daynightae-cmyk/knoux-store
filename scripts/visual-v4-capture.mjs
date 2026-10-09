@@ -81,7 +81,10 @@ try {
       page.on('pageerror', error => pageErrors.push(error.message));
       page.on('response', response => {if(response.status()>=400)failedResponses.push({url:new URL(response.url()).pathname,status:response.status()});});
       const response = await page.goto(server.base+route,{waitUntil:'load',timeout:30000});
-      if(route.startsWith('/products/'))await page.locator('.product-arrival').waitFor({state:'hidden',timeout:10000});
+      if(route.startsWith('/products/')) {
+        await page.locator('.product-arrival').waitFor({state:'hidden',timeout:10000});
+        await page.waitForFunction(()=>[...document.querySelectorAll('.product-hero__identity > *')].every(node=>getComputedStyle(node).opacity==='1'));
+      }
       await page.evaluate(async()=>{await document.fonts.ready;await new Promise(accept=>requestAnimationFrame(()=>requestAnimationFrame(accept)));});
       const hrefs = await page.locator('link[rel="stylesheet"]').evaluateAll(nodes=>nodes.map(node=>new URL(node.href).pathname));
       if (!hrefs.length || response?.status()!==200) throw new Error(`Unstyled or unavailable route ${route}`);
