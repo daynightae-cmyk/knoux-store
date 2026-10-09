@@ -133,17 +133,17 @@ test.describe('the contact intake over HTTP', () => {
     expect(response.status()).toBe(403);
   });
 
-  test('an oversized submission is refused', async ({ request }) => {
+  test('an oversized submission is refused', async ({ request, baseURL }) => {
     const response = await request.post('/api/contact', {
-      headers: { 'sec-fetch-site': 'same-origin', origin: 'http://127.0.0.1:3311' },
+      headers: { 'sec-fetch-site': 'same-origin', origin: new URL(baseURL!).origin },
       data: { name: 'Ada', email: 'ada@example.com', message: 'x'.repeat(200_000) },
     });
     expect(response.status()).toBe(413);
   });
 
-  test('a same-site submission is validated, and never claims unconfigured delivery', async ({ request }) => {
+  test('a same-site submission is validated, and never claims unconfigured delivery', async ({ request, baseURL }) => {
     const response = await request.post('/api/contact', {
-      headers: { 'sec-fetch-site': 'same-origin', origin: 'http://127.0.0.1:3311' },
+      headers: { 'sec-fetch-site': 'same-origin', origin: new URL(baseURL!).origin },
       data: { name: 'Ada', email: 'not-an-email', message: 'short' },
     });
     // Validation runs before configuration, so an invalid submission is
