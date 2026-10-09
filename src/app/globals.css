@@ -5844,4 +5844,6 @@ body:has(.origin-room) .knoux-sentinel{display:none}
 }
 @media(prefers-reduced-motion:reduce) {
   .one-topology__paths path { transition: none; }
+  /* Arrival's inline reveal transitions must also settle immediately for static reading. */
+  .product-hero__identity > * { transition: none !important; }
 }
