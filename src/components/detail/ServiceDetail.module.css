@@ -278,15 +278,12 @@
 .cards {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  border-top: 1px solid var(--line);
-  border-left: 1px solid var(--line);
+  gap: 28px 48px;
 }
 .card {
   min-width: 0;
-  padding: 28px;
-  border-right: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  min-height: 210px;
+  padding: 28px 0;
+  border-top: 1px solid var(--line);
 }
 .card > span,
 .notes span,
@@ -344,7 +341,7 @@
 .notes,
 .principles {
   display: grid;
-  gap: 12px;
+  gap: 0;
 }
 .notes p,
 .principles p {
@@ -352,16 +349,12 @@
   grid-template-columns: 45px 1fr;
   gap: 14px;
   margin: 0;
-  padding: 22px;
-  border: 1px solid var(--line);
-  background: var(--surface);
+  padding: 22px 0;
+  border-top: 1px solid var(--line);
+  background: transparent;
   font-size: clamp(17px, 1.6vw, 24px);
   line-height: 1.35;
   overflow-wrap: anywhere;
-}
-.principles p {
-  background: transparent;
-  border-left: 2px solid var(--violet);
 }
 .capabilities {
   display: flex;
@@ -413,9 +406,9 @@
   padding: 80px max(5.3vw, 24px) 120px;
   background: radial-gradient(
     ellipse at 70% 70%,
-    #24202b,
-    #111214 56%,
-    #0b0c0e
+    #24202b55,
+    #11121433 56%,
+    transparent
   );
   border-top: 1px solid var(--line);
 }
@@ -503,7 +496,7 @@
   }
   .visualTop,
   .visualLabels {
-    font-size: 7px;
+    font-size: 12px;
     padding: 12px;
   }
   .visual svg {
@@ -525,7 +518,7 @@
   }
   .card {
     min-height: 0;
-    padding: 22px;
+    padding: 22px 0;
   }
   .card h3 {
     margin-top: 14px;
@@ -538,7 +531,7 @@
   .notes p,
   .principles p {
     grid-template-columns: 32px 1fr;
-    padding: 16px;
+    padding: 16px 0;
     font-size: 17px;
   }
   .related a {

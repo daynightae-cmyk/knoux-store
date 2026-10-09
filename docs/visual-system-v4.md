@@ -8,7 +8,7 @@ KNOuX ONE's identity now leads a connected capability map. Five accessible paths
 
 Command connections become open operational records with distinct platform identity, state and action lanes. Shared panes and community records use separators rather than enclosing rectangles; states retain explicit text and colored dots. DEMO/FIXTURE notices retain a strong warning accent. Tables, scrolling boundaries, inputs, buttons, calendars and approval constraints remain functional boundaries. The layout collapses into intentional identity → status → actions reading order on phones. No authorization, encryption, persistence, routing or streaming logic changes.
 
-Shared dossier surfaces used by products, Creative and Web become open evidence strips. Static tags, limitations and anatomy indexes lose decorative frames. Small labels and metadata are raised to 12px, including Command, Providers, Growth and WordPress's shared components. Existing distinct Growth signal paths, WordPress infrastructure bands, Creative material studies and Build's generative interfaces are retained.
+Shared dossier surfaces used by products, Creative and Web become open evidence strips. Static tags, limitations and anatomy indexes lose decorative frames. Service-detail disciplines, platform notes and operating principles use open editorial rows rather than enclosing cells; their endcaps remain transparent and mobile diagram labels stay readable at 12px. Small labels and metadata are raised to 12px, including Command, Providers, Growth and WordPress's shared components. Existing distinct Growth signal paths, WordPress infrastructure bands, Creative material studies and Build's generative interfaces are retained.
 
 ## Trustworthy comparison
 
