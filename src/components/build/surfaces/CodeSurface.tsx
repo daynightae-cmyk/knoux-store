@@ -194,12 +194,12 @@ export function CodeSurface() {
                             ? 'color-mix(in srgb, var(--bo-violet) 10%, transparent)'
                             : 'none',
                         color: state.workspace.selectedFilePath === entry.path ? 'var(--bo-ink)' : 'var(--bo-ink-3)',
-                        fontSize: 11,
+                        fontSize: 12,
                       }}
                       onClick={() => void open(entry)}
                     >
                       {entry.path}
-                      <span style={{ color: 'var(--bo-ink-4)', marginLeft: 6, fontSize: 9 }}>
+                      <span style={{ color: 'var(--bo-ink-4)', marginLeft: 6, fontSize: 12 }}>
                         {entry.lines}L
                       </span>
                     </button>

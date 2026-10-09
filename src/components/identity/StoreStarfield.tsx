@@ -103,6 +103,8 @@ export function StoreStarfield({ phase }: { phase?: StoreStarfieldPhase } = {}) 
     paint.current = draw;
 
     const tick = (time: number) => {
+      // Respect the current preference even before a queued change event arrives.
+      if (document.hidden || motion.matches) { sync(); return; }
       if (lastFrame) elapsed += Math.min(time - lastFrame, 100) / 1000;
       lastFrame = time;
       // Slow light needs only 30 paints per second; no React renders in the loop.

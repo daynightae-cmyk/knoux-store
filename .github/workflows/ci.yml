@@ -1,6 +1,6 @@
 name: Verification
 
-# One workflow, three jobs, and a deliberate split of what blocks a merge from
+# One workflow, four jobs, and a deliberate split of what blocks a merge from
 # what merely informs.
 #
 # `verify` is the merge gate: install, lint, typecheck, build, unit tests,
@@ -173,6 +173,32 @@ jobs:
             references/build-generator/qa/
             references/provider-os/qa/
           if-no-files-found: ignore
+          retention-days: 7
+
+  visual-v4:
+    name: V4 exact-build visual matrix and server provenance
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run audit:css-integrity
+      - name: Capture 34 route families across all 12 required viewports
+        run: npm run audit:visual-v4
+      - name: Upload capture evidence and provenance
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: visual-v4-matrix
+          path: references/visual-v4-verified/after/
+          if-no-files-found: error
           retention-days: 7
 
   sast:

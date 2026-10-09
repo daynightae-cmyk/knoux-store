@@ -141,23 +141,26 @@ function Connections() {
         note="State is derived from stored credentials, never from a wish."
       >
         {oauthMessage ? <p role="status">{oauthMessage}</p> : null}
-        <div className={styles.commandGrid3 ?? ''}>
+        <div className={styles.ccConnectionLanes ?? ''}>
           {CONNECTION_CATALOGUE.map((entry) => {
             const record = connections.find((connection) => connection.platform === entry.platform);
             const future = entry.group === 'Future';
 
             return (
-              <article key={entry.platform} className={styles.ccPane ?? ''}>
+              <article key={entry.platform} className={styles.ccConnectionLane ?? ''}>
+                <div className={styles.ccConnectionIdentity ?? ''}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <PlatformMark platform={entry.platform} />
                   <span className={styles.ccPaneTitle ?? ''}>{entry.label}</span>
                 </div>
 
-                <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 11.5 }}>
+                <p className={styles.ccPaneBody ?? ''}>
                   {entry.scopesHint}
                 </p>
+                </div>
 
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                <div className={styles.ccConnectionStatus ?? ''}>
+                <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap' }}>
                   {future ? (
                     <CapabilityBadge state="UI_READY" />
                   ) : record ? (
@@ -174,7 +177,7 @@ function Connections() {
                 {record?.lastError ? (
                   <p
                     className={styles.ccPaneBody ?? ''}
-                    style={{ fontSize: 11, color: 'var(--cc-ink-4)' }}
+                    style={{ color: 'var(--cc-ink-4)' }}
                   >
                     {record.lastError}
                   </p>
@@ -189,6 +192,7 @@ function Connections() {
                     ))}
                   </div>
                 ) : null}
+                </div>
 
                 <div className={styles.ccCommunityActions ?? ''}>
                   {future ? (
@@ -268,7 +272,7 @@ function Connections() {
                               style={{
                                 color: 'var(--cc-ink-4)',
                                 fontFamily: 'var(--mono)',
-                                fontSize: 9,
+                                fontSize: 12,
                               }}
                             >
                               {capability.id}
@@ -288,7 +292,7 @@ function Connections() {
                             {capability.blockedReason ? (
                               <p
                                 className={styles.ccTableAbsent ?? ''}
-                                style={{ fontSize: 11, marginTop: 4, maxWidth: 320 }}
+                                style={{ fontSize: 12, marginTop: 4, maxWidth: 320 }}
                               >
                                 {capability.blockedReason}
                               </p>

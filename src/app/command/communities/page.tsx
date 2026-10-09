@@ -213,7 +213,7 @@ function Communities() {
               <li>3. An operator opens the group and posts.</li>
               <li>4. The operator marks it posted. That is recorded in the audit trail.</li>
             </ul>
-            <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 6, fontSize: 11.5 }}>
+            <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 6, fontSize: 12 }}>
               No member list is read. No private URL is stored. No message is sent by KNOuX.
             </p>
           </Pane>
@@ -415,7 +415,7 @@ function CommunityCard({ community, score }: { community: Community; score: numb
       </div>
 
       {community.notes ? (
-        <p style={{ fontSize: 11.5, color: 'var(--cc-ink-4)', margin: 0, lineHeight: 1.5 }}>
+        <p style={{ fontSize: 12, color: 'var(--cc-ink-4)', margin: 0, lineHeight: 1.5 }}>
           {community.notes}
         </p>
       ) : null}
