@@ -1,5 +1,5 @@
 .page {
-  background: var(--bg);
+  background: transparent;
   color: var(--text);
   overflow: clip;
 }
@@ -11,9 +11,9 @@
   border-bottom: 1px solid var(--line);
   background: radial-gradient(
     ellipse at 72% 44%,
-    #191720 0%,
-    #101113 42%,
-    #08090a 78%
+    #19172077 0%,
+    #10111333 42%,
+    transparent 78%
   );
 }
 .heroInner {
@@ -29,7 +29,7 @@
   padding-top: 14px;
   margin-top: 50px;
   color: var(--violet);
-  font: 10px var(--mono);
+  font: 12px var(--mono);
   letter-spacing: 0.18em;
 }
 .identity span:last-child {
@@ -81,7 +81,7 @@
   border: 1px solid var(--line-strong);
   padding: 12px 16px;
   color: var(--text);
-  font: 700 10px var(--mono);
+  font: 700 12px var(--mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   transition:
@@ -115,7 +115,7 @@
   min-height: 520px;
   border: 0;
   background:
-    radial-gradient(circle at 50% 46%, #24202d, #0b0c0e 65%);
+    radial-gradient(ellipse at 50% 46%, #24202d55, transparent 65%);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -142,7 +142,7 @@
   gap: 10px;
   padding: 20px;
   color: var(--muted);
-  font: 9px var(--mono);
+  font: 12px var(--mono);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -259,7 +259,7 @@
 .sectionHead > span,
 .subhead,
 .endcap > span {
-  font: 10px var(--mono);
+  font: 12px var(--mono);
   letter-spacing: 0.16em;
   color: var(--violet);
   text-transform: uppercase;
@@ -291,7 +291,7 @@
 .card > span,
 .notes span,
 .principles span {
-  font: 10px var(--mono);
+  font: 12px var(--mono);
   color: var(--violet);
 }
 .card h3 {
@@ -334,7 +334,7 @@
 .list li:before,
 .questions li:before {
   content: counter(line, decimal-leading-zero);
-  font: 11px var(--mono);
+  font: 12px var(--mono);
   color: var(--violet);
   padding-top: 6px;
 }
@@ -374,7 +374,7 @@
   gap: 18px;
   padding: 13px 15px;
   border: 1px solid var(--line-strong);
-  font: 10px var(--mono);
+  font: 12px var(--mono);
   letter-spacing: 0.04em;
   line-height: 1.4;
 }
@@ -401,7 +401,7 @@
   padding: 20px 10px;
 }
 .related a span {
-  font: 10px var(--mono);
+  font: 12px var(--mono);
   color: var(--violet);
 }
 .related a strong {
@@ -473,7 +473,7 @@
   }
   .identity {
     margin-top: 30px;
-    font-size: 8px;
+    font-size: 12px;
   }
   .heroGrid {
     margin-top: 42px;

@@ -18,6 +18,7 @@ const rows = after.records.map(record => {
       startedAt:record.owner.startedAt,observedAt:record.owner.observedAt,status:record.status,cssIntegrity:record.cssIntegrity,
       css:record.css,finalRoute:record.finalRoute,boxes:record.boxed.length,tiny:record.tiny.length,overflow:record.overflow,
       consoleErrors:record.consoleErrors.length,pageErrors:record.pageErrors.length,failedResponses:record.failedResponses.length,
+      authRefusals:record.authRefusals.length,unexpectedResponses:record.unexpectedResponses.length,unexpectedConsoleErrors:record.unexpectedConsoleErrors.length,
       starfieldCount:record.starfieldCount,file:`after/${record.file}`} };
 });
 const imagePath = file => {

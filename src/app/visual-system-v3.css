@@ -63,7 +63,7 @@ button:disabled{cursor:not-allowed}
 .auth-provider{border:0;border-bottom:1px solid #b5a3ca35;background:transparent}
 .auth-identity{border:0;padding-bottom:18px}
 .auth-panel__signal{opacity:.25}
-.auth-field__label{font-size:11px}
+.auth-field__label{font-size:12px}
 .not-found-wrap{background:radial-gradient(ellipse at 80% 35%,#b4a0ce0e,transparent 55%)}
 .not-found-links{border:0;gap:20px}
 @media(max-width:1024px){.ksu.ksu--static .ksu-stage{gap:24px 36px}.page-intro-body{gap:28px}.atelier-lab__story>p{font-size:48px}}
@@ -73,11 +73,11 @@ button:disabled{cursor:not-allowed}
 .architecture-map__zone{border:0;background:transparent;padding:12px 0;gap:9px;box-shadow:none}
 .architecture-map__zone:hover,.architecture-map__zone:focus-visible,.architecture-map__zone.is-active{box-shadow:none;background:transparent;transform:translate(-50%,-50%)}
 .architecture-map__zone strong{font-size:clamp(20px,2vw,28px)}
-.architecture-map__index,.architecture-map__enter{font-size:10px}
+.architecture-map__index,.architecture-map__enter{font-size:12px}
 .architecture-map__detail{max-height:none;opacity:1;font-size:13px;line-height:1.65}
 .architecture-map__core{border:0;border-radius:50%;width:150px;height:150px;background:radial-gradient(circle at 35% 25%,#b6a2d033,#0e0c12 65%);box-shadow:0 30px 60px #0007}
 .dossier-card{background:transparent;border:0;padding:0 0 28px}
-.dossier-card__label{font-size:11px;color:var(--text-dim)}
+.dossier-card__label{font-size:12px;color:var(--text-dim)}
 .dossier-card :is(p,li){font-size:14px!important;line-height:1.8}
 .dossier-card .action{font-size:12px!important;padding-left:0!important}
 .chamber-page .auth-panel{background:transparent}

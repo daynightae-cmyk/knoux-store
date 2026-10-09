@@ -21,6 +21,10 @@ const server = await startOwnedServer(root, Number(process.env.KNOUX_V4_PORT ?? 
 const browser = await chromium.launch({channel: 'chrome'});
 const report = { phase, head: server.provenance.head, buildId: (await readFile(join(buildDirectory, 'BUILD_ID'), 'utf8')).trim(), measuredAt: new Date().toISOString(), provenance: server.provenance, disk, records: [] };
 const checkedAssets = new Map();
+// These authenticated read endpoints explicitly refuse the anonymous capture context.
+const anonymousEndpoints = new Set(['/api/build/ai/models','/api/build/ai/providers','/api/build/bridge/status',
+  '/api/build/context','/api/build/environment','/api/build/git','/api/build/integrations',
+  '/api/build/project','/api/build/provider-os','/api/wordpress/operations']);
 function ownerInspector() {
   if(process.platform!=='win32')return {observe:async()=>server.provenance,close:async()=>{}};
   const code=`$ErrorActionPreference='Stop'; while($captureCommand=[Console]::ReadLine()){if($captureCommand -eq 'QUIT'){break}; $verifiedProcess=Get-CimInstance Win32_Process -Filter 'ProcessId=${server.child.pid}'; $verifiedListener=Get-NetTCPConnection -LocalPort ${server.provenance.port} -State Listen -ErrorAction Stop; [pscustomobject]@{pid=$verifiedProcess.ProcessId; startedAt=$verifiedProcess.CreationDate.ToUniversalTime().ToString('o'); commandLine=$verifiedProcess.CommandLine; owner=$verifiedListener.OwningProcess} | ConvertTo-Json -Compress | ForEach-Object {[Console]::WriteLine($_)}}`;
@@ -67,7 +71,13 @@ try {
       const page = await context.newPage();
       await page.setViewportSize({width,height});
       const consoleErrors = [], pageErrors = [], failedResponses = [];
-      page.on('console', event => {if(event.type()==='error')consoleErrors.push(event.text());});
+      page.on('console', event => {
+        if(event.type()==='error') {
+          let pathname = '';
+          try { pathname = new URL(event.location().url).pathname; } catch { /* Non-resource console messages have no URL. */ }
+          consoleErrors.push({text:event.text(),pathname});
+        }
+      });
       page.on('pageerror', error => pageErrors.push(error.message));
       page.on('response', response => {if(response.status()>=400)failedResponses.push({url:new URL(response.url()).pathname,status:response.status()});});
       const response = await page.goto(server.base+route,{waitUntil:'load',timeout:30000});
@@ -86,7 +96,10 @@ try {
       });
       const file=(route==='/'?'home':route.slice(1).replaceAll('/','-'))+`-${width}x${height}.png`;
       await page.screenshot({path:join(directory,file),fullPage:false});
-      report.records.push({route,finalRoute:new URL(page.url()).pathname,viewport:{width,height},status:response.status(),file,owner,buildId:report.buildId,cssIntegrity:'PASS',css,...metrics,consoleErrors,pageErrors,failedResponses});
+      const authRefusals = failedResponses.filter(response=>response.status===401&&anonymousEndpoints.has(response.url));
+      const unexpectedResponses = failedResponses.filter(response=>!authRefusals.includes(response));
+      const unexpectedConsoleErrors = consoleErrors.filter(error=>!(error.text==='Failed to load resource: the server responded with a status of 401 (Unauthorized)'&&authRefusals.some(response=>response.url===error.pathname)));
+      report.records.push({route,finalRoute:new URL(page.url()).pathname,viewport:{width,height},status:response.status(),file,owner,buildId:report.buildId,cssIntegrity:'PASS',css,...metrics,consoleErrors,pageErrors,failedResponses,authRefusals,unexpectedResponses,unexpectedConsoleErrors});
       await page.close();
       await writeFile(join(directory,'capture-matrix.json'),JSON.stringify(report,null,2)+'\n');
       console.log(`${phase} ${route} ${width}x${height} HTTP200 CSS_PASS overflow=${metrics.overflow} boxes=${metrics.boxed.length} tiny=${metrics.tiny.length}`);
@@ -95,4 +108,4 @@ try {
   }
 } finally {await inspector.close();await browser.close();await stopOwnedServer(server.child);}
 console.log(`${phase} captured ${report.records.length}; overflow=${report.records.filter(record=>record.overflow>0).length}, pageErrors=${report.records.filter(record=>record.pageErrors.length>0).length}`);
-if(report.records.some(record=>record.overflow>1||record.pageErrors.length||record.consoleErrors.length||record.failedResponses.length||record.starfieldCount!==1))throw new Error('Visual matrix contains a geometry, runtime, stylesheet or global sky regression');
+if(report.records.some(record=>record.overflow>1||record.pageErrors.length||record.unexpectedConsoleErrors.length||record.unexpectedResponses.length||record.starfieldCount!==1))throw new Error('Visual matrix contains a geometry, runtime, stylesheet or global sky regression');

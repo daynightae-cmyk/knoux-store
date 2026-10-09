@@ -24,4 +24,6 @@ Full-border counts include real controls and table boundaries. Counts help ident
 
 ## Validation
 
+Anonymous captures retain all HTTP/console errors in their raw report. Only HTTP 401 from ten explicitly enumerated authenticated read endpoints is classified as an expected auth refusal, and its browser console message must match the exact observed endpoint and status. These are boundaries, not successful live workflows. All other failed responses/console errors fail capture. Stylesheet and page-response checks have no such exemption.
+
 Keep all existing browser, responsive, accessibility, reduced-motion, Provider OS, Build, Command, auth and API boundary assertions. Added browser tests exercise every ONE capability link and keyboard anatomy selection/clear, plus the explicit fixture boundary and disabled live authorization in open connection lanes. Run `npm run verify`, coverage/dependency/dead-code audits, the full browser suite and `npm run audit:visual-v4` on the frozen delivery head. A test run in a new checkout before its required production build is excluded and rerun after build completion. Final measured totals and production health are reported separately from these design decisions.
