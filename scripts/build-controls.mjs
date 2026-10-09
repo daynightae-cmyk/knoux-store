@@ -9,6 +9,7 @@ const files = readdirSync(base)
 files.push('src/components/build/surfaces/PreviewSurface.tsx', 'src/components/build/workspace/Primitives.tsx');
 files.push(...readdirSync('src/components/build/generator').filter((name) => name.endsWith('.tsx')).map((name) => `src/components/build/generator/${name}`));
 files.push('src/components/build/ai/AiControlPage.tsx', 'src/components/build/ai/AiModelsPage.tsx');
+files.push(...readdirSync('src/components/build/providers').filter(name=>name.endsWith('.tsx')).map(name=>`src/components/build/providers/${name}`));
 
 const isBlockedByGuard = (value) => {
   if (!value) return false;

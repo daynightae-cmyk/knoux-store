@@ -39,12 +39,19 @@ test('launcher, command palette and integration controls expose exact blockers w
   await expect(palette.getByRole('button', { name: 'Run Tests', exact: true })).toBeDisabled();
   await palette.getByLabel('Search workspace commands').fill('Providers');
   await palette.getByRole('button', { name: 'Open Providers' }).click(); await expect(page).toHaveURL(/\/build\/providers/);
-  for (const category of ['AI PROVIDERS', 'DEV PLATFORMS', 'LOCAL AGENTS', 'SECRETS & AUTH']) {
-    await page.getByRole('group', { name: 'Integration category' }).getByRole('button', { name: category, exact: true }).click();
-    if (category === 'LOCAL AGENTS') await expect(page.getByRole('button', { name: 'DETECT LOCAL TOOLS' })).toBeDisabled();
-    if (category === 'SECRETS & AUTH') { await expect(page.getByRole('button', { name: 'SAVE API KEY' })).toBeDisabled(); await expect(page.locator('#main-content')).toContainText('SECRET STORAGE NOT CONFIGURED'); }
+  for (const category of ['All providers', 'Intelligence', 'Coding agents', 'Local', 'Custom']) {
+    await page.getByRole('group', { name: 'Provider class' }).getByRole('button', { name: category, exact: true }).click();
+    await expect(page.getByRole('button',{name:'Add workspace +'})).toHaveCount(0);
+    await expect(page.locator('#main-content')).toContainText('Sign in to manage your provider profiles');
+    if(category==='Coding agents')await expect(page.getByRole('navigation',{name:'Provider registry'})).toContainText('Coding agents appear only from a paired trusted bridge');
     if (info.project.name === 'desktop') await page.screenshot({ path: join(evidence, `integration-${category.toLowerCase().replaceAll(' ', '-').replace('&', 'and')}.png`) });
   }
+  await page.getByRole('group',{name:'Provider class'}).getByRole('button',{name:'Intelligence',exact:true}).click();
+  await page.getByRole('navigation',{name:'Provider registry'}).getByRole('button',{name:/^OpenAI\b/}).click();
+  await page.getByRole('navigation',{name:'OpenAI sections'}).getByRole('button',{name:'Credentials',exact:true}).click();
+  await expect(page.getByRole('button',{name:'SAVE API KEY'})).toBeDisabled();
+  await expect(page.getByLabel('Secret (write only)')).toBeDisabled();
+  await expect(page.getByRole('button',{name:'Add profile +'})).toBeDisabled();
   const audit = await new AxeBuilder({ page }).include('.dev-cinematic').analyze(); expect(audit.violations).toEqual([]);
 });
 

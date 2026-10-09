@@ -40,38 +40,13 @@ export class OpenAIAdapter extends OpenAICompatibleAdapter {
     const list = data?.data ?? [];
     return list.map((entry) => {
       const model = this.normalizeModel(entry.id);
-      // Enrich known models with context window and capability data
+      // The listing proves identity only, not per-model context or tool support.
       const id = entry.id;
-      const longContext =
-        id.includes("4.1") ||
-        id.includes("gpt-4o") ||
-        id.startsWith("o3") ||
-        id.startsWith("o4");
-      if (longContext) {
-        model.contextWindow = 1_047_576;
-        model.maxOutputTokens = 16_384;
-      }
-      if (
-        id.startsWith("o3") ||
-        id.startsWith("o4") ||
-        id.includes("reasoner")
-      ) {
-        model.capabilities.reasoning = "SUPPORTED";
-        model.capabilities.tools = "SUPPORTED";
-      }
-      if (
-        id.includes("gpt-4o") ||
-        id.includes("gpt-4.1") ||
-        id.includes("vision")
-      ) {
-        model.capabilities.vision = "SUPPORTED";
-        model.capabilities.structuredOutput = "SUPPORTED";
-      }
-      if (id.includes("mini") || id.includes("nano")) {
-        model.lifecycle = "active";
-        model.capabilities.tools = "SUPPORTED";
-      }
-      model.lifecycle = "active";
+      const category=/embedding/.test(id)?'embedding':/moderation/.test(id)?'moderation':/dall-e|image/.test(id)?'image':/sora|video/.test(id)?'video':/whisper|tts|audio|transcribe|realtime/.test(id)?'audio':/^(?:gpt-|chatgpt-|o[134](?:-|$))/.test(id)?'text':'unknown';
+      model.modalities={text:category==='text',imageInput:false,audioInput:category==='audio',audioOutput:false};
+      model.capabilities={streaming:'UNKNOWN',tools:'UNKNOWN',structuredOutput:'UNKNOWN',reasoning:'UNKNOWN',vision:'UNKNOWN'};
+      model.catalog={categories:[category],gateway:false,authorNamespace:null,supportedParameters:null,free:null,buildEligible:category==='text',metadataSource:'IDENTITY_HINT'};
+      model.lifecycle = "unknown";
       return model;
     });
   }

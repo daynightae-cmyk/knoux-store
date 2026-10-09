@@ -1,4 +1,6 @@
 import "server-only";
+import { safeEndpointFetch } from "../provider-os/endpoint";
+import { providerRuntimeContext } from "../provider-os/runtime-context";
 import {
   abortedError,
   networkError,
@@ -68,6 +70,16 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
     this.displayName = config.displayName;
     this.transport = config.transport;
     this.requiredEnv = config.requiredEnv;
+  }
+
+  protected baseUrl(env: Record<string, string | undefined>): string {
+    const variable = this.id === "custom-openai" ? "KNOUX_BUILD_LLM_ENDPOINT" : this.id === "ollama" ? "OLLAMA_BASE_URL" : this.id === "lm-studio" ? "LM_STUDIO_BASE_URL" : null;
+    return (variable ? env[variable]?.trim().replace(/\/$/, "") : null) || this.config.baseUrl;
+  }
+  protected transportFetch(url: string, init: RequestInit): Promise<Response> {
+    return ["custom-openai", "ollama", "lm-studio"].includes(this.id)
+      ? safeEndpointFetch(url, init, providerRuntimeContext()?.env ?? process.env)
+      : fetch(url, init);
   }
 
   isConfigured(env: Record<string, string | undefined>): boolean {
@@ -172,7 +184,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
       };
     }
     try {
-      const response = await fetch(`${this.config.baseUrl}${this.probePath}`, {
+      const response = await this.transportFetch(`${this.baseUrl(env)}${this.probePath}`, {
         headers: this.buildHeaders(apiKey),
         redirect: "error",
         signal: AbortSignal.timeout(10000),
@@ -231,7 +243,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
       };
     }
     try {
-      const response = await fetch(`${this.config.baseUrl}${this.discoveryPath}`, {
+      const response = await this.transportFetch(`${this.baseUrl(env)}${this.discoveryPath}`, {
         headers: this.buildHeaders(apiKey),
         redirect: "error",
         signal: AbortSignal.timeout(15000),
@@ -295,7 +307,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
 
     const body = this.buildRequestBody(request, false);
     try {
-      const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
+      const response = await this.transportFetch(`${this.baseUrl(env)}/chat/completions`, {
         method: "POST",
         headers: this.buildHeaders(apiKey),
         body: JSON.stringify(body),
@@ -357,7 +369,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
 
     try {
       for await (const data of this.readStreamData(
-        `${this.config.baseUrl}/chat/completions`, apiKey, body, start, signal
+        `${this.baseUrl(env)}/chat/completions`, apiKey, body, start, signal
       )) {
         if (typeof data !== "string") {
           yield data;
@@ -417,7 +429,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
     noBodyMessage = "No response body",
     noBodySafeMessage = "Provider returned no body.",
   ): AsyncGenerator<string | StreamChunk, void, void> {
-    const response = await fetch(url, {
+    const response = await this.transportFetch(url, {
       method: "POST",
       headers: this.buildHeaders(apiKey),
       body: JSON.stringify(body),

@@ -807,3 +807,19 @@ test('tools and import refuse unrelated scopes, and import remains off without e
     assert.equal(response.status, 409); assert.equal(existsSync(join(h.root, 'new')), false);
   } finally { await h.close(); }
 });
+
+test('provider inventory requires a one-use tools ticket and returns environment names without values',async()=>{
+  const h=await harness();
+  try{
+    writeFileSync(join(h.root,'.mcp.json'),JSON.stringify({mcpServers:{contract:{command:'DO_NOT_EXECUTE',args:['TEST_ONLY_SECRET'],env:{API_KEY:'TEST_ONLY_SECRET'}}}}));
+    mkdirSync(join(h.root,'.claude/skills/contract'),{recursive:true});writeFileSync(join(h.root,'.claude/skills/contract/SKILL.md'),'Contract fixture skill');
+    assert.equal((await get(h,'/v1/provider-inventory')).status,401);
+    assert.equal((await get(h,'/v1/provider-inventory',mint(h,['fs:read']))).status,403);
+    const ticket=mint(h,['tools:read']),response=await get(h,'/v1/provider-inventory',ticket);
+    assert.equal(response.status,200);const data=await response.json();
+    assert.ok(data.agents.length>0);assert.ok(data.agents.every(agent=>agent.authenticated==='UNTESTED'&&!agent.executable));
+    assert.deepEqual(data.inventory.find(item=>item.id==='mcp:contract').environmentNames,['API_KEY']);
+    assert.ok(data.inventory.some(item=>item.kind==='SKILL'));assert.equal(JSON.stringify(data).includes('TEST_ONLY_SECRET'),false);assert.equal(JSON.stringify(data).includes('DO_NOT_EXECUTE'),false);
+    assert.equal((await get(h,'/v1/provider-inventory',ticket)).status,403);
+  }finally{await h.close();}
+});

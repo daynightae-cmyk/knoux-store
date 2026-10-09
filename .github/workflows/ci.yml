@@ -156,6 +156,7 @@ jobs:
             references/build-cinematic/qa/
             references/build-connected/qa/
             references/build-generator/qa/
+            references/provider-os/qa/
           if-no-files-found: ignore
           retention-days: 7
 

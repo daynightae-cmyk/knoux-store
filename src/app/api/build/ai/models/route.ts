@@ -1,3 +1,5 @@
+import { providerRequest } from '@/lib/ai/provider-os/request-runtime';
+import { providerEnvironment } from '@/lib/ai/provider-os/runtime-context';
 import { NextResponse, type NextRequest } from "next/server";
 import { guardBuildApi } from "@/lib/build/api-guard";
 import {
@@ -9,7 +11,7 @@ import {
 export const dynamic = "force-dynamic";
 
 /** GET /api/build/ai/models — all discovered models (from cache or fresh). */
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   const denied = await guardBuildApi(request, { scope: "ai-models" });
   if (denied) return denied;
 
@@ -25,13 +27,13 @@ export async function GET(request: NextRequest) {
       if (cached) {
         return {
           providerId: adapter.id,
-          models: cached.models,
+          models: cached.catalogModels??cached.models,
           source: "CACHED_LIVE" as const,
           discoveredAt: cached.discoveredAt,
           fromCache: true,
         };
       }
-      if (!adapter.isConfigured(process.env)) {
+      if (!adapter.isConfigured(providerEnvironment())) {
         return {
           providerId: adapter.id,
           models: [],
@@ -42,12 +44,12 @@ export async function GET(request: NextRequest) {
       }
       const result = await discoverProviderModels(
         adapter.id,
-        process.env,
+        providerEnvironment(),
         false,
       );
       return {
         providerId: adapter.id,
-        models: result.models,
+        models: result.catalogModels??result.models,
         source: result.source,
         discoveredAt: result.discoveredAt,
         fromCache: result.fromCache,
@@ -60,3 +62,5 @@ export async function GET(request: NextRequest) {
     { headers: { "cache-control": "no-store" } },
   );
 }
+
+export async function GET(request: NextRequest) { return providerRequest(request, 'ai-models', handleGET); }
