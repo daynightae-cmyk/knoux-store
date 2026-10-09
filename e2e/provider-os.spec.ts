@@ -116,6 +116,10 @@ for (const width of [1440, 390])
         await page.getByLabel('Search providers', { exact: true }).fill('');
         await page.getByRole('navigation', { name: 'Provider registry' }).getByRole('button', { name: /^Groq\b/ }).click();
         for (const state of ['AUTH_REQUIRED', 'CONFIG_REQUIRED', 'RATE_LIMITED', 'BILLING_REQUIRED']) {
+            fixture.data.profiles[0].connection.configuration = state === 'CONFIG_REQUIRED' ? 'CONFIG_REQUIRED' : 'CONFIGURED';
+            fixture.data.profiles[0].connection.auth = state === 'AUTH_REQUIRED' ? 'FAILED' : 'AUTHENTICATED';
+            fixture.data.profiles[0].connection.runtime = state === 'RATE_LIMITED' ? 'RATE_LIMITED' : state === 'BILLING_REQUIRED' ? 'BLOCKED' : 'UNTESTED';
+            fixture.data.profiles[0].connection.lastErrorCategory = state;
             fixture.data.profiles[0].connection.blocker = `${state} — CONTRACT FIXTURE visual state`;
             fixture.data.profiles[0].connection.health = 'BLOCKED';
             await page.getByRole('button', { name: 'Refresh facts ↗', exact: true }).click();
