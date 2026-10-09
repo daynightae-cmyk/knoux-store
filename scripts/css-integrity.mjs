@@ -122,7 +122,7 @@ export async function startOwnedServer(root, port) {
   const provenance = { pid: child.pid, startedAt, root, port, executable, entry, head: gitHead(root) };
   if (process.platform === 'win32') {
     try {
-      const observed = JSON.parse(execFileSync('C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe', ['-NoProfile', '-Command', `$observedProcess=Get-CimInstance Win32_Process -Filter 'ProcessId=${child.pid}'; $listener=Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction Stop; [pscustomobject]@{pid=$observedProcess.ProcessId; startedAt=$observedProcess.CreationDate.ToUniversalTime().ToString('o'); commandLine=$observedProcess.CommandLine; owner=$listener.OwningProcess} | ConvertTo-Json -Compress`], { encoding: 'utf8', windowsHide: true, timeout: 30000 }));
+      const observed = JSON.parse(execFileSync('C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe', ['-NoProfile', '-Command', `$observedProcess=Get-CimInstance Win32_Process -Filter 'ProcessId=${child.pid}'; $listener=Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction Stop; [pscustomobject]@{pid=$observedProcess.ProcessId; startedAt=$observedProcess.CreationDate.ToUniversalTime().ToString('o'); commandLine=$observedProcess.CommandLine; owner=$listener.OwningProcess} | ConvertTo-Json -Compress`], { encoding: 'utf8', windowsHide: true, timeout: 30000 }));
       if (observed.pid !== child.pid || observed.owner !== child.pid || !observed.commandLine.includes(entry)) throw new Error('Listening process does not match the owned checkout');
       provenance.observed = observed;
     } catch (error) { await stopOwnedServer(child); throw error; }
@@ -181,3 +181,4 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     console.error(`CSS integrity FAIL: ${error.message}`); process.exitCode = 1;
   }
 }
+
