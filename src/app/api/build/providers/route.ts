@@ -1,3 +1,5 @@
+import { providerRequest } from '@/lib/ai/provider-os/request-runtime';
+import { providerEnvironment } from '@/lib/ai/provider-os/runtime-context';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createProjectAdapter } from '@/lib/build/adapter-factory';
 import { guardBuildApi } from '@/lib/build/api-guard';
@@ -16,7 +18,7 @@ const MODES: RoutingMode[] = ['manual', 'auto'];
  * call from this route. A provider with no credential is reported as
  * `unconfigured` with the variable that would enable it.
  */
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   const denied = await guardBuildApi(request, { scope: 'providers' });
   if (denied) return denied;
 
@@ -28,13 +30,13 @@ export async function GET(request: NextRequest) {
     : 'general';
   const mode: RoutingMode = MODES.includes(modeParam) ? modeParam : 'auto';
 
-  const providers = providerStatuses(process.env);
+  const providers = providerStatuses(providerEnvironment());
   const manual =
     mode === 'manual' && params.get('provider') && params.get('model')
       ? { providerId: params.get('provider') as string, modelId: params.get('model') as string }
       : undefined;
 
-  const routing = runtimeRouting(task, mode, process.env, manual);
+  const routing = runtimeRouting(task, mode, providerEnvironment(), manual);
 
   const adapter = createProjectAdapter();
   const execute = adapter.capabilities()['provider.execute'];
@@ -50,3 +52,5 @@ export async function GET(request: NextRequest) {
     { headers: { 'cache-control': 'no-store' } },
   );
 }
+
+export async function GET(request: NextRequest) { return providerRequest(request, 'providers', handleGET); }

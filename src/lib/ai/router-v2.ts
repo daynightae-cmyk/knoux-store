@@ -1,4 +1,5 @@
 import "server-only";
+import { providerAutomatic, providerModelAllowed } from "./provider-os/runtime-context";
 import type {
   CapabilityState,
   RouterInput,
@@ -69,6 +70,10 @@ function scoreModel(
     rateLimitPenalty: 0,
     total: 0,
   };
+
+  if (!providerModelAllowed(model.providerId, model.modelId) || (input.mode === "auto" && !providerAutomatic(model.providerId))) {
+    return { accepted: false, rejectionReason: "The active provider profile excludes this model from automatic routing.", factors };
+  }
 
   if (model.modalities?.text === false || model.lifecycle === 'deprecated') {
     return { accepted: false, rejectionReason: 'This model is not an active text-generation candidate.', factors };
@@ -277,6 +282,8 @@ export function routeV2(
     if (['BLOCKED', 'FAILED', 'RATE_LIMITED', 'DEGRADED'].includes(health.generation) || (input.taskClass === 'engineering-plan' && (!runtimeEligible(health) || !model))) {
       return { taskClass: input.taskClass, mode: 'manual', selected: null, candidates: [], fallbackChain: [], estimatedCost: null, health: {}, contextFit: 'unknown', reasons: ['Manual selection is not runtime eligible. Selection was not overridden.'], status: 'unavailable', blocker: 'Authenticate and discover the selected model; resolve any provider generation blocker.' };
     }
+
+    if (!providerModelAllowed(providerId, modelId)) return { taskClass: input.taskClass, mode: 'manual', selected: null, candidates: [], fallbackChain: [], estimatedCost: null, health: {}, contextFit: 'unknown', reasons: ['Profile policy excludes this model. Selection was not overridden.'], status: 'unavailable', blocker: 'Select a model permitted by the active provider profile.' };
 
     if (model?.modalities?.text === false || model?.lifecycle === 'deprecated') {
       return { taskClass: input.taskClass, mode: 'manual', selected: null, candidates: [], fallbackChain: [], estimatedCost: null, health: {}, contextFit: 'unknown', reasons: ['The selected model is not an active text-generation model. Selection was not overridden.'], status: 'unavailable', blocker: 'Explicitly select a discovered text-generation model.' };

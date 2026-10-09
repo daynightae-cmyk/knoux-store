@@ -1,4 +1,5 @@
 import "server-only";
+import { providerModelAllowed, providerAutomatic } from "./provider-os/runtime-context";
 import type { GenerationResponse } from './types';
 import { getAdapter, getDiscoveryCache, updateHealth } from "./registry";
 import { profileToControls } from '../build/profile';
@@ -62,7 +63,7 @@ export async function generateWithFallback(
   for (let i = 0; i < chain.length; i++) {
     const { providerId, modelId } = chain[i];
     const adapter = getAdapter(providerId);
-    if (!adapter) {
+    if (!adapter || !providerModelAllowed(providerId, modelId) || (i > 0 && !providerAutomatic(providerId))) {
       continue;
     }
 

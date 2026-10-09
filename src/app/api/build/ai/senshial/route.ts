@@ -1,3 +1,5 @@
+import { providerRequest } from '@/lib/ai/provider-os/request-runtime';
+import { providerEnvironment } from '@/lib/ai/provider-os/runtime-context';
 import { NextResponse, type NextRequest } from "next/server";
 import { guardBuildApi } from "@/lib/build/api-guard";
 import { runSenshial } from "@/lib/ai/senshial";
@@ -11,7 +13,7 @@ import type { SenshialRequest } from "@/lib/ai/types";
 export const dynamic = "force-dynamic";
 
 /** POST /api/build/ai/senshial — real ASK/PLAN inference. EXECUTE is blocked. */
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   const denied = await guardBuildApi(request, { scope: "ai-senshial" });
   if (denied) return denied;
 
@@ -71,7 +73,7 @@ export async function POST(request: NextRequest) {
           ]
         : [],
     },
-    process.env,
+    providerEnvironment(),
   );
 
   const status = response.blocked ? 403 : response.ok ? 200 : 502;
@@ -80,3 +82,5 @@ export async function POST(request: NextRequest) {
     headers: { "cache-control": "no-store" },
   });
 }
+
+export async function POST(request: NextRequest) { return providerRequest(request, 'ai-senshial', handlePOST); }

@@ -1,5 +1,5 @@
 import 'server-only';
-import { OpenAICompatibleAdapter } from './base';
+import { OpenRouterAdapter } from './openrouter';
 
 /**
  * Grok via OpenRouter adapter.
@@ -28,7 +28,8 @@ import { OpenAICompatibleAdapter } from './base';
  */
 const GROK_MODEL_PREFIXES = ['x-ai/', 'xai/', 'grok'] as const;
 
-export class GrokAdapter extends OpenAICompatibleAdapter {
+export class GrokAdapter extends OpenRouterAdapter {
+  protected override get probePath():string{return '/key';}
   constructor() {
     super({
       id: 'grok',
@@ -52,20 +53,6 @@ export class GrokAdapter extends OpenAICompatibleAdapter {
     const list = (data?.data ?? []).filter((m) =>
       GROK_MODEL_PREFIXES.some((prefix) => m.id.startsWith(prefix)),
     );
-    return list.map((entry) => {
-      const model = this.normalizeModel(entry.id);
-      model.displayName = entry.name ?? entry.id;
-      model.contextWindow = entry.context_length ?? null;
-      model.capabilities.vision = entry.id.includes('vision') ? 'SUPPORTED' : 'UNKNOWN';
-      model.capabilities.tools = 'SUPPORTED';
-      model.pricing = {
-        inputPerMillion: entry.pricing?.prompt ? parseFloat(entry.pricing.prompt) * 1_000_000 : null,
-        outputPerMillion: entry.pricing?.completion ? parseFloat(entry.pricing.completion) * 1_000_000 : null,
-        cachedInputPerMillion: null,
-        currency: 'USD',
-      };
-      model.lifecycle = 'active';
-      return model;
-    });
+    return super.parseModelList({data:list});
   }
 }

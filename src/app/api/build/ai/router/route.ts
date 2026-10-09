@@ -1,3 +1,5 @@
+import { providerRequest } from '@/lib/ai/provider-os/request-runtime';
+import { providerEnvironment } from '@/lib/ai/provider-os/runtime-context';
 import { NextResponse, type NextRequest } from 'next/server';
 import { guardBuildApi } from '@/lib/build/api-guard';
 import { allProviderHealth } from '@/lib/ai/registry';
@@ -7,7 +9,7 @@ import type { RouterInput } from '@/lib/ai/types';
 export const dynamic = 'force-dynamic';
 
 /** POST /api/build/ai/router — router v2 decision with scoring and fallback chain. */
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   const denied = await guardBuildApi(request, { scope: 'ai-router' });
   if (denied) return denied;
 
@@ -38,8 +40,10 @@ export async function POST(request: NextRequest) {
     input.contextRequirement = built.contextRequirement;
   }
 
-  const healthMap = new Map(allProviderHealth(process.env).map((h) => [h.providerId, h]));
+  const healthMap = new Map(allProviderHealth(providerEnvironment()).map((h) => [h.providerId, h]));
   const decision = routeV2(input, healthMap);
 
   return NextResponse.json(decision, { headers: { 'cache-control': 'no-store' } });
 }
+
+export async function POST(request: NextRequest) { return providerRequest(request, 'ai-router', handlePOST); }
