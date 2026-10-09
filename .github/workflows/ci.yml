@@ -66,6 +66,18 @@ jobs:
       - name: Production build
         run: npm run build
 
+      - name: Emitted and served stylesheet integrity
+        run: npm run audit:css-integrity
+
+      - name: Upload stylesheet integrity evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: stylesheet-integrity
+          path: .qa-css/integrity.json
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Unit and integration tests
         run: npm test
 
@@ -133,6 +145,9 @@ jobs:
       # on demand, serves unbundled modules and adds HMR, so it cannot be used
       # to claim anything about what a visitor receives.
       - run: npm run build
+
+      - name: Emitted and served stylesheet integrity before browser capture
+        run: npm run audit:css-integrity
 
       # GitHub's Ubuntu image already includes stable Google Chrome. Using
       # Playwright's supported channel avoids a stalled CDN/apt install while
