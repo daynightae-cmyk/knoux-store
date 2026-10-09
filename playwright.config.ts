@@ -70,7 +70,9 @@ export default defineConfig({
   webServer: {
     command: `npx next start -p ${PORT} -H 127.0.0.1`,
     url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
+    // A server from another checkout can serve stale HTML against new assets.
+    // Occupied ports must fail instead of silently reusing an unknown process.
+    reuseExistingServer: false,
     timeout: 120_000,
     env: {
       // The workspace boundary is exercised as a deployment would answer, so
