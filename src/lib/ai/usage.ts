@@ -1,4 +1,5 @@
 import "server-only";
+import { runtimeNamespace, providerRuntimeContext } from "./provider-os/runtime-context";
 import type { UsageRecord, UsageSummary, CostEstimate } from "./types";
 import { mergeCostBasis } from "./cost";
 
@@ -11,17 +12,27 @@ import { mergeCostBasis } from "./cost";
  */
 
 const MAX_RECORDS = 10_000;
-const records: UsageRecord[] = [];
+const ledgers = new Map<string, UsageRecord[]>();
+function scopedRecords(): UsageRecord[] {
+  const key = runtimeNamespace();
+  if (!ledgers.has(key)) {
+    if (ledgers.size >= 128) ledgers.delete(ledgers.keys().next().value!);
+    ledgers.set(key, []);
+  }
+  return ledgers.get(key)!;
+}
 
 let recordCounter = 0;
 
 export function recordUsage(
   entry: Omit<UsageRecord, "id" | "timestamp">,
 ): UsageRecord {
+  const records = scopedRecords();
   const record: UsageRecord = {
     id: `usage-${Date.now().toString(36)}-${(recordCounter++).toString(36)}`,
     timestamp: new Date().toISOString(),
     ...entry,
+    profileId: providerRuntimeContext()?.profileIds.get(entry.providerId) ?? null,
   };
   records.unshift(record);
   if (records.length > MAX_RECORDS) {
@@ -31,10 +42,11 @@ export function recordUsage(
 }
 
 export function getUsageRecords(limit = 100): UsageRecord[] {
-  return records.slice(0, limit);
+  return scopedRecords().slice(0, Math.max(0, Math.min(MAX_RECORDS, limit)));
 }
 
 export function getUsageSummary(): UsageSummary {
+  const records = scopedRecords();
   const totalRequests = records.length;
   let totalInputTokens = 0;
   let totalOutputTokens = 0;

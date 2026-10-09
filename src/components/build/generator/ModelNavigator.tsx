@@ -10,16 +10,18 @@ export function ModelNavigator({ models, providers, selected, onSelect, disabled
   const [query, setQuery] = useState('');
   const [provider, setProvider] = useState('');
   const [active, setActive] = useState(0);
+  const [showAll,setShowAll]=useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const root = useRef<HTMLDivElement>(null);
   const id = useId();
-  const results = searchModels(models, query, provider);
+  const eligible=(model:NormalizedModel)=>model.modalities.text&&model.lifecycle!=='deprecated'&&model.catalog?.buildEligible!==false;
+  const results = searchModels(showAll?models:models.filter(eligible), query, provider);
   const index = Math.min(active, Math.max(0, results.length - 1));
   const chosen = models.find((model) => model.modelId === selected?.modelId && model.providerId === selected.providerId);
   const facets = [...new Set([...providers.map((item) => item.providerId), ...models.map((item) => item.providerId)])];
   const close = () => { setOpen(false); trigger.current?.focus(); };
-  const choose = (model: NormalizedModel) => { onSelect(model); close(); };
+  const choose = (model: NormalizedModel) => { if(!eligible(model))return;onSelect(model); close(); };
   useEffect(() => {
     if (!open) return;
     input.current?.focus();
@@ -43,10 +45,11 @@ export function ModelNavigator({ models, providers, selected, onSelect, disabled
       <label className={styles.searchLabel} htmlFor={`${id}-search`}>Search intelligence</label>
       <input ref={input} id={`${id}-search`} role="combobox" aria-autocomplete="list" aria-expanded="true" aria-controls={`${id}-list`} aria-activedescendant={results[index] ? `${id}-option-${index}` : undefined} value={query} onKeyDown={key} onChange={(event) => { setQuery(event.target.value); setActive(0); }} placeholder="Model, provider or capability" />
       <label className={styles.providerFilter}>Provider<select aria-label="Provider" value={provider} onChange={(event) => { setProvider(event.target.value); setActive(0); }}><option value="">All canonical providers</option>{facets.map((facet) => <option key={facet} value={facet}>{providers.find((item) => item.providerId === facet)?.displayName ?? facet}</option>)}</select></label>
+      <label className={styles.providerFilter}><input type="checkbox" checked={showAll} onChange={event=>{setShowAll(event.target.checked);setActive(0);}}/>SHOW ALL — include catalog-only models</label>
       <ul className={styles.providerStates} aria-label="Provider runtime states">{providers.filter((item) => !provider || item.providerId === provider).map((item) => <li key={item.providerId}><span>{item.displayName}</span><small>{providerState(item)}</small></li>)}</ul>
       <p className={styles.note} role="status">{results.length} model results · metadata remains measured, declared or UNKNOWN.</p>
       <ul id={`${id}-list`} role="listbox" aria-label="Canonical models" className={styles.modelList}>
-        {results.map((model, item) => <li key={`${model.providerId}/${model.modelId}`} role="presentation"><button id={`${id}-option-${item}`} type="button" role="option" tabIndex={-1} aria-selected={selected?.providerId === model.providerId && selected.modelId === model.modelId} data-active={item === index} onClick={() => choose(model)}><strong>{model.displayName}</strong><span>{model.providerId} / {model.modelId}</span><small>Context {model.contextWindow ?? 'UNKNOWN'} · output {model.maxOutputTokens ?? 'UNKNOWN'} · streaming {model.capabilities.streaming} · tools {model.capabilities.tools} · source {model.source}</small></button></li>)}
+        {results.map((model, item) => <li key={`${model.providerId}/${model.modelId}`} role="presentation"><button id={`${id}-option-${item}`} type="button" role="option" aria-disabled={!eligible(model)} tabIndex={-1} aria-selected={selected?.providerId === model.providerId && selected.modelId === model.modelId} data-active={item === index} onClick={() => choose(model)}><strong>{model.displayName}</strong><span>{model.providerId} / {model.modelId}</span><small>{eligible(model)?'BUILD CANDIDATE':'CATALOG ONLY · generation unavailable'} · Context {model.contextWindow ?? 'UNKNOWN'} · output {model.maxOutputTokens ?? 'UNKNOWN'} · streaming {model.capabilities.streaming} · tools {model.capabilities.tools} · source {model.source}</small></button></li>)}
       </ul>
       {!results.length ? <p className={styles.note}>No matching discovered model. {error ?? 'Adjust the search, or inspect provider configuration.'}</p> : null}
       <button type="button" className={styles.textButton} onClick={close}>Close model navigator</button>

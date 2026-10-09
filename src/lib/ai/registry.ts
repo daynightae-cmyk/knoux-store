@@ -1,4 +1,5 @@
 import "server-only";
+import { providerEnabled, providerRuntimeContext, runtimeNamespace, providerRuntimeKey } from "./provider-os/runtime-context";
 import type { ProviderAdapter } from "./contract";
 import { OpenAIAdapter } from "./adapters/openai";
 import { AnthropicAdapter } from "./adapters/anthropic";
@@ -35,7 +36,7 @@ import type {
 
 let _adapters: ProviderAdapter[] | null = null;
 
-export function getAdapters(): ProviderAdapter[] {
+export function getRegisteredAdapters(): ProviderAdapter[] {
   if (_adapters) return _adapters;
   _adapters = [
     new OpenAIAdapter(),
@@ -53,6 +54,10 @@ export function getAdapters(): ProviderAdapter[] {
     new CustomOpenAIAdapter(),
   ];
   return _adapters;
+}
+
+export function getAdapters(): ProviderAdapter[] {
+  return getRegisteredAdapters().filter(adapter => providerEnabled(adapter.id));
 }
 
 export function getAdapter(providerId: string): ProviderAdapter | null {
@@ -96,10 +101,12 @@ function initHealthRecord(providerId: string): HealthRecord {
 }
 
 function getHealthRecord(providerId: string): HealthRecord {
-  if (!healthRecords.has(providerId)) {
-    healthRecords.set(providerId, initHealthRecord(providerId));
+  const key = providerRuntimeKey(providerId);
+  if (!healthRecords.has(key)) {
+    if (healthRecords.size >= 2048) healthRecords.delete(healthRecords.keys().next().value!);
+    healthRecords.set(key, { ...initHealthRecord(providerId), ...providerRuntimeContext()?.seedHealth.get(providerId) });
   }
-  return healthRecords.get(providerId)!;
+  return healthRecords.get(key)!;
 }
 
 export function updateHealth(
@@ -273,10 +280,13 @@ const discoveryCache = new Map<string, DiscoveryCacheEntry>();
 export function getDiscoveryCache(
   providerId: string,
 ): DiscoveryCacheEntry | null {
-  const entry = discoveryCache.get(providerId);
+  const key = providerRuntimeKey(providerId);
+  const seed = providerRuntimeContext()?.seedModels.get(providerId);
+  const seeded = seed ? { providerId, models: seed.models.filter(model=>model.modalities.text&&model.catalog?.buildEligible!==false), catalogModels:seed.models, source: "LIVE" as const, discoveredAt: seed.discoveredAt, expiresAt: new Date(Date.parse(seed.discoveredAt) + DISCOVERY_TTL_MS).toISOString() } : null;
+  const entry = discoveryCache.get(key) ?? seeded;
   if (!entry) return null;
   if (Date.now() > new Date(entry.expiresAt).getTime()) {
-    discoveryCache.delete(providerId);
+    discoveryCache.delete(key);
     return null;
   }
   return entry;
@@ -286,12 +296,15 @@ export function setDiscoveryCache(
   providerId: string,
   models: NormalizedModel[],
   source: DiscoverySource,
+  catalogModels?: NormalizedModel[],
 ): void {
   const now = new Date();
   const expires = new Date(now.getTime() + DISCOVERY_TTL_MS);
-  discoveryCache.set(providerId, {
+  if (discoveryCache.size >= 2048) discoveryCache.delete(discoveryCache.keys().next().value!);
+  discoveryCache.set(providerRuntimeKey(providerId), {
     providerId,
     models,
+    catalogModels:catalogModels??models,
     discoveredAt: now.toISOString(),
     expiresAt: expires.toISOString(),
     source,
@@ -300,9 +313,11 @@ export function setDiscoveryCache(
 
 export function clearDiscoveryCache(providerId?: string): void {
   if (providerId) {
-    discoveryCache.delete(providerId);
+    discoveryCache.delete(providerRuntimeKey(providerId));
+    providerRuntimeContext()?.seedModels.delete(providerId);
   } else {
-    discoveryCache.clear();
+    for (const key of discoveryCache.keys()) if (key.startsWith(`${runtimeNamespace()}:`)) discoveryCache.delete(key);
+    providerRuntimeContext()?.seedModels.clear();
   }
 }
 
@@ -336,6 +351,7 @@ export async function discoverProviderModels(
       return {
         providerId,
         models: cached.models,
+        catalogModels:cached.catalogModels,
         source: "CACHED_LIVE",
         discoveredAt: cached.discoveredAt,
         error: null,
@@ -348,7 +364,7 @@ export async function discoverProviderModels(
 
   const result = await adapter.discoverModels(env);
   if (result.models.length > 0 && result.source === "LIVE") {
-    setDiscoveryCache(providerId, result.models, result.source);
+    setDiscoveryCache(providerId, result.models.filter(model=>model.modalities.text&&model.catalog?.buildEligible!==false), result.source,result.catalogModels??result.models);
   }
   return result;
 }

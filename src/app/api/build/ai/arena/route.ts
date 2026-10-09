@@ -1,3 +1,6 @@
+import { providerRequest } from '@/lib/ai/provider-os/request-runtime';
+import { providerEnvironment } from '@/lib/ai/provider-os/runtime-context';
+import { providerModelAllowed } from '@/lib/ai/provider-os/runtime-context';
 import { NextResponse, type NextRequest } from "next/server";
 import { guardBuildApi } from "@/lib/build/api-guard";
 import { getAdapter, updateHealth } from "@/lib/ai/registry";
@@ -7,7 +10,7 @@ import type { ArenaRequest, GenerationRequest } from "@/lib/ai/types";
 export const dynamic = "force-dynamic";
 
 /** POST /api/build/ai/arena — run one prompt against 2-4 selected models in parallel. */
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   const denied = await guardBuildApi(request, { scope: "ai-arena" });
   if (denied) return denied;
 
@@ -42,10 +45,11 @@ export async function POST(request: NextRequest) {
   // Run all generations in parallel
   const results = await Promise.allSettled(
     body.selections.map(async (selection) => {
+      if(!providerModelAllowed(selection.providerId,selection.modelId))throw new Error('Profile model policy refused arena selection.');
       const adapter = getAdapter(selection.providerId);
       if (!adapter)
         throw new Error(`Unknown provider: ${selection.providerId}`);
-      if (!adapter.isConfigured(process.env))
+      if (!adapter.isConfigured(providerEnvironment()))
         throw new Error(`Provider ${selection.providerId} is not configured.`);
 
       const genRequest: GenerationRequest = {
@@ -57,7 +61,7 @@ export async function POST(request: NextRequest) {
       };
 
       const startedAt = new Date().toISOString();
-      const response = await adapter.generate(genRequest, process.env);
+      const response = await adapter.generate(genRequest, providerEnvironment());
       const completedAt = new Date().toISOString();
 
       recordUsage({
@@ -140,3 +144,5 @@ export async function POST(request: NextRequest) {
     { headers: { "cache-control": "no-store" } },
   );
 }
+
+export async function POST(request: NextRequest) { return providerRequest(request, 'ai-arena', handlePOST); }

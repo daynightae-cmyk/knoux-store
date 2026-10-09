@@ -37,6 +37,7 @@ import { discoverProfiles, getExecutionPolicy, getPowerShellVersion, isElevated,
 import { sampleMetrics } from './metrics.js';
 import { inspectProject, cloneProject, projectRoot } from './projects.js';
 import { detectTools } from './tools.js';
+import { providerInventory } from './provider-inventory.js';
 
 const BRIDGE_VERSION = '0.1.0';
 
@@ -407,6 +408,9 @@ export class BridgeServer {
       case 'GET /v1/tools':
         json(res, 200, { tools: await detectTools() });
         return;
+      case 'GET /v1/provider-inventory':
+        json(res, 200, await providerInventory(root));
+        return;
       case 'GET /v1/handshake':
         json(res, 200, buildHandshake(this.options));
         return;
@@ -484,7 +488,7 @@ export class BridgeServer {
     if (path === '/v1/project/inspect' || path === '/v1/project/file') return 'fs:read';
     if (path === '/v1/project/git') return 'git:read';
     if (path === '/v1/project/import') return 'project:import';
-    if (path === '/v1/tools') return 'tools:read';
+    if (path === '/v1/tools' || path === '/v1/provider-inventory') return 'tools:read';
     if (path === '/v1/handshake') return 'terminal:open';
     if (path === '/v1/fs/list' || path === '/v1/fs/read') return 'fs:read';
     if (path === '/v1/fs/write') return 'fs:write';

@@ -1,3 +1,5 @@
+import { providerRequest } from '@/lib/ai/provider-os/request-runtime';
+import { providerModelAllowed, providerEnvironment } from '@/lib/ai/provider-os/runtime-context';
 import { type NextRequest } from "next/server";
 import { guardBuildApi } from "@/lib/build/api-guard";
 import { getAdapter, getDiscoveryCache, updateHealth } from "@/lib/ai/registry";
@@ -10,7 +12,7 @@ import { publicRequestOrigin, checkRequestOrigin } from '@/lib/contact/intake-gu
 export const dynamic = "force-dynamic";
 
 /** POST /api/build/ai/stream — real server-side streaming via SSE. */
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   if (!checkRequestOrigin(request.headers, publicRequestOrigin(request)).ok) return new Response('Cross-site generation request refused.', { status: 403 });
   const denied = await guardBuildApi(request, { scope: "ai-stream" });
   if (denied) return denied;
@@ -28,6 +30,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  if (!providerModelAllowed(body.providerId, body.modelId)) return Response.json({ message: 'The active provider profile excludes this model.' }, { status: 403 });
   const adapter = getAdapter(body.providerId);
   if (body.generationProfile !== undefined && !isGenerationProfile(body.generationProfile)) return new Response('Choose a valid generation profile.', { status: 400 });
   if (body.generationProfile) body.controls = profileToControls(body.generationProfile, getDiscoveryCache(body.providerId)?.models.find((model) => model.modelId === body.modelId), estimateTokens((body.system ?? '') + body.messages.map((message) => message.content).join('\n'))).controls;
@@ -36,7 +39,7 @@ export async function POST(request: NextRequest) {
       status: 404,
     });
 
-  if (!adapter.isConfigured(process.env)) {
+  if (!adapter.isConfigured(providerEnvironment())) {
     return new Response(`Provider ${body.providerId} is not configured.`, {
       status: 403,
     });
@@ -55,7 +58,7 @@ export async function POST(request: NextRequest) {
       try {
         for await (const chunk of adapter.stream(
           body,
-          process.env,
+          providerEnvironment(),
           abortController.signal,
         )) {
           lastChunk = chunk;
@@ -135,3 +138,5 @@ export async function POST(request: NextRequest) {
     },
   });
 }
+
+export async function POST(request: NextRequest) { return providerRequest(request, 'ai-stream', handlePOST); }

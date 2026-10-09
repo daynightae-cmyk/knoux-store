@@ -42,9 +42,9 @@ export class OllamaAdapter extends OpenAICompatibleAdapter {
     return true;
   }
 
-  override getApiKey(_env: Record<string, string | undefined>): string | null {
+  override getApiKey(env: Record<string, string | undefined>): string | null {
     // Ollama typically doesn't need auth, but if OLLAMA_API_KEY is set, use it
-    return process.env.OLLAMA_API_KEY?.trim() || "ollama";
+    return env.OLLAMA_API_KEY?.trim() || "ollama";
   }
 
   protected override buildHeaders(apiKey: string): HeadersInit {

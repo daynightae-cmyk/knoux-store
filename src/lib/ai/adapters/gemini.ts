@@ -365,9 +365,16 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
         }
       }
 
+      const catalogModels=list.filter(entry=>typeof entry.name==='string'&&isSafeModelIdSegment(stripModelNamePrefix(entry.name))).map(entry=>{
+        const modelId=stripModelNamePrefix(entry.name),known=models.find(model=>model.modelId===modelId);
+        if(known)return {...known,catalog:{categories:['text'],gateway:false,authorNamespace:null,supportedParameters:entry.supportedGenerationMethods??[],free:null,buildEligible:true}};
+        const methods=entry.supportedGenerationMethods??[];
+        return {providerId:this.id,modelId,displayName:entry.displayName??modelId,discoveredAt:new Date().toISOString(),contextWindow:entry.inputTokenLimit??null,maxOutputTokens:entry.outputTokenLimit??null,modalities:{text:false,imageInput:false,audioInput:false,audioOutput:false},capabilities:{streaming:'UNKNOWN',tools:'UNKNOWN',structuredOutput:'UNKNOWN',reasoning:'UNKNOWN',vision:'UNKNOWN'},controls:{temperature:false,topP:false,maxTokens:false,reasoningEffort:false,seed:false,stop:false,toolChoice:false},pricing:{inputPerMillion:null,outputPerMillion:null,cachedInputPerMillion:null,currency:'USD'},lifecycle:'unknown',source:'LIVE',catalog:{categories:methods.some(method=>method.toLowerCase().includes('embed'))?['embedding']:['unknown'],gateway:false,authorNamespace:null,supportedParameters:methods,free:null,buildEligible:false}} as NormalizedModel;
+      });
       return {
         providerId: this.id,
         models,
+        catalogModels,
         source: "LIVE",
         discoveredAt: new Date().toISOString(),
         error: null,

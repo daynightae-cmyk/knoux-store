@@ -1,4 +1,4 @@
-﻿/**
+/**
  * The workspace guard — transport only.
  *
  * The decision itself lives in `deployment.ts`, which has no imports and is
@@ -16,6 +16,7 @@
  */
 
 import { NextResponse } from 'next/server';
+import { providerRuntimeContext } from '../ai/provider-os/runtime-context';
 import { BUILD_API_DENIED, DENIAL_MESSAGE, authorizeBuildAccess, evaluateBuildAccess } from './deployment';
 import { clientAddress, rateLimit } from '../http/rate-limit';
 
@@ -60,6 +61,7 @@ export async function guardBuildApi(
     env?: Record<string, string | undefined>;
   } = { scope: 'build' },
 ): Promise<Response | null> {
+  if (providerRuntimeContext()?.authorizedRequest === request) return null;
   const env = options.env ?? process.env;
   const access = evaluateBuildAccess(env);
 

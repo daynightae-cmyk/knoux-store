@@ -1,3 +1,5 @@
+import { providerRequest } from '@/lib/ai/provider-os/request-runtime';
+import { providerModelAllowed, providerEnvironment } from '@/lib/ai/provider-os/runtime-context';
 import { NextResponse, type NextRequest } from "next/server";
 import { guardBuildApi } from "@/lib/build/api-guard";
 import { getAdapter } from "@/lib/ai/registry";
@@ -10,7 +12,7 @@ import { isGenerationProfile } from '@/lib/build/profile';
 export const dynamic = "force-dynamic";
 
 /** POST /api/build/ai/generate — real text generation with optional fallback. */
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   if (!checkRequestOrigin(request.headers, publicRequestOrigin(request)).ok) return NextResponse.json({ message: 'Cross-site generation request refused.' }, { status: 403 });
   const denied = await guardBuildApi(request, { scope: "ai-generate" });
   if (denied) return denied;
@@ -35,6 +37,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (!providerModelAllowed(body.providerId, body.modelId)) return Response.json({ message: 'The active provider profile excludes this model.' }, { status: 403 });
   const adapter = getAdapter(body.providerId);
   if (body.generationProfile !== undefined && !isGenerationProfile(body.generationProfile)) return NextResponse.json({ message: 'Choose a valid generation profile.' }, { status: 400 });
   if (!adapter)
@@ -43,7 +46,7 @@ export async function POST(request: NextRequest) {
       { status: 404 },
     );
 
-  if (!adapter.isConfigured(process.env)) {
+  if (!adapter.isConfigured(providerEnvironment())) {
     // A complete NormalizedError, not a two-field projection: clients render
     // `safeMessage`, but the rest of the contract is part of the response.
     const error = createNormalizedError(
@@ -64,7 +67,7 @@ export async function POST(request: NextRequest) {
         latencyMs: 0,
         ttftMs: null,
         providerRequestId: null,
-        modelUsed: body.modelId,
+        modelUsed: null,
         warnings: [],
         estimatedCost: null,
         error,
@@ -75,7 +78,7 @@ export async function POST(request: NextRequest) {
 
   const result = await generateWithFallback(
     body,
-    process.env,
+    providerEnvironment(),
     body.fallbackChain ?? [],
     body.noFallback ?? false,
   );
@@ -94,3 +97,5 @@ export async function POST(request: NextRequest) {
     { headers: { "cache-control": "no-store" } },
   );
 }
+
+export async function POST(request: NextRequest) { return providerRequest(request, 'ai-generate', handlePOST); }
