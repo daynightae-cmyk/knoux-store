@@ -39,7 +39,9 @@ async function json(root: string, target: string): Promise<Record<string, unknow
             const value = JSON.parse(buffer.subarray(0, length).toString('utf8'));
             return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
         }
-        finally { await handle.close(); }
+        finally {
+            await handle.close();
+        }
     }
     catch {
         return null;
