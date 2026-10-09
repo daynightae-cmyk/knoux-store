@@ -1,5 +1,6 @@
 /** Trusted-local metadata inspection only. No agent execution and no credential reads. */
-import { readdir, realpath, stat, readFile } from 'node:fs/promises';
+import { readdir, realpath, stat, open } from 'node:fs/promises';
+import { constants } from 'node:fs';
 import path from 'node:path';
 import { detectTools } from './tools.js';
 import { execFile } from 'node:child_process';
@@ -19,10 +20,26 @@ async function json(root: string, target: string): Promise<Record<string, unknow
     if (!resolved)
         return null;
     try {
-        if ((await stat(resolved)).size > 128 * 1024)
-            return null;
-        const value = JSON.parse(await readFile(resolved, 'utf8'));
-        return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
+        const handle = await open(resolved, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+        try {
+            const metadata = await handle.stat();
+            if (!metadata.isFile() || metadata.size > 128 * 1024)
+                return null;
+            // Check/read the same opened object and bound reads even if it grows.
+            const buffer = Buffer.alloc(128 * 1024 + 1);
+            let length = 0;
+            while (length < buffer.length) {
+                const { bytesRead } = await handle.read(buffer, length, buffer.length - length, length);
+                if (!bytesRead)
+                    break;
+                length += bytesRead;
+            }
+            if (length > 128 * 1024)
+                return null;
+            const value = JSON.parse(buffer.subarray(0, length).toString('utf8'));
+            return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
+        }
+        finally { await handle.close(); }
     }
     catch {
         return null;
