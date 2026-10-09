@@ -1,4 +1,5 @@
-import { readdir, readFile, stat, realpath, mkdir, writeFile } from 'node:fs/promises';
+import { readdir, readFile, open, realpath, mkdir, writeFile } from 'node:fs/promises';
+import { constants } from 'node:fs';
 import { resolve, relative, join, sep } from 'node:path';
 import { createHash } from 'node:crypto';
 import { spawn, execFileSync } from 'node:child_process';
@@ -31,6 +32,25 @@ async function htmlFiles(directory) {
   return files;
 }
 
+async function stylesheetBytes(file) {
+  const handle = await open(file, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+  try {
+    const metadata = await handle.stat();
+    if (!metadata.isFile() || !metadata.size || metadata.size > 16 * 1024 * 1024) throw new Error('Missing, empty or oversized stylesheet');
+    return await handle.readFile();
+  } finally { await handle.close(); }
+}
+
+async function emittedStylesheets(directory, prefix = '/_next/static') {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const assets = [];
+  for (const entry of entries) {
+    if (entry.isDirectory()) assets.push(...await emittedStylesheets(join(directory, entry.name), prefix + '/' + entry.name));
+    else if (entry.isFile() && entry.name.endsWith('.css')) assets.push(prefix + '/' + entry.name);
+  }
+  return assets;
+}
+
 export async function inspectBuild(buildDirectory) {
   const documents = await htmlFiles(join(buildDirectory, 'server/app'));
   if (!documents.length) throw new Error('No prerendered HTML: integrity cannot be established');
@@ -51,9 +71,7 @@ export async function inspectBuild(buildDirectory) {
     const file = assetPath(buildDirectory, href);
     const canonical = await realpath(file);
     if (!canonical.startsWith(await realpath(join(buildDirectory, 'static')) + sep)) throw new Error(`Asset outside build: ${href}`);
-    const metadata = await stat(file);
-    if (!metadata.isFile() || !metadata.size) throw new Error(`Missing or empty stylesheet: ${href}`);
-    const data = await readFile(file);
+    const data = await stylesheetBytes(file);
     assets.push({ href, documents, bytes: data.length, sha256: hash(data) });
   }
   return { documents: documents.length, assets };
@@ -64,8 +82,10 @@ export async function verifyServedAsset(base, buildDirectory, href) {
   const response = await fetch(base + href, { redirect: 'manual', signal: AbortSignal.timeout(15000) });
   if (response.status !== 200 || !response.headers.get('content-type')?.includes('text/css')) throw new Error(`Stylesheet ${href}: HTTP ${response.status} or incorrect content type`);
   const data = Buffer.from(await response.arrayBuffer());
-  if (!data.length || hash(data) !== hash(await readFile(file))) throw new Error(`Served stylesheet differs from this build: ${href}`);
-  return { href, status: response.status, bytes: data.length, sha256: hash(data) };
+  const disk = await stylesheetBytes(file);
+  if (!data.length || hash(data) !== hash(disk)) throw new Error(`Served stylesheet differs from this build: ${href}`);
+  // Persist trusted disk metadata after equality, never remote body bytes.
+  return { href, status: 200, bytes: disk.length, sha256: hash(disk) };
 }
 
 async function assertFreePort(port) {
@@ -118,6 +138,7 @@ export async function stopOwnedServer(child) {
 export async function runIntegrity({ root = process.cwd(), port = Number(process.env.KNOUX_CSS_PORT ?? 4469), reportPath } = {}) {
   const buildDirectory = resolve(root, process.env.NEXT_DIST_DIR ?? '.next');
   const disk = await inspectBuild(buildDirectory);
+  const emitted = await emittedStylesheets(join(buildDirectory, 'static'));
   const buildId = (await readFile(join(buildDirectory, 'BUILD_ID'), 'utf8')).trim();
   const server = await startOwnedServer(root, port);
   try {
@@ -125,12 +146,17 @@ export async function runIntegrity({ root = process.cwd(), port = Number(process
     const routes = [];
     for (const route of representativeRoutes) {
       const response = await fetch(server.base + route, { redirect: 'manual', signal: AbortSignal.timeout(15000) });
-      const authBoundary = [301, 302, 303, 307, 308, 401, 403].includes(response.status) && ['/account', '/build', '/build/providers', '/command', '/command/connections'].includes(route);
+      const status = [200, 301, 302, 303, 307, 308, 401, 403].find(allowed => allowed === response.status);
+      const authBoundary = status !== undefined && status !== 200 && ['/account', '/build', '/build/providers', '/command', '/command/connections'].includes(route);
       if (response.status !== 200 && !authBoundary) throw new Error(`Representative route ${route}: HTTP ${response.status}`);
-      const references = cssReferences(await response.text());
-      if (response.status === 200 && !references.length) throw new Error(`Unstyled response: ${route}`);
+      const remoteReferences = cssReferences(await response.text());
+      // Project the network references back onto the locally emitted inventory.
+      // Reports can contain local names only, never arbitrary HTTP text.
+      const references = emitted.filter(local => remoteReferences.some(remote => remote.split('?')[0] === local));
+      if (remoteReferences.some(remote => !emitted.some(local => remote.split('?')[0] === local))) throw new Error(`Response references un-emitted CSS: ${route}`);
+      if (status === 200 && !references.length) throw new Error(`Unstyled response: ${route}`);
       references.forEach(href => hrefs.add(href));
-      routes.push({ route, status: response.status, hrefs: references, authBoundary });
+      routes.push({ route, status, hrefs: references, authBoundary });
     }
     const served = [];
     for (const href of hrefs) served.push(await verifyServedAsset(server.base, buildDirectory, href));
@@ -147,7 +173,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   } catch (error) {
     const reportPath = process.env.KNOUX_CSS_REPORT ?? '.qa-css/integrity.json';
     await mkdir(resolve(reportPath, '..'), { recursive: true });
-    await writeFile(reportPath, JSON.stringify({ status: 'FAIL', measuredAt: new Date().toISOString(), error: error.message }, null, 2) + '\n');
+    await writeFile(reportPath, JSON.stringify({ status: 'FAIL', measuredAt: new Date().toISOString(), reason: 'See gate stderr for the failed operation; no HTTP body is persisted.' }, null, 2) + '\n');
     console.error(`CSS integrity FAIL: ${error.message}`); process.exitCode = 1;
   }
 }
