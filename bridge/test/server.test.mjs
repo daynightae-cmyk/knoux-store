@@ -821,5 +821,9 @@ test('provider inventory requires a one-use tools ticket and returns environment
     assert.deepEqual(data.inventory.find(item=>item.id==='mcp:contract').environmentNames,['API_KEY']);
     assert.ok(data.inventory.some(item=>item.kind==='SKILL'));assert.equal(JSON.stringify(data).includes('TEST_ONLY_SECRET'),false);assert.equal(JSON.stringify(data).includes('DO_NOT_EXECUTE'),false);
     assert.equal((await get(h,'/v1/provider-inventory',ticket)).status,403);
+    writeFileSync(join(h.root,'.mcp.json'),JSON.stringify({padding:'x'.repeat(128*1024),mcpServers:{oversize:{env:{API_KEY:'TEST_ONLY_SECRET'}}}}));
+    const bounded=await (await get(h,'/v1/provider-inventory',mint(h,['tools:read']))).json();
+    assert.ok(!bounded.inventory.some(item=>item.kind==='MCP'));
+    assert.ok(bounded.inventory.some(item=>item.kind==='SKILL'));
   }finally{await h.close();}
 });
