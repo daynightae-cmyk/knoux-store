@@ -1,3 +1,5 @@
+import { providerRequest } from '@/lib/ai/provider-os/request-runtime';
+import { providerEnvironment } from '@/lib/ai/provider-os/runtime-context';
 import { NextResponse, type NextRequest } from "next/server";
 import { guardBuildApi } from "@/lib/build/api-guard";
 import { getAdapter, updateHealth } from "@/lib/ai/registry";
@@ -5,7 +7,7 @@ import { getAdapter, updateHealth } from "@/lib/ai/registry";
 export const dynamic = "force-dynamic";
 
 /** POST /api/build/ai/providers/probe — explicit auth probe for one provider. */
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   const denied = await guardBuildApi(request, { scope: "ai-probe" });
   if (denied) return denied;
 
@@ -33,7 +35,7 @@ export async function POST(request: NextRequest) {
       { status: 404 },
     );
 
-  if (!adapter.isConfigured(process.env)) {
+  if (!adapter.isConfigured(providerEnvironment())) {
     return NextResponse.json({
       providerId,
       authenticated: false,
@@ -42,7 +44,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const result = await adapter.probe(process.env);
+  const result = await adapter.probe(providerEnvironment());
 
   // Update health record
   updateHealth(providerId, {
@@ -55,3 +57,5 @@ export async function POST(request: NextRequest) {
     headers: { "cache-control": "no-store" },
   });
 }
+
+export async function POST(request: NextRequest) { return providerRequest(request, 'ai-probe', handlePOST); }

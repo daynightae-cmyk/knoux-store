@@ -26,6 +26,10 @@ export class CustomOpenAIAdapter extends OpenAICompatibleAdapter {
     });
   }
 
+  override isConfigured(env: Record<string, string | undefined>): boolean { return !!env.KNOUX_BUILD_LLM_ENDPOINT?.trim(); }
+  override getApiKey(env: Record<string, string | undefined>): string { return env.KNOUX_BUILD_LLM_API_KEY?.trim() || 'knoux-custom-no-auth'; }
+  protected override buildHeaders(apiKey: string): HeadersInit { return apiKey === 'knoux-custom-no-auth' ? { 'content-type': 'application/json' } : super.buildHeaders(apiKey); }
+
   protected parseModelList(json: unknown): import('../types').NormalizedModel[] {
     const data = json as { data?: Array<{ id: string }> };
     const list = data?.data ?? [];

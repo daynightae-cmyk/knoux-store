@@ -1,3 +1,5 @@
+import { providerRequest } from '@/lib/ai/provider-os/request-runtime';
+import { providerEnvironment } from '@/lib/ai/provider-os/runtime-context';
 import { NextResponse, type NextRequest } from "next/server";
 import { guardBuildApi } from "@/lib/build/api-guard";
 import {
@@ -10,7 +12,7 @@ import {
 export const dynamic = "force-dynamic";
 
 /** POST /api/build/ai/models/refresh — trigger live model discovery for one or all providers. */
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   const denied = await guardBuildApi(request, { scope: "ai-discovery" });
   if (denied) return denied;
 
@@ -31,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     const result = await discoverProviderModels(
       body.provider,
-      process.env,
+      providerEnvironment(),
       true,
     );
     updateHealth(body.provider, {
@@ -48,8 +50,8 @@ export async function POST(request: NextRequest) {
   // Discover all configured providers. `discoverAllModels` walks every
   // adapter, so unconfigured ones are filtered here and their health is not
   // overwritten with a discovery failure they could never have avoided.
-  const configured = getAdapters().filter((a) => a.isConfigured(process.env));
-  const results = await discoverAllModels(process.env, true);
+  const configured = getAdapters().filter((a) => a.isConfigured(providerEnvironment()));
+  const results = await discoverAllModels(providerEnvironment(), true);
   const byId = new Map(results.map((r) => [r.providerId, r]));
 
   const reported = [];
@@ -68,3 +70,5 @@ export async function POST(request: NextRequest) {
     { headers: { "cache-control": "no-store" } },
   );
 }
+
+export async function POST(request: NextRequest) { return providerRequest(request, 'ai-discovery', handlePOST); }

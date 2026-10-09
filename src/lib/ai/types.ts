@@ -83,6 +83,7 @@ export type ModelLifecycle = "active" | "deprecated" | "preview" | "unknown";
 export type DiscoverySource = "LIVE" | "STATIC" | "CACHED_LIVE" | "UNKNOWN";
 
 export type NormalizedModel = {
+  catalog?: { categories: string[]; gateway: boolean; authorNamespace: string | null; supportedParameters: string[] | null; free: boolean | null; buildEligible: boolean; metadataSource?: 'API_METADATA' | 'IDENTITY_HINT' | 'DOCUMENTED_STATIC' };
   providerId: string;
   modelId: string;
   displayName: string;
@@ -316,6 +317,7 @@ export type RouterDecision = {
 // ---------------------------------------------------------------------------
 
 export type UsageRecord = {
+  profileId?: string | null;
   id: string;
   timestamp: string;
   providerId: string;
@@ -438,6 +440,8 @@ export type ContextBundle = {
 export type DiscoveryResult = {
   providerId: string;
   models: NormalizedModel[];
+  /** Full provider catalog, including non-generation identities. Build uses models. */
+  catalogModels?: NormalizedModel[];
   source: DiscoverySource;
   discoveredAt: string;
   error: NormalizedError | null;
@@ -447,6 +451,7 @@ export type DiscoveryResult = {
 export type DiscoveryCacheEntry = {
   providerId: string;
   models: NormalizedModel[];
+  catalogModels?: NormalizedModel[];
   discoveredAt: string;
   expiresAt: string;
   source: DiscoverySource;

@@ -7,6 +7,7 @@ export function useCanonicalModels() {
   const [revision, setRevision] = useState(0);
   const refresh = useCallback(() => setRevision((value) => value + 1), []);
   const [data, setData] = useState<{ models: NormalizedModel[]; providers: ProviderHealth[]; loading: boolean; error: string | null }>({ models: [], providers: [], loading: true, error: null });
+  useEffect(()=>{window.addEventListener('knoux-provider-profiles-changed',refresh);return()=>window.removeEventListener('knoux-provider-profiles-changed',refresh);},[refresh]);
   useEffect(() => {
     const controller = new AbortController();
     async function load() {

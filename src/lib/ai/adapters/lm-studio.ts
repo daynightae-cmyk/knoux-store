@@ -30,13 +30,13 @@ export class LMStudioAdapter extends OpenAICompatibleAdapter {
     return true;
   }
 
-  override getApiKey(_env: Record<string, string | undefined>): string | null {
-    return process.env.LM_API_TOKEN?.trim() || 'lm-studio';
+  override getApiKey(env: Record<string, string | undefined>): string | null {
+    return env.LM_API_TOKEN?.trim() || 'lm-studio';
   }
 
-  protected override buildHeaders(_apiKey: string): HeadersInit {
+  protected override buildHeaders(apiKey: string): HeadersInit {
     const headers: Record<string, string> = { 'content-type': 'application/json' };
-    const realToken = process.env.LM_API_TOKEN?.trim();
+    const realToken = apiKey && apiKey !== 'lm-studio' ? apiKey : null;
     if (realToken) {
       headers['authorization'] = `Bearer ${realToken}`;
     }
