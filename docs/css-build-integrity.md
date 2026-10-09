@@ -26,7 +26,7 @@ No evidence justifies changing Turbopack, CSS splitting, minification, import or
 
 The process records its spawned PID, absolute Next entry, checkout, HEAD, start time, build ID and port; Windows also independently queries the listening owner and command line. An occupied port is a failure. The server exits in `finally` before a subsequent build may replace its files. There are no sleeps, successful-build retries, copied chunks, hash-name assumptions or relaxed failure assertions.
 
-The gate is part of `npm run verify` and both GitHub verify/browser jobs. CI uploads its JSON evidence, including failure reports.
+The gate is part of `npm run verify` and both GitHub verify/browser jobs. CI uploads its JSON evidence, including failure reports. Playwright also refuses existing servers in local runs, preventing unknown checkout reuse. Contact boundary tests derive their same-origin header from the configured base URL rather than a fixed port; all 51 boundary cases passed on an alternative port, without changing refusal assertions.
 
 Negative controls prove both the inspector and real CLI gate refuse an intentionally withheld emitted CSS file: **exit 1**, served **404**, with restoration followed by a passing gate. No recovery evidence or source was deleted. Unit tests additionally refuse traversing paths, wrong MIME, redirects, empty/stale CSS and occupied ports.
 
@@ -48,3 +48,4 @@ Read-only public HTTP inspection at 2026-10-09 confirmed `/`, `/command`, `/prod
 ## Verification limits
 
 Temporary experiment output and earlier invalid captures are not valid AFTER evidence. A first application test attempt was incorrectly run while the matrix replaced its build and mutated its experimental sources; it is excluded from final verification and rerun after pristine restoration. No test assertions were weakened. Remaining visual debt belongs to the separate Visual V4 change, after this gate and exact-head CI pass. Production dependency audit is clean; inherited development-only advisories remain reported separately.
+
