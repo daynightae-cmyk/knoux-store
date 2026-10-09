@@ -8,6 +8,10 @@ import { pathToFileURL } from 'node:url';
 
 export const representativeRoutes = ['/', '/products', '/products/knoux-one', '/build', '/build/providers', '/command', '/command/connections', '/growth', '/wordpress', '/creative', '/web', '/engineering', '/solutions', '/login', '/account'];
 const hash = data => createHash('sha256').update(data).digest('hex');
+export function gitHead(root = process.cwd()) {
+  const executable = process.platform === 'win32' ? 'C:/Program Files/Git/cmd/git.exe' : '/usr/bin/git';
+  return execFileSync(executable, ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8', windowsHide: true }).trim();
+}
 
 export function cssReferences(html) {
   return [...new Set([...html.matchAll(/\/_next\/static\/[^"'\\\s<>)]*?\.css(?:\?[^"'\\\s<>)]*)?/g)].map(match => match[0].replaceAll('&amp;', '&')))];
@@ -115,10 +119,10 @@ export async function startOwnedServer(root, port) {
       child.stderr.on('data', onData);
     });
   } catch (error) { child.kill(); throw error; }
-  const provenance = { pid: child.pid, startedAt, root, port, executable, entry, head: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim() };
+  const provenance = { pid: child.pid, startedAt, root, port, executable, entry, head: gitHead(root) };
   if (process.platform === 'win32') {
     try {
-      const observed = JSON.parse(execFileSync('powershell.exe', ['-NoProfile', '-Command', `$observedProcess=Get-CimInstance Win32_Process -Filter 'ProcessId=${child.pid}'; $listener=Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction Stop; [pscustomobject]@{pid=$observedProcess.ProcessId; startedAt=$observedProcess.CreationDate.ToUniversalTime().ToString('o'); commandLine=$observedProcess.CommandLine; owner=$listener.OwningProcess} | ConvertTo-Json -Compress`], { encoding: 'utf8', windowsHide: true, timeout: 30000 }));
+      const observed = JSON.parse(execFileSync('C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe', ['-NoProfile', '-Command', `$observedProcess=Get-CimInstance Win32_Process -Filter 'ProcessId=${child.pid}'; $listener=Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction Stop; [pscustomobject]@{pid=$observedProcess.ProcessId; startedAt=$observedProcess.CreationDate.ToUniversalTime().ToString('o'); commandLine=$observedProcess.CommandLine; owner=$listener.OwningProcess} | ConvertTo-Json -Compress`], { encoding: 'utf8', windowsHide: true, timeout: 30000 }));
       if (observed.pid !== child.pid || observed.owner !== child.pid || !observed.commandLine.includes(entry)) throw new Error('Listening process does not match the owned checkout');
       provenance.observed = observed;
     } catch (error) { await stopOwnedServer(child); throw error; }
@@ -153,7 +157,7 @@ export async function runIntegrity({ root = process.cwd(), port = Number(process
       // Project the network references back onto the locally emitted inventory.
       // Reports can contain local names only, never arbitrary HTTP text.
       const references = emitted.filter(local => remoteReferences.some(remote => remote.split('?')[0] === local));
-      if (remoteReferences.some(remote => !emitted.some(local => remote.split('?')[0] === local))) throw new Error(`Response references un-emitted CSS: ${route}`);
+      if (remoteReferences.some(remote => !emitted.includes(remote.split('?')[0]))) throw new Error(`Response references un-emitted CSS: ${route}`);
       if (status === 200 && !references.length) throw new Error(`Unstyled response: ${route}`);
       references.forEach(href => hrefs.add(href));
       routes.push({ route, status, hrefs: references, authBoundary });
