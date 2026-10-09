@@ -2,24 +2,24 @@
 .page-intro-body>p,.block-head__aside,.system-index__statement,.detail-content p,.about-statement p{font-size:16px;line-height:1.8;color:var(--text-dim)}
 .page-intro-body{gap:40px;align-items:end}
 .page-intro h1{font-size:clamp(64px,7.8vw,142px);letter-spacing:-.065em;line-height:.93}
-.label,.eyebrow,.page-crumb,.page-rule,.signal-rail__inner a,.registry-row__id{font-size:11px;line-height:1.5}
+.label,.eyebrow,.page-crumb,.page-rule,.signal-rail__inner a,.registry-row__id{font-size:12px;line-height:1.5}
 .action{font-size:12px;line-height:1.5;min-height:44px;align-items:center}
 .site-header nav a,.site-header .header-actions a{font-size:12px}
 .registry-row__purpose,.index-row__meta,.engineering-dossier__grid li,.engineering-dossier__evidence p,.solution-row-system__context p{font-size:14px;line-height:1.7}
 .auth-form__statement,.auth-providers__note{font-size:14px;line-height:1.65}
-.auth-divider__label,.auth-provider__label,.auth-identity__code{font-size:11px;color:var(--text-dim)}
+.auth-divider__label,.auth-provider__label,.auth-identity__code{font-size:12px;color:var(--text-dim)}
 .auth-provider{min-height:52px}
 .atelier-lab{grid-template-columns:minmax(0,1.45fr) minmax(330px,1fr);min-height:0;border-color:#b8a4d02b;background:#101014}
 .atelier-lab__index{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:18px;border-right:0;border-bottom:1px solid #b8a4d02b;overflow:visible}
-.atelier-lab__index-label{grid-column:1/-1;padding:0 10px 10px;font-size:11px;color:#b9afc9}
+.atelier-lab__index-label{grid-column:1/-1;padding:0 10px 10px;font-size:12px;color:#b9afc9}
 .atelier-lab__item{padding:12px;min-height:58px;border:1px solid transparent;border-radius:5px;font-size:14px;gap:5px}
-.atelier-lab__item small{font-size:11px;color:#b8a7ca}
+.atelier-lab__item small{font-size:12px;color:#b8a7ca}
 .atelier-lab__item.is-active{border:1px solid #b9a1d950;background:#b9a1d915}
 .atelier-lab__field{min-height:630px;isolation:isolate;background:#141318}
 .atelier-lab__art{object-fit:cover;object-position:center;z-index:-2}
 .atelier-lab__canvas{position:absolute;inset:0;min-height:0;opacity:.15;pointer-events:none;z-index:-1}
 .atelier-lab__story{position:absolute;inset:auto 0 0;padding:60px 30px 30px;background:linear-gradient(transparent,#09090aeb)}
-.atelier-lab__story>.label{color:#ded7e6;font-size:10px}
+.atelier-lab__story>.label{color:#ded7e6;font-size:12px}
 .atelier-lab__story>p{font-size:clamp(36px,4vw,64px);line-height:.98;letter-spacing:-.055em;color:#f1eee8;margin:18px 0 28px}
 .atelier-lab__story em{font-family:var(--serif);font-weight:400}
 .atelier-lab__story nav{display:flex;gap:24px;flex-wrap:wrap;font-size:12px;color:#e5dbea}
@@ -27,7 +27,7 @@
 .atelier-lab__spec{padding:clamp(28px,3vw,48px)}
 .atelier-lab__spec h3{font-size:clamp(38px,4vw,58px);line-height:1.02;margin:22px 0}
 .atelier-lab__statement{font-size:16px;line-height:1.75;color:#c2b8cd}
-.atelier-lab__section h4{font-size:11px;color:#cbb5e3;margin-top:20px}
+.atelier-lab__section h4{font-size:12px;color:#cbb5e3;margin-top:20px}
 .atelier-lab__section li{font-size:14px;line-height:1.7;color:#c0b5cb}
 .process-architecture{padding:clamp(48px,6vw,88px) 0}
 .process-architecture>header{display:grid;grid-template-columns:1fr minmax(250px,.7fr);gap:40px;align-items:end;margin-bottom:40px}
@@ -67,14 +67,14 @@
 .system-blueprint__systems button{color:#b4acbd}
 .system-blueprint__systems button small{color:#b7a6c8}
 .system-blueprint__origin{border:0;border-radius:50%;background:radial-gradient(circle at 30% 24%,#74618855,#251d3488 48%,#0b0b1280 76%);box-shadow:0 20px 60px #a286ca18,inset 0 1px 18px #bda4db18}
-.system-blueprint__node{border:0;background:transparent;font-size:11px;padding:8px 0;text-shadow:0 0 20px #a68aca66}
-.system-blueprint__head .mono,.system-blueprint__systems button small{font-size:11px}
+.system-blueprint__node{border:0;background:transparent;font-size:12px;padding:8px 0;text-shadow:0 0 20px #a68aca66}
+.system-blueprint__head .mono,.system-blueprint__systems button small{font-size:12px}
 .system-blueprint__foot p{font-size:15px;line-height:1.75}
 .system-blueprint__diagram path{stroke-dasharray:none;opacity:.6}
 .mission-path__node{border:0;border-radius:50%;background:#645775}
-.mission-path__station small,.mission-path__layers{font-size:11px}
+.mission-path__station small,.mission-path__layers{font-size:12px}
 @media(max-width:768px){.mission-path__station{border:0;border-bottom:2px solid transparent;padding-inline:0;min-width:180px}.mission-path__station.is-active{border-bottom-color:var(--violet);transform:none}.mission-path__focus{border-top:0}}
-@media(max-width:768px){.system-blueprint__node{font-size:10px}}
+@media(max-width:768px){.system-blueprint__node{font-size:12px}}
 :is(.atelier-lab,.process-architecture,.ksu){scroll-margin-top:100px}
 .auth-panel::before,.auth-panel::after{border:0}
 :is(.product-card,.dossier-card,.related-card,.systems-panel,.spatial-surface,.origin-room__panel,.library-gateway,.auth-panel,.signature-field,.product-anatomy-panel){border:0;border-radius:0;box-shadow:none;background:transparent}

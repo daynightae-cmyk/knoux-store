@@ -5808,6 +5808,7 @@ body:has(.origin-room) .knoux-sentinel{display:none}
 .product-anatomy-panel--idle { border: 0; background: transparent; }
 .product-hero__telemetry > div { background: transparent; }
 .product-hero--one .product-hero__grid { align-items: center; }
+.product-hero--one .product-hero__scene { mask-image: none; }
 .product-hero--one .product-hero__title { gap: 18px; font-size: clamp(72px,8vw,128px); }
 .one-wordmark { display: grid; line-height: .85; letter-spacing: -.065em; }
 .one-wordmark > span { font-size: .23em; letter-spacing: .08em; margin-bottom: 16px; color: var(--violet-soft); }
