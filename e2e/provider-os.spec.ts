@@ -120,15 +120,18 @@ for (const width of [1440, 390])
             fixture.data.profiles[0].connection.health = 'BLOCKED';
             await page.getByRole('button', { name: 'Refresh facts ↗', exact: true }).click();
             await expect(page.getByRole('region', { name: 'Overview', exact: true })).toContainText(state);
+            await page.getByRole('region', { name: 'Overview', exact: true }).getByText(`${state} — CONTRACT FIXTURE visual state`, { exact: true }).scrollIntoViewIfNeeded();
             await capture(`fixture-${state.toLowerCase()}`);
         }
         const tabs = page.getByRole('navigation', { name: 'Groq sections' });
         await tabs.getByRole('button', { name: 'Models', exact: true }).click();
+        await page.getByRole('region', { name: 'Models', exact: true }).scrollIntoViewIfNeeded();
         await page.getByLabel('SHOW ALL').check();
         await capture('fixture-full-catalog');
         await page.getByLabel('FREE only').check();
         await capture('fixture-free-filter');
         await tabs.getByRole('button', { name: 'Usage', exact: true }).click();
+        await page.getByRole('region', { name: 'Usage', exact: true }).scrollIntoViewIfNeeded();
         await capture('fixture-unknown-usage');
         await page.getByRole('group', { name: 'Provider class' }).getByRole('button', { name: 'Local', exact: true }).click();
         await capture('fixture-local-class');
@@ -138,6 +141,7 @@ for (const width of [1440, 390])
         await page.getByRole('button', { name: 'Refresh facts ↗', exact: true }).click();
         await page.getByRole('navigation', { name: 'Provider registry' }).getByRole('button', { name: /Codex/ }).click();
         await expect(page.getByRole('region', { name: 'Overview', exact: true })).toContainText('CLI_NOT_FOUND');
+        await page.getByRole('region', { name: 'Overview', exact: true }).getByText('CLI_NOT_FOUND', { exact: true }).first().scrollIntoViewIfNeeded();
         await capture('fixture-cli-not-found');
     });
 for (const [width, height] of widths)
@@ -161,10 +165,12 @@ for (const [width, height] of widths)
             await page.getByText('Browse providers ↗', { exact: true }).click();
         }
         await page.getByRole('navigation', { name: 'Provider registry' }).getByRole('button', { name: /^Groq\b/ }).click();
+        await page.getByRole('region', { name: 'Overview', exact: true }).scrollIntoViewIfNeeded();
         await capture('overview');
         const tabs = page.getByRole('navigation', { name: 'Groq sections' });
         for (const tab of ['Profiles & Limits', 'Credentials', 'Models', 'Capabilities', 'Routing', 'Usage', 'Diagnostics']) {
             await tabs.getByRole('button', { name: tab, exact: true }).click();
+            await page.getByRole('region', { name: tab, exact: true }).scrollIntoViewIfNeeded();
             await capture(tab.toLowerCase().replaceAll(' ', '-'));
         }
         await page.getByRole('button', { name: 'Add profile +' }).click();
@@ -175,6 +181,7 @@ for (const [width, height] of widths)
         const agentTabs = page.getByRole('navigation', { name: 'Codex · CONTRACT FIXTURE sections' });
         for (const tab of ['CLI & Args', 'Environment', 'Permissions', 'MCP', 'Plugins', 'Skills']) {
             await agentTabs.getByRole('button', { name: tab, exact: true }).click();
+            await page.getByRole('region', { name: tab, exact: true }).scrollIntoViewIfNeeded();
             await capture(tab.toLowerCase().replaceAll(' ', '-'));
         }
         expect(await page.locator('#main-content').evaluate(element => element.querySelectorAll('canvas').length)).toBe(0); // Reuses the application-wide star canvas.

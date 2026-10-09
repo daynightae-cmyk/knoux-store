@@ -22,6 +22,7 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     const [credentialName, setCredentialName] = useState(''), [secret, setSecret] = useState(''), [editCredential, setEditCredential] = useState(''), [rotate, setRotate] = useState(false);
     const [showAll, setShowAll] = useState(false), [modelSearch, setModelSearch] = useState(''), [freeOnly, setFreeOnly] = useState(false), [modelPage, setModelPage] = useState(0), [billing, setBilling] = useState(false);
     const dialog = useRef<HTMLDialogElement>(null), opener = useRef<HTMLButtonElement | null>(null);
+    const providerBrowse = useRef<HTMLDetailsElement>(null), detail = useRef<HTMLElement>(null);
     const load = useCallback(async (signal?: AbortSignal) => {
         const response = await fetch('/api/build/provider-os', { cache: 'no-store', signal });
         const result = await response.json();
@@ -83,7 +84,24 @@ export function ProviderCenter({ embedded = false }: Readonly<{
             setSecret('');
         }
     }
-    function choose(item: ProviderDefinition) { setSelected(item.id); setTab('Overview'); setModelPage(0); setModelSearch(''); setBilling(false); setStreamBilling(false); setEditCredential(''); setSecret(''); }
+    function choose(item: ProviderDefinition) {
+        setSelected(item.id);
+        setTab('Overview');
+        setModelPage(0);
+        setModelSearch('');
+        setBilling(false);
+        setStreamBilling(false);
+        setEditCredential('');
+        setSecret('');
+        if (window.innerWidth <= 650) {
+            if (providerBrowse.current)
+                providerBrowse.current.open = false;
+            requestAnimationFrame(() => {
+                detail.current?.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+                detail.current?.focus({ preventScroll: true });
+            });
+        }
+    }
     function closeWizard() { setWizard(false); setSecret(''); opener.current?.focus(); }
     function openWizard(button: HTMLButtonElement, existing?: ProviderProfile) {
         if (!definition)
@@ -133,13 +151,14 @@ export function ProviderCenter({ embedded = false }: Readonly<{
                 if (name)
                     void command({ action: 'WORKSPACE_CREATE', name });
             }}>Add workspace +</button> : null}</div>
-    <div className={styles.filters} role="group" aria-label="Provider class">{classes.map(([id, label]) => <button key={id} type="button" aria-pressed={category === id} onClick={() => setCategory(id)}>{label}</button>)}</div>
+    <div className={styles.filters} role="group" aria-label="Provider class">{classes.map(([id, label]) => <button key={id} type="button" aria-pressed={category === id} onClick={() => { setCategory(id); setSelected(''); setTab('Overview'); if (providerBrowse.current)
+        providerBrowse.current.open = true; }}>{label}</button>)}</div>
     {message ? <p role="status" className={styles.notice}>{message}</p> : null}
     {data?.persistence !== 'AVAILABLE' ? <p className={styles.notice}>{data?.blocker ?? 'Reading the authenticated provider registry…'} {data?.persistence === 'AUTH_REQUIRED' ? <Link href="/login">Sign in ↗</Link> : null}</p> : null}
     <PlatformFacts />
     <div className={styles.composition}>
-      <details className={styles.providerBrowse} open><summary>Browse providers &#8599;</summary><nav className={styles.providerList} aria-label="Provider registry">{filtered.map(item => { const own = data?.profiles.filter(profile => profile.providerId === item.id) ?? [], active = own.find(profile => profile.active); return <button key={item.id} type="button" aria-current={selected === item.id ? 'true' : undefined} onClick={() => choose(item)}><span className={styles.orbit} aria-hidden="true">{item.class === 'CODING_AGENT' ? '⌘' : item.class === 'LOCAL' ? '◉' : '✦'}</span><span><strong>{item.name}</strong><small>{item.gateway ? 'GATEWAY · ' : ''}{item.class.replace('_', ' ')} · {active ? active.enabled ? 'PROFILE ACTIVE' : 'PROVIDER DISABLED' : own.length ? 'PROFILE INACTIVE' : 'UNCONFIGURED'}</small></span><span aria-hidden="true">↗</span></button>; })}{!filtered.length ? <p>No provider matches this search. Coding agents appear only from a paired trusted bridge.</p> : null}</nav></details>
-      <section className={styles.detail} aria-label="Provider detail">{!definition ? <div className={styles.intro}><span aria-hidden="true" className={styles.constellation}>✦</span><h2>A connected constellation.</h2><p>Select a provider to configure its profiles and inspect measured capabilities. Keys stay on the server; unmeasured usage remains unknown.</p><p>{data?.blocker}</p></div> : <>
+      <details ref={providerBrowse} className={styles.providerBrowse} open><summary>Browse providers &#8599;</summary><nav className={styles.providerList} aria-label="Provider registry">{filtered.map(item => { const own = data?.profiles.filter(profile => profile.providerId === item.id) ?? [], active = own.find(profile => profile.active); return <button key={item.id} type="button" aria-current={selected === item.id ? 'true' : undefined} onClick={() => choose(item)}><span className={styles.orbit} aria-hidden="true">{item.class === 'CODING_AGENT' ? '⌘' : item.class === 'LOCAL' ? '◉' : '✦'}</span><span><strong>{item.name}</strong><small>{item.gateway ? 'GATEWAY · ' : ''}{item.class.replace('_', ' ')} · {active ? active.enabled ? 'PROFILE ACTIVE' : 'PROVIDER DISABLED' : own.length ? 'PROFILE INACTIVE' : 'UNCONFIGURED'}</small></span><span aria-hidden="true">↗</span></button>; })}{!filtered.length ? <p>No provider matches this search. Coding agents appear only from a paired trusted bridge.</p> : null}</nav></details>
+      <section ref={detail} tabIndex={-1} className={styles.detail} aria-label="Provider detail">{!definition ? <div className={styles.intro}><span aria-hidden="true" className={styles.constellation}>✦</span><h2>A connected constellation.</h2><p>Select a provider to configure its profiles and inspect measured capabilities. Keys stay on the server; unmeasured usage remains unknown.</p><p>{data?.blocker}</p></div> : <>
         <header className={styles.detailHeading}><span className={styles.eyebrow}>{definition.class.replace('_', ' ')} / {definition.transport}</span><h2>{definition.name}</h2>{profile ? <p>Profile: <strong>{profile.name}</strong> · {profile.active ? "ACTIVE" : "INACTIVE"} · {profile.enabled ? "ENABLED" : "DISABLED"}</p> : null}<p>{definition.gateway ? 'Gateway transport. Author namespaces do not prove the actual upstream route.' : definition.detectionOnly ? 'CLI discovery is a separate fact from authentication and execution.' : 'A scoped profile feeds the existing KNOuX adapters and Router V2.'}</p><div className={styles.actions}><button type="button" disabled={!writable || busy} onClick={event => openWizard(event.currentTarget)}>Add profile +</button>{profile ? <><button type="button" disabled={!writable || busy} onClick={() => update({ enabled: !profile.enabled })}>{profile.enabled ? 'Disable provider' : 'Enable provider'}</button><button type="button" disabled={!writable || busy} onClick={() => void command({ action: 'TEST_CONNECTION', id: profile.id, version: profile.version })}>Test connection</button></> : null}</div><small>Connection testing checks authentication and discovery only; it does not generate content.</small></header>
         <nav className={styles.tabs} aria-label={`${definition.name} sections`}>{definition.tabs.map(item => <button type="button" key={item} aria-pressed={tab === item} onClick={() => setTab(item)}>{item}</button>)}</nav>
         <section className={styles.tabContent} aria-label={tab}>
