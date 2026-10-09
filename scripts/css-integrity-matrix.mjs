@@ -14,6 +14,12 @@ await mkdir('.qa-css', { recursive: true });
 const scenarios = [ ['A-pristine', false, false], ['B-global', true, false], ['C-module', false, true], ['D-combined', true, true], ['E-revert', false, false] ];
 const evidence = { base: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), next: JSON.parse(await readFile('node_modules/next/package.json', 'utf8')).version, scenarios: [] };
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+const manifestCss = value => {
+  if (typeof value === 'string') return value.endsWith('.css') ? [value] : [];
+  if (Array.isArray(value)) return value.flatMap(manifestCss);
+  if (value && typeof value === 'object') return Object.values(value).flatMap(manifestCss);
+  return [];
+};
 
 function build(name) {
   return new Promise((accept, reject) => {
@@ -35,8 +41,11 @@ try {
     const proof = await runIntegrity({ reportPath: `.qa-css/${name}-integrity.json` });
     const manifests = {};
     for (const manifest of ['build-manifest.json', 'app-build-manifest.json', 'prerender-manifest.json', 'routes-manifest.json', 'server/app-paths-manifest.json', 'server/app-path-routes-manifest.json']) {
-      try { const content = await readFile(join(buildDirectory, manifest)); manifests[manifest] = { sha256: sha(content), cssReferences: [...content.toString().matchAll(/[^"\s]*\.css/g)].map(match => match[0]) }; }
-      catch (error) { if (error.code !== 'ENOENT') throw error; manifests[manifest] = { emitted: false }; }
+      try { const content = await readFile(join(buildDirectory, manifest)); manifests[manifest] = { sha256: sha(content), cssReferences: manifestCss(JSON.parse(content)) }; }
+      catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+        manifests[manifest] = { emitted: false };
+      }
     }
     const emitted = await Promise.all(proof.served.map(asset => readFile(assetPath(buildDirectory, asset.href), 'utf8')));
     if ((global && !emitted.some(css => css.includes('--knoux-css-integrity-control:731'))) || (module && !emitted.some(css => css.includes('--knoux-css-integrity-control:947')))) throw new Error(`${name}: edit did not survive CSS emission`);
@@ -59,7 +68,7 @@ try {
     try { execFileSync(process.execPath, ['scripts/css-integrity.mjs'], { cwd: root, stdio: 'pipe' }); gateExit = 0; }
     catch (error) { gateExit = error.status; await writeFile('.qa-css/negative-gate.log', String(error.stderr)); }
     const response = await fetch(server.base + href, { redirect: 'manual' });
-    failureStatus = response.status;
+    failureStatus = [404, 500].find(status => status === response.status);
     await response.arrayBuffer();
     try { await verifyServedAsset(server.base, buildDirectory, href); } catch { httpFailed = true; }
   } finally {
