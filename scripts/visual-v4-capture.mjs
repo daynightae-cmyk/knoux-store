@@ -16,6 +16,7 @@ await mkdir(directory, { recursive: true });
 const viewports = [[1904,880],[1600,1000],[1440,900],[1366,768],[1280,800],[1024,1366],[820,1180],[768,1024],[430,932],[390,844],[375,812],[360,800]];
 const routes = ['/', '/products', '/products/knoux-one', '/build', '/build/providers', '/build/ai/models', '/build/ai/router', '/build/terminal', '/build/engineering', '/command', '/command/analytics', '/command/google', '/command/social', '/command/campaigns', '/command/reports', '/command/leads', '/command/clients', '/command/connections', '/command/communities', '/command/automations', '/command/intelligence', '/command/creative', '/command/settings', '/growth', '/wordpress', '/creative', '/creative/art-direction', '/creative/brand-identity', '/web', '/engineering', '/solutions', '/login', '/register', '/account'];
 const buildDirectory = resolve(root, '.next');
+const nextVersion = JSON.parse(await readFile(join(root,'node_modules/next/package.json'),'utf8')).version;
 const disk = await inspectBuild(buildDirectory);
 const server = await startOwnedServer(root, Number(process.env.KNOUX_V4_PORT ?? 4470));
 const browser = await chromium.launch({channel: 'chrome'});
@@ -36,6 +37,7 @@ function ownerInspector() {
   return {observe:()=>new Promise((accept,reject)=>{const timer=setTimeout(()=>reject(new Error('Provenance inspector timeout')),30000);pending={accept,reject,timer};worker.stdin.write('OBSERVE\n')}),close:async()=>{lines.close();worker.kill()}};
 }
 const inspector=ownerInspector();
+let linuxStartTicks;
 const observeOwner = async () => {
   if (server.child.exitCode !== null) throw new Error('Intended server exited');
   const head = execFileSync(git, ['rev-parse', 'HEAD'], {encoding:'utf8'}).trim();
@@ -44,9 +46,10 @@ const observeOwner = async () => {
   if(execFileSync(git,['status','--porcelain','--','src'],{encoding:'utf8'}).trim())throw new Error('Uncommitted application source during capture');
   if (process.platform !== 'win32') {
     const processDirectory = `/proc/${server.child.pid}`;
-    const [checkout, command, descriptors, sockets, stat] = await Promise.all([
+    const [checkout, command, descriptors, sockets, stat, executable] = await Promise.all([
       realpath(`${processDirectory}/cwd`), readFile(`${processDirectory}/cmdline`, 'utf8'),
       readdir(`${processDirectory}/fd`), readFile('/proc/net/tcp', 'utf8'), readFile(`${processDirectory}/stat`, 'utf8'),
+      realpath(`${processDirectory}/exe`),
     ]);
     const links = await Promise.all(descriptors.map(async descriptor => {
       try { return await readlink(`${processDirectory}/fd/${descriptor}`); } catch { return ''; }
@@ -54,9 +57,16 @@ const observeOwner = async () => {
     const portHex = server.provenance.port.toString(16).toUpperCase().padStart(4,'0');
     const owner = sockets.split('\n').slice(1).map(line => line.trim().split(/\s+/))
       .some(columns => columns[1]?.endsWith(`:${portHex}`) && columns[3] === '0A' && links.includes(`socket:[${columns[9]}]`));
-    if (!owner || checkout !== await realpath(root) || !command.includes(server.provenance.entry)) throw new Error('Linux capture server ownership changed');
+    // Next sets process.title; Linux exposes that replacement through /proc/cmdline.
+    const commandLine = command.replaceAll('\0',' ').trim();
+    const commandMatches = command.includes(server.provenance.entry) || commandLine === `next-server (v${nextVersion})`;
+    const cwdMatches = checkout === await realpath(root);
+    const executableMatches = executable === await realpath(process.execPath);
+    const kernelStartTicks = stat.slice(stat.lastIndexOf(')')+2).split(' ')[19];
+    if(!linuxStartTicks)linuxStartTicks=kernelStartTicks;
+    if (!owner || !cwdMatches || !executableMatches || !commandMatches || linuxStartTicks!==kernelStartTicks) throw new Error(`Linux capture ownership mismatch: socket=${owner}, cwd=${cwdMatches}, executable=${executableMatches}, command=${commandMatches}`);
     return {...server.provenance, checkout, commandLine:command.replaceAll('\0',' '),
-      kernelStartTicks:stat.slice(stat.lastIndexOf(')')+2).split(' ')[19], owner:server.child.pid, observedAt:new Date().toISOString()};
+      kernelStartTicks, owner:server.child.pid, observedAt:new Date().toISOString()};
   }
   const observed = await inspector.observe();
   if (observed.owner !== server.child.pid || observed.pid !== server.child.pid || !observed.commandLine.includes(server.provenance.entry)) throw new Error('Capture server ownership changed');
