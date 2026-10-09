@@ -69,6 +69,8 @@ public/knoux-particles.bin
 # KNOuX Signal ingestion pipeline is tracked; other legacy scripts remain ignored.
 !/scripts/
 /scripts/*
+!/scripts/css-integrity.mjs
+!/scripts/css-integrity-matrix.mjs
 !/scripts/signal/
 !/scripts/signal/**
 !/scripts/signal/*.py

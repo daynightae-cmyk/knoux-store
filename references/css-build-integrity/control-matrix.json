@@ -1,0 +1,3296 @@
+{
+  "base": "0f9641708a89c2b41b1577d7e9bb9b3bf3de3d17",
+  "next": "16.3.8",
+  "scenarios": [
+    {
+      "name": "A-pristine",
+      "buildExit": 0,
+      "sourceHashes": [
+        "e2fc37a5a917eb26f810e8ad7a89cf29c1b888c789950ca3308820a47fe85fb7",
+        "a0a127e80dc642106c4272ca7842d2919e9e323c070b37d9918efd4a4316c82f"
+      ],
+      "manifests": {
+        "build-manifest.json": {
+          "sha256": "32ac222af11302c142e635ed7875519da173663517d20decaf6e474c73c1e234",
+          "cssReferences": []
+        },
+        "app-build-manifest.json": {
+          "emitted": false
+        },
+        "prerender-manifest.json": {
+          "sha256": "162960f7dcedb800903aa7330880dd93f24eddec1b228d7435c6205cfef0e748",
+          "cssReferences": []
+        },
+        "routes-manifest.json": {
+          "sha256": "0518907418337e2c32103bfe39dea790591aea225fa3a71cc9fb8554632e683a",
+          "cssReferences": []
+        },
+        "server/app-paths-manifest.json": {
+          "sha256": "fef94131021da6f86a73c50db548da22f6406167308cc15bc69596f485b9dbb1",
+          "cssReferences": []
+        },
+        "server/app-path-routes-manifest.json": {
+          "emitted": false
+        }
+      },
+      "status": "PASS",
+      "measuredAt": "2026-10-09T20:03:45.145Z",
+      "buildId": "OZ3eLq_TycAle_7EfBGXx",
+      "provenance": {
+        "pid": 21116,
+        "startedAt": "2026-10-09T20:03:42.392Z",
+        "root": "D:\\Knoux Store-worktrees\\css-build-integrity-p0",
+        "port": 4469,
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "entry": "D:\\Knoux Store-worktrees\\css-build-integrity-p0\\node_modules\\next\\dist\\bin\\next",
+        "head": "0f9641708a89c2b41b1577d7e9bb9b3bf3de3d17"
+      },
+      "disk": {
+        "documents": 62,
+        "assets": [
+          {
+            "href": "/_next/static/chunks/2urvz2uwgyplc.css",
+            "documents": [
+              "server\\app\\about.html",
+              "server\\app\\contact.html",
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\creative.html",
+              "server\\app\\engineering.html",
+              "server\\app\\forgot-password.html",
+              "server\\app\\growth\\content.html",
+              "server\\app\\growth\\google-ads.html",
+              "server\\app\\growth\\meta-ads.html",
+              "server\\app\\growth\\seo.html",
+              "server\\app\\growth\\social.html",
+              "server\\app\\growth.html",
+              "server\\app\\index.html",
+              "server\\app\\labs.html",
+              "server\\app\\products\\kforge.html",
+              "server\\app\\products\\knoux-clipboard-ai.html",
+              "server\\app\\products\\knoux-one.html",
+              "server\\app\\products\\knoux-rec.html",
+              "server\\app\\products\\knoux-repair.html",
+              "server\\app\\products\\knoux-smartorganizer.html",
+              "server\\app\\products\\knoux-x.html",
+              "server\\app\\products.html",
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html",
+              "server\\app\\solutions\\build-an-academy-platform.html",
+              "server\\app\\solutions\\build-an-online-store.html",
+              "server\\app\\solutions\\create-a-customer-portal.html",
+              "server\\app\\solutions\\digitise-operations.html",
+              "server\\app\\solutions\\launch-a-new-product.html",
+              "server\\app\\solutions\\modernise-an-existing-website.html",
+              "server\\app\\solutions\\promote-a-local-business.html",
+              "server\\app\\solutions\\start-a-business.html",
+              "server\\app\\solutions.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html",
+              "server\\app\\web.html",
+              "server\\app\\wordpress\\solutions.html",
+              "server\\app\\wordpress\\starter-sites.html",
+              "server\\app\\wordpress.html",
+              "server\\app\\work.html",
+              "server\\app\\_not-found.html"
+            ],
+            "bytes": 5985,
+            "sha256": "fba5faf064d6a2a934b634cf30e7fdeb093d142ffb469ba9a9a1a69ae96a2549"
+          },
+          {
+            "href": "/_next/static/chunks/3-iylrnm6boks.css",
+            "documents": [
+              "server\\app\\about.html",
+              "server\\app\\contact.html",
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\creative.html",
+              "server\\app\\engineering.html",
+              "server\\app\\forgot-password.html",
+              "server\\app\\growth\\content.html",
+              "server\\app\\growth\\google-ads.html",
+              "server\\app\\growth\\meta-ads.html",
+              "server\\app\\growth\\seo.html",
+              "server\\app\\growth\\social.html",
+              "server\\app\\growth.html",
+              "server\\app\\index.html",
+              "server\\app\\labs.html",
+              "server\\app\\products\\kforge.html",
+              "server\\app\\products\\knoux-clipboard-ai.html",
+              "server\\app\\products\\knoux-one.html",
+              "server\\app\\products\\knoux-rec.html",
+              "server\\app\\products\\knoux-repair.html",
+              "server\\app\\products\\knoux-smartorganizer.html",
+              "server\\app\\products\\knoux-x.html",
+              "server\\app\\products.html",
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html",
+              "server\\app\\solutions\\build-an-academy-platform.html",
+              "server\\app\\solutions\\build-an-online-store.html",
+              "server\\app\\solutions\\create-a-customer-portal.html",
+              "server\\app\\solutions\\digitise-operations.html",
+              "server\\app\\solutions\\launch-a-new-product.html",
+              "server\\app\\solutions\\modernise-an-existing-website.html",
+              "server\\app\\solutions\\promote-a-local-business.html",
+              "server\\app\\solutions\\start-a-business.html",
+              "server\\app\\solutions.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html",
+              "server\\app\\web.html",
+              "server\\app\\wordpress\\solutions.html",
+              "server\\app\\wordpress\\starter-sites.html",
+              "server\\app\\wordpress.html",
+              "server\\app\\work.html",
+              "server\\app\\_not-found.html"
+            ],
+            "bytes": 219418,
+            "sha256": "584ce2358020a1e6a71a74c01b879d27834700a57247973f41622d5a024094c8"
+          },
+          {
+            "href": "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "documents": [
+              "server\\app\\about.html",
+              "server\\app\\contact.html",
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\creative.html",
+              "server\\app\\engineering.html",
+              "server\\app\\forgot-password.html",
+              "server\\app\\growth\\content.html",
+              "server\\app\\growth\\google-ads.html",
+              "server\\app\\growth\\meta-ads.html",
+              "server\\app\\growth\\seo.html",
+              "server\\app\\growth\\social.html",
+              "server\\app\\growth.html",
+              "server\\app\\index.html",
+              "server\\app\\labs.html",
+              "server\\app\\products\\kforge.html",
+              "server\\app\\products\\knoux-clipboard-ai.html",
+              "server\\app\\products\\knoux-one.html",
+              "server\\app\\products\\knoux-rec.html",
+              "server\\app\\products\\knoux-repair.html",
+              "server\\app\\products\\knoux-smartorganizer.html",
+              "server\\app\\products\\knoux-x.html",
+              "server\\app\\products.html",
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html",
+              "server\\app\\solutions\\build-an-academy-platform.html",
+              "server\\app\\solutions\\build-an-online-store.html",
+              "server\\app\\solutions\\create-a-customer-portal.html",
+              "server\\app\\solutions\\digitise-operations.html",
+              "server\\app\\solutions\\launch-a-new-product.html",
+              "server\\app\\solutions\\modernise-an-existing-website.html",
+              "server\\app\\solutions\\promote-a-local-business.html",
+              "server\\app\\solutions\\start-a-business.html",
+              "server\\app\\solutions.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html",
+              "server\\app\\web.html",
+              "server\\app\\wordpress\\solutions.html",
+              "server\\app\\wordpress\\starter-sites.html",
+              "server\\app\\wordpress.html",
+              "server\\app\\work.html",
+              "server\\app\\_not-found.html"
+            ],
+            "bytes": 21144,
+            "sha256": "7a1c1f7dbfcf8016d95925641bb42fe22cb0141f429a38e307f4620a95ab5e82"
+          },
+          {
+            "href": "/_next/static/chunks/0ruth5j8xz9_l.css",
+            "documents": [
+              "server\\app\\about.html"
+            ],
+            "bytes": 3217,
+            "sha256": "7a2fd5cedb7350a4fc403f54a5ecebb41ba967cf995afe7b3850c3fc5ebf9159"
+          },
+          {
+            "href": "/_next/static/chunks/1xrq4fj9__8ej.css",
+            "documents": [
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html"
+            ],
+            "bytes": 12476,
+            "sha256": "bf0ed15408f2994576ee139d1e6892b366dcabc4a6875b5f415f7a15827f0dae"
+          },
+          {
+            "href": "/_next/static/chunks/06-drz460ztqa.css",
+            "documents": [
+              "server\\app\\products.html"
+            ],
+            "bytes": 10980,
+            "sha256": "7100e52ae0c659ca00149442ffb4976b8c227ce1c486373ccd6ed38f8ea2f0f1"
+          },
+          {
+            "href": "/_next/static/chunks/1cd6icxeqf0ys.css",
+            "documents": [
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html"
+            ],
+            "bytes": 20432,
+            "sha256": "1b641deb766626354c2406535700d6ff7d7cbcb5cd4beede7c70f5f6924c0316"
+          }
+        ]
+      },
+      "routes": [
+        {
+          "route": "/",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/products",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/06-drz460ztqa.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/products/knoux-one",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/build",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/43auk0fm575_7.css",
+            "/_next/static/chunks/2cym4bbd-y1fb.css",
+            "/_next/static/chunks/0s4_kto9aew41.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/build/providers",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/43auk0fm575_7.css",
+            "/_next/static/chunks/2cym4bbd-y1fb.css",
+            "/_next/static/chunks/3pav2nnfn6kvr.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/command",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/3q7v1yfgy34-7.css",
+            "/_next/static/chunks/11xw3v0pfp1ry.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/command/connections",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/3q7v1yfgy34-7.css",
+            "/_next/static/chunks/11xw3v0pfp1ry.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/growth",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/wordpress",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/creative",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/web",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/engineering",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/solutions",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/login",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/account",
+          "status": 307,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": true
+        }
+      ],
+      "served": [
+        {
+          "href": "/_next/static/chunks/2urvz2uwgyplc.css",
+          "status": 200,
+          "bytes": 5985,
+          "sha256": "fba5faf064d6a2a934b634cf30e7fdeb093d142ffb469ba9a9a1a69ae96a2549"
+        },
+        {
+          "href": "/_next/static/chunks/3-iylrnm6boks.css",
+          "status": 200,
+          "bytes": 219418,
+          "sha256": "584ce2358020a1e6a71a74c01b879d27834700a57247973f41622d5a024094c8"
+        },
+        {
+          "href": "/_next/static/chunks/1utzhp5tpbmn2.css",
+          "status": 200,
+          "bytes": 21144,
+          "sha256": "7a1c1f7dbfcf8016d95925641bb42fe22cb0141f429a38e307f4620a95ab5e82"
+        },
+        {
+          "href": "/_next/static/chunks/0ruth5j8xz9_l.css",
+          "status": 200,
+          "bytes": 3217,
+          "sha256": "7a2fd5cedb7350a4fc403f54a5ecebb41ba967cf995afe7b3850c3fc5ebf9159"
+        },
+        {
+          "href": "/_next/static/chunks/1xrq4fj9__8ej.css",
+          "status": 200,
+          "bytes": 12476,
+          "sha256": "bf0ed15408f2994576ee139d1e6892b366dcabc4a6875b5f415f7a15827f0dae"
+        },
+        {
+          "href": "/_next/static/chunks/06-drz460ztqa.css",
+          "status": 200,
+          "bytes": 10980,
+          "sha256": "7100e52ae0c659ca00149442ffb4976b8c227ce1c486373ccd6ed38f8ea2f0f1"
+        },
+        {
+          "href": "/_next/static/chunks/1cd6icxeqf0ys.css",
+          "status": 200,
+          "bytes": 20432,
+          "sha256": "1b641deb766626354c2406535700d6ff7d7cbcb5cd4beede7c70f5f6924c0316"
+        },
+        {
+          "href": "/_next/static/chunks/43auk0fm575_7.css",
+          "status": 200,
+          "bytes": 28301,
+          "sha256": "f9ca0a71d251c7d0205071b30fc7cf0a048d339852d7f9d38e105948652f998e"
+        },
+        {
+          "href": "/_next/static/chunks/2cym4bbd-y1fb.css",
+          "status": 200,
+          "bytes": 57598,
+          "sha256": "715e71ff486f21f17be64d05365a19f5c00e690ef523caa81e29edc10bbbb521"
+        },
+        {
+          "href": "/_next/static/chunks/0s4_kto9aew41.css",
+          "status": 200,
+          "bytes": 10986,
+          "sha256": "4038b75f5cdce8a65fa611c74016d39d1e5f7c3a841dcffa66ed81644961cfca"
+        },
+        {
+          "href": "/_next/static/chunks/3pav2nnfn6kvr.css",
+          "status": 200,
+          "bytes": 10933,
+          "sha256": "67edb0166d5753087e949a3642790f6217e6a1c95fe520fd6d884d4e954b9213"
+        },
+        {
+          "href": "/_next/static/chunks/3q7v1yfgy34-7.css",
+          "status": 200,
+          "bytes": 386,
+          "sha256": "9fb9b6b2c11f5b36ba6f2663c3341243ca7604252100078f75d3009d0e36c693"
+        },
+        {
+          "href": "/_next/static/chunks/11xw3v0pfp1ry.css",
+          "status": 200,
+          "bytes": 24030,
+          "sha256": "b80705c6fe4cbc7a285ec6d40199449826f08cbb11c933e32db6587ea6d68b7b"
+        }
+      ]
+    },
+    {
+      "name": "B-global",
+      "buildExit": 0,
+      "sourceHashes": [
+        "11abcb275afd7a039d2a9d7a826b0bfde8844ea7727a53d95b483907ff946b40",
+        "a0a127e80dc642106c4272ca7842d2919e9e323c070b37d9918efd4a4316c82f"
+      ],
+      "manifests": {
+        "build-manifest.json": {
+          "sha256": "a079759bbd60e231c6dfc28845d37f8e5867403fb7bb6ad4cc38ae7df98fc295",
+          "cssReferences": []
+        },
+        "app-build-manifest.json": {
+          "emitted": false
+        },
+        "prerender-manifest.json": {
+          "sha256": "a5b33750376be17173b69b0c37c6a69bf3d6a7f4ded1588d750191652b98558e",
+          "cssReferences": []
+        },
+        "routes-manifest.json": {
+          "sha256": "0518907418337e2c32103bfe39dea790591aea225fa3a71cc9fb8554632e683a",
+          "cssReferences": []
+        },
+        "server/app-paths-manifest.json": {
+          "sha256": "fef94131021da6f86a73c50db548da22f6406167308cc15bc69596f485b9dbb1",
+          "cssReferences": []
+        },
+        "server/app-path-routes-manifest.json": {
+          "emitted": false
+        }
+      },
+      "status": "PASS",
+      "measuredAt": "2026-10-09T20:04:31.912Z",
+      "buildId": "dl2XjRQ805qi56KIYIxgn",
+      "provenance": {
+        "pid": 1516,
+        "startedAt": "2026-10-09T20:04:29.654Z",
+        "root": "D:\\Knoux Store-worktrees\\css-build-integrity-p0",
+        "port": 4469,
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "entry": "D:\\Knoux Store-worktrees\\css-build-integrity-p0\\node_modules\\next\\dist\\bin\\next",
+        "head": "0f9641708a89c2b41b1577d7e9bb9b3bf3de3d17"
+      },
+      "disk": {
+        "documents": 62,
+        "assets": [
+          {
+            "href": "/_next/static/chunks/2urvz2uwgyplc.css",
+            "documents": [
+              "server\\app\\about.html",
+              "server\\app\\contact.html",
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\creative.html",
+              "server\\app\\engineering.html",
+              "server\\app\\forgot-password.html",
+              "server\\app\\growth\\content.html",
+              "server\\app\\growth\\google-ads.html",
+              "server\\app\\growth\\meta-ads.html",
+              "server\\app\\growth\\seo.html",
+              "server\\app\\growth\\social.html",
+              "server\\app\\growth.html",
+              "server\\app\\index.html",
+              "server\\app\\labs.html",
+              "server\\app\\products\\kforge.html",
+              "server\\app\\products\\knoux-clipboard-ai.html",
+              "server\\app\\products\\knoux-one.html",
+              "server\\app\\products\\knoux-rec.html",
+              "server\\app\\products\\knoux-repair.html",
+              "server\\app\\products\\knoux-smartorganizer.html",
+              "server\\app\\products\\knoux-x.html",
+              "server\\app\\products.html",
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html",
+              "server\\app\\solutions\\build-an-academy-platform.html",
+              "server\\app\\solutions\\build-an-online-store.html",
+              "server\\app\\solutions\\create-a-customer-portal.html",
+              "server\\app\\solutions\\digitise-operations.html",
+              "server\\app\\solutions\\launch-a-new-product.html",
+              "server\\app\\solutions\\modernise-an-existing-website.html",
+              "server\\app\\solutions\\promote-a-local-business.html",
+              "server\\app\\solutions\\start-a-business.html",
+              "server\\app\\solutions.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html",
+              "server\\app\\web.html",
+              "server\\app\\wordpress\\solutions.html",
+              "server\\app\\wordpress\\starter-sites.html",
+              "server\\app\\wordpress.html",
+              "server\\app\\work.html",
+              "server\\app\\_not-found.html"
+            ],
+            "bytes": 5985,
+            "sha256": "fba5faf064d6a2a934b634cf30e7fdeb093d142ffb469ba9a9a1a69ae96a2549"
+          },
+          {
+            "href": "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "documents": [
+              "server\\app\\about.html",
+              "server\\app\\contact.html",
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\creative.html",
+              "server\\app\\engineering.html",
+              "server\\app\\forgot-password.html",
+              "server\\app\\growth\\content.html",
+              "server\\app\\growth\\google-ads.html",
+              "server\\app\\growth\\meta-ads.html",
+              "server\\app\\growth\\seo.html",
+              "server\\app\\growth\\social.html",
+              "server\\app\\growth.html",
+              "server\\app\\index.html",
+              "server\\app\\labs.html",
+              "server\\app\\products\\kforge.html",
+              "server\\app\\products\\knoux-clipboard-ai.html",
+              "server\\app\\products\\knoux-one.html",
+              "server\\app\\products\\knoux-rec.html",
+              "server\\app\\products\\knoux-repair.html",
+              "server\\app\\products\\knoux-smartorganizer.html",
+              "server\\app\\products\\knoux-x.html",
+              "server\\app\\products.html",
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html",
+              "server\\app\\solutions\\build-an-academy-platform.html",
+              "server\\app\\solutions\\build-an-online-store.html",
+              "server\\app\\solutions\\create-a-customer-portal.html",
+              "server\\app\\solutions\\digitise-operations.html",
+              "server\\app\\solutions\\launch-a-new-product.html",
+              "server\\app\\solutions\\modernise-an-existing-website.html",
+              "server\\app\\solutions\\promote-a-local-business.html",
+              "server\\app\\solutions\\start-a-business.html",
+              "server\\app\\solutions.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html",
+              "server\\app\\web.html",
+              "server\\app\\wordpress\\solutions.html",
+              "server\\app\\wordpress\\starter-sites.html",
+              "server\\app\\wordpress.html",
+              "server\\app\\work.html",
+              "server\\app\\_not-found.html"
+            ],
+            "bytes": 219458,
+            "sha256": "16944637e24188a2fb7206e370da6ca5340f0d8abd369ca6b2084ee8892e68ae"
+          },
+          {
+            "href": "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "documents": [
+              "server\\app\\about.html",
+              "server\\app\\contact.html",
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\creative.html",
+              "server\\app\\engineering.html",
+              "server\\app\\forgot-password.html",
+              "server\\app\\growth\\content.html",
+              "server\\app\\growth\\google-ads.html",
+              "server\\app\\growth\\meta-ads.html",
+              "server\\app\\growth\\seo.html",
+              "server\\app\\growth\\social.html",
+              "server\\app\\growth.html",
+              "server\\app\\index.html",
+              "server\\app\\labs.html",
+              "server\\app\\products\\kforge.html",
+              "server\\app\\products\\knoux-clipboard-ai.html",
+              "server\\app\\products\\knoux-one.html",
+              "server\\app\\products\\knoux-rec.html",
+              "server\\app\\products\\knoux-repair.html",
+              "server\\app\\products\\knoux-smartorganizer.html",
+              "server\\app\\products\\knoux-x.html",
+              "server\\app\\products.html",
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html",
+              "server\\app\\solutions\\build-an-academy-platform.html",
+              "server\\app\\solutions\\build-an-online-store.html",
+              "server\\app\\solutions\\create-a-customer-portal.html",
+              "server\\app\\solutions\\digitise-operations.html",
+              "server\\app\\solutions\\launch-a-new-product.html",
+              "server\\app\\solutions\\modernise-an-existing-website.html",
+              "server\\app\\solutions\\promote-a-local-business.html",
+              "server\\app\\solutions\\start-a-business.html",
+              "server\\app\\solutions.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html",
+              "server\\app\\web.html",
+              "server\\app\\wordpress\\solutions.html",
+              "server\\app\\wordpress\\starter-sites.html",
+              "server\\app\\wordpress.html",
+              "server\\app\\work.html",
+              "server\\app\\_not-found.html"
+            ],
+            "bytes": 21144,
+            "sha256": "7a1c1f7dbfcf8016d95925641bb42fe22cb0141f429a38e307f4620a95ab5e82"
+          },
+          {
+            "href": "/_next/static/chunks/0ruth5j8xz9_l.css",
+            "documents": [
+              "server\\app\\about.html"
+            ],
+            "bytes": 3217,
+            "sha256": "7a2fd5cedb7350a4fc403f54a5ecebb41ba967cf995afe7b3850c3fc5ebf9159"
+          },
+          {
+            "href": "/_next/static/chunks/1xrq4fj9__8ej.css",
+            "documents": [
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html"
+            ],
+            "bytes": 12476,
+            "sha256": "bf0ed15408f2994576ee139d1e6892b366dcabc4a6875b5f415f7a15827f0dae"
+          },
+          {
+            "href": "/_next/static/chunks/06-drz460ztqa.css",
+            "documents": [
+              "server\\app\\products.html"
+            ],
+            "bytes": 10980,
+            "sha256": "7100e52ae0c659ca00149442ffb4976b8c227ce1c486373ccd6ed38f8ea2f0f1"
+          },
+          {
+            "href": "/_next/static/chunks/1cd6icxeqf0ys.css",
+            "documents": [
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html"
+            ],
+            "bytes": 20432,
+            "sha256": "1b641deb766626354c2406535700d6ff7d7cbcb5cd4beede7c70f5f6924c0316"
+          }
+        ]
+      },
+      "routes": [
+        {
+          "route": "/",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/products",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/06-drz460ztqa.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/products/knoux-one",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/build",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/43auk0fm575_7.css",
+            "/_next/static/chunks/2cym4bbd-y1fb.css",
+            "/_next/static/chunks/0s4_kto9aew41.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/build/providers",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/43auk0fm575_7.css",
+            "/_next/static/chunks/2cym4bbd-y1fb.css",
+            "/_next/static/chunks/3pav2nnfn6kvr.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/command",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/3q7v1yfgy34-7.css",
+            "/_next/static/chunks/11xw3v0pfp1ry.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/command/connections",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/3q7v1yfgy34-7.css",
+            "/_next/static/chunks/11xw3v0pfp1ry.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/growth",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/wordpress",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/creative",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/web",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/engineering",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/solutions",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/login",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/account",
+          "status": 307,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": true
+        }
+      ],
+      "served": [
+        {
+          "href": "/_next/static/chunks/2urvz2uwgyplc.css",
+          "status": 200,
+          "bytes": 5985,
+          "sha256": "fba5faf064d6a2a934b634cf30e7fdeb093d142ffb469ba9a9a1a69ae96a2549"
+        },
+        {
+          "href": "/_next/static/chunks/0lg5w7w9z4kp3.css",
+          "status": 200,
+          "bytes": 219458,
+          "sha256": "16944637e24188a2fb7206e370da6ca5340f0d8abd369ca6b2084ee8892e68ae"
+        },
+        {
+          "href": "/_next/static/chunks/1utzhp5tpbmn2.css",
+          "status": 200,
+          "bytes": 21144,
+          "sha256": "7a1c1f7dbfcf8016d95925641bb42fe22cb0141f429a38e307f4620a95ab5e82"
+        },
+        {
+          "href": "/_next/static/chunks/0ruth5j8xz9_l.css",
+          "status": 200,
+          "bytes": 3217,
+          "sha256": "7a2fd5cedb7350a4fc403f54a5ecebb41ba967cf995afe7b3850c3fc5ebf9159"
+        },
+        {
+          "href": "/_next/static/chunks/1xrq4fj9__8ej.css",
+          "status": 200,
+          "bytes": 12476,
+          "sha256": "bf0ed15408f2994576ee139d1e6892b366dcabc4a6875b5f415f7a15827f0dae"
+        },
+        {
+          "href": "/_next/static/chunks/06-drz460ztqa.css",
+          "status": 200,
+          "bytes": 10980,
+          "sha256": "7100e52ae0c659ca00149442ffb4976b8c227ce1c486373ccd6ed38f8ea2f0f1"
+        },
+        {
+          "href": "/_next/static/chunks/1cd6icxeqf0ys.css",
+          "status": 200,
+          "bytes": 20432,
+          "sha256": "1b641deb766626354c2406535700d6ff7d7cbcb5cd4beede7c70f5f6924c0316"
+        },
+        {
+          "href": "/_next/static/chunks/43auk0fm575_7.css",
+          "status": 200,
+          "bytes": 28301,
+          "sha256": "f9ca0a71d251c7d0205071b30fc7cf0a048d339852d7f9d38e105948652f998e"
+        },
+        {
+          "href": "/_next/static/chunks/2cym4bbd-y1fb.css",
+          "status": 200,
+          "bytes": 57598,
+          "sha256": "715e71ff486f21f17be64d05365a19f5c00e690ef523caa81e29edc10bbbb521"
+        },
+        {
+          "href": "/_next/static/chunks/0s4_kto9aew41.css",
+          "status": 200,
+          "bytes": 10986,
+          "sha256": "4038b75f5cdce8a65fa611c74016d39d1e5f7c3a841dcffa66ed81644961cfca"
+        },
+        {
+          "href": "/_next/static/chunks/3pav2nnfn6kvr.css",
+          "status": 200,
+          "bytes": 10933,
+          "sha256": "67edb0166d5753087e949a3642790f6217e6a1c95fe520fd6d884d4e954b9213"
+        },
+        {
+          "href": "/_next/static/chunks/3q7v1yfgy34-7.css",
+          "status": 200,
+          "bytes": 386,
+          "sha256": "9fb9b6b2c11f5b36ba6f2663c3341243ca7604252100078f75d3009d0e36c693"
+        },
+        {
+          "href": "/_next/static/chunks/11xw3v0pfp1ry.css",
+          "status": 200,
+          "bytes": 24030,
+          "sha256": "b80705c6fe4cbc7a285ec6d40199449826f08cbb11c933e32db6587ea6d68b7b"
+        }
+      ]
+    },
+    {
+      "name": "C-module",
+      "buildExit": 0,
+      "sourceHashes": [
+        "e2fc37a5a917eb26f810e8ad7a89cf29c1b888c789950ca3308820a47fe85fb7",
+        "a37dd8444bf8b84739f541f3735725e2a5ed390650b39f12d2591e08f74d81bc"
+      ],
+      "manifests": {
+        "build-manifest.json": {
+          "sha256": "6eef54b18c3adc0a06b2771d2674c886017e9d85d5167c79b7e12e324f1ceab8",
+          "cssReferences": []
+        },
+        "app-build-manifest.json": {
+          "emitted": false
+        },
+        "prerender-manifest.json": {
+          "sha256": "6e85955a7f0549745b31ade4c6cecfc1c5a55a8e65e3b8ced5713c871ed134c6",
+          "cssReferences": []
+        },
+        "routes-manifest.json": {
+          "sha256": "0518907418337e2c32103bfe39dea790591aea225fa3a71cc9fb8554632e683a",
+          "cssReferences": []
+        },
+        "server/app-paths-manifest.json": {
+          "sha256": "fef94131021da6f86a73c50db548da22f6406167308cc15bc69596f485b9dbb1",
+          "cssReferences": []
+        },
+        "server/app-path-routes-manifest.json": {
+          "emitted": false
+        }
+      },
+      "status": "PASS",
+      "measuredAt": "2026-10-09T20:05:25.400Z",
+      "buildId": "JzgvYn6e6td1SV0WU996p",
+      "provenance": {
+        "pid": 18028,
+        "startedAt": "2026-10-09T20:05:22.630Z",
+        "root": "D:\\Knoux Store-worktrees\\css-build-integrity-p0",
+        "port": 4469,
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "entry": "D:\\Knoux Store-worktrees\\css-build-integrity-p0\\node_modules\\next\\dist\\bin\\next",
+        "head": "0f9641708a89c2b41b1577d7e9bb9b3bf3de3d17"
+      },
+      "disk": {
+        "documents": 62,
+        "assets": [
+          {
+            "href": "/_next/static/chunks/2urvz2uwgyplc.css",
+            "documents": [
+              "server\\app\\about.html",
+              "server\\app\\contact.html",
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\creative.html",
+              "server\\app\\engineering.html",
+              "server\\app\\forgot-password.html",
+              "server\\app\\growth\\content.html",
+              "server\\app\\growth\\google-ads.html",
+              "server\\app\\growth\\meta-ads.html",
+              "server\\app\\growth\\seo.html",
+              "server\\app\\growth\\social.html",
+              "server\\app\\growth.html",
+              "server\\app\\index.html",
+              "server\\app\\labs.html",
+              "server\\app\\products\\kforge.html",
+              "server\\app\\products\\knoux-clipboard-ai.html",
+              "server\\app\\products\\knoux-one.html",
+              "server\\app\\products\\knoux-rec.html",
+              "server\\app\\products\\knoux-repair.html",
+              "server\\app\\products\\knoux-smartorganizer.html",
+              "server\\app\\products\\knoux-x.html",
+              "server\\app\\products.html",
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html",
+              "server\\app\\solutions\\build-an-academy-platform.html",
+              "server\\app\\solutions\\build-an-online-store.html",
+              "server\\app\\solutions\\create-a-customer-portal.html",
+              "server\\app\\solutions\\digitise-operations.html",
+              "server\\app\\solutions\\launch-a-new-product.html",
+              "server\\app\\solutions\\modernise-an-existing-website.html",
+              "server\\app\\solutions\\promote-a-local-business.html",
+              "server\\app\\solutions\\start-a-business.html",
+              "server\\app\\solutions.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html",
+              "server\\app\\web.html",
+              "server\\app\\wordpress\\solutions.html",
+              "server\\app\\wordpress\\starter-sites.html",
+              "server\\app\\wordpress.html",
+              "server\\app\\work.html",
+              "server\\app\\_not-found.html"
+            ],
+            "bytes": 5985,
+            "sha256": "fba5faf064d6a2a934b634cf30e7fdeb093d142ffb469ba9a9a1a69ae96a2549"
+          },
+          {
+            "href": "/_next/static/chunks/3-iylrnm6boks.css",
+            "documents": [
+              "server\\app\\about.html",
+              "server\\app\\contact.html",
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\creative.html",
+              "server\\app\\engineering.html",
+              "server\\app\\forgot-password.html",
+              "server\\app\\growth\\content.html",
+              "server\\app\\growth\\google-ads.html",
+              "server\\app\\growth\\meta-ads.html",
+              "server\\app\\growth\\seo.html",
+              "server\\app\\growth\\social.html",
+              "server\\app\\growth.html",
+              "server\\app\\index.html",
+              "server\\app\\labs.html",
+              "server\\app\\products\\kforge.html",
+              "server\\app\\products\\knoux-clipboard-ai.html",
+              "server\\app\\products\\knoux-one.html",
+              "server\\app\\products\\knoux-rec.html",
+              "server\\app\\products\\knoux-repair.html",
+              "server\\app\\products\\knoux-smartorganizer.html",
+              "server\\app\\products\\knoux-x.html",
+              "server\\app\\products.html",
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html",
+              "server\\app\\solutions\\build-an-academy-platform.html",
+              "server\\app\\solutions\\build-an-online-store.html",
+              "server\\app\\solutions\\create-a-customer-portal.html",
+              "server\\app\\solutions\\digitise-operations.html",
+              "server\\app\\solutions\\launch-a-new-product.html",
+              "server\\app\\solutions\\modernise-an-existing-website.html",
+              "server\\app\\solutions\\promote-a-local-business.html",
+              "server\\app\\solutions\\start-a-business.html",
+              "server\\app\\solutions.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html",
+              "server\\app\\web.html",
+              "server\\app\\wordpress\\solutions.html",
+              "server\\app\\wordpress\\starter-sites.html",
+              "server\\app\\wordpress.html",
+              "server\\app\\work.html",
+              "server\\app\\_not-found.html"
+            ],
+            "bytes": 219418,
+            "sha256": "584ce2358020a1e6a71a74c01b879d27834700a57247973f41622d5a024094c8"
+          },
+          {
+            "href": "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "documents": [
+              "server\\app\\about.html",
+              "server\\app\\contact.html",
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\creative.html",
+              "server\\app\\engineering.html",
+              "server\\app\\forgot-password.html",
+              "server\\app\\growth\\content.html",
+              "server\\app\\growth\\google-ads.html",
+              "server\\app\\growth\\meta-ads.html",
+              "server\\app\\growth\\seo.html",
+              "server\\app\\growth\\social.html",
+              "server\\app\\growth.html",
+              "server\\app\\index.html",
+              "server\\app\\labs.html",
+              "server\\app\\products\\kforge.html",
+              "server\\app\\products\\knoux-clipboard-ai.html",
+              "server\\app\\products\\knoux-one.html",
+              "server\\app\\products\\knoux-rec.html",
+              "server\\app\\products\\knoux-repair.html",
+              "server\\app\\products\\knoux-smartorganizer.html",
+              "server\\app\\products\\knoux-x.html",
+              "server\\app\\products.html",
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html",
+              "server\\app\\solutions\\build-an-academy-platform.html",
+              "server\\app\\solutions\\build-an-online-store.html",
+              "server\\app\\solutions\\create-a-customer-portal.html",
+              "server\\app\\solutions\\digitise-operations.html",
+              "server\\app\\solutions\\launch-a-new-product.html",
+              "server\\app\\solutions\\modernise-an-existing-website.html",
+              "server\\app\\solutions\\promote-a-local-business.html",
+              "server\\app\\solutions\\start-a-business.html",
+              "server\\app\\solutions.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html",
+              "server\\app\\web.html",
+              "server\\app\\wordpress\\solutions.html",
+              "server\\app\\wordpress\\starter-sites.html",
+              "server\\app\\wordpress.html",
+              "server\\app\\work.html",
+              "server\\app\\_not-found.html"
+            ],
+            "bytes": 21144,
+            "sha256": "7a1c1f7dbfcf8016d95925641bb42fe22cb0141f429a38e307f4620a95ab5e82"
+          },
+          {
+            "href": "/_next/static/chunks/0ruth5j8xz9_l.css",
+            "documents": [
+              "server\\app\\about.html"
+            ],
+            "bytes": 3217,
+            "sha256": "7a2fd5cedb7350a4fc403f54a5ecebb41ba967cf995afe7b3850c3fc5ebf9159"
+          },
+          {
+            "href": "/_next/static/chunks/1xrq4fj9__8ej.css",
+            "documents": [
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html"
+            ],
+            "bytes": 12476,
+            "sha256": "bf0ed15408f2994576ee139d1e6892b366dcabc4a6875b5f415f7a15827f0dae"
+          },
+          {
+            "href": "/_next/static/chunks/06-drz460ztqa.css",
+            "documents": [
+              "server\\app\\products.html"
+            ],
+            "bytes": 10980,
+            "sha256": "7100e52ae0c659ca00149442ffb4976b8c227ce1c486373ccd6ed38f8ea2f0f1"
+          },
+          {
+            "href": "/_next/static/chunks/1cd6icxeqf0ys.css",
+            "documents": [
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html"
+            ],
+            "bytes": 20432,
+            "sha256": "1b641deb766626354c2406535700d6ff7d7cbcb5cd4beede7c70f5f6924c0316"
+          }
+        ]
+      },
+      "routes": [
+        {
+          "route": "/",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/products",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/06-drz460ztqa.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/products/knoux-one",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/build",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/43auk0fm575_7.css",
+            "/_next/static/chunks/2cym4bbd-y1fb.css",
+            "/_next/static/chunks/0s4_kto9aew41.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/build/providers",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/43auk0fm575_7.css",
+            "/_next/static/chunks/2cym4bbd-y1fb.css",
+            "/_next/static/chunks/3pav2nnfn6kvr.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/command",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/3q7v1yfgy34-7.css",
+            "/_next/static/chunks/3ui8m-ban1ljx.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/command/connections",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/3q7v1yfgy34-7.css",
+            "/_next/static/chunks/3ui8m-ban1ljx.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/growth",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/wordpress",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/creative",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/web",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/engineering",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/solutions",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/login",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/account",
+          "status": 307,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": true
+        }
+      ],
+      "served": [
+        {
+          "href": "/_next/static/chunks/2urvz2uwgyplc.css",
+          "status": 200,
+          "bytes": 5985,
+          "sha256": "fba5faf064d6a2a934b634cf30e7fdeb093d142ffb469ba9a9a1a69ae96a2549"
+        },
+        {
+          "href": "/_next/static/chunks/3-iylrnm6boks.css",
+          "status": 200,
+          "bytes": 219418,
+          "sha256": "584ce2358020a1e6a71a74c01b879d27834700a57247973f41622d5a024094c8"
+        },
+        {
+          "href": "/_next/static/chunks/1utzhp5tpbmn2.css",
+          "status": 200,
+          "bytes": 21144,
+          "sha256": "7a1c1f7dbfcf8016d95925641bb42fe22cb0141f429a38e307f4620a95ab5e82"
+        },
+        {
+          "href": "/_next/static/chunks/0ruth5j8xz9_l.css",
+          "status": 200,
+          "bytes": 3217,
+          "sha256": "7a2fd5cedb7350a4fc403f54a5ecebb41ba967cf995afe7b3850c3fc5ebf9159"
+        },
+        {
+          "href": "/_next/static/chunks/1xrq4fj9__8ej.css",
+          "status": 200,
+          "bytes": 12476,
+          "sha256": "bf0ed15408f2994576ee139d1e6892b366dcabc4a6875b5f415f7a15827f0dae"
+        },
+        {
+          "href": "/_next/static/chunks/06-drz460ztqa.css",
+          "status": 200,
+          "bytes": 10980,
+          "sha256": "7100e52ae0c659ca00149442ffb4976b8c227ce1c486373ccd6ed38f8ea2f0f1"
+        },
+        {
+          "href": "/_next/static/chunks/1cd6icxeqf0ys.css",
+          "status": 200,
+          "bytes": 20432,
+          "sha256": "1b641deb766626354c2406535700d6ff7d7cbcb5cd4beede7c70f5f6924c0316"
+        },
+        {
+          "href": "/_next/static/chunks/43auk0fm575_7.css",
+          "status": 200,
+          "bytes": 28301,
+          "sha256": "f9ca0a71d251c7d0205071b30fc7cf0a048d339852d7f9d38e105948652f998e"
+        },
+        {
+          "href": "/_next/static/chunks/2cym4bbd-y1fb.css",
+          "status": 200,
+          "bytes": 57598,
+          "sha256": "715e71ff486f21f17be64d05365a19f5c00e690ef523caa81e29edc10bbbb521"
+        },
+        {
+          "href": "/_next/static/chunks/0s4_kto9aew41.css",
+          "status": 200,
+          "bytes": 10986,
+          "sha256": "4038b75f5cdce8a65fa611c74016d39d1e5f7c3a841dcffa66ed81644961cfca"
+        },
+        {
+          "href": "/_next/static/chunks/3pav2nnfn6kvr.css",
+          "status": 200,
+          "bytes": 10933,
+          "sha256": "67edb0166d5753087e949a3642790f6217e6a1c95fe520fd6d884d4e954b9213"
+        },
+        {
+          "href": "/_next/static/chunks/3q7v1yfgy34-7.css",
+          "status": 200,
+          "bytes": 386,
+          "sha256": "9fb9b6b2c11f5b36ba6f2663c3341243ca7604252100078f75d3009d0e36c693"
+        },
+        {
+          "href": "/_next/static/chunks/3ui8m-ban1ljx.css",
+          "status": 200,
+          "bytes": 24097,
+          "sha256": "fe32fedabeb027b2c2630d0129eba10c6998354d2989006f284ec9c8d4936a38"
+        }
+      ]
+    },
+    {
+      "name": "D-combined",
+      "buildExit": 0,
+      "sourceHashes": [
+        "11abcb275afd7a039d2a9d7a826b0bfde8844ea7727a53d95b483907ff946b40",
+        "a37dd8444bf8b84739f541f3735725e2a5ed390650b39f12d2591e08f74d81bc"
+      ],
+      "manifests": {
+        "build-manifest.json": {
+          "sha256": "326485e583688e8453fb0024faba7b902e24b551c677ea23b8ea4b8f49fd90ed",
+          "cssReferences": []
+        },
+        "app-build-manifest.json": {
+          "emitted": false
+        },
+        "prerender-manifest.json": {
+          "sha256": "61b8cc9bce077e28c6890688a3a76c549e70ea194ac5401107dd1dea7ba33241",
+          "cssReferences": []
+        },
+        "routes-manifest.json": {
+          "sha256": "0518907418337e2c32103bfe39dea790591aea225fa3a71cc9fb8554632e683a",
+          "cssReferences": []
+        },
+        "server/app-paths-manifest.json": {
+          "sha256": "fef94131021da6f86a73c50db548da22f6406167308cc15bc69596f485b9dbb1",
+          "cssReferences": []
+        },
+        "server/app-path-routes-manifest.json": {
+          "emitted": false
+        }
+      },
+      "status": "PASS",
+      "measuredAt": "2026-10-09T20:06:35.497Z",
+      "buildId": "5Hk_PMSPNsERzPWftxYcv",
+      "provenance": {
+        "pid": 6528,
+        "startedAt": "2026-10-09T20:06:30.964Z",
+        "root": "D:\\Knoux Store-worktrees\\css-build-integrity-p0",
+        "port": 4469,
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "entry": "D:\\Knoux Store-worktrees\\css-build-integrity-p0\\node_modules\\next\\dist\\bin\\next",
+        "head": "0f9641708a89c2b41b1577d7e9bb9b3bf3de3d17"
+      },
+      "disk": {
+        "documents": 62,
+        "assets": [
+          {
+            "href": "/_next/static/chunks/2urvz2uwgyplc.css",
+            "documents": [
+              "server\\app\\about.html",
+              "server\\app\\contact.html",
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\creative.html",
+              "server\\app\\engineering.html",
+              "server\\app\\forgot-password.html",
+              "server\\app\\growth\\content.html",
+              "server\\app\\growth\\google-ads.html",
+              "server\\app\\growth\\meta-ads.html",
+              "server\\app\\growth\\seo.html",
+              "server\\app\\growth\\social.html",
+              "server\\app\\growth.html",
+              "server\\app\\index.html",
+              "server\\app\\labs.html",
+              "server\\app\\products\\kforge.html",
+              "server\\app\\products\\knoux-clipboard-ai.html",
+              "server\\app\\products\\knoux-one.html",
+              "server\\app\\products\\knoux-rec.html",
+              "server\\app\\products\\knoux-repair.html",
+              "server\\app\\products\\knoux-smartorganizer.html",
+              "server\\app\\products\\knoux-x.html",
+              "server\\app\\products.html",
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html",
+              "server\\app\\solutions\\build-an-academy-platform.html",
+              "server\\app\\solutions\\build-an-online-store.html",
+              "server\\app\\solutions\\create-a-customer-portal.html",
+              "server\\app\\solutions\\digitise-operations.html",
+              "server\\app\\solutions\\launch-a-new-product.html",
+              "server\\app\\solutions\\modernise-an-existing-website.html",
+              "server\\app\\solutions\\promote-a-local-business.html",
+              "server\\app\\solutions\\start-a-business.html",
+              "server\\app\\solutions.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html",
+              "server\\app\\web.html",
+              "server\\app\\wordpress\\solutions.html",
+              "server\\app\\wordpress\\starter-sites.html",
+              "server\\app\\wordpress.html",
+              "server\\app\\work.html",
+              "server\\app\\_not-found.html"
+            ],
+            "bytes": 5985,
+            "sha256": "fba5faf064d6a2a934b634cf30e7fdeb093d142ffb469ba9a9a1a69ae96a2549"
+          },
+          {
+            "href": "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "documents": [
+              "server\\app\\about.html",
+              "server\\app\\contact.html",
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\creative.html",
+              "server\\app\\engineering.html",
+              "server\\app\\forgot-password.html",
+              "server\\app\\growth\\content.html",
+              "server\\app\\growth\\google-ads.html",
+              "server\\app\\growth\\meta-ads.html",
+              "server\\app\\growth\\seo.html",
+              "server\\app\\growth\\social.html",
+              "server\\app\\growth.html",
+              "server\\app\\index.html",
+              "server\\app\\labs.html",
+              "server\\app\\products\\kforge.html",
+              "server\\app\\products\\knoux-clipboard-ai.html",
+              "server\\app\\products\\knoux-one.html",
+              "server\\app\\products\\knoux-rec.html",
+              "server\\app\\products\\knoux-repair.html",
+              "server\\app\\products\\knoux-smartorganizer.html",
+              "server\\app\\products\\knoux-x.html",
+              "server\\app\\products.html",
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html",
+              "server\\app\\solutions\\build-an-academy-platform.html",
+              "server\\app\\solutions\\build-an-online-store.html",
+              "server\\app\\solutions\\create-a-customer-portal.html",
+              "server\\app\\solutions\\digitise-operations.html",
+              "server\\app\\solutions\\launch-a-new-product.html",
+              "server\\app\\solutions\\modernise-an-existing-website.html",
+              "server\\app\\solutions\\promote-a-local-business.html",
+              "server\\app\\solutions\\start-a-business.html",
+              "server\\app\\solutions.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html",
+              "server\\app\\web.html",
+              "server\\app\\wordpress\\solutions.html",
+              "server\\app\\wordpress\\starter-sites.html",
+              "server\\app\\wordpress.html",
+              "server\\app\\work.html",
+              "server\\app\\_not-found.html"
+            ],
+            "bytes": 219458,
+            "sha256": "16944637e24188a2fb7206e370da6ca5340f0d8abd369ca6b2084ee8892e68ae"
+          },
+          {
+            "href": "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "documents": [
+              "server\\app\\about.html",
+              "server\\app\\contact.html",
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\creative.html",
+              "server\\app\\engineering.html",
+              "server\\app\\forgot-password.html",
+              "server\\app\\growth\\content.html",
+              "server\\app\\growth\\google-ads.html",
+              "server\\app\\growth\\meta-ads.html",
+              "server\\app\\growth\\seo.html",
+              "server\\app\\growth\\social.html",
+              "server\\app\\growth.html",
+              "server\\app\\index.html",
+              "server\\app\\labs.html",
+              "server\\app\\products\\kforge.html",
+              "server\\app\\products\\knoux-clipboard-ai.html",
+              "server\\app\\products\\knoux-one.html",
+              "server\\app\\products\\knoux-rec.html",
+              "server\\app\\products\\knoux-repair.html",
+              "server\\app\\products\\knoux-smartorganizer.html",
+              "server\\app\\products\\knoux-x.html",
+              "server\\app\\products.html",
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html",
+              "server\\app\\solutions\\build-an-academy-platform.html",
+              "server\\app\\solutions\\build-an-online-store.html",
+              "server\\app\\solutions\\create-a-customer-portal.html",
+              "server\\app\\solutions\\digitise-operations.html",
+              "server\\app\\solutions\\launch-a-new-product.html",
+              "server\\app\\solutions\\modernise-an-existing-website.html",
+              "server\\app\\solutions\\promote-a-local-business.html",
+              "server\\app\\solutions\\start-a-business.html",
+              "server\\app\\solutions.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html",
+              "server\\app\\web.html",
+              "server\\app\\wordpress\\solutions.html",
+              "server\\app\\wordpress\\starter-sites.html",
+              "server\\app\\wordpress.html",
+              "server\\app\\work.html",
+              "server\\app\\_not-found.html"
+            ],
+            "bytes": 21144,
+            "sha256": "7a1c1f7dbfcf8016d95925641bb42fe22cb0141f429a38e307f4620a95ab5e82"
+          },
+          {
+            "href": "/_next/static/chunks/0ruth5j8xz9_l.css",
+            "documents": [
+              "server\\app\\about.html"
+            ],
+            "bytes": 3217,
+            "sha256": "7a2fd5cedb7350a4fc403f54a5ecebb41ba967cf995afe7b3850c3fc5ebf9159"
+          },
+          {
+            "href": "/_next/static/chunks/1xrq4fj9__8ej.css",
+            "documents": [
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html"
+            ],
+            "bytes": 12476,
+            "sha256": "bf0ed15408f2994576ee139d1e6892b366dcabc4a6875b5f415f7a15827f0dae"
+          },
+          {
+            "href": "/_next/static/chunks/06-drz460ztqa.css",
+            "documents": [
+              "server\\app\\products.html"
+            ],
+            "bytes": 10980,
+            "sha256": "7100e52ae0c659ca00149442ffb4976b8c227ce1c486373ccd6ed38f8ea2f0f1"
+          },
+          {
+            "href": "/_next/static/chunks/1cd6icxeqf0ys.css",
+            "documents": [
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html"
+            ],
+            "bytes": 20432,
+            "sha256": "1b641deb766626354c2406535700d6ff7d7cbcb5cd4beede7c70f5f6924c0316"
+          }
+        ]
+      },
+      "routes": [
+        {
+          "route": "/",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/products",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/06-drz460ztqa.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/products/knoux-one",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/build",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/43auk0fm575_7.css",
+            "/_next/static/chunks/2cym4bbd-y1fb.css",
+            "/_next/static/chunks/0s4_kto9aew41.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/build/providers",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/43auk0fm575_7.css",
+            "/_next/static/chunks/2cym4bbd-y1fb.css",
+            "/_next/static/chunks/3pav2nnfn6kvr.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/command",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/3q7v1yfgy34-7.css",
+            "/_next/static/chunks/3ui8m-ban1ljx.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/command/connections",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/3q7v1yfgy34-7.css",
+            "/_next/static/chunks/3ui8m-ban1ljx.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/growth",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/wordpress",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/creative",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/web",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/engineering",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/solutions",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/login",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/account",
+          "status": 307,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/0lg5w7w9z4kp3.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": true
+        }
+      ],
+      "served": [
+        {
+          "href": "/_next/static/chunks/2urvz2uwgyplc.css",
+          "status": 200,
+          "bytes": 5985,
+          "sha256": "fba5faf064d6a2a934b634cf30e7fdeb093d142ffb469ba9a9a1a69ae96a2549"
+        },
+        {
+          "href": "/_next/static/chunks/0lg5w7w9z4kp3.css",
+          "status": 200,
+          "bytes": 219458,
+          "sha256": "16944637e24188a2fb7206e370da6ca5340f0d8abd369ca6b2084ee8892e68ae"
+        },
+        {
+          "href": "/_next/static/chunks/1utzhp5tpbmn2.css",
+          "status": 200,
+          "bytes": 21144,
+          "sha256": "7a1c1f7dbfcf8016d95925641bb42fe22cb0141f429a38e307f4620a95ab5e82"
+        },
+        {
+          "href": "/_next/static/chunks/0ruth5j8xz9_l.css",
+          "status": 200,
+          "bytes": 3217,
+          "sha256": "7a2fd5cedb7350a4fc403f54a5ecebb41ba967cf995afe7b3850c3fc5ebf9159"
+        },
+        {
+          "href": "/_next/static/chunks/1xrq4fj9__8ej.css",
+          "status": 200,
+          "bytes": 12476,
+          "sha256": "bf0ed15408f2994576ee139d1e6892b366dcabc4a6875b5f415f7a15827f0dae"
+        },
+        {
+          "href": "/_next/static/chunks/06-drz460ztqa.css",
+          "status": 200,
+          "bytes": 10980,
+          "sha256": "7100e52ae0c659ca00149442ffb4976b8c227ce1c486373ccd6ed38f8ea2f0f1"
+        },
+        {
+          "href": "/_next/static/chunks/1cd6icxeqf0ys.css",
+          "status": 200,
+          "bytes": 20432,
+          "sha256": "1b641deb766626354c2406535700d6ff7d7cbcb5cd4beede7c70f5f6924c0316"
+        },
+        {
+          "href": "/_next/static/chunks/43auk0fm575_7.css",
+          "status": 200,
+          "bytes": 28301,
+          "sha256": "f9ca0a71d251c7d0205071b30fc7cf0a048d339852d7f9d38e105948652f998e"
+        },
+        {
+          "href": "/_next/static/chunks/2cym4bbd-y1fb.css",
+          "status": 200,
+          "bytes": 57598,
+          "sha256": "715e71ff486f21f17be64d05365a19f5c00e690ef523caa81e29edc10bbbb521"
+        },
+        {
+          "href": "/_next/static/chunks/0s4_kto9aew41.css",
+          "status": 200,
+          "bytes": 10986,
+          "sha256": "4038b75f5cdce8a65fa611c74016d39d1e5f7c3a841dcffa66ed81644961cfca"
+        },
+        {
+          "href": "/_next/static/chunks/3pav2nnfn6kvr.css",
+          "status": 200,
+          "bytes": 10933,
+          "sha256": "67edb0166d5753087e949a3642790f6217e6a1c95fe520fd6d884d4e954b9213"
+        },
+        {
+          "href": "/_next/static/chunks/3q7v1yfgy34-7.css",
+          "status": 200,
+          "bytes": 386,
+          "sha256": "9fb9b6b2c11f5b36ba6f2663c3341243ca7604252100078f75d3009d0e36c693"
+        },
+        {
+          "href": "/_next/static/chunks/3ui8m-ban1ljx.css",
+          "status": 200,
+          "bytes": 24097,
+          "sha256": "fe32fedabeb027b2c2630d0129eba10c6998354d2989006f284ec9c8d4936a38"
+        }
+      ]
+    },
+    {
+      "name": "E-revert",
+      "buildExit": 0,
+      "sourceHashes": [
+        "e2fc37a5a917eb26f810e8ad7a89cf29c1b888c789950ca3308820a47fe85fb7",
+        "a0a127e80dc642106c4272ca7842d2919e9e323c070b37d9918efd4a4316c82f"
+      ],
+      "manifests": {
+        "build-manifest.json": {
+          "sha256": "c702aba5438e02d7d2e82e2d62c458b8f78dc37e3a5030ec0ff873bb91cd966f",
+          "cssReferences": []
+        },
+        "app-build-manifest.json": {
+          "emitted": false
+        },
+        "prerender-manifest.json": {
+          "sha256": "717993e819547549fe19204dcae21a4650202f017093b10805a83fc2fcc7fc10",
+          "cssReferences": []
+        },
+        "routes-manifest.json": {
+          "sha256": "0518907418337e2c32103bfe39dea790591aea225fa3a71cc9fb8554632e683a",
+          "cssReferences": []
+        },
+        "server/app-paths-manifest.json": {
+          "sha256": "fef94131021da6f86a73c50db548da22f6406167308cc15bc69596f485b9dbb1",
+          "cssReferences": []
+        },
+        "server/app-path-routes-manifest.json": {
+          "emitted": false
+        }
+      },
+      "status": "PASS",
+      "measuredAt": "2026-10-09T20:07:51.670Z",
+      "buildId": "MJbVXl3anmUwxcFkjNzrc",
+      "provenance": {
+        "pid": 13080,
+        "startedAt": "2026-10-09T20:07:49.235Z",
+        "root": "D:\\Knoux Store-worktrees\\css-build-integrity-p0",
+        "port": 4469,
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "entry": "D:\\Knoux Store-worktrees\\css-build-integrity-p0\\node_modules\\next\\dist\\bin\\next",
+        "head": "0f9641708a89c2b41b1577d7e9bb9b3bf3de3d17"
+      },
+      "disk": {
+        "documents": 62,
+        "assets": [
+          {
+            "href": "/_next/static/chunks/2urvz2uwgyplc.css",
+            "documents": [
+              "server\\app\\about.html",
+              "server\\app\\contact.html",
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\creative.html",
+              "server\\app\\engineering.html",
+              "server\\app\\forgot-password.html",
+              "server\\app\\growth\\content.html",
+              "server\\app\\growth\\google-ads.html",
+              "server\\app\\growth\\meta-ads.html",
+              "server\\app\\growth\\seo.html",
+              "server\\app\\growth\\social.html",
+              "server\\app\\growth.html",
+              "server\\app\\index.html",
+              "server\\app\\labs.html",
+              "server\\app\\products\\kforge.html",
+              "server\\app\\products\\knoux-clipboard-ai.html",
+              "server\\app\\products\\knoux-one.html",
+              "server\\app\\products\\knoux-rec.html",
+              "server\\app\\products\\knoux-repair.html",
+              "server\\app\\products\\knoux-smartorganizer.html",
+              "server\\app\\products\\knoux-x.html",
+              "server\\app\\products.html",
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html",
+              "server\\app\\solutions\\build-an-academy-platform.html",
+              "server\\app\\solutions\\build-an-online-store.html",
+              "server\\app\\solutions\\create-a-customer-portal.html",
+              "server\\app\\solutions\\digitise-operations.html",
+              "server\\app\\solutions\\launch-a-new-product.html",
+              "server\\app\\solutions\\modernise-an-existing-website.html",
+              "server\\app\\solutions\\promote-a-local-business.html",
+              "server\\app\\solutions\\start-a-business.html",
+              "server\\app\\solutions.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html",
+              "server\\app\\web.html",
+              "server\\app\\wordpress\\solutions.html",
+              "server\\app\\wordpress\\starter-sites.html",
+              "server\\app\\wordpress.html",
+              "server\\app\\work.html",
+              "server\\app\\_not-found.html"
+            ],
+            "bytes": 5985,
+            "sha256": "fba5faf064d6a2a934b634cf30e7fdeb093d142ffb469ba9a9a1a69ae96a2549"
+          },
+          {
+            "href": "/_next/static/chunks/3-iylrnm6boks.css",
+            "documents": [
+              "server\\app\\about.html",
+              "server\\app\\contact.html",
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\creative.html",
+              "server\\app\\engineering.html",
+              "server\\app\\forgot-password.html",
+              "server\\app\\growth\\content.html",
+              "server\\app\\growth\\google-ads.html",
+              "server\\app\\growth\\meta-ads.html",
+              "server\\app\\growth\\seo.html",
+              "server\\app\\growth\\social.html",
+              "server\\app\\growth.html",
+              "server\\app\\index.html",
+              "server\\app\\labs.html",
+              "server\\app\\products\\kforge.html",
+              "server\\app\\products\\knoux-clipboard-ai.html",
+              "server\\app\\products\\knoux-one.html",
+              "server\\app\\products\\knoux-rec.html",
+              "server\\app\\products\\knoux-repair.html",
+              "server\\app\\products\\knoux-smartorganizer.html",
+              "server\\app\\products\\knoux-x.html",
+              "server\\app\\products.html",
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html",
+              "server\\app\\solutions\\build-an-academy-platform.html",
+              "server\\app\\solutions\\build-an-online-store.html",
+              "server\\app\\solutions\\create-a-customer-portal.html",
+              "server\\app\\solutions\\digitise-operations.html",
+              "server\\app\\solutions\\launch-a-new-product.html",
+              "server\\app\\solutions\\modernise-an-existing-website.html",
+              "server\\app\\solutions\\promote-a-local-business.html",
+              "server\\app\\solutions\\start-a-business.html",
+              "server\\app\\solutions.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html",
+              "server\\app\\web.html",
+              "server\\app\\wordpress\\solutions.html",
+              "server\\app\\wordpress\\starter-sites.html",
+              "server\\app\\wordpress.html",
+              "server\\app\\work.html",
+              "server\\app\\_not-found.html"
+            ],
+            "bytes": 219418,
+            "sha256": "584ce2358020a1e6a71a74c01b879d27834700a57247973f41622d5a024094c8"
+          },
+          {
+            "href": "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "documents": [
+              "server\\app\\about.html",
+              "server\\app\\contact.html",
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\creative.html",
+              "server\\app\\engineering.html",
+              "server\\app\\forgot-password.html",
+              "server\\app\\growth\\content.html",
+              "server\\app\\growth\\google-ads.html",
+              "server\\app\\growth\\meta-ads.html",
+              "server\\app\\growth\\seo.html",
+              "server\\app\\growth\\social.html",
+              "server\\app\\growth.html",
+              "server\\app\\index.html",
+              "server\\app\\labs.html",
+              "server\\app\\products\\kforge.html",
+              "server\\app\\products\\knoux-clipboard-ai.html",
+              "server\\app\\products\\knoux-one.html",
+              "server\\app\\products\\knoux-rec.html",
+              "server\\app\\products\\knoux-repair.html",
+              "server\\app\\products\\knoux-smartorganizer.html",
+              "server\\app\\products\\knoux-x.html",
+              "server\\app\\products.html",
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html",
+              "server\\app\\solutions\\build-an-academy-platform.html",
+              "server\\app\\solutions\\build-an-online-store.html",
+              "server\\app\\solutions\\create-a-customer-portal.html",
+              "server\\app\\solutions\\digitise-operations.html",
+              "server\\app\\solutions\\launch-a-new-product.html",
+              "server\\app\\solutions\\modernise-an-existing-website.html",
+              "server\\app\\solutions\\promote-a-local-business.html",
+              "server\\app\\solutions\\start-a-business.html",
+              "server\\app\\solutions.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html",
+              "server\\app\\web.html",
+              "server\\app\\wordpress\\solutions.html",
+              "server\\app\\wordpress\\starter-sites.html",
+              "server\\app\\wordpress.html",
+              "server\\app\\work.html",
+              "server\\app\\_not-found.html"
+            ],
+            "bytes": 21144,
+            "sha256": "7a1c1f7dbfcf8016d95925641bb42fe22cb0141f429a38e307f4620a95ab5e82"
+          },
+          {
+            "href": "/_next/static/chunks/0ruth5j8xz9_l.css",
+            "documents": [
+              "server\\app\\about.html"
+            ],
+            "bytes": 3217,
+            "sha256": "7a2fd5cedb7350a4fc403f54a5ecebb41ba967cf995afe7b3850c3fc5ebf9159"
+          },
+          {
+            "href": "/_next/static/chunks/1xrq4fj9__8ej.css",
+            "documents": [
+              "server\\app\\creative\\art-direction.html",
+              "server\\app\\creative\\brand-identity.html",
+              "server\\app\\creative\\campaign-creative.html",
+              "server\\app\\creative\\motion.html",
+              "server\\app\\creative\\presentation.html",
+              "server\\app\\creative\\product-visuals.html",
+              "server\\app\\creative\\social-content.html",
+              "server\\app\\creative\\ui-ux.html",
+              "server\\app\\web\\admin-dashboard.html",
+              "server\\app\\web\\corporate-site.html",
+              "server\\app\\web\\customer-portal.html",
+              "server\\app\\web\\ecommerce.html",
+              "server\\app\\web\\interactive-experience.html",
+              "server\\app\\web\\web-application.html"
+            ],
+            "bytes": 12476,
+            "sha256": "bf0ed15408f2994576ee139d1e6892b366dcabc4a6875b5f415f7a15827f0dae"
+          },
+          {
+            "href": "/_next/static/chunks/06-drz460ztqa.css",
+            "documents": [
+              "server\\app\\products.html"
+            ],
+            "bytes": 10980,
+            "sha256": "7100e52ae0c659ca00149442ffb4976b8c227ce1c486373ccd6ed38f8ea2f0f1"
+          },
+          {
+            "href": "/_next/static/chunks/1cd6icxeqf0ys.css",
+            "documents": [
+              "server\\app\\signal\\business.html",
+              "server\\app\\signal\\claim.html",
+              "server\\app\\signal\\lookup.html",
+              "server\\app\\signal\\my-number\\activity.html",
+              "server\\app\\signal\\my-number\\labels.html",
+              "server\\app\\signal\\my-number\\privacy.html",
+              "server\\app\\signal\\my-number\\reputation.html",
+              "server\\app\\signal\\my-number.html",
+              "server\\app\\signal\\settings.html",
+              "server\\app\\signal\\watchlist.html",
+              "server\\app\\signal.html"
+            ],
+            "bytes": 20432,
+            "sha256": "1b641deb766626354c2406535700d6ff7d7cbcb5cd4beede7c70f5f6924c0316"
+          }
+        ]
+      },
+      "routes": [
+        {
+          "route": "/",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/products",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/06-drz460ztqa.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/products/knoux-one",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/build",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/43auk0fm575_7.css",
+            "/_next/static/chunks/2cym4bbd-y1fb.css",
+            "/_next/static/chunks/0s4_kto9aew41.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/build/providers",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/43auk0fm575_7.css",
+            "/_next/static/chunks/2cym4bbd-y1fb.css",
+            "/_next/static/chunks/3pav2nnfn6kvr.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/command",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/3q7v1yfgy34-7.css",
+            "/_next/static/chunks/11xw3v0pfp1ry.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/command/connections",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css",
+            "/_next/static/chunks/3q7v1yfgy34-7.css",
+            "/_next/static/chunks/11xw3v0pfp1ry.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/growth",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/wordpress",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/creative",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/web",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/engineering",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/solutions",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/login",
+          "status": 200,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": false
+        },
+        {
+          "route": "/account",
+          "status": 307,
+          "hrefs": [
+            "/_next/static/chunks/2urvz2uwgyplc.css",
+            "/_next/static/chunks/3-iylrnm6boks.css",
+            "/_next/static/chunks/1utzhp5tpbmn2.css"
+          ],
+          "authBoundary": true
+        }
+      ],
+      "served": [
+        {
+          "href": "/_next/static/chunks/2urvz2uwgyplc.css",
+          "status": 200,
+          "bytes": 5985,
+          "sha256": "fba5faf064d6a2a934b634cf30e7fdeb093d142ffb469ba9a9a1a69ae96a2549"
+        },
+        {
+          "href": "/_next/static/chunks/3-iylrnm6boks.css",
+          "status": 200,
+          "bytes": 219418,
+          "sha256": "584ce2358020a1e6a71a74c01b879d27834700a57247973f41622d5a024094c8"
+        },
+        {
+          "href": "/_next/static/chunks/1utzhp5tpbmn2.css",
+          "status": 200,
+          "bytes": 21144,
+          "sha256": "7a1c1f7dbfcf8016d95925641bb42fe22cb0141f429a38e307f4620a95ab5e82"
+        },
+        {
+          "href": "/_next/static/chunks/0ruth5j8xz9_l.css",
+          "status": 200,
+          "bytes": 3217,
+          "sha256": "7a2fd5cedb7350a4fc403f54a5ecebb41ba967cf995afe7b3850c3fc5ebf9159"
+        },
+        {
+          "href": "/_next/static/chunks/1xrq4fj9__8ej.css",
+          "status": 200,
+          "bytes": 12476,
+          "sha256": "bf0ed15408f2994576ee139d1e6892b366dcabc4a6875b5f415f7a15827f0dae"
+        },
+        {
+          "href": "/_next/static/chunks/06-drz460ztqa.css",
+          "status": 200,
+          "bytes": 10980,
+          "sha256": "7100e52ae0c659ca00149442ffb4976b8c227ce1c486373ccd6ed38f8ea2f0f1"
+        },
+        {
+          "href": "/_next/static/chunks/1cd6icxeqf0ys.css",
+          "status": 200,
+          "bytes": 20432,
+          "sha256": "1b641deb766626354c2406535700d6ff7d7cbcb5cd4beede7c70f5f6924c0316"
+        },
+        {
+          "href": "/_next/static/chunks/43auk0fm575_7.css",
+          "status": 200,
+          "bytes": 28301,
+          "sha256": "f9ca0a71d251c7d0205071b30fc7cf0a048d339852d7f9d38e105948652f998e"
+        },
+        {
+          "href": "/_next/static/chunks/2cym4bbd-y1fb.css",
+          "status": 200,
+          "bytes": 57598,
+          "sha256": "715e71ff486f21f17be64d05365a19f5c00e690ef523caa81e29edc10bbbb521"
+        },
+        {
+          "href": "/_next/static/chunks/0s4_kto9aew41.css",
+          "status": 200,
+          "bytes": 10986,
+          "sha256": "4038b75f5cdce8a65fa611c74016d39d1e5f7c3a841dcffa66ed81644961cfca"
+        },
+        {
+          "href": "/_next/static/chunks/3pav2nnfn6kvr.css",
+          "status": 200,
+          "bytes": 10933,
+          "sha256": "67edb0166d5753087e949a3642790f6217e6a1c95fe520fd6d884d4e954b9213"
+        },
+        {
+          "href": "/_next/static/chunks/3q7v1yfgy34-7.css",
+          "status": 200,
+          "bytes": 386,
+          "sha256": "9fb9b6b2c11f5b36ba6f2663c3341243ca7604252100078f75d3009d0e36c693"
+        },
+        {
+          "href": "/_next/static/chunks/11xw3v0pfp1ry.css",
+          "status": 200,
+          "bytes": 24030,
+          "sha256": "b80705c6fe4cbc7a285ec6d40199449826f08cbb11c933e32db6587ea6d68b7b"
+        }
+      ]
+    }
+  ],
+  "negativeControl": {
+    "href": "/_next/static/chunks/2urvz2uwgyplc.css",
+    "diskFailed": true,
+    "httpFailed": true,
+    "failureStatus": 404,
+    "restored": true,
+    "gateExit": 1
+  },
+  "restored": {
+    "status": "PASS",
+    "measuredAt": "2026-10-09T20:08:31.763Z",
+    "buildId": "MJbVXl3anmUwxcFkjNzrc",
+    "provenance": {
+      "pid": 16640,
+      "startedAt": "2026-10-09T20:08:25.263Z",
+      "root": "D:\\Knoux Store-worktrees\\css-build-integrity-p0",
+      "port": 4469,
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "entry": "D:\\Knoux Store-worktrees\\css-build-integrity-p0\\node_modules\\next\\dist\\bin\\next",
+      "head": "0f9641708a89c2b41b1577d7e9bb9b3bf3de3d17",
+      "observed": {
+        "pid": 16640,
+        "startedAt": "2026-10-09T20:08:25.2670580Z",
+        "commandLine": "\"C:\\Program Files\\nodejs\\node.exe\" \"D:\\Knoux Store-worktrees\\css-build-integrity-p0\\node_modules\\next\\dist\\bin\\next\" start -H 127.0.0.1 -p 4469",
+        "owner": 16640
+      }
+    },
+    "disk": {
+      "documents": 62,
+      "assets": [
+        {
+          "href": "/_next/static/chunks/2urvz2uwgyplc.css",
+          "documents": [
+            "server\\app\\about.html",
+            "server\\app\\contact.html",
+            "server\\app\\creative\\art-direction.html",
+            "server\\app\\creative\\brand-identity.html",
+            "server\\app\\creative\\campaign-creative.html",
+            "server\\app\\creative\\motion.html",
+            "server\\app\\creative\\presentation.html",
+            "server\\app\\creative\\product-visuals.html",
+            "server\\app\\creative\\social-content.html",
+            "server\\app\\creative\\ui-ux.html",
+            "server\\app\\creative.html",
+            "server\\app\\engineering.html",
+            "server\\app\\forgot-password.html",
+            "server\\app\\growth\\content.html",
+            "server\\app\\growth\\google-ads.html",
+            "server\\app\\growth\\meta-ads.html",
+            "server\\app\\growth\\seo.html",
+            "server\\app\\growth\\social.html",
+            "server\\app\\growth.html",
+            "server\\app\\index.html",
+            "server\\app\\labs.html",
+            "server\\app\\products\\kforge.html",
+            "server\\app\\products\\knoux-clipboard-ai.html",
+            "server\\app\\products\\knoux-one.html",
+            "server\\app\\products\\knoux-rec.html",
+            "server\\app\\products\\knoux-repair.html",
+            "server\\app\\products\\knoux-smartorganizer.html",
+            "server\\app\\products\\knoux-x.html",
+            "server\\app\\products.html",
+            "server\\app\\signal\\business.html",
+            "server\\app\\signal\\claim.html",
+            "server\\app\\signal\\lookup.html",
+            "server\\app\\signal\\my-number\\activity.html",
+            "server\\app\\signal\\my-number\\labels.html",
+            "server\\app\\signal\\my-number\\privacy.html",
+            "server\\app\\signal\\my-number\\reputation.html",
+            "server\\app\\signal\\my-number.html",
+            "server\\app\\signal\\settings.html",
+            "server\\app\\signal\\watchlist.html",
+            "server\\app\\signal.html",
+            "server\\app\\solutions\\build-an-academy-platform.html",
+            "server\\app\\solutions\\build-an-online-store.html",
+            "server\\app\\solutions\\create-a-customer-portal.html",
+            "server\\app\\solutions\\digitise-operations.html",
+            "server\\app\\solutions\\launch-a-new-product.html",
+            "server\\app\\solutions\\modernise-an-existing-website.html",
+            "server\\app\\solutions\\promote-a-local-business.html",
+            "server\\app\\solutions\\start-a-business.html",
+            "server\\app\\solutions.html",
+            "server\\app\\web\\admin-dashboard.html",
+            "server\\app\\web\\corporate-site.html",
+            "server\\app\\web\\customer-portal.html",
+            "server\\app\\web\\ecommerce.html",
+            "server\\app\\web\\interactive-experience.html",
+            "server\\app\\web\\web-application.html",
+            "server\\app\\web.html",
+            "server\\app\\wordpress\\solutions.html",
+            "server\\app\\wordpress\\starter-sites.html",
+            "server\\app\\wordpress.html",
+            "server\\app\\work.html",
+            "server\\app\\_not-found.html"
+          ],
+          "bytes": 5985,
+          "sha256": "fba5faf064d6a2a934b634cf30e7fdeb093d142ffb469ba9a9a1a69ae96a2549"
+        },
+        {
+          "href": "/_next/static/chunks/3-iylrnm6boks.css",
+          "documents": [
+            "server\\app\\about.html",
+            "server\\app\\contact.html",
+            "server\\app\\creative\\art-direction.html",
+            "server\\app\\creative\\brand-identity.html",
+            "server\\app\\creative\\campaign-creative.html",
+            "server\\app\\creative\\motion.html",
+            "server\\app\\creative\\presentation.html",
+            "server\\app\\creative\\product-visuals.html",
+            "server\\app\\creative\\social-content.html",
+            "server\\app\\creative\\ui-ux.html",
+            "server\\app\\creative.html",
+            "server\\app\\engineering.html",
+            "server\\app\\forgot-password.html",
+            "server\\app\\growth\\content.html",
+            "server\\app\\growth\\google-ads.html",
+            "server\\app\\growth\\meta-ads.html",
+            "server\\app\\growth\\seo.html",
+            "server\\app\\growth\\social.html",
+            "server\\app\\growth.html",
+            "server\\app\\index.html",
+            "server\\app\\labs.html",
+            "server\\app\\products\\kforge.html",
+            "server\\app\\products\\knoux-clipboard-ai.html",
+            "server\\app\\products\\knoux-one.html",
+            "server\\app\\products\\knoux-rec.html",
+            "server\\app\\products\\knoux-repair.html",
+            "server\\app\\products\\knoux-smartorganizer.html",
+            "server\\app\\products\\knoux-x.html",
+            "server\\app\\products.html",
+            "server\\app\\signal\\business.html",
+            "server\\app\\signal\\claim.html",
+            "server\\app\\signal\\lookup.html",
+            "server\\app\\signal\\my-number\\activity.html",
+            "server\\app\\signal\\my-number\\labels.html",
+            "server\\app\\signal\\my-number\\privacy.html",
+            "server\\app\\signal\\my-number\\reputation.html",
+            "server\\app\\signal\\my-number.html",
+            "server\\app\\signal\\settings.html",
+            "server\\app\\signal\\watchlist.html",
+            "server\\app\\signal.html",
+            "server\\app\\solutions\\build-an-academy-platform.html",
+            "server\\app\\solutions\\build-an-online-store.html",
+            "server\\app\\solutions\\create-a-customer-portal.html",
+            "server\\app\\solutions\\digitise-operations.html",
+            "server\\app\\solutions\\launch-a-new-product.html",
+            "server\\app\\solutions\\modernise-an-existing-website.html",
+            "server\\app\\solutions\\promote-a-local-business.html",
+            "server\\app\\solutions\\start-a-business.html",
+            "server\\app\\solutions.html",
+            "server\\app\\web\\admin-dashboard.html",
+            "server\\app\\web\\corporate-site.html",
+            "server\\app\\web\\customer-portal.html",
+            "server\\app\\web\\ecommerce.html",
+            "server\\app\\web\\interactive-experience.html",
+            "server\\app\\web\\web-application.html",
+            "server\\app\\web.html",
+            "server\\app\\wordpress\\solutions.html",
+            "server\\app\\wordpress\\starter-sites.html",
+            "server\\app\\wordpress.html",
+            "server\\app\\work.html",
+            "server\\app\\_not-found.html"
+          ],
+          "bytes": 219418,
+          "sha256": "584ce2358020a1e6a71a74c01b879d27834700a57247973f41622d5a024094c8"
+        },
+        {
+          "href": "/_next/static/chunks/1utzhp5tpbmn2.css",
+          "documents": [
+            "server\\app\\about.html",
+            "server\\app\\contact.html",
+            "server\\app\\creative\\art-direction.html",
+            "server\\app\\creative\\brand-identity.html",
+            "server\\app\\creative\\campaign-creative.html",
+            "server\\app\\creative\\motion.html",
+            "server\\app\\creative\\presentation.html",
+            "server\\app\\creative\\product-visuals.html",
+            "server\\app\\creative\\social-content.html",
+            "server\\app\\creative\\ui-ux.html",
+            "server\\app\\creative.html",
+            "server\\app\\engineering.html",
+            "server\\app\\forgot-password.html",
+            "server\\app\\growth\\content.html",
+            "server\\app\\growth\\google-ads.html",
+            "server\\app\\growth\\meta-ads.html",
+            "server\\app\\growth\\seo.html",
+            "server\\app\\growth\\social.html",
+            "server\\app\\growth.html",
+            "server\\app\\index.html",
+            "server\\app\\labs.html",
+            "server\\app\\products\\kforge.html",
+            "server\\app\\products\\knoux-clipboard-ai.html",
+            "server\\app\\products\\knoux-one.html",
+            "server\\app\\products\\knoux-rec.html",
+            "server\\app\\products\\knoux-repair.html",
+            "server\\app\\products\\knoux-smartorganizer.html",
+            "server\\app\\products\\knoux-x.html",
+            "server\\app\\products.html",
+            "server\\app\\signal\\business.html",
+            "server\\app\\signal\\claim.html",
+            "server\\app\\signal\\lookup.html",
+            "server\\app\\signal\\my-number\\activity.html",
+            "server\\app\\signal\\my-number\\labels.html",
+            "server\\app\\signal\\my-number\\privacy.html",
+            "server\\app\\signal\\my-number\\reputation.html",
+            "server\\app\\signal\\my-number.html",
+            "server\\app\\signal\\settings.html",
+            "server\\app\\signal\\watchlist.html",
+            "server\\app\\signal.html",
+            "server\\app\\solutions\\build-an-academy-platform.html",
+            "server\\app\\solutions\\build-an-online-store.html",
+            "server\\app\\solutions\\create-a-customer-portal.html",
+            "server\\app\\solutions\\digitise-operations.html",
+            "server\\app\\solutions\\launch-a-new-product.html",
+            "server\\app\\solutions\\modernise-an-existing-website.html",
+            "server\\app\\solutions\\promote-a-local-business.html",
+            "server\\app\\solutions\\start-a-business.html",
+            "server\\app\\solutions.html",
+            "server\\app\\web\\admin-dashboard.html",
+            "server\\app\\web\\corporate-site.html",
+            "server\\app\\web\\customer-portal.html",
+            "server\\app\\web\\ecommerce.html",
+            "server\\app\\web\\interactive-experience.html",
+            "server\\app\\web\\web-application.html",
+            "server\\app\\web.html",
+            "server\\app\\wordpress\\solutions.html",
+            "server\\app\\wordpress\\starter-sites.html",
+            "server\\app\\wordpress.html",
+            "server\\app\\work.html",
+            "server\\app\\_not-found.html"
+          ],
+          "bytes": 21144,
+          "sha256": "7a1c1f7dbfcf8016d95925641bb42fe22cb0141f429a38e307f4620a95ab5e82"
+        },
+        {
+          "href": "/_next/static/chunks/0ruth5j8xz9_l.css",
+          "documents": [
+            "server\\app\\about.html"
+          ],
+          "bytes": 3217,
+          "sha256": "7a2fd5cedb7350a4fc403f54a5ecebb41ba967cf995afe7b3850c3fc5ebf9159"
+        },
+        {
+          "href": "/_next/static/chunks/1xrq4fj9__8ej.css",
+          "documents": [
+            "server\\app\\creative\\art-direction.html",
+            "server\\app\\creative\\brand-identity.html",
+            "server\\app\\creative\\campaign-creative.html",
+            "server\\app\\creative\\motion.html",
+            "server\\app\\creative\\presentation.html",
+            "server\\app\\creative\\product-visuals.html",
+            "server\\app\\creative\\social-content.html",
+            "server\\app\\creative\\ui-ux.html",
+            "server\\app\\web\\admin-dashboard.html",
+            "server\\app\\web\\corporate-site.html",
+            "server\\app\\web\\customer-portal.html",
+            "server\\app\\web\\ecommerce.html",
+            "server\\app\\web\\interactive-experience.html",
+            "server\\app\\web\\web-application.html"
+          ],
+          "bytes": 12476,
+          "sha256": "bf0ed15408f2994576ee139d1e6892b366dcabc4a6875b5f415f7a15827f0dae"
+        },
+        {
+          "href": "/_next/static/chunks/06-drz460ztqa.css",
+          "documents": [
+            "server\\app\\products.html"
+          ],
+          "bytes": 10980,
+          "sha256": "7100e52ae0c659ca00149442ffb4976b8c227ce1c486373ccd6ed38f8ea2f0f1"
+        },
+        {
+          "href": "/_next/static/chunks/1cd6icxeqf0ys.css",
+          "documents": [
+            "server\\app\\signal\\business.html",
+            "server\\app\\signal\\claim.html",
+            "server\\app\\signal\\lookup.html",
+            "server\\app\\signal\\my-number\\activity.html",
+            "server\\app\\signal\\my-number\\labels.html",
+            "server\\app\\signal\\my-number\\privacy.html",
+            "server\\app\\signal\\my-number\\reputation.html",
+            "server\\app\\signal\\my-number.html",
+            "server\\app\\signal\\settings.html",
+            "server\\app\\signal\\watchlist.html",
+            "server\\app\\signal.html"
+          ],
+          "bytes": 20432,
+          "sha256": "1b641deb766626354c2406535700d6ff7d7cbcb5cd4beede7c70f5f6924c0316"
+        }
+      ]
+    },
+    "routes": [
+      {
+        "route": "/",
+        "status": 200,
+        "hrefs": [
+          "/_next/static/chunks/2urvz2uwgyplc.css",
+          "/_next/static/chunks/3-iylrnm6boks.css",
+          "/_next/static/chunks/1utzhp5tpbmn2.css"
+        ],
+        "authBoundary": false
+      },
+      {
+        "route": "/products",
+        "status": 200,
+        "hrefs": [
+          "/_next/static/chunks/2urvz2uwgyplc.css",
+          "/_next/static/chunks/3-iylrnm6boks.css",
+          "/_next/static/chunks/1utzhp5tpbmn2.css",
+          "/_next/static/chunks/06-drz460ztqa.css"
+        ],
+        "authBoundary": false
+      },
+      {
+        "route": "/products/knoux-one",
+        "status": 200,
+        "hrefs": [
+          "/_next/static/chunks/2urvz2uwgyplc.css",
+          "/_next/static/chunks/3-iylrnm6boks.css",
+          "/_next/static/chunks/1utzhp5tpbmn2.css"
+        ],
+        "authBoundary": false
+      },
+      {
+        "route": "/build",
+        "status": 200,
+        "hrefs": [
+          "/_next/static/chunks/2urvz2uwgyplc.css",
+          "/_next/static/chunks/3-iylrnm6boks.css",
+          "/_next/static/chunks/1utzhp5tpbmn2.css",
+          "/_next/static/chunks/43auk0fm575_7.css",
+          "/_next/static/chunks/2cym4bbd-y1fb.css",
+          "/_next/static/chunks/0s4_kto9aew41.css"
+        ],
+        "authBoundary": false
+      },
+      {
+        "route": "/build/providers",
+        "status": 200,
+        "hrefs": [
+          "/_next/static/chunks/2urvz2uwgyplc.css",
+          "/_next/static/chunks/3-iylrnm6boks.css",
+          "/_next/static/chunks/1utzhp5tpbmn2.css",
+          "/_next/static/chunks/43auk0fm575_7.css",
+          "/_next/static/chunks/2cym4bbd-y1fb.css",
+          "/_next/static/chunks/3pav2nnfn6kvr.css"
+        ],
+        "authBoundary": false
+      },
+      {
+        "route": "/command",
+        "status": 200,
+        "hrefs": [
+          "/_next/static/chunks/2urvz2uwgyplc.css",
+          "/_next/static/chunks/3-iylrnm6boks.css",
+          "/_next/static/chunks/1utzhp5tpbmn2.css",
+          "/_next/static/chunks/3q7v1yfgy34-7.css",
+          "/_next/static/chunks/11xw3v0pfp1ry.css"
+        ],
+        "authBoundary": false
+      },
+      {
+        "route": "/command/connections",
+        "status": 200,
+        "hrefs": [
+          "/_next/static/chunks/2urvz2uwgyplc.css",
+          "/_next/static/chunks/3-iylrnm6boks.css",
+          "/_next/static/chunks/1utzhp5tpbmn2.css",
+          "/_next/static/chunks/3q7v1yfgy34-7.css",
+          "/_next/static/chunks/11xw3v0pfp1ry.css"
+        ],
+        "authBoundary": false
+      },
+      {
+        "route": "/growth",
+        "status": 200,
+        "hrefs": [
+          "/_next/static/chunks/2urvz2uwgyplc.css",
+          "/_next/static/chunks/3-iylrnm6boks.css",
+          "/_next/static/chunks/1utzhp5tpbmn2.css"
+        ],
+        "authBoundary": false
+      },
+      {
+        "route": "/wordpress",
+        "status": 200,
+        "hrefs": [
+          "/_next/static/chunks/2urvz2uwgyplc.css",
+          "/_next/static/chunks/3-iylrnm6boks.css",
+          "/_next/static/chunks/1utzhp5tpbmn2.css"
+        ],
+        "authBoundary": false
+      },
+      {
+        "route": "/creative",
+        "status": 200,
+        "hrefs": [
+          "/_next/static/chunks/2urvz2uwgyplc.css",
+          "/_next/static/chunks/3-iylrnm6boks.css",
+          "/_next/static/chunks/1utzhp5tpbmn2.css"
+        ],
+        "authBoundary": false
+      },
+      {
+        "route": "/web",
+        "status": 200,
+        "hrefs": [
+          "/_next/static/chunks/2urvz2uwgyplc.css",
+          "/_next/static/chunks/3-iylrnm6boks.css",
+          "/_next/static/chunks/1utzhp5tpbmn2.css"
+        ],
+        "authBoundary": false
+      },
+      {
+        "route": "/engineering",
+        "status": 200,
+        "hrefs": [
+          "/_next/static/chunks/2urvz2uwgyplc.css",
+          "/_next/static/chunks/3-iylrnm6boks.css",
+          "/_next/static/chunks/1utzhp5tpbmn2.css"
+        ],
+        "authBoundary": false
+      },
+      {
+        "route": "/solutions",
+        "status": 200,
+        "hrefs": [
+          "/_next/static/chunks/2urvz2uwgyplc.css",
+          "/_next/static/chunks/3-iylrnm6boks.css",
+          "/_next/static/chunks/1utzhp5tpbmn2.css"
+        ],
+        "authBoundary": false
+      },
+      {
+        "route": "/login",
+        "status": 200,
+        "hrefs": [
+          "/_next/static/chunks/2urvz2uwgyplc.css",
+          "/_next/static/chunks/3-iylrnm6boks.css",
+          "/_next/static/chunks/1utzhp5tpbmn2.css"
+        ],
+        "authBoundary": false
+      },
+      {
+        "route": "/account",
+        "status": 307,
+        "hrefs": [
+          "/_next/static/chunks/2urvz2uwgyplc.css",
+          "/_next/static/chunks/3-iylrnm6boks.css",
+          "/_next/static/chunks/1utzhp5tpbmn2.css"
+        ],
+        "authBoundary": true
+      }
+    ],
+    "served": [
+      {
+        "href": "/_next/static/chunks/2urvz2uwgyplc.css",
+        "status": 200,
+        "bytes": 5985,
+        "sha256": "fba5faf064d6a2a934b634cf30e7fdeb093d142ffb469ba9a9a1a69ae96a2549"
+      },
+      {
+        "href": "/_next/static/chunks/3-iylrnm6boks.css",
+        "status": 200,
+        "bytes": 219418,
+        "sha256": "584ce2358020a1e6a71a74c01b879d27834700a57247973f41622d5a024094c8"
+      },
+      {
+        "href": "/_next/static/chunks/1utzhp5tpbmn2.css",
+        "status": 200,
+        "bytes": 21144,
+        "sha256": "7a1c1f7dbfcf8016d95925641bb42fe22cb0141f429a38e307f4620a95ab5e82"
+      },
+      {
+        "href": "/_next/static/chunks/0ruth5j8xz9_l.css",
+        "status": 200,
+        "bytes": 3217,
+        "sha256": "7a2fd5cedb7350a4fc403f54a5ecebb41ba967cf995afe7b3850c3fc5ebf9159"
+      },
+      {
+        "href": "/_next/static/chunks/1xrq4fj9__8ej.css",
+        "status": 200,
+        "bytes": 12476,
+        "sha256": "bf0ed15408f2994576ee139d1e6892b366dcabc4a6875b5f415f7a15827f0dae"
+      },
+      {
+        "href": "/_next/static/chunks/06-drz460ztqa.css",
+        "status": 200,
+        "bytes": 10980,
+        "sha256": "7100e52ae0c659ca00149442ffb4976b8c227ce1c486373ccd6ed38f8ea2f0f1"
+      },
+      {
+        "href": "/_next/static/chunks/1cd6icxeqf0ys.css",
+        "status": 200,
+        "bytes": 20432,
+        "sha256": "1b641deb766626354c2406535700d6ff7d7cbcb5cd4beede7c70f5f6924c0316"
+      },
+      {
+        "href": "/_next/static/chunks/43auk0fm575_7.css",
+        "status": 200,
+        "bytes": 28301,
+        "sha256": "f9ca0a71d251c7d0205071b30fc7cf0a048d339852d7f9d38e105948652f998e"
+      },
+      {
+        "href": "/_next/static/chunks/2cym4bbd-y1fb.css",
+        "status": 200,
+        "bytes": 57598,
+        "sha256": "715e71ff486f21f17be64d05365a19f5c00e690ef523caa81e29edc10bbbb521"
+      },
+      {
+        "href": "/_next/static/chunks/0s4_kto9aew41.css",
+        "status": 200,
+        "bytes": 10986,
+        "sha256": "4038b75f5cdce8a65fa611c74016d39d1e5f7c3a841dcffa66ed81644961cfca"
+      },
+      {
+        "href": "/_next/static/chunks/3pav2nnfn6kvr.css",
+        "status": 200,
+        "bytes": 10933,
+        "sha256": "67edb0166d5753087e949a3642790f6217e6a1c95fe520fd6d884d4e954b9213"
+      },
+      {
+        "href": "/_next/static/chunks/3q7v1yfgy34-7.css",
+        "status": 200,
+        "bytes": 386,
+        "sha256": "9fb9b6b2c11f5b36ba6f2663c3341243ca7604252100078f75d3009d0e36c693"
+      },
+      {
+        "href": "/_next/static/chunks/11xw3v0pfp1ry.css",
+        "status": 200,
+        "bytes": 24030,
+        "sha256": "b80705c6fe4cbc7a285ec6d40199449826f08cbb11c933e32db6587ea6d68b7b"
+      }
+    ]
+  }
+}
