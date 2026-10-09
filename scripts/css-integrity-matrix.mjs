@@ -2,7 +2,7 @@ import { readFile, writeFile, rm, rename, mkdir } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { spawn, execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { runIntegrity, inspectBuild, assetPath, startOwnedServer, stopOwnedServer, verifyServedAsset } from './css-integrity.mjs';
+import { runIntegrity, inspectBuild, assetPath, startOwnedServer, stopOwnedServer, verifyServedAsset, gitHead } from './css-integrity.mjs';
 
 const root = process.cwd();
 const buildDirectory = resolve(root, '.next');
@@ -12,7 +12,7 @@ const original = await Promise.all(sources.map(file => readFile(file, 'utf8')));
 const patches = ['\n:root { --knoux-css-integrity-control: 731; }\n', '\n.command { --knoux-css-integrity-control: 947; }\n'];
 await mkdir('.qa-css', { recursive: true });
 const scenarios = [ ['A-pristine', false, false], ['B-global', true, false], ['C-module', false, true], ['D-combined', true, true], ['E-revert', false, false] ];
-const evidence = { base: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), next: JSON.parse(await readFile('node_modules/next/package.json', 'utf8')).version, scenarios: [] };
+const evidence = { base: gitHead(), next: JSON.parse(await readFile('node_modules/next/package.json', 'utf8')).version, scenarios: [] };
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const manifestCss = value => {
   if (typeof value === 'string') return value.endsWith('.css') ? [value] : [];
