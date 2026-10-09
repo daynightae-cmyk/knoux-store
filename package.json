@@ -18,7 +18,8 @@
     "audit:deps": "npm audit --audit-level=high",
     "audit:dead": "knip",
     "audit:controls": "node scripts/build-controls.mjs",
-    "verify": "npm run lint && npm run typecheck && npm run build && npm test"
+    "audit:css-integrity": "node scripts/css-integrity.mjs",
+    "verify": "npm run lint && npm run typecheck && npm run build && npm run audit:css-integrity && npm test"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
