@@ -3153,7 +3153,7 @@
     "file": "src/components/build/providers/CustomMetadata.tsx",
     "line": 8,
     "tag": "button",
-    "label": "<button>Validate metadata</button>",
+    "label": "<button type=\"submit\">Validate metadata</button>",
     "status": "unknown",
     "enabled": false,
     "blocked": false,
@@ -3165,7 +3165,7 @@
     "auth requirement": "provider credential + trusted adapter configuration required",
     "verification evidence": "static source declaration; runtime state not evaluated",
     "disabled": null,
-    "type": null
+    "type": "\"submit\""
   },
   {
     "file": "src/components/build/providers/PlatformFacts.tsx",
@@ -3531,7 +3531,7 @@
     "file": "src/components/build/providers/ProviderCenter.tsx",
     "line": 155,
     "tag": "button",
-    "label": "<button disabled={!writable || busy}>Save spending ceiling</button>",
+    "label": "<button type=\"submit\" disabled={!writable || busy}>Save spending ceiling</button>",
     "status": "conditional",
     "enabled": false,
     "blocked": false,
@@ -3543,7 +3543,7 @@
     "auth requirement": "provider credential + trusted adapter configuration required",
     "verification evidence": "static source declaration; runtime state not evaluated",
     "disabled": "{!writable || busy}",
-    "type": null
+    "type": "\"submit\""
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
@@ -3675,7 +3675,7 @@
     "file": "src/components/build/providers/ProviderCenter.tsx",
     "line": 162,
     "tag": "button",
-    "label": "<button disabled={!vaultWritable || busy}>{editCredential ? 'Save replacement' : 'SAVE API KEY'}</button>",
+    "label": "<button type=\"submit\" disabled={!vaultWritable || busy}>{editCredential ? 'Save replacement' : 'SAVE API KEY'}</button>",
     "status": "conditional",
     "enabled": false,
     "blocked": false,
@@ -3687,7 +3687,7 @@
     "auth requirement": "encrypted writable vault required",
     "verification evidence": "static source declaration; runtime state not evaluated",
     "disabled": "{!vaultWritable || busy}",
-    "type": null
+    "type": "\"submit\""
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
@@ -3711,7 +3711,7 @@
     "file": "src/components/build/providers/ProviderCenter.tsx",
     "line": 168,
     "tag": "button",
-    "label": "<button disabled={!writable || busy}>Save endpoint</button>",
+    "label": "<button type=\"submit\" disabled={!writable || busy}>Save endpoint</button>",
     "status": "conditional",
     "enabled": false,
     "blocked": false,
@@ -3723,7 +3723,7 @@
     "auth requirement": "provider credential + trusted adapter configuration required",
     "verification evidence": "static source declaration; runtime state not evaluated",
     "disabled": "{!writable || busy}",
-    "type": null
+    "type": "\"submit\""
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
@@ -3855,7 +3855,7 @@
     "file": "src/components/build/providers/ProviderCenter.tsx",
     "line": 171,
     "tag": "button",
-    "label": "<button disabled={!writable || busy}>Save model policy</button>",
+    "label": "<button type=\"submit\" disabled={!writable || busy}>Save model policy</button>",
     "status": "conditional",
     "enabled": false,
     "blocked": false,
@@ -3867,7 +3867,7 @@
     "auth requirement": "provider credential + trusted adapter configuration required",
     "verification evidence": "static source declaration; runtime state not evaluated",
     "disabled": "{!writable || busy}",
-    "type": null
+    "type": "\"submit\""
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
@@ -3891,7 +3891,7 @@
     "file": "src/components/build/providers/ProviderCenter.tsx",
     "line": 172,
     "tag": "button",
-    "label": "<button disabled={!writable || busy}>Save permission policy</button>",
+    "label": "<button type=\"submit\" disabled={!writable || busy}>Save permission policy</button>",
     "status": "conditional",
     "enabled": false,
     "blocked": false,
@@ -3903,7 +3903,7 @@
     "auth requirement": "provider credential + trusted adapter configuration required",
     "verification evidence": "static source declaration; runtime state not evaluated",
     "disabled": "{!writable || busy}",
-    "type": null
+    "type": "\"submit\""
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
@@ -3927,7 +3927,7 @@
     "file": "src/components/build/providers/ProviderCenter.tsx",
     "line": 173,
     "tag": "button",
-    "label": "<button disabled={!writable || busy}>Save {tab} bindings</button>",
+    "label": "<button type=\"submit\" disabled={!writable || busy}>Save {tab} bindings</button>",
     "status": "conditional",
     "enabled": false,
     "blocked": false,
@@ -3939,7 +3939,7 @@
     "auth requirement": "provider credential + trusted adapter configuration required",
     "verification evidence": "static source declaration; runtime state not evaluated",
     "disabled": "{!writable || busy}",
-    "type": null
+    "type": "\"submit\""
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
@@ -3999,7 +3999,7 @@
     "file": "src/components/build/providers/ProviderCenter.tsx",
     "line": 175,
     "tag": "button",
-    "label": "<button disabled={!writable || busy}>Save structured configuration</button>",
+    "label": "<button type=\"submit\" disabled={!writable || busy}>Save structured configuration</button>",
     "status": "conditional",
     "enabled": false,
     "blocked": false,
@@ -4011,7 +4011,7 @@
     "auth requirement": "provider credential + trusted adapter configuration required",
     "verification evidence": "static source declaration; runtime state not evaluated",
     "disabled": "{!writable || busy}",
-    "type": null
+    "type": "\"submit\""
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
@@ -4197,7 +4197,7 @@
     "file": "src/components/build/providers/ProviderCenter.tsx",
     "line": 181,
     "tag": "button",
-    "label": "<button disabled={!writable || busy}>{editProfile ? \"Save authentication\" : \"Create profile\"}</button>",
+    "label": "<button type=\"submit\" disabled={!writable || busy}>{editProfile ? \"Save authentication\" : \"Create profile\"}</button>",
     "status": "conditional",
     "enabled": false,
     "blocked": false,
@@ -4209,6 +4209,6 @@
     "auth requirement": "provider credential + trusted adapter configuration required",
     "verification evidence": "static source declaration; runtime state not evaluated",
     "disabled": "{!writable || busy}",
-    "type": null
+    "type": "\"submit\""
   }
 ]

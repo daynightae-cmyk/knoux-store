@@ -12,10 +12,10 @@ export function validIdentifier(value: unknown): value is string {
     return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 export function validName(value: unknown): value is string {
-    return typeof value === 'string' && value.trim().length > 0 && value.length <= 80 && !/[\x00-\x1f\x7f]/.test(value);
+    return typeof value === 'string' && value.trim().length > 0 && value.length <= 80 && !Array.from(value).some(character => character.charCodeAt(0) < 32 || character.charCodeAt(0) === 127);
 }
 export function validSecret(value: unknown): value is string {
-    return typeof value === 'string' && value.length >= 1 && value.length <= 8192 && !/[\r\n\x00]/.test(value) && value === value.trim();
+    return typeof value === 'string' && value.length >= 1 && value.length <= 8192 && !Array.from(value).some(character => [0, 10, 13].includes(character.charCodeAt(0))) && value === value.trim();
 }
 export function routingEligibility(profile: import('./types').ProviderProfile, configured: boolean): {
     eligible: boolean;
