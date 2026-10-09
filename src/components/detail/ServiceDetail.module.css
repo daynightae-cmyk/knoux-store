@@ -207,8 +207,8 @@
 .admin_dashboard {
   background: repeating-linear-gradient(
     0deg,
-    #101113 0 30px,
-    #18191c 31px 32px
+    transparent 0 30px,
+    #18191c44 31px 32px
   );
 }
 .interactive_experience svg {
@@ -221,7 +221,7 @@
   transform: translateY(-5px);
 }
 .art_direction {
-  background: linear-gradient(135deg, #19191b, #0b0c0e 60%);
+  background: linear-gradient(135deg, #19191b44, transparent 60%);
 }
 .campaign_creative svg {
   transform: skewY(-3deg);
