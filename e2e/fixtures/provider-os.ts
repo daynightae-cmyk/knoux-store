@@ -5,6 +5,18 @@ import { CONTRACT_MODEL } from './build-generator';
 const owner = '11111111-1111-4111-8111-111111111111', credential = '33333333-3333-4333-8333-333333333333', id = '22222222-2222-4222-8222-222222222222';
 /** UI contracts only. SQL/runtime tests separately prove persistence and authorization. */
 export async function providerFixture(page: Page) {
+    const markFixture = () => {
+        if (!document.body || document.getElementById('provider-contract-fixture-label'))
+            return;
+        const label = document.createElement('span');
+        label.id = 'provider-contract-fixture-label';
+        label.textContent = 'CONTRACT FIXTURE — UI ONLY';
+        label.setAttribute('aria-hidden', 'true');
+        label.style.cssText = 'position:fixed;right:8px;top:55px;z-index:999999;font:9px monospace;color:#eee7fa;background:#15111c;padding:4px 6px;pointer-events:none';
+        document.body.append(label);
+    };
+    await page.addInitScript(`document.addEventListener('DOMContentLoaded', ${markFixture.toString()}, {once:true});`);
+    await page.evaluate(markFixture);
     const registry = await (await page.request.get('/api/build/provider-os')).json();
     const now = new Date().toISOString();
     const profile = (profileId: string, name: string, active: boolean): ProviderProfile => ({ id: profileId, ownerId: owner, workspaceId: owner, providerId: 'groq', name, active, enabled: true, auth: { mode: 'VAULT_SECRET', credentialId: credential }, permissions: defaultPermissions(), cli: null, bindings: { mcp: [], plugins: [], skills: [] }, routing: { automatic: true, modelAllowlist: [], monthlySpendLimit: null }, connection: { ...EMPTY_CONNECTION, configuration: 'CONFIGURED', auth: 'AUTHENTICATED', discovery: 'DISCOVERY_VERIFIED', blocker: null }, models: [{ ...CONTRACT_MODEL, providerId: 'groq', modelId: 'fixture-text', displayName: 'Text · CONTRACT FIXTURE', source: 'CACHED_LIVE' }, { ...CONTRACT_MODEL, providerId: 'groq', modelId: 'fixture-embedding', displayName: 'Embedding · CONTRACT FIXTURE', modalities: { ...CONTRACT_MODEL.modalities, text: false }, source: 'CACHED_LIVE', catalog: { categories: ['embedding'], gateway: false, authorNamespace: null, supportedParameters: [], free: null, buildEligible: false } }, { ...CONTRACT_MODEL, providerId: 'groq', modelId: 'fixture-free', displayName: 'Free · CONTRACT FIXTURE', source: 'CACHED_LIVE', pricing: { inputPerMillion: 0, outputPerMillion: 0, cachedInputPerMillion: null, currency: 'USD' } }] as ProviderProfile['models'], discoveredAt: now, version: 1, createdAt: now, updatedAt: now });

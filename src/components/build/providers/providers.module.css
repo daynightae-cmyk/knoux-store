@@ -19,3 +19,4 @@
 
 .providerBrowse{min-width:0;width:100%}.providerBrowse>summary{display:none}
 @media(max-width:650px){.providerBrowse>summary{display:list-item;cursor:pointer;color:#e1d3f0;min-height:44px;padding:12px 0;font-size:13px}.providerBrowse[open]>.providerList{max-height:260px;overflow-y:auto;flex-direction:column;scroll-snap-type:none}.providerBrowse[open]>.providerList>button{min-width:0;flex-shrink:0;width:100%}}
+.detail{scroll-margin-top:70px}.providerBrowse>summary:focus-visible{outline:2px solid #dbc7f4;outline-offset:4px}
