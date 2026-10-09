@@ -102,7 +102,7 @@ try {
       for(const href of hrefs){const proof=await verifyServedAsset(server.base,buildDirectory,href);checkedAssets.set(href,proof);css.push(proof);}
       const metrics = await page.evaluate(()=>{
         const bounds=document.documentElement;
-        const elements=[...document.querySelectorAll('main *')].filter(node=>node instanceof HTMLElement&&node.getBoundingClientRect().width>0);
+        const elements=[...document.querySelectorAll('main *')].filter(node=>(node instanceof HTMLElement) && (node.getBoundingClientRect().width > 0));
         const boxed=elements.filter(node=>{const style=getComputedStyle(node);return ['Top','Right','Bottom','Left'].every(edge=>parseFloat(style[`border${edge}Width`])>0)&&node.getBoundingClientRect().width>80;}).map(node=>({tag:node.tagName,className:node.className}));
         const tiny=elements.filter(node=>node.children.length===0&&node.textContent.trim().length>2&&parseFloat(getComputedStyle(node).fontSize)<12).map(node=>({className:node.className,fontSize:getComputedStyle(node).fontSize,text:node.textContent.trim().slice(0,70)}));
         return {overflow:Math.max(0,bounds.scrollWidth-bounds.clientWidth),docHeight:bounds.scrollHeight,boxed,tiny,starfieldCount:document.querySelectorAll('canvas[data-store-starfield],canvas.store-starfield,canvas[data-testid="store-starfield"]').length};
