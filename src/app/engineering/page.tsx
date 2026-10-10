@@ -1,7 +1,8 @@
-import { PageIntro } from '@/components/PageIntro';
+import { EngineeringExperience } from '@/components/engineering/EngineeringExperience';
 import { EngineeringCaseFiles } from '@/components/SpecialistArchives';
 import { DivisionBridge, NextLink } from '@/components/blocks';
 import { pageMetadata } from '@/lib/metadata';
+import styles from './engineering.module.css';
 
 export const metadata = pageMetadata(
   'Engineering',
@@ -12,17 +13,11 @@ export const metadata = pageMetadata(
 export default function Engineering() {
   return (
     <main id="main-content" tabIndex={-1}>
-      <PageIntro
-        index="02"
-        label="Engineering"
-        title="Systems are"
-        italic="relationships."
-        description="A technical archive of what is implemented, what is constrained, and where the evidence lives. Interface claims stop where repository evidence stops."
-      />
+      <EngineeringExperience />
 
       <section
-        className="shell specialist-intro"
-        style={{ paddingTop: 'clamp(64px, 7vw, 118px)', paddingBottom: 'clamp(76px, 8vw, 132px)' }}
+        id="engineering-dossiers"
+        className={`shell specialist-intro ${styles.dossiers}`}
       >
         <div className="specialist-intro__head">
           <span className="label label--signal">ENGINEERING DOSSIERS</span>
@@ -34,7 +29,7 @@ export default function Engineering() {
         </div>
         <EngineeringCaseFiles />
       </section>
-      <section className="shell" style={{ paddingBottom: 'clamp(80px, 9vw, 150px)' }}>
+      <section className={`shell ${styles.closing}`}>
         <DivisionBridge
           label="FROM EVIDENCE TO PRODUCT"
           title="Need the public product view?"
@@ -42,7 +37,7 @@ export default function Engineering() {
           href="/products"
           action="Explore products"
         />
-        <div style={{ marginTop: 60 }}>
+        <div className={styles.next}>
           <NextLink label="Next archive" name="Work" href="/work" />
         </div>
       </section>
