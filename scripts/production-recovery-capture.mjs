@@ -32,7 +32,10 @@ try {
       const css=[];
       for(const href of sheets) {
         if(server)css.push(await verifyServedAsset(base,resolve(root,'.next'),href));
-        else css.push({href,status:(await page.request.get(base+href)).status()});
+        else {
+          try { css.push({href,status:(await page.request.get(base+href,{timeout:15000})).status()}); }
+          catch { css.push({href,status:null,error:'Asset verification timed out'}); }
+        }
       }
       const geometry = await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,sky:document.querySelectorAll('.store-starfield').length,grids:[...document.querySelectorAll('.option-grid,.footer-index')].map(n=>({class:n.className,width:n.getBoundingClientRect().width,height:n.getBoundingClientRect().height,columns:getComputedStyle(n).gridTemplateColumns}))}));
       const name = `${route.slice(1)}-${width}x${height}`;
@@ -45,5 +48,5 @@ try {
       await context.close();
     }
   }
-} finally { await browser.close(); if(server)await stopOwnedServer(server); await writeFile(resolve(output,'report.json'),JSON.stringify(report,null,2)); }
+} finally { await browser.close(); if(server)await stopOwnedServer(server.child); await writeFile(resolve(output,'report.json'),JSON.stringify(report,null,2)); }
 if(report.records.some(r=>r.status!==200||r.geometry.scrollWidth>r.viewport.width+1||r.geometry.sky!==1||r.errors.length||r.failures.length||r.a11y?.length))process.exitCode=1;
