@@ -5856,7 +5856,8 @@ body:has(.origin-room) .knoux-sentinel{display:none}
 .footer-index__col a { display:flex; align-items:center; gap:10px; min-height:44px; font-size:14px; color:var(--text-dim); }
 .footer-index__col a:hover { color:var(--text); }
 .eco-hero__inner { max-width:none; }
-.eco-hero__opening { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); align-items:center; gap:clamp(28px,4vw,72px); margin-bottom:48px; }
+.eco-hero__opening { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); align-items:start; gap:clamp(28px,4vw,72px); margin-bottom:48px; }
+.eco-hero__actions { display:flex; flex-wrap:wrap; gap:12px 20px; }
 .eco-hero__identity { min-width:0; }
 .eco-hero__title { font-size:clamp(54px,7.2vw,136px); line-height:1; letter-spacing:-.065em; }
 .eco-hero { padding-top:130px; }

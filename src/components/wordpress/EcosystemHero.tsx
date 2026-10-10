@@ -137,6 +137,10 @@ export function EcosystemHero({ studio }: { studio?: ReactNode }) {
         <p className="eco-hero__lede">
           Domain. Hosting. WordPress. <span>One system.</span>
         </p>
+        <nav className="eco-hero__actions" aria-label="Start a WordPress project">
+          <a className="action action--primary" href="#launch">Compose your site <span aria-hidden="true">↗</span></a>
+          <Link className="action" href="/wordpress/themes">Explore official themes</Link>
+        </nav>
 
         </div>
         {studio}
