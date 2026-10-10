@@ -194,7 +194,7 @@ Build/type checks cover the code graph. UNTESTED below means no complete session
 | `/growth` | PARTIALLY VERIFIED — five-width visual sample; targeted behavior where changed |
 | `/labs` | UNTESTED |
 | `/login` | UNTESTED |
-| `` | UNTESTED |
+| `/` | UNTESTED |
 | `/products/[slug]` | UNTESTED |
 | `/products` | PARTIALLY VERIFIED — five-width visual sample; targeted behavior where changed |
 | `/register` | UNTESTED |
