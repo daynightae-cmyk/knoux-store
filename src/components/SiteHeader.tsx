@@ -11,7 +11,7 @@ import { track } from '@/lib/analytics';
  * Where the divisions give way to the panel. Mirrors the switchover block in
  * `globals.css`; the two must agree or the panel opens with no way to close it.
  */
-const PANEL_MAX_WIDTH = '(max-width: 860px)';
+const PANEL_MAX_WIDTH = '(max-width: 1100px)';
 
 /**
  * Site header.

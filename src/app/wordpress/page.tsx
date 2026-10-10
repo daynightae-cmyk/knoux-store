@@ -1,3 +1,5 @@
+import { WordPressStudio } from '@/components/wordpress/WordPressStudio';
+import { queryThemes } from '@/lib/wordpress/wordpress-org';
 import Link from 'next/link';
 import { SignalRail } from '@/components/DivisionShell';
 import { DivisionBridge, NextLink, BlockHead } from '@/components/blocks';
@@ -54,6 +56,7 @@ export const metadata = pageMetadata(
  * reflected honestly.
  */
 export default async function WordPressPage() {
+  const themes = await queryThemes({ perPage: 6 });
   const firstPartyCount = wordPressItems.length;
 
   return (
@@ -64,7 +67,7 @@ export default async function WordPressPage() {
           the scroll cue that used to live in a second `PageIntro` immediately
           below it are part of the hero now, so the page opens once rather than
           twice and a screen reader meets a single top-level heading. */}
-      <EcosystemHero />
+      <EcosystemHero studio={<WordPressStudio themes={themes.items} />} />
       <div className="shell"><ProcessArchitecture kind="wordpress" /></div>
       <SignalRail division="wordpress" path="/wordpress" />
 

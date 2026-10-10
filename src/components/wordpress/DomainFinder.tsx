@@ -283,7 +283,7 @@ export function DomainFinder() {
               In the meantime the name can be checked and registered for you.
             </p>
             <div className="domain-finder__notice-actions">
-              <a className="action action--primary" href="/contact?intent=domain">
+              <a className="action action--primary" href={`/contact?${new URLSearchParams({ requestType: 'wordpress', items: `Assisted domain review: ${query.trim()} · extensions: ${selected.join(', ')} · availability not verified` })}`}>
                 Request domain setup
               </a>
               <a className="action" href="/contact">
@@ -305,7 +305,7 @@ export function DomainFinder() {
               <button className="action action--primary" type="button" onClick={() => void submit({ preventDefault() {} } as FormEvent<HTMLFormElement>)}>
                 Try again
               </button>
-              <a className="action" href="/contact?intent=domain">
+              <a className="action" href={`/contact?${new URLSearchParams({ requestType: 'wordpress', items: `Assisted domain review: ${query.trim()} · extensions: ${selected.join(', ')} · availability not verified` })}`}>
                 Ask KNOuX
               </a>
             </div>
