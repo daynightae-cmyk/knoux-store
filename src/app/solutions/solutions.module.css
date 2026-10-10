@@ -1,0 +1,34 @@
+.page :global(.page-intro){padding:100px max(5.3vw,24px) 0;min-height:0;background:none}
+.page :global(.page-intro-body){padding:32px 0 34px;gap:60px;grid-template-columns:1.2fr 1fr;align-items:end}
+.page :global(.page-intro h1){margin-top:16px}
+.page :global(.page-intro .eyebrow){margin-bottom:0}
+.page :global(.page-intro h1){font-size:clamp(54px,5vw,72px);line-height:.98}
+.page :global(.page-intro-body>p){font-size:16px;line-height:1.75;max-width:50ch}
+.page :global(.page-rule){padding:16px 0 24px;font-size:11px}
+.page :global(.signal-rail__inner){width:100%;padding-left:max(5.3vw,24px);padding-right:max(5.3vw,24px);gap:24px;flex-wrap:wrap;overflow:visible;min-height:56px}
+.page :global(.signal-rail a){min-height:44px;font-size:12px;display:flex;align-items:center;gap:10px}
+.page :global(.signal-rail a em){font-size:11px}
+.mission{padding-top:32px;padding-bottom:48px;scroll-margin-top:96px}
+.mission :global(.block-head){margin-bottom:24px;align-items:end;gap:32px}
+.mission :global(.block-head){padding-bottom:16px}
+.mission :global(.block-head__title){font-size:36px;line-height:1.1}
+.mission :global(.block-head__aside){font-size:14px;line-height:1.7;max-width:48ch}
+.page :global(.solution-row-system){padding-top:24px;padding-bottom:48px}
+.page :global(.solution-row-system__head){margin-bottom:28px;gap:36px}
+.page :global(.solution-row-system__head h2){font-size:clamp(34px,4vw,52px)}
+.page :global(.solution-row-system__context p){font-size:14px;line-height:1.65}
+.page :global(.solution-row-system__context>.mono){font-size:11px;line-height:1.6}
+.page :global(.solution-mission-row){min-height:92px;padding:20px 0}
+.page :global(.solution-mission-row__body strong){font-size:clamp(26px,3vw,38px)}
+.page :global(.solution-mission-row__body>span){font-size:14px;line-height:1.65;max-height:none;opacity:1;transform:none}
+.page :global(.solution-mission-row__context){font-size:11px;line-height:1.6}
+.page :global(.solution-mission-row__index){font-size:12px}
+.explanation{padding-bottom:40px}.explanation :global(.dev-state){padding:32px}
+.explanation :global(.dev-state p){font-size:14px;line-height:1.75}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.closing{padding-bottom:64px}.next{margin-top:32px}
+.page :where(a,button,summary):focus-visible{outline:2px solid #d7b7f3;outline-offset:4px}
+@media(max-width:1050px){.page :global(.page-intro-body){gap:32px}.page :global(.solution-row-system__head){grid-template-columns:1fr}.page :global(.solution-row-system__context){max-width:62ch}}
+@media(max-width:700px){.page :global(.page-intro){padding-top:100px}.page :global(.page-intro-body){display:grid;grid-template-columns:1fr;gap:24px;padding-top:26px;padding-bottom:24px}.page :global(.page-intro h1){font-size:clamp(54px,13vw,70px)}.page :global(.page-intro-body>p){font-size:14px;margin-top:0}.page :global(.page-rule){padding-bottom:18px}.page :global(.signal-rail__inner){gap:8px 16px;padding-top:8px;padding-bottom:8px}.page :global(.signal-rail__label){display:none}.page :global(.signal-rail a){font-size:11px;gap:8px}.mission{padding-top:24px;padding-bottom:36px}.mission :global(.block-head){display:grid;gap:12px}.mission :global(.block-head__title){font-size:30px}.mission :global(.block-head__aside){margin-top:0}.page :global(.solution-row-system__context){grid-template-columns:100px minmax(0,1fr)}.page :global(.solution-mission-row){grid-template-columns:24px minmax(0,1fr) 20px;gap:12px}.page :global(.solution-mission-row__context),.page :global(.solution-mission-row__signal){display:none}.page :global(.solution-mission-row__body strong){font-size:27px}.page :global(.solution-mission-row__body>span){font-size:13px}.explanation :global(.dev-state){padding:24px}.explanation :global(.dev-state h2){font-size:28px}}
+@media(prefers-reduced-motion:reduce){.page :global(.solution-mission-row__body strong){transform:none!important}}
+@media(max-width:700px){.page :global(.page-intro-body){gap:16px;padding-top:20px;padding-bottom:20px}.page :global(.page-intro h1){font-size:48px}.mission :global(.block-head){margin-bottom:16px}.mission :global(.block-head__aside){font-size:13px}}
