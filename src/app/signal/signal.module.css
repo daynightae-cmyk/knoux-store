@@ -864,3 +864,5 @@
 .search{width:min(92%,620px)}
 .searchRow select{font-size:13px}.search>p{font-size:12px;color:#bbb0c6;line-height:1.6}.sceneStatus{font-size:12px;color:#bbb0c6}
 @media(max-width:600px){.experienceIntro h1{font-size:42px}.experienceIntro p{font-size:15px}.searchRow{grid-template-columns:92px minmax(0,1fr) 36px 40px}.searchRow select{font-size:12px}.introActions{gap:8px 20px}.signalScene{min-height:520px;height:65svh}}
+
+.contract span{font-size:12px;line-height:1.6;color:#bcb2c8;padding:16px 12px}
