@@ -480,12 +480,11 @@ test('the ecosystem page reads no provider configuration while statically genera
   assert.doesNotMatch(page, /process\.env/, 'the page must not read the environment');
 });
 
-test('the page makes no live directory request of its own', () => {
+test('the overview loads a bounded studio selection and leaves other directories on demand', () => {
   const page = sourceOf('src/app/wordpress/page.tsx');
-  // The overview routes into the directories. Fetching a slice of a
-  // hundred-thousand-entry catalogue in order to look large would cost a live
-  // external request per card on every cold render.
-  assert.doesNotMatch(page, /queryPlugins|queryThemes|queryBlocks|queryPatterns/);
+  // One cached official request supplies the studio, never one per preview.
+  assert.match(page, /queryThemes\(\{ perPage: 6 \}\)/, 'the studio receives a bounded official theme selection');
+  assert.doesNotMatch(page, /queryPlugins|queryBlocks|queryPatterns/, 'other directories remain on-demand');
   assert.doesNotMatch(page, /featuredPlugins|featuredThemes/);
 });
 

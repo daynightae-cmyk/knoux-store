@@ -66,14 +66,19 @@ export function GrowthFlow() {
   const step = target ? (objective ? 3 : 2) : 1;
 
   return (
-    <div className="goal-flow" id="flow">
-      <fieldset className="goal-step" style={{ border: 0, padding: '30px 0', margin: 0 }}>
-        <legend className="goal-step__label" style={{ padding: 0 }}>
+    <div className="goal-flow">
+      <fieldset className="goal-fieldset">
+        <legend className="sr-only">STEP 01 
+          What do you want
+           
+          to grow?</legend>
+        <div className="goal-step">
+        <div className="goal-step__label" aria-hidden="true">
           <span>STEP 01</span>
           What do you want
           <br />
           to grow?
-        </legend>
+        </div>
         <div>
           <p className="goal-step__prompt">Start from what exists.</p>
           <div className="option-grid" role="group" aria-label="What do you want to grow?">
@@ -94,15 +99,21 @@ export function GrowthFlow() {
             ))}
           </div>
         </div>
+        </div>
       </fieldset>
 
-      <fieldset className="goal-step" style={{ border: 0, padding: '30px 0', margin: 0 }} disabled={!target}>
-        <legend className="goal-step__label" style={{ padding: 0 }}>
+      <fieldset className="goal-fieldset" disabled={!target}>
+        <legend className="sr-only">STEP 02 
+          What is your
+           
+          objective?</legend>
+        <div className="goal-step">
+        <div className="goal-step__label" aria-hidden="true">
           <span>STEP 02</span>
           What is your
           <br />
           objective?
-        </legend>
+        </div>
         <div>
           <p className="goal-step__prompt">Define success before spending on it.</p>
           <div className="option-grid" role="group" aria-label="What is your objective?">
@@ -135,15 +146,21 @@ export function GrowthFlow() {
             </div>
           ) : null}
         </div>
+        </div>
       </fieldset>
 
-      <fieldset className="goal-step" style={{ border: 0, padding: '30px 0', margin: 0 }} disabled={!objective}>
-        <legend className="goal-step__label" style={{ padding: 0 }}>
+      <fieldset className="goal-fieldset" disabled={!objective}>
+        <legend className="sr-only">STEP 03 
+          Where should we
+           
+          reach people?</legend>
+        <div className="goal-step">
+        <div className="goal-step__label" aria-hidden="true">
           <span>STEP 03</span>
           Where should we
           <br />
           reach people?
-        </legend>
+        </div>
         <div>
           <p className="goal-step__prompt">Only channels KNOuX actually works in.</p>
           <div className="option-grid" role="group" aria-label="Where should we reach people?">
@@ -165,6 +182,7 @@ export function GrowthFlow() {
               );
             })}
           </div>
+        </div>
         </div>
       </fieldset>
 

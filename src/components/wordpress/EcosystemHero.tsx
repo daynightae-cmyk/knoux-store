@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 /**
  * The ecosystem hero.
@@ -63,7 +63,7 @@ const CHAPTERS = [
   },
 ] as const;
 
-export function EcosystemHero() {
+export function EcosystemHero({ studio }: { studio?: ReactNode }) {
   const [chapter, setChapter] = useState(0);
   const frame = useRef<number | null>(null);
 
@@ -121,6 +121,8 @@ export function EcosystemHero() {
           <span aria-current="page">WordPress</span>
         </nav>
 
+        <div className="eco-hero__opening">
+        <div className="eco-hero__identity">
         <p className="eco-hero__eyebrow">
           <span className="eco-hero__pulse" aria-hidden="true" />
           KN / WORDPRESS ECOSYSTEM
@@ -135,6 +137,10 @@ export function EcosystemHero() {
         <p className="eco-hero__lede">
           Domain. Hosting. WordPress. <span>One system.</span>
         </p>
+
+        </div>
+        {studio}
+        </div>
 
         {/*
           The stack is a list of links, so it is exposed as a list of links.

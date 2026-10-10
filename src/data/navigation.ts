@@ -16,6 +16,7 @@ import { COMMAND_AREAS_BY_SLUG } from '@/data/growth/areas';
 export type NavItem = { label: string; href: string; code: string };
 
 export const primaryNavigation: readonly NavItem[] = [
+  { label: 'Signal', href: '/signal', code: 'SG' },
   { label: 'Software', href: '/products', code: '01' },
   { label: 'WordPress', href: '/wordpress', code: '02' },
   { label: 'Web', href: '/web', code: '03' },
@@ -26,7 +27,6 @@ export const primaryNavigation: readonly NavItem[] = [
 ];
 
 export const institutionNavigation: readonly NavItem[] = [
-  { label: 'Signal', href: '/signal', code: 'SG' },
   { label: 'Labs', href: '/labs', code: '08' },
   { label: 'Work', href: '/work', code: '09' },
   { label: 'Engineering', href: '/engineering', code: '10' },
