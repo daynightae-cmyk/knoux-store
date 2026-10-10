@@ -76,6 +76,7 @@ export function SiteHeader() {
             <Link
               key={item.href}
               href={item.href}
+              prefetch={item.href === '/signal' ? false : undefined}
               aria-current={pathname === item.href || pathname.startsWith(`${item.href}/`) ? 'page' : undefined}
               onClick={() => track({ type: 'division_opened', division: item.label, route: item.href })}
             >

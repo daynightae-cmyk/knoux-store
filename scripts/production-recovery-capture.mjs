@@ -42,7 +42,7 @@ try {
       const name = `${route.slice(1)}-${width}x${height}`;
       await page.screenshot({path:resolve(output,name+'.png'),fullPage:true});
       await page.screenshot({path:resolve(output,name+'-top.png')});
-      if(route==='/growth'){await page.locator('.goal-flow').screenshot({path:resolve(output,name+'-flow.png')})}
+      if(route==='/growth'){await page.locator('.goal-flow').screenshot({path:resolve(output,name+'-flow.png')});}
       const a11y = width===1440 ? (await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>n.target)})) : null;
       report.records.push({route,viewport:{width,height},status:response?.status(),css,geometry,errors,failures,expectedAuth,a11y,screenshot:name+'.png'});
       console.log(`${phase} ${route} ${width}: overflow=${geometry.scrollWidth-width}, errors=${errors.length}, a11y=${a11y?.length??'not sampled'}`);
