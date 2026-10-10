@@ -4,8 +4,11 @@ import { SignalRail } from '@/components/DivisionShell';
 import { DivisionBridge, NextLink } from '@/components/blocks';
 import { pageMetadata } from '@/lib/metadata';
 import { TrackOnView } from '@/components/TrackOnView';
-import { MissionPath } from '@/components/SpatialExperiences';
+import { SolutionsMissionPath } from '@/components/solutions/SolutionsMissionPath';
 import { SolutionMissionRows } from '@/components/SpecialistArchives';
+import { solutions, solutionEntityIds } from '@/data/solutions';
+import { entityById } from '@/data/composer-rules';
+import styles from './solutions.module.css';
 
 export const metadata = pageMetadata(
   'Solutions',
@@ -14,8 +17,9 @@ export const metadata = pageMetadata(
 );
 
 export default function SolutionsPage() {
+  const missions = solutions.map(solution => ({ ...solution, entityLinks: [...new Set(solutionEntityIds(solution))].flatMap(id => { const entity = entityById.get(id); return entity?.route ? [{ id, name: entity.name, route: entity.route }] : []; }) }));
   return (
-    <main id="main-content" tabIndex={-1}>
+    <main id="main-content" tabIndex={-1} className={styles.page}>
       <TrackOnView event={{ type: 'division_opened', division: 'solutions', route: '/solutions' }} />
       <PageIntro
         index="06"
@@ -26,8 +30,7 @@ export default function SolutionsPage() {
       />
       <SignalRail division="solutions" path="/solutions" />
       <section
-        className="shell"
-        style={{ paddingTop: 'clamp(70px, 8vw, 130px)', paddingBottom: 'clamp(70px, 8vw, 130px)' }}
+        className={`shell ${styles.mission}`}
       >
         <div className="block-head">
           <div>
@@ -38,12 +41,12 @@ export default function SolutionsPage() {
             Move through real business objectives. Each station resolves into documented systems and services.
           </p>
         </div>
-        <MissionPath />
+        <SolutionsMissionPath missions={missions} />
       </section>
 
       <SolutionMissionRows />
 
-      <section className="shell" style={{ paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
+      <section className={`shell ${styles.explanation}`}>
         <div className="dev-state" data-reveal>
           <p className="dev-state__mark">
             <span className="dev-state__pulse" aria-hidden="true" />
@@ -55,7 +58,7 @@ export default function SolutionsPage() {
             requires; its optional layers are what sometimes does. You are not expected to need all of it, and the
             Composer will show you which parts a stated need actually resolves to.
           </p>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 26 }}>
+          <div className={styles.actions}>
             <Link href="/build" className="action action--primary">
               Open the Composer
               <span className="action-arrow" aria-hidden="true">↗</span>
@@ -67,7 +70,7 @@ export default function SolutionsPage() {
         </div>
       </section>
 
-      <section className="shell" style={{ paddingBottom: 'clamp(80px, 9vw, 150px)' }}>
+      <section className={`shell ${styles.closing}`}>
         <DivisionBridge
           label="ACROSS DIVISIONS"
           title="Prefer to describe it in your own words?"
@@ -75,7 +78,7 @@ export default function SolutionsPage() {
           href="/build"
           action="Tell us what you need"
         />
-        <div style={{ marginTop: 60 }}>
+        <div className={styles.next}>
           <NextLink label="Next division" name="Composer" href="/build" />
         </div>
       </section>
