@@ -13,7 +13,7 @@
 .canvas[data-device=tablet] .preview{width:76%}.canvas[data-device=mobile] .preview{width:44%}
 .chrome{display:flex;align-items:center;gap:5px;height:28px;padding:0 10px;font:11px var(--mono);direction:ltr;color:#cbc1d7}
 .chrome i{width:5px;height:5px;background:#a492b6;border-radius:50%}.chrome span{margin-inline-start:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.preview img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:contain;background:#f3f3f3}.preview p{padding:20px}
+.preview img{display:block;width:100%;height:auto;max-height:280px;aspect-ratio:4/3;object-fit:contain;background:#f3f3f3}.preview p{padding:20px}
 .studio .caption{font-size:12px;color:#bcb3c7}.byline a{text-decoration:underline;text-underline-offset:3px}.byline b{font-weight:400;color:#eeeaf2}
 .request{display:flex;align-items:center;justify-content:space-between;background:#ddd0ec;color:#19121f;min-height:48px;padding:12px 16px;border-radius:5px;font-size:15px;margin-top:20px}
 .browse{display:inline-flex;align-items:center;min-height:44px;font-size:14px;text-decoration:underline;text-underline-offset:5px}
