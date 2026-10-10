@@ -851,3 +851,18 @@
   .metric:nth-child(2){border-right:0}
   .metric:nth-child(-n+2){border-bottom:1px solid #202125}
 }
+
+/* Explain the real product before entering the protected original globe. */
+.experienceIntro{position:relative;inset:auto;max-width:none;pointer-events:auto;padding:24px 0 32px}
+.experienceIntro h1{font-size:clamp(44px,5vw,76px);line-height:1.15;margin:16px 0 20px;letter-spacing:-.04em;font-weight:500}
+.experienceIntro p{font:16px/1.8 var(--sans, sans-serif);letter-spacing:0;text-transform:none;color:#c5becd;max-width:74ch;margin:12px 0}
+.kicker,.micro{font-size:12px;color:#b5acbf}
+.introActions{display:flex;flex-wrap:wrap;align-items:center;gap:12px 28px;margin-top:22px}
+.introActions a,.introActions button{display:inline-flex;align-items:center;min-height:44px;font-size:14px;color:#e1d0ee;text-decoration:underline;text-underline-offset:5px}
+.introActions button{background:none;border:0;cursor:pointer;margin-inline-start:auto}
+.searchRow{grid-template-columns:140px minmax(0,1fr) 42px 46px}
+.search{width:min(92%,620px)}
+.searchRow select{font-size:13px}.search>p{font-size:12px;color:#bbb0c6;line-height:1.6}.sceneStatus{font-size:12px;color:#bbb0c6}
+@media(max-width:600px){.experienceIntro h1{font-size:42px}.experienceIntro p{font-size:15px}.searchRow{grid-template-columns:92px minmax(0,1fr) 36px 40px}.searchRow select{font-size:12px}.introActions{gap:8px 20px}.signalScene{min-height:520px;height:65svh}}
+
+.contract span{font-size:12px;line-height:1.6;color:#bcb2c8;padding:16px 12px}

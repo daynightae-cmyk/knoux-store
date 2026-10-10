@@ -29,7 +29,8 @@ function hasSupportedEvidence(data: NonNullable<SignalLookupResponse['data']>) {
   );
 }
 
-export function SignalLookupClient() {
+export function SignalLookupClient({ locale = 'en' }: { locale?: 'en' | 'ar' }) {
+  const arabic = locale === 'ar';
   const [query, setQuery] = useState('');
   const [country, setCountry] = useState('AE');
   const [phase, setPhase] = useState<SignalPhase>('idle');
@@ -216,10 +217,10 @@ export function SignalLookupClient() {
         </div>
 
         <form className={styles.search} onSubmit={submit}>
-          <label className={styles.srOnly} htmlFor="signal-query">Phone number</label>
+          <label className={styles.srOnly} htmlFor="signal-query">{arabic ? 'رقم الهاتف' : 'Phone number'}</label>
           <div className={styles.searchRow}>
             <select
-              aria-label="Country"
+              aria-label={arabic ? 'الدولة' : 'Country'}
               value={country}
               onChange={(event) => {
                 const nextCountry = event.target.value;
@@ -236,7 +237,7 @@ export function SignalLookupClient() {
               dir="ltr"
               value={query}
               onChange={(event) => transitionInput(event.target.value)}
-              placeholder="Search a phone number"
+              placeholder={arabic ? 'ابحث عن رقم هاتف' : 'Search a phone number'}
               inputMode="tel"
               autoComplete="tel"
               aria-invalid={Boolean(query.trim()) && normalized?.valid === false}
@@ -246,7 +247,7 @@ export function SignalLookupClient() {
               type="button"
               onClick={reset}
               disabled={!query.trim() || phase === 'searching'}
-              aria-label="Clear number"
+              aria-label={arabic ? 'مسح الرقم' : 'Clear number'}
             >
               ×
             </button>
@@ -254,12 +255,12 @@ export function SignalLookupClient() {
               className={styles.submitButton}
               type="submit"
               disabled={phase === 'searching' || !normalized?.valid}
-              aria-label="Resolve number"
+              aria-label={arabic ? 'البحث عن أدلة الرقم' : 'Resolve number'}
             >
               →
             </button>
           </div>
-          <p>{phaseStatusCopy(phase)} · EVIDENCE ONLY</p>
+          <p>{arabic ? (phase === 'searching' ? 'جارٍ البحث عن الأدلة' : phase === 'result' ? 'تم العثور على أدلة' : phase === 'not_found' ? 'لا توجد أدلة مدعومة' : phase === 'ready' ? 'الرقم جاهز للبحث' : phase === 'error' ? 'تعذر إكمال البحث' : phase === 'rate_limited' ? 'تم بلوغ حد الطلبات' : 'أدخل رقمًا للبحث') : phaseStatusCopy(phase)} · {arabic ? 'أدلة فقط' : 'EVIDENCE ONLY'}</p>
         </form>
 
         {result?.ok && result.data ? (
@@ -302,7 +303,7 @@ export function SignalLookupClient() {
         />
       </section>
 
-      {error ? <div className={styles.error} role="alert">{error}</div> : null}
+      {error ? <div className={styles.error} role="alert">{arabic ? (phase === 'rate_limited' ? 'طلبات كثيرة. حاول مجددًا لاحقًا.' : phase === 'input' ? 'أدخل رقم هاتف صحيحًا واختر الدولة.' : 'تعذر إكمال البحث. لم يتم إثبات أي هوية. حاول مجددًا.') : error}</div> : null}
 
       {result?.ok && result.data ? (
         <section className={styles.evidenceLedger} aria-live="polite" aria-label="Signal evidence index">
@@ -337,8 +338,8 @@ export function SignalLookupClient() {
             </div>
           ) : (
             <div className={styles.notFound}>
-              <span className={styles.micro}>NO SUPPORTED EVIDENCE FOUND</span>
-              <p>The number is structurally valid, but current providers returned no supported identity evidence.</p>
+              <span className={styles.micro}>{arabic ? 'لا توجد أدلة مدعومة' : 'NO SUPPORTED EVIDENCE FOUND'}</span>
+              <p>{arabic ? 'صيغة الرقم صحيحة، لكن المصادر الحالية لم تُرجع أدلة هوية مدعومة.' : 'The number is structurally valid, but current providers returned no supported identity evidence.'}</p>
             </div>
           )}
 

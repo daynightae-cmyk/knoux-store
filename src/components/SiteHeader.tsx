@@ -11,7 +11,7 @@ import { track } from '@/lib/analytics';
  * Where the divisions give way to the panel. Mirrors the switchover block in
  * `globals.css`; the two must agree or the panel opens with no way to close it.
  */
-const PANEL_MAX_WIDTH = '(max-width: 860px)';
+const PANEL_MAX_WIDTH = '(max-width: 1100px)';
 
 /**
  * Site header.
@@ -76,6 +76,7 @@ export function SiteHeader() {
             <Link
               key={item.href}
               href={item.href}
+              prefetch={item.href === '/signal' ? false : undefined}
               aria-current={pathname === item.href || pathname.startsWith(`${item.href}/`) ? 'page' : undefined}
               onClick={() => track({ type: 'division_opened', division: item.label, route: item.href })}
             >
