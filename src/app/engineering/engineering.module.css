@@ -1,0 +1,18 @@
+.dossiers{padding-top:12px;padding-bottom:48px}
+.dossiers :global(.specialist-intro__head){margin-bottom:28px}
+.dossiers :global(.archive-shell--engineering){grid-template-columns:minmax(220px,.7fr) minmax(0,2fr);gap:40px}
+.dossiers :global(.archive-context--engineering){min-height:0}
+.dossiers :global(.engineering-dossier){padding:36px 0}
+.dossiers :global(.engineering-dossier__head){grid-template-columns:minmax(0,1fr) 150px;gap:24px}
+.dossiers :global(.engineering-dossier__head h2){font-size:clamp(34px,3.5vw,54px)}
+.dossiers :global(.engineering-dossier__grid){margin-top:24px;padding-top:24px;gap:28px}
+.dossiers :global(.engineering-dossier__grid li){font-size:14px}
+.dossiers :global(.engineering-dossier__evidence){margin-top:24px;padding:20px 0;gap:18px}
+.dossiers :global(.engineering-dossier__evidence p),.dossiers :global(.engineering-dossier__evidence li){font-size:13px}
+.dossiers :global(.engineering-dossier__evidence code){font-size:12px}
+.dossiers :global(.engineering-dossier__relations a){font-size:12px;min-height:44px;display:flex;align-items:center;padding:10px}
+.dossiers :global(.engineering-context-nav a){font-size:13px;min-height:44px}
+.dossiers :global(.engineering-dossier__footer a){font-size:12px;min-height:44px;display:flex;align-items:center}
+.closing{padding-bottom:64px}.next{margin-top:32px}
+@media(max-width:1050px){.dossiers :global(.archive-shell--engineering){grid-template-columns:220px minmax(0,1fr);gap:24px}.dossiers :global(.engineering-dossier__head){grid-template-columns:1fr}.dossiers :global(.engineering-dossier__head .signature-field){display:none}.dossiers :global(.engineering-dossier__grid){grid-template-columns:1fr}.dossiers :global(.engineering-dossier__evidence>div){grid-template-columns:1fr;gap:10px}.dossiers :global(.engineering-dossier__evidence li){grid-template-columns:1fr;gap:6px}}
+@media(max-width:700px){.dossiers :global(.archive-shell--engineering){grid-template-columns:1fr}.dossiers :global(.archive-context--engineering){position:static}.dossiers :global(.archive-context--engineering>.signature-field){display:none}.dossiers :global(.engineering-context-nav){display:grid;grid-template-columns:1fr 1fr;gap:4px}.dossiers :global(.engineering-dossier__head h2){font-size:36px}.dossiers :global(.engineering-dossier){scroll-margin-top:84px}.dossiers :global(.specialist-intro__head p){font-size:14px}}
