@@ -219,7 +219,7 @@ function Social() {
                         ))}
                       </span>
                     </td>
-                    <td style={{ fontFamily: 'var(--mono)', fontSize: 10.5 }}>
+                    <td style={{ fontFamily: 'var(--mono)', fontSize: 12 }}>
                       {item.scheduledFor ? item.scheduledFor.slice(0, 10) : '—'}
                     </td>
                     <td>

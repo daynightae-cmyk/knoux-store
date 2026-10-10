@@ -5776,3 +5776,74 @@ body:has(.origin-room) .knoux-sentinel{display:none}
   .sr__record-link,
   .sr__selector button { transition-duration: 0.01ms; }
 }
+
+/* Visual V4: readable evidence on open surfaces, with functional controls intact. */
+.option__sub, .registry-row__compat, .registry-row__id, .discipline__index,
+.index-row__index, .rack__slot-state, .composer__layer-state,
+.eco-ledger dd.eco-ledger__note, .atelier-lab__index-label, .bridge__label,
+.eyebrow, .dev-crumb__right { font-size: 12px; }
+.tag--button { font-size: 12px; }
+.label { font-size: 12px; letter-spacing: .1em; }
+.dossier-card { background: transparent; border: 0; border-top: 1px solid var(--line); padding: 24px 0; }
+.dossier-card__label, .dossier-card dt, .dossier-card dd,
+.product-hero__telemetry dt, .evidence-row code, .evidence-row__note { font-size: 12px; letter-spacing: .045em; }
+.dossier-card dl > div { font-size: 14px; }
+.tags > span.tag { border: 0; background: transparent; padding: 4px 0; font-size: 12px; }
+.tags { gap: 8px 18px; }
+.limit-list li { border: 0; border-left: 2px solid var(--line-strong); background: transparent; padding: 12px 0 12px 18px; }
+.limit-list span { font-family: var(--sans); font-size: 14px; line-height: 1.7; }
+.limit-list .limit-icon { color: var(--signal-amber); }
+.evidence-row code { border: 0; background: transparent; padding: 0; overflow-wrap: anywhere; }
+.evidence-row p { font-size: 15px; color: var(--text-dim); }
+.product-anatomy-scene { border: 0; background: transparent; }
+.product-anatomy-motif-badge { border: 0; background: transparent; font-size: 12px; }
+.product-anatomy-index__instructions { border: 0; background: transparent; padding: 0; font-size: 12px; line-height: 1.7; letter-spacing: .035em; }
+.product-anatomy-index__item { border: 0; border-bottom: 1px solid var(--line); background: transparent; font-size: 12px; }
+.product-anatomy-index__item:hover, .product-anatomy-index__item.is-focused { padding-left: 0; background: #a18acb08; }
+.product-anatomy-index__item.is-selected { border-left: 2px solid var(--violet); }
+.product-anatomy-index__kind { border: 0; padding: 0; font-size: 12px; letter-spacing: .025em; }
+.product-anatomy-index__kind-badge { width: 130px; }
+.product-anatomy-index__label { white-space: normal; font-size: 14px; }
+.product-anatomy-index__button:focus-visible { outline: 2px solid var(--violet-soft); outline-offset: -2px; }
+.product-anatomy-panel--idle { border: 0; background: transparent; }
+.product-hero__telemetry > div { background: transparent; }
+.product-hero--one .product-hero__grid { align-items: center; }
+.product-hero--one .product-hero__scene { mask-image: none; }
+.product-hero--one .product-hero__title { gap: 18px; font-size: clamp(72px,8vw,128px); }
+.one-wordmark { display: grid; line-height: .85; letter-spacing: -.065em; }
+.one-wordmark > span { font-size: .23em; letter-spacing: .08em; margin-bottom: 16px; color: var(--violet-soft); }
+.one-topology { position: relative; min-height: 540px; margin: 0; isolation: isolate; }
+.one-topology__object { position: absolute; inset: 0; z-index: -1; opacity: .9; pointer-events: none; }
+.one-topology__paths { position: absolute; inset: 0; width: 100%; height: 520px; fill: none; stroke: #bba2de55; stroke-width: 1; overflow: visible; pointer-events: none; }
+.one-topology__paths path { transition: stroke 180ms; }
+.one-topology:focus-within .one-topology__paths path,
+.one-topology:hover .one-topology__paths path { stroke: #cdb6ef99; }
+.one-topology__node { position: absolute; display: grid; gap: 6px; max-width: 43%; text-decoration: none; color: var(--text); padding: 8px 0; }
+.one-topology__node strong { font-size: clamp(15px,1.3vw,19px); font-weight: 500; letter-spacing: -.025em; }
+.one-topology__node > span:last-child { font-size: 12px; color: var(--text-dim); line-height: 1.5; max-width: 22ch; }
+.one-topology__number { font: 12px var(--mono); color: var(--violet-soft); }
+.one-topology__node:hover strong { color: var(--violet-soft); }
+.one-topology__node:focus-visible { outline: 2px solid var(--violet-soft); outline-offset: 6px; }
+.one-topology__node--1 { top: 3%; left: 0; }
+.one-topology__node--2 { top: 3%; right: 0; }
+.one-topology__node--3 { top: 42%; right: 0; }
+.one-topology__node--4 { bottom: 13%; right: 8%; }
+.one-topology__node--5 { bottom: 28%; left: 0; }
+.one-topology figcaption { position: absolute; bottom: 0; font-size: 15px; line-height: 1.7; }
+.one-topology figcaption span { display: block; color: var(--text-dim); font-size: 12px; }
+.fact-list li[id] { scroll-margin-top: 100px; }
+.fact-list li[id]:target { background: #a18acb0c; }
+@media(max-width:767px) {
+  .product-hero--one .product-hero__title { font-size: clamp(64px,19vw,100px); }
+  .product-hero--one .product-hero__telemetry { margin-top: 26px; gap: 16px; }
+  .product-hero--one .product-hero__telemetry > div { padding: 0; }
+  .product-hero--one .product-hero__actions { margin-top: 28px; }
+  .one-topology { min-height: 510px; }
+  .one-topology__node > span:last-child { font-size: 12px; }
+  .product-anatomy-index__kind-badge { width: 100px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .one-topology__paths path { transition: none; }
+  /* Arrival's inline reveal transitions must also settle immediately for static reading. */
+  .product-hero__identity > * { transition: none !important; }
+}

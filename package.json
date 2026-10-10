@@ -19,6 +19,7 @@
     "audit:dead": "knip",
     "audit:controls": "node scripts/build-controls.mjs",
     "audit:css-integrity": "node scripts/css-integrity.mjs",
+    "audit:visual-v4": "node scripts/visual-v4-capture.mjs after",
     "verify": "npm run lint && npm run typecheck && npm run build && npm run audit:css-integrity && npm test"
   },
   "dependencies": {

@@ -312,8 +312,8 @@ export function BudgetScope() {
             <dl style={{ marginTop: 20, borderTop: '1px solid var(--line)', paddingTop: 16 }}>
               {budgetBands.slice(1, 5).map((entry) => (
                 <div key={entry.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
-                  <dt style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--dim)' }}>{entry.label}</dt>
-                  <dd style={{ margin: 0, fontSize: 11, color: 'var(--muted)', textAlign: 'right', maxWidth: '58%' }}>
+                  <dt style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--dim)' }}>{entry.label}</dt>
+                  <dd style={{ margin: 0, fontSize: 12, color: 'var(--muted)', textAlign: 'right', maxWidth: '58%' }}>
                     {entry.description}
                   </dd>
                 </div>

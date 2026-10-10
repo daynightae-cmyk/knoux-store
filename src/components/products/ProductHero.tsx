@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ProductScene } from './ProductScene';
+import { OneSystemTopology } from './OneSystemTopology';
 import { resolveProductLogo } from '@/data/product-visuals';
 import type { SoftwareProduct } from '@/data/software';
 
@@ -16,7 +17,7 @@ export function ProductHero({ product, arrivalComplete }: ProductHeroProps) {
   const hasLiveUrl = Boolean(product.liveUrl);
 
   return (
-    <section className="product-hero" aria-labelledby="product-title">
+    <section className={`product-hero${product.slug === 'knoux-one' ? ' product-hero--one' : ''}`} aria-labelledby="product-title">
       <nav className="page-crumb" aria-label="Breadcrumb">
         <Link href="/">KNOuX</Link>
         <span aria-hidden="true">/</span>
@@ -43,7 +44,7 @@ export function ProductHero({ product, arrivalComplete }: ProductHeroProps) {
                   height={48}
                   unoptimized
                 />
-                {product.shortName}
+                {product.slug === 'knoux-one' ? <span className="one-wordmark"><span>KNOuX</span> ONE</span> : product.shortName}
               </>
             ) : (
               <>
@@ -114,8 +115,8 @@ export function ProductHero({ product, arrivalComplete }: ProductHeroProps) {
           </div>
         </div>
 
-        <div className="product-hero__scene" aria-hidden="true">
-          <ProductScene product={product} height={520} />
+        <div className="product-hero__scene">
+          {product.slug === 'knoux-one' ? <OneSystemTopology product={product} /> : <ProductScene product={product} height={520} />}
         </div>
       </div>
     </section>

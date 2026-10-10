@@ -94,7 +94,7 @@ export default async function GrowthChannelPage({ params }: { params: Promise<{ 
                       key={entity.id}
                       href={entity.route ?? '#'}
                       className="action"
-                      style={{ padding: '11px 14px', fontSize: 9 }}
+                      style={{ padding: '11px 14px', fontSize: 12 }}
                     >
                       {entity.name}
                       <span className="action-arrow" aria-hidden="true">

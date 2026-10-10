@@ -76,7 +76,7 @@ function Creative() {
               ))}
             </ul>
             {activeClient.brand.previousWinningCreativeIds.length > 0 ? (
-              <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 6, fontSize: 11.5 }}>
+              <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 6, fontSize: 12 }}>
                 <strong>Previously winning:</strong>{' '}
                 {activeClient.brand.previousWinningCreativeIds.join(', ')}
               </p>
@@ -111,7 +111,7 @@ function Creative() {
 
                 {creative.hooks.length > 0 ? (
                   <div>
-                    <p className={styles.ccPaneTitle ?? ''} style={{ fontSize: 8.5 }}>
+                    <p className={styles.ccPaneTitle ?? ''} style={{ fontSize: 12 }}>
                       Hooks
                     </p>
                     <ul className={styles.ccPaneList ?? ''}>
@@ -145,7 +145,7 @@ function Creative() {
 
                 {creative.videoScript && creative.videoScript.length > 0 ? (
                   <div>
-                    <p className={styles.ccPaneTitle ?? ''} style={{ fontSize: 8.5 }}>
+                    <p className={styles.ccPaneTitle ?? ''} style={{ fontSize: 12 }}>
                       Video script
                     </p>
                     <ol className={styles.ccPaneList ?? ''} style={{ paddingLeft: 16, listStyle: 'decimal' }}>
