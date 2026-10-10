@@ -51,4 +51,9 @@ test('WordPress studio changes official selection, sizes the screenshot and carr
   await studio.getByRole('button', { name: 'Switch studio to Arabic' }).click();
   await expect(studio).toHaveAttribute('dir', 'rtl');
   await expect(studio.getByRole('link', { name: /تكوين طلب موقع/ })).toBeVisible();
+  await studio.getByRole('link', { name: /تكوين طلب موقع/ }).click();
+  await expect(page.getByRole('complementary', { name: 'Imported composition' })).toContainText(name!);
+  await expect(page.getByRole('complementary', { name: 'Imported composition' })).toContainText('https://wordpress.org/themes/');
+  await page.getByRole('button', { name: 'Remove this selection' }).click();
+  await expect(page.getByRole('complementary', { name: 'Imported composition' })).toHaveCount(0);
 });
