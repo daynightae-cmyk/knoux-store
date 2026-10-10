@@ -68,10 +68,7 @@ export function GrowthFlow() {
   return (
     <div className="goal-flow">
       <fieldset className="goal-fieldset">
-        <legend className="sr-only">STEP 01 
-          What do you want
-           
-          to grow?</legend>
+        <legend className="sr-only">STEP 01 What do you want to grow?</legend>
         <div className="goal-step">
         <div className="goal-step__label" aria-hidden="true">
           <span>STEP 01</span>
@@ -103,10 +100,7 @@ export function GrowthFlow() {
       </fieldset>
 
       <fieldset className="goal-fieldset" disabled={!target}>
-        <legend className="sr-only">STEP 02 
-          What is your
-           
-          objective?</legend>
+        <legend className="sr-only">STEP 02 What is your objective?</legend>
         <div className="goal-step">
         <div className="goal-step__label" aria-hidden="true">
           <span>STEP 02</span>
@@ -150,10 +144,7 @@ export function GrowthFlow() {
       </fieldset>
 
       <fieldset className="goal-fieldset" disabled={!objective}>
-        <legend className="sr-only">STEP 03 
-          Where should we
-           
-          reach people?</legend>
+        <legend className="sr-only">STEP 03 Where should we reach people?</legend>
         <div className="goal-step">
         <div className="goal-step__label" aria-hidden="true">
           <span>STEP 03</span>
