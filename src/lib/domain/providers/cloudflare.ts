@@ -7,7 +7,7 @@ import type { DomainProvider } from '../provider';
  * Cloudflare Registrar adapter.
  *
  * Contract: Cloudflare Registrar API, `POST
- * /client/v4/accounts/{account_id}/registrar/domains/check`.
+ * /client/v4/accounts/{account_id}/registrar/domain-check`.
  * https://developers.cloudflare.com/registrar/registrar-api/
  *
  * Two Cloudflare endpoints are commonly confused, and picking the wrong one is
@@ -31,14 +31,11 @@ const TIMEOUT_MS = 6000;
 const MAX_BATCH = 20;
 
 type CloudflareResult = {
-  id?: unknown;
-  available?: unknown;
-  premium?: unknown;
-  price?: unknown;
-  currency?: unknown;
-  premium_price?: unknown;
-  // Cloudflare returns a reason string on some failure shapes.
-  message?: unknown;
+  name?: unknown;
+  registrable?: unknown;
+  tier?: unknown;
+  reason?: unknown;
+  pricing?: { currency?: unknown; registration_cost?: unknown; renewal_cost?: unknown };
 };
 
 export type CloudflareConfig = {
@@ -71,43 +68,42 @@ function readNumber(input: unknown): number | undefined {
  */
 function toMoney(value: unknown, currency: unknown) {
   const amount = readNumber(value);
-  if (amount === undefined) return null;
-  return money(Math.round(amount * 100), typeof currency === 'string' ? currency : 'USD', 2);
+  if (amount === undefined || amount < 0 || currency !== 'USD') return null;
+  return money(Math.round(amount * 100), currency, 2);
 }
 
 function normalise(entry: CloudflareResult, provider: string, checkedAt: string): DomainAvailability | null {
-  const domain = typeof entry.id === 'string' ? entry.id : null;
+  if (!entry || typeof entry !== 'object') return null;
+  const domain = typeof entry.name === 'string' ? entry.name : null;
   if (!domain) return null;
   const checked = assertFQDN(domain);
   if (!checked.ok) return null;
 
-  const premium = entry.premium === true;
-  const available = entry.available === true;
+  const premium = entry.tier === 'premium';
+  const available = entry.registrable === true;
 
-  if (!available && !premium) {
+  if (!available) {
+    const unsupported = ['extension_not_supported', 'extension_not_supported_via_api', 'extension_disallows_registration'].includes(String(entry.reason));
     return {
       domain: checked.value,
-      state: 'unavailable',
+      state: unsupported ? 'unsupported' : entry.registrable === false && entry.reason === 'domain_unavailable' ? 'unavailable' : 'unknown',
       premium: false,
       registration: null,
       renewal: null,
       provider,
       checkedAt,
+      reason: unsupported ? 'This extension cannot be registered through the provider API.' : entry.reason === 'domain_unavailable' ? 'The registrar reports this domain as unavailable.' : 'The registrar did not establish availability.',
     };
   }
 
-  const registration = toMoney(premium ? entry.premium_price : entry.price, entry.currency);
+  const registration = toMoney(entry.pricing?.registration_cost, entry.pricing?.currency);
 
   return {
     domain: checked.value,
     state: premium ? 'premium' : 'available',
     premium,
     registration,
-    // Cloudflare's check response carries no renewal price. It is shown as
-    // absent rather than copied from the registration price, because a renewal
-    // rate is a different commercial fact and guessing it would be a lie a
-    // customer could act on.
-    renewal: null,
+    renewal: toMoney(entry.pricing?.renewal_cost, entry.pricing?.currency),
     provider,
     checkedAt,
     reason: premium ? 'Registerable at a premium price reported by the registrar.' : undefined,
@@ -134,7 +130,7 @@ export function cloudflareProvider(config: CloudflareConfig): DomainProvider {
 
       let response: Response;
       try {
-        response = await fetch(`${ENDPOINT}/${encodeURIComponent(config.accountId)}/registrar/domains/check`, {
+        response = await fetch(`${ENDPOINT}/${encodeURIComponent(config.accountId)}/registrar/domain-check`, {
           method: 'POST',
           signal: AbortSignal.timeout(TIMEOUT_MS),
           headers: {
@@ -165,13 +161,14 @@ export function cloudflareProvider(config: CloudflareConfig): DomainProvider {
       }
 
       const root = payload as { success?: unknown; result?: unknown; errors?: unknown };
-      if (root.success !== true || !Array.isArray(root.result)) {
+      const rows = root.result && typeof root.result === 'object' ? (root.result as { domains?: unknown }).domains : null;
+      if (root.success !== true || !Array.isArray(rows)) {
         return { ok: false, results: [], failure: 'error', provider: 'Cloudflare Registrar', checkedAt };
       }
 
-      const results = (root.result as CloudflareResult[])
+      const results = (rows as CloudflareResult[])
         .map((entry) => normalise(entry, 'Cloudflare Registrar', checkedAt))
-        .filter((entry): entry is DomainAvailability => entry !== null);
+        .filter((entry): entry is DomainAvailability => entry !== null && valid.includes(entry.domain));
 
       if (results.length === 0) {
         return { ok: false, results: [], failure: 'error', provider: 'Cloudflare Registrar', checkedAt };

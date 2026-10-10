@@ -217,6 +217,19 @@ export function RequestForm() {
         </p>
       </fieldset>
 
+      {items.some(item => !options.includes(item)) ? (
+        <aside aria-label="Imported composition" style={{ borderInlineStart: '2px solid var(--violet)', paddingInlineStart: 20, overflowWrap: 'anywhere' }}>
+          <h2 style={{ fontSize: 22, fontWeight: 400 }}>Your prepared request</h2>
+          <p className="field__hint">These selections are included in the request. Review them before sending.</p>
+          {items.filter(item => !options.includes(item)).map(item => (
+            <div key={item}>
+              <p style={{ fontSize: 14, lineHeight: 1.7 }}>{item}</p>
+              <button type="button" className="action" onClick={() => setItems(current => current.filter(value => value !== item))}>Remove this selection</button>
+            </div>
+          ))}
+        </aside>
+      ) : null}
+
       {options.length > 0 ? (
         <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
           <legend className="label" style={{ marginBottom: 14 }}>
