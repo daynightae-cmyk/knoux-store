@@ -9,7 +9,8 @@ const phase = process.argv[2] ?? 'after';
 if (!['before','after'].includes(phase)) throw new Error('Use before or after');
 const root = process.cwd();
 const head = execFileSync('git', ['rev-parse','HEAD'], { encoding:'utf8' }).trim();
-const output = resolve(root, 'qa/production-recovery', phase);
+const evidenceHead = phase === 'before' ? 'b1fe8d4fa9233903fa3da88876bd935582a32ad1' : head;
+const output = resolve(root, 'qa/production-recovery', `${phase}-${evidenceHead.slice(0,12)}-${Date.now()}`);
 await mkdir(output, { recursive:true });
 const server = phase === 'after' ? await startOwnedServer(root, 4492) : null;
 const base = server?.base ?? 'https://knoux.store';
@@ -49,4 +50,5 @@ try {
     }
   }
 } finally { await browser.close(); if(server)await stopOwnedServer(server.child); await writeFile(resolve(output,'report.json'),JSON.stringify(report,null,2)); }
+console.log(`Evidence saved: ${output}`);
 if(report.records.some(r=>r.status!==200||r.geometry.scrollWidth>r.viewport.width+1||r.geometry.sky!==1||r.errors.length||r.failures.length||r.a11y?.length))process.exitCode=1;
