@@ -160,7 +160,7 @@ function Reports() {
             </tbody>
           </table>
         </div>
-        <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 8, fontSize: 11.5 }}>
+        <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 8, fontSize: 12 }}>
           {distributed} post(s) confirmed as distributed by an operator. KNOuX posts nothing itself.
         </p>
       </Section>

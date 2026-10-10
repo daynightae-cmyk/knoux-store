@@ -198,7 +198,7 @@ function Automations() {
                 ))}
               </ul>
             )}
-            <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 11.5, marginTop: 8 }}>
+            <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 12, marginTop: 8 }}>
               Nothing was paused, rebalanced or unpublished. An outcome here creates a flag, an alert
               or a task — never a provider mutation.
             </p>

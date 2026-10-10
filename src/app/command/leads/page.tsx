@@ -141,7 +141,7 @@ function Leads() {
               <tbody>
                 {filtered.map((lead) => (
                   <tr key={lead.id}>
-                    <td style={{ fontFamily: 'var(--mono)', fontSize: 10.5 }}>{lead.occurredAt.slice(0, 10)}</td>
+                    <td style={{ fontFamily: 'var(--mono)', fontSize: 12 }}>{lead.occurredAt.slice(0, 10)}</td>
                     <td>
                       <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                         <CodeBadge>{lead.source}</CodeBadge>
@@ -152,7 +152,7 @@ function Leads() {
                     <td>{lead.name ?? <span className={styles.ccTableAbsent ?? ''}>Not provided</span>}</td>
                     <td>
                       {lead.phone ?? lead.email ? (
-                        <span style={{ fontFamily: 'var(--mono)', fontSize: 10.5 }}>
+                        <span style={{ fontFamily: 'var(--mono)', fontSize: 12 }}>
                           {lead.phone ?? lead.email}
                         </span>
                       ) : (

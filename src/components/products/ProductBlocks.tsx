@@ -36,7 +36,7 @@ export function ProductBlocks({ product }: ProductBlocksProps) {
               <span className="label">AS STATED BY THE REPOSITORY</span>
               <ul className="fact-list" style={{ marginTop: 22 }}>
                 {product.capabilities.map((item, index) => (
-                  <li key={item}>
+                  <li key={item} id={`${product.slug}-capability-${index + 1}`} tabIndex={-1}>
                     <div className="capability-card">
                       <svg
                         className="capability-card__index"
@@ -162,7 +162,7 @@ export function ProductBlocks({ product }: ProductBlocksProps) {
                 </div>
                 <div>
                   <dt>Platform</dt>
-                  <dd style={{ fontSize: '10px', lineHeight: 1.5 }}>{product.platform.split('(')[0]?.trim()}</dd>
+                  <dd style={{ fontSize: '12px', lineHeight: 1.5 }}>{product.platform.split('(')[0]?.trim()}</dd>
                 </div>
               </dl>
             </div>

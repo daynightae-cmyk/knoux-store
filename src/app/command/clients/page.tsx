@@ -79,7 +79,7 @@ function Clients() {
               aria-pressed={client.id === activeClient.id}
             >
               <span className={styles.ccPaneTitle ?? ''}>{client.name}</span>
-              <span className={styles.ccPaneBody ?? ''} style={{ fontSize: 11.5 }}>
+              <span className={styles.ccPaneBody ?? ''} style={{ fontSize: 12 }}>
                 {client.businessCategory} · {countryByCode(client.country)?.name}
               </span>
               <span style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
@@ -169,7 +169,7 @@ function Clients() {
                 />
               ))}
             </div>
-            <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 8, fontFamily: 'var(--mono)', fontSize: 10 }}>
+            <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 8, fontFamily: 'var(--mono)', fontSize: 12 }}>
               {activeClient.brand.colors.join('  ')}
             </p>
           </Pane>
@@ -200,7 +200,7 @@ function Clients() {
                 activeClient.brand.approvedAssets.map((asset) => <li key={asset}>{asset}</li>)
               )}
             </ul>
-            <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 6, fontSize: 11.5 }}>
+            <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 6, fontSize: 12 }}>
               Only approved assets may appear in generated creative.
             </p>
           </Pane>
@@ -273,7 +273,7 @@ function Clients() {
             <tbody>
               {activeClient.brand.products.map((product, index) => (
                 <tr key={product}>
-                  <td style={{ fontFamily: 'var(--mono)', fontSize: 10, width: 40, color: 'var(--cc-ink-4)' }}>
+                  <td style={{ fontFamily: 'var(--mono)', fontSize: 12, width: 40, color: 'var(--cc-ink-4)' }}>
                     {String(index + 1).padStart(2, '0')}
                   </td>
                   <td>{product}</td>
@@ -297,7 +297,7 @@ function Term({ children }: { children: React.ReactNode }) {
     <dt
       style={{
         fontFamily: 'var(--mono)',
-        fontSize: 9,
+        fontSize: 12,
         letterSpacing: '0.12em',
         textTransform: 'uppercase',
         color: 'var(--cc-ink-4)',

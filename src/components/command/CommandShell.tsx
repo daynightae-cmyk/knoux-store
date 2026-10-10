@@ -93,7 +93,7 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
             <p
               style={{
                 fontFamily: 'var(--mono)',
-                fontSize: 9,
+                fontSize: 12,
                 letterSpacing: '0.08em',
                 color: 'var(--cc-ink-4)',
                 margin: '10px 0 0',

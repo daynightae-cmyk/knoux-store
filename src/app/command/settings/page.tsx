@@ -164,11 +164,11 @@ function Settings() {
                 {activity.map((entry) => (
                   <li key={entry.id}>
                     <CodeBadge tone="info">{entry.action.replace(/_/g, ' ')}</CodeBadge>{' '}
-                    <span style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: 'var(--cc-ink-4)' }}>
+                    <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--cc-ink-4)' }}>
                       {entry.at.slice(0, 16).replace('T', ' ')}
                     </span>{' '}
                     · {entry.actor}
-                    {entry.detail ? <div style={{ fontSize: 11.5 }}>{entry.detail}</div> : null}
+                    {entry.detail ? <div style={{ fontSize: 12 }}>{entry.detail}</div> : null}
                   </li>
                 ))}
               </ul>
