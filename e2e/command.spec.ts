@@ -13,12 +13,15 @@ test('Recovered Command Center routes render and fit the viewport', async ({ pag
     expect(response?.status()).toBe(200);
     await expect(page.locator('.command-root h1')).toHaveCount(1);
     const navigationToggle = page.getByRole('button', { name: /Workspace navigation/ });
+    let navigation = page.getByRole('navigation', { name: 'Command Center sections', exact: true });
     if (await navigationToggle.isVisible()) {
       await expect(page.getByRole('navigation', { name: 'Command Center sections' })).toBeHidden();
       await navigationToggle.click();
       await expect(navigationToggle).toHaveAttribute('aria-expanded', 'true');
+      navigation = page.getByRole('navigation', { name: 'Mobile Command Center sections', exact: true });
     }
-    await expect(page.getByRole('navigation', { name: 'Command Center sections' })).toBeVisible();
+    await expect(navigation).toBeVisible();
+    if (await navigationToggle.isVisible()) await page.keyboard.press('Escape');
     const indicators = page.getByRole('group', { name: 'Workspace status indicators' });
     await indicators.focus();
     await expect(indicators).toBeFocused();
@@ -50,6 +53,7 @@ test('Report client selection and print control execute', async ({ page }) => {
   if (await navigationToggle.isVisible()) await navigationToggle.click();
   await page.getByRole('button', { name: 'North Bay Clinic', exact: true }).click();
   await expect(page.getByRole('button', { name: 'North Bay Clinic', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  if (await navigationToggle.isVisible()) await page.keyboard.press('Escape');
   await page.evaluate(() => { window.print = () => { document.body.dataset.printRequested = 'yes'; }; });
   await page.getByRole('button', { name: 'Print', exact: true }).click();
   await expect(page.locator('body')).toHaveAttribute('data-print-requested', 'yes');
