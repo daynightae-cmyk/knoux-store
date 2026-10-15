@@ -97,6 +97,7 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
                     href={areaHref(entry.slug)}
                     className={styles.commandNavItem ?? ''}
                     aria-current={entry.slug === area.slug ? 'page' : undefined}
+                    onClick={() => setNavigationOpen(false)}
                   >
                     <CommandIcon code={entry.code} /><span>{uiLocale === 'ar' ? entry.labelAr : entry.label}</span>
                     <span className={styles.commandNavCode ?? ''}>{entry.code}</span>
@@ -108,7 +109,7 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
 
           <div className={styles.commandRailGroup ?? ''}>
             <p className={styles.commandRailLabel ?? ''}>Public division</p>
-            <Link href="/growth" className={styles.commandNavItem ?? ''}>
+            <Link onClick={() => setNavigationOpen(false)} href="/growth" className={styles.commandNavItem ?? ''}>
               <span>KNOuX Growth</span>
               <span className={styles.commandNavCode ?? ''}>04</span>
             </Link>
@@ -151,7 +152,7 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
       <div className={styles.commandBody ?? ''}>
         <button className={styles.commandNavigationToggle} type="button" aria-label={`Workspace navigation for ${activeClient.name}`} aria-haspopup="dialog" aria-controls="command-navigation" aria-expanded={navigationOpen} onClick={() => setNavigationOpen(true)}>{activeClient.name}<span>Workspace navigation +</span></button>
         <nav className={styles.commandRail} aria-label="Command Center sections">{navigationContent}</nav>
-        <dialog ref={navigation} id="command-navigation" className={styles.navigationDialog} aria-label="Workspace navigation" onKeyDown={trapDialogFocus} onCancel={event => { event.preventDefault(); setNavigationOpen(false); }} onClick={(event) => { if (event.target === event.currentTarget) setNavigationOpen(false); }}><button type="button" className={styles.closeNavigation} onClick={() => setNavigationOpen(false)}>Close navigation ×</button><nav aria-label="Mobile Command Center sections" onClick={(event) => { if ((event.target as HTMLElement).closest('a')) setNavigationOpen(false); }}>{navigationContent}</nav></dialog>
+        <dialog ref={navigation} id="command-navigation" className={styles.navigationDialog} aria-label="Workspace navigation" onKeyDown={trapDialogFocus} onCancel={event => { event.preventDefault(); setNavigationOpen(false); }} onClick={(event) => { if (event.target === event.currentTarget) setNavigationOpen(false); }}><button type="button" className={styles.closeNavigation} onClick={() => setNavigationOpen(false)}>Close navigation ×</button><nav aria-label="Mobile Command Center sections">{navigationContent}</nav></dialog>
 
         <main className={styles.commandMain ?? ''} id="main-content" tabIndex={-1}>
           <div className={styles.commandHead ?? ''}>
