@@ -62,3 +62,16 @@ test('Console chat contract uses a per-request workspace header and sanitizes au
   assert.equal(result.authenticated, false);
   assert.doesNotMatch(JSON.stringify(result), /oc_sk_SECRET/);
 });
+
+const zenIdentity = await import('../src/lib/ai/adapters/opencode-zen.ts');
+
+test('legacy Zen recovery identity stays distinct from Go and Console V2 without claiming runtime support', () => {
+  assert.equal(zenIdentity.OPENCODE_ZEN_ID, 'opencode-zen');
+  assert.equal(zenIdentity.OPENCODE_GO_ID, 'opencode-go');
+  assert.equal(zenIdentity.OPENCODE_ZEN_ENV, 'OPENCODE_ZEN_API_KEY');
+  assert.equal(zenIdentity.OPENCODE_GO_ENV, 'OPENCODE_GO_API_KEY');
+  assert.notEqual(zenIdentity.OPENCODE_ZEN_BASE_URL, zenIdentity.OPENCODE_GO_BASE_URL);
+  assert.equal(zenIdentity.OPENCODE_ZEN_STATUS.identity, 'PARTIAL');
+  assert.equal(zenIdentity.OPENCODE_ZEN_STATUS.auth, 'UNTESTED');
+  assert.equal(zenIdentity.OPENCODE_ZEN_STATUS.inference, 'BLOCKED');
+});

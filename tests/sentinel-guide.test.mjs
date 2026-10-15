@@ -81,3 +81,22 @@ test('context policy allows published intent once, cools each route and stops af
   assert.match(contextPrompt(entry,'en'),/published engineering/);
   assert.match(contextPrompt(entry,'ar'),/الهندسة المنشور/);
 });
+
+const { companionFieldLabel } = await import('../src/lib/sentinel/companion-contract.ts');
+const { isGuideTone, tonesForLanguage } = await import('../src/lib/sentinel/languages.ts');
+
+test('contact field guidance stays localized and never invents unknown fields', () => {
+  assert.match(companionFieldLabel('name', 'ar'), /الاسم/);
+  assert.match(companionFieldLabel('email', 'ur'), /ای میل/);
+  assert.match(companionFieldLabel('message', 'en'), /Do not include passwords/);
+  assert.equal(companionFieldLabel('not-a-contact-field', 'en'), null);
+});
+
+test('Arabic regional tone choices remain scoped and are not offered as Urdu or English voices', () => {
+  assert.equal(isGuideTone('egyptian'), true);
+  assert.equal(isGuideTone('gulf'), true);
+  assert.equal(isGuideTone('unrecognized'), false);
+  assert.deepEqual(tonesForLanguage('ar'), ['standard', 'egyptian', 'gulf']);
+  assert.deepEqual(tonesForLanguage('en'), []);
+  assert.deepEqual(tonesForLanguage('ur'), []);
+});
