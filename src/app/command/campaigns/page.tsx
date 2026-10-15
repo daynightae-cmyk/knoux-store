@@ -13,6 +13,8 @@
  */
 
 import { useState } from 'react';
+import { AdPreviewTheatre } from '@/components/command/studio/AdPreviewTheatre';
+import { CampaignReview } from '@/components/command/studio/CampaignReview';
 import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
 import {
@@ -31,7 +33,6 @@ import {
   daysInclusive,
   formatBudget,
   nextStates,
-  transition,
 } from '@/lib/growth/campaigns';
 import {
   CAMPAIGN_OBJECTIVES,
@@ -46,17 +47,17 @@ export default function CampaignsPage() {
 }
 
 function Campaigns() {
-  const { records, activeClient } = useWorkspace();
+  const { records, activeClient, isDemoWorkspace, selectedCreativeId, selectCreative } = useWorkspace();
   const area = areaBySlug('campaigns')!;
   const campaigns = records.campaigns;
   const rows = records.performanceRows;
   const currency = activeClient.country === 'EG' ? 'EGP' : 'AED';
 
-  const [selectedId, setSelectedId] = useState<string>(
-    campaigns.find((campaign) => campaign.status === 'READY_FOR_REVIEW')?.id ?? campaigns[0]?.id ?? '',
-  );
+  const [selectedId, setSelectedId] = useState<string>('');
 
-  const selected = campaigns.find((campaign) => campaign.id === selectedId) ?? campaigns[0];
+  const selected = campaigns.find((campaign) => campaign.id === selectedId)
+    ?? campaigns.find((campaign) => campaign.creativeSetIds.includes(selectedCreativeId) || records.creatives.some((draft) => draft.id === selectedCreativeId && draft.campaignId === campaign.id))
+    ?? campaigns[0];
   const awaiting = campaigns.filter((campaign) => campaign.status === 'READY_FOR_REVIEW');
 
   return (
@@ -75,12 +76,12 @@ function Campaigns() {
         { label: 'Approved, not live', value: String(campaigns.filter((c) => c.status === 'APPROVED').length) },
       ]}
     >
-      <div style={{ padding: '16px 24px 0' }}>
+      {isDemoWorkspace && <div style={{ padding: '16px 24px 0' }}>
         <DemoNotice>
           Every campaign below is a demo fixture. No campaign has been launched, and no platform has
           been called. Approval is real logic; the campaigns it would approve are not real.
         </DemoNotice>
-      </div>
+      </div>}
 
       <Section title="Campaigns" note="Select a campaign to inspect its approval state.">
         {campaigns.length === 0 ? (
@@ -109,7 +110,11 @@ function Campaigns() {
                         type="button"
                         className={styles.ccButton ?? ''}
                         style={{ border: 0, padding: 0, textTransform: 'none', letterSpacing: 0, fontSize: 12.5 }}
-                        onClick={() => setSelectedId(campaign.id)}
+                        onClick={() => {
+                          setSelectedId(campaign.id);
+                          const creative = records.creatives.find((draft) => draft.campaignId === campaign.id || campaign.creativeSetIds.includes(draft.id));
+                          if (creative) selectCreative(creative.id);
+                        }}
                       >
                         {campaign.name}
                       </button>
@@ -152,6 +157,7 @@ function Campaigns() {
         )}
       </Section>
 
+      {selected && <><CampaignReview campaign={selected} /><AdPreviewTheatre campaignId={selected.id} /></>}
       {selected ? (
         <Section title="Campaign detail" note={CAMPAIGN_STATUS_MEANING[selected.status]}>
           <div className={styles.commandGrid2 ?? ''}>
@@ -190,7 +196,7 @@ function Campaigns() {
                 {nextStates(selected.status).join(', ') || 'none — terminal'}.
               </p>
 
-              <ApprovalActions campaign={selected} />
+              <ApprovalActions key={`${activeClient.id}:${selected.id}`} campaign={selected} />
 
               <div className={styles.ccApprovalActions ?? ''}>
                 <button
@@ -275,80 +281,7 @@ function Campaigns() {
  * the refusal verbatim when it is not. That is why the Approve button on a
  * campaign already marked APPROVED explains itself rather than just being grey.
  */
-function ApprovalActions({ campaign }: { campaign: Campaign }) {
-  const [message, setMessage] = useState<string | null>(null);
-
-  const attempt = (reason: Parameters<typeof transition>[1], approvalForMoney: boolean) => {
-    const outcome = transition(campaign.status, reason, {
-      // A real approval record would carry the approver's identity and the
-      // frozen snapshot. Without one the transition is refused, which is the
-      // demonstration this screen exists to make.
-      ...(approvalForMoney
-        ? {}
-        : {
-            approval: {
-              id: `demo_${campaign.id}`,
-              subjectType: 'CAMPAIGN' as const,
-              subjectId: campaign.id,
-              clientId: campaign.clientId,
-              requestedBy: 'author@knoux.store',
-              requestedAt: campaign.updatedAt,
-              budgetSnapshot: {
-                budgetMinor: campaign.budgetMinor,
-                currency: campaign.currency,
-                days: daysInclusive(campaign.startDate, campaign.endDate),
-                target: campaign.locations.join(', ') || 'Not specified',
-              },
-            },
-          }),
-    });
-
-    setMessage(
-      outcome.ok
-        ? `Allowed: ${campaign.status} → ${outcome.to}. This is a simulation. Nothing was written and no platform was called.`
-        : `Refused. ${outcome.reason} ${outcome.remedy}`,
-    );
-  };
-
-  return (
-    <>
-      <div className={styles.ccApprovalActions ?? ''}>
-        <button
-          type="button"
-          className={`${styles.ccButton ?? ''} ${styles.ccButtonPrimary ?? ''}`}
-          disabled={campaign.status !== 'READY_FOR_REVIEW'}
-          onClick={() => attempt('APPROVER_APPROVED', false)}
-        >
-          Approve
-        </button>
-        <button
-          type="button"
-          className={styles.ccButton ?? ''}
-          disabled={campaign.status !== 'READY_FOR_REVIEW'}
-          onClick={() => attempt('APPROVER_REQUESTED_CHANGES', false)}
-        >
-          Request Changes
-        </button>
-        <button
-          type="button"
-          className={`${styles.ccButton ?? ''} ${styles.ccButtonDanger ?? ''}`}
-          disabled={campaign.status !== 'READY_FOR_REVIEW'}
-          onClick={() => attempt('APPROVER_REJECTED', false)}
-        >
-          Reject
-        </button>
-        <button
-          type="button"
-          className={styles.ccButton ?? ''}
-          onClick={() => attempt('AUTHOR_SUBMITTED', false)}
-        >
-          Submit for review
-        </button>
-      </div>
-      {message ? <p className={styles.ccApprovalRefusal ?? ''}>{message}</p> : null}
-    </>
-  );
-}
+function ApprovalActions({ campaign }: { campaign: Campaign }) { return <div className={styles.ccApprovalActions}><p>Stored status: {campaign.status}. Approval decisions require a named authenticated reviewer and a durable approval endpoint.</p><button type="button" disabled className={styles.ccButton}>Approve · write endpoint unavailable</button></div>; }
 
 function Fact({ label, value }: { label: string; value: string }) {
   return (
