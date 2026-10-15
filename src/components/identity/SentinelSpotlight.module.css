@@ -1,0 +1,88 @@
+/*
+ * Sentinel attention highlight.
+ *
+ * Visual language: KNOuX violet perimeter, electric cyan scan sweep, restrained
+ * champagne-gold accent. Deliberately a short bounded illumination, not a
+ * full-screen flashlight — the frame is exactly the measured target rectangle and
+ * the sweep runs once per new target.
+ *
+ * pointer-events:none on both the frame and the sweep is load-bearing: the
+ * overlay must never intercept a click, so the visitor can act on the very
+ * control Sentinel is describing.
+ */
+.spotlight {
+  position: fixed;
+  z-index: 90;
+  pointer-events: none;
+  border: 1px solid #a98cf0;
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 3px rgba(150, 110, 240, 0.06),
+    0 0 24px rgba(120, 200, 255, 0.12),
+    inset 0 0 22px rgba(120, 200, 255, 0.05);
+  overflow: hidden;
+  contain: layout paint;
+  animation: arrive 0.22s ease-out both;
+}
+/* Corner accents in champagne gold, drawn from the frame edge inward. */
+.spotlight::before,
+.spotlight::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  border: 1px solid rgba(226, 199, 138, 0.85);
+}
+.spotlight::before {
+  top: -1px;
+  left: -1px;
+  border-right: 0;
+  border-bottom: 0;
+  border-top-left-radius: 10px;
+}
+.spotlight::after {
+  right: -1px;
+  bottom: -1px;
+  border-left: 0;
+  border-top: 0;
+  border-bottom-right-radius: 10px;
+}
+/* The single electric-cyan scan sweep. Runs once, then stops. */
+.spotlight span {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 32%, rgba(120, 220, 255, 0.1) 48%, transparent 64%);
+  transform: translateX(-100%);
+  animation: scan 0.85s ease-out both;
+}
+/* The attended element is illuminated, not restyled. */
+:global([data-sentinel-attended="true"]) {
+  text-shadow: 0 0 12px rgba(170, 140, 240, 0.24);
+}
+@keyframes arrive {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes scan {
+  to {
+    transform: translateX(100%);
+  }
+}
+/* Reduced motion: a static frame with no sweep and no travelling highlight. */
+@media (prefers-reduced-motion: reduce) {
+  .spotlight {
+    animation: none;
+  }
+  .spotlight span {
+    display: none;
+  }
+  :global([data-sentinel-attended="true"]) {
+    text-shadow: none;
+  }
+}

@@ -31,9 +31,9 @@ test.before(async () => {
 // Provider Registry
 // ---------------------------------------------------------------------------
 
-test("registers all 13 required providers", () => {
+test("registers the 13 preserved providers and distinct Console V2 provider", () => {
   const adapters = registry.getAdapters();
-  assert.equal(adapters.length, 13);
+  assert.equal(adapters.length, 14);
 });
 
 test("declared capabilities do not pass runtime acceptance without execution", () => {
@@ -69,6 +69,7 @@ test("includes all required provider IDs", () => {
     "qwen",
     "grok",
     "opencode-go",
+    "opencode-console-v2",
     "ollama",
     "lm-studio",
     "custom-openai",

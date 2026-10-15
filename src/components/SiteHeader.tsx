@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { institutionNavigation, primaryNavigation } from '@/data/navigation';
 import { OPEN_EVENT } from '@/components/CommandPalette';
+import { useSiteCopy, SiteLanguagePicker, useSiteLanguage } from '@/components/i18n/SiteLanguage';
+import { guideDirection } from '@/lib/sentinel/languages';
 import { track } from '@/lib/analytics';
 
 /**
@@ -21,6 +23,7 @@ const PANEL_MAX_WIDTH = '(max-width: 1100px)';
  * button, so search is reachable by pointer, keyboard and discoverability.
  */
 export function SiteHeader() {
+  const t = useSiteCopy(), language = useSiteLanguage();
   const [menu, setMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
@@ -64,14 +67,14 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
-        <Link href="/" className="brand" aria-label="KNOuX home">
+      <header lang={language} dir={guideDirection(language)} className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
+        <Link href="/" className="brand" aria-label={t('KNOuX home')}>
           <span className="brand-dot" aria-hidden="true" />
           KNOuX
           <span className="brand-end">r</span>
         </Link>
 
-        <nav className="desktop-nav" aria-label="Divisions">
+        <nav className="desktop-nav" aria-label={t('Divisions')}>
           {primaryNavigation.map((item) => (
             <Link
               key={item.href}
@@ -80,79 +83,79 @@ export function SiteHeader() {
               aria-current={pathname === item.href || pathname.startsWith(`${item.href}/`) ? 'page' : undefined}
               onClick={() => track({ type: 'division_opened', division: item.label, route: item.href })}
             >
-              {item.label}
+              {t(item.label)}
             </Link>
           ))}
         </nav>
 
-        <div className="header-actions">
+        <div className="header-actions"><SiteLanguagePicker />
           {authRoute ? (
-            <Link className="header-access header-home" href="/" aria-label="Return to KNOuX home">
+            <Link className="header-access header-home" href="/" aria-label={t('Return to KNOuX home')}>
               <svg className="header-home__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path d="M3.5 10.7 12 3.8l8.5 6.9v9.1h-5.7v-5.7H9.2v5.7H3.5z" />
               </svg>
-              <span>HOME</span>
+              <span>{t('HOME')}</span>
             </Link>
           ) : (
             <Link className="header-access" href="/account">
-              ACCESS
+              {t('ACCESS')}
             </Link>
           )}
           <button
             className="header-search"
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent(OPEN_EVENT))}
-            aria-label="Open search"
+            aria-label={t('Open search')}
           >
-            <span>SEARCH</span>
+            <span>{t('SEARCH')}</span>
             <kbd>⌘K</kbd>
           </button>
           <button
             className="mobile-toggle"
             type="button"
-            aria-label={menu ? 'Close navigation' : 'Open navigation'}
+            aria-label={t(menu ? 'Close navigation' : 'Open navigation')}
             aria-expanded={menu}
             onClick={() => setMenu((value) => !value)}
           >
-            {menu ? 'CLOSE' : 'MENU'}
+            {t(menu ? 'CLOSE' : 'MENU')}
             <span aria-hidden="true">{menu ? '×' : '+'}</span>
           </button>
         </div>
       </header>
 
       {menu ? (
-        <nav className="mobile-panel" aria-label="Site navigation">
+        <nav lang={language} dir={guideDirection(language)} className="mobile-panel" aria-label={t('Site navigation')}>
           <button type="button" className="mobile-panel__search" onClick={() => {
             setMenu(false);
             window.setTimeout(() => window.dispatchEvent(new CustomEvent(OPEN_EVENT)), 0);
-          }}>SEARCH THE INSTITUTION <span aria-hidden="true">⌘K</span></button>
+          }}>{t('Search the institution')} <span aria-hidden="true">⌘K</span></button>
           <span className="label" style={{ marginBottom: 18 }}>
-            DIVISIONS
+            {t('DIVISIONS')}
           </span>
           {primaryNavigation.map((item) => (
             <Link key={item.href} href={item.href} onClick={() => setMenu(false)}>
               <span>{item.code}</span>
-              {item.label}
+              {t(item.label)}
               <span aria-hidden="true">↗</span>
             </Link>
           ))}
           <span className="label" style={{ margin: '30px 0 10px' }}>
-            INSTITUTION
+            {t('INSTITUTION')}
           </span>
           {institutionNavigation.map((item) => (
             <Link key={item.href} href={item.href} onClick={() => setMenu(false)} className="mobile-panel__minor">
               <span>{item.code}</span>
-              {item.label}
+              {t(item.label)}
               <span aria-hidden="true">↗</span>
             </Link>
           ))}
           <Link href="/build" className="mobile-panel__cta" onClick={() => setMenu(false)}>
-            Open the Composer
+            {t('Open the Composer')}
             <span aria-hidden="true">↗</span>
           </Link>
           <Link href={authRoute ? '/' : '/account'} className="mobile-panel__access" onClick={() => setMenu(false)}>
             <span>{authRoute ? '00' : '13'}</span>
-            {authRoute ? 'Return to KNOuX home' : 'Access your account'}
+            {t(authRoute ? 'Return to KNOuX home' : 'Access your account')}
             <span aria-hidden="true">↗</span>
           </Link>
         </nav>

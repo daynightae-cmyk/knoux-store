@@ -35,7 +35,7 @@ import type { BridgeCapabilities, BridgeProfile, Handshake, ShellProfile } from 
 
 type BridgeState =
   | { kind: 'checking' }
-  | { kind: 'unavailable'; blocker: string }
+  | { kind: 'unavailable'; blocker: string; authRequired?: boolean }
   | { kind: 'ready'; handshake: Handshake };
 
 interface BridgeStatusResponse {
@@ -108,11 +108,12 @@ export function TerminalPage() {
           setBridge({ kind: 'ready', handshake: body.handshake });
           const first = body.handshake.profiles[0];
           if (first) setProfile(first.id);
-          setCwd(body.handshake.root);
+          setCwd(''); // Empty means the paired bridge's workspace root. The ticket only accepts relative paths.
         } else {
           setBridge({
             kind: 'unavailable',
-            blocker: body.blocker ?? 'The bridge did not answer. It is not paired or not running.',
+            blocker: body.blocker ?? (body as BridgeStatusResponse & { message?: string }).message ?? 'The bridge did not answer. It is not paired or not running.',
+            authRequired: response.status === 401,
           });
         }
       } catch {
@@ -332,7 +333,7 @@ export function TerminalPage() {
               <>
                 <DevEmpty title="BRIDGE UNAVAILABLE" body={bridge.blocker} />
                 <p className="dev-note">
-                  <Link href="/build/settings">CONNECT BRIDGE ↗</Link>
+                  <Link href={bridge.authRequired ? '/login?next=%2Fbuild%2Fterminal' : '/build/settings'}>{bridge.authRequired ? 'SIGN IN TO CONNECT ↗' : 'PAIR TRUSTED BRIDGE ↗'}</Link>
                 </p>
               </>
             )}
