@@ -1,4 +1,4 @@
-import { PageIntro } from '@/components/PageIntro';
+import { GrowthExperience } from '@/components/growth/GrowthExperience';
 import { SignalRail } from '@/components/DivisionShell';
 import { DivisionBridge, NextLink, RevealGroup, SystemIndex, IndexRow } from '@/components/blocks';
 import { BudgetScope, GrowthFlow } from '@/components/GrowthFlow';
@@ -18,13 +18,7 @@ export default function GrowthPage() {
   return (
     <main id="main-content" tabIndex={-1}>
       <TrackOnView event={{ type: 'division_opened', division: 'growth', route: '/growth' }} />
-      <PageIntro
-        index="04"
-        label="Growth"
-        title="Findable,"
-        italic="then chosen."
-        description="Campaign architecture, measurement and content. No target metrics, minimum spends or return claims appear on this site, because none of those are knowable before a scope is agreed."
-      />
+      <GrowthExperience />
       <SignalRail division="growth" path="/growth" />
       <div className="shell"><ProcessArchitecture kind="growth" /></div>
 

@@ -155,6 +155,18 @@
   align-items: start;
 }
 
+.navigationDialog { position: fixed; inset: 0 auto 0 0; margin: 0; padding: 16px; width: min(360px, 92vw); height: 100dvh; max-height: 100dvh; border: 0; border-inline-end: 1px solid #514a5e; background: #121218; color: #eeeaf6; overflow-y: auto; z-index: 100; }
+.navigationDialog::backdrop { background: #000b; backdrop-filter: blur(5px); }
+.closeNavigation { width: 100%; min-height: 48px; background: #292430; border: 1px solid #60566f; color: #eee; margin-bottom: 20px; cursor: pointer; }
+.languageToggle { background: #232028; color: #e6d9f3; border: 1px solid #51465c; padding: 8px 12px; min-height: 44px; margin-inline-start: auto; cursor: pointer; }
+.commandIdent { max-width: 100%; }
+.commandIdentText { flex: 1; }
+.languageToggle { flex: none; }
+.commandName, .commandSub { white-space: normal; overflow-wrap: anywhere; }
+.command[dir=rtl] .navigationDialog { inset: 0 0 0 auto; }
+.commandNavItem > svg { flex: none; color: #b2a6c6; }
+.commandNavItem > span:first-of-type { flex: 1; }
+
 .commandRail {
   position: sticky;
   top: var(--cc-bar);
@@ -1303,3 +1315,4 @@
   .commandName { letter-spacing: .035em; }
 }
 @media print { .command { --cc-ink-4: #333; } .commandBar { backdrop-filter: none; } }
+@media(max-width:1080px){.commandRail{display:none}.commandNavigationToggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:54px;padding:16px 20px;background:#16141a;color:var(--cc-ink);border:0}}
