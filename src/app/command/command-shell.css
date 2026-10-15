@@ -26,6 +26,8 @@ body:has(.command-root) .skip-link {
   min-height: 100vh;
 }
 
+body:has(.command-root dialog[open]) { overflow: hidden; }
+
 /* The console supplies its own skip target and focus behaviour. */
 .command-root :where(main:focus) {
   outline: none;
