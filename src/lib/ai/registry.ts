@@ -11,6 +11,7 @@ import { DeepSeekAdapter } from "./adapters/deepseek";
 import { QwenAdapter } from "./adapters/qwen";
 import { GrokAdapter } from "./adapters/grok";
 import { OpenCodeGoAdapter } from "./adapters/opencode-go";
+import { OpenCodeConsoleV2Adapter } from "./adapters/opencode-console-v2";
 import { OllamaAdapter } from "./adapters/ollama";
 import { LMStudioAdapter } from "./adapters/lm-studio";
 import { CustomOpenAIAdapter } from "./adapters/custom-openai";
@@ -49,6 +50,7 @@ export function getRegisteredAdapters(): ProviderAdapter[] {
     new QwenAdapter(),
     new GrokAdapter(),
     new OpenCodeGoAdapter(),
+    new OpenCodeConsoleV2Adapter(),
     new OllamaAdapter(),
     new LMStudioAdapter(),
     new CustomOpenAIAdapter(),

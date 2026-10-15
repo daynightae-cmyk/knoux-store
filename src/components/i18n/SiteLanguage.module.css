@@ -1,0 +1,9 @@
+.picker { display: inline-flex; align-items: center; min-width: 0; }
+.picker select { color: inherit; background: #111117; border: 1px solid #3d354c; border-radius: 4px; padding: 6px 4px; max-width: 86px; font: inherit; font-size: 11px; }
+.picker select:focus-visible { outline: 2px solid #ac83ff; outline-offset: 3px; }
+.hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 650px) { .picker select { max-width: 68px; } }
+
+/* Off-screen live announcements (.sr__announce / .visually-hidden in globals.css)
+   use the direction-agnostic clip pattern — no negative offsets — so nothing
+   extends document scroll size in either LTR or RTL. No override needed. */
