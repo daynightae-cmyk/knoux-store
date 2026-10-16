@@ -4,27 +4,42 @@ import { useEffect } from 'react';
 import { SITE_LANGUAGES, SITE_LANGUAGE_IDS, siteDirection } from '@/lib/i18n/languages';
 import { saveSentinelLanguage } from '@/components/identity/sentinel-preferences';
 import { translatedSiteCopy } from '@/lib/i18n/site-copy';
-import { useSiteCopy, useSiteLanguage } from '@/lib/i18n/use-language';
+import { useSiteLanguage } from '@/lib/i18n/use-language';
 import type { SiteLanguage as SiteLanguageId } from '@/lib/i18n/languages';
 import styles from './SiteLanguage.module.css';
 
-export { useSiteCopy, useSiteLanguage };
+export { useSiteLanguage };
 
 /**
- * Keeps `<html lang>` and `<html dir>` truthful.
+ * Everything the document itself has to say about the chosen language.
+ *
+ * Two things were previously separate components that each subscribed to the
+ * same preference: one reconciled `<html lang>`/`<html dir>`, the other rendered
+ * the translated skip link. They are the same concern at the same level — a
+ * statement about the document rather than about anything visible — so they are
+ * one component now, reading the language once.
+ *
+ * Merging them also keeps the skip link unambiguously first: the effect cannot
+ * reorder markup, and the anchor is the only node this component renders.
  *
  * The layout ships `lang="en"` so the document is valid and correctly described
- * before any script runs. This effect corrects both attributes after the stored
+ * before any script runs. The effect corrects both attributes once the stored
  * preference is read, which is also what makes Urdu render right-to-left instead
  * of inheriting a left-to-right box model.
  */
-export function SiteLanguageMetadata() {
+export function SiteLanguageDocument() {
   const language = useSiteLanguage();
+
   useEffect(() => {
     document.documentElement.lang = SITE_LANGUAGES[language].tag;
     document.documentElement.dir = siteDirection(language);
   }, [language]);
-  return null;
+
+  return (
+    <a className="skip-link" href="#main-content">
+      {translatedSiteCopy('Skip to content', language)}
+    </a>
+  );
 }
 
 /**
@@ -34,6 +49,9 @@ export function SiteLanguageMetadata() {
  * operable, screen-reader labelled and platform-native on mobile with no extra
  * code. The visible label is translated; the accessible name comes from
  * `aria-label` so it stays meaningful in the active language.
+ *
+ * Independent of `SiteLanguageDocument`: the picker is visible chrome in the
+ * header, this is markup around the page, and neither is nested in the other.
  */
 export function SiteLanguagePicker() {
   const language = useSiteLanguage();
@@ -53,21 +71,5 @@ export function SiteLanguagePicker() {
         ))}
       </select>
     </label>
-  );
-}
-
-/**
- * Skip link.
- *
- * The layout previously rendered this as a literal string. Routing it through
- * the catalogue keeps the first thing a keyboard or screen-reader user reaches
- * available in the language they chose.
- */
-export function LocalizedSkipLink() {
-  const t = useSiteCopy();
-  return (
-    <a className="skip-link" href="#main-content">
-      {t('Skip to content')}
-    </a>
   );
 }
