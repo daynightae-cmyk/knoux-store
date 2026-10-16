@@ -65,7 +65,12 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
   }, [navOpen]);
 
   return <div className={`dev-shell dev-cinematic ${pathname === '/build' ? 'dev-shell--landing' : 'dev-shell--operational'}`}>
-    <div className="dev-shell__top"><Link href="/" className="dev-shell__identity" aria-label="KNOuX Store home">KNOuX <strong>BUILD</strong></Link><span className="dev-mini-label">{current?.label ?? 'Workspace'}</span><button ref={menu} type="button" className="dev-menu-button" aria-label="Open workspace navigation" aria-expanded={navOpen} aria-controls="dev-sidebar" onClick={() => setNavOpen((open) => !open)}>☰ MENU</button></div>
+    {/* A `header` element, not a styled `div`: this bar carries the site
+        identity and the navigation control, and content outside every landmark
+        is exactly what landmark navigation cannot reach. The class list is
+        unchanged, so the existing layout rules that target `.dev-shell__top`
+        and its children still apply to it. */}
+    <header className="dev-shell__top"><Link href="/" className="dev-shell__identity" aria-label="KNOuX Store home">KNOuX <strong>BUILD</strong></Link><span className="dev-mini-label">{current?.label ?? 'Workspace'}</span><button ref={menu} type="button" className="dev-menu-button" aria-label="Open workspace navigation" aria-expanded={navOpen} aria-controls="dev-sidebar" onClick={() => setNavOpen((open) => !open)}>☰ MENU</button></header>
     <div className="dev-shell__grid">
       {navOpen ? <button type="button" className="dev-nav-backdrop" tabIndex={-1} aria-label="Close workspace navigation" onClick={() => setNavOpen(false)} /> : null}
       <aside ref={sidebar} id="dev-sidebar" className={`dev-sidebar ${navOpen ? 'dev-sidebar--open' : ''}`} aria-label="KNOuX DEV workspace" role={navOpen ? 'dialog' : undefined} aria-modal={navOpen ? true : undefined}>
