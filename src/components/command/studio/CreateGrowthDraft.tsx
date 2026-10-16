@@ -55,6 +55,7 @@ export function CreateGrowthDraft({ kind }: { kind: 'client' | 'creative' | 'cam
         </>}
         <button type="submit">{state === 'saving' ? label('Saving…', 'جارٍ الحفظ…') : label('Create draft', 'إنشاء المسودة')}</button>
       </fieldset>
+      {state === 'saved' && <button type="button" onClick={event => { event.currentTarget.form?.reset(); requestKey.current = null; setState('idle'); }}>{label('Create another', 'إنشاء سجل آخر')}</button>}
       {error && <p role="alert">{error}</p>}{state === 'saved' && <p role="status">{label('Saved. The workspace is refreshing.', 'تم الحفظ. جارٍ تحديث مساحة العمل.')}</p>}
     </form>
   </details>;

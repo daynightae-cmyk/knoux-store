@@ -14,6 +14,7 @@ registerHooks({resolve(specifier,context,nextResolve){
 const creative=await import('../src/app/api/growth/creatives/route.ts');
 const campaign=await import('../src/app/api/growth/campaigns/route.ts');
 const media=await import('../src/app/api/growth/media/route.ts');
+const clients=await import('../src/app/api/growth/clients/route.ts');
 const id='11111111-1111-4111-8111-111111111111';
 const input={id,clientId:'a',expectedUpdatedAt:'2026-10-16T00:00:00Z',name:'Draft',objective:'LEADS',budgetMinor:1000,startDate:'2026-10-16',endDate:'2026-10-31',platforms:['instagram']};
 let rpcCalls=[];
@@ -70,12 +71,35 @@ test('media handler rejects foreign clients and MIME spoofing before storage',as
 
 test('media persistence failure removes the uploaded object and reports cleanup failure honestly',async()=>{
   auth();
-  let removed=[]; let cleanupFailure=false; let rowFailure=true; let rowThrows=false;
-  const bucket={upload:async()=>({error:null}),remove:async paths=>{removed.push(...paths);return {error:cleanupFailure?new Error('cleanup failed'):null};},createSignedUrl:async()=>({data:{signedUrl:'https://example.test/private/signed'},error:null})};
+  let removed=[]; let cleanupFailure=false; let rowFailure=true; let rowThrows=false; let signThrows=false;
+  const bucket={upload:async()=>({error:null}),remove:async paths=>{removed.push(...paths);return {error:cleanupFailure?new Error('cleanup failed'):null};},createSignedUrl:async()=>{if(signThrows)throw new Error('signing transport failed');return {data:{signedUrl:'https://example.test/private/signed'},error:null};}};
   globalThis.__growthAdminClient={storage:{from:()=>bucket},from:()=>({insert:async()=>{if(rowThrows)throw new Error('transport failure');return {error:rowFailure?new Error('database refused'):null};}})};
   const upload=()=>{const png=new Uint8Array(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a0s8AAAAASUVORK5CYII=','base64'));const form=new FormData();form.set('clientId','a');form.set('file',new File([png],'hero.png',{type:'image/png'}));return new Request('https://example.test/api/growth/media',{method:'POST',headers:{origin:'https://example.test'},body:form});};
   let response=await media.POST(upload());assert.equal(response.status,503);assert.match((await response.json()).reason,/object removed/);assert.equal(removed.length,1);assert.ok(removed[0].startsWith('a/'));
   cleanupFailure=true;response=await media.POST(upload());assert.match((await response.json()).reason,/operator attention/);
   cleanupFailure=false;rowThrows=true;response=await media.POST(upload());assert.equal(response.status,503);assert.equal(removed.length,3);
   rowThrows=false;rowFailure=false;response=await media.POST(upload());assert.equal(response.status,200);const asset=(await response.json()).asset;assert.ok(asset.id);assert.equal(asset.kind,'IMAGE');assert.equal(removed.length,3);
+  signThrows=true;response=await media.POST(upload());assert.equal(response.status,200);const unresolved=(await response.json()).asset;assert.ok(unresolved.id);assert.equal(unresolved.url,null);assert.equal(unresolved.urlState,'UNRESOLVED');assert.equal(removed.length,3);
+});
+
+
+test('signed media resolution scopes the database lookup and refuses foreign storage paths',async()=>{
+  auth();let scopedClient=null;const signed=[];
+  const rows=[{id:'11111111-1111-4111-8111-111111111111',file_name:'own.png',storage_path:'a/own.png',mime_type:'image/png',kind:'IMAGE',byte_size:64},
+    {id:'22222222-2222-4222-8222-222222222222',file_name:'foreign.png',storage_path:'b/foreign.png',mime_type:'image/png',kind:'IMAGE',byte_size:64}];
+  const query={select:()=>query,eq:(key,value)=>{if(key==='client_id')scopedClient=value;return query;},order:()=>query,limit:async()=>({data:rows,error:null})};
+  globalThis.__growthAdminClient={from:()=>query,storage:{from:()=>({createSignedUrl:async(path,ttl)=>{signed.push({path,ttl});return {data:{signedUrl:'https://example.test/signed'},error:null};}})}};
+  const response=await media.GET({nextUrl:new URL('https://example.test/api/growth/media?clientId=a')});
+  assert.equal(response.status,200);assert.equal(scopedClient,'a');assert.deepEqual(signed,[{path:'a/own.png',ttl:600}]);
+  assert.equal((await response.json()).assets.length,1);
+  assert.equal((await media.GET({nextUrl:new URL('https://example.test/api/growth/media?clientId=b')})).status,403);
+});
+
+
+test('brand profile handler enforces role, validation and expected revision',async()=>{
+  const body={clientId:'a',requestId:id,expectedUpdatedAt:input.expectedUpdatedAt,name:'Client',brandColors:['#334455'],brandFonts:['Inter'],forbiddenClaims:['Guaranteed result']};
+  auth('VIEWER');assert.equal((await clients.PATCH(request(body))).status,403);assert.equal(rpcCalls.length,0);
+  auth('OWNER',true);assert.equal((await clients.PATCH(request(body))).status,401);
+  auth();assert.equal((await clients.PATCH(request({...body,brandColors:['javascript:bad']}))).status,400);assert.equal(rpcCalls.length,0);
+  assert.equal((await clients.PATCH(request(body))).status,200);assert.equal(rpcCalls[0].name,'knoux_growth_save_brand_profile');assert.equal(rpcCalls[0].args.p_expected,input.expectedUpdatedAt);
 });

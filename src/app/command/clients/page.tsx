@@ -13,6 +13,7 @@
  * settings sub-tab.
  */
 
+import { BrandProfileEditor } from '@/components/command/studio/BrandProfileEditor';
 import { CreateGrowthDraft } from '@/components/command/studio/CreateGrowthDraft';
 import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
@@ -56,6 +57,7 @@ function Clients() {
       ]}
     >
       <CreateGrowthDraft key={activeClient.id} kind="client" />
+      <BrandProfileEditor key={`${activeClient.id}:${activeClient.updatedAt}`} />
       {isDemoWorkspace && <div style={{ padding: '16px 24px 0' }}>
         <DemoNotice>
           Every client here is an invented demonstration workspace. No real business, brand or contact

@@ -66,6 +66,10 @@ test('draft transactions execute on PostgreSQL with tenant and revision enforcem
     const foreign=await call('creative','b',creativeInput);
     await assert.rejects(call('creative','a',creativeInput,foreign.id,foreign.updated_at),e=>e.code==='P0002');
   });
+  await t.test('storage path constraint uses exact tenant segments rather than LIKE wildcards',async()=>{
+    await db.query(`insert into knoux_growth_clients(id,name) values ('tenant_a','Scoped test tenant')`);
+    await assert.rejects(db.query(`insert into knoux_growth_media_assets(client_id,storage_path,mime_type,byte_size) values ('tenant_a','tenantXa/forged.png','image/png',64)`),e=>e.code==='23514');
+  });
   await t.test('migration constraints reject foreign asset attachment even through a privileged writer',async()=>{
     const asset=(await db.query(`insert into knoux_growth_media_assets(client_id,storage_path,mime_type,byte_size) values ('b','b/other.png','image/png',24) returning id`)).rows[0];
     await assert.rejects(db.query('update knoux_growth_creatives set media_asset_id=$1 where id=$2',[asset.id,creative.id]),e=>e.code==='23503');
@@ -99,11 +103,57 @@ test('draft transactions execute on PostgreSQL with tenant and revision enforcem
   });
   await t.test('failed channel persistence rolls back parent, channels, approval and audit',async()=>{
     a=await get('campaigns',a.id);
+    const pending=(await db.query(`insert into knoux_growth_campaign_approvals(campaign_id,client_id,approved_plan_hash,campaign_version,budget_minor,currency,duration_days,requested_by) values ($1,'a','still-current',$2,12000,'AED',15,$3) returning id`,[a.id,a.version,owner])).rows[0];
     const audit=(await db.query('select count(*)::int as n from knoux_growth_audit_log')).rows[0].n;
     await assert.rejects(call('campaign','a',{...campaignInput,name:'Must roll back',platforms:['instagram','unsupported']},a.id,a.updated_at),e=>e.code==='23514');
     assert.deepEqual(await get('campaigns',a.id),a);
+    assert.equal((await db.query('select invalidated_at from knoux_growth_campaign_approvals where id=$1',[pending.id])).rows[0].invalidated_at,null);
     assert.equal((await db.query('select count(*)::int as n from knoux_growth_audit_log')).rows[0].n,audit);
     assert.equal((await db.query('select platform from knoux_growth_campaign_channels where campaign_id=$1',[a.id])).rows[0].platform,'instagram');
+  });
+  await t.test('actual service_role can execute invoker RPCs and browser roles cannot',async()=>{
+    await db.exec('set role service_role');
+    const created=await call('campaign','a',{...campaignInput,request_key:randomUUID()});
+    assert.equal(created.client_id,'a');
+    const draft=await call('creative','a',{...creativeInput,campaign_id:created.id});
+    assert.equal(draft.campaign_id,created.id);
+    await db.exec('reset role');
+    for(const role of ['anon','authenticated']) {
+      await db.exec(`set role ${role}`);
+      await assert.rejects(call('creative','a',creativeInput),e=>e.code==='42501');
+      await db.exec('reset role');
+    }
+  });
+  await t.test('an audit write failure rolls back the creative and pending approvals',async()=>{
+    a=await get('campaigns',a.id); creative=await get('creatives',creative.id);
+    const pending=(await db.query(`insert into knoux_growth_campaign_approvals(campaign_id,client_id,approved_plan_hash,campaign_version,budget_minor,currency,duration_days,requested_by) values ($1,'a','audit-failure',$2,12000,'AED',15,$3) returning id`,[a.id,a.version,owner])).rows[0];
+    await db.exec(`create function public.test_reject_audit() returns trigger language plpgsql as $$begin raise exception 'Injected audit persistence failure' using errcode='23514'; end $$;
+      create trigger test_reject_audit before insert on public.knoux_growth_audit_log for each row execute function public.test_reject_audit();`);
+    await assert.rejects(call('creative','a',{...creativeInput,headline:'Must roll back',campaign_id:a.id},creative.id,creative.updated_at),e=>e.code==='23514');
+    assert.deepEqual(await get('creatives',creative.id),creative);
+    assert.deepEqual(await get('campaigns',a.id),a);
+    assert.equal((await db.query('select invalidated_at from knoux_growth_campaign_approvals where id=$1',[pending.id])).rows[0].invalidated_at,null);
+    await db.exec('drop trigger test_reject_audit on public.knoux_growth_audit_log; drop function public.test_reject_audit();');
+  });
+  await t.test('direct browser profile writes cannot bypass approval invalidation',async()=>{
+    await db.exec(`set role authenticated; select set_config('request.jwt.claim.sub','${owner}',false);`);
+    await assert.rejects(db.query(`update knoux_growth_clients set brand_tone='Bypass' where id='a'`),e=>e.code==='42501');
+    await assert.rejects(db.query(`delete from knoux_growth_clients where id='a'`),e=>e.code==='42501');
+    await db.exec('reset role');
+  });
+  await t.test('brand profiles are scoped, revision-checked and invalidate draft approvals',async()=>{
+    const client=(await db.query(`select to_jsonb(c) as row from knoux_growth_clients c where id='a'`)).rows[0].row;
+    const input={name:'Updated client',business_category:'Sports',city:'Dubai',brand_colors:['#334455'],brand_fonts:['Inter'],brand_tone:'Clear',forbidden_claims:['Guaranteed result'],arabic_style:'واضح',english_style:'Clear'};
+    const save=async(actor,expected)=>(await db.query('select public.knoux_growth_save_brand_profile($1,$2,$3,$4::jsonb) as result',['a',actor,expected,JSON.stringify(input)])).rows[0].result;
+    await assert.rejects(save(viewer,client.updated_at),e=>e.code==='42501');
+    const updated=await save(owner,client.updated_at);assert.equal(updated.name,input.name);assert.deepEqual(updated.forbidden_claims,input.forbidden_claims);
+    assert.equal((await db.query(`select count(*)::int as n from knoux_growth_campaign_approvals where client_id='a' and invalidated_at is null`)).rows[0].n,0);
+    await assert.rejects(save(owner,client.updated_at),e=>e.code==='40001');
+    assert.equal((await db.query(`select name from knoux_growth_clients where id='b'`)).rows[0].name,'B');
+    a=await get('campaigns',a.id);
+    await db.query(`update knoux_growth_campaigns set status='APPROVED' where id=$1`,[a.id]);
+    await assert.rejects(save(owner,updated.updated_at),e=>e.code==='42501');
+    await db.query(`update knoux_growth_campaigns set status='DRAFT' where id=$1`,[a.id]);
   });
   await t.test('cross-tenant channel tampering and protected statuses are refused',async()=>{
     await db.query(`update knoux_growth_campaign_channels set client_id='b' where campaign_id=$1`,[a.id]);

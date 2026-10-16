@@ -29,7 +29,7 @@ create table if not exists public.knoux_growth_media_assets (
   origin text not null default 'LIVE',
   created_at timestamptz not null default now(),
   constraint knoux_growth_media_assets_client_identity unique (client_id, id),
-  constraint knoux_growth_media_assets_path check (storage_path like client_id || '/%' and position('..' in storage_path) = 0),
+  constraint knoux_growth_media_assets_path check (split_part(storage_path, '/', 1) = client_id and position('..' in storage_path) = 0),
   constraint knoux_growth_media_assets_kind_mime check ((kind = 'VIDEO') = (mime_type = 'video/mp4')),
   constraint knoux_growth_media_assets_kind check (kind in ('IMAGE', 'VIDEO')),
   constraint knoux_growth_media_assets_origin check (origin in ('FIXTURE', 'LIVE')),
