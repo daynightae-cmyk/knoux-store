@@ -11,10 +11,41 @@ export const ALLOWED_MIME = {
   'image/jpeg': { kind: 'IMAGE' as const, maxBytes: 10 * 1024 * 1024 },
   'image/png': { kind: 'IMAGE' as const, maxBytes: 10 * 1024 * 1024 },
   'image/webp': { kind: 'IMAGE' as const, maxBytes: 10 * 1024 * 1024 },
-  'video/mp4': { kind: 'VIDEO' as const, maxBytes: 100 * 1024 * 1024 },
+  'video/mp4': { kind: 'VIDEO' as const, maxBytes: 20 * 1024 * 1024 },
 } as const;
 
 export type AllowedMime = keyof typeof ALLOWED_MIME;
+
+export const validMediaClient = (value: string) => /^[a-zA-Z0-9_-]{1,120}$/.test(value);
+
+/** Reject MIME spoofing before storage; decoding/transcoding remains a separate step. */
+export function matchesMediaSignature(bytes: Uint8Array, mime: string): boolean {
+  const at = (offset: number, values: number[]) => values.every((value, i) => bytes[offset + i] === value);
+  if (mime === 'image/jpeg') return bytes.length >= 12 && at(0, [255, 216, 255]) && at(bytes.length - 2, [255, 217]);
+  if (mime === 'image/png') return bytes.length >= 45 && at(0, [137, 80, 78, 71, 13, 10, 26, 10]) && at(8, [0, 0, 0, 13]) && at(12, [73, 72, 68, 82]) && at(bytes.length - 8, [73, 69, 78, 68]) && new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(16) > 0 && new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(20) > 0;
+  if (mime === 'image/webp') return bytes.length >= 20 && at(0, [82, 73, 70, 70]) && at(8, [87, 69, 66, 80]) && new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(4, true) + 8 === bytes.length && ['VP8 ', 'VP8L', 'VP8X'].includes(String.fromCharCode(...bytes.slice(12, 16)));
+  if (mime === 'video/mp4') return bytes.length >= 24 && at(4, [102, 116, 121, 112]) && ['isom', 'iso2', 'mp41', 'mp42', 'avc1', 'M4V '].includes(String.fromCharCode(...bytes.slice(8, 12)));
+  return false;
+}
+
+/** Enforce the cap on actual streamed bytes before invoking the multipart parser. */
+export async function boundedMediaForm(request: Request): Promise<FormData> {
+  const limit = 21 * 1024 * 1024;
+  const declared = Number(request.headers.get('content-length'));
+  if (declared > limit) throw new RangeError('Upload exceeds the request limit.');
+  const reader = request.body?.getReader();
+  if (!reader) throw new Error('Upload body missing.');
+  const chunks: Uint8Array<ArrayBuffer>[] = [];
+  let length = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    length += value.byteLength;
+    if (length > limit) { await reader.cancel(); throw new RangeError('Upload exceeds the request limit.'); }
+    chunks.push(new Uint8Array(value));
+  }
+  return new Response(new Blob(chunks), { headers: { 'content-type': request.headers.get('content-type') ?? '' } }).formData();
+}
 
 export function isAllowedMime(mime: string): mime is AllowedMime {
   return Object.hasOwn(ALLOWED_MIME, mime);
@@ -27,7 +58,7 @@ export function tenantPath(clientId: string, assetId: string, fileName: string):
 
 /** Strip path traversal, control chars and overlong names. Never returns empty. */
 export function safeFileName(name: string): string {
-  const base = (name.split(/[\\/]/).pop() ?? 'asset').replace(/[^\w.\-() ]+/g, '_').trim().slice(0, 120);
+  const base = (name.split(/[\\/]/).pop() ?? 'asset').replace(/[^\w.\-() ]+/g, '_').replace(/\.{2,}/g, '_').trim().slice(0, 120);
   return base || 'asset';
 }
 
@@ -36,7 +67,7 @@ export type MediaValidation =
   | { ok: false; reason: string };
 
 export function validateUpload(input: { mimeType: string; byteSize: number; clientId: string; fileName: string }): MediaValidation {
-  if (!input.clientId || /[/\\]/.test(input.clientId)) return { ok: false, reason: 'A valid client workspace is required.' };
+  if (!validMediaClient(input.clientId)) return { ok: false, reason: 'A valid client workspace is required.' };
   if (!isAllowedMime(input.mimeType)) {
     return { ok: false, reason: 'Only JPEG, PNG, WebP images and MP4 video are accepted.' };
   }

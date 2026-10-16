@@ -7,7 +7,7 @@ const studio = await import('../src/lib/growth/studio.ts');
 
 test('upload validation accepts images/video within caps and refuses the rest', () => {
   assert.equal(media.validateUpload({ mimeType: 'image/jpeg', byteSize: 1024, clientId: 'client-a', fileName: 'hero.jpg' }).ok, true);
-  assert.equal(media.validateUpload({ mimeType: 'video/mp4', byteSize: 50 * 1024 * 1024, clientId: 'client-a', fileName: 'reel.mp4' }).ok, true);
+  assert.equal(media.validateUpload({ mimeType: 'video/mp4', byteSize: 15 * 1024 * 1024, clientId: 'client-a', fileName: 'reel.mp4' }).ok, true);
   assert.equal(media.validateUpload({ mimeType: 'image/gif', byteSize: 100, clientId: 'client-a', fileName: 'anim.gif' }).ok, false);
   assert.equal(media.validateUpload({ mimeType: 'image/png', byteSize: 11 * 1024 * 1024, clientId: 'client-a', fileName: 'big.png' }).ok, false);
   assert.equal(media.validateUpload({ mimeType: 'image/jpeg', byteSize: 100, clientId: '../evil', fileName: 'x.jpg' }).ok, false);
@@ -38,4 +38,21 @@ test('media attachment starts from stored draft, bumps revision and invalidates 
   assert.equal(changed.revision, 1);
   assert.equal(changed.creative.status, 'DRAFT');
   assert.notEqual(studio.reviewFingerprint(plan, [changed]), before);
+});
+
+
+test('media signatures refuse spoofed MIME and truncated content', () => {
+  for (const mime of Object.keys(media.ALLOWED_MIME)) assert.equal(media.matchesMediaSignature(new TextEncoder().encode('<script>bad</script>'),mime),false);
+  const png=new Uint8Array(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a0s8AAAAASUVORK5CYII=','base64'));
+  assert.equal(media.matchesMediaSignature(png,'image/png'),true);
+  assert.equal(media.matchesMediaSignature(png,'image/jpeg'),false);
+  assert.equal(media.matchesMediaSignature(png.slice(0,8),'image/png'),false);
+});
+
+test('multipart uploads enforce declared and actual byte caps', async () => {
+  await assert.rejects(media.boundedMediaForm(new Request('https://example.test',{method:'POST',headers:{'content-length':String(22*1024*1024)},body:'x'})),RangeError);
+  let cancelled=false;
+  const body=new ReadableStream({start(c){c.enqueue(new Uint8Array(22*1024*1024));},cancel(){cancelled=true;}});
+  await assert.rejects(media.boundedMediaForm(new Request('https://example.test',{method:'POST',body,duplex:'half'})),RangeError);
+  assert.equal(cancelled,true);
 });

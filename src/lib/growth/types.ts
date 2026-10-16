@@ -377,6 +377,7 @@ export type CreativeDraft = {
   languages: LanguageCode[];
   /** Resolved media asset row id. Rendered only via signed URL. */
   mediaAssetId?: string;
+  destinationUrl?: string;
   /** Signed delivery URL, minted server-side per request. Never persisted. */
   mediaUrl?: string;
   mediaKind?: 'IMAGE' | 'VIDEO';

@@ -15,7 +15,7 @@ export type PlacementId = typeof PLACEMENTS[number]['id'];
 export type StudioEdit = { creative: CreativeDraft; destination: string; locale: LanguageCode; asset: string; mediaAssetId: string | null; revision: number; baseUpdatedAt: string };
 
 export function beginEdit(creative: CreativeDraft, destination = ''): StudioEdit {
-  return { creative: { ...creative }, destination, locale: creative.languages[0] ?? 'en', asset: '', mediaAssetId: creative.mediaAssetId ?? null, revision: 0, baseUpdatedAt: creative.updatedAt };
+  return { creative: { ...creative }, destination: creative.destinationUrl ?? destination, locale: creative.languages[0] ?? 'en', asset: '', mediaAssetId: creative.mediaAssetId ?? null, revision: 0, baseUpdatedAt: creative.updatedAt };
 }
 
 export function updateEdit(edit: StudioEdit, patch: Partial<Pick<StudioEdit, 'destination' | 'locale' | 'asset' | 'mediaAssetId'>> & { creative?: Partial<CreativeDraft> }, clientId: string, current: CreativeDraft): StudioEdit {
