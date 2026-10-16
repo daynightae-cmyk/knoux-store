@@ -103,13 +103,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ reason: cleanupError ? 'Asset record refused; storage cleanup requires operator attention.' : 'Asset record refused; uploaded object removed.' }, { status: 503 });
     }
     uploaded = false; // The asset row is durable; URL minting may be retried through GET.
-    const { data: signed } = await admin.storage.from(MEDIA_BUCKET)
-      .createSignedUrl(storagePath, SIGN_TTL_SECONDS);
+    let signedUrl: string | null = null;
+    try {
+      const { data: signed } = await admin.storage.from(MEDIA_BUCKET).createSignedUrl(storagePath, SIGN_TTL_SECONDS);
+      signedUrl = signed?.signedUrl ?? null;
+    } catch { /* The saved asset remains resolvable through an authorized GET retry. */ }
     return NextResponse.json({
       asset: {
         id: assetId, fileName: safeFileName(file.name || 'asset'),
         mimeType: file.type, byteSize: file.size, kind: validation.kind,
-        url: signed?.signedUrl ?? null, urlState: signed?.signedUrl ? 'RESOLVED' : 'UNRESOLVED',
+        url: signedUrl, urlState: signedUrl ? 'RESOLVED' : 'UNRESOLVED',
       },
     }, { headers: { 'cache-control': 'no-store' } });
   } catch {

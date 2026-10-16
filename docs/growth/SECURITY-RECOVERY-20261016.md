@@ -19,11 +19,12 @@ Fetched origin and merged `efd33c5c5ec2b116e452f4bbc212fdc2c04ef252` (current ma
 - `src/app/api/growth/clients/route.ts`: an existing workspace OWNER can onboard a client atomically with its owner membership. First-owner bootstrap still requires operator provisioning. No production test clients were created.
 - `src/components/command/studio/CreateGrowthDraft.tsx` and `/command/{clients,creative,campaigns}/page.tsx`: bilingual authenticated creation controls in the existing workspace. Demo mode hides real create controls. Campaign/creative drafts are durable through the existing database and refresh into the workspace.
 - `src/app/api/growth/media/route.ts` and `src/lib/growth/media.ts`: authenticate before multipart buffering; enforce declared and streamed request caps; verify allowed media signatures/structure; sanitize names, paths and client IDs; check signing paths against the authorized tenant; clean up storage after failed database writes and report cleanup failure. Images are capped at 10 MiB, MP4 at 20 MiB, multipart requests at 21 MiB. Signature checks are not full decoding or transcoding. Hosting ingress limits can be lower.
-- `supabase/migrations/20261016090000_knoux_growth_media_assets.sql`: positive bounded byte sizes, matching media kind/MIME, tenant storage paths and a composite client/media FK prevent cross-tenant attachment even by future privileged writers. No bucket is created by this migration.
-- `AdPreviewTheatre.tsx`: submit the expected revision, show actual save status, preserve explicit media removal, renew authorized signed URLs every four minutes and on focus, retrieve a selected asset outside the first library page, distinguish unresolved/loading media, and refuse MP4 rendering in image-only placements. All eight placements and Copy/Assets/Approval panels remain.
+- `supabase/migrations/20261016090000_knoux_growth_media_assets.sql`: positive bounded byte sizes, matching media kind/MIME, exact first-segment tenant storage paths (without SQL LIKE wildcard ambiguity) and a composite client/media FK prevent cross-tenant attachment even by future privileged writers. No bucket is created by this migration.
+- `AdPreviewTheatre.tsx`: submit the expected revision, show actual save status, preserve explicit media removal, renew authorized signed URLs every four minutes and on focus, retrieve a selected asset outside the first library page, distinguish unresolved/loading media, and refuse MP4 rendering in image-only placements. All eight placements and Copy/Assets/Approval panels remain. Library refresh errors are separate from upload/save errors, and a background refresh cannot clear an in-flight save state. Successful upload+record persistence remains a success with UNRESOLVED delivery if URL signing fails.
+- `BrandProfileEditor.tsx`, client PATCH and the service-only profile transaction: authorized owners/managers edit client identity and bilingual brand rules with an expected revision. Draft campaign approvals are invalidated atomically. Approved/live campaigns or reviewed creatives prevent profile edits until their review workflow permits changes. The pending migration revokes direct authenticated client writes, preventing browser bypass of approval invalidation. Onboarding remains OWNER-only.
 - `CampaignReview.tsx`: persistent draft save with conflict reporting, separate from the local review snapshot. No approval submission or publisher is claimed.
 - `types.ts`, `studio.ts`, `persistence/workspace-projection.ts`: persist/rehydrate the media asset ID and destination; signed URLs remain transient.
-- `tests/growth-draft-{handlers,transactions}.test.mjs`: actual shipped handler/RBAC execution with I/O stubs plus actual migration/RPC execution in PGlite PostgreSQL. These cover tenant overwrites, permissions, expired sessions, forged associations, foreign media, stale/concurrent revisions, duplicate creates, approval invalidation, channel failure rollback, privileged FK enforcement, onboarding and workspace rehydration. Media policy and cleanup tests were expanded.
+- `tests/growth-draft-{handlers,transactions}.test.mjs`: actual shipped handler/RBAC execution with I/O stubs plus actual migration/RPC execution in PGlite PostgreSQL. These cover tenant overwrites, permissions, expired sessions, forged associations, foreign media, stale/concurrent revisions, duplicate creates, approval invalidation, channel failure rollback, privileged FK enforcement, onboarding and workspace rehydration. Follow-up tests execute as service_role itself, reject direct browser profile mutations, prove pending approvals survive failed channel/audit operations, and cover brand profile revision/tenant/review enforcement. Media policy and cleanup tests were expanded.
 
 ## Local verification
 
@@ -31,31 +32,43 @@ Node `v24.21.0`. Tests were not disabled or excluded.
 
 | Check | Exit | Evidence |
 | --- | --- | --- |
-| Focused security/media suites | 0 | 30 tests; PostgreSQL transaction behavior and shipped handlers |
-| Final full `npm test` | 0 | 842 passed, 0 failed, 0 skipped |
+| Focused security/media suites | 0 | 37 tests across the final focused files; PostgreSQL transaction behavior and shipped handlers |
+| Final full `npm test` | 0 | 849 passed, 0 failed, 0 skipped |
 | `npm run typecheck` | 0 | Final source |
 | `npm run lint` plus final changed-file ESLint pass | 0 | No rule suppression |
 | `npm run build` | 0 | 96 generated pages; clients/creative/campaign/media APIs included |
 | `npm run audit:css-integrity` | 0 | 62 documents, 17 byte-matched HTTP 200 stylesheets, 15 route families |
 | `npm run audit:dead` | 0 | Configuration hints only |
 | Focused desktop Playwright `e2e/growth-studio.spec.ts` | 0 | 5 passed: synchronized edits, mobile drawer, brief, responsive geometry/axe, remaining command routes |
-| `npm run audit:deps` | 1 | 6 high findings through braces/micromatch/fast-glob/ESLint/Knip; no published braces fix |
+| `npm audit --omit=dev --audit-level=high` | 0 | Zero production vulnerabilities |
+| `npm run audit:deps` | 1 | 6 high development-tooling findings through braces/micromatch/fast-glob/ESLint/Knip; no published braces fix. Existing CI treats this as informational; the workflow was not changed. |
 | `git diff --check` | 0 | No whitespace errors |
 
-An initial full test invocation overlapped a build and failed production-server startup. This was corrected: the final build and full test run were sequential, and all 842 tests passed. An intermediate unused-variable/type error during cleanup hardening was repaired before final verification.
+An initial full test invocation overlapped a build and failed production-server startup. This was corrected: the final build and full test run were sequential, and all 849 tests passed. An intermediate unused-variable/type error during cleanup hardening was repaired before final verification.
 
 Full unit log: `%TEMP%/knoux-pr51-security-tests-20261016.log`. Playwright screenshots/traces: `e2e/.artifacts/`. CSS evidence: `.qa-css/integrity.json`. These local artifacts are retained, not claimed as live Supabase evidence.
 
 ## Delivery and remaining gates
 
-At commit creation, remote CI for the new head has not yet run. Query PR checks against the exact pushed SHA. Old-head Sonar reported 4.6% duplication against a 3% maximum. No Sonar exclusions or quality thresholds were changed. Shared API logic removes the relevant route duplication; only the remote new-head result establishes success.
+The first recovery head `d0b4f22a4c90aefbb2f34709d78f108ff6068df3` passed remote SonarCloud (0.0% new-code duplication, 3% unchanged limit, quality gate OK), CodeQL, the combined verification job, Vercel Preview and the V4 visual matrix. Its comprehensive route/accessibility job was still running before this follow-up. New-head checks must be read again after pushing the follow-up; prior-head success is not acceptance evidence. No Sonar exclusions, audit thresholds, CI failure handling or test exclusions were changed.
 
-The dependency audit currently blocks integration. Advisory: https://github.com/advisories/GHSA-vfj7-8cjw-p6xm (braces through 3.0.3, no patched version). Current Next ESLint still depends on fast-glob; blindly forcing a Knip major does not remove the Next chain. Audit was neither bypassed nor downgraded. The appropriate next step is a reviewed upstream dependency replacement/fix, followed by the unchanged gate.
+The full development-tooling audit still reports https://github.com/advisories/GHSA-vfj7-8cjw-p6xm (braces through 3.0.3, no patched version). Production audit is clean. Current Next ESLint still depends on fast-glob; blindly forcing a Knip major does not remove the Next chain. The pre-existing workflow uses continue-on-error for the tooling audit, while enforcing the production audit. This corrects the first checkpoint's overly broad description of this advisory as a required-CI blocker. The advisory remains disclosed and unresolved.
 
-No Supabase server credentials or authorized non-production project are configured in this worktree. Consequently actual Storage upload/signing, authenticated browser save/reload against Supabase, bucket privacy and real provider delivery have NOT been verified. PostgreSQL tests and storage I/O stubs are explicitly separate evidence. The full live vertical slice is NOT accepted yet.
+## Authorized local verification fallback
+
+The owner explicitly confirmed the connected KKNOUX STORE project is production and prohibited schema, Storage, policy or data changes. They authorized an isolated local runtime if Docker was available, otherwise PGlite and isolated storage/API tests. No paid cloud resource or unrelated project may be used.
+
+- Supabase CLI: `npx --yes supabase --version` returned `2.121.0`; `start --help` was read.
+- Docker: not found in PATH or the standard Docker Desktop/Chocolatey binary paths. No Docker service or engine pipe was present. A local Supabase container runtime cannot be established with the available tooling; no runtime installation or cloud resource was attempted.
+- The authorized fallback executes the ordered migration SQL and transaction functions in PGlite PostgreSQL, including invoker execution as service_role, browser grant refusals, FK/tenant constraints, optimistic revisions, approval invalidation, concurrent saves, idempotency and rollback.
+- Actual shipped handlers execute with isolated auth/storage/database I/O adapters, covering upload bytes, cleanup, signed resolution ownership and expired sessions. Stored rows rehydrate through the actual workspace projection and Studio edit initialization.
+- Production-build HTTP proof: unauthenticated media read 401, creative write 401, private Studio 307 to `/login?next=/command`, exit 0.
+- Read-only connector inspection of production verified existing Growth column/constraint compatibility and service-role CRUD privileges. Existing browser client write grants confirmed the need for the pending revocation. The media table, new draft RPCs and growth-media bucket are absent; there is no development branch. No remote write was performed.
+
+**Real Supabase Storage integration: NOT RUNTIME VERIFIED.** No authorized local/non-production Storage runtime or server credentials are available. Upload/signing/expiry and the authenticated browser save/reload vertical slice against real Supabase remain unverified. The full live vertical slice is NOT accepted. PostgreSQL and isolated I/O evidence must not be represented as production or real Supabase Storage proof.
 
 Before rollout, an owner must authorize the target database, apply/review the ordered Growth migrations in non-production, configure the private `growth-media` bucket, bootstrap an OWNER, then run: onboard client -> create campaign -> create creative -> upload image -> save -> reload -> resolve/preview -> deny another tenant. Repeat after signed-token expiry. Verify Storage policies and Supabase advisors on that environment. Production database changes and bucket creation remain unauthorized.
 
-Do not merge while audit or another requested gate is failing/pending. Do not assume absence of branch protection waives the user's gates. Merging main may trigger production Vercel deployment and needs the owner's deployment authorization. No merge, production migration, bucket creation, external publishing or ad spend was performed.
+Do not merge while a required check is failing/pending; disclose the existing informational tooling audit separately. Do not assume absence of branch protection waives the user's gates. Merging main may trigger production Vercel deployment and needs the owner's deployment authorization. No merge, production migration, bucket creation, external publishing or ad spend was performed.
 
 Continue Stage A only after PR #51 is stabilized and safely integrated; discovery/CRM/provider execution stages have not been started or represented as complete.

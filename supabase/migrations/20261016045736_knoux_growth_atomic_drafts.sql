@@ -1,6 +1,8 @@
 -- Server-only draft transactions. Apply only to an authorized non-production DB first.
 -- Functions are invoker-rights and executable only by the service role.
+-- Profile mutations must use the audited transaction, including for workspace owners.
 begin;
+revoke insert, update, delete, truncate, references, trigger on public.knoux_growth_clients from authenticated;
 alter table public.knoux_growth_creatives add column if not exists destination_url text;
 create table if not exists public.knoux_growth_draft_receipts (
   actor_id uuid not null references auth.users(id), request_key uuid not null,
@@ -42,8 +44,8 @@ begin
   if not found then raise exception 'Workspace missing' using errcode='P0002'; end if;
   select role into v_role from public.knoux_growth_memberships
     where client_id=p_client and user_id=p_actor for share;
-  if p_kind not in ('client','campaign','creative') then raise exception 'Unknown draft kind' using errcode='22023'; end if;
-  if v_role is null or (p_kind='client' and v_role<>'OWNER') or
+  if p_kind not in ('client','profile','campaign','creative') then raise exception 'Unknown draft kind' using errcode='22023'; end if;
+  if v_role is null or (p_kind='profile' and v_role not in ('OWNER','MANAGER')) or (p_kind='client' and v_role<>'OWNER') or
     (p_kind='campaign' and v_role not in ('OWNER','MANAGER','ADS_SPECIALIST','CONTENT_CREATOR')) or
     (p_kind='creative' and v_role not in ('OWNER','DESIGNER','CONTENT_CREATOR')) then
     raise exception 'Permission refused' using errcode='42501';
@@ -178,4 +180,31 @@ begin
 end $$;
 revoke all on function public.knoux_growth_create_client(text,uuid,jsonb) from public,anon,authenticated;
 grant execute on function public.knoux_growth_create_client(text,uuid,jsonb) to service_role;
+create or replace function public.knoux_growth_save_brand_profile(p_client text,p_actor uuid,p_expected timestamptz,p_input jsonb)
+returns jsonb language plpgsql security invoker set search_path = '' as $$
+declare v_old public.knoux_growth_clients; v_new public.knoux_growth_clients; v_campaign uuid;
+begin
+  perform public.knoux_growth_lock_draft_client(p_client,p_actor,'profile');
+  select * into v_old from public.knoux_growth_clients where id=p_client for update;
+  if p_expected is null or v_old.updated_at<>p_expected then raise exception 'Stale client profile' using errcode='40001'; end if;
+  perform 1 from public.knoux_growth_campaigns where client_id=p_client for update;
+  perform 1 from public.knoux_growth_creatives where client_id=p_client for update;
+  if exists(select 1 from public.knoux_growth_campaigns where client_id=p_client and status not in ('DRAFT','CHANGES_REQUESTED','READY_FOR_REVIEW')) or
+    exists(select 1 from public.knoux_growth_creatives where client_id=p_client and status not in ('DRAFT','REJECTED')) then
+    raise exception 'Brand changes require review of protected work first' using errcode='42501';
+  end if;
+  for v_campaign in select id from public.knoux_growth_campaigns where client_id=p_client order by id loop
+    perform public.knoux_growth_invalidate_draft_approval(v_campaign,p_client,p_actor);
+  end loop;
+  v_new := jsonb_populate_record(null::public.knoux_growth_clients,p_input);
+  update public.knoux_growth_clients set name=v_new.name,business_category=v_new.business_category,city=v_new.city,
+    website=v_new.website,brand_tone=v_new.brand_tone,brand_colors=v_new.brand_colors,brand_fonts=v_new.brand_fonts,
+    forbidden_claims=v_new.forbidden_claims,arabic_style=v_new.arabic_style,english_style=v_new.english_style,
+    updated_at=clock_timestamp() where id=p_client returning * into v_new;
+  insert into public.knoux_growth_audit_log(client_id,actor_id,actor_label,action,subject_type,subject_id,detail)
+    values(p_client,p_actor,'Operator','RULE_CHANGED','brand_profile',p_client,'Brand profile saved; campaign draft approvals superseded in this transaction.');
+  return to_jsonb(v_new);
+end $$;
+revoke all on function public.knoux_growth_save_brand_profile(text,uuid,timestamptz,jsonb) from public,anon,authenticated;
+grant execute on function public.knoux_growth_save_brand_profile(text,uuid,timestamptz,jsonb) to service_role;
 commit;
