@@ -8,7 +8,7 @@
  * Pure and testable — no I/O in the path resolution helpers.
  */
 
-import { resolve, sep, isAbsolute, normalize } from 'node:path';
+import { resolve, sep, isAbsolute, normalize, win32 } from 'node:path';
 import { realpathSync } from 'node:fs';
 import type { BridgeScope } from './protocol.js';
 
@@ -33,7 +33,9 @@ export function normalizeRelativePath(input: string): { ok: boolean; relative?: 
   if (typeof input !== 'string' || input.length === 0) {
     return { ok: false, reason: 'Path must be a non-empty string' };
   }
-  if (isAbsolute(input)) {
+  // Reject both host-native and Windows absolute paths on every CI/runtime OS.
+  // A Linux host's isAbsolute() does not recognize C:\\ or UNC/device prefixes.
+  if (isAbsolute(input) || win32.isAbsolute(input)) {
     return { ok: false, reason: 'Absolute paths are not allowed' };
   }
   if (input.includes('\0')) {

@@ -356,7 +356,28 @@ export class BridgeServer {
       claims = verified.claims!;
     }
 
-    const root = this.rootFor(claims.cwd);
+    // A ticket that survived signature, audience, expiry, replay and scope
+    // checks can still name a working directory this bridge must not serve.
+    // The configured root is authoritative and a claim may only narrow it, so
+    // an unusable claim is refused here rather than adjusted into something
+    // the caller did not ask for.
+    const rootDecision = this.rootFor(claims.cwd);
+    if (!rootDecision.ok) {
+      this.options.audit.append({
+        action: 'auth.denied',
+        actor: claims.sub,
+        target: `${method} ${path}`,
+        outcome: 'denied',
+        // The reason is recorded and the value is not: the claim is
+        // caller-controlled, and copying it into a log is how a hostile value
+        // becomes a stored one.
+        detail: `Ticket cwd refused: ${rootDecision.reason}`,
+        approvalId: null,
+      });
+      error(res, 403, 'invalid-ticket', 'The ticket was rejected.');
+      return;
+    }
+    const root = rootDecision.root;
 
     try {
       await this.route(method, path, url, req, res, claims, root);
@@ -480,8 +501,25 @@ export class BridgeServer {
     }
   }
 
-  private rootFor(claimCwd?: string): string {
-    return claimCwd ?? this.options.config.root;
+  /**
+   * The workspace root a request is served against.
+   *
+   * The configured root is authoritative. A `cwd` claim narrows it to a
+   * directory inside — it never defines one. That direction matters: the claim
+   * is signed by the BFF but chosen by the browser, and treating it as the root
+   * would hand the client authority over where this process reads and writes.
+   * Anything that does not resolve inside the configured root, including a
+   * relative path that would otherwise be joined against the bridge's own
+   * working directory, is refused and logged rather than quietly honoured.
+   */
+  private rootFor(claimCwd: string | undefined): { ok: true; root: string } | { ok: false; reason: string } {
+    const configured = this.options.config.root;
+    if (claimCwd === undefined) return { ok: true, root: configured };
+
+    const resolved = resolveInsideRoot(configured, claimCwd);
+    if (resolved.ok && resolved.absolute) return { ok: true, root: resolved.absolute };
+
+    return { ok: false, reason: resolved.reason ?? 'unusable' };
   }
 
   private scopeForPath(path: string): BridgeScope | null {
@@ -1281,7 +1319,25 @@ export class BridgeServer {
 
     // verifyTicket only returns ok:true with claims populated.
     const claims = verified.claims!;
-    const root = this.rootFor(claims.cwd);
+
+    // Same rule as the HTTP surface: the configured root is authoritative, and
+    // a signed `cwd` claim may only narrow it. A claim that does not resolve
+    // inside the root is refused before a PTY is spawned, so no session is ever
+    // created against a directory the ticket could not legitimately name.
+    const rootDecision = this.rootFor(claims.cwd);
+    if (!rootDecision.ok) {
+      this.options.audit.append({
+        action: 'terminal.denied',
+        actor: claims.sub,
+        target: 'websocket',
+        outcome: 'denied',
+        detail: `Ticket cwd refused: ${rootDecision.reason}`,
+        approvalId: null,
+      });
+      ws.close(4003, 'The ticket was rejected.');
+      return;
+    }
+    const root = rootDecision.root;
     const send = (frame: TerminalServerFrame): void => {
       if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(frame));
     };
