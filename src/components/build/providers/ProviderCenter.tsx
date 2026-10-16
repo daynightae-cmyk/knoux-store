@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import Link from 'next/link';
 import { AGENT_PERMISSIONS, type ProviderWorkspaceSnapshot, type ProviderDefinition, type ProviderProfile, type AuthSource } from '@/lib/ai/provider-os/types';
 import { routingEligibility } from '@/lib/ai/provider-os/policy';
+import { providerConnectionLabel } from '@/lib/ai/provider-os/connection-label';
 import styles from './providers.module.css';
 import { PlatformFacts } from './PlatformFacts';
 import { CustomMetadata } from './CustomMetadata';
@@ -23,6 +24,8 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     const [showAll, setShowAll] = useState(false), [modelSearch, setModelSearch] = useState(''), [freeOnly, setFreeOnly] = useState(false), [modelPage, setModelPage] = useState(0), [billing, setBilling] = useState(false);
     const dialog = useRef<HTMLDialogElement>(null), opener = useRef<HTMLButtonElement | null>(null);
     const providerBrowse = useRef<HTMLDetailsElement>(null), detail = useRef<HTMLElement>(null);
+    // A synchronous lock also covers submissions before React commits `busy`.
+    const inFlight = useRef(false);
     const load = useCallback(async (signal?: AbortSignal) => {
         const response = await fetch('/api/build/provider-os', { cache: 'no-store', signal });
         const result = await response.json();
@@ -61,8 +64,9 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     const writable = data?.persistence === 'AVAILABLE', vaultWritable = writable && data?.secretStore.writable;
     const filtered = definitions.filter(item => (category === 'ALL' || item.class === category) && `${item.name} ${item.id} ${item.transport}`.toLowerCase().includes(search.toLowerCase()));
     async function command(input: Record<string, unknown>, workspaceId?: string): Promise<boolean> {
-        if (busy)
+        if (inFlight.current)
             return false;
+        inFlight.current = true;
         setBusy(true);
         setMessage('');
         try {
@@ -71,6 +75,7 @@ export function ProviderCenter({ embedded = false }: Readonly<{
             if (!response.ok)
                 throw new Error(result.message ?? 'Provider operation refused.');
             setData(result);
+            if (workspaceId) clearCredentialDraft();
             window.dispatchEvent(new Event('knoux-provider-profiles-changed'));
             setMessage('Configuration saved. Measured connection facts remain separate.');
             return true;
@@ -81,18 +86,18 @@ export function ProviderCenter({ embedded = false }: Readonly<{
         }
         finally {
             setBusy(false);
-            setSecret('');
+            inFlight.current = false;
         }
     }
     function choose(item: ProviderDefinition) {
+        if (inFlight.current) return;
+        clearCredentialDraft();
         setSelected(item.id);
         setTab('Overview');
         setModelPage(0);
         setModelSearch('');
         setBilling(false);
         setStreamBilling(false);
-        setEditCredential('');
-        setSecret('');
         if (window.innerWidth <= 650) {
             if (providerBrowse.current)
                 providerBrowse.current.open = false;
@@ -101,6 +106,12 @@ export function ProviderCenter({ embedded = false }: Readonly<{
                 detail.current?.focus({ preventScroll: true });
             });
         }
+    }
+    function clearCredentialDraft() {
+        setSecret('');
+        setCredentialName('');
+        setEditCredential('');
+        setRotate(false);
     }
     function closeWizard() { setWizard(false); setSecret(''); opener.current?.focus(); }
     function openWizard(button: HTMLButtonElement, existing?: ProviderProfile) {
@@ -135,8 +146,8 @@ export function ProviderCenter({ embedded = false }: Readonly<{
         if (!definition)
             return;
         const existing = credentials.find(item => item.id === editCredential);
-        await command(existing ? { action: rotate ? 'CREDENTIAL_ROTATE' : 'CREDENTIAL_REPLACE', id: existing.id, version: existing.revision, secret } : { action: 'CREDENTIAL_CREATE', providerId: definition.id, name: credentialName, secret });
-        setSecret('');
+        const saved = await command(existing ? { action: rotate ? 'CREDENTIAL_ROTATE' : 'CREDENTIAL_REPLACE', id: existing.id, version: existing.revision, secret } : { action: 'CREDENTIAL_CREATE', providerId: definition.id, name: credentialName, secret });
+        if (saved) setSecret('');
     }
     function update(patch: Record<string, unknown>) {
         if (profile)
@@ -159,7 +170,7 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     <div className={styles.composition}>
       <details ref={providerBrowse} className={styles.providerBrowse} open><summary>Browse providers &#8599;</summary><nav className={styles.providerList} aria-label="Provider registry">{filtered.map(item => { const own = data?.profiles.filter(profile => profile.providerId === item.id) ?? [], active = own.find(profile => profile.active); return <button key={item.id} type="button" aria-current={selected === item.id ? 'true' : undefined} onClick={() => choose(item)}><span className={styles.orbit} aria-hidden="true">{item.class === 'CODING_AGENT' ? '⌘' : item.class === 'LOCAL' ? '◉' : '✦'}</span><span><strong>{item.name}</strong><small>{item.gateway ? 'GATEWAY · ' : ''}{item.class.replace('_', ' ')} · {active ? active.enabled ? 'PROFILE ACTIVE' : 'PROVIDER DISABLED' : own.length ? 'PROFILE INACTIVE' : 'UNCONFIGURED'}</small></span><span aria-hidden="true">↗</span></button>; })}{!filtered.length ? <p>No provider matches this search. Coding agents appear only from a paired trusted bridge.</p> : null}</nav></details>
       <section ref={detail} tabIndex={-1} className={styles.detail} aria-label="Provider detail">{!definition ? <div className={styles.intro}><span aria-hidden="true" className={styles.constellation}>✦</span><h2>A connected constellation.</h2><p>Select a provider to configure its profiles and inspect measured capabilities. Keys stay on the server; unmeasured usage remains unknown.</p><p>{data?.blocker}</p></div> : <>
-        <header className={styles.detailHeading}><span className={styles.eyebrow}>{definition.class.replace('_', ' ')} / {definition.transport}</span><h2>{definition.name}</h2>{profile ? <p>Profile: <strong>{profile.name}</strong> · {profile.active ? "ACTIVE" : "INACTIVE"} · {profile.enabled ? "ENABLED" : "DISABLED"}</p> : null}<p>{definition.gateway ? 'Gateway transport. Author namespaces do not prove the actual upstream route.' : definition.detectionOnly ? 'CLI discovery is a separate fact from authentication and execution.' : 'A scoped profile feeds the existing KNOuX adapters and Router V2.'}</p><div className={styles.actions}><button type="button" disabled={!writable || busy} onClick={event => openWizard(event.currentTarget)}>Add profile +</button>{profile ? <><button type="button" disabled={!writable || busy} onClick={() => update({ enabled: !profile.enabled })}>{profile.enabled ? 'Disable provider' : 'Enable provider'}</button><button type="button" disabled={!writable || busy} onClick={() => void command({ action: 'TEST_CONNECTION', id: profile.id, version: profile.version })}>Test connection</button></> : null}</div><small>Connection testing checks authentication and discovery only; it does not generate content.</small></header>
+        <header className={styles.detailHeading}><span className={styles.eyebrow}>{definition.class.replace('_', ' ')} / {definition.transport}</span><h2>{definition.name}</h2><p data-provider-connection>Connection: <strong>{providerConnectionLabel(profile)}</strong></p>{profile ? <p>Profile: <strong>{profile.name}</strong> · {profile.active ? "ACTIVE" : "INACTIVE"} · {profile.enabled ? "ENABLED" : "DISABLED"}</p> : null}<p>{definition.gateway ? 'Gateway transport. Author namespaces do not prove the actual upstream route.' : definition.detectionOnly ? 'CLI discovery is a separate fact from authentication and execution.' : 'A scoped profile feeds the existing KNOuX adapters and Router V2.'}</p><div className={styles.actions}><button type="button" disabled={!writable || busy} onClick={event => openWizard(event.currentTarget)}>Add profile +</button>{profile ? <><button type="button" disabled={!writable || busy} onClick={() => update({ enabled: !profile.enabled })}>{profile.enabled ? 'Disable provider' : 'Enable provider'}</button><button type="button" disabled={!writable || busy} onClick={() => void command({ action: 'TEST_CONNECTION', id: profile.id, version: profile.version })}>Test connection</button></> : null}</div><small>Connection testing checks authentication and discovery only; it does not generate content.</small></header>
         <nav className={styles.tabs} aria-label={`${definition.name} sections`}>{definition.tabs.map(item => <button type="button" key={item} aria-pressed={tab === item} onClick={() => setTab(item)}>{item}</button>)}</nav>
         <section className={styles.tabContent} aria-label={tab}>
         {tab === 'Endpoint' && definition.class === 'CUSTOM' ? <CustomMetadata /> : null}
@@ -178,7 +189,7 @@ export function ProviderCenter({ embedded = false }: Readonly<{
                     }}>Revoke {item.name}</button><button type="button" disabled={!writable || busy || item.referencedBy.length > 0} title={item.referencedBy.length ? 'Remove all profile bindings before deletion.' : undefined} onClick={() => {
                         if (window.confirm('Permanently delete this unreferenced credential?'))
                             void command({ action: 'CREDENTIAL_DELETE', id: item.id, version: item.revision });
-                    }}>Delete {item.name}</button></div></article>)}<form className={styles.form} onSubmit={event => void saveSecret(event)}><h4>{editCredential ? rotate ? 'Rotate credential' : 'Replace credential' : 'Add credential'}</h4>{!editCredential ? <label>Credential name<input required maxLength={80} value={credentialName} onChange={event => setCredentialName(event.target.value)}/></label> : <button type="button" onClick={() => { setEditCredential(''); setSecret(''); }}>Add a different credential</button>}<label>Secret (write only)<input type="password" autoComplete="new-password" required maxLength={8192} disabled={!vaultWritable} value={secret} onChange={event => setSecret(event.target.value)}/></label><p>No reveal control. Replacement and rotation invalidate dependent connection facts. The field clears after every attempt.</p><button type="submit" disabled={!vaultWritable || busy}>{editCredential ? 'Save replacement' : 'SAVE API KEY'}</button></form></> : null}
+                    }}>Delete {item.name}</button></div></article>)}<form className={styles.form} onSubmit={event => void saveSecret(event)}><h4>{editCredential ? rotate ? 'Rotate credential' : 'Replace credential' : 'Add credential'}</h4>{!editCredential ? <label>Credential name<input required maxLength={80} value={credentialName} onChange={event => setCredentialName(event.target.value)}/></label> : <button type="button" onClick={() => { setEditCredential(''); setSecret(''); }}>Add a different credential</button>}<label>Secret (write only)<input type="password" autoComplete="new-password" required maxLength={8192} disabled={!vaultWritable} value={secret} onChange={event => setSecret(event.target.value)}/></label><p>No reveal control. Replacement and rotation invalidate dependent connection facts. The field clears after a successful save. Failed saves preserve the unsaved value in this form only.</p><button type="submit" disabled={!vaultWritable || busy}>{editCredential ? 'Save replacement' : 'SAVE API KEY'}</button></form></> : null}
         {tab === 'Endpoint' ? <><h3>Endpoint binding</h3><p>{profile && 'endpoint' in profile.auth ? profile.auth.endpoint : 'No endpoint bound.'}</p><p>{definition.class === 'LOCAL' ? 'Loopback only, through an authorized local server. A hosted deployment cannot execute a runtime on your computer.' : 'Public HTTPS only. The server operator must allow the hostname; DNS is checked and the socket is pinned. Redirects are refused.'}</p>{profile ? <form className={styles.form} onSubmit={event => {
                         event.preventDefault();
                         const endpoint = String(new FormData(event.currentTarget).get('endpoint'));
