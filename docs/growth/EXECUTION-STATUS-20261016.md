@@ -1,4 +1,6 @@
-# KNOuX Growth — Execution Status (M0 Baseline)
+# KNOuX Growth — Historical M0 Baseline
+
+This is the original implementation checkpoint. Current recovery evidence is in SECURITY-RECOVERY-20261016.md; the route matrix below is historical.
 
 **Date:** 2026-10-16 · **Branch:** `codex/growth-operating-studio-20261016`
 **Starting main SHA:** `fe7fda8aa4e2fd43526ef395c1ec7dff98b77c4c` (PR #48 merged)

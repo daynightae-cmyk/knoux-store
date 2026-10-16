@@ -13,6 +13,7 @@
  * settings sub-tab.
  */
 
+import { CreateGrowthDraft } from '@/components/command/studio/CreateGrowthDraft';
 import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
 import {
@@ -36,7 +37,7 @@ export default function ClientsPage() {
 }
 
 function Clients() {
-  const { records, activeClient, setActiveClientId, clients } = useWorkspace();
+  const { records, activeClient, setActiveClientId, clients, isDemoWorkspace } = useWorkspace();
   const area = areaBySlug('clients')!;
   const connections = records.connections;
   const country = countryByCode(activeClient.country);
@@ -54,12 +55,13 @@ function Clients() {
         { label: 'Workspaces', value: String(clients.length) },
       ]}
     >
-      <div style={{ padding: '16px 24px 0' }}>
+      <CreateGrowthDraft key={activeClient.id} kind="client" />
+      {isDemoWorkspace && <div style={{ padding: '16px 24px 0' }}>
         <DemoNotice>
           Every client here is an invented demonstration workspace. No real business, brand or contact
           detail is represented.
         </DemoNotice>
-      </div>
+      </div>}
 
       <Section title="Workspaces" note="Select a workspace to load it into every screen.">
         <div className={styles.commandGrid4 ?? ''}>
