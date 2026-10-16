@@ -1,34 +1,18 @@
 'use client';
 
-import { useEffect, useId, useRef, useSyncExternalStore, type CSSProperties } from 'react';
-import {
-  BODY_DAMP,
-  EYE_DAMP,
-  EYE_TRAVEL,
-  OFFSET_FAR,
-  OFFSET_NEAR,
-  SENTINEL_HEIGHT,
-  SENTINEL_SIZE,
-  SHELL_TILT,
-  SHARDS,
-  SLEEP_AFTER_MS,
-  BLINK_MS,
-  blinkGap,
-  classifyTarget,
-  isDoubleBlink,
-  resolveVisual,
-  type SentinelMood,
-  type SentinelVisual,
-} from './knoux-sentinel';
+import { useId, useSyncExternalStore, type ReactNode, type CSSProperties } from 'react';
+import { SHARDS } from './knoux-sentinel';
+import { useSentinelPresence } from './sentinel-presence';
+import { guideLanguageTag, type GuideLanguage } from '@/lib/sentinel/languages';
 import {
   auraFor,
-  capabilityFor,
   litShards,
   sentinelCore,
   sentinelMarkGlyph,
   sentinelRegistry,
 } from './sentinel-capability';
 import './knoux-sentinel.css';
+
 
 /** Particle budget for the canonical mark reading inside the shell. */
 const GLYPH_BUDGET = 96;
@@ -60,10 +44,17 @@ function useIsHydrated(): boolean {
  * software and lab registries, so the Sentinel reports the state of the
  * institution rather than an authored mood.
  */
-export function KnouxSentinel() {
-  const root = useRef<HTMLSpanElement>(null);
-  const eyes = useRef<SVGGElement>(null);
-  const timeouts = useRef<number[]>([]);
+/**
+ * Accessible name for the mascot trigger. Urdu is a separate language with its
+ * own wording; the geometry and animation below are untouched by any of this.
+ */
+const triggerLabel: Record<GuideLanguage, { open: string; collapse: string }> = {
+  en: { open: 'Open Sentinel guide', collapse: 'Minimize Sentinel guide' },
+  ar: { open: 'افتح دليل Sentinel', collapse: 'تصغير دليل Sentinel' },
+  ur: { open: 'Sentinel رہنما کھولیں', collapse: 'Sentinel رہنما سمیٹیں' },
+};
+export function KnouxSentinel({ expanded = false, docked = false, menuPaused = false, phase = 'idle', language = 'en', onActivate, children }: { expanded?: boolean; docked?: boolean; menuPaused?: boolean; phase?: string; language?: GuideLanguage; onActivate: () => void; children?: ReactNode }) {
+  const {root,eyes} = useSentinelPresence(expanded || docked);
   const uid = useId().replace(/:/g, '');
 
   const registry = sentinelRegistry();
@@ -80,307 +71,6 @@ export function KnouxSentinel() {
    */
   const hydrated = useIsHydrated();
 
-  useEffect(() => {
-    const node = root.current;
-    if (!node) return;
-
-    const coarse = window.matchMedia('(pointer: coarse)');
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-    const canFollow = () => !reduced.matches && !coarse.matches;
-    let enabled = canFollow();
-    let frame = 0;
-    let sleepTimer = 0;
-    let scrollTimer = 0;
-    let targetX = -140;
-    let targetY = -140;
-    let x = -140;
-    let y = -140;
-    let ox = OFFSET_NEAR;
-    let oy = 20;
-    let tilt = 0;
-    let eyeX = 0;
-    let eyeY = 0;
-    let gazeX = 0;
-    let gazeY = 0;
-    let hoveringForm = false;
-    let mood: SentinelMood = 'idle';
-    let visual: SentinelVisual = 'idle';
-    let blinking = false;
-    let blinkIndex = 0;
-    let sleeping = false;
-    let current: HTMLElement | null = null;
-    let lastScrollY = window.scrollY;
-    let lastScrollT = performance.now();
-    let ready = false;
-
-    const later = (fn: () => void, ms: number) => {
-      const id = window.setTimeout(() => {
-        timeouts.current = timeouts.current.filter((item) => item !== id);
-        fn();
-      }, ms);
-      timeouts.current.push(id);
-      return id;
-    };
-
-    const clearLater = () => {
-      timeouts.current.forEach((id) => window.clearTimeout(id));
-      timeouts.current = [];
-    };
-
-    const stop = () => {
-      if (frame) cancelAnimationFrame(frame);
-      frame = 0;
-    };
-
-    const setVisual = (next: SentinelVisual) => {
-      if (visual === next) return;
-      visual = next;
-      node.dataset.state = next;
-      node.dataset.capability = capabilityFor(next === 'sleep' ? 'sleep' : mood);
-    };
-
-    const paintVisual = () => {
-      setVisual(resolveVisual({ mood: sleeping ? 'sleep' : mood, gazeX, gazeY, blinking }));
-    };
-
-    const armSleep = () => {
-      window.clearTimeout(sleepTimer);
-      sleepTimer = window.setTimeout(() => {
-        sleeping = true;
-        mood = 'sleep';
-        blinking = false;
-        clearLater();
-        setVisual('sleep');
-      }, SLEEP_AFTER_MS);
-    };
-
-    const armBlink = () => {
-      if (!enabled || sleeping) return;
-      later(() => {
-        if (sleeping || !enabled) {
-          armBlink();
-          return;
-        }
-        blinking = true;
-        paintVisual();
-        later(() => {
-          blinking = false;
-          paintVisual();
-          if (isDoubleBlink(blinkIndex)) {
-            later(() => {
-              blinking = true;
-              paintVisual();
-              later(() => {
-                blinking = false;
-                paintVisual();
-              }, BLINK_MS);
-            }, 80);
-          }
-          blinkIndex += 1;
-          armBlink();
-        }, BLINK_MS);
-      }, blinkGap(blinkIndex));
-    };
-
-    const wake = () => {
-      if (sleeping) {
-        sleeping = false;
-        if (mood === 'sleep') mood = 'observe';
-        armBlink();
-        paintVisual();
-      }
-      armSleep();
-    };
-
-    const applySpatial = (clientX: number, clientY: number) => {
-      if (!current) return;
-      const box = current.getBoundingClientRect();
-      if (!box.width || !box.height) return;
-      current.style.setProperty('--local-x', `${((clientX - box.left) / box.width) * 100}%`);
-      current.style.setProperty('--local-y', `${((clientY - box.top) / box.height) * 100}%`);
-      current.style.setProperty('--depth-px-x', `${((clientX - box.left) / box.width - 0.5) * 18}px`);
-      current.style.setProperty('--depth-px-y', `${((clientY - box.top) / box.height - 0.5) * 18}px`);
-    };
-
-    const tick = () => {
-      frame = 0;
-      if (!enabled || document.hidden) return;
-
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      let wantX = hoveringForm ? OFFSET_FAR + 10 : OFFSET_NEAR;
-      let wantY = hoveringForm ? OFFSET_FAR : 20;
-      if (targetX > vw - 140) wantX = -(SENTINEL_SIZE + OFFSET_NEAR);
-      if (targetY > vh - 160) wantY = -(SENTINEL_HEIGHT + 10);
-      ox += (wantX - ox) * 0.12;
-      oy += (wantY - oy) * 0.12;
-
-      const nx = Math.max(6, Math.min(vw - SENTINEL_SIZE - 6, targetX + ox));
-      const ny = Math.max(6, Math.min(vh - SENTINEL_HEIGHT - 6, targetY + oy));
-      x += (nx - x) * BODY_DAMP;
-      y += (ny - y) * BODY_DAMP;
-
-      const centerX = x + SENTINEL_SIZE / 2;
-      const centerY = y + SENTINEL_HEIGHT / 2;
-      const dx = targetX - centerX;
-      const dy = targetY - centerY;
-      const dist = Math.hypot(dx, dy) || 1;
-      gazeX = Math.max(-1, Math.min(1, dx / 90));
-      gazeY = Math.max(-1, Math.min(1, dy / 90));
-      eyeX += (gazeX * EYE_TRAVEL - eyeX) * EYE_DAMP;
-      eyeY += (gazeY * EYE_TRAVEL * 0.7 - eyeY) * EYE_DAMP;
-
-      const wantTilt = Math.max(-SHELL_TILT, Math.min(SHELL_TILT, gazeX * SHELL_TILT));
-      tilt += (wantTilt - tilt) * 0.1;
-      const scale = sleeping ? 0.98 : hoveringForm ? 0.99 : 1 + Math.min(0.02, dist / 2600);
-
-      node.style.transform = `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) rotate(${tilt.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
-      if (eyes.current) {
-        eyes.current.style.transform = `translate(${eyeX.toFixed(2)}px, ${eyeY.toFixed(2)}px)`;
-      }
-
-      paintVisual();
-
-      if (!ready && targetX > 0) {
-        ready = true;
-        node.dataset.ready = 'true';
-      }
-
-      const settled =
-        Math.abs(nx - x) < 0.18 &&
-        Math.abs(ny - y) < 0.18 &&
-        Math.abs(wantTilt - tilt) < 0.04 &&
-        Math.abs(gazeX * EYE_TRAVEL - eyeX) < 0.05 &&
-        Math.abs(wantX - ox) < 0.3;
-      if (!settled) frame = requestAnimationFrame(tick);
-    };
-
-    const start = () => {
-      if (!enabled || frame) return;
-      frame = requestAnimationFrame(tick);
-    };
-
-    const onMove = (event: PointerEvent) => {
-      if (!enabled || document.hidden) return;
-      if (event.pointerType && event.pointerType !== 'mouse') return;
-      targetX = event.clientX;
-      targetY = event.clientY;
-      wake();
-      const surface = (event.target as Element | null)?.closest?.('[data-spatial]') as HTMLElement | null;
-      if (current !== surface) {
-        current?.removeAttribute('data-pointer-inside');
-        current = surface;
-        current?.setAttribute('data-pointer-inside', '');
-      }
-      applySpatial(event.clientX, event.clientY);
-      const hit = classifyTarget(event.target as Element | null);
-      hoveringForm = hit.formCalm;
-      if (!sleeping) mood = hit.mood;
-      start();
-    };
-
-    const onLeave = () => {
-      targetX = -140;
-      targetY = -140;
-      mood = 'idle';
-      hoveringForm = false;
-      ready = false;
-      node.dataset.ready = 'false';
-      current?.removeAttribute('data-pointer-inside');
-      current = null;
-      stop();
-    };
-
-    const onScroll = () => {
-      const now = performance.now();
-      const dy = Math.abs(window.scrollY - lastScrollY);
-      const dt = Math.max(16, now - lastScrollT);
-      lastScrollY = window.scrollY;
-      lastScrollT = now;
-      wake();
-      if (dy / dt > 0.35) node.dataset.scroll = 'fast';
-      window.clearTimeout(scrollTimer);
-      scrollTimer = window.setTimeout(() => {
-        delete node.dataset.scroll;
-      }, 220);
-    };
-
-    const onKey = () => wake();
-    const onTouch = () => wake();
-
-    const onFocusIn = (event: FocusEvent) => {
-      wake();
-      const hit = classifyTarget(event.target as Element | null);
-      hoveringForm = hit.formCalm;
-      if (hit.formCalm && !sleeping) {
-        mood = hit.mood;
-        paintVisual();
-        start();
-      }
-    };
-
-    const sync = () => {
-      enabled = canFollow();
-      if (!enabled) {
-        onLeave();
-        stop();
-        clearLater();
-        window.clearTimeout(sleepTimer);
-        node.dataset.ready = reduced.matches ? 'true' : 'false';
-        node.dataset.state = 'idle';
-      } else if (!frame) {
-        start();
-        armBlink();
-        armSleep();
-      }
-    };
-
-    const onVisibility = () => {
-      if (document.hidden) {
-        stop();
-        node.dataset.ready = 'false';
-      } else if (enabled) {
-        wake();
-        start();
-      }
-    };
-
-    if (enabled) {
-      armBlink();
-      armSleep();
-    } else if (reduced.matches && !coarse.matches) {
-      node.dataset.ready = 'true';
-      node.dataset.state = 'idle';
-    }
-
-    document.addEventListener('pointermove', onMove, { passive: true });
-    document.documentElement.addEventListener('mouseleave', onLeave);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('keydown', onKey);
-    window.addEventListener('focusin', onFocusIn);
-    window.addEventListener('touchstart', onTouch, { passive: true });
-    document.addEventListener('visibilitychange', onVisibility);
-    coarse.addEventListener('change', sync);
-    reduced.addEventListener('change', sync);
-
-    return () => {
-      stop();
-      clearLater();
-      window.clearTimeout(sleepTimer);
-      window.clearTimeout(scrollTimer);
-      document.removeEventListener('pointermove', onMove);
-      document.documentElement.removeEventListener('mouseleave', onLeave);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('keydown', onKey);
-      window.removeEventListener('focusin', onFocusIn);
-      window.removeEventListener('touchstart', onTouch);
-      document.removeEventListener('visibilitychange', onVisibility);
-      coarse.removeEventListener('change', sync);
-      reduced.removeEventListener('change', sync);
-      current?.removeAttribute('data-pointer-inside');
-    };
-  }, []);
 
   return (
     <span
@@ -392,9 +82,14 @@ export function KnouxSentinel() {
       data-shards={lit}
       data-records={registry.total}
       data-shipped={registry.shippedShare.toFixed(3)}
-      aria-hidden="true"
+      data-expanded={expanded}
+      data-menu-paused={menuPaused}
+      data-phase={phase}
+      data-sentinel-launcher
+      lang={guideLanguageTag(language)}
     >
-      <svg viewBox="0 0 80 100" focusable="false">
+      <button disabled={menuPaused} className="ks-trigger" type="button" onClick={onActivate} aria-haspopup="dialog" aria-expanded={expanded} aria-controls={expanded?'sentinel-guide-panel':undefined} aria-label={expanded ? (triggerLabel[language] ?? triggerLabel.en).collapse : (triggerLabel[language] ?? triggerLabel.en).open}>
+      <svg viewBox="0 0 80 100" focusable="false" aria-hidden="true">
         <defs>
           <radialGradient id={`${uid}-aura`} cx="50%" cy="40%" r="48%">
             <stop offset="0%" stopColor="white" stopOpacity={aura} />
@@ -483,6 +178,8 @@ export function KnouxSentinel() {
           </g>
         </g>
       </svg>
+      </button>
+      {children}
     </span>
   );
 }

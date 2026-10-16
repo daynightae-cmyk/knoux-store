@@ -34,7 +34,7 @@ function backoffLabel(attempts: number): string {
 
 type BridgeState =
   | { kind: 'checking' }
-  | { kind: 'unavailable'; blocker: string }
+  | { kind: 'unavailable'; blocker: string; authRequired?: boolean }
   | { kind: 'ready'; handshake: Handshake };
 
 interface BridgeStatusResponse {
@@ -67,7 +67,9 @@ export function PowerShellPage() {
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const transportRef = useRef<TerminalTransport | null>(null);
-  const termRef = useRef<{ write: (d: string) => void; dispose: () => void } | null>(null);
+  const termRef = useRef<{ write: (d: string) => void; dispose: () => void; getSelection?: () => string } | null>(null);
+  const pendingOutputRef = useRef<string[]>([]);
+  const pendingBytesRef = useRef(0);
   const fitRef = useRef<{ fit: () => void; proposeDimensions: () => { cols: number; rows: number } | undefined } | null>(null);
   const searchRef = useRef<{ findNext: (q: string) => boolean; findPrevious: (q: string) => boolean } | null>(null);
   const statsTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -91,14 +93,15 @@ export function PowerShellPage() {
             setBridge({ kind: 'ready', handshake: body.handshake });
             setProfiles(psProfiles);
             setProfile(psProfiles[0].id);
-            setCwd(body.handshake.root);
+            setCwd(''); // Empty means the bridge root; never send an absolute path as cwd.
           } else {
             setBridge({ kind: 'unavailable', blocker: 'NO POWERSHELL PROFILE' });
           }
         } else {
           setBridge({
             kind: 'unavailable',
-            blocker: body.blocker || (body.configured ? 'BRIDGE UNAVAILABLE' : 'BRIDGE NOT CONFIGURED'),
+            blocker: body.blocker || (body as BridgeStatusResponse & { message?: string }).message || (body.configured ? 'BRIDGE UNAVAILABLE' : 'BRIDGE NOT CONFIGURED'),
+            authRequired: response.status === 401,
           });
         }
       } catch (err) {
@@ -129,11 +132,25 @@ export function PowerShellPage() {
     setError(null);
     setExit(null);
     setSession(null);
+    pendingOutputRef.current = [];
+    pendingBytesRef.current = 0;
 
     if (!transportRef.current) {
       transportRef.current = new TerminalTransport(
         {
-          onOutput: (data) => termRef.current?.write(data),
+          onOutput: (data) => {
+            if (termRef.current) {
+              termRef.current.write(data);
+            } else {
+              // The bridge can send genuine PTY output before xterm's lazy import resolves.
+              // Bound the pre-render buffer to 128 KiB; never synthesize a transcript.
+              pendingOutputRef.current.push(data);
+              pendingBytesRef.current += data.length;
+              while (pendingBytesRef.current > 131072 && pendingOutputRef.current.length > 1) {
+                pendingBytesRef.current -= pendingOutputRef.current.shift()!.length;
+              }
+            }
+          },
           onStage: (next) => {
             setStage(next);
             refreshStats();
@@ -153,7 +170,7 @@ export function PowerShellPage() {
     }
 
     const dims = fitRef.current?.proposeDimensions();
-    transportRef.current.open({
+    void transportRef.current.open({
       profile: profile as ShellProfile,
       ...(cwd.trim() ? { cwd: cwd.trim() } : {}),
       ...(dims ? { cols: dims.cols, rows: dims.rows } : {})
@@ -195,10 +212,8 @@ export function PowerShellPage() {
 
   const copySelection = useCallback(async () => {
     try {
-      const selection = window.getSelection();
-      if (selection) {
-        await navigator.clipboard.writeText(selection.toString());
-      }
+      const selection = termRef.current?.getSelection?.() ?? '';
+      if (selection) await navigator.clipboard.writeText(selection);
     } catch {
       /* ignore */
     }
@@ -212,7 +227,6 @@ export function PowerShellPage() {
         import('@xterm/xterm'),
         import('@xterm/addon-fit'),
         import('@xterm/addon-search'),
-        import('@xterm/xterm'),
       ]).then(([{ Terminal }, { FitAddon }, { SearchAddon }]) => {
         if (cancelled || !containerRef.current) return;
 
@@ -269,6 +283,7 @@ export function PowerShellPage() {
 
           termRef.current = {
             write: (d) => terminal.write(d),
+            getSelection: () => terminal.getSelection(),
             dispose: () => {
               resizeObserver.disconnect();
               terminal.dispose();
@@ -285,8 +300,13 @@ export function PowerShellPage() {
             findPrevious: (q) => searchAddon.findPrevious(q),
           };
 
+          if (pendingOutputRef.current.length > 0) {
+            terminal.write(pendingOutputRef.current.join(''));
+            pendingOutputRef.current = [];
+            pendingBytesRef.current = 0;
+          }
           terminal.focus();
-          
+
           const dims = fitAddon.proposeDimensions();
           if (dims && transportRef.current) {
             transportRef.current.resize(dims.cols, dims.rows);
@@ -352,8 +372,8 @@ export function PowerShellPage() {
               <>
                 <DevEmpty title={bridge.blocker} body="PowerShell requires an active build bridge." />
                 <p className="dev-note" style={{ textAlign: 'center', marginTop: 24 }}>
-                  <Link href="/build" className="action">
-                    RETURN TO OVERVIEW <span className="action-arrow">↗</span>
+                  <Link href={bridge.authRequired ? '/login?next=%2Fbuild%2Fpowershell' : '/build/settings'} className="action">
+                    {bridge.authRequired ? 'SIGN IN TO CONNECT' : 'PAIR TRUSTED BRIDGE'} <span className="action-arrow">↗</span>
                   </Link>
                 </p>
               </>

@@ -145,7 +145,7 @@ export function EngineeringCaseFiles() {
         </nav>
       </aside>
 
-      <div className="engineering-dossiers">
+      <div className="engineering-dossiers" id="engineering-dossiers">
         {softwareProducts.map((product, index) => (
           <article
             id={`engineering-${product.slug}`}

@@ -1087,7 +1087,8 @@
 .form-status--ok { color: var(--signal-green); }
 .form-status--error { color: #d99a8a; }
 .form-status--pending { color: var(--muted); }
-.honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+/* Honeypot: same RTL-safe visually-hidden pattern as .sr__announce (no -9999px). */
+.honeypot { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: 0 !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; clip-path: inset(50%) !important; white-space: nowrap !important; border: 0 !important; }
 
 /* --- Related / next navigation ------------------------------------ */
 .related { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); }
@@ -1770,14 +1771,18 @@
 .mobile-panel__cta:hover { border-color: var(--violet); }
 
 /* --- Screen reader only --------------------------------------------- */
+/* margin is 0, never -1px: a negative margin on the absolutely positioned
+   box starts it 1px before the inline-start edge, which in RTL becomes real
+   horizontal scroll (scrollWidth 1441 at a 1440px viewport). */
 .visually-hidden {
   position: absolute !important;
   width: 1px;
   height: 1px;
   padding: 0;
-  margin: -1px;
+  margin: 0;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
 }
@@ -5520,15 +5525,20 @@ body:has(.origin-room) .knoux-sentinel{display:none}
   position: relative;
 }
 
-/* Invisible live-region: no visual footprint, screen readers still hear it. */
+/* Invisible live-region: no visual footprint, screen readers still hear it.
+   Never uses a negative offset: left/right:-9999px enlarges document scroll
+   size in RTL (measured 11,439px at a 1,440px viewport). Clip pattern instead. */
 .sr__announce {
-  position: absolute;
-  left: -9999px;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 
 /* Top metadata rail — hairline top border, page-rule pattern. */

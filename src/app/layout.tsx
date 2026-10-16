@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from 'next';
+import { SiteLanguageMetadata, LocalizedSkipLink, SiteLanguageWrapper } from '@/components/i18n/SiteLanguage';
 import { Analytics } from '@vercel/analytics/react';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { CommandPalette } from '@/components/CommandPalette';
-import { KnouxSentinel } from '@/components/identity/KnouxSentinel';
+import { SentinelGuideLauncher } from '@/components/identity/SentinelGuideLauncher';
 import { StoreStarfield } from '@/components/identity/StoreStarfield';
 import { StoreStarfieldProvider } from '@/components/identity/StoreStarfieldProvider';
 import { motionTokens } from '@/lib/motion';
@@ -44,14 +45,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body style={motionTokens() as React.CSSProperties}>
         <StoreStarfieldProvider>
         <StoreStarfield />
-        <a className="skip-link" href="#main-content">
-          Skip to content
-        </a>
+        <SiteLanguageMetadata />
+        <LocalizedSkipLink />
         <SiteHeader />
-        {children}
+        <SiteLanguageWrapper>{children}</SiteLanguageWrapper>
         <SiteFooter />
         <CommandPalette />
-        <KnouxSentinel />
+        <SentinelGuideLauncher />
         {process.env.VERCEL === '1' && process.env.VERCEL_ENV === 'production' && <Analytics />}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
         </StoreStarfieldProvider>

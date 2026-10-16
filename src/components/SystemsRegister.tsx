@@ -1,5 +1,6 @@
 'use client';
 
+import { useSiteCopy } from '@/components/i18n/SiteLanguage';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { softwareProducts, softwareAuditDate, type SoftwareProduct } from '@/data/software';
@@ -46,6 +47,7 @@ function readTier(): Tier {
 }
 
 export function SystemsRegister() {
+  const t = useSiteCopy();
   const [activeId, setActiveId] = useState<string>(softwareProducts[0].id);
   const [engagedId, setEngagedId] = useState<string | null>(null);
   const [announced, setAnnounced] = useState<string>('');
@@ -79,9 +81,9 @@ export function SystemsRegister() {
       if (method === 'scroll') return;
       const product = byId.get(id);
       if (product) track({ type: 'product_node_focused', id: product.id, method });
-      setAnnounced(`${product?.name ?? ''} is now the active system.`);
+      setAnnounced(t('{product} is now the active system.').replace('{product}', product?.name ?? ''));
     },
-    [byId],
+    [byId, t],
   );
 
   /* Progressive activation: the record crossing the reading line becomes the
@@ -292,7 +294,7 @@ export function SystemsRegister() {
       </div>
 
       {/* ── Narrow-layout selector: choose rather than scroll ─────────────── */}
-      <div className="sr__selector" role="group" aria-label="Choose a verified system">
+      <div className="sr__selector" role="group" aria-label={t("Choose a verified system")}>
         {softwareProducts.map((product) => (
           <button
             key={product.id}
@@ -317,7 +319,7 @@ export function SystemsRegister() {
 
       <div className="sr__body">
         {/* ── Left: contextual identity panel ────────────────────────────────── */}
-        <aside className="sr__panel" id={PANEL_ID} aria-label="Active system context">
+        <aside className="sr__panel" id={PANEL_ID} aria-label={t("Active system context")}>
           {/* The visual field — aria-hidden; every fact is also in the DOM */}
           <div className="sr__field" aria-hidden="true">
             <canvas className="sr__canvas" ref={canvasRef} aria-hidden="true" />
@@ -343,11 +345,11 @@ export function SystemsRegister() {
 
             <dl className="sr__meta">
               <div>
-                <dt>Family</dt>
+                <dt>{t("Family")}</dt>
                 <dd>{shown.family}</dd>
               </div>
               <div>
-                <dt>Discipline</dt>
+                <dt>{t("Discipline")}</dt>
                 <dd>{shown.discipline}</dd>
               </div>
               <div>
@@ -357,7 +359,7 @@ export function SystemsRegister() {
                 </dd>
               </div>
               <div>
-                <dt>Evidence</dt>
+                <dt>{t("Evidence")}</dt>
                 <dd>
                   {String(shown.evidence.length).padStart(2, '0')} artefacts /{' '}
                   {String(totalEvidence).padStart(2, '0')} across the register
@@ -367,7 +369,7 @@ export function SystemsRegister() {
 
             {related.length > 0 && (
               <div className="sr__relations">
-                <span className="label">CONNECTED IN THE REGISTRY</span>
+                <span className="label">{t("CONNECTED IN THE REGISTRY")}</span>
                 <ul>
                   {related.map((node) => (
                     <li key={node.product.id}>
@@ -420,7 +422,7 @@ export function SystemsRegister() {
                         setEngagedId((current: string | null) => (current === product.id ? null : current))
                       }
                     >
-                      <span className="mono">{isActive ? 'IN FIELD' : 'SHOW'}</span>
+                      <span className="mono">{t(isActive ? 'IN FIELD' : 'SHOW')}</span>
                     </button>
                   </div>
 
@@ -430,7 +432,7 @@ export function SystemsRegister() {
                   {/* Two-column capability / limitation summary */}
                   <div className="sr__record-cols">
                     <div>
-                      <span className="label">STATED CAPABILITIES</span>
+                      <span className="label">{t("STATED CAPABILITIES")}</span>
                       <ul className="sr__caps">
                         {product.capabilities.slice(0, 3).map((cap, i) => (
                           <li key={cap}>
@@ -456,11 +458,11 @@ export function SystemsRegister() {
                   <div className="sr__record-foot">
                     <dl className="sr__record-registry">
                       <div>
-                        <dt>Family</dt>
+                        <dt>{t("Family")}</dt>
                         <dd>{product.family}</dd>
                       </div>
                       <div>
-                        <dt>Platform</dt>
+                        <dt>{t("Platform")}</dt>
                         <dd>{product.platform}</dd>
                       </div>
                       <div>
@@ -468,7 +470,7 @@ export function SystemsRegister() {
                         <dd>{product.technologies.join(' / ')}</dd>
                       </div>
                       <div>
-                        <dt>Evidence</dt>
+                        <dt>{t("Evidence")}</dt>
                         <dd>
                           {String(product.evidence.length).padStart(2, '0')} artefacts /{' '}
                           {product.evidence.length > 0 ? product.evidence[0].source : 'none published'}

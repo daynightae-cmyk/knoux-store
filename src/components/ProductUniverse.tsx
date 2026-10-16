@@ -1,5 +1,6 @@
 'use client';
 
+import { useSiteCopy } from '@/components/i18n/SiteLanguage';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -47,6 +48,7 @@ function displacement(from: Point, to: Point): Point {
 }
 
 export function ProductUniverse() {
+  const t = useSiteCopy();
   const router = useRouter();
   const params = useSearchParams();
   const queryParam = params.get('q') ?? '';
@@ -153,14 +155,13 @@ export function ProductUniverse() {
   const filtered = query.trim().length > 0 || family !== 'all';
 
   return (
-    <section className="shell" aria-label="KNOuX software universe">
+    <section className="shell" aria-label={t("KNOuX software universe")}>
       {/* Product Finder */}
       <div className="finder" style={{ paddingTop: 40 }}>
         <div className="finder__head">
-          <span className="label label--signal">FIND A KNOuX SYSTEM</span>
+          <span className="label label--signal">{t("FIND A KNOuX SYSTEM")}</span>
           <p className="finder__note">
-            Search by product, capability, platform or the job you need done. Results come from the audited
-            repository registry.
+            {t('Search by product, capability, platform or the job you need done. Results come from the audited repository registry.')}
           </p>
         </div>
         <div className="command-bar">
@@ -171,8 +172,8 @@ export function ProductUniverse() {
             ref={searchRef}
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
-            placeholder="repair windows, record screen, organize files, clipboard"
-            aria-label="Search KNOuX products"
+            placeholder={t("repair windows, record screen, organize files, clipboard")}
+            aria-label={t("Search KNOuX products")}
             aria-describedby="finder-count"
             type="search"
             autoComplete="off"
@@ -185,7 +186,7 @@ export function ProductUniverse() {
           ) : null}
         </div>
         <div className="finder-controls">
-          <div className="finder-chips" role="group" aria-label="Filter by family">
+          <div className="finder-chips" role="group" aria-label={t("Filter by family")}>
             {families.map((entry) => (
               <button
                 key={entry}
@@ -197,7 +198,7 @@ export function ProductUniverse() {
                   track({ type: 'registry_filtered', registry: 'software', filter: entry, count: visible.length });
                 }}
               >
-                {entry === 'all' ? 'ALL FAMILIES' : entry.toUpperCase()}
+                {t(entry === 'all' ? 'ALL FAMILIES' : entry.toUpperCase())}
               </button>
             ))}
           </div>
@@ -270,7 +271,7 @@ export function ProductUniverse() {
             <div className="constellation__core" aria-hidden="true">
               <span className="constellation__core-name">
                 KNOuX
-                <small>CORE</small>
+                <small>{t("CORE")}</small>
               </span>
             </div>
 
@@ -318,15 +319,15 @@ export function ProductUniverse() {
                 <p>{active.tagline}</p>
                 <dl>
                   <div>
-                    <dt>Family</dt>
+                    <dt>{t("Family")}</dt>
                     <dd>{active.family}</dd>
                   </div>
                   <div>
-                    <dt>Platform</dt>
+                    <dt>{t("Platform")}</dt>
                     <dd>{active.platform.slice(0, 46)}{active.platform.length > 46 ? '…' : ''}</dd>
                   </div>
                   <div>
-                    <dt>Repository</dt>
+                    <dt>{t("Repository")}</dt>
                     <dd>{active.repository.split('/').pop()}</dd>
                   </div>
                 </dl>
@@ -339,7 +340,7 @@ export function ProductUniverse() {
               </>
             ) : (
               <div className="constellation__idle">
-                <span className="label label--signal">SYSTEM TOPOLOGY</span>
+                <span className="label label--signal">{t("SYSTEM TOPOLOGY")}</span>
                 <p>
                   Seven verified systems connected to one practice. Move across a node to read its registration, or open
                   it for the full dossier.
@@ -355,7 +356,7 @@ export function ProductUniverse() {
 
       {/* Focused node stream, also the narrow-viewport composition */}
       <div className={filtered ? '' : 'node-stream'} style={filtered ? { marginTop: 30 } : undefined}>
-        {!filtered ? <p className="label" style={{ padding: '20px 0 12px' }}>NODES</p> : null}
+        {!filtered ? <p className="label" style={{ padding: '20px 0 12px' }}>{t("NODES")}</p> : null}
         {visible.length === 0 ? (
           <div className="finder-empty">
             <strong>No system matches &ldquo;{query.trim()}&rdquo;.</strong>
