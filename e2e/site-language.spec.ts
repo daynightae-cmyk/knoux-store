@@ -28,6 +28,41 @@ async function chooseLanguage(page: Page, language: ShippedLanguage) {
   await expectDocument(page, language);
 }
 
+/**
+ * Width at which the header swaps the persistent desktop nav for the
+ * disclosure menu. Mirrors the `max-width:1100px` block in `globals.css`; the
+ * two must agree or this waits for a control that is not on screen.
+ */
+const COMPACT_NAV_MAX_WIDTH = 1100;
+
+/**
+ * Reach the first division link through whichever navigation the current
+ * viewport actually renders, rather than forcing the desktop nav into view at a
+ * width where the stylesheet has hidden it.
+ */
+async function openFirstDivision(page: Page): Promise<{ href: string; compact: boolean }> {
+  const width = page.viewportSize()?.width ?? Number.POSITIVE_INFINITY;
+  const compact = width <= COMPACT_NAV_MAX_WIDTH;
+
+  if (compact) {
+    const toggle = page.locator('button.mobile-toggle');
+    await expect(toggle).toBeVisible();
+    await toggle.click();
+    const panel = page.locator('nav.mobile-panel');
+    await expect(panel).toBeVisible();
+    // The desktop nav is hidden at this width; the panel is the real control.
+    await expect(page.locator('header nav.desktop-nav')).toBeHidden();
+  } else {
+    await expect(page.locator('button.mobile-toggle')).toBeHidden();
+  }
+
+  const link = (compact ? page.locator('nav.mobile-panel a') : page.locator('header nav.desktop-nav a')).first();
+  await expect(link).toBeVisible();
+  const href = await link.getAttribute('href');
+  expect(href, 'first division link must have a destination').toBeTruthy();
+  return { href: href!, compact };
+}
+
 test.describe('site language switching', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
@@ -80,17 +115,20 @@ test.describe('site language switching', () => {
   test('navigation still works while the document is right-to-left', async ({ page }) => {
     await chooseLanguage(page, 'ar');
 
-    const firstDivision = page.locator('header nav.desktop-nav a').first();
-    await expect(firstDivision).toBeVisible();
-    // Take the target from the link rather than assuming a route, so this stays
-    // true if the division order changes.
-    const href = await firstDivision.getAttribute('href');
-    expect(href).toBeTruthy();
-    await firstDivision.click();
-    await expect(page).toHaveURL(new RegExp(`${href!.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`));
+    const { href, compact } = await openFirstDivision(page);
+    await page.locator(compact ? 'nav.mobile-panel a' : 'header nav.desktop-nav a').first().click();
 
-    // Page state survived the language change.
+    // Destination is read from the link, not assumed, so this survives a change
+    // to the division order.
+    await expect(page).toHaveURL(new RegExp(`${href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`));
+
+    // Language and direction survived the navigation.
     await expectDocument(page, 'ar');
+    await expect(page.locator(PICKER)).toHaveValue('ar');
+
+    // The disclosure menu closed itself on the link that was followed, so the
+    // panel cannot be left covering the destination page.
+    if (compact) await expect(page.locator('nav.mobile-panel')).toBeHidden();
   });
 
   test('right-to-left introduces no horizontal overflow', async ({ page }) => {

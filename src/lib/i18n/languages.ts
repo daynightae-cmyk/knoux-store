@@ -52,15 +52,35 @@ export function isSiteLanguage(value: unknown): value is SiteLanguage {
 }
 
 /**
+ * Read one field of a language's metadata, degrading to a shipped default.
+ *
+ * Every accessor below is this lookup with a different field and default, so an
+ * unrecognised value has to resolve to something usable rather than throw. The
+ * fallback is supplied here once instead of repeated at each call site.
+ */
+function meta<K extends keyof SiteLanguageMeta>(
+  language: SiteLanguage,
+  field: K,
+  fallback: SiteLanguageMeta[K],
+): SiteLanguageMeta[K] {
+  return SITE_LANGUAGES[language]?.[field] ?? fallback;
+}
+
+/** Languages rendered right-to-left. */
+export function isRtlLanguage(language: SiteLanguage): boolean {
+  return siteDirection(language) === 'rtl';
+}
+
+/**
  * Direction for a language. Defaults to LTR so an unrecognised stored
  * preference degrades to the English layout instead of a broken mirrored one.
  */
 export function siteDirection(language: SiteLanguage): SiteDirection {
-  return SITE_LANGUAGES[language]?.direction ?? 'ltr';
+  return meta(language, 'direction', 'ltr');
 }
 
 export function siteLanguageTag(language: SiteLanguage): string {
-  return SITE_LANGUAGES[language]?.tag ?? 'en';
+  return meta(language, 'tag', 'en');
 }
 
 /**
@@ -70,15 +90,14 @@ export function siteLanguageTag(language: SiteLanguage): string {
  * speech locale, and because Arabic and Urdu need distinct voices: resolving
  * both to one "RTL" voice would speak Urdu with Arabic phonetics.
  */
-export function speechLocale(language: SiteLanguage): string {
-  if (language === 'ar') return 'ar-AE';
-  if (language === 'ur') return 'ur-PK';
-  return 'en-GB';
-}
+const SPEECH_LOCALES: Readonly<Record<SiteLanguage, string>> = {
+  en: 'en-GB',
+  ar: 'ar-AE',
+  ur: 'ur-PK',
+};
 
-/** Languages rendered right-to-left. */
-export function isRtlLanguage(language: SiteLanguage): boolean {
-  return siteDirection(language) === 'rtl';
+export function speechLocale(language: SiteLanguage): string {
+  return SPEECH_LOCALES[language] ?? SPEECH_LOCALES.en;
 }
 
 /**
@@ -99,6 +118,8 @@ export function normalizeSiteLanguage(value: unknown, fallback: SiteLanguage = '
  * layout from leaking into callers; English never reaches this because
  * `translatedSiteCopy` short-circuits before lookup.
  */
+const TRANSLATION_SLOTS: Readonly<Record<SiteLanguage, 0 | 1>> = { en: 0, ar: 0, ur: 1 };
+
 export function translationSlot(language: SiteLanguage): 0 | 1 {
-  return language === 'ar' ? 0 : 1;
+  return TRANSLATION_SLOTS[language] ?? TRANSLATION_SLOTS.ar;
 }
