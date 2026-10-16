@@ -78,7 +78,7 @@ export function projectWorkspace(client: Client, data: Record<string, Row[]>, me
     performanceRows: projectPerformance(client.id, metrics),
     activity: data.activity.map(row => ({ ...project<WorkspaceRecords['activity'][number]>(row, 'id client_id action subject_type subject_id detail'), actor: text(row.actor_label) || text(row.actor_id), at: text(row.created_at) })),
     content: data.content.map(row => project(row, 'id client_id platforms copy media_asset_ids scheduled_for status approval_id author ai_generated origin created_at updated_at', { author: '' })),
-    creatives: data.creatives.map(row => project(row, 'id client_id campaign_id format concept hooks headline primary_text description cta visual_prompt video_script languages ai_generated status reviewed_by origin created_at updated_at')),
+    creatives: data.creatives.map(row => project(row, 'id client_id campaign_id format concept hooks headline primary_text description cta visual_prompt video_script languages media_asset_id ai_generated status reviewed_by origin created_at updated_at')),
     distributionLists: data.collections.map(row => ({
       ...project<WorkspaceRecords['distributionLists'][number]>(row, 'id client_id name description created_at updated_at'),
       communityIds: rows(row.knoux_growth_collection_members).map(member => text(member.community_id)),

@@ -12,16 +12,18 @@ export const PLACEMENTS = [
   { id: 'whatsapp', label: 'WhatsApp Business', ratio: 'Local message', kind: 'message', formats: 'Text / JPEG / PNG', hidden: 'Local composition only; no sending or delivery test' },
 ] as const;
 export type PlacementId = typeof PLACEMENTS[number]['id'];
-export type StudioEdit = { creative: CreativeDraft; destination: string; locale: LanguageCode; asset: string; revision: number; baseUpdatedAt: string };
+export type StudioEdit = { creative: CreativeDraft; destination: string; locale: LanguageCode; asset: string; mediaAssetId: string | null; revision: number; baseUpdatedAt: string };
 
 export function beginEdit(creative: CreativeDraft, destination = ''): StudioEdit {
-  return { creative: { ...creative }, destination, locale: creative.languages[0] ?? 'en', asset: '', revision: 0, baseUpdatedAt: creative.updatedAt };
+  return { creative: { ...creative }, destination, locale: creative.languages[0] ?? 'en', asset: '', mediaAssetId: creative.mediaAssetId ?? null, revision: 0, baseUpdatedAt: creative.updatedAt };
 }
 
-export function updateEdit(edit: StudioEdit, patch: Partial<Pick<StudioEdit, 'destination' | 'locale' | 'asset'>> & { creative?: Partial<CreativeDraft> }, clientId: string, current: CreativeDraft): StudioEdit {
+export function updateEdit(edit: StudioEdit, patch: Partial<Pick<StudioEdit, 'destination' | 'locale' | 'asset' | 'mediaAssetId'>> & { creative?: Partial<CreativeDraft> }, clientId: string, current: CreativeDraft): StudioEdit {
   if (edit.creative.clientId !== clientId || current.clientId !== clientId || current.id !== edit.creative.id || current.updatedAt !== edit.baseUpdatedAt) throw new Error('Stale or cross-client edit refused. Reselect the current draft.');
   if (patch.creative?.clientId && patch.creative.clientId !== clientId) throw new Error('Client ownership cannot change.');
-  return { ...edit, ...patch, creative: { ...edit.creative, ...patch.creative, id: current.id, clientId, status: 'DRAFT', reviewedBy: undefined }, revision: edit.revision + 1 };
+  if (patch.mediaAssetId !== undefined && patch.mediaAssetId !== null && typeof patch.mediaAssetId !== 'string') throw new Error('Media asset reference invalid.');
+  const nextMedia = patch.mediaAssetId !== undefined ? patch.mediaAssetId : edit.mediaAssetId;
+  return { ...edit, ...patch, mediaAssetId: nextMedia, creative: { ...edit.creative, ...patch.creative, id: current.id, clientId, status: 'DRAFT', reviewedBy: undefined }, revision: edit.revision + 1 };
 }
 
 export function destinationValid(value: string): boolean {
@@ -35,5 +37,5 @@ export function brandViolations(edit: StudioEdit, forbidden: readonly string[]):
 
 /** Deterministic review fingerprint. Never an authorization token. */
 export function reviewFingerprint(campaign: Campaign, edits: readonly StudioEdit[]): string {
-  return JSON.stringify({ clientId: campaign.clientId, id: campaign.id, name: campaign.name, objective: campaign.objective, platforms: campaign.platforms, budgetMinor: campaign.budgetMinor, currency: campaign.currency, startDate: campaign.startDate, endDate: campaign.endDate, locations: campaign.locations, languages: campaign.languages, audienceNotes: campaign.audienceNotes, creativeSetIds: campaign.creativeSetIds, landingPageUrl: campaign.landingPageUrl, conversionTarget: campaign.conversionTarget, creatives: edits.map((edit) => ({ creative: edit.creative, destination: edit.destination, locale: edit.locale, asset: edit.asset, revision: edit.revision })) });
+  return JSON.stringify({ clientId: campaign.clientId, id: campaign.id, name: campaign.name, objective: campaign.objective, platforms: campaign.platforms, budgetMinor: campaign.budgetMinor, currency: campaign.currency, startDate: campaign.startDate, endDate: campaign.endDate, locations: campaign.locations, languages: campaign.languages, audienceNotes: campaign.audienceNotes, creativeSetIds: campaign.creativeSetIds, landingPageUrl: campaign.landingPageUrl, conversionTarget: campaign.conversionTarget, creatives: edits.map((edit) => ({ creative: edit.creative, destination: edit.destination, locale: edit.locale, asset: edit.asset, mediaAssetId: edit.mediaAssetId, revision: edit.revision })) });
 }
