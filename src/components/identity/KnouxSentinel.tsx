@@ -29,6 +29,7 @@ import {
   sentinelRegistry,
 } from './sentinel-capability';
 import './knoux-sentinel.css';
+import { isSentinelQuiet, subscribeSentinelQuiet } from './sentinel-preferences';
 
 /** Particle budget for the canonical mark reading inside the shell. */
 const GLYPH_BUDGET = 96;
@@ -61,6 +62,7 @@ function useIsHydrated(): boolean {
  * institution rather than an authored mood.
  */
 export function KnouxSentinel() {
+  const quiet = useSyncExternalStore(subscribeSentinelQuiet, isSentinelQuiet, () => false);
   const root = useRef<HTMLSpanElement>(null);
   const eyes = useRef<SVGGElement>(null);
   const timeouts = useRef<number[]>([]);
@@ -87,7 +89,7 @@ export function KnouxSentinel() {
     const coarse = window.matchMedia('(pointer: coarse)');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    const canFollow = () => !reduced.matches && !coarse.matches;
+    const canFollow = () => !quiet && !reduced.matches && !coarse.matches;
     let enabled = canFollow();
     let frame = 0;
     let sleepTimer = 0;
@@ -380,7 +382,7 @@ export function KnouxSentinel() {
       reduced.removeEventListener('change', sync);
       current?.removeAttribute('data-pointer-inside');
     };
-  }, []);
+  }, [quiet]);
 
   return (
     <span
