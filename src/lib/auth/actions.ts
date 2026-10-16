@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import type { AuthError } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/server';
 import { getAuthCapabilities, type AuthProviderName } from '@/lib/auth/capabilities';
+import { resolveRedirect, trustedOrigins } from '@/lib/auth/redirect';
 import { type AuthFormState } from '@/lib/auth/state';
 import {
   hasErrors,
@@ -61,6 +62,24 @@ async function requestOrigin(): Promise<string> {
   return `${proto}://${host}`;
 }
 
+/**
+ * Resolve the destination a completed sign-in should land on.
+ *
+ * `next` arrives as a hidden form field, so it is caller-supplied and fully
+ * attacker controlled — a server action can be invoked directly without ever
+ * rendering the form. It is therefore judged by the same resolver the OAuth
+ * callback uses, against an origin set derived from the request rather than
+ * from the value itself. An absent or refused target falls back to
+ * `DEFAULT_REDIRECT`, so the worst case is the behaviour that existed before a
+ * return path was supported at all.
+ */
+async function resolveSignInDestination(formData: FormData): Promise<string> {
+  const origin = await requestOrigin();
+  return resolveRedirect(read(formData, 'next'), {
+    origins: trustedOrigins(origin, process.env.NEXT_PUBLIC_SITE_URL),
+  }).path;
+}
+
 export async function signInAction(
   _previous: AuthFormState,
   formData: FormData,
@@ -85,7 +104,7 @@ export async function signInAction(
   });
   if (error) return failure(friendlyAuthError(error));
 
-  redirect('/account');
+  redirect(await resolveSignInDestination(formData));
 }
 
 export async function signUpAction(
