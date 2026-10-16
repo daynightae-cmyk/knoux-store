@@ -244,20 +244,24 @@ export const SITE_COPY: Record<string, readonly [string, string]> = {
 const keys = new Map(Object.keys(SITE_COPY).map(key => [key.toLowerCase(), key]));
 
 /**
- * Look up a translation, falling back to the English source.
+ * Resolve an English source string to its catalogue key.
  *
  * Matching is case-insensitive so a rendered label matches its dictionary key
- * regardless of the casing a component happened to use. A key that is absent —
- * including every product name, model id, env var and provider fact — returns
- * the English source untouched rather than a transliteration.
+ * regardless of the casing a component happened to use. Returns undefined for
+ * anything untranslated, including every product name, model id, env var and
+ * provider fact, which callers answer by returning the source untouched.
  */
+function resolveKey(source: string): string | undefined {
+  return keys.get(source.toLowerCase());
+}
+
 export function translatedSiteCopy(source: string, language: SiteLanguage): string {
   if (language === 'en') return source;
-  const key = keys.get(source.toLowerCase());
+  const key = resolveKey(source);
   return key ? SITE_COPY[key][translationSlot(language)] : source;
 }
 
 /** True when `source` has an authored translation in any shipped language. */
 export function hasSiteCopy(source: string): boolean {
-  return keys.has(source.toLowerCase());
+  return resolveKey(source) !== undefined;
 }

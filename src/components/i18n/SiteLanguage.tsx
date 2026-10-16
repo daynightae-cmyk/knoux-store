@@ -1,38 +1,14 @@
 'use client';
 
-import { useCallback, useEffect, useSyncExternalStore } from 'react';
-import {
-  SITE_LANGUAGES,
-  SITE_LANGUAGE_IDS,
-  siteDirection,
-  type SiteLanguage as SiteLanguageId,
-} from '@/lib/i18n/languages';
-import {
-  readSentinelLanguage,
-  saveSentinelLanguage,
-  subscribeSentinelQuiet,
-} from '@/components/identity/sentinel-preferences';
+import { useEffect } from 'react';
+import { SITE_LANGUAGES, SITE_LANGUAGE_IDS, siteDirection } from '@/lib/i18n/languages';
+import { saveSentinelLanguage } from '@/components/identity/sentinel-preferences';
 import { translatedSiteCopy } from '@/lib/i18n/site-copy';
+import { useSiteCopy, useSiteLanguage } from '@/lib/i18n/use-language';
+import type { SiteLanguage as SiteLanguageId } from '@/lib/i18n/languages';
 import styles from './SiteLanguage.module.css';
 
-/**
- * The visitor's chosen language.
- *
- * Reads through `useSyncExternalStore` against the Sentinel preference store so
- * the header picker, the skip link and any translated surface stay in step from
- * one source of truth. The server snapshot is always English: the stored
- * preference only exists in this browser, and rendering it during SSR would
- * make the first paint disagree with the markup.
- */
-export function useSiteLanguage(): SiteLanguageId {
-  return useSyncExternalStore(subscribeSentinelQuiet, readSentinelLanguage, () => 'en');
-}
-
-/** Translator bound to the active language. Memoised so it is a stable prop. */
-export function useSiteCopy(): (source: string) => string {
-  const language = useSiteLanguage();
-  return useCallback((source: string) => translatedSiteCopy(source, language), [language]);
-}
+export { useSiteCopy, useSiteLanguage };
 
 /**
  * Keeps `<html lang>` and `<html dir>` truthful.
@@ -83,8 +59,8 @@ export function SiteLanguagePicker() {
 /**
  * Skip link.
  *
- * The layout currently renders this as a literal string. Routing it through the
- * catalogue keeps the first thing a keyboard or screen-reader user reaches
+ * The layout previously rendered this as a literal string. Routing it through
+ * the catalogue keeps the first thing a keyboard or screen-reader user reaches
  * available in the language they chose.
  */
 export function LocalizedSkipLink() {

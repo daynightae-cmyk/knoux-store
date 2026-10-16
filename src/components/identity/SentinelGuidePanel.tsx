@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { isSentinelQuiet, readSentinelLanguage, saveSentinelLanguage, subscribeSentinelQuiet } from './sentinel-preferences';
+import { isSentinelQuiet, saveSentinelLanguage, subscribeSentinelQuiet } from './sentinel-preferences';
+import { useSiteLanguage } from '@/lib/i18n/use-language';
 import { describeEntry, entryForPage, findGuideEntries, MAX_GUIDE_QUERY, type GuideEntry, type GuideLanguage } from '@/lib/sentinel/guide';
 import { visibleSectionText } from '@/lib/sentinel/visible-section';
 import styles from './SentinelGuide.module.css';
@@ -20,7 +21,7 @@ export default function SentinelGuidePanel({ onClose }: { onClose: () => void })
   // wider than that, so a language with no guide content (Urdu) falls back to
   // English instead of indexing a missing dictionary. English and Arabic
   // behaviour is unchanged.
-  const siteLanguage = useSyncExternalStore(subscribeSentinelQuiet, readSentinelLanguage, () => 'en');
+  const siteLanguage = useSiteLanguage();
   const language: GuideLanguage = siteLanguage === 'ar' ? 'ar' : 'en';
   const quiet = useSyncExternalStore(subscribeSentinelQuiet, isSentinelQuiet, () => false);
   const [catalog, setCatalog] = useState<GuideEntry[] | null>(null);
