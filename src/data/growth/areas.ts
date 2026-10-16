@@ -14,6 +14,7 @@
 export type CommandArea = {
   slug: string;
   label: string;
+  labelAr: string;
   code: string;
   purpose: string;
 };
@@ -28,35 +29,35 @@ export const COMMAND_GROUPS: readonly CommandGroup[] = [
   {
     label: 'Situation',
     areas: [
-      { slug: '', label: 'Overview', code: '01', purpose: 'What is running, what needs a decision, and what is not connected.' },
-      { slug: 'analytics', label: 'Analytics', code: '02', purpose: 'Cross-platform performance, normalised. Missing metrics stay missing.' },
-      { slug: 'google', label: 'Google Presence', code: '03', purpose: 'Business Profile, Maps visibility, calls, reviews and Search Console.' },
-      { slug: 'reports', label: 'Reports', code: '04', purpose: 'Client-facing reports, print-ready, in English and Arabic.' },
+      { slug: '', label: 'Overview', labelAr: 'نظرة عامة', code: '01', purpose: 'What is running, what needs a decision, and what is not connected.' },
+      { slug: 'analytics', label: 'Analytics', labelAr: 'التحليلات', code: '02', purpose: 'Cross-platform performance, normalised. Missing metrics stay missing.' },
+      { slug: 'google', label: 'Google Presence', labelAr: 'الحضور على Google', code: '03', purpose: 'Business Profile, Maps visibility, calls, reviews and Search Console.' },
+      { slug: 'reports', label: 'Reports', labelAr: 'التقارير', code: '04', purpose: 'Client-facing reports, print-ready, in English and Arabic.' },
     ],
   },
   {
     label: 'Clients',
     areas: [
-      { slug: 'clients', label: 'Clients', code: '05', purpose: 'Independent workspaces: brand, branches, connections, memory.' },
-      { slug: 'campaigns', label: 'Campaigns', code: '06', purpose: 'Campaign construction and the approval gate before any spend.' },
-      { slug: 'leads', label: 'Leads & Inbox', code: '07', purpose: 'Normalised lead pipeline with source attribution.' },
+      { slug: 'clients', label: 'Clients', labelAr: 'العملاء', code: '05', purpose: 'Independent workspaces: brand, branches, connections, memory.' },
+      { slug: 'campaigns', label: 'Campaigns', labelAr: 'الحملات', code: '06', purpose: 'Campaign construction and the approval gate before any spend.' },
+      { slug: 'leads', label: 'Leads & Inbox', labelAr: 'العملاء المحتملون', code: '07', purpose: 'Normalised lead pipeline with source attribution.' },
     ],
   },
   {
     label: 'Making',
     areas: [
-      { slug: 'creative', label: 'Creative Studio', code: '08', purpose: 'Concepts, copy and scripts as editable drafts against brand rules.' },
-      { slug: 'social', label: 'Social', code: '09', purpose: 'Organic content, the calendar, and what is scheduled versus published.' },
-      { slug: 'communities', label: 'Communities', code: '10', purpose: 'Discovery, verification, and the manual-assisted distribution queue.' },
+      { slug: 'creative', label: 'Creative Studio', labelAr: 'استوديو الإبداع', code: '08', purpose: 'Concepts, copy and scripts as editable drafts against brand rules.' },
+      { slug: 'social', label: 'Social', labelAr: 'التواصل الاجتماعي', code: '09', purpose: 'Organic content, the calendar, and what is scheduled versus published.' },
+      { slug: 'communities', label: 'Communities', labelAr: 'المجتمعات', code: '10', purpose: 'Discovery, verification, and the manual-assisted distribution queue.' },
     ],
   },
   {
     label: 'Control',
     areas: [
-      { slug: 'intelligence', label: 'KNOuX Intelligence', code: '11', purpose: 'The intelligence layer: which families exist, which provider answers, and what it cannot do.' },
-      { slug: 'automations', label: 'Automations', code: '12', purpose: 'Advisory rules. Nothing here can spend or publish.' },
-      { slug: 'connections', label: 'Connections', code: '13', purpose: 'Capability registry and truthful state for every platform.' },
-      { slug: 'settings', label: 'Settings', code: '14', purpose: 'Autonomy mode, roles, audit trail and the safety posture of this workspace.' },
+      { slug: 'intelligence', label: 'KNOuX Intelligence', labelAr: 'ذكاء KNOuX', code: '11', purpose: 'The intelligence layer: which families exist, which provider answers, and what it cannot do.' },
+      { slug: 'automations', label: 'Automations', labelAr: 'الأتمتة', code: '12', purpose: 'Advisory rules. Nothing here can spend or publish.' },
+      { slug: 'connections', label: 'Connections', labelAr: 'الاتصالات', code: '13', purpose: 'Capability registry and truthful state for every platform.' },
+      { slug: 'settings', label: 'Settings', labelAr: 'الإعدادات', code: '14', purpose: 'Autonomy mode, roles, audit trail and the safety posture of this workspace.' },
     ],
   },
 ];

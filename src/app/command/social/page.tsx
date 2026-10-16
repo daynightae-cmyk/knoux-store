@@ -13,6 +13,8 @@
  */
 
 import { useMemo, useState } from 'react';
+import { AdPreviewTheatre } from '@/components/command/studio/AdPreviewTheatre';
+import { EditorialBoard } from '@/components/command/studio/EditorialBoard';
 import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
 import { CodeBadge, DemoNotice, EmptyState, OriginLabel, Section } from '@/components/command/primitives';
@@ -40,7 +42,6 @@ function Social() {
   const area = areaBySlug('social')!;
   const items = records.content;
 
-  const [clientFilter, setClientFilter] = useState<string>(activeClient.id);
   const [platform, setPlatform] = useState<string>('all');
   const [status, setStatus] = useState<string>('all');
   const [monthAnchor, setMonthAnchor] = useState<Date>(() => {
@@ -72,9 +73,8 @@ function Social() {
           <span className={styles.ccFieldLabel ?? ''}>Client</span>
           <select
             className={styles.ccFieldControl ?? ''}
-            value={clientFilter}
+            value={activeClient.id}
             onChange={(event) => {
-              setClientFilter(event.target.value);
               setActiveClientId(event.target.value);
             }}
           >
@@ -147,6 +147,7 @@ function Social() {
         </div>
       </div>
 
+      <EditorialBoard />
       <Section
         title="Calendar"
         note="Scheduling records intent. Nothing is published by this build."
@@ -243,6 +244,7 @@ function Social() {
           disabled because no account is connected.
         </DemoNotice>
       </div>
+      <Section title="Editorial preview" note="Shared local creative revisions. Calendar slots remain scheduling intent; editing this preview does not publish or rewrite a content record."><AdPreviewTheatre /></Section>
     </CommandShell>
   );
 }

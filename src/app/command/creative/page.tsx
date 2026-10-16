@@ -12,9 +12,10 @@
  * writing, not after.
  */
 
+import { AdPreviewTheatre } from '@/components/command/studio/AdPreviewTheatre';
 import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
-import { CodeBadge, DemoNotice, EmptyState, OriginLabel, Pane, Section } from '@/components/command/primitives';
+import { Pane, Section } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
 
 import styles from '@/components/command/command.module.css';
@@ -40,6 +41,7 @@ function Creative() {
         { label: 'Approved', value: String(creatives.filter((c) => c.status === 'APPROVED').length) },
       ]}
     >
+      <AdPreviewTheatre />
       <Section title="Brand context" note="What constrains every draft below.">
         <div className={styles.commandGrid3 ?? ''}>
           <Pane title="Forbidden claims">
@@ -85,117 +87,7 @@ function Creative() {
         </div>
       </Section>
 
-      <Section title="Drafts" note="AI output is a starting point, never a finished asset.">
-        {creatives.length === 0 ? (
-          <EmptyState title="No drafts">
-            KNOuX drafts concepts, hooks, headlines, primary text, visual prompts and video scripts
-            against the brand rules above.
-          </EmptyState>
-        ) : (
-          <div className={styles.commandGrid2 ?? ''}>
-            {creatives.map((creative) => (
-              <article key={creative.id} className={styles.ccPane ?? ''}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
-                  <span className={styles.ccPaneTitle ?? ''}>{creative.format.replace(/_/g, ' ')}</span>
-                  <span style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    {creative.aiGenerated ? <CodeBadge tone="info">AI DRAFT</CodeBadge> : <CodeBadge>HUMAN</CodeBadge>}
-                    <CodeBadge
-                      tone={creative.status === 'APPROVED' ? 'live' : creative.status === 'REJECTED' ? 'bad' : 'neutral'}
-                    >
-                      {creative.status.replace(/_/g, ' ')}
-                    </CodeBadge>
-                  </span>
-                </div>
 
-                <p className={styles.ccPaneBody ?? ''}>{creative.concept}</p>
-
-                {creative.hooks.length > 0 ? (
-                  <div>
-                    <p className={styles.ccPaneTitle ?? ''} style={{ fontSize: 12 }}>
-                      Hooks
-                    </p>
-                    <ul className={styles.ccPaneList ?? ''}>
-                      {creative.hooks.map((hook) => (
-                        <li key={hook}>“{hook}”</li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-
-                {creative.headline ? (
-                  <p className={styles.ccPaneBody ?? ''}>
-                    <strong>Headline:</strong> {creative.headline}
-                  </p>
-                ) : null}
-                {creative.primaryText ? (
-                  <p className={styles.ccPaneBody ?? ''}>
-                    <strong>Primary text:</strong> {creative.primaryText}
-                  </p>
-                ) : null}
-                {creative.cta ? (
-                  <p className={styles.ccPaneBody ?? ''}>
-                    <strong>CTA:</strong> {creative.cta}
-                  </p>
-                ) : null}
-                {creative.visualPrompt ? (
-                  <p className={styles.ccPaneBody ?? ''}>
-                    <strong>Visual prompt:</strong> {creative.visualPrompt}
-                  </p>
-                ) : null}
-
-                {creative.videoScript && creative.videoScript.length > 0 ? (
-                  <div>
-                    <p className={styles.ccPaneTitle ?? ''} style={{ fontSize: 12 }}>
-                      Video script
-                    </p>
-                    <ol className={styles.ccPaneList ?? ''} style={{ paddingLeft: 16, listStyle: 'decimal' }}>
-                      {creative.videoScript.map((line) => (
-                        <li key={line}>{line}</li>
-                      ))}
-                    </ol>
-                  </div>
-                ) : null}
-
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-                  <CodeBadge>{creative.languages.join(' / ')}</CodeBadge>
-                  <OriginLabel origin={creative.origin} />
-                  <span className={styles.ccMetricMeta ?? ''}>{creative.id}</span>
-                </div>
-
-                <div className={styles.ccCommunityActions ?? ''}>
-                  <button type="button" className={`${styles.ccButton ?? ''} ${styles.ccButtonSm ?? ''}`}>
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.ccButton ?? ''} ${styles.ccButtonSm ?? ''}`}
-                    disabled
-                    title="Regenerating requires a language-model provider. The KNOuX Agent is unconfigured in this deployment."
-                  >
-                    Regenerate with KNOuX
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.ccButton ?? ''} ${styles.ccButtonSm ?? ''}`}
-                    disabled
-                    title="Publishing requires an approved, connected account."
-                  >
-                    Publish
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
-      </Section>
-
-      <div style={{ padding: '0 24px 20px' }}>
-        <DemoNotice>
-          Demo drafts. KNOuX could not generate copy in this deployment because no reasoning provider
-          is configured, so the Regenerate control is disabled rather than silently returning
-          placeholder text.
-        </DemoNotice>
-      </div>
     </CommandShell>
   );
 }
