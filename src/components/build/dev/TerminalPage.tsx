@@ -35,7 +35,15 @@ import type { BridgeCapabilities, BridgeProfile, Handshake, ShellProfile } from 
 
 type BridgeState =
   | { kind: 'checking' }
-  | { kind: 'unavailable'; blocker: string }
+  /**
+   * `authRequired` is kept separate from `blocker` because the two demand
+   * different things from the visitor. A refusal to identify the caller (401)
+   * is resolved by signing in; an unpaired, unconfigured or unreachable bridge
+   * is resolved by pairing it. Sending someone to the pairing screen when what
+   * they actually need is a session produces a loop they cannot escape, and
+   * pairing is a privileged action an anonymous visitor must never be offered.
+   */
+  | { kind: 'unavailable'; blocker: string; authRequired?: boolean }
   | { kind: 'ready'; handshake: Handshake };
 
 interface BridgeStatusResponse {
@@ -47,7 +55,19 @@ interface BridgeStatusResponse {
   capabilities: BridgeCapabilities | null;
   handshake: Handshake | null;
   blocker: string | null;
+  /** Present on guard refusals; a fallback when `blocker` is absent. */
+  message?: string;
 }
+
+/**
+ * Shown when the workspace guard could not identify the caller. It names the
+ * remedy and nothing else — no ticket, bridge id, fingerprint or endpoint
+ * detail reaches this branch, because the guard's refusal carries none.
+ */
+const SIGN_IN_REQUIRED = 'Sign in to use the terminal. This workspace needs an identified account.';
+
+/** A sign-in link carries this page so the visitor returns here afterwards. */
+const SIGN_IN_HREF = '/login?next=%2Fbuild%2Fterminal';
 
 const BACKOFF_LABEL: Record<number, string> = {
   0: '1S',
@@ -104,15 +124,27 @@ export function TerminalPage() {
         const response = await fetch('/api/build/bridge/status', { cache: 'no-store' });
         const body = (await response.json()) as BridgeStatusResponse;
         if (cancelled) return;
+        // A 401 is only ever the guard refusing an unidentified caller. It is
+        // reported before the body is trusted, so a 401 carrying a stale or
+        // optimistic payload still resolves to "sign in" rather than to a
+        // connected-looking terminal.
+        if (!response.ok && response.status === 401) {
+          setBridge({ kind: 'unavailable', blocker: SIGN_IN_REQUIRED, authRequired: true });
+          return;
+        }
         if (body.reachable && body.handshake) {
           setBridge({ kind: 'ready', handshake: body.handshake });
           const first = body.handshake.profiles[0];
           if (first) setProfile(first.id);
-          setCwd(body.handshake.root);
+          // Empty means the bridge's own trusted workspace root. Sending an
+          // absolute path would be refused by the ticket validator and would
+          // publish the bridge host's directory layout to the server on every
+          // request, so the client never proposes a root at all.
+          setCwd('');
         } else {
           setBridge({
             kind: 'unavailable',
-            blocker: body.blocker ?? 'The bridge did not answer. It is not paired or not running.',
+            blocker: body.blocker ?? body.message ?? 'The bridge did not answer. It is not paired or not running.',
           });
         }
       } catch {
@@ -330,9 +362,17 @@ export function TerminalPage() {
 
             {bridge.kind === 'unavailable' && (
               <>
-                <DevEmpty title="BRIDGE UNAVAILABLE" body={bridge.blocker} />
+                <DevEmpty
+                  title={bridge.authRequired ? 'SIGN IN REQUIRED' : 'BRIDGE UNAVAILABLE'}
+                  body={bridge.blocker}
+                />
+                {/* The remedy matches the refusal: an unidentified caller is sent
+                    to sign in, never to the pairing form. Pairing mints a trusted
+                    local command channel and is not offered without a session. */}
                 <p className="dev-note">
-                  <Link href="/build/settings">CONNECT BRIDGE ↗</Link>
+                  <Link href={bridge.authRequired ? SIGN_IN_HREF : '/build/settings'}>
+                    {bridge.authRequired ? 'SIGN IN TO CONNECT ↗' : 'PAIR TRUSTED BRIDGE ↗'}
+                  </Link>
                 </p>
               </>
             )}
