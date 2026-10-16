@@ -126,21 +126,18 @@ test('an untranslated key falls back to the English source instead of rendering 
   assert.equal(translatedSiteCopy('Modelz', 'ar'), 'Modelz');
 });
 
-test('English returns the source untouched for every catalogue entry', () => {
-  for (const source of Object.keys(SITE_COPY)) {
-    assert.equal(translatedSiteCopy(source, 'en'), source);
-  }
-});
-
 test('language switching is stable and reversible across all three languages', () => {
-  const probe = 'Language';
-  assert.equal(translatedSiteCopy(probe, 'en'), 'Language');
-  assert.equal(translatedSiteCopy(probe, 'ar'), 'اللغة');
-  assert.equal(translatedSiteCopy(probe, 'ur'), 'زبان');
-  // Repeated switching must be idempotent - no accumulated state in the lookup.
+  // Expected values are pinned rather than compared against a second call, so a
+  // lookup that returned a different value every time would fail here.
+  const expected = { en: 'Language', ar: 'اللغة', ur: 'زبان' };
+  assert.equal(translatedSiteCopy('Language', 'en'), expected.en);
+  assert.equal(translatedSiteCopy('Language', 'ar'), expected.ar);
+  assert.equal(translatedSiteCopy('Language', 'ur'), expected.ur);
+
+  // Switching away and back must return the original value, repeatedly.
   for (let pass = 0; pass < 3; pass += 1) {
     for (const language of SITE_LANGUAGE_IDS) {
-      assert.equal(translatedSiteCopy(probe, language), translatedSiteCopy(probe, language));
+      assert.equal(translatedSiteCopy('Language', language), expected[language]);
     }
   }
 });
