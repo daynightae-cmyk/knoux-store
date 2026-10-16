@@ -106,13 +106,47 @@ function isShellProfile(value: string): value is ShellProfile {
   return (SHELL_PROFILES as readonly string[]).includes(value);
 }
 
-/** A relative workspace path: no drive letter, no leading slash, no traversal. */
+/** Device names Windows reserves, whatever the extension. */
+const RESERVED_WINDOWS_NAMES = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i;
+
+/**
+ * A relative workspace path: no drive letter, no leading slash, no traversal.
+ *
+ * The bridge re-verifies containment after `realpath`, so this is the first of
+ * two checks rather than the only one. It is deliberately stricter than the
+ * minimum: a value that is refused here is dropped from the ticket entirely,
+ * which leaves the bridge on its own trusted root, whereas a value accepted
+ * here and understood loosely downstream is what turns a convenience field into
+ * a way out of the workspace.
+ *
+ * Every rejection below closes a shape that a plain string test admits:
+ *
+ *  - `..` and `.` segments, so a path cannot normalise its way upward or
+ *    hide a segment behind a no-op.
+ *  - A colon in any segment, which covers the drive prefix, the extended-length
+ *    `\\?\` device namespace, and NTFS alternate data streams (`file:hidden`).
+ *  - A segment ending in a space or dot, which Windows silently strips, making
+ *    `secrets .env` and `secrets.env` the same path.
+ *  - Reserved device names, which address a device rather than a file.
+ *  - C0/C1 control characters, including the embedded newline and tab that
+ *    different URL and shell layers each reinterpret differently.
+ *  - Repeated separators, which are harmless but indicate a value assembled
+ *    rather than typed, and are normalised away before the bridge sees it.
+ */
 function isRelativeWorkspacePath(value: string): boolean {
   if (value.length === 0 || value.length > 400) return false;
-  if (value.includes('\0')) return false;
+  if (/[\u0000-\u001F\u007F-\u009F]/.test(value)) return false;
   if (value.startsWith('/') || value.startsWith('\\')) return false;
-  if (/^[a-zA-Z]:/.test(value)) return false;
-  const segments = value.replace(/\\/g, '/').split('/');
-  if (segments.some((s) => s === '..')) return false;
+
+  // Canonical separator, so one rule covers `/` and `\`. `\\server\share` and
+  // `\\?\C:\x` are already excluded above by their leading backslash.
+  const normalized = value.replace(/\\/g, '/');
+  const segments = normalized.split('/');
+  for (const segment of segments) {
+    if (segment === '' || segment === '.' || segment === '..') return false;
+    if (segment.includes(':')) return false;
+    if (/[ .]$/.test(segment)) return false;
+    if (RESERVED_WINDOWS_NAMES.test(segment.split('.')[0] ?? '')) return false;
+  }
   return true;
 }
