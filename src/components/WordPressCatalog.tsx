@@ -221,7 +221,10 @@ export function WordPressGoalIndex() {
                   ? `With ${companions.map((entity) => entity.shortName).join(' / ')}`
                   : `${goal.serviceIds.length} service${goal.serviceIds.length === 1 ? '' : 's'}`
               }
-              href="/wordpress#goals"
+              href={`/contact?${new URLSearchParams({
+                requestType: 'wordpress',
+                items: [goal.label, ...wordPressServices.filter((service) => goal.serviceIds.includes(service.id)).map((service) => service.name)].join(', '),
+              })}`}
             />
           );
         })}

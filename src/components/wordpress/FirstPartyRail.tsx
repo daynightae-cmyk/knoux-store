@@ -23,7 +23,7 @@ export function FirstPartyRail({
   const plural = count === 1 ? label : `${label}s`;
 
   return (
-    <section className="mp-firstparty" aria-label={`KNOuX ${label.toLowerCase()} releases`}>
+    <section className="shell mp-firstparty" aria-label={`KNOuX ${label.toLowerCase()} releases`}>
       <div className="block-head">
         <div>
           <span className="label label--signal">KNOuX RELEASES</span>
@@ -65,7 +65,7 @@ export function FirstPartyRail({
       )}
 
       <p className="mp-firstparty__links">
-        <Link href="/wordpress#catalogues">All KNOuX WordPress routes</Link>
+        <Link href="/wordpress#library">All KNOuX WordPress routes</Link>
         <span aria-hidden="true">·</span>
         <Link href="/wordpress#operate">KNOuX operating services</Link>
       </p>
