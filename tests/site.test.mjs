@@ -180,7 +180,9 @@ test('division pages render their registry honestly', async () => {
 
   const growth = await (await fetch(origin + '/growth')).text();
   assert.match(growth, /CAMPAIGN BUDGET/i, 'the growth entry must accept a campaign budget');
-  assert.ok(!/ROAS|CPC|CPA|conversion rate of/i.test(growth), 'growth must not project a result');
+  // Framework payloads contain random build IDs; claims belong to visible copy.
+  const growthText = growth.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '').replace(/<[^>]+>/g, ' ');
+  assert.ok(!/ROAS|CPC|CPA|conversion rate of/i.test(growthText), 'growth must not project a result');
 
   const web = await (await fetch(origin + '/web')).text();
   assert.match(web, /CAPABILITY MATRIX/i, 'web must publish the capability matrix');
