@@ -7,7 +7,7 @@ Enumerated from current source (`src/app/**/page.tsx`, 72 page files). Grouped b
 | `/` | src/app/page.tsx | 01 Home | HomeExperience | — | DONE | routes, a11y, visual | visual-audit/home/ |
 | `/products` | src/app/products/page.tsx | 02 Software | ProductUniverse | — | DONE | routes, a11y, visual | visual-audit/products/ |
 | `/products/[slug]` | src/app/products/[slug]/page.tsx | 02 Software | ProductDossier | slug | DONE | routes, a11y, visual | visual-audit/products/ (knoux-one desktop/mobile) |
-| `/engineering` | src/app/engineering/page.tsx | 03 Engineering | — | — | PENDING | routes, a11y, visual | — |
+| `/engineering` | src/app/engineering/page.tsx | 03 Engineering | EngineeringCaseFiles | n/a | DONE | routes, keyboard, visual | visual-audit/engineering/ (1440/820/390, delivery, dossiers, sources) |
 | `/wordpress` | src/app/wordpress/page.tsx | 04 WordPress | — | — | PENDING | routes, a11y, visual | — |
 | `/wordpress/solutions` | src/app/wordpress/solutions/page.tsx | 04 WordPress | — | — | PENDING | routes, visual | — |
 | `/wordpress/themes` | src/app/wordpress/themes/page.tsx | 04 WordPress | catalog | — | PENDING | routes, visual | — |
