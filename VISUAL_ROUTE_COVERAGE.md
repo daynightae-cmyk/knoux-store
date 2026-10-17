@@ -8,13 +8,13 @@ Enumerated from current source (`src/app/**/page.tsx`, 72 page files). Grouped b
 | `/products` | src/app/products/page.tsx | 02 Software | ProductUniverse | — | DONE | routes, a11y, visual | visual-audit/products/ |
 | `/products/[slug]` | src/app/products/[slug]/page.tsx | 02 Software | ProductDossier | slug | DONE | routes, a11y, visual | visual-audit/products/ (knoux-one desktop/mobile) |
 | `/engineering` | src/app/engineering/page.tsx | 03 Engineering | EngineeringCaseFiles | n/a | DONE | routes, keyboard, visual | visual-audit/engineering/ (1440/820/390, delivery, dossiers, sources) |
-| `/wordpress` | src/app/wordpress/page.tsx | 04 WordPress | — | — | PENDING | routes, a11y, visual | — |
-| `/wordpress/solutions` | src/app/wordpress/solutions/page.tsx | 04 WordPress | — | — | PENDING | routes, visual | — |
-| `/wordpress/themes` | src/app/wordpress/themes/page.tsx | 04 WordPress | catalog | — | PENDING | routes, visual | — |
-| `/wordpress/plugins` | src/app/wordpress/plugins/page.tsx | 04 WordPress | catalog | — | PENDING | routes, visual | — |
-| `/wordpress/blocks` | src/app/wordpress/blocks/page.tsx | 04 WordPress | catalog | — | PENDING | routes, visual | — |
-| `/wordpress/patterns` | src/app/wordpress/patterns/page.tsx | 04 WordPress | catalog | — | PENDING | routes, visual | — |
-| `/wordpress/starter-sites` | src/app/wordpress/starter-sites/page.tsx | 04 WordPress | catalog | — | PENDING | routes, visual | — |
+| `/wordpress` | src/app/wordpress/page.tsx | 04 WordPress | — | — | DONE | routes, a11y, visual | visual-audit/wordpress/ (shared catalog; overview/themes/solutions responsive, reset/intake flow) |
+| `/wordpress/solutions` | src/app/wordpress/solutions/page.tsx | 04 WordPress | — | — | DONE | routes, visual | visual-audit/wordpress/ (shared catalog; overview/themes/solutions responsive, reset/intake flow) |
+| `/wordpress/themes` | src/app/wordpress/themes/page.tsx | 04 WordPress | catalog | — | DONE | routes, visual | visual-audit/wordpress/ (shared catalog; overview/themes/solutions responsive, reset/intake flow) |
+| `/wordpress/plugins` | src/app/wordpress/plugins/page.tsx | 04 WordPress | catalog | — | DONE | routes, visual | visual-audit/wordpress/ (shared catalog; overview/themes/solutions responsive, reset/intake flow) |
+| `/wordpress/blocks` | src/app/wordpress/blocks/page.tsx | 04 WordPress | catalog | — | DONE | routes, visual | visual-audit/wordpress/ (shared catalog; overview/themes/solutions responsive, reset/intake flow) |
+| `/wordpress/patterns` | src/app/wordpress/patterns/page.tsx | 04 WordPress | catalog | — | DONE | routes, visual | visual-audit/wordpress/ (shared catalog; overview/themes/solutions responsive, reset/intake flow) |
+| `/wordpress/starter-sites` | src/app/wordpress/starter-sites/page.tsx | 04 WordPress | catalog | — | DONE | routes, visual | visual-audit/wordpress/ (shared catalog; overview/themes/solutions responsive, reset/intake flow) |
 | `/web` | src/app/web/page.tsx | 05 Web | SystemsStudio | — | PENDING | routes, a11y, visual | — |
 | `/web/[slug]` | src/app/web/[slug]/page.tsx | 05 Web | — | slug | PENDING | routes, visual | — |
 | `/growth` | src/app/growth/page.tsx | 06 Growth | GrowthExperience | — | PENDING | routes, a11y, visual | — |
