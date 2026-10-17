@@ -12,7 +12,7 @@
 | Route | Family | Status | Commit | Notes |
 | --- | --- | --- | --- | --- |
 | 01 | Home / Headquarters | DONE | b99a666 | Mission selection by choice (PR #53 contract), registry facts on records, reactive division core, underline-draw hover. Gates green. |
-| 02 | Software Universe | IN PROGRESS | — | Chapter panels pinned via runtime-driven `data-ksu-chapter` (fixed positioning); stacked-chapter overlap fixed; chapter copy scrim + brighter body. Desktop/mobile verified. Dossier detail pass pending. |
+| 02 | Software Universe | DONE | c9fc216 | Chapter panels pinned via runtime-driven `data-ksu-chapter` (fixed positioning); stacked-chapter overlap fixed; chapter copy scrim + brighter body. Dossier detail (desktop/mobile/arrival/anatomy selector) verified with no defects. Gates green. |
 | 03 | Engineering | PENDING | — | — |
 | 04 | WordPress Ecosystem | PENDING | — | — |
 | 05 | Web Systems Studio | PENDING | — | — |
