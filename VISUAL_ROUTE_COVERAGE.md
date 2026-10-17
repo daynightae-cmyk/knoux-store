@@ -5,8 +5,8 @@ Enumerated from current source (`src/app/**/page.tsx`, 72 page files). Grouped b
 | Pattern | Source file | Family | Shared template | Dynamic params | Status | Required tests | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `/` | src/app/page.tsx | 01 Home | HomeExperience | — | DONE | routes, a11y, visual | visual-audit/home/ |
-| `/products` | src/app/products/page.tsx | 02 Software | ProductUniverse | — | IN PROGRESS | routes, a11y, visual | visual-audit/products/ |
-| `/products/[slug]` | src/app/products/[slug]/page.tsx | 02 Software | ProductDossier | slug | PENDING | routes, a11y, visual | — |
+| `/products` | src/app/products/page.tsx | 02 Software | ProductUniverse | — | DONE | routes, a11y, visual | visual-audit/products/ |
+| `/products/[slug]` | src/app/products/[slug]/page.tsx | 02 Software | ProductDossier | slug | DONE | routes, a11y, visual | visual-audit/products/ (knoux-one desktop/mobile) |
 | `/engineering` | src/app/engineering/page.tsx | 03 Engineering | — | — | PENDING | routes, a11y, visual | — |
 | `/wordpress` | src/app/wordpress/page.tsx | 04 WordPress | — | — | PENDING | routes, a11y, visual | — |
 | `/wordpress/solutions` | src/app/wordpress/solutions/page.tsx | 04 WordPress | — | — | PENDING | routes, visual | — |
