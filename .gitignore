@@ -130,3 +130,8 @@ gateway/.venv*/
 # Maintained V4 provenance capture and comparison entrypoints.
 !/scripts/visual-v4-capture.mjs
 !/scripts/visual-v4-gallery.mjs
+!/scripts/visual-capture.mjs
+!/scripts/visual-capture-baseline.mjs
+
+# Visual acceptance evidence (generated, large)
+visual-audit/
