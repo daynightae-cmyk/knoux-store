@@ -13,7 +13,7 @@
 | --- | --- | --- | --- | --- |
 | 01 | Home / Headquarters | DONE | b99a666 | Mission selection by choice (PR #53 contract), registry facts on records, reactive division core, underline-draw hover. Gates green. |
 | 02 | Software Universe | DONE | c9fc216 | Chapter panels pinned via runtime-driven `data-ksu-chapter` (fixed positioning); stacked-chapter overlap fixed; chapter copy scrim + brighter body. Dossier detail (desktop/mobile/arrival/anatomy selector) verified with no defects. Gates green. |
-| 03 | Engineering | PENDING | — | — |
+| 03 | Engineering | DONE | 702c0d7 | Readable source records, bounded navigation and clearer constraints. Build, typecheck, CSS integrity and responsive keyboard checks pass; growth build-ID false positive fixed, site suite 7/7. |
 | 04 | WordPress Ecosystem | PENDING | — | — |
 | 05 | Web Systems Studio | PENDING | — | — |
 | 06 | Growth | PENDING | — | — |
