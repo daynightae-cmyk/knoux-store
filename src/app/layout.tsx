@@ -5,6 +5,7 @@ import { SiteFooter } from '@/components/SiteFooter';
 import { CommandPalette } from '@/components/CommandPalette';
 import { KnouxSentinel } from '@/components/identity/KnouxSentinel';
 import { SentinelGuideLauncher } from '@/components/identity/SentinelGuideLauncher';
+import { SiteLanguageDocument } from '@/components/i18n/SiteLanguage';
 import { StoreStarfield } from '@/components/identity/StoreStarfield';
 import { StoreStarfieldProvider } from '@/components/identity/StoreStarfieldProvider';
 import { motionTokens } from '@/lib/motion';
@@ -45,9 +46,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body style={motionTokens() as React.CSSProperties}>
         <StoreStarfieldProvider>
         <StoreStarfield />
-        <a className="skip-link" href="#main-content">
-          Skip to content
-        </a>
+        {/* Reconciles <html lang>/<html dir> with the stored preference and
+            renders the localized skip link. The attributes above stay
+            `lang="en"` so the document is valid and correctly described before
+            any script runs. */}
+        <SiteLanguageDocument />
         <SiteHeader />
         {children}
         <SiteFooter />
