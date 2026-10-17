@@ -40,13 +40,19 @@ test('Solutions handoff: responsive geometry, real missions, keyboard and access
     await stations.nth(index).click();
     await expect(page.locator('#selected-mission-title')).toHaveText(solution.title);
     await expect(page.getByRole('link', { name: 'Explore this mission' })).toHaveAttribute('href', `/solutions/${solution.slug}`);
-    const layers = page.locator('[aria-controls="solution-layer-detail"]');
+    // Scoped to the handoff panel so this can never resolve to a layer rendered
+    // for a different mission.
+    const layers = page.locator('#solution-handoff [aria-controls="solution-layer-detail"]');
     await expect(layers).toHaveCount(solution.core.length);
     for (const [layerIndex, layer] of solution.core.entries()) {
       await layers.nth(layerIndex).click();
       await expect(page.locator('#solution-layer-detail h4')).toHaveText(layer.label);
       await expect(page.locator('#solution-layer-detail > p')).toHaveText(layer.because);
     }
+    // Inspecting layers must not change which mission is selected. Selection
+    // follows an explicit choice, so nothing about hovering, scrolling or
+    // synthetic pointer events may swap the handoff underneath the visitor.
+    await expect(page.locator('#selected-mission-title')).toHaveText(solution.title);
   }
   const summary = page.locator('details summary');
   await summary.focus();
