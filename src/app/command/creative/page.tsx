@@ -13,6 +13,7 @@
  */
 
 import { AdPreviewTheatre } from '@/components/command/studio/AdPreviewTheatre';
+import { CreateGrowthDraft } from '@/components/command/studio/CreateGrowthDraft';
 import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
 import { Pane, Section } from '@/components/command/primitives';
@@ -41,6 +42,7 @@ function Creative() {
         { label: 'Approved', value: String(creatives.filter((c) => c.status === 'APPROVED').length) },
       ]}
     >
+      <CreateGrowthDraft key={activeClient.id} kind="creative" />
       <AdPreviewTheatre />
       <Section title="Brand context" note="What constrains every draft below.">
         <div className={styles.commandGrid3 ?? ''}>
