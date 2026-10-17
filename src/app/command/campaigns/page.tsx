@@ -15,6 +15,7 @@
 import { useState } from 'react';
 import { AdPreviewTheatre } from '@/components/command/studio/AdPreviewTheatre';
 import { CampaignReview } from '@/components/command/studio/CampaignReview';
+import { CreateGrowthDraft } from '@/components/command/studio/CreateGrowthDraft';
 import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
 import {
@@ -76,6 +77,7 @@ function Campaigns() {
         { label: 'Approved, not live', value: String(campaigns.filter((c) => c.status === 'APPROVED').length) },
       ]}
     >
+      <CreateGrowthDraft key={activeClient.id} kind="campaign" />
       {isDemoWorkspace && <div style={{ padding: '16px 24px 0' }}>
         <DemoNotice>
           Every campaign below is a demo fixture. No campaign has been launched, and no platform has

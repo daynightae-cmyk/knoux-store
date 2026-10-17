@@ -13,13 +13,29 @@ export function CampaignReview({ campaign }: { campaign: Campaign }) {
 }
 
 function Review({ source }: { source: Campaign }) {
-  const { activeClient, studioEdits, records, campaignPlans, stageCampaign } = useWorkspace();
+  const { activeClient, studioEdits, records, campaignPlans, stageCampaign, isDemoWorkspace } = useWorkspace();
   const plan = campaignPlans.find((campaign) => campaign.id === source.id) ?? source;
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [saveError, setSaveError] = useState('');
+  const [storedAt, setStoredAt] = useState(source.updatedAt);
+  const [savedFingerprint, setSavedFingerprint] = useState('');
   const [snapshot, setSnapshot] = useState<{ fingerprint: string; at: string; plan: Campaign } | null>(null);
   const edits = records.creatives.filter((draft) => draft.campaignId === plan.id || plan.creativeSetIds.includes(draft.id)).map((draft) => studioEdits[draft.id]);
   const fingerprint = reviewFingerprint(plan, edits);
   const validSnapshot = snapshot?.fingerprint === fingerprint;
   const patch = (value: Partial<Campaign>) => stageCampaign(source.id, value);
+  const save = async () => {
+    setSaveState('saving'); setSaveError('');
+    try {
+      const response = await fetch('/api/growth/campaigns', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ...plan, expectedUpdatedAt: storedAt }),
+      });
+      const payload = await response.json() as { campaign?: { updated_at: string }; reason?: string };
+      if (!response.ok || !payload.campaign) throw new Error(payload.reason ?? 'Campaign save failed.');
+      setStoredAt(payload.campaign.updated_at); setSavedFingerprint(fingerprint); setSaveState('saved');
+    } catch (error) { setSaveState('error'); setSaveError(error instanceof Error ? error.message : 'Campaign save failed.'); }
+  };
   const valid = Number.isSafeInteger(plan.budgetMinor) && plan.budgetMinor > 0 && daysInclusive(plan.startDate, plan.endDate) > 0 && plan.platforms.length > 0 && plan.locations.length > 0 && destinationValid(plan.landingPageUrl ?? '') && edits.length > 0;
   return <section className={styles.theatre} aria-label="Campaign builder"><div className={styles.toolbar}><div><span className={styles.eyebrow}>PLAN / PREVIEW / HUMAN REVIEW</span><h2>Build the campaign brief</h2></div><span className={styles.state}>LOCAL DRAFT · NO SPEND</span></div><div className={styles.inspector}>
     <label>Campaign name<input value={plan.name} onChange={(event) => patch({ name: event.target.value })} /></label>
@@ -34,6 +50,6 @@ function Review({ source }: { source: Campaign }) {
     <label>Landing destination<input type="url" dir="ltr" value={plan.landingPageUrl ?? ''} onChange={(event) => patch({ landingPageUrl: event.target.value })} /></label><label>Conversion action<input value={plan.conversionTarget ?? ''} onChange={(event) => patch({ conversionTarget: event.target.value })} /></label>
     <div className={styles.checks}><h3>Review package · {activeClient.name}</h3><p>{edits.length} linked creative(s). Creative text, revision, destination, language and asset references are included alongside the complete plan.</p><button type="button" disabled={!valid || !plan.name.trim() || !plan.languages.length} onClick={() => setSnapshot({ fingerprint, at: new Date().toISOString(), plan: structuredClone(plan) })}>Prepare review snapshot</button>{!valid && <p>Set a positive integer budget, valid dates, HTTPS destination, geography, channel and linked creative before review.</p>}
     {snapshot && <div role="status"><strong>{validSnapshot ? 'Review snapshot frozen locally · not submitted' : 'REVIEW INVALIDATED · plan or creative changed'}</strong><p>{snapshot.at} · {formatBudget(snapshot.plan.budgetMinor, snapshot.plan.currency)} · {snapshot.plan.locations.join(', ')}</p><details><summary>Inspect exact frozen package</summary><pre style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', fontSize: 12 }}>{snapshot.fingerprint}</pre></details></div>}
-    <p>CONFIG_REQUIRED: Campaign and approval write endpoints are unavailable. No named approval was recorded. Connect authorized persistence before requesting client approval.</p><button type="button" disabled>Request approval · write endpoint unavailable</button><button type="button" disabled>Launch · EXECUTOR_NOT_CONNECTED</button><p>A local review snapshot cannot authorize a provider write.</p></div>
+    <button type="button" disabled={isDemoWorkspace || saveState === 'saving' || !plan.name.trim()} onClick={() => void save()}>{saveState === 'saving' ? 'Saving…' : 'Save campaign draft'}</button>{saveState === 'saved' && <p role="status">{savedFingerprint === fingerprint ? 'Campaign draft saved · not approved' : 'Unsaved changes after last save'}</p>}{saveError && <p role="alert">{saveError}</p>}<p>Approval submission requires its own authorized review endpoint. Saving this draft supersedes existing approval records and never authorizes publishing.</p><button type="button" disabled>Request approval · write endpoint unavailable</button><button type="button" disabled>Launch · EXECUTOR_NOT_CONNECTED</button><p>A local review snapshot cannot authorize a provider write.</p></div>
   </div></section>;
 }
