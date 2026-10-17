@@ -404,11 +404,11 @@ export function HomeSoftwareField() {
             </span>
             <strong className="sys-field__record-name">{product.name}</strong>
             <span className="sys-field__record-meta">
-              {product.discipline.toUpperCase()} / {product.family}
+              <i className="sys-field__fact">{product.status.toUpperCase()}</i>
+              <i className="sys-field__fact">{product.platform.toUpperCase()}</i>
+              <span>{product.discipline.toUpperCase()} / {product.family}</span>
             </span>
-            <span className="sys-field__record-arrow" aria-hidden="true">
-              ↗
-            </span>
+            <span className="sys-field__record-arrow" aria-hidden="true">↗</span>
           </Link>
         ))}
         <p className="sys-field__source">
