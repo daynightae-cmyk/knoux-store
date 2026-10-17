@@ -11,8 +11,8 @@
 
 | Route | Family | Status | Commit | Notes |
 | --- | --- | --- | --- | --- |
-| 01 | Home / Headquarters | IN PROGRESS | — | — |
-| 02 | Software Universe | PENDING | — | — |
+| 01 | Home / Headquarters | DONE | b99a666 | Mission selection by choice (PR #53 contract), registry facts on records, reactive division core, underline-draw hover. Gates green. |
+| 02 | Software Universe | IN PROGRESS | — | Chapter panels pinned via runtime-driven `data-ksu-chapter` (fixed positioning); stacked-chapter overlap fixed; chapter copy scrim + brighter body. Desktop/mobile verified. Dossier detail pass pending. |
 | 03 | Engineering | PENDING | — | — |
 | 04 | WordPress Ecosystem | PENDING | — | — |
 | 05 | Web Systems Studio | PENDING | — | — |
@@ -29,7 +29,7 @@
 ## Baseline findings (from live Playwright captures, `visual-audit/baseline/`)
 
 - Home: hero copy reveal fires at ~2.5–4s (settle-gated). Works, no change to protected arrival sequence.
-- Products: heading overlap defect near "Built as one / Shipped alone" — orbit labels collide with editorial text; repeated KNOUX ONE hero/module.
+- Products: real defect confirmed — the pinned chapter panels ("One core. Every surface.", "Capture. Build. Publish.", "Navigate by intent.") stack at full opacity with no exit fade; CSS sticky engages only partially under this construction (s4 headline clips off-viewport). Full-page-only overlap of the hero is a pinned-scroll artifact, not a defect.
 - Web: "Indexed by what it does." and "The same four stages." sections render as black voids — content not visible.
 - Engineering: dossier stack/contract monospace blocks render at unreadably small sizes; heavy repetition.
 - Command: functional, honest DEMO labelling; Sentinel pill overlaps sidebar "Creative Studio" item.
