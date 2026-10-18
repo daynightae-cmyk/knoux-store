@@ -1,5 +1,6 @@
 import { chromium } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
+import { resolve, basename } from 'node:path';
 
 /**
  * Capture the Build workspace from behind its entry gate.
@@ -8,7 +9,9 @@ import { mkdirSync } from 'node:fs';
  * answer it the way a visitor does: pick a starter, press Enter.
  */
 const base = process.env.BASE_URL ?? 'http://localhost:3000';
-const outDir = process.argv[2] ?? 'visual-audit/workspace';
+const outDirRaw = process.argv[2] ?? 'visual-audit/workspace';
+const outDir = resolve(outDirRaw);
+if (basename(outDir).startsWith('.')) throw new Error('Invalid output directory');
 mkdirSync(outDir, { recursive: true });
 
 const browser = await chromium.launch();

@@ -173,7 +173,7 @@ const PROBE = () => {
     if (image.complete && image.naturalWidth === 0) {
       findings.push({ kind: 'broken-image', detail: image.currentSrc || image.src || '(no src)' });
     }
-    if (image.alt === null) findings.push({ kind: 'image-without-alt', detail: image.src });
+    if (image.alt === '') findings.push({ kind: 'image-without-alt', detail: image.src });
   }
 
   return findings;
