@@ -113,6 +113,20 @@ const PROBE = () => {
   }
   for (const item of [...tiny].slice(0, 8)) findings.push({ kind: 'tiny-type', detail: item });
 
+  // A reveal-gated block that is still transparent was never observed. This is
+  // invisible content rather than a cosmetic difference, so it is reported
+  // separately from the styling checks below.
+  const unrevealed = [];
+  for (const element of document.querySelectorAll('[data-reveal]')) {
+    const style = getComputedStyle(element);
+    if (Number.parseFloat(style.opacity) < 0.9 && !element.closest('.sr-only, .visually-hidden')) {
+      unrevealed.push(`${describe(element)} opacity=${style.opacity}`);
+    }
+  }
+  for (const item of [...new Set(unrevealed)].slice(0, 8)) {
+    findings.push({ kind: 'unrevealed-block', detail: item });
+  }
+
   // Content wider than its own box: clipped words, dead space, hidden copy.
   // `.process-architecture li` is a known exception: the connector arc is drawn
   // by `li::after { right: -18px }`, which reaches into the column gap on
@@ -188,6 +202,16 @@ try {
 
       const response = await page.goto(base + route, { waitUntil: 'domcontentloaded', timeout: 45000 });
       await page.waitForTimeout(900);
+      // Walk the page so reveal-gated blocks are observed before they are judged.
+      await page.evaluate(async () => {
+        const step = window.innerHeight * 0.8;
+        for (let y = 0; y < document.body.scrollHeight; y += step) {
+          window.scrollTo(0, y);
+          await new Promise((resolve) => setTimeout(resolve, 110));
+        }
+        window.scrollTo(0, 0);
+      });
+      await page.waitForTimeout(700);
 
       const status = response?.status() ?? 0;
       const findings = await page.evaluate(PROBE);
