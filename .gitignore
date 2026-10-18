@@ -139,6 +139,11 @@ gateway/.venv*/
 # have to enter it the way a visitor does rather than loading the page directly.
 !/scripts/verify-build-gate.mjs
 !/scripts/capture-build-workspace.mjs
+# PR #53 contract: mission selection follows a choice, never the pointer.
+!/scripts/verify-solutions-selection.mjs
+# Photographs one element in the viewport, which is the only honest way to check
+# a reveal-gated block: a stitched full-page shot can show it empty.
+!/scripts/shoot-element.mjs
 
 # Visual acceptance evidence (generated, large)
 visual-audit/
