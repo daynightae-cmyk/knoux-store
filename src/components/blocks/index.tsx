@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { observeReveal } from '@/lib/motion';
 
 /**
@@ -22,6 +23,28 @@ export function RevealGroup({ children, className }: { children: React.ReactNode
       {children}
     </div>
   );
+}
+
+/**
+ * Document-wide reveal.
+ *
+ * `[data-reveal]` renders at opacity 0, so whatever adds `is-visible` is what
+ * makes the block exist at all. Only `RevealGroup` used to do that, which meant
+ * a reveal block authored outside a group — a `DevState`, a `bridge`, a
+ * `next-link` — stayed invisible for the life of the page rather than merely
+ * un-animated. Declaring the animation is opting into being observed, so the
+ * observer belongs to the document, not to one wrapper.
+ *
+ * It re-scans on navigation because the root layout outlives a client-side
+ * route change and the new page's blocks arrive after it has already run.
+ */
+export function RevealObserver() {
+  const pathname = usePathname();
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    return observeReveal(document.body, (element) => element.classList.add('is-visible'));
+  }, [pathname]);
+  return null;
 }
 
 /** Block A: System Index. Large typography over thin indexed rows. */
