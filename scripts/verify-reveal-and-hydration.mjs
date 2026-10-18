@@ -1,5 +1,4 @@
 import { chromium } from '@playwright/test';
-import assert from 'node:assert/strict';
 
 /**
  * Production gate for the two defects that hid content rather than styling it.
@@ -30,9 +29,6 @@ try {
       }
     });
     await page.waitForTimeout(800);
-    // Content inside a closed <details> is not on the page yet; judging it here
-    // would report a block that is correctly waiting to be opened.
-    const notRendered = (el) => Boolean(el.closest('details:not([open]), [hidden]'));
     const afterReading = await page.evaluate(() => [...document.querySelectorAll('[data-reveal]')]
       .filter((el) => !el.closest('details:not([open]), [hidden]'))
       .filter((el) => Number.parseFloat(getComputedStyle(el).opacity) < 0.9).length);
