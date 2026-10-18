@@ -1,6 +1,5 @@
 import { chromium } from '@playwright/test';
-import { mkdirSync } from 'node:fs';
-import { resolve, basename } from 'node:path';
+import { prepareVisualOutputDirectory } from './visual-output-directory.mjs';
 
 /**
  * Honest route capture: pre-scrolls (so data-reveal content is actually
@@ -11,11 +10,8 @@ import { resolve, basename } from 'node:path';
  * Route spec: label=path[:stateName=selectorAction]  (state = JSON actions file optional)
  */
 const base = process.env.BASE_URL ?? 'http://localhost:3000';
-const outDirRaw = process.argv[2] ?? 'visual-audit/capture';
-const outDir = resolve(outDirRaw);
-if (basename(outDir).startsWith('.')) throw new Error('Invalid output directory');
+const outDir = prepareVisualOutputDirectory(process.argv[2], 'visual-audit/capture');
 const targets = process.argv.slice(3);
-mkdirSync(outDir, { recursive: true });
 
 const VIEWPORTS = [
   ['desktop', { width: 1440, height: 900 }],
