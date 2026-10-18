@@ -135,6 +135,10 @@ gateway/.venv*/
 # Cross-route defect sweep: overflow, clipped copy, tiny type, unnamed controls,
 # broken images and console errors across every public route at three viewports.
 !/scripts/route-sweep.mjs
+# Build workspace checks. The workspace sits behind a required modal, so these
+# have to enter it the way a visitor does rather than loading the page directly.
+!/scripts/verify-build-gate.mjs
+!/scripts/capture-build-workspace.mjs
 
 # Visual acceptance evidence (generated, large)
 visual-audit/
