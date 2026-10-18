@@ -144,6 +144,8 @@ gateway/.venv*/
 # Photographs one element in the viewport, which is the only honest way to check
 # a reveal-gated block: a stitched full-page shot can show it empty.
 !/scripts/shoot-element.mjs
+# Production gate for the two defects that hid content instead of styling it.
+!/scripts/verify-reveal-and-hydration.mjs
 
 # Visual acceptance evidence (generated, large)
 visual-audit/
