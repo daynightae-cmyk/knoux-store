@@ -95,7 +95,7 @@ button:disabled{cursor:not-allowed}
    chips inherit the monospace metadata voice instead of inventing a surface. */
 .sys-field__record-meta{display:flex;align-items:center;flex-wrap:wrap;gap:10px;font:9px var(--mono);letter-spacing:.1em}
 .sys-field__record-meta>span{color:var(--dim)}
-.sys-field__fact{font-style:normal;font:inherit;color:#b4a6c9;border:1px solid #4a3f5c;border-radius:2px;padding:3px 7px;letter-spacing:.09em;white-space:nowrap}
+.sys-field__fact{font:inherit;font-style:normal;color:#b4a6c9;border:1px solid #4a3f5c;border-radius:2px;padding:3px 7px;letter-spacing:.09em;white-space:nowrap}
 .sys-field__record[data-active="true"] .sys-field__fact{border-color:#8a71ad;color:#dccfe9}
 
 /* Mission stations: hover lifts, but selection is the only state that fills
