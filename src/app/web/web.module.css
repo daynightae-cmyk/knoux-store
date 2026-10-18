@@ -1,0 +1,17 @@
+.page :global(.option-grid) {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.page :global(.option) { min-height: 110px; padding: 20px; }
+.page :global(.systems-panel__list dt) { font-size: 16px; }
+.page :global(.systems-panel__list dd) { font-size: 14px; line-height: 1.75; }
+.page :global(.matrix thead th) { font-size: 11px; }
+.page :global(.matrix__group td) { font-size: 11px; }
+.page :global(.matrix-scroll:focus-visible) { outline: 2px solid var(--violet); outline-offset: 5px; }
+@media (max-width: 900px) {
+  .page :global(.option-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .page :global(.option) { min-height: 124px; padding: 16px 12px; }
+}

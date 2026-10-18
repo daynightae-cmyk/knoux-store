@@ -132,6 +132,9 @@ gateway/.venv*/
 !/scripts/visual-v4-gallery.mjs
 !/scripts/visual-capture.mjs
 !/scripts/visual-capture-baseline.mjs
+# Cross-route defect sweep: overflow, clipped copy, tiny type, unnamed controls,
+# broken images and console errors across every public route at three viewports.
+!/scripts/route-sweep.mjs
 
 # Visual acceptance evidence (generated, large)
 visual-audit/
