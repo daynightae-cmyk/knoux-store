@@ -27,6 +27,9 @@
 .brief { display: grid; grid-template-columns: minmax(0, .7fr) minmax(0, 1.3fr); gap: 60px; border-top: 1px solid #554a61; padding-top: 48px; scroll-margin-top: 90px; }
 .brief h2 { font-weight: 400; font-size: clamp(30px, 3vw, 48px); line-height: 1.2; margin-block: 24px; }
 .brief p, .brief a { font-size: 14px; line-height: 1.9; color: #c0b6cc; }
+/* A statement about how the form is used, not a link to a policy page this
+   site does not publish. */
+.brief .privacyNote { font-size: 13px; line-height: 1.8; color: #9a90a8; display: block; margin-top: 10px; }
 .form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 .form label { display: grid; gap: 10px; font-size: 14px; color: #d7cfe0; }
 .form input, .form select { width: 100%; min-width: 0; min-height: 46px; background: #16131b; color: #f5effa; border: 1px solid #51475e; padding: 12px; font: inherit; }

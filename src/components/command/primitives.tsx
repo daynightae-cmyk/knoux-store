@@ -157,13 +157,18 @@ export function MetricCell({
   const available = value != null;
 
   let text = 'Not reported';
+  // A currency code is a unit, not part of the amount. Rendering it at the same
+  // size as the figure pushed "AED" onto its own line and split the number from
+  // its unit, which reads as two unrelated values.
+  let unit: string | null = null;
   if (available) {
     const digits = kind === 'number' ? 0 : 2;
     if (kind === 'currency') {
-      text = `${currency} ${value.value.toLocaleString('en-AE', {
+      unit = currency;
+      text = value.value.toLocaleString('en-AE', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      })}`;
+      });
     } else if (kind === 'percent') {
       text = `${value.value.toFixed(2)}%`;
     } else {
@@ -177,6 +182,7 @@ export function MetricCell({
       <span
         className={available ? (styles.ccMetricValue ?? '') : (styles.ccMetricValueAbsent ?? '')}
       >
+        {unit ? <span className={styles.ccMetricUnit ?? ''}>{unit}</span> : null}
         {text}
       </span>
       {available && value.origin === 'FIXTURE' ? (

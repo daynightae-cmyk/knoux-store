@@ -12,6 +12,19 @@ after(() => server.kill());
 
 const wait = () => waitForServer(server, origin);
 
+// Test the rendered page region, not Next.js hydration scripts appended outside
+// <main>. Removing <script> tags with a regular expression is not HTML parsing
+// and can silently produce misleading assertions for malformed closing tags.
+function mainDocumentMarkup(html) {
+  const start = html.indexOf('<main');
+  assert.notEqual(start, -1, 'page must render a main landmark');
+  const openingEnd = html.indexOf('>', start);
+  assert.notEqual(openingEnd, -1, 'main landmark must have a closing bracket');
+  const end = html.indexOf('</main>', openingEnd);
+  assert.notEqual(end, -1, 'page must close its main landmark');
+  return html.slice(openingEnd + 1, end);
+}
+
 const ROUTES = [
   '/',
   '/products',
@@ -166,7 +179,7 @@ test('division pages render their registry honestly', async () => {
     const text = html.replace(/<!--[\s\S]*?-->/g, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
     assert.match(text, noun, `${route} must still report that KNOuX has released nothing`);
     assert.ok(!/demo\.knoux\./.test(html), `no demo URL may be invented on ${route}`);
-    const visible = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, '');
+    const visible = mainDocumentMarkup(html);
     assert.ok(!/\$[0-9]/.test(visible), `no price may be shown on ${route}`);
   }
 
@@ -180,11 +193,13 @@ test('division pages render their registry honestly', async () => {
 
   const growth = await (await fetch(origin + '/growth')).text();
   assert.match(growth, /CAMPAIGN BUDGET/i, 'the growth entry must accept a campaign budget');
-  assert.ok(!/ROAS|CPC|CPA|conversion rate of/i.test(growth), 'growth must not project a result');
+  // Framework payloads contain random build IDs; claims belong to visible copy.
+  const growthText = mainDocumentMarkup(growth);
+  assert.ok(!/ROAS|CPC|CPA|conversion rate of/i.test(growthText), 'growth must not project a result');
 
   const web = await (await fetch(origin + '/web')).text();
   assert.match(web, /CAPABILITY MATRIX/i, 'web must publish the capability matrix');
-  const webText = web.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ');
+  const webText = mainDocumentMarkup(web);
   assert.ok(!/\$\d/.test(webText), 'web must not publish prices');
 
   const work = await (await fetch(origin + '/work')).text();

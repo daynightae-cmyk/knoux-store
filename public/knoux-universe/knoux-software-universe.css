@@ -151,6 +151,11 @@
   .ksu-dots { display: none; }
   .ksu-s1 { padding-bottom: 16vh; }
   .ksu-rail { justify-content: flex-start; }
+  .ksu[data-ksu-chapter="1"] .ksu-s2 .ksu-panel,
+  .ksu[data-ksu-chapter="2"] .ksu-s3 .ksu-panel,
+  .ksu[data-ksu-chapter="3"] .ksu-s4 .ksu-panel { left: 6vw; right: 6vw; top: 15vh; }
+  .ksu[data-ksu-chapter="1"] .ksu-s2 .ksu-panel,
+  .ksu[data-ksu-chapter="2"] .ksu-s3 .ksu-panel { max-width: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ksu *, .ksu *::before, .ksu *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
@@ -188,6 +193,41 @@
 .ksu--static .ksu-stage::after{display:none}
 .ksu-char { transition: transform .8s cubic-bezier(.19,1,.22,1); }
 .ksu-stage:focus-visible { outline: 1px solid rgba(201,189,242,.45); outline-offset: -2px; }
+
+/* Chapter integrity: the runtime drives data-ksu-chapter from scroll progress.
+   CSS sticky proved unreliable for these panels (partial engagement, headline
+   clipping), so the active chapter panel is pinned to the viewport instead.
+   Without the attribute the panels keep their original flow behavior. */
+.ksu[data-ksu-chapter] .ksu-sec .ksu-panel { opacity: .04; transition: opacity .45s ease; }
+.ksu[data-ksu-chapter] .ksu-sec .ksu-panel a,
+.ksu[data-ksu-chapter] .ksu-sec .ksu-panel button { pointer-events: none; }
+.ksu[data-ksu-chapter="1"] .ksu-s2 .ksu-panel,
+.ksu[data-ksu-chapter="2"] .ksu-s3 .ksu-panel,
+.ksu[data-ksu-chapter="3"] .ksu-s4 .ksu-panel {
+  position: fixed; left: 8vw; right: 8vw; top: 22vh; opacity: 1;
+}
+.ksu[data-ksu-chapter="1"] .ksu-s2 .ksu-panel { max-width: 480px; align-items: flex-start; text-align: left; }
+.ksu[data-ksu-chapter="2"] .ksu-s3 .ksu-panel { max-width: 480px; margin-left: auto; align-items: flex-end; text-align: right; }
+.ksu[data-ksu-chapter="3"] .ksu-s4 .ksu-panel { max-width: none; }
+.ksu[data-ksu-chapter="1"] .ksu-s2 .ksu-panel a,
+.ksu[data-ksu-chapter="2"] .ksu-s3 .ksu-panel a,
+.ksu[data-ksu-chapter="3"] .ksu-s4 .ksu-panel a,
+.ksu[data-ksu-chapter="3"] .ksu-s4 .ksu-panel button { pointer-events: auto; }
+.ksu-s1 { transition: opacity .45s ease; }
+.ksu[data-ksu-chapter="1"] .ksu-s1,
+.ksu[data-ksu-chapter="2"] .ksu-s1,
+.ksu[data-ksu-chapter="3"] .ksu-s1 { opacity: 0; }
+/* Quiet pool of depth so chapter copy stays legible while the orbiting
+   product renders pass behind the text. */
+.ksu-s2 .ksu-panel::before,
+.ksu-s3 .ksu-panel::before,
+.ksu-s4 .ksu-panel::before {
+  content: ""; position: absolute; inset: -52px -110px; z-index: -1; pointer-events: none;
+  background: radial-gradient(58% 58% at 50% 64%, rgba(7,7,8,.97), rgba(7,7,8,.45) 60%, rgba(7,7,8,0) 80%);
+}
+.ksu-sec .ksu-body { text-shadow: 0 1px 14px rgba(7,7,8,.92), 0 0 44px rgba(7,7,8,.55); }
+.ksu[data-ksu-chapter] .ksu-sec .ksu-panel .ksu-body { color: #bab3d4; }
+.ksu[data-ksu-chapter="2"] .ksu-s3 .ksu-panel::before { left: auto; width: 62%; min-width: 620px; }
 
 @media (max-width: 768px) {
   .ksu-info { bottom: 58px; padding: 13px 15px; }
