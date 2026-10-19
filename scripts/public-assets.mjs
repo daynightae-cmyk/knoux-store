@@ -27,10 +27,12 @@ async function walk(directory) {
 
 const root = process.cwd();
 const publicDir = join(root, 'public');
-const assets = (await walk(publicDir)).map((file) => {
-  const bytes = (await stat(file)).size;
-  return { file: relative(root, file).split('\\').join('/'), bytes };
-});
+const assets = await Promise.all(
+  (await walk(publicDir)).map(async (file) => {
+    const bytes = (await stat(file)).size;
+    return { file: relative(root, file).split('\\').join('/'), bytes };
+  }),
+);
 assets.sort((a, b) => b.bytes - a.bytes);
 
 const offenders = assets.filter((asset) => asset.bytes > LIMIT_BYTES);
