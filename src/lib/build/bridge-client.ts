@@ -13,7 +13,7 @@
 
 import type {
   Handshake, PairResponse, MetricsSample, GitSnapshot, ProcessInfo,
-  AuditEntry, FsEntry, FsReadResult, ProcessLogLine, ExecEvent, ShellProfile,
+  AuditEntry, FsEntry, FsReadResult, ProcessLogLine, ExecEvent,
 } from './bridge-protocol';
 
 export interface BridgeEndpoint {
@@ -391,5 +391,3 @@ function extractErrorMessage(data: unknown): string | null {
   if (typeof record.error === 'string') return record.error;
   return null;
 }
-
-export type { ShellProfile };
