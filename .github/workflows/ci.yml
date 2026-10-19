@@ -10,7 +10,11 @@ name: Verification
 # `browser` proves the things a build cannot: that the routes render, that they
 # do not overflow at any supported width, and that an automated accessibility
 # pass finds no violation on the representative surfaces. It runs against a
-# production build, not a dev server.
+# production build, not a dev server, and it is split into one job per browser
+# project (desktop, tablet, mobile) so three parallel jobs replace one job that
+# ran the three projects in series and could not finish a merge inside the
+# cycle budget. Evidence capture is opt-in via `E2E_CAPTURE=1`; the merge gate
+# asserts rendering, geometry and accessibility without recording pixels.
 #
 # `sast` is CodeQL. It is GitHub's own static analysis for JavaScript and
 # TypeScript and needs no extra tool to be trustworthy. It is reported
@@ -112,26 +116,27 @@ jobs:
           retention-days: 7
 
   browser:
-    name: Routes, responsive geometry and automated accessibility
+    name: Browser (${{ matrix.project }})
     runs-on: ubuntu-latest
-    # Sized from what the suite actually costs, not from a round number.
+    # One project per job, in parallel, instead of three projects in series.
     #
-    # This was 25 minutes against a suite that takes 32.4 minutes locally on a
-    # warm build with a real GPU. A job that is killed at its own timeout
-    # reports `exit code 1` with no failing assertion and still uploads its
-    # 198 MB evidence artifact, because the upload is `if: always()`. That is
-    # indistinguishable from a real failure in the run list, so the timeout
-    # cannot be the thing that reports it.
-    #
-    # The budget is 3x the measured cost: `fullyParallel: false, workers: 1`
-    # means the three viewport projects run in series, `routes.spec.ts` is the
-    # slow file in all three (9.2m / 8.7m / 6.2m), and the evidence pass takes
-    # 33 screenshots per width. GitHub runners are slower than the workstation
-    # that produced those numbers, and `next start` is cold here.
-    timeout-minutes: 90
+    # The single-job version measured 51.8 minutes on a real PR: the three
+    # viewport projects ran one after another, each re-running `routes.spec.ts`
+    # and each re-walking the evidence matrix. Splitting by project makes the
+    # wall clock the cost of the heaviest project, not the sum of all three.
+    # `fail-fast: false` keeps a red tablet run from cancelling a green desktop
+    # run, and the timeout is sized to one project, not to the whole suite.
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [desktop, tablet, mobile]
     permissions:
       contents: read
     steps:
+      # Pinned to a commit, not a tag. A tag is a mutable pointer, and this
+      # workflow runs with the repository's token; a moved tag would be someone
+      # else's code executing here.
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -156,8 +161,11 @@ jobs:
         timeout-minutes: 2
         run: google-chrome --version
 
-      - name: End-to-end, responsive and accessibility checks
-        run: npm run test:e2e
+      # Evidence capture is opt-in: the merge gate asserts rendering, geometry
+      # and accessibility. Set E2E_CAPTURE=1 to record the visual matrix
+      # (nightly runs, manual verification).
+      - name: End-to-end, responsive and accessibility checks (${{ matrix.project }})
+        run: npx playwright test --project=${{ matrix.project }} --workers=1 --reporter=list
         env:
           KNOUX_E2E_BROWSER_CHANNEL: chrome
 
@@ -165,7 +173,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: route-captures
+          name: route-captures-${{ matrix.project }}
           path: |
             references/visual-audit/closure/
             references/build-cinematic/qa/
