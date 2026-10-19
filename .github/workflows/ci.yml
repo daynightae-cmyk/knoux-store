@@ -82,6 +82,12 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      # public/ is served unoptimised, so every byte in it is a byte every
+      # visitor downloads. The budget fails the build rather than letting an
+      # oversized asset ride along with an unrelated change.
+      - name: Public asset budget
+        run: npm run audit:assets
+
       - name: Unit and integration tests
         run: npm test
 
