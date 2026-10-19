@@ -15,6 +15,12 @@ test('Growth auth enforcement is opt-in until persistence is provisioned', () =>
   assert.equal(growthAuthEnforced({ KNOUX_GROWTH_DATA_SOURCE: 'supabase', KNOUX_GROWTH_AUTH_ENFORCED: 'false' }), true);
 });
 
+test('Growth auth fails closed in production regardless of the flag', () => {
+  assert.equal(growthAuthEnforced({ VERCEL_ENV: 'production' }), true);
+  assert.equal(growthAuthEnforced({ VERCEL_ENV: 'production', KNOUX_GROWTH_AUTH_ENFORCED: 'false' }), true);
+  assert.equal(growthAuthEnforced({ VERCEL_ENV: 'preview', KNOUX_GROWTH_AUTH_ENFORCED: 'false' }), false);
+});
+
 test('the reconciled routes preserve existing guards and wire the tenant boundary', async () => {
   const root = process.cwd();
   const intelligence = await fs.readFile(path.join(root, 'src/app/api/intelligence/route.ts'), 'utf8');
