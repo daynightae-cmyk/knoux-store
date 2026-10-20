@@ -26,7 +26,8 @@ export function SentinelGuideLauncher() {
   const pathname=usePathname();
   const preferences=JSON.parse(useSyncExternalStore(subscribeSentinelQuiet,sentinelPreferenceSnapshot,sentinelServerSnapshot));
   const language:GuideLanguage=preferences.language,key=`${pathname}:${language}`;
-  const [open,setOpen]=useState(false),[closing,setClosing]=useState(false),[composerKey,setComposerKey]=useState('');
+  const [openPath,setOpenPath]=useState(''),[closing,setClosing]=useState(false),[composerKey,setComposerKey]=useState('');
+  const open=openPath===pathname;
   const [catalog,setCatalog]=useState<GuideEntry[]>([]),[questionValue,setQuestionValue]=useState({key:'',text:''});
   const [speechActive,setSpeechActive]=useState(false),[dismissed,setDismissed]=useState('');
   const [menuOpen,setMenuOpen]=useState(false);
@@ -56,14 +57,14 @@ export function SentinelGuideLauncher() {
     window.dispatchEvent(new CustomEvent(SENTINEL_GUIDE_EVENT,{detail:{open}}));
     return ()=>{if(closeTimer.current)clearTimeout(closeTimer.current);};
   },[open]);
-  const close=()=>{if(closing)return;window.speechSynthesis?.cancel();stop();setComposerKey('');setSpeechActive(false);setClosing(true);closeTimer.current=setTimeout(()=>{setOpen(false);setClosing(false);},preferences.reduced||matchMedia('(prefers-reduced-motion: reduce)').matches?0:180);};
+  const close=()=>{if(closing)return;window.speechSynthesis?.cancel();stop();setComposerKey('');setSpeechActive(false);setClosing(true);closeTimer.current=setTimeout(()=>{setOpenPath('');setClosing(false);},preferences.reduced||matchMedia('(prefers-reduced-motion: reduce)').matches?0:180);};
   const dismiss=()=>{stop();policy.current.dismiss();setDismissed(key);setComposerKey('');document.querySelector<HTMLButtonElement>('.ks-trigger')?.focus();};
   const activate=()=>{if(open){close();return;}setDismissed('');setComposerKey(key);};
   const ask=()=>{const page=entryForPage(catalog,pathname);if(!page){unavailable();return;}setDismissed('');send(context??{route:pathname,target:page.id},question);};
   const visible=!menuOpen && !open && dismissed!==key && (composing || reply.state!=='idle');
   const phase=preferences.quiet?'quiet':open?(speechActive?'speaking':'expanded'):reply.state==='thinking'?'thinking':reply.state==='streaming'?'speaking':visible?'guiding':'idle';
   const character=<KnouxSentinel expanded={open} docked={composing||visible||menuOpen} menuPaused={menuOpen} phase={phase} language={language} onActivate={activate}>
-    {visible && <KnouxThoughtBubble language={language} reply={reply} question={question} setQuestion={text=>setQuestionValue({key,text})} onAsk={ask} onStop={stop} onDismiss={dismiss} onSources={()=>{stop();setOpen(true);}} onClear={()=>{stop();setQuestionValue({key,text:''});}} catalog={catalog} composing={composing} />}
+    {visible && <KnouxThoughtBubble language={language} reply={reply} question={question} setQuestion={text=>setQuestionValue({key,text})} onAsk={ask} onStop={stop} onDismiss={dismiss} onSources={()=>{stop();setOpenPath(pathname);}} onClear={()=>{stop();setQuestionValue({key,text:''});}} catalog={catalog} composing={composing} />}
   </KnouxSentinel>;
   return <>
     <SentinelSpotlight target={!open&&!composing&&!menuOpen&&!preferences.quiet&&preferences.visible&&attention.key===key?attention.target:null}/>

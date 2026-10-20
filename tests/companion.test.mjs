@@ -49,7 +49,10 @@ test('unconfigured AI fails honestly without calling a provider; cross-origin an
   try{
     delete process.env.KNOUX_COMPANION_ENABLED;process.env.KNOUX_COMPANION_ORIGIN='http://localhost:4554';
     assert.equal(sessionPost(new Request('http://localhost:4554/api/sentinel/session',{method:'POST',headers:{origin:'https://evil.invalid'}})).status,403);
-    assert.equal(sessionPost(new Request('http://localhost:4554/api/sentinel/session',{method:'POST',headers:{origin:'http://localhost:4554'}})).status,503);
+    const unconfigured=sessionPost(new Request('http://localhost:4554/api/sentinel/session',{method:'POST',headers:{origin:'http://localhost:4554'}}));
+    assert.equal(unconfigured.status,200);
+    assert.equal((await unconfigured.json()).ready,false);
+    assert.equal(unconfigured.headers.get('set-cookie'),null);
     assert.equal((await replyPost(new Request('http://localhost:4554/api/sentinel/reply',{method:'POST',headers:{origin:'http://localhost:4554'}}))).status,503);
     process.env.KNOUX_COMPANION_ENABLED='true';process.env.KNOUX_COMPANION_SESSION_SECRET='unit-test-secret';process.env.GEMINI_API_KEY='not-a-real-key';
     assert.equal((await replyPost(new Request('http://localhost:4554/api/sentinel/reply',{method:'POST',headers:{origin:'http://localhost:4554'}}))).status,401);

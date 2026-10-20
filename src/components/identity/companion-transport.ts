@@ -2,6 +2,8 @@ import { COMPANION_MAX_RESPONSE,type CompanionEvent,type CompanionRequest } from
 export async function companionTransport(input: CompanionRequest,signal: AbortSignal,onEvent: (event: CompanionEvent)=>void) {
   const session=await fetch('/api/sentinel/session',{method:'POST',credentials:'same-origin',signal});
   if(!session.ok) throw new Error(session.status===429?'RATE_LIMITED':'UNAVAILABLE');
+  const readiness=await session.json().catch(()=>({ready:false})) as {ready?:boolean};
+  if(!readiness.ready) throw new Error('UNAVAILABLE');
   const response=await fetch('/api/sentinel/reply',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(input),signal});
   if(!response.ok || !response.body || !response.headers.get('content-type')?.startsWith('text/event-stream')) throw new Error(response.status===429?'RATE_LIMITED':'UNAVAILABLE');
   const reader=response.body.getReader(),decoder=new TextDecoder();let pending='',total=0,finished=false;
