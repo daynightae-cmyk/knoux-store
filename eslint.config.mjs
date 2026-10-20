@@ -18,6 +18,8 @@ export default defineConfig([
     },
   },
   globalIgnores([
+    // Preserved source/evidence snapshots are not application or test inputs.
+    'qa/**',
     '.next*/**',
     'out/**',
     'next-env.d.ts',

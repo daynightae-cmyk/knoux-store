@@ -37,6 +37,7 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
+    "qa",
     "node_modules*",
     "knoux-store",
     ".next-qa",

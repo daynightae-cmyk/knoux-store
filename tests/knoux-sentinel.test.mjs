@@ -9,6 +9,8 @@ const read = (file) => readFileSync(join(root, file), 'utf8');
 
 const model = read('src/components/identity/knoux-sentinel.ts');
 const view = read('src/components/identity/KnouxSentinel.tsx');
+const presence = read('src/components/identity/sentinel-presence.ts');
+const guide = read('src/components/identity/SentinelGuideLauncher.tsx');
 const css = read('src/components/identity/knoux-sentinel.css');
 const pointer = read('src/components/motion/PointerField.tsx');
 const layout = read('src/app/layout.tsx');
@@ -52,7 +54,9 @@ test('ten visual states exist as one component', () => {
 });
 
 test('there is one pointer owner, not a second follower', () => {
-  assert.match(layout, /KnouxSentinel/);
+  assert.match(layout, /SentinelGuideLauncher/);
+  assert.doesNotMatch(layout, /<KnouxSentinel/);
+  assert.equal((guide.match(/<KnouxSentinel/g) ?? []).length,1);
   assert.doesNotMatch(layout, /KnouxLivingCompanion/);
   assert.match(pointer, /export \{ KnouxSentinel as KnouxLivingCompanion \}/);
   assert.equal(
@@ -64,8 +68,8 @@ test('there is one pointer owner, not a second follower', () => {
     1,
     'PointerField must only re-export the Sentinel',
   );
-  assert.match(view, /pointermove/);
-  assert.match(view, /data-spatial/);
+  assert.match(presence, /pointermove/);
+  assert.match(presence, /data-spatial/);
   assert.doesNotMatch(view, /window\.addEventListener\('scroll', hide/);
   assert.doesNotMatch(globals, /\.knoux-companion/);
 });
@@ -90,9 +94,9 @@ test('semantic colour only maps to real UI signals', () => {
 
 test('sleep is a closed-eye rest state, not a blink override', () => {
   assert.match(model, /if \(input\.mood === 'sleep'\) return 'sleep'/);
-  assert.match(view, /sleeping = true/);
-  assert.match(view, /mouseleave/);
-  assert.match(view, /pointer: coarse/);
+  assert.match(presence, /sleeping\s*=\s*true/);
+  assert.match(presence, /mouseleave/);
+  assert.match(presence, /pointer: coarse/);
   assert.doesNotMatch(view, /fine\.matches && !reduced/);
 });
 

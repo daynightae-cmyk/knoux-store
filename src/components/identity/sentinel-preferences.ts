@@ -1,11 +1,11 @@
-import { isSiteLanguage, type SiteLanguage } from '@/lib/i18n/languages';
+import { normalizeGuideLanguage, type GuideLanguage } from '@/lib/sentinel/languages';
 
 export const SENTINEL_PREFERENCES_EVENT = 'knoux:sentinel-preferences';
+export const SENTINEL_GUIDE_EVENT = 'knoux:sentinel-guide';
 const KEY = 'knoux.sentinel.quiet';
-const LANGUAGE_KEY = 'knoux.sentinel.language';
 let sessionQuiet = false;
 export function isSentinelQuiet(): boolean {
-  try { const stored = localStorage.getItem(KEY); return stored === null ? sessionQuiet : stored === 'true'; } catch { return sessionQuiet; }
+  try { const stored=localStorage.getItem(KEY);return stored===null?sessionQuiet:stored==='true'; } catch { return sessionQuiet; }
 }
 export function setSentinelQuiet(quiet: boolean) {
   sessionQuiet = quiet;
@@ -19,25 +19,33 @@ export function subscribeSentinelQuiet(callback: () => void) {
   return () => { window.removeEventListener(SENTINEL_PREFERENCES_EVENT, callback); window.removeEventListener('storage', callback); };
 }
 
-/**
- * The visitor's language.
- *
- * Previously a bare `'en' | 'ar'` pair compared literally against storage. It is
- * now routed through the shared language authority so the public site's picker
- * and the Sentinel agree on one vocabulary, and so Urdu is a first-class
- * preference rather than a value that silently fails validation and falls back to
- * English. A stored value is still matched against the shipped set, so a stale
- * or hand-edited entry degrades to the session value rather than being trusted.
- */
-let sessionLanguage: SiteLanguage = 'en';
-export function readSentinelLanguage(): SiteLanguage {
-  try {
-    const stored = localStorage.getItem(LANGUAGE_KEY);
-    return isSiteLanguage(stored) ? stored : sessionLanguage;
-  } catch { return sessionLanguage; }
+let sessionLanguage: GuideLanguage = 'en';
+export function readSentinelLanguage(): GuideLanguage {
+  // Normalising on read means a value written by an older build, or a full BCP 47
+  // tag such as `ur-PK`, resolves to a real supported language instead of being
+  // silently dropped back to English.
+  try { const stored=localStorage.getItem('knoux.sentinel.language');return stored===null?sessionLanguage:normalizeGuideLanguage(stored,sessionLanguage); } catch { return sessionLanguage; }
 }
-export function saveSentinelLanguage(language: SiteLanguage) {
-  sessionLanguage = language;
-  try { localStorage.setItem(LANGUAGE_KEY, language); } catch { /* Session fallback. */ }
+export function saveSentinelLanguage(language: GuideLanguage) {
+  sessionLanguage = normalizeGuideLanguage(language);
+  try { localStorage.setItem('knoux.sentinel.language', sessionLanguage); } catch { /* Optional preference. */ }
   window.dispatchEvent(new Event(SENTINEL_PREFERENCES_EVENT));
 }
+
+export type SentinelOptions = { tips: boolean; reduced: boolean; visible: boolean; sound: boolean };
+export const DEFAULT_SENTINEL_OPTIONS: SentinelOptions = { tips: true, reduced: false, visible: true, sound: true };
+let options = DEFAULT_SENTINEL_OPTIONS;
+export function readSentinelOptions(): SentinelOptions {
+  try {
+    const raw=localStorage.getItem('knoux.sentinel.options');if(raw===null)return options;const saved=JSON.parse(raw);
+    return Object.fromEntries(Object.entries(DEFAULT_SENTINEL_OPTIONS).map(([key,value]) => [key,typeof saved[key] === 'boolean' ? saved[key] : value])) as SentinelOptions;
+  } catch { return options; }
+}
+export function sentinelPreferenceSnapshot() { return JSON.stringify({ ...readSentinelOptions(), quiet: isSentinelQuiet(), language: readSentinelLanguage() }); }
+export const sentinelServerSnapshot = () => JSON.stringify({ ...DEFAULT_SENTINEL_OPTIONS, quiet: false, language: 'en' });
+export function setSentinelOptions(next: Partial<SentinelOptions>) {
+  options = { ...readSentinelOptions(), ...next };
+  try { localStorage.setItem('knoux.sentinel.options',JSON.stringify(options)); } catch { /* Session fallback. */ }
+  window.dispatchEvent(new Event(SENTINEL_PREFERENCES_EVENT));
+}
+export function resetSentinelPreferences() { setSentinelOptions(DEFAULT_SENTINEL_OPTIONS); setSentinelQuiet(false); saveSentinelLanguage('en'); }
