@@ -5,8 +5,10 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { institutionNavigation, primaryNavigation } from '@/data/navigation';
 import { OPEN_EVENT } from '@/components/CommandPalette';
-import { useSiteCopy, SiteLanguagePicker, useSiteLanguage } from '@/components/i18n/SiteLanguage';
-import { guideDirection } from '@/lib/sentinel/languages';
+import { SiteLanguagePicker } from '@/components/i18n/SiteLanguage';
+import { useSiteLanguage } from '@/lib/i18n/use-language';
+import { translatedSiteCopy } from '@/lib/i18n/site-copy';
+import { siteDirection } from '@/lib/i18n/languages';
 import { track } from '@/lib/analytics';
 
 /**
@@ -23,7 +25,7 @@ const PANEL_MAX_WIDTH = '(max-width: 1100px)';
  * button, so search is reachable by pointer, keyboard and discoverability.
  */
 export function SiteHeader() {
-  const t = useSiteCopy(), language = useSiteLanguage();
+  const language = useSiteLanguage(), t = (text: string) => translatedSiteCopy(text, language);
   const [menu, setMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
@@ -67,7 +69,7 @@ export function SiteHeader() {
 
   return (
     <>
-      <header lang={language} dir={guideDirection(language)} className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
+      <header lang={language} dir={siteDirection(language)} className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
         <Link href="/" className="brand" aria-label={t('KNOuX home')}>
           <span className="brand-dot" aria-hidden="true" />
           KNOuX
@@ -124,7 +126,7 @@ export function SiteHeader() {
       </header>
 
       {menu ? (
-        <nav lang={language} dir={guideDirection(language)} className="mobile-panel" aria-label={t('Site navigation')}>
+        <nav lang={language} dir={siteDirection(language)} className="mobile-panel" aria-label={t('Site navigation')}>
           <button type="button" className="mobile-panel__search" onClick={() => {
             setMenu(false);
             window.setTimeout(() => window.dispatchEvent(new CustomEvent(OPEN_EVENT)), 0);

@@ -1,6 +1,7 @@
 'use client';
 
-import { useSiteCopy } from '@/components/i18n/SiteLanguage';
+import { useSiteLanguage } from '@/lib/i18n/use-language';
+import { translatedSiteCopy } from '@/lib/i18n/site-copy';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { softwareProducts, softwareAuditDate, type SoftwareProduct } from '@/data/software';
@@ -47,7 +48,7 @@ function readTier(): Tier {
 }
 
 export function SystemsRegister() {
-  const t = useSiteCopy();
+  const language = useSiteLanguage(), t = (text: string) => translatedSiteCopy(text, language);
   const [activeId, setActiveId] = useState<string>(softwareProducts[0].id);
   const [engagedId, setEngagedId] = useState<string | null>(null);
   const [announced, setAnnounced] = useState<string>('');

@@ -146,7 +146,7 @@ export default function SentinelGuidePanel({ onClose, closing, character, contex
         <span role="status">{!voiceSupported || (speech.key === key && speech.error) ? t.unavailable : speaking ? t.speaking : t.ready}</span><p>{t.speech}</p>
       </div>
       <p className={styles.privacy}>{t.privacy}</p>
-      <nav className={styles.actions} aria-label={language === 'ar' ? 'الخطوة التالية' : 'Next step'}><Link href="/solutions" prefetch={false} onClick={stop}>{language === 'ar' ? 'استكشف الحلول' : 'Explore Solutions'} ↗</Link><Link href="/build" prefetch={false} onClick={stop}>Composer ↗</Link></nav>
+      <nav className={styles.actions} aria-label={language === 'ar' ? 'الخطوة التالية' : 'Next step'}><Link href="/solutions" prefetch={false} onClick={stop}>{language === 'ar' ? 'استكشف الحلول' : 'Explore Solutions'} ↗</Link><Link href="/build" prefetch={false} onClick={() => { stop(); onClose(); }}>Composer ↗</Link></nav>
     </div>
   </dialog>;
 }

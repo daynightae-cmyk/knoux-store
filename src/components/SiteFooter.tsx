@@ -1,6 +1,7 @@
 'use client';
-import { useSiteCopy, useSiteLanguage } from '@/components/i18n/SiteLanguage';
-import { guideDirection } from '@/lib/sentinel/languages';
+import { useSiteLanguage } from '@/lib/i18n/use-language';
+import { translatedSiteCopy } from '@/lib/i18n/site-copy';
+import { siteDirection } from '@/lib/i18n/languages';
 import Link from 'next/link';
 import { divisions } from '@/lib/entities';
 import { institutionNavigation, primaryNavigation } from '@/data/navigation';
@@ -13,9 +14,9 @@ import { growthChannelsDetail } from '@/data/growth';
  * division, channel and institution page is reachable without a pointer.
  */
 export function SiteFooter() {
-  const t = useSiteCopy(), language = useSiteLanguage();
+  const language = useSiteLanguage(), t = (text: string) => translatedSiteCopy(text, language);
   return (
-    <footer lang={language} dir={guideDirection(language)} className="site-footer">
+    <footer lang={language} dir={siteDirection(language)} className="site-footer">
       <div className="footer-top shell">
         <p className="eyebrow">{t('The work continues')}</p>
         <Link href="/contact" className="footer-title">
