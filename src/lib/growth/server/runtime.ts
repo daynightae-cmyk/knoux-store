@@ -32,7 +32,7 @@ import { DEMO_COMMUNITIES } from '@/data/growth/communities';
  * `degradedFrom: 'knoux-agent'` and is labelled provisional in the UI.
  */
 export function buildRouter(env: Record<string, string | undefined> = process.env, snapshot?: { performanceRows: PerformanceRow[]; communities: Community[] }): KnouxIntelligenceRouter {
-  const liveSelected = env.VERCEL_ENV === 'production' || env.KNOUX_GROWTH_DATA_SOURCE?.trim().toLowerCase() === 'supabase' || env.KNOUX_GROWTH_AUTH_ENFORCED === 'true';
+  const liveSelected = env.KNOUX_GROWTH_DATA_SOURCE?.trim().toLowerCase() === 'supabase' || env.KNOUX_GROWTH_AUTH_ENFORCED === 'true';
   const providers: KnouxIntelligence[] = [
     new KnouxAgentIntelligence({
       ...(env.KNOUX_AGENT_ENDPOINT ? { endpointUrl: env.KNOUX_AGENT_ENDPOINT } : {}),

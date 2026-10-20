@@ -8,7 +8,7 @@ import { clientById } from '@/data/growth/clients';
 import { clientAddress, rateLimit } from '@/lib/http/rate-limit';
 import { readBoundedJson } from '@/lib/contact/intake-guard';
 import { guardGrowthProviderAccess } from '@/lib/growth/server/access';
-import { growthAuthEnforced } from '@/lib/growth/auth/enforcement';
+import { growthAgentBoundaryRequired } from '@/lib/growth/auth/enforcement';
 import { guardGrowth } from '@/lib/growth/auth/session';
 import { can } from '@/lib/growth/rbac';
 import { loadLiveWorkspace } from '@/lib/growth/persistence/workspace';
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
   const denied = await guardGrowthProviderAccess(request);
   if (denied) return denied;
 
-  const authGuard = growthAuthEnforced() ? await guardGrowth() : null;
+  const authGuard = growthAgentBoundaryRequired() ? await guardGrowth() : null;
   if (authGuard && !authGuard.ok) {
     return NextResponse.json(
       { ok: false, code: authGuard.failure.code, message: authGuard.failure.message },
