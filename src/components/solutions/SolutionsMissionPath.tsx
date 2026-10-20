@@ -7,7 +7,25 @@ import styles from './SolutionsMissionPath.module.css';
 
 export type MissionRecord = Solution & { entityLinks: { id: string; name: string; route: string }[] };
 
-/** Route-owned evolution of MissionPath; shared division and homepage scenes stay intact. */
+/**
+ * Route-owned evolution of MissionPath; shared division and homepage scenes stay intact.
+ *
+ * Mission selection follows an explicit act — a click, or a key that moves
+ * between stations. It deliberately does not follow `mouseenter`.
+ *
+ * Selecting on hover made the handoff below track whatever the pointer passed
+ * over, which is wrong in three separate ways. Content changed without the
+ * visitor choosing anything. On touch devices the browser dispatches
+ * compatibility mouse events after a tap, so scrolling the rail into view could
+ * select a mission nobody aimed at. And it cannot be made safe by asking the
+ * platform, because a transient viewport change can flip the reported hover
+ * capability: capturing a full-page screenshot on a touch profile makes
+ * `(hover: hover)` briefly report true, after which the pointer's incidental
+ * position selected an unrelated mission.
+ *
+ * Focus still selects, which is the correct behaviour for a roving-tabindex
+ * group: a keyboard user tabbing to a station sees that station's mission.
+ */
 export function SolutionsMissionPath({ missions }: { missions: MissionRecord[] }) {
   const [active, setActive] = useState(0);
   const [layerIndex, setLayerIndex] = useState(0);

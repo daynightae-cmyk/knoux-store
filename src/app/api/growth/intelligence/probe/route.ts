@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { buildRouter } from '@/lib/growth/server/runtime';
 import { guardGrowthProviderAccess } from '@/lib/growth/server/access';
-import { growthAuthEnforced } from '@/lib/growth/auth/enforcement';
+import { growthAgentBoundaryRequired } from '@/lib/growth/auth/enforcement';
 import { guardGrowth } from '@/lib/growth/auth/session';
 
 export const dynamic = 'force-dynamic';
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   const denied = await guardGrowthProviderAccess(request);
   if (denied) return denied;
 
-  if (growthAuthEnforced()) {
+  if (growthAgentBoundaryRequired()) {
     const guard = await guardGrowth({ permission: 'intelligence.use', clientId: new URL(request.url).searchParams.get('clientId') ?? undefined });
     if (!guard.ok) {
       return NextResponse.json(

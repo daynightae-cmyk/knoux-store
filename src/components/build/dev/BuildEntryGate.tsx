@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { compileBuildIntent } from '@/lib/build/intent';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
+import { QUICK_INTENTS } from './quick-intents';
 
 /**
  * Entry gate.
@@ -158,25 +159,67 @@ export function BuildEntryGate() {
           Describe the product, system, automation, service, or experience you want to create.
         </p>
 
-        <form onSubmit={onSubmit} noValidate>
-          <label htmlFor="dev-entry-input">Your intent</label>
-          <div className="dev-entry__field">
-            <input
-              id="dev-entry-input"
-              ref={inputRef}
-              value={value}
-              onChange={(event) => setValue(event.target.value)}
-              placeholder="Describe your intent…"
-              autoComplete="off"
-              spellCheck={false}
-              tabIndex={settled ? -1 : 0}
-              disabled={settled}
-            />
-            <button type="submit" className="dev-btn dev-btn--primary" disabled={settled} aria-disabled={settled || !value.trim()}>
-              Enter workspace
-            </button>
-          </div>
-        </form>
+        <div className="dev-entry__body">
+          <form onSubmit={onSubmit} noValidate>
+            <label htmlFor="dev-entry-input">Your intent</label>
+            <div className="dev-entry__field">
+              <input
+                id="dev-entry-input"
+                ref={inputRef}
+                value={value}
+                onChange={(event) => setValue(event.target.value)}
+                placeholder="Describe your intent…"
+                autoComplete="off"
+                spellCheck={false}
+                tabIndex={settled ? -1 : 0}
+                disabled={settled}
+              />
+              <button type="submit" className="dev-btn dev-btn--primary" disabled={settled} aria-disabled={settled || !value.trim()}>
+                Enter workspace
+              </button>
+            </div>
+            <p className="dev-entry__starter-label">Or start from one of these</p>
+            <div className="dev-entry__starters" role="group" aria-label="Starter intents">
+              {QUICK_INTENTS.map((item) => (
+                <button
+                  key={item.label}
+                  type="button"
+                  disabled={settled}
+                  onClick={() => {
+                    setValue(item.prompt);
+                    inputRef.current?.focus();
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </form>
+
+          <dl className="dev-entry__facts">
+            <div>
+              <dt>What happens to your sentence</dt>
+              <dd>
+                It is tokenised and matched against the KNOuX product, service and capability registries. It is not
+                sent anywhere, and no provider is called to answer it.
+              </dd>
+            </div>
+            <div>
+              <dt>What comes back</dt>
+              <dd>
+                The real divisions, products and services that match, each with the reason it matched. Anything that
+                cannot be resolved is left out rather than invented.
+              </dd>
+            </div>
+            <div>
+              <dt>What it will not do</dt>
+              <dd>
+                Estimate price, duration or outcome. Planning is proposal only: execution needs a trusted executor,
+                and provider generation needs an authorized account.
+              </dd>
+            </div>
+          </dl>
+        </div>
       </div>
 
       <p className="dev-entry__foot">

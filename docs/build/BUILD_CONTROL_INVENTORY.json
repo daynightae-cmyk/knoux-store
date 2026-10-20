@@ -181,7 +181,7 @@
   },
   {
     "file": "src/components/build/dev/BuildEntryGate.tsx",
-    "line": 164,
+    "line": 166,
     "tag": "input",
     "label": "<div className=\"dev-entry__field\"> <input id=\"dev-entry-input\" ref={inputRef} value={value} onChange={(event) => setValue(event.target.value)} placeholder=\"Describe your intent…\" a",
     "status": "conditional",
@@ -199,7 +199,7 @@
   },
   {
     "file": "src/components/build/dev/BuildEntryGate.tsx",
-    "line": 175,
+    "line": 177,
     "tag": "button",
     "label": "<button type=\"submit\" className=\"dev-btn dev-btn--primary\" disabled={settled} aria-disabled={settled || !value.trim()}> Enter workspace </button>",
     "status": "conditional",
@@ -214,6 +214,24 @@
     "verification evidence": "static source declaration; runtime state not evaluated",
     "disabled": "{settled}",
     "type": "\"submit\""
+  },
+  {
+    "file": "src/components/build/dev/BuildEntryGate.tsx",
+    "line": 184,
+    "tag": "button",
+    "label": "<button key={item.label} type=\"button\" disabled={settled} onClick={() => { setValue(item.prompt); inputRef.current?.focus(); }} > {item.label} </button>",
+    "status": "conditional",
+    "enabled": false,
+    "blocked": false,
+    "blocker": null,
+    "handler": "{() => {\r\n                    setValue(item.prompt);\r\n                    inputRef.current?.focus();\r\n                  }}",
+    "destination": null,
+    "capability": "generic-ui",
+    "data source": "source declaration",
+    "auth requirement": "none",
+    "verification evidence": "static source declaration; runtime state not evaluated",
+    "disabled": "{settled}",
+    "type": "\"button\""
   },
   {
     "file": "src/components/build/dev/BuildPipelinePage.tsx",
@@ -343,7 +361,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 103,
+    "line": 94,
     "tag": "button",
     "label": "<button key={item} type=\"button\" aria-pressed={view === item} onClick={() => setView(item)}>{item.toUpperCase()}</button>",
     "status": "enabled",
@@ -361,7 +379,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 106,
+    "line": 97,
     "tag": "summary",
     "label": "<summary><span>{state.project?.name ?? 'Project not connected'}</span><span>{state.git?.branch ?? 'No branch'}</span><span>{state.engineering.host?.name ?? 'Host unmeasured'}</span",
     "status": "enabled",
@@ -379,7 +397,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 113,
+    "line": 104,
     "tag": "select",
     "label": "\"Routing\"",
     "status": "conditional",
@@ -397,7 +415,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 117,
+    "line": 108,
     "tag": "textarea",
     "label": "<form className=\"dev-floating-compose\" onSubmit={(event) => void compile(event)}> <label className=\"dev-visually-hidden\" htmlFor=\"dev-intent-input\">Describe what you want to build<",
     "status": "conditional",
@@ -415,7 +433,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 119,
+    "line": 110,
     "tag": "button",
     "label": "<button type=\"button\" onClick={() => setView('preview')}>PREVIEW</button>",
     "status": "enabled",
@@ -433,7 +451,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 119,
+    "line": 110,
     "tag": "Link",
     "label": "<Link href=\"/build/pipeline\">VERIFY ↗</Link>",
     "status": "enabled",
@@ -451,7 +469,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 120,
+    "line": 111,
     "tag": "Link",
     "label": "\"Open project files\"",
     "status": "enabled",
@@ -469,7 +487,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 120,
+    "line": 111,
     "tag": "Link",
     "label": "\"Open terminal\"",
     "status": "enabled",
@@ -487,7 +505,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 120,
+    "line": 111,
     "tag": "button",
     "label": "\"Generate engineering plan\"",
     "status": "conditional",
@@ -505,7 +523,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 124,
+    "line": 115,
     "tag": "button",
     "label": "<button type=\"button\" key={item.label} onClick={() => { setDraftOverride(item.prompt); input.current?.focus(); }}>{item.label}</button>",
     "status": "enabled",
@@ -523,7 +541,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 126,
+    "line": 117,
     "tag": "summary",
     "label": "<summary>Routing and fallback evidence</summary>",
     "status": "enabled",
@@ -541,7 +559,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 127,
+    "line": 118,
     "tag": "summary",
     "label": "<summary>Provider text received · {characters.toLocaleString()} characters · unvalidated</summary>",
     "status": "enabled",
@@ -559,7 +577,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 130,
+    "line": 121,
     "tag": "button",
     "label": "<button type=\"button\" onClick={() => setView('registry')}>EXPLORE {facts.registryCount} PRODUCTS ↗</button>",
     "status": "enabled",
@@ -577,7 +595,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 132,
+    "line": 123,
     "tag": "Link",
     "label": "<Link href=\"/build/providers\">Inspect providers ↗</Link>",
     "status": "enabled",
@@ -595,7 +613,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 135,
+    "line": 126,
     "tag": "button",
     "label": "<button type=\"button\" onClick={() => setStage('REVIEWING')}>Review plan</button>",
     "status": "enabled",
@@ -613,7 +631,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 139,
+    "line": 130,
     "tag": "a",
     "label": "<a key={section} href={`#plan-${index}`} onClick={() => { const detail = document.getElementById(`plan-${index}`); if (detail instanceof HTMLDetailsElement) detail.open = true; }}>",
     "status": "enabled",
@@ -631,7 +649,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 140,
+    "line": 131,
     "tag": "summary",
     "label": "<summary><span>{String(index + 1).padStart(2, '0')}</span><h3>{section.replaceAll('_', ' ')}</h3><span>{plan[section].length} items</span></summary>",
     "status": "enabled",
@@ -649,7 +667,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 141,
+    "line": 132,
     "tag": "button",
     "label": "<button type=\"button\" onClick={() => setStage('EXECUTOR_NOT_CONNECTED')}>Check execution availability</button>",
     "status": "enabled",
@@ -667,7 +685,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 141,
+    "line": 132,
     "tag": "Link",
     "label": "<Link href=\"/build/pipeline\">Inspect real verification ↗</Link>",
     "status": "enabled",
@@ -685,7 +703,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceHome.tsx",
-    "line": 143,
+    "line": 134,
     "tag": "Link",
     "label": "<Link href=\"/login?next=%2Fbuild\">SIGN IN TO INSPECT ↗</Link>",
     "status": "enabled",
@@ -703,7 +721,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceShell.tsx",
-    "line": 68,
+    "line": 73,
     "tag": "Link",
     "label": "\"KNOuX Store home\"",
     "status": "enabled",
@@ -721,7 +739,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceShell.tsx",
-    "line": 68,
+    "line": 73,
     "tag": "button",
     "label": "\"Open workspace navigation\"",
     "status": "enabled",
@@ -739,7 +757,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceShell.tsx",
-    "line": 70,
+    "line": 75,
     "tag": "button",
     "label": "\"Close workspace navigation\"",
     "status": "enabled",
@@ -757,7 +775,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceShell.tsx",
-    "line": 72,
+    "line": 77,
     "tag": "Link",
     "label": "\"KNOuX Store home\"",
     "status": "enabled",
@@ -775,7 +793,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceShell.tsx",
-    "line": 72,
+    "line": 77,
     "tag": "button",
     "label": "\"Close workspace navigation\"",
     "status": "enabled",
@@ -793,7 +811,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceShell.tsx",
-    "line": 73,
+    "line": 78,
     "tag": "button",
     "label": "<button type=\"button\" className=\"dev-sidebar__action\" onClick={() => { setNavOpen(false); setUtility('launcher'); }}>New build <span aria-hidden=\"true\">↗</span></button>",
     "status": "enabled",
@@ -811,7 +829,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceShell.tsx",
-    "line": 74,
+    "line": 79,
     "tag": "Link",
     "label": "<Link key={item.href} href={item.href} className={`dev-nav-link ${pathname === item.href ? 'dev-nav-link--active' : ''}`} aria-current={pathname === item.href ? 'page' : undefined}",
     "status": "enabled",
@@ -829,7 +847,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceShell.tsx",
-    "line": 75,
+    "line": 80,
     "tag": "button",
     "label": "\"Add or open project\"",
     "status": "enabled",
@@ -847,7 +865,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceShell.tsx",
-    "line": 75,
+    "line": 80,
     "tag": "Link",
     "label": "<Link key={product.id} href={`/build/apps?product=${product.slug}`} onClick={() => setNavOpen(false)}>{product.name}</Link>",
     "status": "enabled",
@@ -865,7 +883,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceShell.tsx",
-    "line": 78,
+    "line": 83,
     "tag": "button",
     "label": "<button type=\"button\" onClick={() => setUtility('palette')}>COMMANDS · Ctrl K</button>",
     "status": "enabled",
@@ -883,7 +901,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceShell.tsx",
-    "line": 78,
+    "line": 83,
     "tag": "button",
     "label": "<button type=\"button\" onClick={() => setUtility('activity')}>ACTIVITY · {state.activity.length}</button>",
     "status": "enabled",
@@ -901,7 +919,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceShell.tsx",
-    "line": 78,
+    "line": 83,
     "tag": "Link",
     "label": "<Link href=\"/build/pipeline\">{facts.verification}</Link>",
     "status": "enabled",
@@ -919,7 +937,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceShell.tsx",
-    "line": 78,
+    "line": 83,
     "tag": "Link",
     "label": "<Link href=\"/build/deployments\">DEPLOYMENT · {facts.deployment}</Link>",
     "status": "enabled",
@@ -937,7 +955,7 @@
   },
   {
     "file": "src/components/build/dev/DevWorkspaceShell.tsx",
-    "line": 78,
+    "line": 83,
     "tag": "Link",
     "label": "<Link href=\"/build/providers\">{facts.provider}</Link>",
     "status": "enabled",
@@ -1117,25 +1135,25 @@
   },
   {
     "file": "src/components/build/dev/PowerShellPage.tsx",
-    "line": 355,
+    "line": 428,
     "tag": "Link",
-    "label": "<Link href=\"/build\" className=\"action\"> RETURN TO OVERVIEW <span className=\"action-arrow\">↗</span> </Link>",
+    "label": "<Link href={bridge.authRequired ? SIGN_IN_HREF : '/build/settings'} className=\"action\"> {bridge.authRequired ? 'SIGN IN TO CONNECT' : 'PAIR TRUSTED BRIDGE'} <span className=\"action",
     "status": "enabled",
     "enabled": true,
     "blocked": false,
     "blocker": null,
     "handler": null,
-    "destination": "\"/build\"",
-    "capability": "generic-ui",
+    "destination": "{bridge.authRequired ? SIGN_IN_HREF : '/build/settings'}",
+    "capability": "settings",
     "data source": "source declaration",
-    "auth requirement": "none",
+    "auth requirement": "authenticated gateway architecture required",
     "verification evidence": "static source declaration; runtime state not evaluated",
     "disabled": null,
     "type": null
   },
   {
     "file": "src/components/build/dev/PowerShellPage.tsx",
-    "line": 367,
+    "line": 440,
     "tag": "select",
     "label": "\"PowerShell profile\"",
     "status": "enabled",
@@ -1153,7 +1171,7 @@
   },
   {
     "file": "src/components/build/dev/PowerShellPage.tsx",
-    "line": 381,
+    "line": 454,
     "tag": "input",
     "label": "\"Working directory, relative to the bridge root\"",
     "status": "enabled",
@@ -1171,7 +1189,7 @@
   },
   {
     "file": "src/components/build/dev/PowerShellPage.tsx",
-    "line": 394,
+    "line": 467,
     "tag": "button",
     "label": "<button type=\"button\" className=\"dev-button\" onClick={() => void openSession()}> OPEN POWERSHELL </button>",
     "status": "enabled",
@@ -1189,7 +1207,7 @@
   },
   {
     "file": "src/components/build/dev/PowerShellPage.tsx",
-    "line": 433,
+    "line": 506,
     "tag": "button",
     "label": "<button type=\"button\" onClick={clearTerminal} disabled={!live}>CLEAR</button>",
     "status": "conditional",
@@ -1207,7 +1225,7 @@
   },
   {
     "file": "src/components/build/dev/PowerShellPage.tsx",
-    "line": 434,
+    "line": 507,
     "tag": "button",
     "label": "<button type=\"button\" onClick={() => void copySelection()} disabled={!live}>COPY SELECTION</button>",
     "status": "conditional",
@@ -1225,7 +1243,7 @@
   },
   {
     "file": "src/components/build/dev/PowerShellPage.tsx",
-    "line": 435,
+    "line": 508,
     "tag": "button",
     "label": "\"Ctrl+Shift+Esc\"",
     "status": "enabled",
@@ -1243,7 +1261,7 @@
   },
   {
     "file": "src/components/build/dev/PowerShellPage.tsx",
-    "line": 444,
+    "line": 517,
     "tag": "button",
     "label": "<button type=\"button\" onClick={closeSession}>CLOSE</button>",
     "status": "enabled",
@@ -1261,7 +1279,7 @@
   },
   {
     "file": "src/components/build/dev/PowerShellPage.tsx",
-    "line": 446,
+    "line": 519,
     "tag": "button",
     "label": "<button type=\"button\" onClick={reopen} disabled={busy}> {stage === 'exited' ? 'REOPEN' : 'RETRY'} </button>",
     "status": "conditional",
@@ -1279,7 +1297,7 @@
   },
   {
     "file": "src/components/build/dev/PowerShellPage.tsx",
-    "line": 452,
+    "line": 525,
     "tag": "input",
     "label": "\"Find in terminal output\"",
     "status": "enabled",
@@ -1297,7 +1315,7 @@
   },
   {
     "file": "src/components/build/dev/PowerShellPage.tsx",
-    "line": 459,
+    "line": 532,
     "tag": "button",
     "label": "<button type=\"button\" disabled={!findQuery} onClick={() => { if (findQuery) searchRef.current?.findNext(findQuery); }} > NEXT </button>",
     "status": "conditional",
@@ -1315,7 +1333,7 @@
   },
   {
     "file": "src/components/build/dev/PowerShellPage.tsx",
-    "line": 466,
+    "line": 539,
     "tag": "button",
     "label": "<button type=\"button\" disabled={!findQuery} onClick={() => { if (findQuery) searchRef.current?.findPrevious(findQuery); }} > PREV </button>",
     "status": "conditional",
@@ -1729,7 +1747,7 @@
   },
   {
     "file": "src/components/build/dev/SettingsPage.tsx",
-    "line": 16,
+    "line": 80,
     "tag": "input",
     "label": "<label><span><strong>Compact lists & rail</strong><small>Reduce navigation and list spacing.</small></span><input type=\"checkbox\" checked={prefs.compact} onChange={(e) => update({ ",
     "status": "enabled",
@@ -1747,7 +1765,7 @@
   },
   {
     "file": "src/components/build/dev/SettingsPage.tsx",
-    "line": 17,
+    "line": 81,
     "tag": "input",
     "label": "<label><span><strong>Show evidence detail</strong><small>Show application provenance rows.</small></span><input type=\"checkbox\" checked={prefs.showEvidence} onChange={(e) => update",
     "status": "enabled",
@@ -1765,7 +1783,7 @@
   },
   {
     "file": "src/components/build/dev/SettingsPage.tsx",
-    "line": 18,
+    "line": 82,
     "tag": "select",
     "label": "<select value={prefs.motion} onChange={(e) => update({ ...prefs, motion: e.target.value === 'reduced' ? 'reduced' : 'auto' })}><option value=\"auto\">System preference</option><optio",
     "status": "enabled",
@@ -1783,7 +1801,7 @@
   },
   {
     "file": "src/components/build/dev/SettingsPage.tsx",
-    "line": 19,
+    "line": 83,
     "tag": "select",
     "label": "<select value={prefs.density} onChange={(e) => update({ ...prefs, density: e.target.value === 'low' ? 'low' : 'balanced' })}><option value=\"balanced\">Balanced</option><option value",
     "status": "enabled",
@@ -1801,7 +1819,7 @@
   },
   {
     "file": "src/components/build/dev/SettingsPage.tsx",
-    "line": 20,
+    "line": 84,
     "tag": "select",
     "label": "<select value={prefs.viewport} onChange={(e) => update({ ...prefs, viewport: e.target.value as WorkspacePreferences['viewport'] })}><option value=\"laptop\">Laptop · 1440</option><op",
     "status": "enabled",
@@ -1819,7 +1837,7 @@
   },
   {
     "file": "src/components/build/dev/SettingsPage.tsx",
-    "line": 21,
+    "line": 85,
     "tag": "input",
     "label": "<label><span><strong>Wrap document text</strong><small>Read long source and documentation lines without scrolling.</small></span><input type=\"checkbox\" checked={prefs.editorWrap} o",
     "status": "enabled",
@@ -1837,7 +1855,7 @@
   },
   {
     "file": "src/components/build/dev/SettingsPage.tsx",
-    "line": 22,
+    "line": 86,
     "tag": "input",
     "label": "<label><span><strong>Allow evidence exports</strong><small>Enable explicit Preview metadata downloads.</small></span><input type=\"checkbox\" checked={prefs.evidence} onChange={(e) =",
     "status": "enabled",
@@ -1855,7 +1873,43 @@
   },
   {
     "file": "src/components/build/dev/SettingsPage.tsx",
-    "line": 24,
+    "line": 103,
+    "tag": "Link",
+    "label": "<Link href=\"/login?next=%2Fbuild%2Fsettings\">Sign in to KNOuX ↗</Link>",
+    "status": "enabled",
+    "enabled": true,
+    "blocked": false,
+    "blocker": null,
+    "handler": null,
+    "destination": "\"/login?next=%2Fbuild%2Fsettings\"",
+    "capability": "settings",
+    "data source": "source declaration",
+    "auth requirement": "none",
+    "verification evidence": "static source declaration; runtime state not evaluated",
+    "disabled": null,
+    "type": null
+  },
+  {
+    "file": "src/components/build/dev/SettingsPage.tsx",
+    "line": 111,
+    "tag": "button",
+    "label": "<button type=\"button\" disabled={bridge.kind === 'checking'} onClick={() => void checkBridge()}> {bridge.kind === 'checking' ? 'CHECKING…' : 'CHECK BRIDGE CONNECTION'} </button>",
+    "status": "conditional",
+    "enabled": false,
+    "blocked": false,
+    "blocker": null,
+    "handler": "{() => void checkBridge()}",
+    "destination": null,
+    "capability": "settings",
+    "data source": "source declaration",
+    "auth requirement": "authenticated gateway architecture required",
+    "verification evidence": "static source declaration; runtime state not evaluated",
+    "disabled": "{bridge.kind === 'checking'}",
+    "type": "\"button\""
+  },
+  {
+    "file": "src/components/build/dev/SettingsPage.tsx",
+    "line": 115,
     "tag": "input",
     "label": "<label className=\"dev-input-label\">Configured bridge URL<input value={url} onChange={(e) => setUrl(e.target.value)} placeholder=\"http://127.0.0.1:7331\" /></label>",
     "status": "enabled",
@@ -1873,7 +1927,7 @@
   },
   {
     "file": "src/components/build/dev/SettingsPage.tsx",
-    "line": 24,
+    "line": 115,
     "tag": "input",
     "label": "<label className=\"dev-input-label\">One-time pairing code<input autoComplete=\"off\" value={code} onChange={(e) => setCode(e.target.value)} /></label>",
     "status": "enabled",
@@ -1891,7 +1945,7 @@
   },
   {
     "file": "src/components/build/dev/SettingsPage.tsx",
-    "line": 24,
+    "line": 115,
     "tag": "button",
     "label": "{state.integrations?.bridgePairBlocker ?? 'Sign in and configure the server bridge before pairing.'}",
     "status": "conditional",
@@ -1909,15 +1963,15 @@
   },
   {
     "file": "src/components/build/dev/TerminalPage.tsx",
-    "line": 335,
+    "line": 373,
     "tag": "Link",
-    "label": "<Link href=\"/build/settings\">CONNECT BRIDGE ↗</Link>",
+    "label": "<Link href={bridge.authRequired ? SIGN_IN_HREF : '/build/settings'}> {bridge.authRequired ? 'SIGN IN TO CONNECT ↗' : 'PAIR TRUSTED BRIDGE ↗'} </Link>",
     "status": "enabled",
     "enabled": true,
     "blocked": false,
     "blocker": null,
     "handler": null,
-    "destination": "\"/build/settings\"",
+    "destination": "{bridge.authRequired ? SIGN_IN_HREF : '/build/settings'}",
     "capability": "settings",
     "data source": "source declaration",
     "auth requirement": "authenticated gateway architecture required",
@@ -1927,7 +1981,7 @@
   },
   {
     "file": "src/components/build/dev/TerminalPage.tsx",
-    "line": 345,
+    "line": 385,
     "tag": "select",
     "label": "\"Shell profile\"",
     "status": "enabled",
@@ -1945,7 +1999,7 @@
   },
   {
     "file": "src/components/build/dev/TerminalPage.tsx",
-    "line": 359,
+    "line": 399,
     "tag": "input",
     "label": "\"Working directory, relative to the bridge root\"",
     "status": "enabled",
@@ -1963,7 +2017,7 @@
   },
   {
     "file": "src/components/build/dev/TerminalPage.tsx",
-    "line": 372,
+    "line": 412,
     "tag": "button",
     "label": "<button type=\"button\" className=\"dev-button\" onClick={() => void openSession()}> OPEN SESSION </button>",
     "status": "enabled",
@@ -1981,7 +2035,7 @@
   },
   {
     "file": "src/components/build/dev/TerminalPage.tsx",
-    "line": 411,
+    "line": 451,
     "tag": "button",
     "label": "<button type=\"button\" onClick={clearTerminal} disabled={!live}>CLEAR</button>",
     "status": "conditional",
@@ -1999,7 +2053,7 @@
   },
   {
     "file": "src/components/build/dev/TerminalPage.tsx",
-    "line": 412,
+    "line": 452,
     "tag": "button",
     "label": "<button type=\"button\" onClick={() => void copySelection()} disabled={!live}>COPY SELECTION</button>",
     "status": "conditional",
@@ -2017,7 +2071,7 @@
   },
   {
     "file": "src/components/build/dev/TerminalPage.tsx",
-    "line": 413,
+    "line": 453,
     "tag": "button",
     "label": "\"Ctrl+Shift+Esc\"",
     "status": "enabled",
@@ -2035,7 +2089,7 @@
   },
   {
     "file": "src/components/build/dev/TerminalPage.tsx",
-    "line": 422,
+    "line": 462,
     "tag": "button",
     "label": "<button type=\"button\" onClick={closeSession}>CLOSE</button>",
     "status": "enabled",
@@ -2053,7 +2107,7 @@
   },
   {
     "file": "src/components/build/dev/TerminalPage.tsx",
-    "line": 424,
+    "line": 464,
     "tag": "button",
     "label": "<button type=\"button\" onClick={reopen} disabled={busy}> {stage === 'exited' ? 'REOPEN' : 'RETRY'} </button>",
     "status": "conditional",
@@ -2071,7 +2125,7 @@
   },
   {
     "file": "src/components/build/dev/TerminalPage.tsx",
-    "line": 430,
+    "line": 470,
     "tag": "input",
     "label": "\"Find in terminal output\"",
     "status": "enabled",
@@ -2089,7 +2143,7 @@
   },
   {
     "file": "src/components/build/dev/TerminalPage.tsx",
-    "line": 437,
+    "line": 477,
     "tag": "button",
     "label": "<button type=\"button\" disabled={!findQuery} onClick={() => { if (findQuery) searchRef.current?.findNext(findQuery); }} > NEXT </button>",
     "status": "conditional",
@@ -2107,7 +2161,7 @@
   },
   {
     "file": "src/components/build/dev/TerminalPage.tsx",
-    "line": 444,
+    "line": 484,
     "tag": "button",
     "label": "<button type=\"button\" disabled={!findQuery} onClick={() => { if (findQuery) searchRef.current?.findPrevious(findQuery); }} > PREV </button>",
     "status": "conditional",
@@ -3223,7 +3277,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 149,
+    "line": 160,
     "tag": "input",
     "label": "<label className={styles.search}>Search providers<input type=\"search\" value={search} onChange={event => setSearch(event.target.value)} placeholder=\"Provider, transport, agent…\"/></",
     "status": "enabled",
@@ -3241,7 +3295,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 149,
+    "line": 160,
     "tag": "select",
     "label": "<select disabled={busy} value={data.workspaceId ?? ''} onChange={event => void command({ action: 'WORKSPACE_SELECT' }, event.target.value)}>{data.workspaces.map(workspace => <optio",
     "status": "conditional",
@@ -3259,7 +3313,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 149,
+    "line": 160,
     "tag": "button",
     "label": "<button type=\"button\" disabled={busy} onClick={() => void load().catch(() => setMessage('Provider refresh failed.'))}>Refresh facts ↗</button>",
     "status": "conditional",
@@ -3277,14 +3331,14 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 149,
+    "line": 160,
     "tag": "button",
     "label": "<button type=\"button\" disabled={busy} onClick={() => { const name = window.prompt('New provider workspace name'); if (name) void command({ action: 'WORKSPACE_CREATE', name }); }}>A",
     "status": "conditional",
     "enabled": false,
     "blocked": false,
     "blocker": null,
-    "handler": "{() => {\n                const name = window.prompt('New provider workspace name');\n                if (name)\n                    void command({ action: 'WORKSPACE_CREATE', name });\n            }}",
+    "handler": "{() => {\r\n                const name = window.prompt('New provider workspace name');\r\n                if (name)\r\n                    void command({ action: 'WORKSPACE_CREATE', name });\r\n            }}",
     "destination": null,
     "capability": "providers",
     "data source": "source declaration",
@@ -3295,14 +3349,14 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 154,
+    "line": 165,
     "tag": "button",
     "label": "<button key={id} type=\"button\" aria-pressed={category === id} onClick={() => { setCategory(id); setSelected(''); setTab('Overview'); if (providerBrowse.current) providerBrowse.curr",
     "status": "enabled",
     "enabled": true,
     "blocked": false,
     "blocker": null,
-    "handler": "{() => { setCategory(id); setSelected(''); setTab('Overview'); if (providerBrowse.current)\n        providerBrowse.current.open = true; }}",
+    "handler": "{() => { setCategory(id); setSelected(''); setTab('Overview'); if (providerBrowse.current)\r\n        providerBrowse.current.open = true; }}",
     "destination": null,
     "capability": "providers",
     "data source": "source declaration",
@@ -3313,7 +3367,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 157,
+    "line": 168,
     "tag": "Link",
     "label": "<Link href=\"/login\">Sign in ↗</Link>",
     "status": "enabled",
@@ -3331,7 +3385,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 160,
+    "line": 171,
     "tag": "summary",
     "label": "<summary>Browse providers &#8599;</summary>",
     "status": "enabled",
@@ -3349,7 +3403,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 160,
+    "line": 171,
     "tag": "button",
     "label": "<button key={item.id} type=\"button\" aria-current={selected === item.id ? 'true' : undefined} onClick={() => choose(item)}><span className={styles.orbit} aria-hidden=\"true\">{item.cl",
     "status": "enabled",
@@ -3367,7 +3421,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 162,
+    "line": 173,
     "tag": "button",
     "label": "<button type=\"button\" disabled={!writable || busy} onClick={event => openWizard(event.currentTarget)}>Add profile +</button>",
     "status": "conditional",
@@ -3385,7 +3439,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 162,
+    "line": 173,
     "tag": "button",
     "label": "<button type=\"button\" disabled={!writable || busy} onClick={() => update({ enabled: !profile.enabled })}>{profile.enabled ? 'Disable provider' : 'Enable provider'}</button>",
     "status": "conditional",
@@ -3403,7 +3457,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 162,
+    "line": 173,
     "tag": "button",
     "label": "<button type=\"button\" disabled={!writable || busy} onClick={() => void command({ action: 'TEST_CONNECTION', id: profile.id, version: profile.version })}>Test connection</button>",
     "status": "conditional",
@@ -3421,7 +3475,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 163,
+    "line": 174,
     "tag": "button",
     "label": "<button type=\"button\" key={item} aria-pressed={tab === item} onClick={() => setTab(item)}>{item}</button>",
     "status": "enabled",
@@ -3439,7 +3493,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 167,
+    "line": 178,
     "tag": "button",
     "label": "<button type=\"button\" disabled={!writable || busy || item.active} onClick={() => void command({ action: 'PROFILE_SWITCH', id: item.id, version: item.version })}>Use {item.name}</bu",
     "status": "conditional",
@@ -3457,14 +3511,14 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 167,
+    "line": 178,
     "tag": "button",
     "label": "<button type=\"button\" disabled={!writable || busy} onClick={() => { const next = window.prompt('Profile name', item.name); if (next) void command({ action: 'PROFILE_UPDATE', id: it",
     "status": "conditional",
     "enabled": false,
     "blocked": false,
     "blocker": null,
-    "handler": "{() => {\n                        const next = window.prompt('Profile name', item.name);\n                        if (next)\n                            void command({ action: 'PROFILE_UPDATE', id: item.id, version: item.version, patch: { name: next } });\n                    }}",
+    "handler": "{() => {\r\n                        const next = window.prompt('Profile name', item.name);\r\n                        if (next)\r\n                            void command({ action: 'PROFILE_UPDATE', id: item.id, version: item.version, patch: { name: next } });\r\n                    }}",
     "destination": null,
     "capability": "providers",
     "data source": "source declaration",
@@ -3475,7 +3529,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 171,
+    "line": 182,
     "tag": "button",
     "label": "<button type=\"button\" disabled={!writable || busy} onClick={event => openWizard(event.currentTarget, item)}>Edit authentication for {item.name}</button>",
     "status": "conditional",
@@ -3493,14 +3547,14 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 171,
+    "line": 182,
     "tag": "button",
     "label": "<button type=\"button\" disabled={!writable || busy} onClick={() => { if (window.confirm(`Delete profile ${item.name}? Its credential will be retained.`)) void command({ action: 'PRO",
     "status": "conditional",
     "enabled": false,
     "blocked": false,
     "blocker": null,
-    "handler": "{() => {\n                        if (window.confirm(`Delete profile ${item.name}? Its credential will be retained.`))\n                            void command({ action: 'PROFILE_DELETE', id: item.id, version: item.version });\n                    }}",
+    "handler": "{() => {\r\n                        if (window.confirm(`Delete profile ${item.name}? Its credential will be retained.`))\r\n                            void command({ action: 'PROFILE_DELETE', id: item.id, version: item.version });\r\n                    }}",
     "destination": null,
     "capability": "providers",
     "data source": "source declaration",
@@ -3511,7 +3565,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 174,
+    "line": 185,
     "tag": "input",
     "label": "<label>Monthly spending ceiling (USD)<input name=\"limit\" type=\"number\" min=\"0\" max=\"1000000\" step=\"0.01\" defaultValue={profile.routing.monthlySpendLimit ?? ''} key={`${profile.id}-",
     "status": "unknown",
@@ -3529,7 +3583,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 174,
+    "line": 185,
     "tag": "button",
     "label": "<button type=\"submit\" disabled={!writable || busy}>Save spending ceiling</button>",
     "status": "conditional",
@@ -3547,7 +3601,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 175,
+    "line": 186,
     "tag": "button",
     "label": "<button type=\"button\" disabled={!vaultWritable || busy} onClick={() => { setEditCredential(item.id); setRotate(false); setSecret(''); }}>Replace {item.name}</button>",
     "status": "conditional",
@@ -3565,7 +3619,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 175,
+    "line": 186,
     "tag": "button",
     "label": "<button type=\"button\" disabled={!vaultWritable || busy} onClick={() => { setEditCredential(item.id); setRotate(true); setSecret(''); }}>Rotate {item.name}</button>",
     "status": "conditional",
@@ -3583,14 +3637,14 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 175,
+    "line": 186,
     "tag": "button",
     "label": "<button type=\"button\" disabled={!writable || busy || !item.configured} onClick={() => { if (window.confirm('Revoke this credential and invalidate every dependent profile?')) void c",
     "status": "conditional",
     "enabled": false,
     "blocked": false,
     "blocker": null,
-    "handler": "{() => {\n                        if (window.confirm('Revoke this credential and invalidate every dependent profile?'))\n                            void command({ action: 'CREDENTIAL_REVOKE', id: item.id, version: item.revision });\n                    }}",
+    "handler": "{() => {\r\n                        if (window.confirm('Revoke this credential and invalidate every dependent profile?'))\r\n                            void command({ action: 'CREDENTIAL_REVOKE', id: item.id, version: item.revision });\r\n                    }}",
     "destination": null,
     "capability": "providers",
     "data source": "source declaration",
@@ -3601,14 +3655,14 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 178,
+    "line": 189,
     "tag": "button",
     "label": "{item.referencedBy.length ? 'Remove all profile bindings before deletion.' : undefined}",
     "status": "conditional",
     "enabled": false,
     "blocked": false,
     "blocker": null,
-    "handler": "{() => {\n                        if (window.confirm('Permanently delete this unreferenced credential?'))\n                            void command({ action: 'CREDENTIAL_DELETE', id: item.id, version: item.revision });\n                    }}",
+    "handler": "{() => {\r\n                        if (window.confirm('Permanently delete this unreferenced credential?'))\r\n                            void command({ action: 'CREDENTIAL_DELETE', id: item.id, version: item.revision });\r\n                    }}",
     "destination": null,
     "capability": "providers",
     "data source": "source declaration",
@@ -3619,7 +3673,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 181,
+    "line": 192,
     "tag": "input",
     "label": "<label>Credential name<input required maxLength={80} value={credentialName} onChange={event => setCredentialName(event.target.value)}/></label>",
     "status": "enabled",
@@ -3637,7 +3691,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 181,
+    "line": 192,
     "tag": "button",
     "label": "<button type=\"button\" onClick={() => { setEditCredential(''); setSecret(''); }}>Add a different credential</button>",
     "status": "enabled",
@@ -3655,7 +3709,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 181,
+    "line": 192,
     "tag": "input",
     "label": "<label>Secret (write only)<input type=\"password\" autoComplete=\"new-password\" required maxLength={8192} disabled={!vaultWritable} value={secret} onChange={event => setSecret(event.t",
     "status": "conditional",
@@ -3673,7 +3727,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 181,
+    "line": 192,
     "tag": "button",
     "label": "<button type=\"submit\" disabled={!vaultWritable || busy}>{editCredential ? 'Save replacement' : 'SAVE API KEY'}</button>",
     "status": "conditional",
@@ -3691,7 +3745,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 187,
+    "line": 198,
     "tag": "input",
     "label": "<label>Endpoint URL<input name=\"endpoint\" type=\"url\" required defaultValue={'endpoint' in profile.auth ? profile.auth.endpoint : ''}/></label>",
     "status": "blocked",
@@ -3709,7 +3763,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 187,
+    "line": 198,
     "tag": "button",
     "label": "<button type=\"submit\" disabled={!writable || busy}>Save endpoint</button>",
     "status": "conditional",
@@ -3727,7 +3781,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 188,
+    "line": 199,
     "tag": "input",
     "label": "<label>Search models<input type=\"search\" value={modelSearch} onChange={event => { setModelSearch(event.target.value); setModelPage(0); }}/></label>",
     "status": "enabled",
@@ -3745,7 +3799,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 188,
+    "line": 199,
     "tag": "input",
     "label": "<label className={styles.check}><input type=\"checkbox\" checked={showAll} onChange={event => { setShowAll(event.target.checked); setModelPage(0); }}/>SHOW ALL</label>",
     "status": "enabled",
@@ -3763,7 +3817,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 188,
+    "line": 199,
     "tag": "input",
     "label": "<label className={styles.check}><input type=\"checkbox\" checked={freeOnly} onChange={event => { setFreeOnly(event.target.checked); setModelPage(0); }}/>FREE only</label>",
     "status": "enabled",
@@ -3781,7 +3835,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 188,
+    "line": 199,
     "tag": "button",
     "label": "<button type=\"button\" disabled={modelPage === 0} onClick={() => setModelPage(page => page - 1)}>Previous models</button>",
     "status": "conditional",
@@ -3799,7 +3853,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 188,
+    "line": 199,
     "tag": "button",
     "label": "<button type=\"button\" disabled={(modelPage + 1) * 30 >= models.length} onClick={() => setModelPage(page => page + 1)}>Next models</button>",
     "status": "conditional",
@@ -3817,7 +3871,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 190,
+    "line": 201,
     "tag": "input",
     "label": "<label className={styles.check}><input type=\"checkbox\" checked={profile.routing.automatic} disabled={!writable || busy} onChange={event => update({ routing: { ...profile.routing, a",
     "status": "conditional",
@@ -3835,7 +3889,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 190,
+    "line": 201,
     "tag": "input",
     "label": "<label className={styles.check} key={model.modelId}><input type=\"checkbox\" name=\"model\" value={model.modelId} defaultChecked={profile.routing.modelAllowlist.includes(model.modelId)",
     "status": "unknown",
@@ -3853,7 +3907,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 190,
+    "line": 201,
     "tag": "button",
     "label": "<button type=\"submit\" disabled={!writable || busy}>Save model policy</button>",
     "status": "conditional",
@@ -3871,7 +3925,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 191,
+    "line": 202,
     "tag": "select",
     "label": "<select name={id} defaultValue={profile.permissions[id]}><option>DENY</option><option>ASK</option><option>ALLOW</option></select>",
     "status": "unknown",
@@ -3889,7 +3943,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 191,
+    "line": 202,
     "tag": "button",
     "label": "<button type=\"submit\" disabled={!writable || busy}>Save permission policy</button>",
     "status": "conditional",
@@ -3907,7 +3961,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 192,
+    "line": 203,
     "tag": "input",
     "label": "<label className={styles.check} key={item.id}><input name=\"binding\" value={item.id} type=\"checkbox\" defaultChecked={profile.bindings[tab === 'MCP' ? 'mcp' : tab === 'Plugins' ? 'pl",
     "status": "unknown",
@@ -3925,7 +3979,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 192,
+    "line": 203,
     "tag": "button",
     "label": "<button type=\"submit\" disabled={!writable || busy}>Save {tab} bindings</button>",
     "status": "conditional",
@@ -3943,7 +3997,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 194,
+    "line": 205,
     "tag": "input",
     "label": "<label key={key}>{label}<input name={key} maxLength={80}/></label>",
     "status": "unknown",
@@ -3961,7 +4015,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 194,
+    "line": 205,
     "tag": "select",
     "label": "<select name=\"role\"><option>PRIMARY</option><option>REVIEW</option><option>FALLBACK</option></select>",
     "status": "unknown",
@@ -3979,7 +4033,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 194,
+    "line": 205,
     "tag": "input",
     "label": "<label className={styles.check}><input type=\"checkbox\" name=\"autoSwitch\"/>Allow switching when an executor becomes available</label>",
     "status": "unknown",
@@ -3997,7 +4051,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 194,
+    "line": 205,
     "tag": "button",
     "label": "<button type=\"submit\" disabled={!writable || busy}>Save structured configuration</button>",
     "status": "conditional",
@@ -4015,7 +4069,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 196,
+    "line": 207,
     "tag": "input",
     "label": "<label className={styles.check}><input type=\"checkbox\" checked={billing} onChange={event => setBilling(event.target.checked)}/>I acknowledge that a live generation test may incur p",
     "status": "enabled",
@@ -4033,7 +4087,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 196,
+    "line": 207,
     "tag": "input",
     "label": "<label className={styles.check}><input type=\"checkbox\" checked={streamBilling} onChange={event => setStreamBilling(event.target.checked)}/>Also run a separate tiny streaming reques",
     "status": "enabled",
@@ -4051,7 +4105,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 196,
+    "line": 207,
     "tag": "button",
     "label": "<button type=\"button\" disabled={!writable || busy || !billing} onClick={() => void command({ action: 'RUN_LIVE_GENERATION_TEST', id: profile.id, version: profile.version, billingAc",
     "status": "conditional",
@@ -4069,7 +4123,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 200,
+    "line": 211,
     "tag": "button",
     "label": "<button type=\"button\" onClick={closeWizard}>Close</button>",
     "status": "enabled",
@@ -4087,7 +4141,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 200,
+    "line": 211,
     "tag": "input",
     "label": "<label>Profile name<input autoFocus required maxLength={80} value={profileName} onChange={event => setProfileName(event.target.value)}/></label>",
     "status": "enabled",
@@ -4105,7 +4159,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 200,
+    "line": 211,
     "tag": "select",
     "label": "<select value={authMode} onChange={event => { setAuthMode(event.target.value as AuthSource['mode']); setReference(event.target.value === 'ENV_REFERENCE' ? definition?.environmentNa",
     "status": "enabled",
@@ -4123,7 +4177,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 200,
+    "line": 211,
     "tag": "select",
     "label": "<select value={reference} onChange={event => setReference(event.target.value)}>{definition?.environmentNames.map(variable => <option key={variable}>{variable}</option>)}</select>",
     "status": "enabled",
@@ -4141,7 +4195,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 200,
+    "line": 211,
     "tag": "input",
     "label": "<label>CLI profile reference<input required maxLength={80} value={reference} onChange={event => setReference(event.target.value)}/></label>",
     "status": "enabled",
@@ -4159,7 +4213,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 200,
+    "line": 211,
     "tag": "input",
     "label": "<label>Endpoint URL<input required type=\"url\" value={reference} onChange={event => setReference(event.target.value)} placeholder={authMode === 'LOCAL_ENDPOINT' ? 'http://127.0.0.1:",
     "status": "enabled",
@@ -4177,7 +4231,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 200,
+    "line": 211,
     "tag": "select",
     "label": "<select value={credentialId} onChange={event => setCredentialId(event.target.value)}><option value=\"\">Unconfigured / no credential</option>{credentials.filter(item => item.configur",
     "status": "enabled",
@@ -4195,7 +4249,7 @@
   },
   {
     "file": "src/components/build/providers/ProviderCenter.tsx",
-    "line": 200,
+    "line": 211,
     "tag": "button",
     "label": "<button type=\"submit\" disabled={!writable || busy}>{editProfile ? \"Save authentication\" : \"Create profile\"}</button>",
     "status": "conditional",

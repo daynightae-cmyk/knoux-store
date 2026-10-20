@@ -22,7 +22,7 @@ export function PlanSystemMap({ plan, draft = false }: { plan: Partial<Engineeri
   product.forEach((node) => lanes.set(node.x, (lanes.get(node.x) ?? 0) + 1));
   const mapHeight = view === 'product' ? Math.max(550, Math.max(1, ...lanes.values()) * 150) : 550;
   const key = (event: KeyboardEvent<HTMLButtonElement>) => {
-    let next = index;
+    let next: number;
     if (['ArrowRight', 'ArrowDown'].includes(event.key)) next = (index + 1) % nodes.length;
     else if (['ArrowLeft', 'ArrowUp'].includes(event.key)) next = (index - 1 + nodes.length) % nodes.length;
     else if (event.key === 'Home') next = 0;

@@ -101,6 +101,9 @@ node_modules*/
 
 # The Build control inventory generator is a maintained audit entrypoint.
 !/scripts/build-controls.mjs
+
+# The public asset budget is a maintained audit entrypoint.
+!/scripts/public-assets.mjs
 /build-test-output.log
 /bridge/bridge-test-output.log
 
@@ -130,3 +133,23 @@ gateway/.venv*/
 # Maintained V4 provenance capture and comparison entrypoints.
 !/scripts/visual-v4-capture.mjs
 !/scripts/visual-v4-gallery.mjs
+!/scripts/visual-capture.mjs
+!/scripts/visual-capture-baseline.mjs
+!/scripts/visual-output-directory.mjs
+# Cross-route defect sweep: overflow, clipped copy, tiny type, unnamed controls,
+# broken images and console errors across every public route at three viewports.
+!/scripts/route-sweep.mjs
+# Build workspace checks. The workspace sits behind a required modal, so these
+# have to enter it the way a visitor does rather than loading the page directly.
+!/scripts/verify-build-gate.mjs
+!/scripts/capture-build-workspace.mjs
+# PR #53 contract: mission selection follows a choice, never the pointer.
+!/scripts/verify-solutions-selection.mjs
+# Photographs one element in the viewport, which is the only honest way to check
+# a reveal-gated block: a stitched full-page shot can show it empty.
+!/scripts/shoot-element.mjs
+# Production gate for the two defects that hid content instead of styling it.
+!/scripts/verify-reveal-and-hydration.mjs
+
+# Visual acceptance evidence (generated, large)
+visual-audit/

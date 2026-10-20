@@ -1,7 +1,5 @@
 'use client';
 
-import { useSiteCopy, useSiteLanguage } from '@/components/i18n/SiteLanguage';
-import { guideDirection } from '@/lib/sentinel/languages';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
@@ -32,7 +30,6 @@ export const DEV_DESTINATIONS = [
 ] as const;
 
 export function DevWorkspaceShell({ children }: { children: ReactNode }) {
-  const t = useSiteCopy(), language = useSiteLanguage();
   const pathname = usePathname();
   const { state } = useBuildWorkspace();
   const facts = workspaceFacts(state);
@@ -67,18 +64,23 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
     return () => { document.removeEventListener('keydown', onKey); window.removeEventListener('resize', onResize); toggle?.focus(); };
   }, [navOpen]);
 
-  return <div lang={language} dir={guideDirection(language)} className={`dev-shell dev-cinematic ${pathname === '/build' ? 'dev-shell--landing' : 'dev-shell--operational'}`}>
-    <div className="dev-shell__top"><Link href="/" className="dev-shell__identity" aria-label="KNOuX Store home">KNOuX <strong>BUILD</strong></Link><span className="dev-mini-label">{t(current?.label ?? 'Workspace')}</span><button ref={menu} type="button" className="dev-menu-button" aria-label={t('Open workspace navigation')} aria-expanded={navOpen} aria-controls="dev-sidebar" onClick={() => setNavOpen((open) => !open)}>☰ {t('Menu')}</button></div>
+  return <div className={`dev-shell dev-cinematic ${pathname === '/build' ? 'dev-shell--landing' : 'dev-shell--operational'}`}>
+    {/* A `header` element, not a styled `div`: this bar carries the site
+        identity and the navigation control, and content outside every landmark
+        is exactly what landmark navigation cannot reach. The class list is
+        unchanged, so the existing layout rules that target `.dev-shell__top`
+        and its children still apply to it. */}
+    <header className="dev-shell__top"><Link href="/" className="dev-shell__identity" aria-label="KNOuX Store home">KNOuX <strong>BUILD</strong></Link><span className="dev-mini-label">{current?.label ?? 'Workspace'}</span><button ref={menu} type="button" className="dev-menu-button" aria-label="Open workspace navigation" aria-expanded={navOpen} aria-controls="dev-sidebar" onClick={() => setNavOpen((open) => !open)}>☰ MENU</button></header>
     <div className="dev-shell__grid">
-      {navOpen ? <button type="button" className="dev-nav-backdrop" tabIndex={-1} aria-label={t('Close workspace navigation')} onClick={() => setNavOpen(false)} /> : null}
+      {navOpen ? <button type="button" className="dev-nav-backdrop" tabIndex={-1} aria-label="Close workspace navigation" onClick={() => setNavOpen(false)} /> : null}
       <aside ref={sidebar} id="dev-sidebar" className={`dev-sidebar ${navOpen ? 'dev-sidebar--open' : ''}`} aria-label="KNOuX DEV workspace" role={navOpen ? 'dialog' : undefined} aria-modal={navOpen ? true : undefined}>
-        <div className="dev-sidebar__brand"><Link href="/" aria-label="KNOuX Store home"><span className="dev-dot" aria-hidden="true" />KNOuX <small>BUILD</small></Link><button className="dev-sidebar__close" type="button" onClick={() => setNavOpen(false)} aria-label={t('Close workspace navigation')}>×</button></div>
-        <button type="button" className="dev-sidebar__action" onClick={() => { setNavOpen(false); setUtility('launcher'); }}>{t('New build')} <span aria-hidden="true">↗</span></button>
-        <nav aria-label={t('Workspace destinations')}>{DEV_DESTINATIONS.map((item) => <Link key={item.href} href={item.href} className={`dev-nav-link ${pathname === item.href ? 'dev-nav-link--active' : ''}`} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => setNavOpen(false)}><span aria-hidden="true">{item.icon}</span><small>{item.code}</small>{t(item.label)}</Link>)}</nav>
-        <div className="dev-sidebar__projects"><div className="dev-mini-label">{t('Projects')} <button type="button" onClick={() => { setNavOpen(false); setUtility('launcher'); }} aria-label={t('Add or open project')}>+</button></div>{softwareProducts.slice(0, 4).map((product) => <Link key={product.id} href={`/build/apps?product=${product.slug}`} onClick={() => setNavOpen(false)}>{product.name}</Link>)}</div>
-        <dl className="dev-sidebar__facts"><dt>{t('ADAPTER STATUS')}</dt><dd>{facts.adapter}</dd><dt>{t('PROJECT STATUS')}</dt><dd>{facts.project}</dd><dt>{t('ENVIRONMENT')}</dt><dd>{facts.environment}</dd></dl>
+        <div className="dev-sidebar__brand"><Link href="/" aria-label="KNOuX Store home"><span className="dev-dot" aria-hidden="true" />KNOuX <small>BUILD</small></Link><button className="dev-sidebar__close" type="button" onClick={() => setNavOpen(false)} aria-label="Close workspace navigation">×</button></div>
+        <button type="button" className="dev-sidebar__action" onClick={() => { setNavOpen(false); setUtility('launcher'); }}>New build <span aria-hidden="true">↗</span></button>
+        <nav aria-label="Workspace destinations">{DEV_DESTINATIONS.map((item) => <Link key={item.href} href={item.href} className={`dev-nav-link ${pathname === item.href ? 'dev-nav-link--active' : ''}`} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => setNavOpen(false)}><span aria-hidden="true">{item.icon}</span><small>{item.code}</small>{item.label}</Link>)}</nav>
+        <div className="dev-sidebar__projects"><div className="dev-mini-label">PROJECTS <button type="button" onClick={() => { setNavOpen(false); setUtility('launcher'); }} aria-label="Add or open project">+</button></div>{softwareProducts.slice(0, 4).map((product) => <Link key={product.id} href={`/build/apps?product=${product.slug}`} onClick={() => setNavOpen(false)}>{product.name}</Link>)}</div>
+        <dl className="dev-sidebar__facts"><dt>ADAPTER STATUS</dt><dd>{facts.adapter}</dd><dt>PROJECT STATUS</dt><dd>{facts.project}</dd><dt>ENVIRONMENT</dt><dd>{facts.environment}</dd></dl>
       </aside>
-      <div className="dev-shell__stage" inert={navOpen}><LivingMark /><main id="main-content" tabIndex={0} className="dev-shell__content"><div className="dev-crumb"><span>KN / DEV</span> / {t(current?.label ?? 'Workspace')}<span className="dev-crumb__right">{facts.environment}</span></div><div style={{display:'contents'}}>{children}</div></main><footer className="dev-status-rail" aria-label={t('Workspace status')}><div className="dev-utility-actions"><button type="button" onClick={() => setUtility('palette')}>{t('Commands')} · Ctrl K</button><button type="button" onClick={() => setUtility('activity')}>{t('Activity')} · {state.activity.length}</button></div><span><i aria-hidden="true" />{facts.runtime}</span><Link href="/build/pipeline">{facts.verification}</Link><Link href="/build/deployments">{t('Deployment')} · {facts.deployment}</Link><Link href="/build/providers">{facts.provider}</Link></footer></div>
+      <div className="dev-shell__stage" inert={navOpen}><LivingMark /><main id="main-content" tabIndex={0} className="dev-shell__content"><div className="dev-crumb"><span>KN / DEV</span> / {current?.label ?? 'Workspace'}<span className="dev-crumb__right">{facts.environment}</span></div>{children}</main><footer className="dev-status-rail" aria-label="Workspace status"><div className="dev-utility-actions"><button type="button" onClick={() => setUtility('palette')}>COMMANDS · Ctrl K</button><button type="button" onClick={() => setUtility('activity')}>ACTIVITY · {state.activity.length}</button></div><span><i aria-hidden="true" />{facts.runtime}</span><Link href="/build/pipeline">{facts.verification}</Link><Link href="/build/deployments">DEPLOYMENT · {facts.deployment}</Link><Link href="/build/providers">{facts.provider}</Link></footer></div>
     </div>
     {utility === 'launcher' ? <Launcher onClose={() => setUtility(null)} /> : utility === 'palette' ? <Palette onClose={() => setUtility(null)} onLaunch={() => setUtility('launcher')} /> : utility === 'activity' ? <Activity onClose={() => setUtility(null)} /> : null}
   </div>;

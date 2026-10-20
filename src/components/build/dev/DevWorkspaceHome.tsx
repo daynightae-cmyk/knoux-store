@@ -14,19 +14,10 @@ import { PlanSystemMap } from '../generator/PlanSystemMap';
 import { profileToControls } from '@/lib/build/profile';
 import styles from '../generator/generator.module.css';
 import { consumePlanStream, parseEngineeringPlan, canFallbackPlanError, PlanStreamError, ENGINEERING_PLAN_SYSTEM, PLAN_SECTIONS, planPrompt, type EngineeringPlan, type EngineeringStage } from '@/lib/build/engineering-plan';
+import { QUICK_INTENTS } from './quick-intents';
 
 const Preview = dynamic(() => import('../surfaces/PreviewSurface').then((mod) => mod.PreviewSurface));
 const Registry = dynamic(() => import('./ProductMachine').then((mod) => mod.ProductMachine));
-
-
-// Each prompt uses vocabulary the existing intent compiler can resolve.
-const QUICK_INTENTS = [
-  { label: 'WEB APP', prompt: 'Build a web app with React and TypeScript' },
-  { label: 'DESKTOP APP', prompt: 'Build a desktop app for Windows' },
-  { label: 'ANDROID', prompt: 'Build a web app for Android' },
-  { label: 'SYSTEM TOOL', prompt: 'Build a system tool for maintenance' },
-  { label: 'AI SYSTEM', prompt: 'Build an AI application with a chatbot' },
-] as const;
 
 export function DevWorkspaceHome() {
   const { state, dispatch } = useBuildWorkspace();

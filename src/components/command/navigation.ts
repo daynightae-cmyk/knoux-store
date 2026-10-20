@@ -8,13 +8,10 @@
  */
 
 export {
-  COMMAND_AREAS,
-  COMMAND_AREAS_BY_SLUG,
   COMMAND_GROUPS,
   DOCK_ACTIONS,
   areaBySlug,
   areaHref,
   type CommandArea,
-  type CommandGroup,
   type DockAction,
 } from '@/data/growth/areas';

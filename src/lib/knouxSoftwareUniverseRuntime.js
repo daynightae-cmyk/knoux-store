@@ -311,6 +311,7 @@ async function initUniverse(root) {
     let active = 0;
     sectionStops.forEach((stop, i) => { if (progress >= stop) active = i; });
     dots.forEach((dot, i) => dot.classList.toggle('is-active', i === active));
+    root.dataset.ksuChapter = String(active);
   };
 
   const onScroll = () => updateFromScroll();
