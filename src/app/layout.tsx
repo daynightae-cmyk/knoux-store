@@ -4,7 +4,6 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { CommandPalette } from '@/components/CommandPalette';
 import { RevealObserver } from '@/components/blocks';
-import { KnouxSentinel } from '@/components/identity/KnouxSentinel';
 import { SentinelGuideLauncher } from '@/components/identity/SentinelGuideLauncher';
 import { StoreStarfield } from '@/components/identity/StoreStarfield';
 import { StoreStarfieldProvider } from '@/components/identity/StoreStarfieldProvider';
@@ -58,7 +57,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {children}
         <SiteFooter />
         <CommandPalette />
-        <KnouxSentinel />
         <SentinelGuideLauncher />
         {process.env.VERCEL === '1' && process.env.VERCEL_ENV === 'production' && <Analytics />}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
