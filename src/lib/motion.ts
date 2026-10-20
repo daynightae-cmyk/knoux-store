@@ -58,21 +58,45 @@ export function observeReveal(
   root: HTMLElement,
   onEnter: (element: Element) => void,
 ): () => void {
-  const targets = root.querySelectorAll('[data-reveal]');
+  const targets = [...root.querySelectorAll<HTMLElement>('[data-reveal]')];
   if (typeof IntersectionObserver === 'undefined' || !motionAllowed()) {
     targets.forEach(onEnter);
     return () => {};
   }
+  const pending = new Set(targets);
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
         onEnter(entry.target);
+        pending.delete(entry.target as HTMLElement);
         observer.unobserve(entry.target);
       }
     },
     { rootMargin: '0px 0px -12% 0px', threshold: 0.08 },
   );
   targets.forEach((target) => observer.observe(target));
-  return () => observer.disconnect();
+
+  // An IntersectionObserver reports the geometry it evaluates, not the path the
+  // visitor took to get there. A fast scroll, or a scroll that happens before
+  // this observer exists, can carry a block past the viewport without the
+  // observer ever seeing it intersect, and a block at `opacity: 0` that is never
+  // seen stays invisible for good. Anything already at or above the fold is
+  // therefore revealed on demand rather than waited for.
+  const sweep = () => {
+    for (const target of pending) {
+      if (target.getBoundingClientRect().top >= window.innerHeight) continue;
+      onEnter(target);
+      pending.delete(target);
+      observer.unobserve(target);
+    }
+    if (!pending.size) window.removeEventListener('scroll', sweep);
+  };
+  window.addEventListener('scroll', sweep, { passive: true });
+  sweep();
+
+  return () => {
+    window.removeEventListener('scroll', sweep);
+    observer.disconnect();
+  };
 }
