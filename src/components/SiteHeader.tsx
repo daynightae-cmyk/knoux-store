@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { institutionNavigation, primaryNavigation } from '@/data/navigation';
 import { OPEN_EVENT } from '@/components/CommandPalette';
+import { SiteLanguagePicker } from '@/components/i18n/SiteLanguage';
 import { track } from '@/lib/analytics';
 
 /**
@@ -86,6 +87,10 @@ export function SiteHeader() {
         </nav>
 
         <div className="header-actions">
+          {/* Language sits leftmost in the action group: it is a site-level
+              control rather than a page one, and it stays visible at the
+              breakpoints that hide the desktop nav and search. */}
+          <SiteLanguagePicker />
           {authRoute ? (
             <Link className="header-access header-home" href="/" aria-label="Return to KNOuX home">
               <svg className="header-home__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
