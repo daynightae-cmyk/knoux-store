@@ -51,5 +51,9 @@ export default defineConfig([
     // src/lib/knouxField.ts. It is excluded only so its own standalone
     // JavaScript style cannot fail the KNOuX application lint gate.
     'remix-regal-portrait-with-imme/**',
+    // Local visual-QA evidence: screenshots and the ad-hoc scripts that produced
+    // them. Gitignored and reproducible from a running server, so a lint failure
+    // inside it describes a scratch file rather than the application.
+    'visual-audit/**',
   ]),
 ]);

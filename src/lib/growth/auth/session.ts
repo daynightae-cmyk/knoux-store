@@ -255,6 +255,4 @@ export async function guardGrowth(request?: {
   };
 }
 
-/** Re-exported so route guards need only one import. */
-export { canAccessClient, hasRolePermission } from '../rbac';
 export { MEMBERSHIP_TABLE };

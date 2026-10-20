@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from 'next';
-import { SiteLanguageMetadata, LocalizedSkipLink, SiteLanguageWrapper } from '@/components/i18n/SiteLanguage';
 import { Analytics } from '@vercel/analytics/react';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { CommandPalette } from '@/components/CommandPalette';
+import { RevealObserver } from '@/components/blocks';
 import { SentinelGuideLauncher } from '@/components/identity/SentinelGuideLauncher';
 import { StoreStarfield } from '@/components/identity/StoreStarfield';
 import { StoreStarfieldProvider } from '@/components/identity/StoreStarfieldProvider';
@@ -41,14 +41,20 @@ const structuredData = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    // `suppressHydrationWarning` is for the root element only, and only because
+    // of one deliberate thing: the arrival chamber arms itself with an inline
+    // script that sets `data-chamber="armed"` on <html> before the first paint,
+    // so the rise can never flash an unstyled form. React did not render that
+    // attribute and reports it as a mismatch on every auth route. The flag
+    // suppresses attribute differences on this element alone; content mismatches
+    // anywhere in the tree are still reported.
+    <html lang="en" suppressHydrationWarning>
       <body style={motionTokens() as React.CSSProperties}>
         <StoreStarfieldProvider>
         <StoreStarfield />
-        <SiteLanguageMetadata />
-        <LocalizedSkipLink />
+        <RevealObserver />
         <SiteHeader />
-        <SiteLanguageWrapper>{children}</SiteLanguageWrapper>
+        {children}
         <SiteFooter />
         <CommandPalette />
         <SentinelGuideLauncher />

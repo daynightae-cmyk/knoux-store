@@ -11,6 +11,7 @@ import {
   type TerminalStats,
   type TerminalTimings,
 } from '@/lib/build/terminal-transport';
+import { PtyPreloadBuffer } from '@/lib/build/pty-preload';
 import type { BridgeCapabilities, BridgeProfile, Handshake, ShellProfile } from '@/lib/build/bridge-protocol';
 
 // Formatters
@@ -34,8 +35,12 @@ function backoffLabel(attempts: number): string {
 
 type BridgeState =
   | { kind: 'checking' }
+  /** See `TerminalPage`: a 401 is a sign-in problem, not a pairing problem. */
   | { kind: 'unavailable'; blocker: string; authRequired?: boolean }
   | { kind: 'ready'; handshake: Handshake };
+
+const SIGN_IN_REQUIRED = 'Sign in to use PowerShell. This workspace needs an identified account.';
+const SIGN_IN_HREF = '/login?next=%2Fbuild%2Fpowershell';
 
 interface BridgeStatusResponse {
   configured: boolean;
@@ -46,6 +51,8 @@ interface BridgeStatusResponse {
   capabilities: BridgeCapabilities | null;
   handshake: Handshake | null;
   blocker: string | null;
+  /** Present on guard refusals; a fallback when `blocker` is absent. */
+  message?: string;
 }
 
 export function PowerShellPage() {
@@ -68,8 +75,16 @@ export function PowerShellPage() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const transportRef = useRef<TerminalTransport | null>(null);
   const termRef = useRef<{ write: (d: string) => void; dispose: () => void; getSelection?: () => string } | null>(null);
-  const pendingOutputRef = useRef<string[]>([]);
-  const pendingBytesRef = useRef(0);
+  /**
+   * Genuine PTY output that arrived before xterm finished loading.
+   *
+   * The bridge starts sending the moment a session goes live, and the renderer
+   * is imported lazily, so there is a real window in which output has no
+   * destination. Dropping it would show an operator a command that appears to
+   * produce nothing. The buffer is reset on every session boundary so output
+   * from a closed or replaced session cannot surface in the next one.
+   */
+  const preloadRef = useRef<PtyPreloadBuffer>(new PtyPreloadBuffer());
   const fitRef = useRef<{ fit: () => void; proposeDimensions: () => { cols: number; rows: number } | undefined } | null>(null);
   const searchRef = useRef<{ findNext: (q: string) => boolean; findPrevious: (q: string) => boolean } | null>(null);
   const statsTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -81,6 +96,12 @@ export function PowerShellPage() {
         const response = await fetch('/api/build/bridge/status', { cache: 'no-store' });
         const body = (await response.json()) as BridgeStatusResponse;
         if (cancelled) return;
+        // Resolved from the status code before the body is trusted, so a 401
+        // cannot present itself as a connected shell.
+        if (!response.ok && response.status === 401) {
+          setBridge({ kind: 'unavailable', blocker: SIGN_IN_REQUIRED, authRequired: true });
+          return;
+        }
         if (body.reachable && body.handshake) {
           const psProfiles = body.handshake.profiles.filter(p => p.id === 'pwsh' || p.id === 'powershell');
           psProfiles.sort((a, b) => {
@@ -88,20 +109,22 @@ export function PowerShellPage() {
             if (b.id === 'pwsh') return 1;
             return 0;
           });
-          
+
           if (psProfiles.length > 0) {
             setBridge({ kind: 'ready', handshake: body.handshake });
             setProfiles(psProfiles);
             setProfile(psProfiles[0].id);
-            setCwd(''); // Empty means the bridge root; never send an absolute path as cwd.
+            // Empty means the paired bridge's own trusted root. The client
+            // never proposes a directory: an absolute path is refused by the
+            // ticket validator anyway, and would leak the bridge host's layout.
+            setCwd('');
           } else {
             setBridge({ kind: 'unavailable', blocker: 'NO POWERSHELL PROFILE' });
           }
         } else {
           setBridge({
             kind: 'unavailable',
-            blocker: body.blocker || (body as BridgeStatusResponse & { message?: string }).message || (body.configured ? 'BRIDGE UNAVAILABLE' : 'BRIDGE NOT CONFIGURED'),
-            authRequired: response.status === 401,
+            blocker: body.blocker || body.message || (body.configured ? 'BRIDGE UNAVAILABLE' : 'BRIDGE NOT CONFIGURED'),
           });
         }
       } catch (err) {
@@ -132,24 +155,17 @@ export function PowerShellPage() {
     setError(null);
     setExit(null);
     setSession(null);
-    pendingOutputRef.current = [];
-    pendingBytesRef.current = 0;
+    // A new session must never inherit the previous one's pre-render output.
+    preloadRef.current.reset();
 
     if (!transportRef.current) {
       transportRef.current = new TerminalTransport(
         {
           onOutput: (data) => {
-            if (termRef.current) {
-              termRef.current.write(data);
-            } else {
-              // The bridge can send genuine PTY output before xterm's lazy import resolves.
-              // Bound the pre-render buffer to 128 KiB; never synthesize a transcript.
-              pendingOutputRef.current.push(data);
-              pendingBytesRef.current += data.length;
-              while (pendingBytesRef.current > 131072 && pendingOutputRef.current.length > 1) {
-                pendingBytesRef.current -= pendingOutputRef.current.shift()!.length;
-              }
-            }
+            // Authenticated, verified PTY bytes. Never rewritten, reordered or
+            // padded: if the renderer is not up yet they wait, bounded, for it.
+            if (termRef.current) termRef.current.write(data);
+            else preloadRef.current.push(data);
           },
           onStage: (next) => {
             setStage(next);
@@ -161,6 +177,9 @@ export function PowerShellPage() {
           },
           onExit: (result) => {
             setExit(result);
+            // The PTY is gone, so anything still waiting for a renderer belongs
+            // to a session that no longer exists.
+            preloadRef.current.reset();
             refreshStats();
           },
           onError: (_code, message) => setError(message),
@@ -178,6 +197,9 @@ export function PowerShellPage() {
   }, [bridge, profile, cwd, refreshStats]);
 
   const closeSession = useCallback(() => {
+    // Cleared before the socket closes: a frame already in flight would
+    // otherwise be buffered for a renderer that will never be asked to draw it.
+    preloadRef.current.reset();
     if (transportRef.current) {
       transportRef.current.close();
     }
@@ -189,7 +211,12 @@ export function PowerShellPage() {
   }, [openSession]);
 
   useEffect(() => {
+    // Captured so the cleanup acts on this mount's buffer rather than on
+    // whatever a later render may have left in the ref.
+    const preload = preloadRef.current;
     return () => {
+      // Unmount is a session boundary like any other.
+      preload.reset();
       if (transportRef.current) {
         transportRef.current.close();
         transportRef.current = null;
@@ -212,17 +239,24 @@ export function PowerShellPage() {
 
   const copySelection = useCallback(async () => {
     try {
+      // Read the selection from the terminal itself. xterm renders to a canvas,
+      // so the document selection is empty and copying it yields an empty
+      // clipboard while appearing to have worked.
       const selection = termRef.current?.getSelection?.() ?? '';
       if (selection) await navigator.clipboard.writeText(selection);
     } catch {
-      /* ignore */
+      /* clipboard unavailable or permission refused */
     }
   }, []);
 
   useEffect(() => {
+    // A renderer only exists once a session has been assigned. `live` and
+    // `reconnecting` both carry real output, and `exited` may carry the tail of
+    // it, so all three load the renderer rather than leaving the transcript
+    // invisible after the shell ends.
     if ((stage === 'live' || stage === 'reconnecting' || stage === 'exited') && containerRef.current && !termRef.current) {
       let cancelled = false;
-      
+
       Promise.all([
         import('@xterm/xterm'),
         import('@xterm/addon-fit'),
@@ -283,6 +317,9 @@ export function PowerShellPage() {
 
           termRef.current = {
             write: (d) => terminal.write(d),
+            // The DOM selection is empty here: xterm paints to a canvas, so
+            // `window.getSelection()` would copy nothing no matter what the
+            // operator highlighted inside the terminal.
             getSelection: () => terminal.getSelection(),
             dispose: () => {
               resizeObserver.disconnect();
@@ -300,11 +337,19 @@ export function PowerShellPage() {
             findPrevious: (q) => searchAddon.findPrevious(q),
           };
 
-          if (pendingOutputRef.current.length > 0) {
-            terminal.write(pendingOutputRef.current.join(''));
-            pendingOutputRef.current = [];
-            pendingBytesRef.current = 0;
+          // The renderer exists, so anything the bridge sent while it was still
+          // loading is written now, in arrival order. Draining empties the
+          // buffer, so a later effect run cannot replay it.
+          const pending = preloadRef.current.drain();
+          if (pending.text) {
+            terminal.write(pending.text);
+            if (pending.droppedBytes > 0) {
+              setLoadError(
+                `${formatBytes(pending.droppedBytes)} of early output was dropped before the terminal was ready.`,
+              );
+            }
           }
+
           terminal.focus();
 
           const dims = fitAddon.proposeDimensions();
@@ -370,9 +415,17 @@ export function PowerShellPage() {
 
             {bridge.kind === 'unavailable' && (
               <>
-                <DevEmpty title={bridge.blocker} body="PowerShell requires an active build bridge." />
+                <DevEmpty
+                  title={bridge.authRequired ? 'SIGN IN REQUIRED' : bridge.blocker}
+                  body={bridge.authRequired
+                    ? 'PowerShell needs an identified account before a local shell can be paired.'
+                    : 'PowerShell requires an active build bridge.'}
+                />
                 <p className="dev-note" style={{ textAlign: 'center', marginTop: 24 }}>
-                  <Link href={bridge.authRequired ? '/login?next=%2Fbuild%2Fpowershell' : '/build/settings'} className="action">
+                  {/* Pairing is a privileged action, so it is offered only once a
+                      session exists. An unidentified visitor is sent to sign in
+                      with a return path back to this page. */}
+                  <Link href={bridge.authRequired ? SIGN_IN_HREF : '/build/settings'} className="action">
                     {bridge.authRequired ? 'SIGN IN TO CONNECT' : 'PAIR TRUSTED BRIDGE'} <span className="action-arrow">↗</span>
                   </Link>
                 </p>

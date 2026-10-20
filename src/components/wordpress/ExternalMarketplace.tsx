@@ -101,7 +101,7 @@ function UnavailableState({ result, basePath, query }: { result: ExternalQueryRe
   );
 }
 
-function EmptyState({ result, query }: { result: ExternalQueryResult; query: MarketplaceQuery }) {
+function EmptyState({ result, query, basePath }: { result: ExternalQueryResult; query: MarketplaceQuery; basePath: string }) {
   return (
     <div className="mp-state" role="status">
       <span className="label label--signal">NO RESULTS</span>
@@ -109,7 +109,7 @@ function EmptyState({ result, query }: { result: ExternalQueryResult; query: Mar
       <p className="mp-state__body">{result.note}</p>
       {query.search ? (
         <p className="mp-state__body">
-          <Link className="mp-state__reset" href={pageHref('/wordpress/plugins', { ...query, search: '' }, 1)}>
+          <Link className="mp-state__reset" href={pageHref(basePath, { ...query, search: '' }, 1)}>
             Clear the search and show the directory instead
           </Link>
         </p>
@@ -314,7 +314,7 @@ export function ExternalMarketplace({
       {isUnavailable ? (
         <UnavailableState result={result} basePath={basePath} query={query} />
       ) : result.state === 'empty' ? (
-        <EmptyState result={result} query={query} />
+        <EmptyState result={result} query={query} basePath={basePath} />
       ) : (
         <>
           <ul className="mp-grid">

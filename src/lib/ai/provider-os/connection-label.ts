@@ -1,18 +1,18 @@
-import type {ProviderProfile} from './types';
-export function providerConnectionLabel(profile?:ProviderProfile):string{
- if(!profile)return 'NOT_CONFIGURED';
- const c=profile.connection;
- if(!profile.enabled)return 'DISABLED';
- if(c.lastErrorCategory==='RATE_LIMIT')return 'RATE_LIMITED';
- if(c.lastErrorCategory==='QUOTA_EXCEEDED')return 'QUOTA_EXCEEDED';
- if(c.lastErrorCategory==='BILLING_REQUIRED')return 'BILLING_REQUIRED';
- if(c.lastErrorCategory==='PERMISSION_DENIED')return 'PERMISSION_DENIED';
- if(c.auth==='FAILED')return 'FAILED';
- if(c.auth==='AUTHENTICATED'&&c.discovery==='DISCOVERY_VERIFIED')return 'VERIFIED';
- if(c.auth==='AUTHENTICATED'&&c.discovery==='FAILED')return 'FAILED';
- if(c.auth==='AUTHENTICATED')return 'SAVED_UNTESTED';
- if(c.health==='BLOCKED')return 'UNAVAILABLE';
- if(c.health==='LOCAL_RUNTIME_UNAVAILABLE')return 'UNAVAILABLE';
- if(c.configuration==='CONFIGURED')return 'SAVED_UNTESTED';
- return 'NOT_CONFIGURED';
+import type { ProviderProfile } from './types';
+
+/** Connection evidence only. VERIFIED does not establish generation or streaming. */
+export function providerConnectionLabel(profile?: ProviderProfile): string {
+  if (!profile) return 'NOT_CONFIGURED';
+  const connection = profile.connection;
+  if (!profile.enabled) return 'DISABLED';
+  for (const category of ['RATE_LIMIT', 'QUOTA_EXCEEDED', 'BILLING_REQUIRED', 'PERMISSION_DENIED']) {
+    if (connection.lastErrorCategory === category) return category === 'RATE_LIMIT' ? 'RATE_LIMITED' : category;
+  }
+  if (connection.auth === 'FAILED' || connection.discovery === 'FAILED') return 'FAILED';
+  // Blocked facts must override retained successful authentication/discovery.
+  if (connection.health === 'BLOCKED' || connection.health === 'LOCAL_RUNTIME_UNAVAILABLE') return 'UNAVAILABLE';
+  if (connection.configuration !== 'CONFIGURED') return 'NOT_CONFIGURED';
+  if (connection.auth === 'AUTHENTICATED' && connection.discovery === 'DISCOVERY_VERIFIED') return 'VERIFIED';
+  if (connection.auth === 'AUTHENTICATED' || connection.configuration === 'CONFIGURED') return 'SAVED_UNTESTED';
+  return 'NOT_CONFIGURED';
 }
