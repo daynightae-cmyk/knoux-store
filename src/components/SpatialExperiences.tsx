@@ -75,9 +75,20 @@ export function ProjectRail() {
 export function MissionPath() {
   const [active, setActive] = useState(0);
   const selected = solutions[active];
+  // Selection follows a choice: click, tab focus or arrow keys. Pointer hover
+  // only highlights, exactly like the mission explorer on /solutions - an
+  // incidental mouse pass must not rewrite the shared focus panel.
   return <div className="mission-path spatial-surface" data-spatial>
     <div className="mission-path__line" aria-hidden="true" />
-    <nav className="mission-path__stations" aria-label="Choose a business mission">{solutions.map((solution, index) => <button key={solution.id} type="button" className={`mission-path__station ${active === index ? 'is-active' : ''}`} onClick={() => setActive(index)} onMouseEnter={() => setActive(index)} onFocus={() => setActive(index)} aria-pressed={active === index}><span className="mission-path__node" /><small>{solution.code}</small><strong>{solution.title}</strong></button>)}</nav>
+    <nav className="mission-path__stations" aria-label="Choose a business mission" onKeyDown={(event) => {
+      if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp' && event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+      event.preventDefault();
+      const delta = event.key === 'ArrowDown' || event.key === 'ArrowRight' ? 1 : -1;
+      const next = (active + delta + solutions.length) % solutions.length;
+      setActive(next);
+      const station = event.currentTarget.querySelectorAll<HTMLButtonElement>('.mission-path__station')[next];
+      station?.focus();
+    }}>{solutions.map((solution, index) => <button key={solution.id} type="button" className={`mission-path__station ${active === index ? 'is-active' : ''}`} onClick={() => setActive(index)} onFocus={() => setActive(index)} aria-pressed={active === index}><span className="mission-path__node" /><small>{solution.code}</small><strong>{solution.title}</strong></button>)}</nav>
     <div className="mission-path__focus" key={selected.id}><span className="label label--signal">MISSION {selected.index} / {selected.group.toUpperCase()}</span><h3>{selected.title}</h3><p>{selected.objective}</p><div className="mission-path__layers"><span>CORE LAYERS / {selected.core.map((layer) => layer.label).join(' · ')}</span><span>OPTIONAL / {selected.optional.length} PATHS</span></div><Link href={`/solutions/${selected.slug}`} className="action">EXPLORE THIS MISSION <span className="action-arrow">↗</span></Link></div>
   </div>;
 }

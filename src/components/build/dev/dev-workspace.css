@@ -313,6 +313,24 @@
 .dev-entry__lede { color: var(--text-dim); max-width: 680px; margin: 24px 0 42px; font-size: 15px; line-height: 1.6; }
 .dev-entry form { width: 100%; }
 .dev-entry__foot { display: flex; justify-content: space-between; gap: 20px; color: #aaa1b7; position: absolute; left: clamp(24px, 5vw, 64px); right: clamp(24px, 5vw, 64px); bottom: 32px; font: 10px var(--font-mono, monospace); letter-spacing: .13em; }
+
+/* The gate is the first thing a visitor meets, so it states what the
+   workspace will actually do with the sentence instead of presenting one input
+   in an empty frame. Both columns carry real, already-true behaviour. */
+.dev-entry__body { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: clamp(28px, 4vw, 64px); align-items: center; }
+.dev-entry__body form { align-self: center; width: 100%; }
+.dev-entry__starter-label { margin: 26px 0 12px; color: var(--muted); font: 10px var(--font-mono, monospace); letter-spacing: .12em; text-transform: uppercase; }
+.dev-entry__starters { display: flex; flex-wrap: wrap; gap: 8px; }
+.dev-entry__starters button { color: var(--text-dim); background: transparent; border: 1px solid var(--line); border-radius: 3px; padding: 9px 13px; font: 10px var(--font-mono, monospace); letter-spacing: .12em; cursor: pointer; transition: color .18s, border-color .18s, background .18s; }
+.dev-entry__starters button:hover { color: var(--text); border-color: var(--line-strong); background: #0e0f12; }
+.dev-entry__facts { display: grid; gap: 20px; margin: 0; padding: 26px 28px; border: 1px solid var(--line); background: var(--panel); }
+.dev-entry__facts > div { display: grid; gap: 7px; }
+.dev-entry__facts dt { color: var(--violet); font: 10px var(--font-mono, monospace); letter-spacing: .14em; text-transform: uppercase; }
+.dev-entry__facts dd { margin: 0; color: var(--text-dim); font-size: 13.5px; line-height: 1.68; }
+
+@media (max-width: 980px) {
+  .dev-entry__body { grid-template-columns: minmax(0, 1fr); gap: 30px; }
+}
 @media (max-width: 760px) {
   .dev-entry :is(h1,h2) { font-size: clamp(42px, 11vw, 68px); }
   .dev-entry__lede { margin: 20px 0 28px; }
