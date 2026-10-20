@@ -433,6 +433,16 @@
   line-height: 1.15;
 }
 
+/* The currency code reads as a unit beside the amount, not as part of it. */
+.ccMetricUnit {
+  font-family: var(--cc-mono);
+  font-size: 0.4em;
+  letter-spacing: 0.1em;
+  color: var(--cc-ink-4);
+  margin-right: 0.5em;
+  vertical-align: 0.55em;
+}
+
 .ccMetricValueAbsent {
   font-size: 13px;
   color: var(--cc-ink-4);

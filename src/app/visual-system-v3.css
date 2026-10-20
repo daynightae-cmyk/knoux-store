@@ -88,3 +88,28 @@ button:disabled{cursor:not-allowed}
 /* Transparent light, above opaque page backdrops and below navigation/dialogs.
    Tiny low-luminance points never intercept input or introduce a framed surface. */
 .store-starfield{position:fixed;inset:0;width:100%;height:100%;z-index:20;pointer-events:none;mix-blend-mode:screen;contain:strict}
+
+/* ── Home refinements (visual-singularity pass) ───────────────────────────── */
+
+/* Software records: the registry's own status and platform differentiate rows;
+   chips inherit the monospace metadata voice instead of inventing a surface. */
+.sys-field__record-meta{display:flex;align-items:center;flex-wrap:wrap;gap:10px;font:9px var(--mono);letter-spacing:.1em}
+.sys-field__record-meta>span{color:var(--dim)}
+.sys-field__fact{font:inherit;font-style:normal;color:#b4a6c9;border:1px solid #4a3f5c;border-radius:2px;padding:3px 7px;letter-spacing:.09em;white-space:nowrap}
+.sys-field__record[data-active="true"] .sys-field__fact{border-color:#8a71ad;color:#dccfe9}
+
+/* Mission stations: hover lifts, but selection is the only state that fills
+   the node and draws the connector - the focus panel follows a choice. */
+.mission-path__station:hover:not(.is-active){transform:translateX(4px);color:#c4bbcc}
+.mission-path__station:hover:not(.is-active) small{color:#b0a3bd}
+
+/* Division core reacts to an engaged wing without becoming a decoration. */
+.architecture-map[data-active]:not([data-active=""]) .architecture-map__core{border-color:#9a83b6;box-shadow:0 30px 60px #0006,0 0 46px #9a7cc233;transition:border-color .4s,box-shadow .4s}
+.architecture-map__core{transition:border-color .4s,box-shadow .4s}
+
+/* Closing institutional columns: the index and the underline are the motion. */
+.three-column>a{position:relative;padding-bottom:30px}
+.three-column>a::after{content:"";position:absolute;left:0;bottom:0;width:34px;height:1px;background:#b8a7cb45;transition:width var(--knoux-motion-state) var(--knoux-ease),background var(--knoux-motion-state)}
+.three-column>a:hover::after,.three-column>a:focus-visible::after{width:100%;background:#c7b4df}
+.three-column .column-arrow{transition:transform var(--knoux-motion-state) var(--knoux-ease)}
+.three-column>a:hover .column-arrow{transform:translate(5px,-5px)}

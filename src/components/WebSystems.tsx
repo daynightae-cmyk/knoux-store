@@ -82,7 +82,7 @@ export function CapabilityMatrix() {
         </div>
       </div>
 
-      <div className="matrix-scroll">
+      <div className="matrix-scroll" role="region" aria-label="Capabilities by division" tabIndex={0}>
         <table className="matrix">
           <caption className="visually-hidden">
             Capabilities against KNOuX divisions. A filled marker means the division delivers that capability.
@@ -155,7 +155,9 @@ function MatrixGroup({ group, items }: { group: string; items: Capability[] }) {
  */
 export function SystemsStudio({
   systems,
+  initialSystem,
 }: {
+  initialSystem?: string;
   systems: ReadonlyArray<{
     id: string;
     code: string;
@@ -171,13 +173,12 @@ export function SystemsStudio({
     qualifiers: string[];
   }>;
 }) {
-  // The system selector is deep-linkable, so URL state is read on first render
-  // rather than synchronised into state through an effect.
-  const [selected, setSelected] = useState(() => {
-    if (typeof window === 'undefined') return systems[0]?.slug ?? '';
-    const fromUrl = new URLSearchParams(window.location.search).get('system');
-    return fromUrl && systems.some((system) => system.slug === fromUrl) ? fromUrl : (systems[0]?.slug ?? '');
-  });
+  // Use the same request selection for server markup and the first client render.
+  const [selected, setSelected] = useState(() =>
+    initialSystem && systems.some((system) => system.slug === initialSystem)
+      ? initialSystem
+      : (systems[0]?.slug ?? ''),
+  );
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
