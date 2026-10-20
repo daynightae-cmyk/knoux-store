@@ -59,10 +59,10 @@ test('anonymous boundary has one PUBLIC_READ tool, no provider/private actions, 
   assert.equal(GET(new Request(`${base}?tool=run_local_readonly_tool`)).status, 403);
   assert.equal(GET(new Request(base, { headers: { origin: 'https://evil.example' } })).status, 403);
   assert.equal(GET(new Request(base, { headers: { 'content-length': '4096' } })).status, 413);
-  for (let n = 1; n < 30; n++) assert.equal(GET(new Request(base)).status, 200);
+  for (let n = 1; n < 120; n++) assert.equal(GET(new Request(base)).status, 200);
   assert.equal(GET(new Request(base)).status, 429);
   resetRateLimits();
-  for (let n = 0; n < 300; n++) assert.equal(GET(new Request(base, { headers: { 'x-forwarded-for': `claimed-${n}` } })).status, 200);
+  for (let n = 0; n < 1200; n++) assert.equal(GET(new Request(base, { headers: { 'x-forwarded-for': `claimed-${n}` } })).status, 200);
   assert.equal(GET(new Request(base, { headers: { 'x-forwarded-for': 'fresh-spoof' } })).status, 429);
   const source = readFileSync(new URL('../src/app/api/sentinel/catalog/route.ts', import.meta.url), 'utf8');
   assert.doesNotMatch(source, /from.*(?:\/ai\/|supabase|relay|gateway)/);
