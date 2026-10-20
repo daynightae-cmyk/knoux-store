@@ -3,7 +3,7 @@ polars==1.9.0
 pydantic==2.9.2
 PyYAML==6.0.2
 tenacity==9.0.0
-phonenumbers==8.13.45
+phonenumbers==9.0.41
 python-dotenv==1.2.2
 pyarrow==18.1.0
 osmium==4.3.1
