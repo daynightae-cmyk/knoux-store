@@ -264,7 +264,7 @@ const fileClusters: MotifPainter = (context, cx, cy, r, t, alpha) => {
     context.stroke();
 
     for (let item = 0; item < perLane; item += 1) {
-      const share = perLane <= 1 ? 0 : item / (perLane - 1);
+      const share = item / (perLane - 1);
       const seed = lane * 97 + item * 13;
       const wander = Math.sin(seed) * r * 0.5;
       const breathe = Math.sin(t * 0.4 + seed * 0.3) * r * 0.02;

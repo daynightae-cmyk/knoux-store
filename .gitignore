@@ -101,6 +101,9 @@ node_modules*/
 
 # The Build control inventory generator is a maintained audit entrypoint.
 !/scripts/build-controls.mjs
+
+# The public asset budget is a maintained audit entrypoint.
+!/scripts/public-assets.mjs
 /build-test-output.log
 /bridge/bridge-test-output.log
 

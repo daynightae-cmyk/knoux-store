@@ -19,6 +19,7 @@
     "audit:dead": "knip",
     "audit:controls": "node scripts/build-controls.mjs",
     "audit:css-integrity": "node scripts/css-integrity.mjs",
+    "audit:assets": "node scripts/public-assets.mjs",
     "audit:visual-v4": "node scripts/visual-v4-capture.mjs after",
     "verify": "npm run lint && npm run typecheck && npm run build && npm run audit:css-integrity && npm test"
   },
@@ -50,7 +51,7 @@
     "c8": "^10.1.3",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.8",
-    "knip": "^5.88.1",
+    "knip": "^6.42.1",
     "typescript": "~5.9"
   }
 }

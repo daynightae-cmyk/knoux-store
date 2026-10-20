@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { describeCapabilities } from '@/lib/growth/connectors/boundary';
 import { resolveAll, summariseCapabilities, requiredEnvNames } from '@/lib/growth/connectors/registry';
-import { growthAuthEnforced } from '@/lib/growth/auth/enforcement';
+import { growthAgentBoundaryRequired } from '@/lib/growth/auth/enforcement';
 import { guardGrowth } from '@/lib/growth/auth/session';
 
 export const dynamic = 'force-dynamic';
@@ -18,7 +18,7 @@ export const dynamic = 'force-dynamic';
  * this endpoint safe to expose. Only presence counts and env var names leave.
  */
 export async function GET(request: Request) {
-  if (growthAuthEnforced()) {
+  if (growthAgentBoundaryRequired()) {
     const guard = await guardGrowth({ permission: 'connection.view', clientId: new URL(request.url).searchParams.get('clientId') ?? undefined });
     if (!guard.ok) {
       return NextResponse.json(
