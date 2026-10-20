@@ -13,20 +13,11 @@ import { BridgeProjectAdapter } from './bridge-adapter';
 import type { Handshake } from './bridge-protocol';
 import {
   ENVIRONMENT_LABELS,
-  environmentLabel,
-  isEnvironmentName,
   resolveDeploymentEnvironment,
 } from './deployment';
-import type { EnvironmentName } from './deployment';
 import type { ProjectAdapter } from './types';
 
-export {
-  ENVIRONMENT_LABELS,
-  environmentLabel,
-  isEnvironmentName,
-  resolveDeploymentEnvironment,
-};
-export type { EnvironmentName };
+export { resolveDeploymentEnvironment };
 
 export interface CreateAdapterOptions {
   root?: string;

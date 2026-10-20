@@ -47,4 +47,4 @@ export type DomainProvider = {
   suggest(input: string): Promise<string[]>;
 };
 
-export type { DomainAvailability, DomainCheck, DomainState, Money } from './shared';
+export type { DomainCheck } from './shared';

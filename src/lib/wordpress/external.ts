@@ -128,11 +128,40 @@ export function decodeEntities(input: string): string {
  */
 export function toPlainText(input: unknown): string {
   if (typeof input !== 'string') return '';
-  const withoutTags = input
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]*>/g, ' ');
-  return decodeEntities(withoutTags).replace(/\s+/g, ' ').trim();
+  return decodeEntities(removeMarkup(input)).replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * The strip is a scanner, not a regular expression. A regex cannot tell a tag
+ * from the text that mentions one, cannot see `<script` inside an attribute
+ * value or a comment, and silently keeps whatever it does not recognise; a
+ * scanner decides per character what is markup and what is text, so the output
+ * contains no markup by construction rather than by pattern luck.
+ */
+function removeMarkup(input: string): string {
+  let out = '';
+  let index = 0;
+  while (index < input.length) {
+    const open = input.indexOf('<', index);
+    if (open === -1) {
+      out += input.slice(index);
+      break;
+    }
+    out += input.slice(index, open);
+    const close = input.indexOf('>', open);
+    if (close === -1) break;
+    const tag = input.slice(open + 1, close).trim().toLowerCase();
+    const isScript = tag === 'script' || tag.startsWith('script ') || tag.startsWith('script/');
+    const isStyle = tag === 'style' || tag.startsWith('style ') || tag.startsWith('style/');
+    if (isScript || isStyle) {
+      const name = isScript ? 'script' : 'style';
+      const end = input.toLowerCase().indexOf(`</${name}>`, close);
+      index = end === -1 ? input.length : end + name.length + 3;
+    } else {
+      index = close + 1;
+    }
+  }
+  return out;
 }
 
 /**

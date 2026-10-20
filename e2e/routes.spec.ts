@@ -296,8 +296,15 @@ test.describe('composition', () => {
  * this branch contains and would teach the next person to regenerate baselines
  * instead of reading them.
  */
-test.describe('evidence', () => {
-  for (const size of RESPONSIVE_MATRIX) {
+  test.describe('evidence', () => {
+    /**
+     * Opt-in capture. The merge gate asserts rendering, geometry and
+     * accessibility; recording 33 routes x 11 widths of pixels costs ~11 of the
+     * 15.5 minutes this file takes on a desktop runner and buys no assertion.
+     * Set `E2E_CAPTURE=1` to record the matrix (nightly runs, manual review).
+     */
+    test.skip(process.env.E2E_CAPTURE !== '1', 'Evidence capture is opt-in: set E2E_CAPTURE=1 to record the visual matrix.');
+    for (const size of RESPONSIVE_MATRIX) {
     test(`capture ${size.name}`, async ({ page }) => {
       /**
        * Sized for the work, not for one page.

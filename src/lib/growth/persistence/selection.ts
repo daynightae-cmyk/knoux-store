@@ -22,7 +22,6 @@ import 'server-only';
 import {
   FixtureGrowthRepository,
   SupabaseGrowthRepository,
-  type FixtureDataset,
   type GrowthRepository,
   type RepositoryFailure,
   type SupabaseLike,
@@ -146,5 +145,3 @@ export function refusalMessage(failure: RepositoryFailure, detail?: string): str
       return 'Growth data source state: UNAVAILABLE. Fixtures were not substituted.';
   }
 }
-
-export type { FixtureDataset };
