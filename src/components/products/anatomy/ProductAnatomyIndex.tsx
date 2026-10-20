@@ -23,7 +23,7 @@ export function ProductAnatomyIndex({ nodes, selectedNodeId, hoveredNodeId, onNo
   const onKeyDown = (event: React.KeyboardEvent<HTMLUListElement>) => {
     const buttons = Array.from(listRef.current?.querySelectorAll<HTMLButtonElement>('button') ?? []);
     const current = buttons.indexOf(document.activeElement as HTMLButtonElement);
-    let next = current;
+    let next: number;
     if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (current + 1) % buttons.length;
     else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = (current - 1 + buttons.length) % buttons.length;
     else if (event.key === 'Home') next = 0;

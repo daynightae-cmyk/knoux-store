@@ -537,7 +537,7 @@ export function AtelierLab() {
 
       {/* CENTER — Canvas 2D material field */}
       <div className="atelier-lab__field">
-        <Image src="/creative/material-study-v2.png" alt="An illustrative studio composition of ivory sculpture, smoked glass, photographic frames and film strips." fill sizes="(max-width: 768px) 100vw, 60vw" className="atelier-lab__art" />
+        <Image src="/creative/material-study-v2.webp" alt="An illustrative studio composition of ivory sculpture, smoked glass, photographic frames and film strips." fill sizes="(max-width: 768px) 100vw, 60vw" className="atelier-lab__art" />
         <canvas
           ref={canvasRef}
           className="atelier-lab__canvas"

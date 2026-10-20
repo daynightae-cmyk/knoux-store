@@ -73,7 +73,7 @@ export function ExecutionSpine({ progress, activeStage, stageAvailable, onProgre
     (event: React.KeyboardEvent<HTMLDivElement>) => {
       const current = STAGES.findIndex((stage) => stage.id === activeStage);
       const last = STAGES.length - 1;
-      let next = current;
+      let next: number;
       if (event.key === 'ArrowDown' || event.key === 'ArrowRight') next = current + 1;
       else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') next = current - 1;
       else if (event.key === 'Home') next = 0;
