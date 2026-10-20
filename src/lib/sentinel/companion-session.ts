@@ -4,7 +4,11 @@ import { clientAddress,rateLimit } from '@/lib/http/rate-limit';
 
 export function companionReady(env: NodeJS.ProcessEnv=process.env) {return env.KNOUX_COMPANION_ENABLED==='true' && !!env.KNOUX_COMPANION_SESSION_SECRET && !!(env.GEMINI_API_KEY || env.GOOGLE_GENERATIVE_AI_API_KEY);}
 export function companionOrigin(request: Request) {
-  const url=new URL(request.url),expected=process.env.KNOUX_COMPANION_ORIGIN??url.origin;
+  const url=new URL(request.url),host=request.headers.get('x-forwarded-host')??request.headers.get('host');
+  const protocol=request.headers.get('x-forwarded-proto')??url.protocol.replace(':','');
+  // Next may rebuild request.url against an internal host during `next start`,
+  // so the authoritative origin is the one the browser addressed.
+  const expected=process.env.KNOUX_COMPANION_ORIGIN??(host?`${protocol}://${host}`:url.origin);
   return request.headers.get('origin')===expected && !['cross-site','same-site'].includes(request.headers.get('sec-fetch-site')??'') && !url.search;
 }
 export function companionCookie(request: Request) {return new URL(request.url).protocol==='https:'?'__Host-knoux-companion':'knoux-companion';}
