@@ -1,0 +1,26 @@
+{
+  "kind": "EXPLICIT CONTRACT FIXTURE — UI only, no live provider proof",
+  "viewport": {
+    "width": 1366,
+    "height": 768
+  },
+  "screenshots": [
+    "references/provider-os/qa/1366x768/center.png",
+    "references/provider-os/qa/1366x768/overview.png",
+    "references/provider-os/qa/1366x768/profiles-&-limits.png",
+    "references/provider-os/qa/1366x768/credentials.png",
+    "references/provider-os/qa/1366x768/models.png",
+    "references/provider-os/qa/1366x768/capabilities.png",
+    "references/provider-os/qa/1366x768/routing.png",
+    "references/provider-os/qa/1366x768/usage.png",
+    "references/provider-os/qa/1366x768/diagnostics.png",
+    "references/provider-os/qa/1366x768/connection-wizard.png",
+    "references/provider-os/qa/1366x768/cli-&-args.png",
+    "references/provider-os/qa/1366x768/environment.png",
+    "references/provider-os/qa/1366x768/permissions.png",
+    "references/provider-os/qa/1366x768/mcp.png",
+    "references/provider-os/qa/1366x768/plugins.png",
+    "references/provider-os/qa/1366x768/skills.png"
+  ],
+  "noHorizontalOverflow": true
+}

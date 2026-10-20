@@ -129,7 +129,10 @@ test('pointer mascot remains decorative and normal page clicks work; unavailable
 test('motion is bounded, pauses when hidden, honors reduced motion and leaves layout stable', async ({ browser, page }, info) => {
   const folder = `qa/continuation/motion-${process.env.KNOUX_CAPTURE_ID ?? 'local'}`;
   mkdirSync(folder, { recursive: true });
-  const context = await browser.newContext({ baseURL: info.project.use.baseURL, viewport: page.viewportSize()!, reducedMotion: 'no-preference', isMobile: info.project.name === 'mobile', hasTouch: info.project.name === 'mobile', recordVideo: { dir: folder, size: { width: 960, height: 600 } } });
+  // Video evidence needs Playwright's ffmpeg binary. The assertion below reads
+  // live geometry, so recording is opt-in rather than a hard requirement.
+  const recordVideo = process.env.KNOUX_RECORD_VIDEO === '1' ? { dir: folder, size: { width: 960, height: 600 } } : undefined;
+  const context = await browser.newContext({ baseURL: info.project.use.baseURL, viewport: page.viewportSize()!, reducedMotion: 'no-preference', isMobile: info.project.name === 'mobile', hasTouch: info.project.name === 'mobile', recordVideo });
   const motion = await context.newPage();
   const started = performance.now();
   await motion.goto('/contact');
