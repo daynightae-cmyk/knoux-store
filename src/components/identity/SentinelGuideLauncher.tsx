@@ -22,6 +22,25 @@ const launcherLabel: Record<LanguageId, string> = {
   ar: 'افتح دليل Sentinel',
   ur: 'Sentinel رہنما کھولیں',
 };
+/**
+ * The published catalog is identical for every page of a deployment, so a tab
+ * fetches it once and reuses it across full navigations. Before this the guide
+ * refetched per page view, which both wasted a request per navigation and
+ * exhausted the public endpoint's per-address ceiling during browsing bursts.
+ */
+const catalogCacheKey='knoux-sentinel-catalog-v1';
+function loadCatalog():Promise<GuideEntry[]> {
+  try {
+    const cached=sessionStorage.getItem(catalogCacheKey);
+    if(cached){const parsed=JSON.parse(cached) as {expires:number;entries:GuideEntry[]};if(parsed.expires>Date.now())return Promise.resolve(parsed.entries);}
+  } catch {}
+  return fetch('/api/sentinel/catalog',{credentials:'omit'}).then(async result=>{
+    if(!result.ok)throw new Error(`catalog ${result.status}`);
+    const entries=(await result.json()).entries as GuideEntry[];
+    try { sessionStorage.setItem(catalogCacheKey,JSON.stringify({expires:Date.now()+300000,entries})); } catch {}
+    return entries;
+  });
+}
 export function SentinelGuideLauncher() {
   const pathname=usePathname();
   const preferences=JSON.parse(useSyncExternalStore(subscribeSentinelQuiet,sentinelPreferenceSnapshot,sentinelServerSnapshot));
@@ -47,9 +66,9 @@ export function SentinelGuideLauncher() {
     observer.observe(toggle,{attributes:true,attributeFilter:['aria-expanded']});return ()=>observer.disconnect();
   },[stop]);
   useEffect(()=>{
-    const controller=new AbortController();
-    fetch('/api/sentinel/catalog',{credentials:'omit',signal:controller.signal}).then(async result=>{if(result.ok)setCatalog((await result.json()).entries);}).catch(()=>{});
-    return ()=>controller.abort();
+    let alive=true;
+    loadCatalog().then(entries=>{if(alive)setCatalog(entries);}).catch(()=>{});
+    return ()=>{alive=false;};
   },[]);
   useEffect(()=>{
     if(priorOpen.current && !open)document.querySelector<HTMLButtonElement>('.ks-trigger,[data-sentinel-fallback]')?.focus();
