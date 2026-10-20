@@ -1,6 +1,7 @@
 'use client';
 
-import { useSiteCopy } from '@/components/i18n/SiteLanguage';
+import { useSiteLanguage } from '@/lib/i18n/use-language';
+import { translatedSiteCopy } from '@/lib/i18n/site-copy';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -48,7 +49,7 @@ function displacement(from: Point, to: Point): Point {
 }
 
 export function ProductUniverse() {
-  const t = useSiteCopy();
+  const language = useSiteLanguage(), t = (text: string) => translatedSiteCopy(text, language);
   const router = useRouter();
   const params = useSearchParams();
   const queryParam = params.get('q') ?? '';

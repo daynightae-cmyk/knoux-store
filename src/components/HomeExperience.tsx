@@ -8,7 +8,8 @@ import { QualityControl } from '@/components/QualityControl';
 import { RevealGroup } from '@/components/blocks';
 import { ArchitecturalMap, MissionPath } from '@/components/SpatialExperiences';
 import { HomeSoftwareField } from '@/components/HomeSoftwareField';
-import { useSiteCopy } from '@/components/i18n/SiteLanguage';
+import { useSiteLanguage } from '@/lib/i18n/use-language';
+import { translatedSiteCopy } from '@/lib/i18n/site-copy';
 
 const LivingParticleMark = dynamic(
   () => import('@/components/three/LivingParticleMark').then((m) => m.LivingParticleMark),
@@ -24,7 +25,7 @@ const LivingParticleMark = dynamic(
  * only as a signal.
  */
 export function HomeExperience() {
-  const t = useSiteCopy();
+  const language = useSiteLanguage(), t = (text: string) => translatedSiteCopy(text, language);
   const [progress, setProgress] = useState(0);
   const [settled, setSettled] = useState(false);
 

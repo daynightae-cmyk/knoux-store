@@ -1,7 +1,12 @@
-import type { GuideLanguage } from '@/lib/sentinel/languages';
+import { translationSlot, type SiteLanguage } from '@/lib/i18n/languages';
 
 // Product names, technical identifiers and provider facts remain unchanged.
 // Missing editorial translations are explicit English fallbacks, not AI output.
+//
+// Recovered from the unmerged `codex/knoux-dev-completion` branch. The catalogue
+// body below is byte-identical to that source; only the language import and the
+// slot lookup were rewired to `@/lib/i18n/languages`, so public-site
+// translation does not depend on the Sentinel Companion module.
 export const SITE_COPY: Record<string, readonly [string, string]> = {
   'Software': ['البرمجيات', 'سافٹ ویئر'], 'Web': ['الويب', 'ویب'], 'Growth': ['النمو', 'ترقی'],
   'Creative': ['الإبداع', 'تخلیق'], 'Solutions': ['الحلول', 'حل'], 'Build': ['البناء', 'تعمیر'],
@@ -98,7 +103,7 @@ export const SITE_COPY: Record<string, readonly [string, string]> = {
   'Meta Advertising': ['إعلانات Meta', 'میٹا اشتہارات'], 'Social Media': ['وسائل التواصل الاجتماعي', 'سوشل میڈیا'],
   'Content Systems': ['أنظمة المحتوى', 'مواد کے نظام'], 'SEO & Discoverability': ['SEO وقابلية الاكتشاف', 'SEO اور دریافت پذیری'],
   'Signal': ['سيجنال', 'سیگنل'], 'Universe': ['الكون', 'کائنات'], 'Ledger': ['السجل', 'رجسٹر'],
-  'Composer': ['المؤلّف', 'کمپوزر'], 'Bundles': ['الحزم', 'بندلز'], 'Systems Studio': ['استوديو الأنظمة', 'سسٹم اسٹوڈیو'],
+  'Composer': ['Composer', 'کمپوزر'], 'Bundles': ['الحزم', 'بندلز'], 'Systems Studio': ['استوديو الأنظمة', 'سسٹم اسٹوڈیو'],
   'Capability Matrix': ['مصفوفة القدرات', 'صلاحیت میٹرکس'], 'Command Center': ['مركز القيادة', 'کمانڈ سینٹر'],
   'Google Ads': ['إعلانات Google', 'گوگل ایڈز'], 'Meta Ads': ['إعلانات Meta', 'میٹا ایڈز'],
   'Social': ['اجتماعي', 'سوشل'], 'Content': ['المحتوى', 'مواد'], 'SEO': ['تحسين محركات البحث', 'SEO'],
@@ -237,8 +242,26 @@ export const SITE_COPY: Record<string, readonly [string, string]> = {
   "Check bridge connection": ["فحص اتصال الجسر", "برج کنکشن چیک کریں"],
 };
 const keys = new Map(Object.keys(SITE_COPY).map(key => [key.toLowerCase(), key]));
-export function translatedSiteCopy(source: string, language: GuideLanguage): string {
+
+/**
+ * Resolve an English source string to its catalogue key.
+ *
+ * Matching is case-insensitive so a rendered label matches its dictionary key
+ * regardless of the casing a component happened to use. Returns undefined for
+ * anything untranslated, including every product name, model id, env var and
+ * provider fact, which callers answer by returning the source untouched.
+ */
+function resolveKey(source: string): string | undefined {
+  return keys.get(source.toLowerCase());
+}
+
+export function translatedSiteCopy(source: string, language: SiteLanguage): string {
   if (language === 'en') return source;
-  const key = keys.get(source.toLowerCase());
-  return key ? SITE_COPY[key][language === 'ar' ? 0 : 1] : source;
+  const key = resolveKey(source);
+  return key ? SITE_COPY[key][translationSlot(language)] : source;
+}
+
+/** True when `source` has an authored translation in any shipped language. */
+export function hasSiteCopy(source: string): boolean {
+  return resolveKey(source) !== undefined;
 }
