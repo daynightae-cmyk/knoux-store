@@ -167,6 +167,13 @@ jobs:
         timeout-minutes: 2
         run: google-chrome --version
 
+      # Video evidence is rendered by Playwright's own ffmpeg build. Without it
+      # a recorded context cannot open a page, which fails the spec that
+      # captures the motion proof.
+      - name: Install the Playwright ffmpeg binary
+        timeout-minutes: 5
+        run: npx playwright install ffmpeg
+
       # Evidence capture is opt-in: the merge gate asserts rendering, geometry
       # and accessibility. Set E2E_CAPTURE=1 to record the visual matrix
       # (nightly runs, manual verification).
@@ -174,6 +181,7 @@ jobs:
         run: npx playwright test --project=${{ matrix.project }} --workers=1 --reporter=list
         env:
           KNOUX_E2E_BROWSER_CHANNEL: chrome
+          KNOUX_RECORD_VIDEO: '1'
 
       - name: Upload visual evidence
         if: always()
