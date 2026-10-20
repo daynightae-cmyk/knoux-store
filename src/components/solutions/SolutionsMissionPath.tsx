@@ -44,10 +44,10 @@ export function SolutionsMissionPath({ missions }: { missions: MissionRecord[] }
     <div className={`mission-path ${styles.path}`}>
       <nav className={styles.missions} aria-label="Choose a business mission">
         <p className={styles.label}>01 / CHOOSE THE NEED</p>
-        {missions.map((mission, index) => <button className={`mission-path__station ${styles.station}`} key={mission.id} type="button" aria-pressed={index === active} aria-controls="solution-handoff" ref={node => { buttons.current[index] = node; }} onClick={() => select(index)} onFocus={() => select(index)} onKeyDown={event => navigate(event, index)}><span className={styles.node} aria-hidden="true" /><small>{mission.code}</small><strong>{mission.title}</strong></button>)}
+        {missions.map((mission, index) => <button className={`mission-path__station ${styles.station}`} key={mission.id} data-knoux-context={`/solutions/${mission.slug}`} type="button" aria-pressed={index === active} aria-controls="solution-handoff" ref={node => { buttons.current[index] = node; }} onClick={() => select(index)} onFocus={() => select(index)} onMouseEnter={() => select(index)} onKeyDown={event => navigate(event, index)}><span className={styles.node} aria-hidden="true" /><small>{mission.code}</small><strong>{mission.title}</strong></button>)}
       </nav>
 
-      <section id="solution-handoff" className={styles.handoff} aria-labelledby="selected-mission-title">
+      <section id="solution-handoff" data-knoux-context={`/solutions/${selected.slug}`} className={styles.handoff} aria-labelledby="selected-mission-title">
         <header className={styles.need}>
           <span className={styles.label}>MISSION {selected.index} / {selected.group.toUpperCase()}</span>
           <h3 id="selected-mission-title">{selected.title}</h3><p>{selected.objective}</p>

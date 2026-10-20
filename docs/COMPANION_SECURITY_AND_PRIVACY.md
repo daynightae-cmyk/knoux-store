@@ -1,0 +1,11 @@
+# Public companion boundary
+
+PASS: public requests cannot invoke local filesystem, PowerShell, Git, MCP, private tools, Bridge endpoints or the private KNOuX Agent. Knowledge uses only published title/summary/status/route records under existing Supabase RLS. Existing public site settings do not supply secret configuration. Field descriptors are allowed; form values and DOM HTML are rejected.
+
+The server uses a 30-minute signed opaque HttpOnly, SameSite=Strict visitor cookie, Secure with a `__Host-` name on HTTPS. This is an abuse identifier, not owner authentication. Exact-origin checks, issuance limits, request/body bounds, a five-second stalled-body timeout, request deduplication, warm-process rate ceilings, pre-inference budget reservation, a 40-second generation deadline and abort propagation bound access. Errors and server logs are sanitized; questions and secrets are not logged. Rendering is plain text; navigation comes from server-approved catalog IDs.
+
+The knowledge reader uses the publishable key. Only the deployment budget RPC may use a server-side service-role key. Client code contains neither Gemini credentials nor a service-role client. No microphone permission or speech autoplay is requested. Optional browser speech remains user initiated and is cancelled by navigation/quiet controls.
+
+Read-only production SQL on 2026-10-14 returned NULL for both `to_regclass('public.companion_budget')` and `to_regprocedure('public.reserve_companion_budget(text,integer)')` in project `cnkddxxhcfceokxzaaot`. No migration was applied. `security/sentinel/companion-budget.sql` is a review artifact with RLS, revoked anonymous privileges, a fixed reservation amount and ordered global/session updates. Isolated PGlite tests verified concurrent submitted calls, 40/session, 200/global and 600,000 micro-USD limits, plus anonymous denial. PGlite serializes transactions: this is not a claim of tested distributed Postgres locking under multiple hosts. That deployment check remains required before public activation.
+
+Historical relay ownership checks passed offline for the protected D/K Gateway copies. They do not establish safe public Gateway ingress or deployed IAM. Private Agent/Gateway access remains isolated; no public integration was added or authorized.

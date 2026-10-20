@@ -1,0 +1,13 @@
+# Existing Sentinel continuation
+
+Authority: `C:\Users\day night\.codex\worktrees\sentinel-visitor-guide`, branch `codex/sentinel-visitor-guide`, starting and unchanged HEAD `5bce934aaf3a020ba830288136d72419f58fdd89`. Changes remain uncommitted and unstaged. The K Store Base, D originals, previous archives, private Agent and Gateway were not edited by this continuation.
+
+The original `KnouxSentinel` SVG remains the character. One `SentinelGuideLauncher` owns it in the shared layout. Pointer movement drives the local bounded spring, not inference. Mobile uses a fixed dock. Quiet, reduced-motion and document visibility pause motion. A small nonmodal thought bubble receives actual Gemini deltas; explicit Sources & settings opens the existing bilingual accessible guide dialog. Proactive bubbles pass ordinary pointer interactions through their surface.
+
+The context observer sends allowlisted route/entity IDs, approved section IDs or contact field descriptors after dwell. It does not scrape page HTML, read form values, follow the cursor over the network or send workstation context. Long sections are observed through headings where available. The Engineering dossier anchor was corrected without changing its visual layout.
+
+The server authenticates an opaque signed visitor session, validates exact origin and bounded input, reserves budget before inference, reads a narrow published Supabase catalog using the anonymous publishable client, then streams the existing `GeminiAdapter` transport. Software product context additionally projects bounded statements, documented release status and limitations from the same approved `softwareProducts` registry used by the product pages. Catalog visibility is explicitly separate from release maturity. This corrected a verified overgeneralization of Clipboard AI's release-candidate state. Published bundled metadata is an honest catalog fallback, not a fabricated AI answer. There is no provider fallback or private-agent execution path.
+
+D/K authority was established before editing: the active C worktree contained the Git implementation; the K migrated Sentinel folder was a non-Git snapshot with 11 checked files matching the prior C implementation. R1 `K:\Knoux Projects\Backups\R1-Preservation\R1-20261013-055841` was verified. The later living checkpoint `K:\Knoux Projects\Backups\Sentinel-Living-Correction-20261013-a2621bebea` verified 243 hashes. `qa/companion/pre-ai-1791911173` protects the immediate pre-AI source, status and patch. These are historical checkpoints; the final review manifest identifies the latest unpublished files.
+
+No new mascot, project, global starfield or global visual system was introduced.

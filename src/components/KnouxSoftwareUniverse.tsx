@@ -108,10 +108,10 @@ export function KnouxSoftwareUniverse() {
             <h2 className="ksu-title">Navigate by intent.</h2>
             <p className="ksu-body">The ten visual identities resolve to real destinations: seven product dossiers, Signal, and two explicitly labelled Labs records.</p>
             <div className="ksu-cats" role="navigation" aria-label="Software universe clusters">
-              <button className="ksu-cat" type="button" data-ksu-product="0"><span className="ksu-cat-n">01</span><span className="ksu-cat-t">CONTROL</span></button>
-              <button className="ksu-cat" type="button" data-ksu-product="3"><span className="ksu-cat-n">02</span><span className="ksu-cat-t">ORGANIZE</span></button>
-              <button className="ksu-cat" type="button" data-ksu-product="4"><span className="ksu-cat-n">03</span><span className="ksu-cat-t">CREATE</span></button>
-              <button className="ksu-cat" type="button" data-ksu-product="9"><span className="ksu-cat-n">04</span><span className="ksu-cat-t">RESEARCH</span></button>
+              <button className="ksu-cat" type="button" data-knoux-context={softwareUniverseProducts[0].route} data-ksu-product="0"><span className="ksu-cat-n">01</span><span className="ksu-cat-t">CONTROL</span></button>
+              <button className="ksu-cat" type="button" data-knoux-context={softwareUniverseProducts[3].route} data-ksu-product="3"><span className="ksu-cat-n">02</span><span className="ksu-cat-t">ORGANIZE</span></button>
+              <button className="ksu-cat" type="button" data-knoux-context={softwareUniverseProducts[4].route} data-ksu-product="4"><span className="ksu-cat-n">03</span><span className="ksu-cat-t">CREATE</span></button>
+              <button className="ksu-cat" type="button" data-knoux-context={softwareUniverseProducts[9].route} data-ksu-product="9"><span className="ksu-cat-n">04</span><span className="ksu-cat-t">RESEARCH</span></button>
             </div>
           </div>
         </section>
@@ -120,7 +120,7 @@ export function KnouxSoftwareUniverse() {
           <span className="ksu-num">KNOuX / 10 IDENTITIES</span>
           <h2 className="ksu-close-title">Pick the tool.<br />Keep the system.</h2>
           <p className="ksu-close-sub">KNOuX software universe / recovered 2026</p>
-          <button className="ksu-cta ksu-mag" type="button" data-ksu-product="0"><span>Return to KNOUX ONE</span></button>
+          <button className="ksu-cta ksu-mag" type="button" data-knoux-context={softwareUniverseProducts[0].route} data-ksu-product="0"><span>Return to KNOUX ONE</span></button>
           <div className="ksu-micro"><span>Sadek Elgazar</span><span>Software universe / 2026</span></div>
         </section>
       </div>

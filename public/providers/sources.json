@@ -1,0 +1,99 @@
+[
+  {
+    "id": "openai",
+    "title": "OpenAI",
+    "source": "Simple Icons CC0-1.0 (simple-icons/icons/openai.svg)",
+    "license": "CC0-1.0; trademarks remain with owners"
+  },
+  {
+    "id": "anthropic",
+    "title": "Anthropic",
+    "source": "Simple Icons CC0-1.0 (simple-icons/icons/anthropic.svg)",
+    "license": "CC0-1.0; trademarks remain with owners",
+    "recolor": "Monochrome mark retinted from #191919 to #F0EBE3 so it stays legible on the dark workspace card (#10121c). Path geometry is unmodified."
+  },
+  {
+    "id": "gemini",
+    "title": "Google Gemini",
+    "source": "Simple Icons CC0-1.0 (simple-icons/icons/googlegemini.svg)",
+    "license": "CC0-1.0; trademarks remain with owners"
+  },
+  {
+    "id": "google",
+    "title": "Google",
+    "source": "Simple Icons CC0-1.0 (simple-icons/icons/google.svg)",
+    "license": "CC0-1.0; trademarks remain with owners"
+  },
+  {
+    "id": "openrouter",
+    "title": "OpenRouter",
+    "source": "Simple Icons CC0-1.0 (simple-icons/icons/openrouter.svg)",
+    "license": "CC0-1.0; trademarks remain with owners"
+  },
+  {
+    "id": "deepseek",
+    "title": "DeepSeek",
+    "source": "Simple Icons CC0-1.0 (simple-icons/icons/deepseek.svg)",
+    "license": "CC0-1.0; trademarks remain with owners"
+  },
+  {
+    "id": "mistral",
+    "title": "Mistral AI",
+    "source": "Simple Icons CC0-1.0 (simple-icons/icons/mistralai.svg)",
+    "license": "CC0-1.0; trademarks remain with owners"
+  },
+  {
+    "id": "ollama",
+    "title": "Ollama",
+    "source": "https://github.com/ollama/ollama/issues/2152#issuecomment-1905286922",
+    "license": "Simple Icons CC0-1.0; trademarks remain with owners"
+  },
+  {
+    "id": "qwen",
+    "title": "Qwen",
+    "source": "Simple Icons CC0-1.0 (simple-icons/icons/qwen.svg)",
+    "license": "CC0-1.0; trademarks remain with owners"
+  },
+  {
+    "id": "copilot",
+    "title": "GitHub Copilot",
+    "source": "https://primer.style/foundations/icons/copilot-24",
+    "license": "Simple Icons CC0-1.0; trademarks remain with owners",
+    "recolor": "Monochrome mark retinted from #000000 to #EDE9F4 so it stays legible on the dark workspace card (#10121c). Path geometry is unmodified."
+  },
+  {
+    "id": "opencode",
+    "title": "OpenCode",
+    "source": "https://github.com/anomalyco/opencode/blob/1251a870cb384543c150c4a72fb101b55eec971b/packages/identity/mark.svg",
+    "license": "Simple Icons CC0-1.0; trademarks remain with owners",
+    "recolor": "Monochrome mark retinted from #000000 to #EDE9F4 so it stays legible on the dark workspace card (#10121c). Path geometry is unmodified."
+  },
+  {
+    "id": "groq",
+    "title": "Groq",
+    "source": null,
+    "license": "NO_OFFICIAL_CC0_MARK_AVAILABLE",
+    "note": "No official Simple Icons entry exists for Groq. ProviderBrand renders no image and the gallery falls back to the provider name. No invented logo is substituted."
+  },
+  {
+    "id": "grok",
+    "title": "Grok",
+    "source": null,
+    "license": "NO_OFFICIAL_CC0_MARK_AVAILABLE",
+    "note": "Reached through OpenRouter as a transport. That is a routing fact, not a brand identity, so the OpenRouter mark is deliberately not reused here."
+  },
+  {
+    "id": "lm-studio",
+    "title": "LM Studio",
+    "source": null,
+    "license": "NO_OFFICIAL_CC0_MARK_AVAILABLE",
+    "note": "No official Simple Icons entry exists for LM Studio. Falls back to the provider name."
+  },
+  {
+    "id": "custom-openai",
+    "title": "Custom Endpoint",
+    "source": null,
+    "license": "NOT_A_VENDOR",
+    "note": "Operator-defined OpenAI-compatible endpoint. It has no vendor identity and intentionally renders no mark."
+  }
+]
