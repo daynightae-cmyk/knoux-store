@@ -17,6 +17,6 @@ export default defineConfig({
     url: 'http://127.0.0.1:3415',
     reuseExistingServer: false,
     timeout: 120_000,
-    env: { VERCEL_ENV: 'production', KNOUX_GROWTH_DATA_SOURCE: 'fixture', KNOUX_GROWTH_AUTH_ENFORCED: 'false', RESEND_API_KEY: '', CONTACT_WEBHOOK_URL: '' },
+    env: { VERCEL_ENV: 'production', KNOUX_GROWTH_DATA_SOURCE: 'fixture', KNOUX_GROWTH_AUTH_ENFORCED: 'false', RESEND_API_KEY: '', CONTACT_WEBHOOK_URL: '', NODE_OPTIONS: `--import ${new URL('../tests/isolate-network.mjs', import.meta.url).href}` },
   },
 });

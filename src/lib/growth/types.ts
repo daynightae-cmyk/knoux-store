@@ -375,6 +375,12 @@ export type CreativeDraft = {
   visualPrompt?: string;
   videoScript?: string[];
   languages: LanguageCode[];
+  /** Resolved media asset row id. Rendered only via signed URL. */
+  mediaAssetId?: string;
+  destinationUrl?: string;
+  /** Signed delivery URL, minted server-side per request. Never persisted. */
+  mediaUrl?: string;
+  mediaKind?: 'IMAGE' | 'VIDEO';
   /** A generated draft is never final until a human edits or accepts it. */
   aiGenerated: boolean;
   status: 'DRAFT' | 'IN_REVIEW' | 'APPROVED' | 'REJECTED';

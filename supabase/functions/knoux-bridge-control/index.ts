@@ -661,7 +661,7 @@ async function handleRun(req: Request, admin: ReturnType<typeof adminClient>) {
 
   let args: Record<string, unknown>;
   try { args = validateToolArgs(tool, body.args); }
-  catch (error) { return json({ error: "invalid-tool-args", message: String(error) }, 400); }
+      catch { return json({ error: "invalid-tool-args" }, 400); }
 
   const machine = await gatewayMachine(admin, gateway.bridge_id);
   if (!machine) return json({ error: "machine-not-found" }, 404);

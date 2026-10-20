@@ -4,12 +4,9 @@
     "src/app/**/page.tsx",
     "src/app/**/route.ts",
     "src/app/**/layout.tsx",
-    "proxy.ts",
-    "next.config.mjs",
     "tests/*.test.mjs",
     "tests/*.mjs",
-    "e2e/**/*.ts",
-    "playwright.config.ts"
+    "e2e/**/*.ts"
   ],
   "project": [
     "src/**/*.{ts,tsx}",
@@ -18,11 +15,7 @@
     "*.{ts,mjs}"
   ],
   "ignore": [
-    "references/**",
-    "remix-regal-portrait-with-imme/**",
-    "audit/**",
     "bridge/**",
-    "**/*.css",
     "src/components/ProductDossier.tsx",
     "src/components/UniverseConstellation.tsx",
     "src/lib/knouxField.ts",

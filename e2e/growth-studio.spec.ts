@@ -64,13 +64,22 @@ test('mobile drawer traps focus, dismisses with Escape and restores the trigger'
   await trigger.click();
   const dialog = page.getByRole('dialog', { name: 'Workspace navigation', exact: true });
   await expect(dialog).toBeVisible();
+  await expect(page.locator('body')).toHaveCSS('overflow', 'hidden');
   for (let index = 0; index < 28; index++) { await page.keyboard.press('Tab'); expect(await dialog.evaluate((node) => node.contains(document.activeElement))).toBe(true); }
   await page.keyboard.press('Escape');
   await expect(dialog).not.toBeVisible();
   await expect(trigger).toBeFocused();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
   await trigger.click();
   await page.mouse.click(385, 420);
   await expect(dialog).not.toBeVisible();
+  await trigger.click();
+  await dialog.getByRole('link', { name: 'Campaigns' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\/command\/campaigns$/);
+  await expect(page.getByRole('dialog', { name: 'Workspace navigation', exact: true })).not.toBeVisible();
+  await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
 });
 
 test('Growth brief validates, reviews exact payload and reports an unavailable intake honestly', async ({ page }, testInfo) => {

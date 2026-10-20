@@ -33,6 +33,18 @@
 .dev-cinematic .dev-universe__caption{font-size:10px}
 .dev-cinematic .dev-access-note{font-size:13px;flex-wrap:wrap}
 .dev-cinematic .dev-status-rail{font-size:11px;border:0;background:#08090bed;gap:14px;padding:14px 20px}
+/* The Sentinel launcher floats over the bottom-right corner of every page. The
+   status rail runs along that same edge, so the rail reserves the launcher's
+   footprint on its right rather than letting a status value sit underneath it.
+   Measured: 161x54 at x=1255 on desktop, 157x54 at x=217 on a 390 viewport. */
+.dev-cinematic .dev-status-rail{padding-right:190px}
+@media(max-width:600px){
+  /* Reserving the width alone wrapped every status value onto its own line.
+     A two-column grid keeps the rail to three readable rows and still leaves
+     the launcher's corner clear. */
+  .dev-cinematic .dev-status-rail{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px 14px;padding:14px 15px 16px;padding-right:192px}
+  .dev-cinematic .dev-status-rail .dev-utility-actions{grid-column:1 / -1}
+}
 .dev-cinematic .dev-panel{background:transparent;border:0;border-radius:0;padding:24px 0;box-shadow:none}
 .dev-cinematic .dev-card{background:transparent;border:0;border-radius:0;box-shadow:none}
 .dev-cinematic .dev-card__head{border:0;padding:20px 0;font-size:14px}

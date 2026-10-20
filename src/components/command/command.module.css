@@ -433,6 +433,16 @@
   line-height: 1.15;
 }
 
+/* The currency code reads as a unit beside the amount, not as part of it. */
+.ccMetricUnit {
+  font-family: var(--cc-mono);
+  font-size: 0.4em;
+  letter-spacing: 0.1em;
+  color: var(--cc-ink-4);
+  margin-right: 0.5em;
+  vertical-align: 0.55em;
+}
+
 .ccMetricValueAbsent {
   font-size: 13px;
   color: var(--cc-ink-4);
@@ -1316,3 +1326,5 @@
 }
 @media print { .command { --cc-ink-4: #333; } .commandBar { backdrop-filter: none; } }
 @media(max-width:1080px){.commandRail{display:none}.commandNavigationToggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:54px;padding:16px 20px;background:#16141a;color:var(--cc-ink);border:0}}
+
+.navigationDialog { padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); overscroll-behavior: contain; }

@@ -6,6 +6,7 @@ import { pageMetadata } from '@/lib/metadata';
 import { engineeringStages, webSystemCategories, webSystems } from '@/data/services';
 import { TrackOnView } from '@/components/TrackOnView';
 import { SystemBlueprint } from '@/components/SpatialExperiences';
+import styles from './web.module.css';
 
 export const metadata = pageMetadata(
   'Web Engineering',
@@ -13,9 +14,13 @@ export const metadata = pageMetadata(
   '/web',
 );
 
-export default function WebPage() {
+type WebPageProps = { searchParams: Promise<{ system?: string | string[] }> };
+
+export default async function WebPage({ searchParams }: WebPageProps) {
+  const { system } = await searchParams;
+  const initialSystem = Array.isArray(system) ? system[0] : system;
   return (
-    <main id="main-content" tabIndex={-1}>
+    <main id="main-content" className={styles.page} tabIndex={-1}>
       <TrackOnView event={{ type: 'division_opened', division: 'web', route: '/web' }} />
       <PageIntro
         index="03"
@@ -46,7 +51,7 @@ export default function WebPage() {
           </div>
         </RevealGroup>
         <div style={{ marginTop: 40 }}>
-          <SystemsStudio systems={webSystems} />
+          <SystemsStudio systems={webSystems} initialSystem={initialSystem} key={initialSystem ?? "default"} />
         </div>
       </section>
 
