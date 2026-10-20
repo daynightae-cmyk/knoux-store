@@ -1,0 +1,68 @@
+/*
+ * Language picker.
+ *
+ * Sized to sit inside the existing `.header-actions` row without changing the
+ * header's height or crowding the ACCESS and SEARCH controls. The control
+ * inherits the header's letter-spacing and casing language so it reads as part
+ * of the chrome rather than as a foreign widget dropped into it.
+ */
+.picker {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.picker select {
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 8px 4px;
+  max-width: 86px;
+  font: inherit;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+
+/*
+ * Options are painted explicitly because a native dropdown list falls back to
+ * the UA's own background in forced-colours and dark-mode schemes, which would
+ * otherwise render dark text on the header's near-black surface.
+ */
+.picker option {
+  background: #17171a;
+  color: #fff;
+}
+
+.picker select:focus-visible {
+  outline: 2px solid var(--violet);
+  outline-offset: 3px;
+}
+
+/*
+ * Visually hidden but reachable by assistive technology. The clip pattern is
+ * direction-agnostic — no negative offsets — so the element cannot extend the
+ * document's scroll width in either LTR or RTL.
+ */
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 650px) {
+  .picker select {
+    max-width: 68px;
+  }
+}
+
+/*
+ * Off-screen live announcements (.sr__announce / .visually-hidden in
+ * globals.css) use the same direction-agnostic clip pattern, so nothing
+ * extends document scroll size in either LTR or RTL. No override needed.
+ */
