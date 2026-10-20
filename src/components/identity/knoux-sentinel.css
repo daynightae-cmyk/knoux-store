@@ -359,3 +359,22 @@
     display: none;
   }
 }
+
+
+/* One interactive canonical character, including the native dialog top layer. */
+.knoux-sentinel[data-knoux-sentinel][data-ready=true]{display:block!important;width:64px;height:80px;opacity:1!important;contain:style;pointer-events:none;filter:none}
+.knoux-sentinel[data-guide-docked=true][data-knoux-sentinel]{display:block!important;left:auto;top:auto;right:24px;bottom:max(24px,env(safe-area-inset-bottom));transform:none!important;will-change:auto}
+.knoux-sentinel[data-expanded=true][data-knoux-sentinel]{position:relative!important;inset:auto!important;transform:none!important;width:72px;height:90px;flex-shrink:0}
+.ks-trigger{display:block;pointer-events:auto;width:100%;height:100%;border:0;background:none;padding:0;color:inherit;cursor:pointer;border-radius:18px;touch-action:manipulation}
+.ks-trigger:focus-visible{outline:2px solid #e5c9ff;outline-offset:4px;background:#321f4580}
+.ks-trigger:hover .ks-aura{opacity:.3}
+.knoux-sentinel .ks-shell{animation:ks-presence 6s ease-in-out infinite;transform-origin:40px 42px}
+@keyframes ks-presence{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.knoux-sentinel:is([data-motion=paused],[data-state=sleep]) *{animation-play-state:paused!important}
+.knoux-sentinel[data-phase=speaking] .ks-core-halo{animation-duration:1s}
+.knoux-sentinel:is([data-phase=attentive],[data-phase=thinking],[data-phase=guiding]){--ks-eye-sy:1.12;--ks-accent:#d0b8ed}
+html[data-sentinel-quiet=true] .knoux-sentinel *{animation:none!important;transition:none!important}
+@media(prefers-reduced-motion:reduce){.knoux-sentinel *{animation:none!important;transition:none!important}.knoux-sentinel .ks-shell{transform:none!important}}
+@media(pointer:coarse){.knoux-sentinel .ks-shell,.knoux-sentinel .ks-shard,.knoux-sentinel .ks-mark__p,.knoux-sentinel .ks-core-halo{animation:none!important}}
+
+.knoux-sentinel[data-menu-paused=true]{z-index:80}.knoux-sentinel[data-menu-paused=true] *{animation-play-state:paused!important}.knoux-sentinel[data-menu-paused=true] .ks-trigger{pointer-events:none}

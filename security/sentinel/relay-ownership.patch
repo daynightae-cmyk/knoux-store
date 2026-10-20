@@ -1,0 +1,18 @@
+diff --git a/relay_registry.py b/relay_registry.py
+index 172797b..72429e8 100644
+--- a/relay_registry.py
++++ b/relay_registry.py
+@@ -219,11 +219,12 @@ class BridgeRegistry:
+     ) -> dict[str, Any]:
+         async with self._lock:
+             self._session_locked(machine_id, session_id)
+-            pending = self._pending.pop(command_id, None)
++            pending = self._pending.get(command_id)
+             if not pending or pending[0] != machine_id:
+                 raise RelayError("COMMAND_NOT_FOUND", "Command is unknown, expired, or already completed.", 404)
+             future = pending[1]
+             if future.done():
+                 raise RelayError("COMMAND_ALREADY_SETTLED", "Command is already settled.", 409)
++            self._pending.pop(command_id)
+             future.set_result(self.sanitize(result))
+             return {"ok": True, "accepted": True}
