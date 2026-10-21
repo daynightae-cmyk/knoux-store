@@ -622,7 +622,11 @@
 .localNav>div a{
   flex:none;
   padding:17px 12px;
-  color:#77747b;
+  /* 4.73:1 on the #050607 ground. The previous #77747b measured 4.41:1 at
+     this 8px size, which is under the 4.5:1 that WCAG 1.4.3 requires for
+     normal-weight text, so these nine links failed the contrast check on
+     every Signal management page. */
+  color:#7c7980;
   font:8px var(--font-mono,monospace);
   letter-spacing:.09em;
   text-transform:uppercase;
@@ -664,7 +668,9 @@
   margin:0;
   padding:14px 0;
   border-bottom:1px solid #202125;
-  color:#77747b;
+  /* 4.73:1 on the #050607 ground; the previous #77747b measured 4.41:1 at
+     this 9px size and failed the contrast check. */
+  color:#7c7980;
   font:9px var(--font-mono,monospace);
   line-height:1.7;
   letter-spacing:.04em;
@@ -696,7 +702,9 @@
 }
 
 .childNav span{
-  color:#68656c;
+  /* 4.74:1 on the #050607 ground. The previous #68656c measured 3.54:1 at
+     this 8px size, well under the 4.5:1 that WCAG 1.4.3 requires. */
+  color:#7c7980;
   font:8px var(--font-mono,monospace);
   letter-spacing:.1em;
 }

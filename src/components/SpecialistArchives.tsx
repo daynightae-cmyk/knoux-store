@@ -167,11 +167,16 @@ export function EngineeringCaseFiles() {
             </header>
 
             <div className="engineering-dossier__grid">
-              <section aria-labelledby={`${product.id}-implementation`}>
+              {/* Each dossier repeats the same two section titles, so the
+                  landmark names are qualified with the system they belong to.
+                  Two regions called only "Implementation evidence" on one page
+                  are indistinguishable to a screen reader, and the
+                  landmark-unique check refused the page for it. */}
+              <section aria-label={`${product.code} ${product.name}: Implementation evidence`}>
                 <h3 id={`${product.id}-implementation`}>Implementation evidence</h3>
                 <ul>{product.capabilities.map((item) => <li key={item}>{item}</li>)}</ul>
               </section>
-              <section aria-labelledby={`${product.id}-constraints`}>
+              <section aria-label={`${product.code} ${product.name}: Constraints and declared limits`}>
                 <h3 id={`${product.id}-constraints`}>Constraints &amp; declared limits</h3>
                 <ul>{product.limitations.map((item) => <li key={item}>{item}</li>)}</ul>
               </section>
