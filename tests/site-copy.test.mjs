@@ -1,10 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 import { enableTypeScriptResolution } from './load.mjs';
+import { root } from './helpers.mjs';
 
 enableTypeScriptResolution();
 
 const { SITE_COPY, translatedSiteCopy, hasSiteCopy } = await import('../src/lib/i18n/site-copy.ts');
+const { ROUTE_COPY, translatedRouteCopy } = await import('../src/lib/i18n/route-copy.ts');
 const {
   SITE_LANGUAGES,
   SITE_LANGUAGE_IDS,
@@ -173,4 +177,141 @@ test('an unknown language direction degrades to LTR rather than a broken mirror'
   assert.equal(siteDirection('fr'), 'ltr');
   assert.equal(siteLanguageTag('fr'), 'en');
   assert.equal(isRtlLanguage('fr'), false);
+});
+
+/* ---------------------------------------------------------------------------
+ * One language authority.
+ *
+ * PR #46 shipped a second, page-local EN/AR language system inside /growth,
+ * /wordpress and /signal, and PR #52 shipped the site-wide EN/AR/UR system.
+ * They were never reconciled, so the header picker and the page body could
+ * show two different languages at once, the page body could force `dir="ltr"`
+ * inside an RTL document, and a visitor could be offered two language
+ * controls that disagreed.
+ *
+ * These assertions are the contract that stops a second authority coming back.
+ * --------------------------------------------------------------------------- */
+
+function sourceFiles(dir, out = []) {
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    if (statSync(full).isDirectory()) sourceFiles(full, out);
+    else if (/\.(ts|tsx)$/.test(entry)) out.push(full);
+  }
+  return out;
+}
+
+const APP_SOURCE = sourceFiles(join(root, 'src'));
+
+test('the site has exactly one language authority', () => {
+  // A private locale state is how a second authority starts: a component that
+  // holds its own language and its own direction instead of reading the one
+  // the document already carries.
+  const privateLocale = [];
+  for (const file of APP_SOURCE) {
+    const source = readFileSync(file, 'utf8');
+    if (/useState<\s*'en'\s*\|\s*'ar'\s*>/.test(source)) {
+      privateLocale.push(`${file} holds a private EN/AR language state`);
+    }
+    if (/setUiLocale\s*[:=]/.test(source)) {
+      privateLocale.push(`${file} writes a private language`);
+    }
+  }
+  assert.deepEqual(privateLocale, [], 'no component may own a second language authority');
+});
+
+test('no route forces a direction that contradicts the document', () => {
+  // The document already carries `dir`, reconciled by the site language
+  // document. A section that re-derives its own direction is the mixed
+  // right-to-left layout the merge introduced.
+  //
+  // One exception is deliberate: a creative preview renders in the copy
+  // language of the creative itself, which is a property of the advertisement
+  // and is selectable inside the studio, not a property of the page.
+  const forcedDirection = [];
+  for (const file of APP_SOURCE) {
+    const source = readFileSync(file, 'utf8');
+    const DIRECTION = /dir=\{([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)\s*===\s*'ar'\s*\?/g;
+    let match;
+    while ((match = DIRECTION.exec(source))) {
+      if (match[1] === 'edit.locale') continue;
+      const line = source.slice(0, match.index).split('\n').length;
+      forcedDirection.push(`${file}:${line} derives its own direction from ${match[1]}`);
+    }
+  }
+  assert.deepEqual(forcedDirection, [], 'a section may not derive its own direction');
+});
+
+test('every translation call site resolves in the shipped catalogue', () => {
+  // A call site that asks for a translation the catalogue does not publish
+  // silently renders its English source, which is how a route ends up
+  // claiming a language it does not have.
+  //
+  // The shipped catalogue is shared chrome plus the route copy; the two files
+  // are split so a route that never shows route copy never ships it, but a
+  // call site in any page may resolve against either.
+  const published = new Map(
+    [...Object.entries(SITE_COPY), ...Object.entries(ROUTE_COPY)].map(([key, value]) => [key.toLowerCase(), value]),
+  );
+  const isPublished = (source) => published.has(source.toLowerCase());
+  const unresolved = [];
+  const CALL = /(?:\btranslatedSiteCopy\(\s*|\bt\(\s*)(['"])((?:\\.|(?!\1)[^\\])*)\1/g;
+  for (const file of APP_SOURCE) {
+    const source = readFileSync(file, 'utf8');
+    if (!source.includes('@/lib/i18n/')) continue;
+    CALL.lastIndex = 0;
+    let match;
+    while ((match = CALL.exec(source))) {
+      const literal = match[2];
+      if (!literal || literal.includes('${')) continue;
+      if (!isPublished(literal)) {
+        const line = source.slice(0, match.index).split('\n').length;
+        unresolved.push(`${file}:${line} ${JSON.stringify(literal)}`);
+      }
+    }
+  }
+  assert.deepEqual(unresolved, [], 'every translated string must be published in the catalogue');
+});
+
+test('route copy stays out of the shared catalogue', () => {
+  // The regression this guards: merging the route copy into the shared
+  // catalogue shipped every route's copy to every page and pushed `/` over its
+  // script budget. Route copy must stay in `route-copy.ts`, reachable only by
+  // the routes that import it.
+  assert.equal(hasSiteCopy('Turn attention into'), false);
+  assert.ok(translatedRouteCopy('Turn attention into', 'ar'));
+  assert.equal(translatedRouteCopy('MODELS', 'ar'), undefined, 'shared strings are not route-owned');
+  assert.equal(translatedSiteCopy('MODELS', 'ar'), 'النماذج');
+});
+
+test('the route resolver does not depend on the shared catalogue', () => {
+  // Importing anything with a runtime value from the shared side (the language
+  // store, `languages.ts`, `site-copy.ts`) puts the route catalogue in the same
+  // bundle group as the shared chunk every page loads, so pages that never show
+  // route copy download it. Route copy must stay a leaf.
+  const routeCopy = readFileSync(join(root, 'src/lib/i18n/route-copy.ts'), 'utf8');
+  const runtimeImports = [...routeCopy.matchAll(/^import\s+(?!type\b).*$/gm)].map((match) => match[0]);
+  assert.deepEqual(runtimeImports, [], 'route-copy.ts may only import types');
+});
+
+test('the route copy that used to be page-local is trilingual', () => {
+  for (const source of [
+    'Turn attention into',
+    'Start a growth brief',
+    'This field is required.',
+    'Consent is required.',
+    'Request delivered.',
+    'Your next website, in view.',
+    'Official WordPress.org themes',
+    'Find public business contact evidence, with its source and limitations.',
+    'Google Presence',
+  ]) {
+    const [arabic, urdu] = ROUTE_COPY[Object.keys(ROUTE_COPY).find((key) => key.toLowerCase() === source.toLowerCase())];
+    assert.ok(arabic.trim(), `${source} needs Arabic`);
+    assert.ok(urdu.trim(), `${source} needs Urdu`);
+    // A translation that is identical to its English source is a placeholder,
+    // not a translation.
+    assert.notEqual(arabic.trim().toLowerCase(), source.trim().toLowerCase(), `${source} Arabic is a copy of the English`);
+    assert.notEqual(urdu.trim().toLowerCase(), source.trim().toLowerCase(), `${source} Urdu is a copy of the English`);
+  }
 });

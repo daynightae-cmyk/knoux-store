@@ -1,6 +1,31 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
+/**
+ * Switch the site language through whichever language picker is actually on
+ * screen.
+ *
+ * The site header carries the picker, but the command surfaces replace the
+ * header with their own bar below 900px (`display: none` on the site header),
+ * and that bar carries its own instance of the same control. Picking the first
+ * *visible* authority keeps the assertion about the language system instead of
+ * about which header happens to be mounted at this viewport.
+ */
+async function chooseLanguage(page: import('@playwright/test').Page, value: 'en' | 'ar' | 'ur') {
+  const candidates = [
+    page.locator('.site-header select'),
+    page.locator('header[class*="commandBar"] select'),
+  ];
+  for (const candidate of candidates) {
+    if ((await candidate.count()) > 0 && (await candidate.first().isVisible())) {
+      await candidate.first().selectOption(value);
+      return;
+    }
+  }
+  throw new Error('no visible site language picker on this surface');
+}
+
+
 test('draft edits, placements and client selection stay synchronized across routes', async ({ page }, testInfo) => {
   await page.goto('/command/creative');
   const theatre = page.getByRole('region', { name: 'Ad Preview Theatre' });
@@ -101,7 +126,9 @@ test('Growth brief validates, reviews exact payload and reports an unavailable i
   await expect(brief.getByRole('status')).toContainText('UNCONFIGURED');
   await expect(brief.getByRole('textbox', { name: 'Business name', exact: true })).toHaveValue('Review Business');
   await page.screenshot({ path: testInfo.outputPath('growth-brief.png'), fullPage: true });
-  await page.getByRole('button', { name: 'العربية', exact: true }).click();
+  // The header picker is the one language authority; the per-route toggles
+  // PR #46 shipped were folded into it by the post-merge recovery.
+  await chooseLanguage(page, 'ar');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('حوّل');
   await page.screenshot({ path: testInfo.outputPath('growth-ar.png'), fullPage: true });
 });
@@ -114,7 +141,7 @@ test('responsive Growth and theatre geometry and automated accessibility', async
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${route} at ${width}`).toBe(true);
       if (width === 360 || width === 1440) await page.screenshot({ path: testInfo.outputPath(`${route.replaceAll('/', '-')}-${width}.png`), fullPage: true });
-      await page.getByRole('button', { name: 'العربية', exact: true }).click();
+      await chooseLanguage(page, 'ar');
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${route} Arabic at ${width}`).toBe(true);
       if (width === 360 || width === 1440) await page.screenshot({ path: testInfo.outputPath(`${route.replaceAll('/', '-')}-ar-${width}.png`), fullPage: true });
     }

@@ -10,6 +10,14 @@
   display: inline-flex;
   align-items: center;
   min-width: 0;
+  /* Anchor point for the visually hidden label: an absolutely positioned
+     child of the picker needs its own positioned ancestor. Without this, the
+     hidden span's static-position anchor is computed by the nearest flex row
+     (the header or the command bar strip), and in an RTL document that anchor
+     can land outside the bar on the left — an RTL scroll region grows to the
+     left, so a box that only exists to be hidden would then widen the
+     document's scroll width at small viewports. */
+  position: relative;
 }
 
 .picker select {
@@ -42,12 +50,15 @@
 }
 
 /*
- * Visually hidden but reachable by assistive technology. The clip pattern is
- * direction-agnostic — no negative offsets — so the element cannot extend the
- * document's scroll width in either LTR or RTL.
+ * Visually hidden but reachable by assistive technology. Pinned to the
+ * picker's own box (explicit offsets, not a static-position anchor), so the
+ * element cannot extend the document's scroll width in either LTR or RTL.
+ * The clip pattern stays direction-agnostic.
  */
 .hidden {
   position: absolute;
+  top: 0;
+  inset-inline-start: 0;
   width: 1px;
   height: 1px;
   overflow: hidden;
