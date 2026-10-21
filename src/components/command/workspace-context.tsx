@@ -32,8 +32,6 @@ export type WorkspaceContextValue = {
   selectCreative: (id: string) => void;
   placement: PlacementId;
   setPlacement: (id: PlacementId) => void;
-  uiLocale: 'en' | 'ar';
-  setUiLocale: (locale: 'en' | 'ar') => void;
   campaignPlans: Campaign[];
   stageCampaign: (id: string, patch: Partial<Campaign>) => void;
 };
@@ -46,7 +44,6 @@ export function WorkspaceProvider({ children, initialData }: Readonly<{ children
   const [edits, setEdits] = useState<Record<string, StudioEdit>>({});
   const [selection, setSelection] = useState<Record<string, string>>({});
   const [placement, setPlacement] = useState<PlacementId>('instagram-feed');
-  const [uiLocale, setUiLocale] = useState<'en' | 'ar'>('en');
   const [campaignDrafts, setCampaignDrafts] = useState<Record<string, Campaign>>({});
 
   const value = useMemo<WorkspaceContextValue>(() => {
@@ -73,8 +70,6 @@ export function WorkspaceProvider({ children, initialData }: Readonly<{ children
       selectCreative: (id) => { if (records.creatives.some((draft) => draft.id === id && draft.clientId === activeClient.id)) setSelection((previous) => ({ ...previous, [activeClient.id]: id })); },
       placement,
       setPlacement,
-      uiLocale,
-      setUiLocale,
       campaignPlans: records.campaigns.map((campaign) => campaignDrafts[`${activeClient.id}:${campaign.id}`] ?? campaign),
       stageCampaign: (id, patch) => {
         const current = records.campaigns.find((campaign) => campaign.id === id && campaign.clientId === activeClient.id);
@@ -97,7 +92,7 @@ export function WorkspaceProvider({ children, initialData }: Readonly<{ children
         ? null
         : 'This workspace is explicitly DEMO/FIXTURE. Values are demonstration data.',
     };
-  }, [activeClientId, clients, initialData, edits, selection, placement, uiLocale, campaignDrafts]);
+  }, [activeClientId, clients, initialData, edits, selection, placement, campaignDrafts]);
 
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;
 }

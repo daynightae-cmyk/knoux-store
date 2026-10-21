@@ -55,5 +55,12 @@ export default defineConfig([
     // them. Gitignored and reproducible from a running server, so a lint failure
     // inside it describes a scratch file rather than the application.
     'visual-audit/**',
+    // Local recovery bundles and forensic snapshots. They are preserved on
+    // disk on purpose and contain code from other projects, so a lint failure
+    // inside them describes an archive rather than the application. Without
+    // this exclusion `npm run lint` cannot be run on a workstation that holds
+    // a recovery bundle at all.
+    '.knoux-recovery/**',
+    '.kilo/**',
   ]),
 ]);
