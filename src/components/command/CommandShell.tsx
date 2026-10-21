@@ -21,6 +21,7 @@ import { CommandDock, type DockSurface } from './CommandDock';
 import { useWorkspace } from './workspace-context';
 
 import { CapabilityBadge, ConnectionBadge } from './primitives';
+import { usePageCopy } from '@/lib/i18n/page-copy';
 import styles from './command.module.css';
 
 export type CommandShellProps = {
@@ -49,7 +50,8 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
       document.body.style.overflow = overflow;
     };
   }, [navigationOpen]);
-  const { records, clients, activeClient, setActiveClientId, isDemoWorkspace, demoReason, uiLocale, setUiLocale } = useWorkspace();
+  const { records, clients, activeClient, setActiveClientId, isDemoWorkspace, demoReason } = useWorkspace();
+  const t = usePageCopy();
   const connections = records.connections;
   const blocked = connections.filter((connection) => connection.state === 'BLOCKED').length;
   const needsWork = connections.filter(
@@ -99,7 +101,7 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
                     aria-current={entry.slug === area.slug ? 'page' : undefined}
                     onClick={() => setNavigationOpen(false)}
                   >
-                    <CommandIcon code={entry.code} /><span>{uiLocale === 'ar' ? entry.labelAr : entry.label}</span>
+                    <CommandIcon code={entry.code} /><span>{t(entry.label, entry.labelAr)}</span>
                     <span className={styles.commandNavCode ?? ''}>{entry.code}</span>
                   </Link>
                 ))}
@@ -116,7 +118,7 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
           </div>
         </>);
   return (
-    <div className={styles.command ?? ''} lang={uiLocale} dir={uiLocale === 'ar' ? 'rtl' : 'ltr'}>
+    <div className={styles.command ?? ''}>
       <header className={styles.commandBar ?? ''}>
         <div className={styles.commandIdent ?? ''}>
           <KnouxMark />
@@ -124,7 +126,6 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
             <span className={styles.commandName ?? ''}>KNOuX Growth Command</span>
             <span className={styles.commandSub ?? ''}>Revenue Flight Deck · human-controlled growth</span>
           </span>
-          <button type="button" className={styles.languageToggle} onClick={() => setUiLocale(uiLocale === 'en' ? 'ar' : 'en')}>{uiLocale === 'en' ? 'العربية' : 'English'}</button>
         </div>
 
         <div className={styles.commandStrip ?? ''} tabIndex={0} role="group" aria-label="Workspace status indicators">
@@ -160,7 +161,7 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
               <span className={styles.commandEyebrow ?? ''}>
                 {area.code} · {activeClient.name}
               </span>
-              <h1 className={styles.commandTitle ?? ''}>{uiLocale === 'ar' ? area.labelAr : area.label}</h1>
+              <h1 className={styles.commandTitle ?? ''}>{t(area.label, area.labelAr)}</h1>
               <p className={styles.commandLede ?? ''}>{area.purpose}</p>
             </div>
             <div className={styles.commandHeadActions ?? ''}>
