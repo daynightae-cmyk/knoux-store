@@ -363,7 +363,11 @@ export function SignalLookupClient() {
             <span>COMMUNITY · {result.providers.community}</span>
             <span>LICENSED IDENTITY · {result.providers.licensedIdentity}</span>
             <span>PUBLIC SEARCH · {result.providers.publicSearch}</span>
-            {!result.storage.available ? <span>STORAGE · {result.storage.reason ?? 'unavailable'}</span> : null}
+            {result.storage.status === 'available' ? null : (
+              <span title={result.storage.reason}>
+                STORAGE · {result.storage.status === 'not_consulted' ? 'NOT CONSULTED' : 'UNAVAILABLE'}
+              </span>
+            )}
           </div>
         </section>
       ) : null}

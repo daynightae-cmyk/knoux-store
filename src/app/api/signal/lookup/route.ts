@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       ok: false,
       query: normalizeSignalPhone(''),
       data: null,
-      storage: { available: false, reason: 'Request is too large.' },
+      storage: { status: 'not_consulted', reason: 'The request was refused before storage was reached.' },
       providers: { community: 'unavailable', licensedIdentity: 'not_configured', publicSearch: 'not_configured' },
     }, 413);
   }
@@ -47,7 +47,8 @@ export async function POST(request: Request) {
       ok: false,
       query: facts,
       data: null,
-      storage: { available: true },
+      // The number never reached storage, so storage has no result to report.
+      storage: { status: 'not_consulted', reason: 'The number was rejected before storage was reached.' },
       providers: { community: 'unavailable', licensedIdentity: 'not_configured', publicSearch: 'not_configured' },
     }, 422);
   }
@@ -83,7 +84,7 @@ export async function POST(request: Request) {
         publicMentions: publicSearch.mentions,
         businessMatches,
       },
-      storage: { available: false, reason: 'Signal storage is not active on this deployment yet.' },
+      storage: { status: 'unavailable', reason: 'The Signal storage query did not succeed on this deployment.' },
       providers: { community: 'unavailable', licensedIdentity: 'not_configured', publicSearch: publicSearch.status },
     });
   }
@@ -93,7 +94,7 @@ export async function POST(request: Request) {
     ok: true,
     query: facts,
     data: { ...payload, publicMentions: publicSearch.mentions, businessMatches },
-    storage: { available: true },
+    storage: { status: 'available' },
     providers: { community: 'live', licensedIdentity: 'not_configured', publicSearch: publicSearch.status },
   });
 }
