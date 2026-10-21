@@ -2,11 +2,24 @@
 
 import Link from 'next/link';
 import { SignalLookupClient } from '@/components/signal/SignalLookupClient';
-import { usePageCopy } from '@/lib/i18n/page-copy';
+import { resolveRouteCopy } from '@/lib/i18n/route-copy';
+import { useSiteLanguage } from '@/lib/i18n/use-language';
 import styles from '@/app/signal/signal.module.css';
+/**
+ * Route copy resolved against the site language.
+ *
+ * The hook lives here, in the component, rather than in a shared `usePageCopy`:
+ * that module imported the language store, which every page already loads, so
+ * the bundler grouped the route catalogue into the shared chunk and shipped it
+ * to pages that never show route copy.
+ */
+function useRouteCopy() {
+  const language = useSiteLanguage();
+  return (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
+}
 
 export function SignalExperience({ context = 'SG / SIGNAL' }: { context?: string }) {
-  const t = usePageCopy();
+  const t = useRouteCopy();
   return (
     <main id="main-content" className={styles.page}>
       <section className={styles.experience} aria-labelledby="signal-title">

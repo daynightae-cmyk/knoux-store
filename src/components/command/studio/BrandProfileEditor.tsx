@@ -3,15 +3,28 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWorkspace } from '../workspace-context';
-import { usePageCopy } from '@/lib/i18n/page-copy';
+import { resolveRouteCopy } from '@/lib/i18n/route-copy';
+import { useSiteLanguage } from '@/lib/i18n/use-language';
 import styles from './studio.module.css';
+/**
+ * Route copy resolved against the site language.
+ *
+ * The hook lives here, in the component, rather than in a shared `usePageCopy`:
+ * that module imported the language store, which every page already loads, so
+ * the bundler grouped the route catalogue into the shared chunk and shipped it
+ * to pages that never show route copy.
+ */
+function useRouteCopy() {
+  const language = useSiteLanguage();
+  return (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
+}
 
 export function BrandProfileEditor() {
   const { activeClient, isDemoWorkspace } = useWorkspace();
   const router = useRouter();
   const [state, setState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [message, setMessage] = useState('');
-  const label = usePageCopy();
+  const label = useRouteCopy();
   if (isDemoWorkspace) return null;
   return <details className={styles.theatre}>
     <summary>{label('Edit brand profile')}</summary>

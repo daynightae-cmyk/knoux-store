@@ -2,15 +2,29 @@
 
 import { useState } from 'react';
 import type { ExternalItem } from '@/lib/wordpress/external';
-import { usePageCopy } from '@/lib/i18n/page-copy';
+import { resolveRouteCopy } from '@/lib/i18n/route-copy';
+import { useSiteLanguage } from '@/lib/i18n/use-language';
 import styles from './WordPressStudio.module.css';
+/**
+ * Route copy resolved against the site language.
+ *
+ * The hook lives here, in the component, rather than in a shared `usePageCopy`:
+ * that module imported the language store, which every page already loads, so
+ * the bundler grouped the route catalogue into the shared chunk and shipped it
+ * to pages that never show route copy.
+ */
+function useRouteCopy() {
+  const language = useSiteLanguage();
+  return (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
+}
+
 
 /** A bounded official selection, carried to the existing intake as URL state. */
 export function WordPressStudio({ themes }: { themes: ExternalItem[] }) {
   const [slug, setSlug] = useState(themes[0]?.slug ?? '');
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [failedImage, setFailedImage] = useState('');
-  const t = usePageCopy();
+  const t = useRouteCopy();
   const theme = themes.find(item => item.slug === slug);
   const params = new URLSearchParams({ requestType: 'wordpress', items: theme ? `WordPress site; theme: ${theme.name}; source: ${theme.sourceUrl}; domain and hosting review; maintenance` : 'WordPress site; theme selection; domain and hosting review; maintenance' });
   const deviceLabel = { desktop: 'Desktop', tablet: 'Tablet', mobile: 'Mobile' } as const;

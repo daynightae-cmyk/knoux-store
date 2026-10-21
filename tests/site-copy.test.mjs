@@ -8,6 +8,7 @@ import { root } from './helpers.mjs';
 enableTypeScriptResolution();
 
 const { SITE_COPY, translatedSiteCopy, hasSiteCopy } = await import('../src/lib/i18n/site-copy.ts');
+const { ROUTE_COPY, translatedRouteCopy } = await import('../src/lib/i18n/route-copy.ts');
 const {
   SITE_LANGUAGES,
   SITE_LANGUAGE_IDS,
@@ -245,6 +246,14 @@ test('every translation call site resolves in the shipped catalogue', () => {
   // A call site that asks for a translation the catalogue does not publish
   // silently renders its English source, which is how a route ends up
   // claiming a language it does not have.
+  //
+  // The shipped catalogue is shared chrome plus the route copy; the two files
+  // are split so a route that never shows route copy never ships it, but a
+  // call site in any page may resolve against either.
+  const published = new Map(
+    [...Object.entries(SITE_COPY), ...Object.entries(ROUTE_COPY)].map(([key, value]) => [key.toLowerCase(), value]),
+  );
+  const isPublished = (source) => published.has(source.toLowerCase());
   const unresolved = [];
   const CALL = /(?:\btranslatedSiteCopy\(\s*|\bt\(\s*)(['"])((?:\\.|(?!\1)[^\\])*)\1/g;
   for (const file of APP_SOURCE) {
@@ -255,13 +264,34 @@ test('every translation call site resolves in the shipped catalogue', () => {
     while ((match = CALL.exec(source))) {
       const literal = match[2];
       if (!literal || literal.includes('${')) continue;
-      if (!hasSiteCopy(literal)) {
+      if (!isPublished(literal)) {
         const line = source.slice(0, match.index).split('\n').length;
         unresolved.push(`${file}:${line} ${JSON.stringify(literal)}`);
       }
     }
   }
   assert.deepEqual(unresolved, [], 'every translated string must be published in the catalogue');
+});
+
+test('route copy stays out of the shared catalogue', () => {
+  // The regression this guards: merging the route copy into the shared
+  // catalogue shipped every route's copy to every page and pushed `/` over its
+  // script budget. Route copy must stay in `route-copy.ts`, reachable only by
+  // the routes that import it.
+  assert.equal(hasSiteCopy('Turn attention into'), false);
+  assert.ok(translatedRouteCopy('Turn attention into', 'ar'));
+  assert.equal(translatedRouteCopy('MODELS', 'ar'), undefined, 'shared strings are not route-owned');
+  assert.equal(translatedSiteCopy('MODELS', 'ar'), 'النماذج');
+});
+
+test('the route resolver does not depend on the shared catalogue', () => {
+  // Importing anything with a runtime value from the shared side (the language
+  // store, `languages.ts`, `site-copy.ts`) puts the route catalogue in the same
+  // bundle group as the shared chunk every page loads, so pages that never show
+  // route copy download it. Route copy must stay a leaf.
+  const routeCopy = readFileSync(join(root, 'src/lib/i18n/route-copy.ts'), 'utf8');
+  const runtimeImports = [...routeCopy.matchAll(/^import\s+(?!type\b).*$/gm)].map((match) => match[0]);
+  assert.deepEqual(runtimeImports, [], 'route-copy.ts may only import types');
 });
 
 test('the route copy that used to be page-local is trilingual', () => {
@@ -276,10 +306,7 @@ test('the route copy that used to be page-local is trilingual', () => {
     'Find public business contact evidence, with its source and limitations.',
     'Google Presence',
   ]) {
-    assert.ok(hasSiteCopy(source), source);
-    // The catalogue is keyed by the English source; the value is the
-    // [arabic, urdu] pair.
-    const [arabic, urdu] = SITE_COPY[Object.keys(SITE_COPY).find(key => key.toLowerCase() === source.toLowerCase())];
+    const [arabic, urdu] = ROUTE_COPY[Object.keys(ROUTE_COPY).find((key) => key.toLowerCase() === source.toLowerCase())];
     assert.ok(arabic.trim(), `${source} needs Arabic`);
     assert.ok(urdu.trim(), `${source} needs Urdu`);
     // A translation that is identical to its English source is a placeholder,

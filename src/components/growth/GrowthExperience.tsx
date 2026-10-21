@@ -7,15 +7,27 @@ import { creativesFor } from '@/data/growth/workspace';
 import { PLACEMENTS, beginEdit, type PlacementId } from '@/lib/growth/studio';
 import { PlacementPreview } from '@/components/command/studio/AdPreviewTheatre';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
-import { usePageCopy } from '@/lib/i18n/page-copy';
+import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 import styles from './growth-experience.module.css';
+/**
+ * Route copy resolved against the site language.
+ *
+ * The hook lives here, in the component, rather than in a shared `usePageCopy`:
+ * that module imported the language store, which every page already loads, so
+ * the bundler grouped the route catalogue into the shared chunk and shipped it
+ * to pages that never show route copy.
+ */
+function useRouteCopy() {
+  const language = useSiteLanguage();
+  return (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
+}
 
 export function GrowthExperience() {
   const [placement, setPlacement] = useState<PlacementId>('instagram-feed');
   const client = DEMO_CLIENTS[0];
   const creative = creativesFor(client.id)[0];
   const language = useSiteLanguage();
-  const t = usePageCopy();
+  const t = useRouteCopy();
   return <section className={`shell ${styles.experience}`} aria-label="Growth OS introduction"><div className={styles.hero}><div className={styles.editorial}><div className={styles.kicker}>04 / KNOuX GROWTH OS</div><h1>{t('Turn attention into')}<em>{t('a clear next move.')}</em></h1><p>{t('Strategy, creative and campaigns. One managed workflow, built around your business and reviewed with you before any advertising spend.')}</p><div className={styles.actions}><a href="#growth-brief">{t('Start a growth brief')} ↗</a><Link href="/command/creative">{t('Explore the studio')}</Link></div><p className={styles.note}>{t('KNOuX service fees and client-paid media spend are scoped separately. No guaranteed returns.')}</p><div className={styles.operatingMap} aria-label={t('Service operating map')}>{[t('01 / Brief'), t('02 / Create'), t('03 / Review'), t('04 / Measure')].map((step, index) => <span key={step} data-active={index === (placement === 'google-search' ? 3 : 1)}>{step}<small>{index === 2 ? t('Human approval') : index === 3 ? t('Verified sources') : t('Managed service')}</small></span>)}</div></div><div className={styles.glimpse}><span className={styles.kicker}>{t('INTERACTIVE DEMO / READ-ONLY PRODUCT GLIMPSE')}</span><div className={styles.placements} role="group" aria-label="Public preview placement">{PLACEMENTS.map((item) => <button type="button" key={item.id} aria-pressed={placement === item.id} onClick={() => setPlacement(item.id)}>{item.label}</button>)}</div><div className={styles.preview}><PlacementPreview edit={{ ...beginEdit(creative, client.website), locale: language === 'ar' ? 'ar' : 'en' }} clientName={client.name} placement={placement} /></div><p className={styles.note}>{t('Demonstration client data. Local layout approximation, not a published ad or a connected platform. No performance claims.')}</p></div></div>
     <div className={styles.deliver}><h2>{t('The work behind the growth.')}</h2>{[[t('A measurable plan'), t('Define audience, channels, conversion actions and the scope of delivery.')], [t('Creative that stays connected'), t('Review copy and placement together, with brand rules beside the work.')], [t('Decisions with evidence'), t('Approve a defined plan. Report verified sources and keep missing metrics visible.')]].map(([title, text]) => <article key={title}><h3>{title}</h3><p>{text}</p></article>)}</div>
     <GrowthBrief />
@@ -31,7 +43,7 @@ function GrowthBrief() {
   const [sending, setSending] = useState(false);
   const [delivered, setDelivered] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const t = usePageCopy();
+  const t = useRouteCopy();
   function prepare(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;

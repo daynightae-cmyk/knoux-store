@@ -21,8 +21,22 @@ import { CommandDock, type DockSurface } from './CommandDock';
 import { useWorkspace } from './workspace-context';
 
 import { CapabilityBadge, ConnectionBadge } from './primitives';
-import { usePageCopy } from '@/lib/i18n/page-copy';
+import { SiteLanguagePicker } from '@/components/i18n/SiteLanguage';
+import { resolveRouteCopy } from '@/lib/i18n/route-copy';
+import { useSiteLanguage } from '@/lib/i18n/use-language';
 import styles from './command.module.css';
+/**
+ * Route copy resolved against the site language.
+ *
+ * The hook lives here, in the component, rather than in a shared `usePageCopy`:
+ * that module imported the language store, which every page already loads, so
+ * the bundler grouped the route catalogue into the shared chunk and shipped it
+ * to pages that never show route copy.
+ */
+function useRouteCopy() {
+  const language = useSiteLanguage();
+  return (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
+}
 
 export type CommandShellProps = {
   area: CommandArea;
@@ -51,7 +65,7 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
     };
   }, [navigationOpen]);
   const { records, clients, activeClient, setActiveClientId, isDemoWorkspace, demoReason } = useWorkspace();
-  const t = usePageCopy();
+  const t = useRouteCopy();
   const connections = records.connections;
   const blocked = connections.filter((connection) => connection.state === 'BLOCKED').length;
   const needsWork = connections.filter(
@@ -146,6 +160,13 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
               {needsWork > 0 ? <span>{needsWork} need attention</span> : null}
               {blocked > 0 ? <span>{blocked} blocked</span> : null}
             </span>
+          </div>
+          {/* The command route group hides the site masthead, so the one site
+              language authority has to be surfaced here — otherwise this
+              operating console is the one surface where the visitor cannot
+              choose the language. */}
+          <div className={styles.commandFact ?? ''}>
+            <SiteLanguagePicker />
           </div>
         </div>
       </header>
