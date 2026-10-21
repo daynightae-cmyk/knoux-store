@@ -5108,7 +5108,10 @@ body:has(.origin-room) .knoux-sentinel{display:none}
   border-bottom: 1px solid var(--line-soft);
 }
 .operate__service-code { font-size: 9px; letter-spacing: 0.13em; color: var(--violet); }
-.operate__service h4 { font-size: 16.5px; font-weight: 400; letter-spacing: -0.03em; margin: 0 0 8px; }
+/* The service name is a third-level heading now: it sits under the section's
+   own second-level heading, and as a fourth-level heading it skipped a level.
+   Both selectors are kept so the rendered service name is unchanged. */
+.operate__service h3, .operate__service h4 { font-size: 16.5px; font-weight: 400; letter-spacing: -0.03em; margin: 0 0 8px; }
 .operate__service p { font-size: 12.5px; line-height: 1.68; color: var(--muted); margin: 0 0 12px; }
 .operate__activities { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .operate__activities li {

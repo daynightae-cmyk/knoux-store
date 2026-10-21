@@ -46,6 +46,10 @@ export async function resolve(specifier, context, nextResolve) {
   // Next's package exposes server.js to Node ESM; application source uses the
   // bundler-friendly next/server spelling. Exercise the real guard in tests.
   if (specifier === 'next/server') return nextResolve('next/server.js', context);
+  // The same seam for the request-scoped header store. A route that reads
+  // cookies imports it at module scope, and Node ESM needs the extension that
+  // the package's exports map does not expose on its own.
+  if (specifier === 'next/headers') return nextResolve('next/headers.js', context);
   // `server-only` is a marker package, not a runtime dependency. It throws on
   // import unless the bundler resolved it under the `react-server` export
   // condition, which Next.js sets and a bare test runner does not.

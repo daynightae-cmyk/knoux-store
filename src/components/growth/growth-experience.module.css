@@ -1,7 +1,11 @@
 .experience { padding-top: clamp(110px, 12vw, 160px); padding-bottom: 48px; color: var(--text); }
 .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: clamp(32px, 5vw, 90px); align-items: start; }
 .editorial { padding-block: 24px; }
-.kicker { display: flex; align-items: center; justify-content: space-between; gap: 10px; font: 12px var(--mono); letter-spacing: .08em; color: #c9bcd9; }
+/* The demo label is the second-level heading of the demo block: the preview
+   inside it is a third-level title, and without this heading the preview
+   title followed the page heading directly and skipped a level. The margin
+   is zeroed because a heading carries a default margin the label never had. */
+.kicker { display: flex; align-items: center; justify-content: space-between; gap: 10px; font: 12px var(--mono); letter-spacing: .08em; color: #c9bcd9; margin: 0; font-weight: 400; }
 .kicker button { background: transparent; border: 1px solid #5f546a; color: #eee; padding: 10px 14px; min-height: 44px; cursor: pointer; }
 .editorial h1 { font-size: clamp(44px, 5.2vw, 86px); line-height: 1.07; letter-spacing: -.055em; font-weight: 450; margin-block: 30px; }
 .editorial h1 em { display: block; color: #c7bad5; font-weight: 400; }

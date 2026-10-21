@@ -81,8 +81,16 @@ export type SignalLookupResponse = {
   ok: boolean;
   query: SignalPhoneFacts;
   data: SignalLookupPayload | null;
+  /**
+   * What happened to Signal's own storage during this request.
+   *
+   * `not_consulted` exists because a request that is rejected before storage
+   * is reached has no storage result at all. Reporting that case as
+   * "available" claims a measurement that was never made, and reporting it as
+   * "unavailable" blames a service for a request it never saw.
+   */
   storage: {
-    available: boolean;
+    status: 'available' | 'unavailable' | 'not_consulted';
     reason?: string;
   };
   providers: {

@@ -65,7 +65,12 @@ function buildRail(root) {
 
     const img = document.createElement('img');
     img.src = product.image;
-    img.alt = product.name;
+    /**
+     * The product name is written next to this image, so an alt text that
+     * repeats it is announced twice. The image is decorative here; the name
+     * beside it is what the button is read as.
+     */
+    img.alt = '';
     img.loading = 'eager';
     img.decoding = 'async';
     btn.append(img, document.createTextNode(product.name.replace('KNOuX ', '')));
