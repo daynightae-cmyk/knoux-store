@@ -7,7 +7,22 @@ import { placementMap, type EvidenceNode } from '@/lib/signal/evidenceLayout';
 import { normalizeSignalPhone } from '@/lib/signal/phone';
 import { phaseStatusCopy, visualModeForPhase, type SignalPhase } from '@/lib/signal/sceneState';
 import type { SignalLookupResponse } from '@/lib/signal/types';
+import { useSiteLanguage } from '@/lib/i18n/use-language';
+import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 import styles from '@/app/signal/signal.module.css';
+/**
+ * Route copy resolved against the site language.
+ *
+ * The hook lives here, in the component, rather than in a shared `usePageCopy`:
+ * that module imported the language store, which every page already loads, so
+ * the bundler grouped the route catalogue into the shared chunk and shipped it
+ * to pages that never show route copy.
+ */
+function useRouteCopy() {
+  const language = useSiteLanguage();
+  return (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
+}
+
 
 const COUNTRIES = [
   ['AE', 'United Arab Emirates'],
@@ -29,8 +44,9 @@ function hasSupportedEvidence(data: NonNullable<SignalLookupResponse['data']>) {
   );
 }
 
-export function SignalLookupClient({ locale = 'en' }: { locale?: 'en' | 'ar' }) {
-  const arabic = locale === 'ar';
+export function SignalLookupClient() {
+  const language = useSiteLanguage();
+  const t = useRouteCopy();
   const [query, setQuery] = useState('');
   const [country, setCountry] = useState('AE');
   const [phase, setPhase] = useState<SignalPhase>('idle');
@@ -217,10 +233,10 @@ export function SignalLookupClient({ locale = 'en' }: { locale?: 'en' | 'ar' }) 
         </div>
 
         <form className={styles.search} onSubmit={submit}>
-          <label className={styles.srOnly} htmlFor="signal-query">{arabic ? 'رقم الهاتف' : 'Phone number'}</label>
+          <label className={styles.srOnly} htmlFor="signal-query">{t('Phone number')}</label>
           <div className={styles.searchRow}>
             <select
-              aria-label={arabic ? 'الدولة' : 'Country'}
+              aria-label={t('Country')}
               value={country}
               onChange={(event) => {
                 const nextCountry = event.target.value;
@@ -237,7 +253,7 @@ export function SignalLookupClient({ locale = 'en' }: { locale?: 'en' | 'ar' }) 
               dir="ltr"
               value={query}
               onChange={(event) => transitionInput(event.target.value)}
-              placeholder={arabic ? 'ابحث عن رقم هاتف' : 'Search a phone number'}
+              placeholder={t('Search a phone number')}
               inputMode="tel"
               autoComplete="tel"
               aria-invalid={Boolean(query.trim()) && normalized?.valid === false}
@@ -247,7 +263,7 @@ export function SignalLookupClient({ locale = 'en' }: { locale?: 'en' | 'ar' }) 
               type="button"
               onClick={reset}
               disabled={!query.trim() || phase === 'searching'}
-              aria-label={arabic ? 'مسح الرقم' : 'Clear number'}
+              aria-label={t('Clear number')}
             >
               ×
             </button>
@@ -255,12 +271,12 @@ export function SignalLookupClient({ locale = 'en' }: { locale?: 'en' | 'ar' }) 
               className={styles.submitButton}
               type="submit"
               disabled={phase === 'searching' || !normalized?.valid}
-              aria-label={arabic ? 'البحث عن أدلة الرقم' : 'Resolve number'}
+              aria-label={t('Resolve number')}
             >
               →
             </button>
           </div>
-          <p>{arabic ? (phase === 'searching' ? 'جارٍ البحث عن الأدلة' : phase === 'result' ? 'تم العثور على أدلة' : phase === 'not_found' ? 'لا توجد أدلة مدعومة' : phase === 'ready' ? 'الرقم جاهز للبحث' : phase === 'error' ? 'تعذر إكمال البحث' : phase === 'rate_limited' ? 'تم بلوغ حد الطلبات' : 'أدخل رقمًا للبحث') : phaseStatusCopy(phase)} · {arabic ? 'أدلة فقط' : 'EVIDENCE ONLY'}</p>
+          <p>{language === 'en' ? phaseStatusCopy(phase) : phase === 'searching' ? t('RESOLVING EVIDENCE') : phase === 'result' ? t('EVIDENCE RESOLVED') : phase === 'not_found' ? t('NO SUPPORTED EVIDENCE') : phase === 'ready' ? t('NUMBER READY') : phase === 'error' ? t('LOOKUP INTERRUPTED') : phase === 'rate_limited' ? t('RATE LIMITED') : t('LISTENING')} · {t('EVIDENCE ONLY')}</p>
         </form>
 
         {result?.ok && result.data ? (
@@ -303,7 +319,7 @@ export function SignalLookupClient({ locale = 'en' }: { locale?: 'en' | 'ar' }) 
         />
       </section>
 
-      {error ? <div className={styles.error} role="alert">{arabic ? (phase === 'rate_limited' ? 'طلبات كثيرة. حاول مجددًا لاحقًا.' : phase === 'input' ? 'أدخل رقم هاتف صحيحًا واختر الدولة.' : 'تعذر إكمال البحث. لم يتم إثبات أي هوية. حاول مجددًا.') : error}</div> : null}
+      {error ? <div className={styles.error} role="alert">{language === 'en' ? error : phase === 'rate_limited' ? t('Too many requests. Try again later.') : phase === 'input' ? t('Enter a valid phone number and choose the country.') : t('The search could not be completed. No identity was established. Try again.')}</div> : null}
 
       {result?.ok && result.data ? (
         <section className={styles.evidenceLedger} aria-live="polite" aria-label="Signal evidence index">
@@ -338,8 +354,8 @@ export function SignalLookupClient({ locale = 'en' }: { locale?: 'en' | 'ar' }) 
             </div>
           ) : (
             <div className={styles.notFound}>
-              <span className={styles.micro}>{arabic ? 'لا توجد أدلة مدعومة' : 'NO SUPPORTED EVIDENCE FOUND'}</span>
-              <p>{arabic ? 'صيغة الرقم صحيحة، لكن المصادر الحالية لم تُرجع أدلة هوية مدعومة.' : 'The number is structurally valid, but current providers returned no supported identity evidence.'}</p>
+              <span className={styles.micro}>{t('NO SUPPORTED EVIDENCE FOUND')}</span>
+              <p>{t('The number is structurally valid, but current providers returned no supported identity evidence.')}</p>
             </div>
           )}
 

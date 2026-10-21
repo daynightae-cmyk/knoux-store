@@ -7,7 +7,7 @@ import { translationSlot, type SiteLanguage } from '@/lib/i18n/languages';
 // body below is byte-identical to that source; only the language import and the
 // slot lookup were rewired to `@/lib/i18n/languages`, so public-site
 // translation does not depend on the Sentinel Companion module.
-export const SITE_COPY: Record<string, readonly [string, string]> = {
+const SHARED_COPY: Record<string, readonly [string, string]> = {
   'Software': ['البرمجيات', 'سافٹ ویئر'], 'Web': ['الويب', 'ویب'], 'Growth': ['النمو', 'ترقی'],
   'Creative': ['الإبداع', 'تخلیق'], 'Solutions': ['الحلول', 'حل'], 'Build': ['البناء', 'تعمیر'],
   'About': ['عن KNOuX', 'KNOuX کے بارے میں'], 'Work': ['الأعمال', 'کام'], 'Contact': ['تواصل معنا', 'رابطہ'],
@@ -241,7 +241,20 @@ export const SITE_COPY: Record<string, readonly [string, string]> = {
   "Checking bridge…": ["جارٍ فحص الجسر…", "برج جانچا جا رہا ہے…"],
   "Check bridge connection": ["فحص اتصال الجسر", "برج کنکشن چیک کریں"],
 };
-const keys = new Map(Object.keys(SITE_COPY).map(key => [key.toLowerCase(), key]));
+
+/**
+ * The shared catalogue the chrome and shared surfaces translate against.
+ *
+ * Route-owned copy lives in `route-copy.ts`. It is imported by the routes that
+ * own it, so a page that never shows that copy never carries it in its client
+ * bundle - and the shared chrome cannot accidentally grow the budget of every
+ * page on the site.
+ */
+export const SITE_COPY: Record<string, readonly [string, string]> = {
+  ...SHARED_COPY,
+};
+
+const keys = new Map(Object.keys(SITE_COPY).map((key) => [key.toLowerCase(), key]));
 
 /**
  * Resolve an English source string to its catalogue key.

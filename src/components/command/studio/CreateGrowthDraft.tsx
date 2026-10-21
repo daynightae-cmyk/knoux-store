@@ -3,18 +3,33 @@
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWorkspace } from '../workspace-context';
+import { resolveRouteCopy } from '@/lib/i18n/route-copy';
+import { useSiteLanguage } from '@/lib/i18n/use-language';
 import styles from './studio.module.css';
+/**
+ * Route copy resolved against the site language.
+ *
+ * The hook lives here, in the component, rather than in a shared `usePageCopy`:
+ * that module imported the language store, which every page already loads, so
+ * the bundler grouped the route catalogue into the shared chunk and shipped it
+ * to pages that never show route copy.
+ */
+function useRouteCopy() {
+  const language = useSiteLanguage();
+  return (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
+}
+
 
 /** Small entry forms for real records; review and publishing remain separate. */
 export function CreateGrowthDraft({ kind }: { kind: 'client' | 'creative' | 'campaign' }) {
-  const { activeClient, records, isDemoWorkspace, uiLocale } = useWorkspace();
+  const { activeClient, records, isDemoWorkspace } = useWorkspace();
   const router = useRouter();
   const requestKey = useRef<string | null>(null);
   const [state, setState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [error, setError] = useState('');
-  const label = (en: string, ar: string) => uiLocale === 'ar' ? ar : en;
+  const label = useRouteCopy();
   if (isDemoWorkspace) return null;
-  return <details className={styles.theatre} dir={uiLocale === 'ar' ? 'rtl' : 'ltr'}>
+  return <details className={styles.theatre}>
     <summary>{label(`Create ${kind}`, kind === 'client' ? 'إضافة عميل' : kind === 'creative' ? 'إنشاء مسودة إبداعية' : 'إنشاء مسودة حملة')}</summary>
     <form className={styles.inspector} onChange={() => { if (state !== 'saving') { requestKey.current = null; setState('idle'); } }} onSubmit={async event => {
       event.preventDefault(); setState('saving'); setError('');
@@ -37,26 +52,26 @@ export function CreateGrowthDraft({ kind }: { kind: 'client' | 'creative' | 'cam
       } catch (failure) { setState('error'); setError(failure instanceof Error ? failure.message : 'Save failed.'); }
     }}>
       <fieldset disabled={state === 'saving' || state === 'saved'}>
-        <legend>{label('New record', 'سجل جديد')}</legend>
-        <label>{label('Name', 'الاسم')}<input name="name" required maxLength={200} /></label>
+        <legend>{label('New record')}</legend>
+        <label>{label('Name')}<input name="name" required maxLength={200} /></label>
         {kind === 'client' && <>
-          <p>{label('An existing workspace owner can onboard a client. Initial owner access must be provisioned by the operator.', 'يمكن لمالك مساحة عمل إضافة عميل. يتطلب حساب المالك الأول تهيئة من المشغّل.')}</p>
-          <label>{label('Business category', 'نوع النشاط')}<input name="category" required maxLength={200} /></label>
-          <label>{label('City', 'المدينة')}<input name="city" required maxLength={120} /></label>
-          <label>{label('Website', 'الموقع')}<input name="website" type="url" placeholder="https://" /></label>
-          <label>{label('Brand tone', 'أسلوب العلامة')}<textarea name="tone" maxLength={2000} /></label>
+          <p>{label('An existing workspace owner can onboard a client. Initial owner access must be provisioned by the operator.')}</p>
+          <label>{label('Business category')}<input name="category" required maxLength={200} /></label>
+          <label>{label('City')}<input name="city" required maxLength={120} /></label>
+          <label>{label('Website')}<input name="website" type="url" placeholder="https://" /></label>
+          <label>{label('Brand tone')}<textarea name="tone" maxLength={2000} /></label>
         </>}
-        {kind === 'creative' && <label>{label('Campaign', 'الحملة')}<select name="campaignId"><option value="">{label('Unassigned draft', 'مسودة غير مرتبطة')}</option>{records.campaigns.filter(campaign => ['DRAFT', 'CHANGES_REQUESTED'].includes(campaign.status)).map(campaign => <option key={campaign.id} value={campaign.id}>{campaign.name}</option>)}</select></label>}
+        {kind === 'creative' && <label>{label('Campaign')}<select name="campaignId"><option value="">{label('Unassigned draft')}</option>{records.campaigns.filter(campaign => ['DRAFT', 'CHANGES_REQUESTED'].includes(campaign.status)).map(campaign => <option key={campaign.id} value={campaign.id}>{campaign.name}</option>)}</select></label>}
         {kind === 'campaign' && <>
-          <label>{label('Budget in fils', 'الميزانية بالفلس')}<input name="budget" type="number" required min={1} step={1} /></label>
-          <label>{label('Start date', 'تاريخ البداية')}<input name="start" type="date" required /></label>
-          <label>{label('End date', 'تاريخ النهاية')}<input name="end" type="date" required /></label>
-          <p>{label('Creates an Instagram lead campaign draft in AED. Edit channels and targeting in the campaign builder.', 'ينشئ مسودة حملة عملاء محتملين على إنستغرام بالدرهم. عدّل القنوات والاستهداف في محرّر الحملة.')}</p>
+          <label>{label('Budget in fils')}<input name="budget" type="number" required min={1} step={1} /></label>
+          <label>{label('Start date')}<input name="start" type="date" required /></label>
+          <label>{label('End date')}<input name="end" type="date" required /></label>
+          <p>{label('Creates an Instagram lead campaign draft in AED. Edit channels and targeting in the campaign builder.')}</p>
         </>}
-        <button type="submit">{state === 'saving' ? label('Saving…', 'جارٍ الحفظ…') : label('Create draft', 'إنشاء المسودة')}</button>
+        <button type="submit">{state === 'saving' ? label('Saving…') : label('Create draft')}</button>
       </fieldset>
-      {state === 'saved' && <button type="button" onClick={event => { event.currentTarget.form?.reset(); requestKey.current = null; setState('idle'); }}>{label('Create another', 'إنشاء سجل آخر')}</button>}
-      {error && <p role="alert">{error}</p>}{state === 'saved' && <p role="status">{label('Saved. The workspace is refreshing.', 'تم الحفظ. جارٍ تحديث مساحة العمل.')}</p>}
+      {state === 'saved' && <button type="button" onClick={event => { event.currentTarget.form?.reset(); requestKey.current = null; setState('idle'); }}>{label('Create another')}</button>}
+      {error && <p role="alert">{error}</p>}{state === 'saved' && <p role="status">{label('Saved. The workspace is refreshing.')}</p>}
     </form>
   </details>;
 }

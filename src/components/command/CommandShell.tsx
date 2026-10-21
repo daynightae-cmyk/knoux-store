@@ -21,7 +21,22 @@ import { CommandDock, type DockSurface } from './CommandDock';
 import { useWorkspace } from './workspace-context';
 
 import { CapabilityBadge, ConnectionBadge } from './primitives';
+import { SiteLanguagePicker } from '@/components/i18n/SiteLanguage';
+import { resolveRouteCopy } from '@/lib/i18n/route-copy';
+import { useSiteLanguage } from '@/lib/i18n/use-language';
 import styles from './command.module.css';
+/**
+ * Route copy resolved against the site language.
+ *
+ * The hook lives here, in the component, rather than in a shared `usePageCopy`:
+ * that module imported the language store, which every page already loads, so
+ * the bundler grouped the route catalogue into the shared chunk and shipped it
+ * to pages that never show route copy.
+ */
+function useRouteCopy() {
+  const language = useSiteLanguage();
+  return (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
+}
 
 export type CommandShellProps = {
   area: CommandArea;
@@ -49,7 +64,8 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
       document.body.style.overflow = overflow;
     };
   }, [navigationOpen]);
-  const { records, clients, activeClient, setActiveClientId, isDemoWorkspace, demoReason, uiLocale, setUiLocale } = useWorkspace();
+  const { records, clients, activeClient, setActiveClientId, isDemoWorkspace, demoReason } = useWorkspace();
+  const t = useRouteCopy();
   const connections = records.connections;
   const blocked = connections.filter((connection) => connection.state === 'BLOCKED').length;
   const needsWork = connections.filter(
@@ -99,7 +115,7 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
                     aria-current={entry.slug === area.slug ? 'page' : undefined}
                     onClick={() => setNavigationOpen(false)}
                   >
-                    <CommandIcon code={entry.code} /><span>{uiLocale === 'ar' ? entry.labelAr : entry.label}</span>
+                    <CommandIcon code={entry.code} /><span>{t(entry.label, entry.labelAr)}</span>
                     <span className={styles.commandNavCode ?? ''}>{entry.code}</span>
                   </Link>
                 ))}
@@ -116,7 +132,7 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
           </div>
         </>);
   return (
-    <div className={styles.command ?? ''} lang={uiLocale} dir={uiLocale === 'ar' ? 'rtl' : 'ltr'}>
+    <div className={styles.command ?? ''}>
       <header className={styles.commandBar ?? ''}>
         <div className={styles.commandIdent ?? ''}>
           <KnouxMark />
@@ -124,7 +140,6 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
             <span className={styles.commandName ?? ''}>KNOuX Growth Command</span>
             <span className={styles.commandSub ?? ''}>Revenue Flight Deck · human-controlled growth</span>
           </span>
-          <button type="button" className={styles.languageToggle} onClick={() => setUiLocale(uiLocale === 'en' ? 'ar' : 'en')}>{uiLocale === 'en' ? 'العربية' : 'English'}</button>
         </div>
 
         <div className={styles.commandStrip ?? ''} tabIndex={0} role="group" aria-label="Workspace status indicators">
@@ -146,6 +161,13 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
               {blocked > 0 ? <span>{blocked} blocked</span> : null}
             </span>
           </div>
+          {/* The command route group hides the site masthead, so the one site
+              language authority has to be surfaced here — otherwise this
+              operating console is the one surface where the visitor cannot
+              choose the language. */}
+          <div className={styles.commandFact ?? ''}>
+            <SiteLanguagePicker />
+          </div>
         </div>
       </header>
 
@@ -160,7 +182,7 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
               <span className={styles.commandEyebrow ?? ''}>
                 {area.code} · {activeClient.name}
               </span>
-              <h1 className={styles.commandTitle ?? ''}>{uiLocale === 'ar' ? area.labelAr : area.label}</h1>
+              <h1 className={styles.commandTitle ?? ''}>{t(area.label, area.labelAr)}</h1>
               <p className={styles.commandLede ?? ''}>{area.purpose}</p>
             </div>
             <div className={styles.commandHeadActions ?? ''}>
