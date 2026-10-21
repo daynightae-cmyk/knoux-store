@@ -91,7 +91,11 @@ export function BuildAndOperate() {
             <li key={service.id} className="operate__service">
               <span className="operate__service-code mono">{service.code}</span>
               <div>
-                <h4>{service.name}</h4>
+                {/* The services sit under the section's own heading, so they
+                    are the third level. They were a fourth-level heading
+                    directly under a second-level one, which skipped a level
+                    and failed the heading-order check. */}
+                <h3>{service.name}</h3>
                 <p>{service.summary}</p>
                 <ul className="operate__activities">
                   {service.activities.map((activity) => (

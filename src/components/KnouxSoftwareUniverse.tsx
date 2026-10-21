@@ -74,7 +74,7 @@ export function KnouxSoftwareUniverse() {
           <button className="ksu-info-link" type="button">Open record</button>
         </article>
 
-        <ol className="ksu-rail" aria-label="KNOuX software universe products">{softwareUniverseProducts.map((product) => <li key={product.id}><a href={product.route}><Image src={product.image} alt={product.name} width={112} height={112} /><span>{product.name}</span></a></li>)}</ol>
+        <ol className="ksu-rail" aria-label="KNOuX software universe products">{softwareUniverseProducts.map((product) => <li key={product.id}><a href={product.route}><Image src={product.image} alt="" width={112} height={112} /><span>{product.name}</span></a></li>)}</ol>
       </div>
 
       <div className="ksu-content">

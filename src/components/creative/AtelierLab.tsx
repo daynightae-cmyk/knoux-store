@@ -514,7 +514,7 @@ export function AtelierLab() {
       {/* LEFT — material index */}
       <nav
         className="atelier-lab__index"
-        aria-label="Creative disciplines"
+        aria-label="Creative material index"
       >
         <span className="atelier-lab__index-label" aria-hidden="true">
           MATERIAL INDEX
@@ -551,11 +551,15 @@ export function AtelierLab() {
         <span className="label label--signal">
           MATERIAL {String(active + 1).padStart(2, '0')} / {discipline.code}
         </span>
-        <h3>{discipline.title}</h3>
+        {/* The discipline title is the second level of the page: the page
+            heading is the first, and the lists below it are the third. It was
+            a third-level heading directly after the first, which skipped a
+            level and failed the heading-order check. */}
+        <h2>{discipline.title}</h2>
         <p className="atelier-lab__statement">{discipline.statement}</p>
 
         <div className="atelier-lab__section">
-          <h4>DELIVERABLES</h4>
+          <h3>DELIVERABLES</h3>
           <ul>
             {discipline.deliverables.map((item) => (
               <li key={item}>{item}</li>
@@ -564,7 +568,7 @@ export function AtelierLab() {
         </div>
 
         <div className="atelier-lab__section">
-          <h4>PRINCIPLES</h4>
+          <h3>PRINCIPLES</h3>
           <ul>
             {discipline.principles.map((item) => (
               <li key={item}>{item}</li>

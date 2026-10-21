@@ -38,7 +38,13 @@ export function ProductHero({ product, arrivalComplete }: ProductHeroProps) {
               <>
                 <Image
                   src={logoPath}
-                  alt={`${product.name} logo`}
+                  /**
+                   * The wordmark beside this logo already spells the product
+                   * name, so an alt text repeating it is read twice. The logo
+                   * is therefore decorative here and the name is carried by
+                   * the text that follows it.
+                   */
+                  alt=""
                   className="product-hero__logo"
                   width={48}
                   height={48}

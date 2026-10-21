@@ -20,6 +20,11 @@ export function PlacementPreview({ edit, clientName, placement, safe = false, ra
     ? <div className={styles.media} style={{ aspectRatio: ratio ?? preset.ratio, position: 'relative' }}>{kind === 'VIDEO' ? <video src={resolved} controls playsInline preload="metadata" style={{ width: '100%', height: '100%', objectFit: 'cover' }} aria-label={`${clientName} creative video`} /> : <Image src={resolved} alt={`${clientName} creative`} fill sizes="(max-width: 650px) 90vw, 400px" style={{ objectFit: 'cover' }} unoptimized />}{safe && <div className={styles.safe}>Composition guide · not a verified platform safe zone</div>}</div>
     : <div className={styles.media} style={{ aspectRatio: ratio ?? preset.ratio }}><svg viewBox="0 0 180 180" aria-hidden="true"><path d="M90 12 158 51v78l-68 39-68-39V51z M90 12v156 M22 51l136 78 M158 51 22 129" /></svg><span>{edit.mediaAssetId ? mediaPending ? 'LOADING MEDIA' : 'MEDIA UNAVAILABLE' : 'EMPTY ASSET SLOT'}</span><small>{edit.mediaAssetId ? 'Media selected · loading or unavailable' : edit.asset ? `${edit.asset} · reference only; no resolved media URL` : 'No approved media selected'}</small>{safe && <div className={styles.safe}>Composition guide · not a verified platform safe zone</div>}</div>;
   const copy = <p className={styles.copy}>{creative.primaryText || 'Primary copy appears here'}</p>;
+  /**
+   * The headline is the title of the previewed composition, and it is exposed
+   * as a heading inside a labelled region: the theatre announces what it is
+   * showing, and the copy being previewed is its own title.
+   */
   const headline = <h3>{creative.headline || creative.concept}</h3>;
   const destination = <span className={styles.destination} dir="ltr">{destinationValid(edit.destination) ? new URL(edit.destination).hostname : 'Destination not configured'}</span>;
   return <article className={`${styles.ad} ${styles[preset.kind]}`} dir={edit.locale === 'ar' ? 'rtl' : 'ltr'} aria-label={`${preset.label} design preview`}>

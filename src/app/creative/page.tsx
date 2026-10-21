@@ -50,18 +50,18 @@ export default function CreativePage() {
                   {String(index + 1).padStart(2, '0')} / {discipline.code}
                 </span>
                 <div>
-                  <h3>{discipline.title}</h3>
+                  <h2>{discipline.title}</h2>
                   <p className="discipline__sub">{discipline.subtitle}</p>
                   <p className="discipline__statement">{discipline.statement}</p>
                   <Link href={`/creative/${discipline.slug}`} className="action" style={{ marginTop: 18 }}>EXPLORE DISCIPLINE <span className="action-arrow" aria-hidden="true">↗</span></Link>
                   <div className="discipline__list">
-                    <h4>DELIVERABLES</h4>
+                    <h3>DELIVERABLES</h3>
                     <ul>
                       {discipline.deliverables.map((item) => (
                         <li key={item}>{item}</li>
                       ))}
                     </ul>
-                    <h4>PRINCIPLES</h4>
+                    <h3>PRINCIPLES</h3>
                     <ul>
                       {discipline.principles.map((item) => (
                         <li key={item}>{item}</li>
