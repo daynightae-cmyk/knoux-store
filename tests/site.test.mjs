@@ -159,6 +159,23 @@ test('production routes, deep links, sitemap and honest contact delivery', async
   // Command interface affordance must be reachable without a pointer, and its
   // accessible name must include the visible label (label-in-name).
   assert.match(home, /class="header-search"[\s\S]{0,400}?visually-hidden">Open search</, 'a labelled search control must exist in the header');
+
+  // Navigation toggles keep an aria-label that leads with the visible wording:
+  // reachability probes look for the attribute, and the label-in-name rule
+  // requires the visible word inside the name.
+  assert.match(home, /class="mobile-toggle"[\s\S]{0,300}?aria-label="MENU — Open navigation"/, 'the mobile navigation toggle must keep a labelled control');
+  const build = await (await fetch(origin + '/build')).text();
+  assert.match(build, /dev-menu-button[\s\S]{0,300}?aria-label="MENU — Open workspace navigation"/, 'the workspace navigation toggle must keep a labelled control');
+
+  // Signal-rail links are inside a horizontally scrolling rail. Their hidden
+  // label spans must be positioned against the link itself, otherwise the
+  // absolutely positioned span escapes the rail clip and widens the document.
+  const cssAssets = [...new Set(assets.filter((asset) => asset.endsWith('.css')))];
+  assert.ok(cssAssets.length > 0, 'stylesheets resolve');
+  const stylesheet = (await Promise.all(
+    cssAssets.map(async (asset) => await (await fetch(origin + asset)).text()),
+  )).join('\n');
+  assert.match(stylesheet, /\.signal-rail a\{[^}]*position:relative/, 'signal-rail links must bound their hidden label spans');
 });
 
 test('division pages render their registry honestly', async () => {

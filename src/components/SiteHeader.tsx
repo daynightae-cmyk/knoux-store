@@ -117,6 +117,7 @@ export function SiteHeader() {
             className="mobile-toggle"
             type="button"
             aria-expanded={menu}
+            aria-label={`${t(menu ? 'CLOSE' : 'MENU')} — ${t(menu ? 'Close navigation' : 'Open navigation')}`}
             onClick={() => setMenu((value) => !value)}
           >
             {t(menu ? 'CLOSE' : 'MENU')}
