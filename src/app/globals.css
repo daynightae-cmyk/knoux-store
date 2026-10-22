@@ -417,6 +417,7 @@
   display: inline-flex;
   gap: 8px;
   align-items: baseline;
+  position: relative;
 }
 .signal-rail a em { font-family: var(--mono); font-style: normal; font-size: 8.5px; color: var(--dim); }
 .signal-rail a:hover, .signal-rail a[aria-current="page"] { color: var(--text); }

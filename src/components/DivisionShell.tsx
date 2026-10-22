@@ -37,16 +37,16 @@ export function SignalRail({ division, path }: { division: DivisionId; path: str
         <span className="signal-rail__label">INDEX</span>
         {items.map((item) => {
           const current = path === item.href || (item.href.includes('#') && path === item.href.split('#')[0]);
-          const hash = item.href.includes('#') ? ' (section)' : undefined;
+          const section = item.href.includes('#');
           return (
             <Link
               key={item.href}
               href={item.href}
               aria-current={current ? 'page' : undefined}
-              aria-label={hash ? `${item.label}${hash}` : undefined}
             >
               <em>{item.code}</em>
               {item.label}
+              {section ? <span className="visually-hidden"> (section)</span> : null}
             </Link>
           );
         })}
