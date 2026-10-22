@@ -156,8 +156,9 @@ test('production routes, deep links, sitemap and honest contact delivery', async
     assert.ok(home.includes(product), `homepage must list ${product}`);
   }
 
-  // Command interface affordance must be reachable without a pointer.
-  assert.match(home, /aria-label="Open search"/, 'a labelled search control must exist in the header');
+  // Command interface affordance must be reachable without a pointer, and its
+  // accessible name must include the visible label (label-in-name).
+  assert.match(home, /class="header-search"[\s\S]{0,400}?visually-hidden">Open search</, 'a labelled search control must exist in the header');
 });
 
 test('division pages render their registry honestly', async () => {

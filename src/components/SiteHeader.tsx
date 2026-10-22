@@ -70,10 +70,11 @@ export function SiteHeader() {
   return (
     <>
       <header lang={language} dir={siteDirection(language)} className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
-        <Link href="/" className="brand" aria-label={t('KNOuX home')}>
+        <Link href="/" className="brand">
           <span className="brand-dot" aria-hidden="true" />
           KNOuX
-          <span className="brand-end">r</span>
+          <span className="brand-end">r</span>{' '}
+          <span className="visually-hidden">{t('KNOuX home')}</span>
         </Link>
 
         <nav className="desktop-nav" aria-label={t('Divisions')}>
@@ -107,20 +108,20 @@ export function SiteHeader() {
             className="header-search"
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent(OPEN_EVENT))}
-            aria-label={t('Open search')}
           >
             <span>{t('SEARCH')}</span>
-            <kbd>⌘K</kbd>
+            <kbd>⌘K</kbd>{' '}
+            <span className="visually-hidden">{t('Open search')}</span>
           </button>
           <button
             className="mobile-toggle"
             type="button"
-            aria-label={t(menu ? 'Close navigation' : 'Open navigation')}
             aria-expanded={menu}
             onClick={() => setMenu((value) => !value)}
           >
             {t(menu ? 'CLOSE' : 'MENU')}
-            <span aria-hidden="true">{menu ? '×' : '+'}</span>
+            <span aria-hidden="true">{menu ? '×' : '+'}</span>{' '}
+            <span className="visually-hidden">{t(menu ? 'Close navigation' : 'Open navigation')}</span>
           </button>
         </div>
       </header>

@@ -527,7 +527,6 @@ export function AtelierLab() {
             onClick={() => selectDiscipline(index)}
             onFocus={() => selectDiscipline(index)}
             aria-pressed={active === index}
-            aria-label={`Select ${entry.title}`}
           >
             <small>{entry.code}</small>
             <span>{entry.title}</span>
