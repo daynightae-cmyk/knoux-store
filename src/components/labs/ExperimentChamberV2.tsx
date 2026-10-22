@@ -111,7 +111,6 @@ export function ExperimentChamberV2() {
             onClick={() => selectExperiment(index)}
             aria-pressed={active === index}
             className={active === index ? 'is-active' : ''}
-            aria-label={`Select ${entry.code} ${entry.name}`}
           >
             {entry.code}
             <span>{entry.name}</span>

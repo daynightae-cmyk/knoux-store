@@ -78,8 +78,11 @@ describe('AtelierLab source integrity', () => {
     assert.match(atelierSrc, /creativeDisciplines\.map\([\s\S]*?type="button"/);
     // aria-pressed for keyboard state communication
     assert.match(atelierSrc, /aria-pressed=\{active === index\}/);
-    // aria-label on each button
-    assert.match(atelierSrc, /aria-label=\{`Select/);
+    // Accessible name must include the visible label (label-in-name): the
+    // per-button name comes from content (code + title), never a separate
+    // aria-label that would omit the visible wording.
+    assert.doesNotMatch(atelierSrc, /aria-label=\{`Select/);
+    assert.match(atelierSrc, /<small>\{entry\.code\}<\/small>\s*<span>\{entry\.title\}<\/span>/);
   });
 
   test('pointer tracking uses ref mutation — no setState inside onMove body', () => {
