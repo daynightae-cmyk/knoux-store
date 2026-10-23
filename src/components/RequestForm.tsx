@@ -8,6 +8,8 @@ import { webSystems } from '@/data/services';
 import { creativeDisciplines } from '@/data/services';
 import { growthChannelsDetail } from '@/data/growth';
 import { softwareProducts } from '@/data/software';
+import { useSiteLanguage } from '@/lib/i18n/use-language';
+import { translatedSiteCopy } from '@/lib/i18n/site-copy';
 
 /**
  * Unified request engine.
@@ -23,33 +25,51 @@ import { softwareProducts } from '@/data/software';
 
 export type RequestType = 'software' | 'wordpress' | 'web' | 'growth' | 'creative' | 'solution' | 'custom';
 
-const REQUEST_TYPES: { id: RequestType; label: string; blurb: string }[] = [
-  { id: 'software', label: 'Software', blurb: 'A KNOuX desktop system, its access, or custom implementation of one.' },
-  { id: 'wordpress', label: 'WordPress', blurb: 'Install, migration, maintenance, performance, security or backup.' },
-  { id: 'web', label: 'Web', blurb: 'A site, store, application, portal, dashboard or interactive build.' },
-  { id: 'growth', label: 'Growth', blurb: 'Campaign structure, measurement, content or discoverability.' },
-  { id: 'creative', label: 'Creative', blurb: 'Identity, interface, art direction, motion or campaign assets.' },
-  { id: 'solution', label: 'Solution', blurb: 'Several divisions combined for one outcome.' },
-  { id: 'custom', label: 'Something else', blurb: 'Anything that does not fit the categories above.' },
-];
-
-const TIMELINES = [
-  { id: 'unknown', label: 'Not decided yet' },
-  { id: 'urgent', label: 'Urgent — something is broken' },
-  { id: 'quarter', label: 'This quarter' },
-  { id: 'year', label: 'This year' },
-  { id: 'exploring', label: 'Exploring, no date in mind' },
-];
-
-const BUDGET_BANDS = [
-  { id: 'unstated', label: 'Not decided' },
-  { id: 'under-5k', label: 'Under 5,000' },
-  { id: '5k-15k', label: '5,000 – 15,000' },
-  { id: '15k-50k', label: '15,000 – 50,000' },
-  { id: 'over-50k', label: 'Over 50,000' },
-];
-
 const CONTACT_EMAIL = 'knouxio@zohomail.com';
+
+function makeRequestTypes(t: (s: string) => string) {
+  return [
+    { id: 'software' as RequestType, label: t('Software'), blurb: t('A KNOuX desktop system, its access, or custom implementation of one.') },
+    { id: 'wordpress' as RequestType, label: t('WordPress'), blurb: t('Install, migration, maintenance, performance, security or backup.') },
+    { id: 'web' as RequestType, label: t('Web'), blurb: t('A site, store, application, portal, dashboard or interactive build.') },
+    { id: 'growth' as RequestType, label: t('Growth'), blurb: t('Campaign structure, measurement, content or discoverability.') },
+    { id: 'creative' as RequestType, label: t('Creative'), blurb: t('Identity, interface, art direction, motion or campaign assets.') },
+    { id: 'solution' as RequestType, label: t('Solution'), blurb: t('Several divisions combined for one outcome.') },
+    { id: 'custom' as RequestType, label: t('Something else'), blurb: t('Anything that does not fit the categories above.') },
+  ] as const;
+}
+
+function makeTimelines(t: (s: string) => string) {
+  return [
+    { id: 'unknown', label: t('Not decided yet') },
+    { id: 'urgent', label: t('Urgent — something is broken') },
+    { id: 'quarter', label: t('This quarter') },
+    { id: 'year', label: t('This year') },
+    { id: 'exploring', label: t('Exploring, no date in mind') },
+  ] as const;
+}
+
+function makeBudgetBands(t: (s: string) => string) {
+  return [
+    { id: 'unstated', label: t('Not decided') },
+    { id: 'under-5k', label: t('Under 5,000') },
+    { id: '5k-15k', label: t('5,000 – 15,000') },
+    { id: '15k-50k', label: t('15,000 – 50,000') },
+    { id: 'over-50k', label: t('Over 50,000') },
+  ] as const;
+}
+
+function makeChannels(t: (s: string) => string) {
+  return [
+    t('Google Search'),
+    t('YouTube'),
+    t('Instagram'),
+    t('Facebook'),
+    t('TikTok'),
+    t('Organic search'),
+    t('Not decided'),
+  ] as const;
+}
 
 /**
  * Entry context is read from the URL once, on first render. Deriving initial
@@ -83,7 +103,9 @@ function readEntryContext(params: URLSearchParams | null) {
   if (budget) push(`Budget stated: ${budget}`);
 
   const requested = params.get('requestType');
-  const valid = REQUEST_TYPES.some((entry) => entry.id === requested) ? (requested as RequestType) : null;
+  // REQUEST_TYPES is not available here; use the static list for validation
+  const validTypes: RequestType[] = ['software', 'wordpress', 'web', 'growth', 'creative', 'solution', 'custom'];
+  const valid = validTypes.includes(requested as RequestType) ? (requested as RequestType) : null;
 
   return {
     type: valid,
@@ -103,7 +125,14 @@ type EntryContext = {
 export function RequestForm() {
   const router = useRouter();
   const params = useSearchParams();
+  const language = useSiteLanguage();
+  const t = (text: string) => translatedSiteCopy(text, language);
   const context = useMemo(() => readEntryContext(params), [params]);
+
+  const REQUEST_TYPES = makeRequestTypes(t);
+  const TIMELINES = makeTimelines(t);
+  const BUDGET_BANDS = makeBudgetBands(t);
+  const CHANNELS = makeChannels(t);
 
   const [type, setType] = useState<RequestType>(context.type ?? 'web');
   const [items, setItems] = useState<string[]>(context.items);
@@ -123,7 +152,7 @@ export function RequestForm() {
       case 'software':
         return softwareProducts.map((product) => product.name);
       case 'wordpress':
-        return ['Install & configuration', 'Migration', 'Maintenance', 'Performance', 'Security', 'Backup & recovery', 'Headless delivery'];
+        return [t('Install & configuration'), t('Migration'), t('Maintenance'), t('Performance'), t('Security'), t('Backup & recovery'), t('Headless delivery')];
       case 'web':
         return webSystems.map((system) => system.title);
       case 'growth':
@@ -135,7 +164,7 @@ export function RequestForm() {
       default:
         return [];
     }
-  }, [type]);
+  }, [type, t]);
 
   const showBudget = type === 'growth' || type === 'web' || type === 'wordpress' || type === 'solution';
   const showChannels = type === 'growth' || type === 'solution' || type === 'creative';
@@ -172,18 +201,18 @@ export function RequestForm() {
       });
       if (response.status === 503) {
         setStatus('unconfigured');
-        setMessage('No delivery service is configured on this deployment, so nothing was sent. Use the address below instead.');
+        setMessage(t('No delivery service is configured on this deployment, so nothing was sent. Use the address below instead.'));
         return;
       }
       const receipt = await response.json() as { delivered?: boolean };
       if (!response.ok || receipt.delivered !== true) throw new Error('The request could not be delivered.');
       setStatus('sent');
-      setMessage('Request delivered.');
+      setMessage(t('Request delivered.'));
       track({ type: 'request_submitted', requestType: type, itemCount: items.length, delivered: true });
       form.reset();
     } catch (error) {
       setStatus('error');
-      setMessage(error instanceof Error ? error.message : 'The request could not be delivered.');
+      setMessage(error instanceof Error ? error.message : t('The request could not be delivered.'));
       track({ type: 'request_submitted', requestType: type, itemCount: items.length, delivered: false });
     }
   }
@@ -192,7 +221,7 @@ export function RequestForm() {
     <form className="form-grid" onSubmit={submit}>
       <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
         <legend className="label" style={{ marginBottom: 14 }}>
-          WHAT IS THIS ABOUT
+          {t('WHAT IS THIS ABOUT')}
         </legend>
         <div className="option-grid">
           {REQUEST_TYPES.map((entry) => (
@@ -218,13 +247,13 @@ export function RequestForm() {
       </fieldset>
 
       {items.some(item => !options.includes(item)) ? (
-        <aside aria-label="Imported composition" style={{ borderInlineStart: '2px solid var(--violet)', paddingInlineStart: 20, overflowWrap: 'anywhere' }}>
-          <h2 style={{ fontSize: 22, fontWeight: 400 }}>Your prepared request</h2>
-          <p className="field__hint">These selections are included in the request. Review them before sending.</p>
+        <aside aria-label={t('Imported composition')} style={{ borderInlineStart: '2px solid var(--violet)', paddingInlineStart: 20, overflowWrap: 'anywhere' }}>
+          <h2 style={{ fontSize: 22, fontWeight: 400 }}>{t('Your prepared request')}</h2>
+          <p className="field__hint">{t('These selections are included in the request. Review them before sending.')}</p>
           {items.filter(item => !options.includes(item)).map(item => (
             <div key={item}>
               <p style={{ fontSize: 14, lineHeight: 1.7 }}>{item}</p>
-              <button type="button" className="action" onClick={() => setItems(current => current.filter(value => value !== item))}>Remove this selection</button>
+              <button type="button" className="action" onClick={() => setItems(current => current.filter(value => value !== item))}>{t('Remove this selection')}</button>
             </div>
           ))}
         </aside>
@@ -233,7 +262,7 @@ export function RequestForm() {
       {options.length > 0 ? (
         <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
           <legend className="label" style={{ marginBottom: 14 }}>
-            RELEVANT TO THIS REQUEST
+            {t('RELEVANT TO THIS REQUEST')}
           </legend>
           <div className="checkbox-grid">
             {options.map((option) => (
@@ -257,10 +286,10 @@ export function RequestForm() {
       {showChannels ? (
         <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
           <legend className="label" style={{ marginBottom: 14 }}>
-            PREFERRED CHANNELS
+            {t('PREFERRED CHANNELS')}
           </legend>
           <div className="checkbox-grid">
-            {['Google Search', 'YouTube', 'Instagram', 'Facebook', 'TikTok', 'Organic search', 'Not decided'].map((channel) => (
+            {CHANNELS.map((channel) => (
               <label key={channel} className="checkbox" style={{ textTransform: 'none', letterSpacing: 0 }}>
                 <input
                   type="checkbox"
@@ -280,14 +309,13 @@ export function RequestForm() {
 
       {showSoftware ? (
         <p className="field__hint">
-          KNOuX software is published as source. Access, packaging and custom implementation are discussed here
-          rather than purchased from this page; no payment infrastructure exists on this site.
+          {t('KNOuX software is published as source. Access, packaging and custom implementation are discussed here rather than purchased from this page; no payment infrastructure exists on this site.')}
         </p>
       ) : null}
 
       {showBudget ? (
         <div className="field">
-          <label htmlFor="budgetBand">Budget band, if you have one</label>
+          <label htmlFor="budgetBand">{t('Budget band, if you have one')}</label>
           <select id="budgetBand" name="budgetBand" defaultValue="unstated">
             {BUDGET_BANDS.map((band) => (
               <option key={band.id} value={band.id}>
@@ -296,14 +324,13 @@ export function RequestForm() {
             ))}
           </select>
           <span className="field__hint">
-            Used to understand scope. It is not a quote and it is not used to produce a forecast or a return
-            projection.
+            {t('Used to understand scope. It is not a quote and it is not used to produce a forecast or a return projection.')}
           </span>
         </div>
       ) : null}
 
       <div className="field">
-        <label htmlFor="timeline">Timing</label>
+        <label htmlFor="timeline">{t('Timing')}</label>
         <select id="timeline" name="timeline" defaultValue="unknown">
           {TIMELINES.map((entry) => (
             <option key={entry.id} value={entry.id}>
@@ -315,22 +342,22 @@ export function RequestForm() {
 
       <div className="form-row">
         <div className="field">
-          <label htmlFor="name">Your name</label>
-          <input id="name" name="name" required minLength={2} maxLength={100} autoComplete="name" placeholder="Name" />
+          <label htmlFor="name">{t('Your name')}</label>
+          <input id="name" name="name" required minLength={2} maxLength={100} autoComplete="name" placeholder={t('Name')} />
         </div>
         <div className="field">
-          <label htmlFor="email">Email</label>
-          <input id="email" name="email" type="email" required maxLength={254} autoComplete="email" placeholder="you@example.com" />
+          <label htmlFor="email">{t('Email')}</label>
+          <input id="email" name="email" type="email" required maxLength={254} autoComplete="email" placeholder={t('you@example.com')} />
         </div>
       </div>
 
       <div className="field">
-        <label htmlFor="organisation">Organisation, if any</label>
-        <input id="organisation" name="organisation" maxLength={160} autoComplete="organization" placeholder="Optional" />
+        <label htmlFor="organisation">{t('Organisation, if any')}</label>
+        <input id="organisation" name="organisation" maxLength={160} autoComplete="organization" placeholder={t('Optional')} />
       </div>
 
       <div className="field">
-        <label htmlFor="message">The situation</label>
+        <label htmlFor="message">{t('The situation')}</label>
         <textarea
           id="message"
           name="message"
@@ -338,24 +365,24 @@ export function RequestForm() {
           minLength={10}
           maxLength={4000}
           rows={6}
-          placeholder="What exists now, what is not working, and what a good outcome looks like."
+          placeholder={t('What exists now, what is not working, and what a good outcome looks like.')}
         />
       </div>
 
       <div className="honeypot" aria-hidden="true">
-        <label htmlFor="website">Website</label>
+        <label htmlFor="website">{t('Website')}</label>
         <input id="website" name="website" tabIndex={-1} autoComplete="off" />
       </div>
 
       <div style={{ display: 'flex', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
         <button type="submit" className="action action--primary" disabled={status === 'sending'}>
-          {status === 'sending' ? 'Sending' : 'Send request'}
+          {status === 'sending' ? t('Sending') : t('Send request')}
           <span className="action-arrow" aria-hidden="true">
             ↗
           </span>
         </button>
         <span className="field__hint">
-          Or email <a href={`mailto:${CONTACT_EMAIL}`} style={{ textDecoration: 'underline', textUnderlineOffset: 3 }}>{CONTACT_EMAIL}</a>
+          {t('Or email')} <a href={`mailto:${CONTACT_EMAIL}`} style={{ textDecoration: 'underline', textUnderlineOffset: 3 }}>{CONTACT_EMAIL}</a>
         </span>
       </div>
 
@@ -364,9 +391,9 @@ export function RequestForm() {
       </p>
 
       <p className="field__hint">
-        Prefer email? Write to <a href={`mailto:${CONTACT_EMAIL}`} style={{ textDecoration: 'underline', textUnderlineOffset: 3 }}>{CONTACT_EMAIL}</a> directly, or
+        {t('Prefer email? Write to')} <a href={`mailto:${CONTACT_EMAIL}`} style={{ textDecoration: 'underline', textUnderlineOffset: 3 }}>{CONTACT_EMAIL}</a> {t('directly, or')}
         <button type="button" className="action action--ghost" style={{ fontSize: 12, marginLeft: 4 }} onClick={() => router.push('/build')}>
-          assemble a stack first
+          {t('assemble a stack first')}
           <span className="action-arrow" aria-hidden="true">
             ↗
           </span>
