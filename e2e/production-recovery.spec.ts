@@ -83,8 +83,8 @@ test('WordPress studio changes official selection, sizes the screenshot and carr
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   await expect(studio.getByRole('link', { name: /تكوين طلب موقع/ })).toBeVisible();
   await studio.getByRole('link', { name: /تكوين طلب موقع/ }).click();
-  await expect(page.getByRole('complementary', { name: 'Imported composition' })).toContainText(name!);
-  await expect(page.getByRole('complementary', { name: 'Imported composition' })).toContainText('https://wordpress.org/themes/');
-  await page.getByRole('button', { name: 'Remove this selection' }).click();
-  await expect(page.getByRole('complementary', { name: 'Imported composition' })).toHaveCount(0);
+  await expect(page.getByRole('complementary', { name: 'التركيب المستورد' })).toContainText(name!);
+  await expect(page.getByRole('complementary', { name: 'التركيب المستورد' })).toContainText('https://wordpress.org/themes/');
+  await page.getByRole('button', { name: 'إزالة هذا التحديد' }).click();
+  await expect(page.getByRole('complementary', { name: 'التركيب المستورد' })).toHaveCount(0);
 });
