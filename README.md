@@ -94,7 +94,7 @@ The [software catalogue](src/data/software.ts) is an evidence-linked registry. I
 | SW-03 | **[KNOuX Repair](https://knoux.store/products/knoux-repair)** | Windows maintenance and repair | `active` |
 | SW-04 | **[KNOuX SmartOrganizer](https://knoux.store/products/knoux-smartorganizer)** | File and workspace organisation | `active` |
 | SW-05 | **[KNOuX REC](https://knoux.store/products/knoux-rec)** | Capture and media workflows | `active` |
-| SW-06 | **[KNOuX Player X](https://knoux.store/products/knoux-player-x)** | Desktop media experience | `active` |
+| SW-06 | **[KNOuX Player X](https://knoux.store/products/knoux-x)** | Desktop media experience | `active` |
 | SW-07 | **[KNOuX Clipboard AI](https://knoux.store/products/knoux-clipboard-ai)** | Developer productivity | `release-candidate` |
 | — | **KNOuX Quill** | Research entry in the wider software registry | `research` |
 | — | **KNOuX Crypt** | Research entry in the wider software registry | `research` |
@@ -127,7 +127,7 @@ This is not a fabricated customer portfolio. [Work](https://knoux.store/work) do
 <tr>
 <td align="center"><a href="https://knoux.store/products/knoux-smartorganizer"><img src="public/knoux-universe/knoux-smartorganizer.webp" width="210" alt="KNOuX SmartOrganizer identity artwork" /><br/><strong>SmartOrganizer</strong></a><br/><sub>File organisation</sub></td>
 <td align="center"><a href="https://knoux.store/products/knoux-rec"><img src="public/knoux-universe/knoux-rec.webp" width="210" alt="KNOuX REC identity artwork" /><br/><strong>KNOuX REC</strong></a><br/><sub>Capture workflows</sub></td>
-<td align="center"><a href="https://knoux.store/products/knoux-player-x"><img src="public/knoux-universe/knoux-player-x.webp" width="210" alt="KNOuX Player X identity artwork" /><br/><strong>Player X</strong></a><br/><sub>Desktop media</sub></td>
+<td align="center"><a href="https://knoux.store/products/knoux-x"><img src="public/knoux-universe/knoux-player-x.webp" width="210" alt="KNOuX Player X identity artwork" /><br/><strong>Player X</strong></a><br/><sub>Desktop media</sub></td>
 </tr>
 </table>
 
