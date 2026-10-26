@@ -7,5 +7,5 @@ phonenumbers==9.0.41
 python-dotenv==1.2.4
 pyarrow==26.0.0
 osmium==4.3.1
-PyMuPDF==1.28.2
+PyMuPDF==2.0
 duckdb>=1.5.6
