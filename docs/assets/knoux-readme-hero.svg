@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="640" viewBox="0 0 1600 640" role="img" aria-labelledby="title desc">
+  <title id="title">KNOuX — Engineering Digital Systems</title>
+  <desc id="desc">A graphite-black architectural hero with platinum typography, precise violet signal lines, and a spatial map of KNOuX's eight divisions.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#08090D"/><stop offset=".56" stop-color="#11131B"/><stop offset="1" stop-color="#08090E"/></linearGradient>
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#FFFFFF"/><stop offset=".52" stop-color="#D8D9E4"/><stop offset="1" stop-color="#A6A7BA"/></linearGradient>
+    <linearGradient id="violet" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#B8A0FF"/><stop offset=".5" stop-color="#8258EA"/><stop offset="1" stop-color="#4D2A9E"/></linearGradient>
+    <radialGradient id="glow"><stop stop-color="#7854D3" stop-opacity=".22"/><stop offset="1" stop-color="#7854D3" stop-opacity="0"/></radialGradient>
+    <pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse"><path d="M56 0H0V56" stroke="#9A92B9" stroke-width=".65" fill="none" opacity=".095"/></pattern>
+    <clipPath id="frame"><rect width="1600" height="640" rx="20"/></clipPath>
+  </defs>
+  <g clip-path="url(#frame)">
+    <rect width="1600" height="640" fill="url(#bg)"/>
+    <rect width="1600" height="640" fill="url(#grid)"/>
+    <circle cx="1280" cy="284" r="460" fill="url(#glow)"/>
+    <path d="M0 3H1600M0 637H1600" stroke="#BBA7E7" opacity=".17"/>
+    <path d="M70 0V640M1530 0V640" stroke="#9A92B9" opacity=".13"/>
+    <path d="M73 96H1528" stroke="#BBA7E7" opacity=".22"/>
+    <path d="M73 550H1528" stroke="#BBA7E7" opacity=".22"/>
+    <g font-family="Arial, Helvetica, sans-serif">
+      <text x="76" y="63" fill="#F7F5FF" font-size="31" font-weight="700" letter-spacing="7">KNOuX</text>
+      <text x="297" y="59" fill="#A6A0B7" font-size="13" letter-spacing="3">/ DIGITAL HEADQUARTERS</text>
+      <text x="1516" y="59" fill="#B3A9D6" font-size="13" letter-spacing="2" text-anchor="end">KN / HQ — 001</text>
+      <text x="80" y="155" fill="#AA92DE" font-size="14" font-weight="700" letter-spacing="4">ONE INSTITUTION. EIGHT DISCIPLINES.</text>
+      <text x="74" y="285" fill="url(#ink)" font-size="98" font-weight="700" letter-spacing="-5">ENGINEERING</text>
+      <text x="74" y="386" fill="url(#ink)" font-size="98" font-weight="700" letter-spacing="-5">DIGITAL</text>
+      <text x="74" y="480" fill="#A88CEB" font-size="98" font-weight="700" letter-spacing="-5">SYSTEMS.</text>
+      <text x="80" y="520" fill="#B5B5C3" font-size="17" letter-spacing="1">Software. Infrastructure. Intelligence. Experience.</text>
+    </g>
+    <path d="M915 152L915 486" stroke="#A38AD6" opacity=".27"/>
+    <g transform="translate(1200 324)" fill="none">
+      <circle r="207" stroke="#A88CEB" opacity=".20"/>
+      <circle r="157" stroke="#A88CEB" opacity=".32"/>
+      <circle r="109" stroke="#A88CEB" opacity=".48"/>
+      <circle r="53" fill="#120F21" stroke="#B69FE9" stroke-width="1.4"/>
+      <circle r="13" fill="url(#violet)"/>
+      <circle r="4" fill="#E8DBFF"/>
+      <g stroke="#8A76BE" stroke-width="1" opacity=".6">
+        <path d="M0 -157V-53M111 -111L38 -38M157 0H53M111 111L38 38M0 157V53M-111 111L-38 38M-157 0H-53M-111 -111L-38 -38"/>
+      </g>
+      <g fill="#C8B8F3" stroke="#AE95E9" stroke-width="2">
+        <circle cx="0" cy="-157" r="6"/><circle cx="111" cy="-111" r="6"/><circle cx="157" cy="0" r="6"/><circle cx="111" cy="111" r="6"/>
+        <circle cx="0" cy="157" r="6"/><circle cx="-111" cy="111" r="6"/><circle cx="-157" cy="0" r="6"/><circle cx="-111" cy="-111" r="6"/>
+      </g>
+      <g font-family="Arial, Helvetica, sans-serif" font-size="12" letter-spacing="1.5" fill="#BFC0D2">
+        <text x="0" y="-180" text-anchor="middle">SOFTWARE</text><text x="130" y="-122">WORDPRESS</text>
+        <text x="182" y="4">WEB</text><text x="134" y="130">GROWTH</text>
+        <text x="0" y="185" text-anchor="middle">CREATIVE</text><text x="-134" y="132" text-anchor="end">SOLUTIONS</text>
+        <text x="-184" y="4" text-anchor="end">LABS</text><text x="-133" y="-124" text-anchor="end">INSTITUTION</text>
+      </g>
+      <text x="0" y="76" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" letter-spacing="2.5" fill="#CCBDF3">KN / 08</text>
+    </g>
+    <g font-family="Arial, Helvetica, sans-serif" font-size="13" letter-spacing="2.5">
+      <text x="80" y="595" fill="#E5DFFC">BUILT WITH INTENT</text>
+      <text x="420" y="595" fill="#B9AECF">DESIGNED TO BE VERIFIED</text>
+      <text x="1515" y="595" fill="#C8B7FF" text-anchor="end">KNOUX.STORE  ↗</text>
+    </g>
+    <rect x="74" y="132" width="2" height="398" fill="url(#violet)"/>
+    <rect x="1522" y="565" width="3" height="33" fill="#8B6DCF"/>
+  </g>
+</svg>
