@@ -5,6 +5,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { capabilityById, capabilities, type Capability, type CapabilityDivisionId } from '@/data/capabilities';
 import { capabilityMatrixDivisions } from '@/data/navigation';
 import { track } from '@/lib/analytics';
+import { useSiteLanguage } from '@/lib/i18n/use-language';
+import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 
 /**
  * Capability matrix.
@@ -14,6 +16,8 @@ import { track } from '@/lib/analytics';
  * internal departments are called.
  */
 export function CapabilityMatrix() {
+  const language = useSiteLanguage();
+  const t = (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
   const [focus, setFocus] = useState<CapabilityDivisionId | 'all'>('all');
   const [query, setQuery] = useState('');
 
@@ -43,14 +47,14 @@ export function CapabilityMatrix() {
   return (
     <div>
       <div className="finder-controls" style={{ marginTop: 0, marginBottom: 26 }}>
-        <div className="finder-chips" role="group" aria-label="Filter matrix by division">
+        <div className="finder-chips" role="group" aria-label={t('Filter matrix by division')}>
           <button
             type="button"
             className={`tag tag--button ${focus === 'all' ? 'is-active' : ''}`}
             aria-pressed={focus === 'all'}
             onClick={() => setFocus('all')}
           >
-            ALL DIVISIONS
+            {t('ALL DIVISIONS')}
           </button>
           {capabilityMatrixDivisions.map((division) => (
             <button
@@ -63,7 +67,7 @@ export function CapabilityMatrix() {
                 track({ type: 'registry_filtered', registry: 'capability-matrix', filter: division.id, count: 0 });
               }}
             >
-              {division.label.toUpperCase()}
+              {t(division.label.toUpperCase())}
             </button>
           ))}
         </div>
@@ -74,25 +78,25 @@ export function CapabilityMatrix() {
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Filter capabilities"
-            aria-label="Filter capabilities"
+            placeholder={t('Filter capabilities')}
+            aria-label={t('Filter capabilities')}
             type="search"
             style={{ padding: '11px 14px 11px 0', fontSize: 13 }}
           />
         </div>
       </div>
 
-      <div className="matrix-scroll" role="region" aria-label="Capabilities by division" tabIndex={0}>
+      <div className="matrix-scroll" role="region" aria-label={t('Capabilities against KNOuX divisions. A filled marker means the division delivers that capability.')} tabIndex={0}>
         <table className="matrix">
           <caption className="visually-hidden">
-            Capabilities against KNOuX divisions. A filled marker means the division delivers that capability.
+            {t('Capabilities against KNOuX divisions. A filled marker means the division delivers that capability.')}
           </caption>
           <thead>
             <tr>
-              <th scope="col">Capability</th>
+              <th scope="col">{t('Capability')}</th>
               {capabilityMatrixDivisions.map((division) => (
                 <th key={division.id} scope="col">
-                  {division.label}
+                  {t(division.label)}
                 </th>
               ))}
             </tr>
@@ -107,9 +111,9 @@ export function CapabilityMatrix() {
 
       <p className="meta-row" style={{ marginTop: 20 }}>
         <span>
-          {rows.length} of {capabilities.length} CAPABILITIES
+          {rows.length} of {capabilities.length} {t('CAPABILITIES')}
         </span>
-        <span>Marker means the division delivers it, not that it is the only one who can</span>
+        <span>{t('Marker means the division delivers it, not that it is the only one who can')}</span>
       </p>
     </div>
   );
@@ -173,6 +177,8 @@ export function SystemsStudio({
     qualifiers: string[];
   }>;
 }) {
+  const language = useSiteLanguage();
+  const t = (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
   // Use the same request selection for server markup and the first client render.
   const [selected, setSelected] = useState(() =>
     initialSystem && systems.some((system) => system.slug === initialSystem)
@@ -191,7 +197,7 @@ export function SystemsStudio({
 
   return (
     <div ref={containerRef}>
-      <div className="option-grid" style={{ marginBottom: 44 }} role="group" aria-label="What are you building?">
+      <div className="option-grid" style={{ marginBottom: 44 }} role="group" aria-label={t('What are you building?')}>
         {systems.map((system) => (
           <button
             key={system.id}
@@ -219,11 +225,11 @@ export function SystemsStudio({
             </span>
             <h3>{current.title}</h3>
             <p>{current.statement}</p>
-            <Link href={`/web/${current.slug}`} className="action" style={{ marginTop: 22 }}>EXPLORE SYSTEM <span className="action-arrow" aria-hidden="true">↗</span></Link>
+            <Link href={`/web/${current.slug}`} className="action" style={{ marginTop: 22 }}>{t('EXPLORE SYSTEM')} <span className="action-arrow" aria-hidden="true">↗</span></Link>
           </div>
           <div className="systems-panel__body">
             <div>
-              <span className="dossier-card__label">DISCIPLINES</span>
+              <span className="dossier-card__label">{t('DISCIPLINES')}</span>
               <dl className="systems-panel__list">
                 {current.disciplines.map((discipline) => (
                   <div key={discipline.label}>
@@ -234,14 +240,14 @@ export function SystemsStudio({
               </dl>
             </div>
             <div>
-              <span className="dossier-card__label">ARTEFACTS</span>
+              <span className="dossier-card__label">{t('ARTEFACTS')}</span>
               <ul className="fact-list">
                 {current.artefacts.map((artefact) => (
                   <li key={artefact}>{artefact}</li>
                 ))}
               </ul>
               <span className="dossier-card__label" style={{ marginTop: 26 }}>
-                PLATFORM CHOICE
+                {t('PLATFORM CHOICE')}
               </span>
               <ul className="limit-list">
                 {current.platformNotes.map((note) => (
@@ -252,7 +258,7 @@ export function SystemsStudio({
                 ))}
               </ul>
               <span className="dossier-card__label" style={{ marginTop: 26 }}>
-                QUESTIONS THAT CHANGE THE ARCHITECTURE
+                {t('QUESTIONS THAT CHANGE THE ARCHITECTURE')}
               </span>
               <ul className="limit-list">
                 {current.qualifiers.map((qualifier) => (
