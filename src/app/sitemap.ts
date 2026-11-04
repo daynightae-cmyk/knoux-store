@@ -29,6 +29,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [
     '/',
     '/products',
+    '/software/kx-private-vpn',
+    '/docs/kx-private-vpn',
+    '/legal/kx-private-vpn/privacy',
+    '/support/kx-private-vpn',
+    '/software/kx-private-vpn/releases',
     '/wordpress',
     ...wordpressCategories.map((category: (typeof wordpressCategories)[number]) => category.route),
     '/web',
