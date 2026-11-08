@@ -1,0 +1,207 @@
+{
+  "eyebrow": "KNOuX SOFTWARE / ANDROID",
+  "product": "KX PRIVATE VPN",
+  "status": "NATIVE DEVELOPMENT · PRE-RELEASE",
+  "nav": [
+    "Overview",
+    "Documentation",
+    "Privacy",
+    "Support",
+    "Releases"
+  ],
+  "headings": {
+    "overview": [
+      "A private connection.",
+      "Built on evidence."
+    ],
+    "docs": [
+      "Know the system.",
+      "Before you connect."
+    ],
+    "privacy": [
+      "Privacy by design.",
+      "Limits in plain sight."
+    ],
+    "support": [
+      "Get help.",
+      "Without sharing secrets."
+    ],
+    "releases": [
+      "Release ledger.",
+      "Proof before download."
+    ]
+  },
+  "descriptions": {
+    "overview": "Android-native WireGuard client with explicit consent, local encrypted profiles, configurable routes and honest connection states. Field verification is ongoing.",
+    "docs": "Setup guidance and security boundaries for the developing KX Android application. Actions may vary by build; confirm actual capabilities in your installed version.",
+    "privacy": "This policy describes the KX Private VPN Android client under development, not the separate KNOuX website or an independent VPN service provider.",
+    "support": "Report problems with reproducible steps and sanitized evidence. Never send a VPN configuration containing private keys.",
+    "releases": "Public distribution is gated on release signing, Android device verification and a tested network gateway. We do not publish a placeholder APK."
+  },
+  "buttons": [
+    "Read the docs",
+    "Privacy policy",
+    "View development source",
+    "Contact support"
+  ],
+  "noRelease": "There is no public, production-verified signed Android release advertised here.",
+  "availability": "DEVELOPMENT STATUS",
+  "featureHeading": "Built as real Android services.",
+  "featureIntro": "The repository contains working native implementation, with field verification and release acceptance tracked separately.",
+  "features": [
+    [
+      "01",
+      "WireGuard transport",
+      "Android VpnService consent and official GoBackend, with connection state and real counters. Owned gateway field proof remains required."
+    ],
+    [
+      "02",
+      "Encrypted profiles",
+      "Device-local configuration storage using Android Keystore and AES-GCM. Configuration import requires explicit user action."
+    ],
+    [
+      "03",
+      "Split tunneling",
+      "Per-application inclusion or bypass routing through native VPN APIs; end-to-end egress proof is still pending."
+    ],
+    [
+      "04",
+      "Security visibility",
+      "Displays measured Android VPN settings, routing evidence and unavailable features without pretending they are enabled."
+    ],
+    [
+      "05",
+      "Advanced networking",
+      "MTU, DNS and peer keepalive configurations are implemented; real-gateway effects need validation."
+    ],
+    [
+      "06",
+      "Network diagnostics",
+      "Local connectivity readings and an optional user-approved HTTPS probe. No automatic browsing-history inspection."
+    ]
+  ],
+  "stepsHeading": "A transparent testing path",
+  "steps": [
+    [
+      "01",
+      "Bring a trusted profile",
+      "KX does not create a public commercial VPN account or supply a production server fleet."
+    ],
+    [
+      "02",
+      "Grant Android consent",
+      "Android must explicitly authorize the VpnService before the client can start a tunnel."
+    ],
+    [
+      "03",
+      "Verify actual traffic",
+      "A connected UI alone does not establish DNS safety, exit-IP routing or split-tunnel correctness."
+    ]
+  ],
+  "docsSections": [
+    [
+      "01 / Prerequisites",
+      "Use a supported Android device (minSdk 26), a WireGuard configuration from a server you own or trust, and a test build that has been explicitly identified by its source SHA. Never import an unknown configuration."
+    ],
+    [
+      "02 / Import and consent",
+      "Choose Import, select an authorized .conf or manual entry, inspect endpoint and peer details, then approve the Android system VPN permission only when you intend to connect. The app must not bypass this permission."
+    ],
+    [
+      "03 / Local profiles",
+      "Saved profile contents are encrypted in app-private storage using a device-keystore key. Deleting the app removes this local store; keep a secure independent backup of configuration you own."
+    ],
+    [
+      "04 / Connection verification",
+      "Check the backend-confirmed state, latest handshake and transfer counters; then verify server exit address, DNS behaviour, IPv6 and reconnection with a trusted gateway. A status indicator is not proof of those external properties."
+    ],
+    [
+      "05 / Split tunneling",
+      "Select which installed applications should be included in or bypass the tunnel, then explicitly reconnect when required. Verify actual traffic of both selected and bypassed applications."
+    ],
+    [
+      "06 / LAN QA gateway",
+      "The local Windows QA gateway is an isolated WireGuard peer for same-Wi-Fi handshake testing. It does not provide internet egress, a commercial relay or anonymous browsing. Never publish its private key or its peer configuration."
+    ],
+    [
+      "07 / Troubleshooting",
+      "Confirm your phone can reach the endpoint; check VPN consent, endpoint and port, Wi-Fi or mobile-data state, DNS settings, and Android background restrictions. Record the exact build SHA and sanitized logs; never send secrets in screenshots."
+    ]
+  ],
+  "privacySections": [
+    [
+      "01 / Who and what this covers",
+      "KNOuX publishes this notice for the KX Private VPN Android application. It explains current client-side behaviour visible in the source repository. A third-party VPN server you choose is operated under its own privacy practices; KNOuX cannot certify that server as no-logs."
+    ],
+    [
+      "02 / Information kept on your device",
+      "The app saves WireGuard profiles, endpoint information and private keys in AES-GCM encrypted app-private files using a key held by Android Keystore. App preferences, including selected applications for split tunneling and network settings, are stored on the device. Android backup is disabled in the current manifest."
+    ],
+    [
+      "03 / Network access and diagnostic requests",
+      "With Android VPN permission, the app forwards traffic according to the configuration you choose. Android exposes network status, DNS and tunnel counters to the app. Network Doctor makes an HTTPS HEAD request to a specified address only after explicit user approval. That destination sees normal network metadata, such as the originating IP address."
+    ],
+    [
+      "04 / Data we do not claim to collect",
+      "The reviewed native build has no Firebase SDK dependency and does not automatically upload WireGuard private keys, browsing histories or tunnel payloads to a KNOuX cloud service. These statements describe the reviewed build, not a permanent promise about future versions or third-party gateways."
+    ],
+    [
+      "05 / Testing and outside services",
+      "Firebase App Distribution may be used separately to invite a small number of testers. Google processes invitation and distribution information under its own terms. Google/Firebase Crashlytics is not integrated into the reviewed Android build. If optional telemetry is added later, this policy and consent controls must be reviewed before enabling it."
+    ],
+    [
+      "06 / Retention and user control",
+      "Locally saved profiles and preferences remain until you remove them or uninstall the application. Removing them from the app does not remove independent copies you made or logs retained by a server operator you chose. Android and your chosen gateway may keep their own operational records."
+    ],
+    [
+      "07 / Security limitations",
+      "WireGuard encrypts data between your device and the configured VPN peer, not necessarily between that peer and a final destination. A VPN is not a blanket anonymity guarantee or proof of leak protection. Real routing and leak tests are mandatory before any broader security claims."
+    ],
+    [
+      "08 / Contact and changes",
+      "For questions, contact knouxio@zohomail.com. This notice may change as features are implemented; material data-handling changes must be described before release. Last reviewed: 5 November 2026."
+    ]
+  ],
+  "supportSteps": [
+    [
+      "Your build",
+      "Include app version, source commit or release tag, Android version and device model."
+    ],
+    [
+      "What happened",
+      "Give steps to reproduce, expected behaviour and actual behaviour, plus whether the issue occurs on Wi-Fi or mobile data."
+    ],
+    [
+      "Safe evidence",
+      "Remove private keys, peer configurations, access tokens, personal addresses, account details, QR codes and screenshots containing secrets."
+    ],
+    [
+      "Security concern",
+      "Email directly instead of posting sensitive vulnerabilities or data in a public issue."
+    ]
+  ],
+  "releaseSteps": [
+    [
+      "Source identity",
+      "A signed release must identify the exact Git commit, application version and reproducible build metadata."
+    ],
+    [
+      "Android quality gates",
+      "Required lint, tests, API 26/35 device coverage, RTL/LTR and accessibility checks must be reviewed without hiding failures."
+    ],
+    [
+      "VPN field proof",
+      "A trusted gateway must demonstrate real handshake, transfer, DNS/IPv6 route behaviour, reconnect and split-tunnel egress."
+    ],
+    [
+      "Distribution integrity",
+      "Publish hashes, provenance, signed APK/AAB and privacy disclosures before linking a public download."
+    ],
+    [
+      "F-Droid readiness",
+      "An F-Droid submission requires a compatible open-source license and dependency audit. The Android repository currently has no root LICENSE; no F-Droid approval or submission is claimed."
+    ]
+  ],
+  "access": "No account or payment is required for the client itself; you must bring a trusted VPN profile. An always-free public VPN service is not offered here.",
+  "sourceNote": "Read the repository for current implementation and CI evidence. Release status is not inferred from a passing build alone."
+}
