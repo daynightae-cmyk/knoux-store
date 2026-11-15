@@ -60,12 +60,13 @@ export function AwakeningLauncher({
   }, [activate, pathname, variant]);
 
   if (variant === 'header') {
+    const label = `${t('Activate the KNOuX awakening')} — ${t('AWAKEN')}`;
     return (
       <button
         type="button"
         className="awakening-header"
         onClick={activate}
-        aria-label={t('Activate the KNOuX awakening')}
+        aria-label={label}
       >
         <span className="awakening-header__key" aria-hidden="true">
           K
