@@ -45,23 +45,36 @@
   .arrival-sticky{min-height:600px}
   .arrival-meta{top:82px;font-size:8px}
   .arrival-meta span:nth-child(2){display:none}
-  .arrival-visual{inset:96px 0 auto 0;padding-right:0;justify-items:center;align-items:start}
-  .mark-stage{height:min(44vh,86vw,380px)}
-  .arrival-copy{left:24px;right:24px;bottom:74px;max-width:none}
-  .arrival-copy h1{font-size:clamp(56px,20vw,120px);line-height:.78;letter-spacing:-.085em;margin:14px 0 18px;white-space:nowrap}
-  .arrival-description{font-size:13px;line-height:1.5;max-width:34ch}
+  .arrival-visual{inset:92px 0 auto 0;padding-right:0;justify-items:center;align-items:start}
+  .mark-stage{height:clamp(130px,24vh,250px)}
+  .arrival-copy{left:24px;right:24px;bottom:70px;max-width:none}
+  .arrival-copy h1{font-size:clamp(52px,18.5vw,104px);line-height:.78;letter-spacing:-.085em;margin:10px 0 14px;white-space:nowrap}
+  .arrival-description{font-size:12.5px;line-height:1.45;max-width:32ch}
   .arrival-description br{display:none}
-  .arrival-actions{flex-direction:column;align-items:flex-start;gap:16px;margin-top:20px}
+  .arrival-actions{flex-direction:column;align-items:flex-start;gap:12px;margin-top:14px}
+  .arrival-actions .button-primary{padding:13px 15px;font-size:8.5px}
+  .arrival-actions .button-text{font-size:8.5px;padding-bottom:6px}
   .arrival-bottom{bottom:22px;font-size:7.5px;letter-spacing:.11em;gap:10px}
   .arrival-bottom>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .quality-control{gap:6px;flex:none}
   .quality-control select{max-width:64px;font-size:8px}
 }
 @media(max-width:390px){
-  .arrival-copy h1{font-size:clamp(52px,19.4vw,96px)}
-  .arrival-actions{gap:14px}
+  .arrival-copy h1{font-size:clamp(52px,18.2vw,96px)}
+  .arrival-actions{gap:12px}
   .orbit-node{min-height:95px}
   .orbit-node strong{font-size:11px}
+}
+/* Short phones cannot hold a mark, an installation and three copy blocks in one
+   screen. The particle mark becomes a smaller identity stamp, the description
+   recedes, and the dock rises so the mascot still owns the middle. */
+@media(max-width:760px) and (max-height:700px){
+  .arrival-visual{inset:92px 0 auto 0}
+  .mark-stage{height:clamp(110px,18vh,150px)}
+  .arrival-copy{bottom:64px}
+  .arrival-copy h1{margin:8px 0 12px}
+  .arrival-description{display:none}
+  .arrival-actions{margin-top:12px}
 }
 @media(prefers-reduced-motion:reduce){.mark-fallback{opacity:.6}}
 

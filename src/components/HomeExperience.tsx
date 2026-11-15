@@ -8,6 +8,8 @@ import { QualityControl } from '@/components/QualityControl';
 import { RevealGroup } from '@/components/blocks';
 import { ArchitecturalMap, MissionPath } from '@/components/SpatialExperiences';
 import { HomeSoftwareField } from '@/components/HomeSoftwareField';
+import { AwakeningLauncher } from '@/components/awakening/AwakeningLauncher';
+import { AwakeningStage } from '@/components/awakening/AwakeningStage';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
 import { translatedSiteCopy } from '@/lib/i18n/site-copy';
 
@@ -38,7 +40,8 @@ export function HomeExperience() {
   }, []);
 
   return (
-    <main id="main-content" tabIndex={-1}>
+    <>
+      <main id="main-content" tabIndex={-1}>
       {/* Protected arrival sequence */}
       <section className="arrival-rail" aria-label={t('KNOuX introduction')}>
         <div className="arrival-sticky">
@@ -51,6 +54,9 @@ export function HomeExperience() {
             <div className="starfield" aria-hidden="true" />
             <LivingParticleMark progress={progress} onSettled={() => setSettled(true)} />
           </div>
+          {/* The Sentinel and its key sit in the centre of the hall, between the
+              particle mark and the wordmark. */}
+          <AwakeningLauncher variant="hero" />
           <div className={`arrival-copy ${progress > 0.45 ? 'is-shifting' : ''} ${settled ? 'is-revealed' : ''}`}>
             <p className="eyebrow">
               <span className="pulse-dot" /> {t("ENGINEERING DIGITAL SYSTEMS")}
@@ -59,7 +65,7 @@ export function HomeExperience() {
               KNOuX<span className="period">.</span>
             </h1>
             <p className="arrival-description">
-              {t('Eight divisions. One institution.')}
+              {t('Eight divisions. One institution.')}{' '}
               <br />
               {t('Software, systems and the work around them.')}
             </p>
@@ -209,5 +215,7 @@ export function HomeExperience() {
         </section>
       </RevealGroup>
     </main>
+      <AwakeningStage />
+    </>
   );
 }
