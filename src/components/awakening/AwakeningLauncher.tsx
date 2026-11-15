@@ -60,7 +60,7 @@ export function AwakeningLauncher({
   }, [activate, pathname, variant]);
 
   if (variant === 'header') {
-    const label = `${t('Activate the KNOuX awakening')} — ${t('AWAKEN')}`;
+    const label = `${t('Activate the KNOuX awakening')} — K ${t('AWAKEN')}`;
     return (
       <button
         type="button"
@@ -77,7 +77,7 @@ export function AwakeningLauncher({
   }
 
   if (variant === 'menu') {
-    const label = `${t('The Awakening')} — ${t('Activate the KNOuX awakening')}`;
+    const label = `00 ${t('The Awakening')} — ${t('Activate the KNOuX awakening')}`;
     return (
       <button
         type="button"
