@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { institutionNavigation, primaryNavigation } from '@/data/navigation';
 import { OPEN_EVENT } from '@/components/CommandPalette';
 import { SiteLanguagePicker } from '@/components/i18n/SiteLanguage';
+import { AwakeningLauncher } from '@/components/awakening/AwakeningLauncher';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
 import { translatedSiteCopy } from '@/lib/i18n/site-copy';
 import { siteDirection } from '@/lib/i18n/languages';
@@ -91,7 +92,7 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="header-actions"><SiteLanguagePicker />
+        <div className="header-actions"><AwakeningLauncher variant="header" /><SiteLanguagePicker />
           {authRoute ? (
             <Link className="header-access header-home" href="/" aria-label={t('Return to KNOuX home')}>
               <svg className="header-home__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -133,6 +134,7 @@ export function SiteHeader() {
             setMenu(false);
             window.setTimeout(() => window.dispatchEvent(new CustomEvent(OPEN_EVENT)), 0);
           }}>{t('Search the institution')} <span aria-hidden="true">⌘K</span></button>
+          <AwakeningLauncher variant="menu" onActivate={() => setMenu(false)} />
           <span className="label" style={{ marginBottom: 18 }}>
             {t('DIVISIONS')}
           </span>
