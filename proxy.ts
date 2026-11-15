@@ -1,20 +1,12 @@
 import type { NextRequest } from 'next/server';
-import { updateSession } from '@/lib/supabase/proxy';
+import { updateSupabaseSession } from '@/lib/supabase/proxy';
 
 export async function proxy(request: NextRequest) {
-  return updateSession(request);
+  return updateSupabaseSession(request);
 }
 
 export const config = {
   matcher: [
-    '/account/:path*',
-    '/login',
-    '/register',
-    '/forgot-password',
-    '/update-password',
-    '/auth/:path*',
-    '/command/:path*',
-    '/api/intelligence/:path*',
-    '/api/growth/:path*',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif)$).*)',
   ],
 };

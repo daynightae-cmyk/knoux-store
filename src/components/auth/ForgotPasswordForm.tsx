@@ -9,7 +9,12 @@ import { AuthStatus } from '@/components/auth/AuthStatus';
 import { AuthSubmit } from '@/components/auth/ProviderButtons';
 import { ChamberIdentity } from '@/components/auth/ChamberIdentity';
 
-/** Password recovery through the configured Supabase Auth mail flow. */
+/**
+ * Password recovery through Supabase Auth.
+ *
+ * The result is deliberately non-enumerating: a successful request states that
+ * a message is sent only if an account exists for the address.
+ */
 export function ForgotPasswordForm() {
   const [state, formAction] = useActionState(requestPasswordResetAction, IDLE_STATE);
 
@@ -20,12 +25,12 @@ export function ForgotPasswordForm() {
         Reset your password
       </h1>
       <p className="auth-form__statement" data-stagger="statement">
-        Enter the email address on your account to request a recovery link.
+        State the address on the account and the chamber will say what it can do.
       </p>
 
       <AuthField label="Email" name="email" type="email" autoComplete="email" error={state.errors.email} />
 
-      <AuthSubmit pendingLabel="Requesting...">Request Reset</AuthSubmit>
+      <AuthSubmit pendingLabel="Checking…">Request Reset</AuthSubmit>
 
       <AuthStatus state={state} />
 

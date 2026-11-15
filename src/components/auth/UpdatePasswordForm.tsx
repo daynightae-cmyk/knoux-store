@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useActionState } from 'react';
 import { updatePasswordAction } from '@/lib/auth/actions';
 import { IDLE_STATE } from '@/lib/auth/state';
@@ -18,12 +19,35 @@ export function UpdatePasswordForm() {
         Choose a new password
       </h1>
       <p className="auth-form__statement" data-stagger="statement">
-        This session came from a verified recovery link.
+        Set the password for the recovered KNOuX account.
       </p>
-      <AuthField label="New password" name="password" type="password" autoComplete="new-password" toggleable error={state.errors.password} />
-      <AuthField label="Confirm password" name="confirmPassword" type="password" autoComplete="new-password" toggleable error={state.errors.confirmPassword} />
+
+      <AuthField
+        label="New password"
+        name="password"
+        type="password"
+        autoComplete="new-password"
+        toggleable
+        error={state.errors.password}
+      />
+
+      <AuthField
+        label="Confirm new password"
+        name="confirmPassword"
+        type="password"
+        autoComplete="new-password"
+        toggleable
+        error={state.errors.confirmPassword}
+      />
+
       <AuthSubmit pendingLabel="Updating…">Update Password</AuthSubmit>
       <AuthStatus state={state} />
+
+      <p className="auth-form__foot" data-stagger="foot">
+        <Link className="auth-link" href="/account">
+          Continue to account
+        </Link>
+      </p>
     </form>
   );
 }

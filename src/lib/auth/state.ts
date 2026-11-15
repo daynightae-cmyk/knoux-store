@@ -1,7 +1,7 @@
 import type { FieldErrors } from '@/lib/auth/validation';
 
 export type AuthFormState = {
-  status: 'idle' | 'success' | 'error' | 'not-configured';
+  status: 'idle' | 'not-configured' | 'error' | 'success';
   errors: FieldErrors;
   message: string;
   provider: 'google' | 'github' | null;

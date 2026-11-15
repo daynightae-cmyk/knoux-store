@@ -1,15 +1,6 @@
-import { NextResponse } from "next/server";
-import {
-  checkDeclaredLength,
-  checkRequestOrigin,
-  publicRequestOrigin,
-  intakeRateLimit,
-  readBoundedJson,
-} from "@/lib/contact/intake-guard";
-import {
-  isEmailConfigured,
-  sendContactNotification,
-} from "@/lib/contact/email";
+import { NextResponse } from 'next/server';
+import { createClient as createSupabaseClient } from '@/lib/supabase/server';
+import { hasSupabaseConfig } from '@/lib/supabase/config';
 
 /**
  * Request intake.
@@ -18,15 +9,10 @@ import {
  * engine, so a Composer stack, a WordPress goal and a direct contact all
  * arrive in the same shape.
  *
- * Delivery uses email (Resend API, RESEND_API_KEY) as the primary transport,
- * falling back to CONTACT_WEBHOOK_URL. Without either the endpoint returns 503
- * rather than pretending a message was received. No logging of message
- * content, and no storage of submissions.
- *
- * Abuse controls are applied in the order that costs the least to a legitimate
- * caller: a cross-site browser request is refused before the body is read, an
- * oversized body is refused before it is buffered, and the per-address ceiling
- * is charged only once the request is otherwise going to be processed.
+ * A configured Supabase project stores validated submissions through a
+ * security-definer RPC guarded by database policy. CONTACT_WEBHOOK_URL remains
+ * optional delivery fan-out. The endpoint distinguishes durable storage from
+ * external delivery instead of reporting success for work that did not occur.
  */
 
 const MAX_ITEMS = 24;
@@ -49,98 +35,33 @@ type Payload = {
 function cleanList(value: unknown, limit: number): string[] {
   if (!Array.isArray(value)) return [];
   return value
-    .filter((entry): entry is string => typeof entry === "string")
+    .filter((entry): entry is string => typeof entry === 'string')
     .map((entry) => entry.trim().slice(0, 160))
     .filter(Boolean)
     .slice(0, limit);
 }
 
 function cleanText(value: unknown, max: number): string {
-  return typeof value === "string" ? value.trim().slice(0, max) : "";
+  return typeof value === 'string' ? value.trim().slice(0, max) : '';
 }
 
-function refuse(
-  status: number,
-  error: string,
-  extra: Record<string, unknown> = {},
-) {
-  return NextResponse.json(
-    { error, delivered: false, ...extra },
-    { status, headers: { "cache-control": "no-store" } },
-  );
-}
-
-/**
- * The origin this site is actually reached at.
- *
- * `new URL(request.url).origin` is the origin of whatever reached the server
- * process, which behind a proxy, a container or a platform router is the
- * *internal* origin — not the one the browser typed. Comparing an `Origin`
- * header against it refuses every legitimate submission: the browser sent
- * `https://knoux.store`, the process saw `http://localhost:3000`, and the
- * honest visitor is told the endpoint is site-only. The forwarded headers are
- * what the edge sets to describe the public request, so those are what the
- * comparison has to use, with the URL origin as the fallback.
- *
- * The declared `host` is still only used to build a comparison value. Nothing
- * is trusted from it beyond that: a forged `Origin` and a forged `Host` would
- * have to agree with each other, and the `Sec-Fetch-Site` check is the
- * browser-forged-header signal that this defence actually rests on.
- */
 export async function POST(request: Request) {
-  const ownOrigin = publicRequestOrigin(request);
-
-  const origin = checkRequestOrigin(request.headers, ownOrigin);
-  if (!origin.ok) {
-    return refuse(
-      403,
-      "This endpoint accepts submissions from the KNOuX site only.",
-    );
+  let data: unknown;
+  try {
+    data = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body.', delivered: false }, { status: 400 });
   }
 
-  const declared = checkDeclaredLength(request.headers);
-  if (!declared.ok) {
-    return refuse(413, "Submission is larger than this endpoint accepts.");
-  }
-
-  const limit = intakeRateLimit(request);
-  if (!limit.ok) {
-    return NextResponse.json(
-      {
-        error: "Too many submissions. Please try again shortly.",
-        delivered: false,
-      },
-      {
-        status: 429,
-        headers: {
-          "cache-control": "no-store",
-          "retry-after": String(limit.retryAfterSeconds ?? 60),
-        },
-      },
-    );
-  }
-
-  const body = await readBoundedJson(request);
-  if (!body.ok) {
-    return refuse(
-      body.reason === "body-too-large" ? 413 : 400,
-      "Invalid request body.",
-    );
-  }
-
-  const data = body.value;
-  if (!data || typeof data !== "object" || Array.isArray(data)) {
-    return refuse(400, "Invalid request body.");
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    return NextResponse.json({ error: 'Invalid request body.', delivered: false }, { status: 400 });
   }
 
   const fields = data as Record<string, unknown>;
 
   // Honeypot submissions are accepted silently so bots do not learn the rule.
   if (cleanText(fields.website, 200)) {
-    return NextResponse.json(
-      { ok: true, delivered: false },
-      { headers: { "cache-control": "no-store" } },
-    );
+    return NextResponse.json({ ok: true, delivered: false });
   }
 
   const payload: Payload = {
@@ -148,19 +69,13 @@ export async function POST(request: Request) {
     email: cleanText(fields.email, 254),
     organisation: cleanText(fields.organisation, 160),
     message: cleanText(fields.message, 4000),
-    requestType: cleanText(fields.requestType, 40) || "custom",
+    requestType: cleanText(fields.requestType, 40) || 'custom',
     selectedItems: cleanList(fields.selectedItems, MAX_ITEMS),
     preferredChannels: cleanList(fields.preferredChannels, MAX_CHANNELS),
-    budgetBand:
-      typeof fields.budgetBand === "string"
-        ? fields.budgetBand.slice(0, 40)
-        : null,
+    budgetBand: typeof fields.budgetBand === 'string' ? fields.budgetBand.slice(0, 40) : null,
     timeline: cleanText(fields.timeline, 40),
-    sourceInput:
-      typeof fields.sourceInput === "string"
-        ? cleanText(fields.sourceInput, 500)
-        : null,
-    entryRoute: cleanText(fields.entryRoute, 200) || "/contact",
+    sourceInput: typeof fields.sourceInput === 'string' ? cleanText(fields.sourceInput, 500) : null,
+    entryRoute: cleanText(fields.entryRoute, 200) || '/contact',
   };
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email);
@@ -170,64 +85,72 @@ export async function POST(request: Request) {
     payload.message.length < 10 ||
     payload.message.length > 4000
   ) {
-    return refuse(422, "Request fields are invalid.");
+    return NextResponse.json({ error: 'Request fields are invalid.', delivered: false }, { status: 422 });
   }
 
-  const receivedAt = new Date().toISOString();
-  const webhook = process.env.CONTACT_WEBHOOK_URL;
+  let stored = false;
+  let requestId: string | null = null;
 
-  if (!isEmailConfigured() && !webhook) {
-    return refuse(
-      503,
-      "Request delivery is not configured on this deployment.",
-    );
-  }
-
-  // Email is the primary transport when configured.
-  if (isEmailConfigured()) {
-    const sent = await sendContactNotification({ ...payload, receivedAt });
-    if (sent) {
-      return NextResponse.json(
-        { ok: true, delivered: true },
-        { headers: { "cache-control": "no-store" } },
-      );
+  if (hasSupabaseConfig()) {
+    try {
+      const supabase = await createSupabaseClient();
+      const { data: id, error } = await supabase.rpc('submit_contact_request', {
+        p_name: payload.name,
+        p_email: payload.email,
+        p_message: payload.message,
+        p_company: payload.organisation || undefined,
+        p_request_type: payload.requestType,
+        p_source_path: payload.entryRoute,
+        p_metadata: {
+          selectedItems: payload.selectedItems,
+          preferredChannels: payload.preferredChannels,
+          budgetBand: payload.budgetBand,
+          timeline: payload.timeline,
+          sourceInput: payload.sourceInput,
+          source: 'knoux.store',
+        },
+      });
+      if (!error && typeof id === 'string') {
+        stored = true;
+        requestId = id;
+      }
+    } catch {
+      stored = false;
     }
-    // Email failed — fall through to webhook if available, otherwise report failure.
-    if (!webhook) return refuse(502, "Delivery failed.");
   }
 
-  // Re-assert the invariant immediately before the outbound request. The two
-  // guards above only prove it along their own control-flow paths; this is the
-  // point where the value is actually used, so it is where it must be checked.
-  // The URL is server-configured only — nothing in the request body can reach
-  // this fetch, so there is no user-controlled SSRF surface here.
-  if (!webhook)
-    return refuse(
-      503,
-      "Request delivery is not configured on this deployment.",
+  const webhook = process.env.CONTACT_WEBHOOK_URL;
+  if (!webhook) {
+    if (stored) {
+      return NextResponse.json({ ok: true, stored: true, delivered: false, requestId }, { status: 202 });
+    }
+    return NextResponse.json(
+      { error: 'Request intake is not configured on this deployment.', stored: false, delivered: false },
+      { status: 503 },
     );
+  }
 
   try {
     const response = await fetch(webhook, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...payload, source: "knoux.store", receivedAt }),
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...payload, requestId, source: 'knoux.store', receivedAt: new Date().toISOString() }),
       signal: AbortSignal.timeout(10000),
-      cache: "no-store",
+      cache: 'no-store',
     });
     if (!response.ok) throw new Error(`Upstream responded ${response.status}`);
-    return NextResponse.json(
-      { ok: true, delivered: true },
-      { headers: { "cache-control": "no-store" } },
-    );
+    return NextResponse.json({ ok: true, stored, delivered: true, requestId });
   } catch {
-    return refuse(502, "Delivery failed.");
+    if (stored) {
+      return NextResponse.json(
+        { ok: true, stored: true, delivered: false, requestId, warning: 'Stored, but external delivery failed.' },
+        { status: 202 },
+      );
+    }
+    return NextResponse.json({ error: 'Delivery failed.', stored: false, delivered: false }, { status: 502 });
   }
 }
 
 export async function GET() {
-  return NextResponse.json(
-    { error: "Method not allowed." },
-    { status: 405, headers: { "cache-control": "no-store" } },
-  );
+  return NextResponse.json({ error: 'Method not allowed.' }, { status: 405 });
 }

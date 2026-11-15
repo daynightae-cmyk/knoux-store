@@ -2,8 +2,8 @@
 
 Date: 2026-09-28
 Project: `D:\Knoux Store`
-Closure branch: `feat/final-experience-closure`
-Starting `main` and `origin/main`: `de6072446d3ee9034b3d7143b35c61c81004b1f8`
+Current branch: `feat/supabase-content-registry`
+Starting `main` for this continuation: `484bba7382b1c6d04735daa34f90954c1a15e45f`
 
 ## Authority and production baseline
 
@@ -13,7 +13,7 @@ The accepted Home arrival and canonical `LivingParticleMark` remain the visual a
 
 | Reference family | Current implementation | Closure state |
 | --- | --- | --- |
-| Auth / Embacy | `auth/AuthScene`, canonical mark, account route UI | Visual reference closed. Operational identity is **blocked**: no provider adapter or session issuer exists. Environment-name signals do not constitute configuration. |
+| Auth / Embacy | `auth/AuthScene`, `lib/auth/*`, `lib/supabase/*`, `/auth/callback`, `/account` | Visual reference closed and operational identity is now **IMPLEMENTED** with Supabase Auth: email/password, Google/GitHub OAuth, PKCE callback exchange, SSR cookie refresh, account session, sign-out and password recovery/update. Google remains External / Testing until the physical browser round-trip is accepted. See `SUPABASE_AUTH_CLOSURE.md`. |
 | Build Composer Orb | `build/BuildComposerOrb`, `orb-layout`, `Composer` | **COMPLETE** for desktop/mobile viewport, pointer and keyboard preview QA. Registry-derived edited stack drives the Orb. Touch, reduced-motion and forced-WebGL-failure simulation are **PARTIAL** because the connected browser exposes no such controls; see `QA_CLOSURE.md`. |
 | Web and Creative details | `web/[slug]`, `creative/[slug]`, `detail/ServiceDetail` | Implemented and registry-driven. |
 | Product cinematic and anatomy | `products/*`, `product-anatomy-data` | Implemented from real software products. |
@@ -26,9 +26,9 @@ The accepted Home arrival and canonical `LivingParticleMark` remain the visual a
 
 ## Delivery truth
 
-- `isAuthConfigured()` remains false until a real adapter can sign in, persist/read sessions, sign out and recover credentials. No provider credentials were present in the local environment; Vercel CLI was unauthenticated, so remote configuration could not be read.
-- `/api/contact` requires `CONTACT_WEBHOOK_URL` and returns 503 without it. The form now requires `delivered: true` in the upstream receipt before it says delivered. No webhook key was present locally; remote Vercel configuration could not be read.
-- `analytics.ts` remains an in-memory event contract with an optional pre-existing `dataLayer` bridge. No approved provider was found in package or deployment-local configuration.
+- `isAuthConfigured()` now resolves from the real Supabase project configuration. The server actions use Supabase Auth for credential sign-in, registration, OAuth, recovery, password update and sign-out; `/auth/callback` exchanges OAuth/PKCE codes for cookie-backed sessions. The authenticated `/account` route reads the real user and profile. Google is still in Testing publication status until the physical browser round-trip is accepted.
+- `/api/contact` now stores validated requests in Supabase through `submit_contact_request` when the database is available. A missing `CONTACT_WEBHOOK_URL` no longer discards the request: the API distinguishes durable storage from external delivery and the UI reports “received” rather than “delivered” when only storage succeeds.
+- `analytics.ts` remains an in-memory event contract with an optional pre-existing `dataLayer` bridge. Vercel Web Analytics remains a separate open integration path and is not claimed here.
 - Product logo `<img>` branches remain because no visual profile names a verified local logo asset. On the authenticated `/products/knoux-one` preview, neither conditional product logo image was mounted; the canonical SVG rendered and no image was broken. The two non-blocking lint warnings are recorded. Migrating unknown future asset proportions to `next/image` without an asset to inspect would not be a validated fix.
 - A user-facing Work search summary still said its archive was empty. It now names the repository-backed product and engineering case files. A source sweep found no other stale empty-archive, fake-auth, fake-delivery, or unimplemented-Orb statement in current user-facing content.
 

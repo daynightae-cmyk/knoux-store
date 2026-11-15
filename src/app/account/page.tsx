@@ -3,56 +3,79 @@ import { redirect } from 'next/navigation';
 import { signOutAction } from '@/lib/auth/actions';
 import { createClient } from '@/lib/supabase/server';
 
-export const dynamic = 'force-dynamic';
-
 export const metadata: Metadata = {
   title: 'Account',
-  description: 'Your KNOuX account.',
+  description: 'Your authenticated KNOuX account.',
   robots: { index: false, follow: false },
-  alternates: { canonical: 'https://knoux.store/account' },
 };
 
 export default async function AccountPage() {
   const supabase = await createClient();
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) redirect('/login');
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect('/login');
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('display_name, avatar_url, role, created_at')
-    .eq('id', data.user.id)
+    .eq('id', user.id)
     .maybeSingle();
 
-  const provider =
-    typeof data.user.app_metadata?.provider === 'string'
-      ? data.user.app_metadata.provider
-      : 'email';
-
+  const provider = user.app_metadata?.provider ?? 'email';
   const displayName =
     profile?.display_name ??
-    data.user.user_metadata?.full_name ??
-    data.user.user_metadata?.name ??
+    user.user_metadata?.full_name ??
+    user.user_metadata?.name ??
+    user.email ??
     'KNOuX member';
 
   return (
-    <main id="main-content" tabIndex={-1} className="account-page">
-      <section className="account-shell" aria-labelledby="account-heading">
-        <span className="eyebrow">KN / AUTH — LIVE SESSION</span>
-        <h1 id="account-heading">{displayName}</h1>
-        <p className="account-shell__intro">
-          Your identity is verified by Supabase Auth and this page is rendered from the active server session.
-        </p>
+    <main id="main-content" className="account-page">
+      <section className="shell account-shell">
+        <div className="account-kicker">AUTHENTICATED / KNOuX</div>
+        <div className="account-grid">
+          <div className="account-intro">
+            <span className="label label--signal">ACCOUNT</span>
+            <h1 className="account-title">Identity confirmed.</h1>
+            <p className="account-lede">
+              This page is rendered from the active Supabase session. No local fake session is used.
+            </p>
+          </div>
 
-        <dl className="account-facts">
-          <div><dt>Email</dt><dd>{data.user.email ?? 'Unavailable'}</dd></div>
-          <div><dt>Provider</dt><dd>{provider}</dd></div>
-          <div><dt>Role</dt><dd>{profile?.role ?? 'user'}</dd></div>
-          <div><dt>User ID</dt><dd>{data.user.id}</dd></div>
-        </dl>
+          <dl className="account-card">
+            <div>
+              <dt>Name</dt>
+              <dd>{displayName}</dd>
+            </div>
+            <div>
+              <dt>Email</dt>
+              <dd>{user.email ?? 'Unavailable'}</dd>
+            </div>
+            <div>
+              <dt>Provider</dt>
+              <dd>{String(provider).toUpperCase()}</dd>
+            </div>
+            <div>
+              <dt>Role</dt>
+              <dd>{(profile?.role ?? 'user').toUpperCase()}</dd>
+            </div>
+            <div>
+              <dt>Account ID</dt>
+              <dd className="account-mono">{user.id}</dd>
+            </div>
+          </dl>
+        </div>
 
-        <form action={signOutAction}>
-          <button className="auth-submit account-signout" type="submit">Sign Out</button>
-        </form>
+        <div className="account-actions">
+          <form action={signOutAction}>
+            <button type="submit" className="action action--primary">
+              Sign out
+              <span className="action-arrow" aria-hidden="true">↗</span>
+            </button>
+          </form>
+        </div>
       </section>
     </main>
   );

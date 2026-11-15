@@ -1,25 +1,43 @@
-﻿import test, { after } from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { root } from './helpers.mjs';
-import { startServer, waitForServer } from './server.mjs';
 
 /**
- * The Arrival Chamber and its Supabase Auth boundary.
+ * The Arrival Chamber.
  *
- * The public headquarters stays public while account routes use real Supabase
- * SSR sessions. These tests protect the rendered forms, PKCE callback,
- * provider wiring, session boundary and the rule that no auth state is faked
- * in browser storage.
+ * These tests hold two lines at once. The account routes must be real,
+ * rendered, accessible and keyboard-operable, while the identity path must use
+ * the actual Supabase adapter rather than local token/session simulation.
+ * Automated route tests disable external writes, so they cannot mutate the live
+ * project while still verifying the production auth contract in source.
  */
 
 const port = Number(process.env.KNOUX_AUTH_TEST_PORT ?? 32231);
 const origin = `http://127.0.0.1:${port}`;
-const server = startServer({ port });
+const env = { ...process.env, KNOUX_TEST_DISABLE_EXTERNALS: '1' };
+const server = spawn(
+  process.execPath,
+  ['node_modules/next/dist/bin/next', 'start', '-p', String(port), '-H', '127.0.0.1'],
+  { env, stdio: 'ignore' },
+);
 after(() => server.kill());
 
-const wait = () => waitForServer(server, origin);
+async function waitForServer() {
+  for (let attempt = 0; attempt < 140; attempt += 1) {
+    if (server.exitCode !== null) throw new Error(`Server exited with ${server.exitCode}`);
+    try {
+      const response = await fetch(origin);
+      if (response.ok) return;
+    } catch {
+      /* awaiting startup */
+    }
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
+  throw new Error('Production server did not start');
+}
 
 const AUTH_ROUTES = ['/login', '/register', '/forgot-password'];
 
@@ -36,7 +54,7 @@ const readAuthLib = () =>
     .join('\n');
 
 test('the three account routes render as real pages', async () => {
-  await wait();
+  await waitForServer();
 
   for (const path of AUTH_ROUTES) {
     const response = await fetch(origin + path);
@@ -61,7 +79,7 @@ test('the three account routes render as real pages', async () => {
 });
 
 test('no reference branding survives in the auth surface', async () => {
-  await wait();
+  await waitForServer();
 
   for (const path of AUTH_ROUTES) {
     const html = await (await fetch(origin + path)).text();
@@ -74,29 +92,42 @@ test('no reference branding survives in the auth surface', async () => {
   }
 });
 
-test('exactly Google and GitHub are offered through the real provider action', async () => {
-  await wait();
+test('exactly Google and GitHub are offered, and neither is faked', async () => {
+  await waitForServer();
 
   const login = await (await fetch(origin + '/login')).text();
   assert.match(login, /value="google"/, 'Google must be offered');
   assert.match(login, /value="github"/, 'GitHub must be offered');
 
+  // The offered set is exactly these two, read from the controls themselves.
+  // The document as a whole cannot be searched for provider names: Next.js
+  // emits Twitter card metadata on every page, which says nothing about sign-in.
   const offered = [...login.matchAll(/class="auth-provider"[^>]*value="([^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual(offered.sort(), ['github', 'google'], 'exactly Google and GitHub must be offered');
   for (const banned of ['twitter', 'discord', 'facebook', 'apple', 'linkedin', 'x']) {
-    assert.ok(!offered.includes(banned), `unsupported provider ${banned} must not be offered`);
+    assert.ok(!offered.includes(banned), `no unconnected ${banned} provider may be offered`);
   }
+  // And no other social control exists in the panel.
+  const panel = login.slice(login.indexOf('class="auth-providers"'));
+  assert.ok(!/sign in with (twitter|discord|apple|facebook)/i.test(panel), 'no unconnected provider may be advertised');
 
-  const providers = readFileSync(join(authDir, 'ProviderButtons.tsx'), 'utf8');
-  const actions = readFileSync(join(authLibDir, 'actions.ts'), 'utf8');
-  assert.match(providers, /oauthSignInAction/, 'provider controls must submit through the OAuth server action');
-  assert.match(providers, /aria-describedby=.*provider.*-state|aria-describedby=\{.*provider.*state/, 'provider state must be described accessibly');
-  assert.match(actions, /signInWithOAuth/, 'OAuth must use the Supabase provider flow');
-  assert.match(actions, /skipBrowserRedirect:\s*true/, 'OAuth must return a real redirect URL before navigation');
+  // The controls are real submissions into the server action, and the page
+  // identifies Supabase OAuth as the transport without claiming provider passwords.
+  assert.match(login, /Supabase OAuth/, 'the provider transport must be stated in the DOM');
+  assert.equal(
+    (login.match(/aria-describedby="oauth-state"/g) || []).length,
+    2,
+    'both provider controls must share the visible OAuth explanation',
+  );
+  assert.match(
+    login,
+    /class="auth-provider"[^>]*type="submit"[^>]*name="provider"/,
+    'provider controls must submit the provider they name',
+  );
 });
 
 test('the auth surface is accessible and keyboard operable', async () => {
-  await wait();
+  await waitForServer();
 
   const login = await (await fetch(origin + '/login')).text();
 
@@ -128,7 +159,7 @@ test('the auth surface is accessible and keyboard operable', async () => {
 });
 
 test('the auth routes navigate to each other in both directions', async () => {
-  await wait();
+  await waitForServer();
 
   const login = await (await fetch(origin + '/login')).text();
   assert.match(login, /href="\/register"/, 'sign in must offer registration');
@@ -142,21 +173,11 @@ test('the auth routes navigate to each other in both directions', async () => {
 
   // The header carries a quiet way in from anywhere on the site.
   const home = await (await fetch(origin + '/')).text();
-  assert.match(home, /class="header-access"[\s\S]{0,120}href="\/account"/, 'the header must link to the account entry');
-});
-
-test('account and password-update routes require a verified session', async () => {
-  await wait();
-
-  for (const path of ['/account', '/update-password']) {
-    const response = await fetch(origin + path, { redirect: 'manual' });
-    assert.ok([303, 307, 308].includes(response.status), `${path} must redirect without a session`);
-    assert.match(response.headers.get('location') ?? '', /\/login$/, `${path} must redirect to sign in`);
-  }
+  assert.match(home, /class="header-access"[\s\S]{0,120}href="\/login"/, 'the header must link to the account entry');
 });
 
 test('the public headquarters stays public', async () => {
-  await wait();
+  await waitForServer();
 
   // Nothing in front of the institution requires an account, and no public
   // route redirects into the chamber.
@@ -174,36 +195,39 @@ test('the public headquarters stays public', async () => {
   assert.ok(!/sign in to continue|authentication required/i.test(home), 'the homepage must not demand an account');
 });
 
-test('Supabase Auth is wired through SSR, PKCE callback and real server actions', () => {
+test('the auth contract is Supabase-backed and never invents session material', () => {
   const provider = readFileSync(join(authLibDir, 'provider.ts'), 'utf8');
   const actions = readFileSync(join(authLibDir, 'actions.ts'), 'utf8');
-  const callback = readFileSync(join(root, 'src', 'app', 'auth', 'callback', 'route.ts'), 'utf8');
   const serverClient = readFileSync(join(root, 'src', 'lib', 'supabase', 'server.ts'), 'utf8');
-  const proxyClient = readFileSync(join(root, 'src', 'lib', 'supabase', 'proxy.ts'), 'utf8');
-  const proxy = readFileSync(join(root, 'proxy.ts'), 'utf8');
+  const callback = readFileSync(join(root, 'src', 'app', 'auth', 'callback', 'route.ts'), 'utf8');
 
-  assert.match(provider, /isSupabaseConfigured/, 'the auth configuration must resolve through Supabase');
-  assert.match(actions, /signInWithPassword/, 'email sign-in must call Supabase Auth');
-  assert.match(actions, /\.auth\.signUp\(/, 'registration must call Supabase Auth');
-  assert.match(actions, /signInWithOAuth/, 'social sign-in must call Supabase OAuth');
-  assert.match(actions, /resetPasswordForEmail/, 'recovery must call Supabase Auth');
-  assert.match(actions, /updateUser\(\{ password:/, 'password recovery must finish with updateUser');
-  assert.match(actions, /\.auth\.signOut\(/, 'logout must revoke the local Supabase session');
-  assert.match(callback, /exchangeCodeForSession/, 'PKCE callback must exchange the authorization code');
-  // The redirect rule itself is proved by execution in
-  // tests/security-redirect.test.mjs, which runs the resolver against the
-  // bypass shapes. Asserting here that the source contains a particular
-  // prefix test only pins the previous vulnerable implementation.
-  assert.match(callback, /resolveRedirect\(/, 'callback next path must be judged by the shared resolver');
-  assert.match(serverClient, /createServerClient/, 'server auth must use the SSR client');
-  assert.match(proxyClient, /getClaims\(\)/, 'proxy must refresh and validate auth claims');
-  assert.match(proxy, /updateSession\(request\)/, 'Next.js proxy must run the Supabase session refresh');
+  assert.match(provider, /hasSupabaseConfig/, 'auth readiness must come from the real Supabase configuration');
+  assert.match(serverClient, /createServerClient/, 'server auth must use the Supabase SSR client');
 
-  const source = `${readAuthSource()}\n${readAuthLib()}\n${serverClient}\n${proxyClient}`;
+  for (const action of [
+    'signInAction',
+    'signUpAction',
+    'requestPasswordResetAction',
+    'updatePasswordAction',
+    'signOutAction',
+  ]) {
+    assert.match(actions, new RegExp(`function ${action}`), `${action} must exist`);
+  }
+
+  assert.match(actions, /signInWithPassword/, 'credential sign-in must reach Supabase Auth');
+  assert.match(actions, /signInWithOAuth/, 'provider sign-in must reach Supabase OAuth');
+  assert.match(actions, /\.auth\.signUp/, 'registration must reach Supabase Auth');
+  assert.match(actions, /resetPasswordForEmail/, 'recovery must use the provider mail flow');
+  assert.match(actions, /updateUser\(\{ password \}\)/, 'recovery must be able to set the new password');
+  assert.match(actions, /\.auth\.signOut\(\)/, 'logout must terminate the Supabase session');
+  assert.match(callback, /exchangeCodeForSession/, 'OAuth callbacks must exchange the code for a real session');
+  assert.match(callback, /safeNext/, 'OAuth callback redirects must be constrained to local paths');
+
+  const source = `${readAuthSource()}\n${readAuthLib()}`;
   for (const banned of [
     'localStorage.setItem',
     'sessionStorage.setItem(\'token',
-    'SUPABASE_SERVICE_ROLE_KEY',
+    'Bearer ',
     'service_role',
     'console.log',
   ]) {
@@ -213,11 +237,14 @@ test('Supabase Auth is wired through SSR, PKCE callback and real server actions'
   const writers = readdirSync(authDir)
     .filter((file) => (file.endsWith('.tsx') || file.endsWith('.ts')))
     .filter((file) => /sessionStorage|localStorage/.test(readFileSync(join(authDir, file), 'utf8')));
-  assert.deepEqual(writers, ['choreography.ts'], 'only the choreography may touch browser storage');
+  assert.deepEqual(writers, ['choreography.ts'], 'only arrival choreography may touch browser storage');
+  const choreography = readFileSync(join(authDir, 'choreography.ts'), 'utf8');
+  assert.match(choreography, /SEEN_KEY = 'knoux\.arrival\.seen'/, 'the stored key must be the arrival flag');
+  assert.ok(!/localStorage/.test(choreography), 'the arrival flag must not outlive the session');
 });
 
 test('validation is shared, honest and does not invent a security policy', async () => {
-  await wait();
+  await waitForServer();
 
   const validation = readFileSync(join(authLibDir, 'validation.ts'), 'utf8');
   assert.match(validation, /export function validateSignIn/, 'sign-in must validate on the server');

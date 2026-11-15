@@ -21,7 +21,8 @@
     "audit:css-integrity": "node scripts/css-integrity.mjs",
     "audit:assets": "node scripts/public-assets.mjs",
     "audit:visual-v4": "node scripts/visual-v4-capture.mjs after",
-    "verify": "npm run lint && npm run typecheck && npm run build && npm run audit:css-integrity && npm test"
+    "verify": "npm run lint && npm run typecheck && npm run build && npm run audit:css-integrity && npm test",
+    "supabase:seed:build": "node supabase/build-content-seed.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

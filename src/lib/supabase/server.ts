@@ -1,11 +1,13 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from '@/lib/supabase/config';
+import type { Database } from '@/lib/supabase/database.types';
+import { getSupabaseConfig } from '@/lib/supabase/config';
 
 export async function createClient() {
   const cookieStore = await cookies();
+  const { url, publishableKey } = getSupabaseConfig();
 
-  return createServerClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  return createServerClient<Database>(url, publishableKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -16,7 +18,8 @@ export async function createClient() {
             cookieStore.set(name, value, options);
           });
         } catch {
-          // Server Components cannot write cookies. proxy.ts refreshes sessions.
+          // Server Components cannot write cookies. The request proxy refreshes
+          // session cookies before rendering.
         }
       },
     },

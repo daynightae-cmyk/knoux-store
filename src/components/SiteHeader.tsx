@@ -30,7 +30,16 @@ export function SiteHeader() {
   const [menu, setMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
-  const authRoute = pathname.startsWith('/login') || pathname.startsWith('/register') || pathname.startsWith('/forgot-password') || pathname.startsWith('/update-password');
+<<<<<<< HEAD
+  const authRoute = pathname.startsWith('/login') || pathname.startsWith('/register') || pathname.startsWith('/forgot-password') || pathname.startsWith('/update-password') || pathname.startsWith('/account');
+=======
+  const authRoute =
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/register') ||
+    pathname.startsWith('/forgot-password') ||
+    pathname.startsWith('/update-password') ||
+    pathname.startsWith('/account');
+>>>>>>> origin/feat/supabase-content-registry
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
