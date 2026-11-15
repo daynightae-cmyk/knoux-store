@@ -144,16 +144,6 @@ export function visualAwakeningPhase(state: AwakeningState): AwakeningPhase {
   return state.phase === 'paused' ? state.resumePhase ?? 'explore' : state.phase;
 }
 
-/** How many real systems the painted phase has discussed. */
-export function emittedForPhase(phase: AwakeningPhase): number {
-  return AWAKENING_EMISSIONS[phase] ?? 0;
-}
-
-export function nextAwakeningPhase(phase: AwakeningPlayablePhase): AwakeningPlayablePhase | 'explore' {
-  const index = AWAKENING_SEQUENCE.indexOf(phase);
-  return AWAKENING_SEQUENCE[index + 1] ?? 'explore';
-}
-
 /**
  * The complete transition table. Invalid events are ignored rather than
  * throwing: a lost click, a duplicate header event or a visibility change
