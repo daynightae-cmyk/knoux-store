@@ -21,7 +21,7 @@ import {
   decodeEntities,
   toExcerpt,
   toOfficialAssetUrl,
-  toRenderableAssetUrl,
+  toOfficialRasterAssetUrl,
   toPlainText,
   type ExternalItem,
   type ExternalItemKind,
@@ -148,10 +148,7 @@ function normalisePlugin(raw: unknown): ExternalItem | null {
     name: decodeEntities(name),
     author: toText(record.author) ?? 'Author not stated',
     shortDescription: toText(record.short_description) ?? 'No description published.',
-    // Raster-only, and the 1x entry is preferred over a 2x SVG: the proxy
-    // refuses SVG, so an SVG here is an image that can never load. See
-    // `toRenderableAssetUrl`.
-    iconUrl: toRenderableAssetUrl(icons['1x']) ?? toRenderableAssetUrl(icons['2x']),
+    iconUrl: toOfficialRasterAssetUrl(icons['2x']) ?? toOfficialRasterAssetUrl(icons['1x']),
     bannerUrl: toOfficialAssetUrl(banners.high) ?? toOfficialAssetUrl(banners.low),
     rating: typeof rating === 'number' && rating > 0 ? rating : undefined,
     ratingCount: toNumber(record.num_ratings),
@@ -450,7 +447,7 @@ export async function queryBlocks(options: {
         name,
         author: toText(record.author_name) ?? 'Author not stated',
         shortDescription: toText(record.short_description) ?? 'No description published.',
-        iconUrl: toRenderableAssetUrl(iconRecord?.src),
+        iconUrl: toOfficialRasterAssetUrl(iconRecord?.src),
         rating: typeof rating === 'number' && rating > 0 ? Math.round(rating * 20) : undefined,
         ratingCount: toNumber(record.rating_count),
         activeInstalls: toNumber(record.active_installs),

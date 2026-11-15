@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -26,7 +25,6 @@ from typing import Any
 import duckdb
 
 from .config import load_config
-from .path_guard import artifact_path
 from .signal_storage import ensure_free_space, processed_dir, raw_dir
 
 SOURCE_ID = "overture_places"
@@ -57,8 +55,6 @@ def _connect() -> duckdb.DuckDBPyConnection:
 def resolve_release(explicit: str | None) -> str:
     """Resolve the Overture release identifier to acquire."""
     if explicit:
-        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}\.\d+", explicit):
-            raise ValueError("Invalid Overture release identifier")
         return explicit
     try:
         import httpx
@@ -66,7 +62,7 @@ def resolve_release(explicit: str | None) -> str:
         response = httpx.get(STAC_CATALOG, timeout=60.0, follow_redirects=True)
         response.raise_for_status()
         latest = response.json().get("latest")
-        if isinstance(latest, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}\.\d+", latest):
+        if isinstance(latest, str) and latest:
             return latest
     except Exception as exc:  # noqa: BLE001 - network drift must not abort acquisition
         print(f"[{SOURCE_ID}] STAC catalog unavailable ({exc}); using pinned release", file=sys.stderr)
@@ -74,8 +70,6 @@ def resolve_release(explicit: str | None) -> str:
 
 
 def places_glob(release: str) -> str:
-    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}\.\d+", release):
-        raise ValueError("Invalid Overture release identifier")
     return f"{BUCKET}/release/{release}/theme=places/type=place/*"
 
 
@@ -101,7 +95,6 @@ def scan(con: duckdb.DuckDBPyConnection, release: str) -> int:
 
 
 def extract(con: duckdb.DuckDBPyConnection, release: str, destination: Path) -> int:
-    destination = artifact_path(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
     con.execute(
         f"""
@@ -204,8 +197,7 @@ def main(argv: list[str] | None = None) -> int:
 
     config = load_config()
     destination = Path(args.out) if args.out else processed_dir(SOURCE_ID, config) / f"{SOURCE_ID}_{TARGET_COUNTRIES[0]}.parquet"
-    destination = artifact_path(destination)
-    ensure_free_space(REQUIRED_FREE_BYTES, destination)
+    ensure_free_space(REQUIRED_FREE_BYTES)
 
     release = resolve_release(args.release)
     con = _connect()
