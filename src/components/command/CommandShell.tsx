@@ -12,31 +12,14 @@
  * need `usePathname`, keeping it renderable from a server component too.
  */
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { COMMAND_GROUPS, areaHref, type CommandArea } from './navigation';
-import { CommandIcon } from './CommandIcon';
-import { trapDialogFocus } from './dialog-focus';
 import { CommandDock, type DockSurface } from './CommandDock';
 import { useWorkspace } from './workspace-context';
-
+import { connectionsFor } from '@/data/growth/connections';
 import { CapabilityBadge, ConnectionBadge } from './primitives';
-import { SiteLanguagePicker } from '@/components/i18n/SiteLanguage';
-import { resolveRouteCopy } from '@/lib/i18n/route-copy';
-import { useSiteLanguage } from '@/lib/i18n/use-language';
 import styles from './command.module.css';
-/**
- * Route copy resolved against the site language.
- *
- * The hook lives here, in the component, rather than in a shared `usePageCopy`:
- * that module imported the language store, which every page already loads, so
- * the bundler grouped the route catalogue into the shared chunk and shipped it
- * to pages that never show route copy.
- */
-function useRouteCopy() {
-  const language = useSiteLanguage();
-  return (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
-}
 
 export type CommandShellProps = {
   area: CommandArea;
@@ -47,32 +30,48 @@ export type CommandShellProps = {
 };
 
 export function CommandShell({ area, children, dock, facts = [] }: CommandShellProps) {
-  const navigation = useRef<HTMLDialogElement>(null);
-  const [navigationOpen, setNavigationOpen] = useState(false);
-  useEffect(() => {
-    if (!navigationOpen) return;
-    const dialog = navigation.current;
-    const overflow = document.body.style.overflow;
-    dialog?.showModal();
-    document.body.style.overflow = 'hidden';
-    const desktop = matchMedia('(min-width: 1081px)');
-    const resize = () => { if (desktop.matches) setNavigationOpen(false); };
-    desktop.addEventListener('change', resize);
-    return () => {
-      desktop.removeEventListener('change', resize);
-      dialog?.close();
-      document.body.style.overflow = overflow;
-    };
-  }, [navigationOpen]);
-  const { records, clients, activeClient, setActiveClientId, isDemoWorkspace, demoReason } = useWorkspace();
-  const t = useRouteCopy();
-  const connections = records.connections;
+  const { clients, activeClient, setActiveClientId, isDemoWorkspace, demoReason } = useWorkspace();
+  const connections = connectionsFor(activeClient.id);
   const blocked = connections.filter((connection) => connection.state === 'BLOCKED').length;
   const needsWork = connections.filter(
     (connection) => connection.state === 'EXPIRED' || connection.state === 'PERMISSION_REQUIRED',
   ).length;
 
-  const navigationContent = (<>
+  return (
+    <div className={styles.command ?? ''}>
+      <header className={styles.commandBar ?? ''}>
+        <div className={styles.commandIdent ?? ''}>
+          <KnouxMark />
+          <span className={styles.commandIdentText ?? ''}>
+            <span className={styles.commandName ?? ''}>KNOuX Social Command Center</span>
+            <span className={styles.commandSub ?? ''}>AI Growth &amp; Advertising Operating System</span>
+          </span>
+        </div>
+
+        <div className={styles.commandStrip ?? ''}>
+          {facts.map((fact) => (
+            <div key={fact.label} className={styles.commandFact ?? ''}>
+              <span className={styles.commandFactLabel ?? ''}>{fact.label}</span>
+              <span className={styles.commandFactValue ?? ''}>{fact.value}</span>
+            </div>
+          ))}
+          <div className={styles.commandFact ?? ''}>
+            <span className={styles.commandFactLabel ?? ''}>Connection health</span>
+            <span className={styles.commandFactValue ?? ''} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              {isDemoWorkspace ? (
+                <CapabilityBadge state="CONFIG_REQUIRED" />
+              ) : (
+                <CapabilityBadge state="LIVE_VERIFIED" />
+              )}
+              {needsWork > 0 ? <span>{needsWork} need attention</span> : null}
+              {blocked > 0 ? <span>{blocked} blocked</span> : null}
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <div className={styles.commandBody ?? ''}>
+        <nav className={styles.commandRail ?? ''} aria-label="Command Center sections">
           <div className={styles.commandSwitch ?? ''}>
             <span className={styles.commandSwitchLabel ?? ''}>Client workspace</span>
             <div className={styles.commandSwitchRow ?? ''} role="group" aria-label="Select client">
@@ -92,14 +91,14 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
             <p
               style={{
                 fontFamily: 'var(--mono)',
-                fontSize: 12,
+                fontSize: 9,
                 letterSpacing: '0.08em',
                 color: 'var(--cc-ink-4)',
                 margin: '10px 0 0',
                 lineHeight: 1.6,
               }}
             >
-              {demoReason ?? 'Authenticated stored workspace. Connection health is shown separately.'}
+              {demoReason ?? 'Live platform credential present.'}
             </p>
           </div>
 
@@ -113,9 +112,8 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
                     href={areaHref(entry.slug)}
                     className={styles.commandNavItem ?? ''}
                     aria-current={entry.slug === area.slug ? 'page' : undefined}
-                    onClick={() => setNavigationOpen(false)}
                   >
-                    <CommandIcon code={entry.code} /><span>{t(entry.label, entry.labelAr)}</span>
+                    <span>{entry.label}</span>
                     <span className={styles.commandNavCode ?? ''}>{entry.code}</span>
                   </Link>
                 ))}
@@ -125,56 +123,12 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
 
           <div className={styles.commandRailGroup ?? ''}>
             <p className={styles.commandRailLabel ?? ''}>Public division</p>
-            <Link onClick={() => setNavigationOpen(false)} href="/growth" className={styles.commandNavItem ?? ''}>
+            <Link href="/growth" className={styles.commandNavItem ?? ''}>
               <span>KNOuX Growth</span>
               <span className={styles.commandNavCode ?? ''}>04</span>
             </Link>
           </div>
-        </>);
-  return (
-    <div className={styles.command ?? ''}>
-      <header className={styles.commandBar ?? ''}>
-        <div className={styles.commandIdent ?? ''}>
-          <KnouxMark />
-          <span className={styles.commandIdentText ?? ''}>
-            <span className={styles.commandName ?? ''}>KNOuX Growth Command</span>
-            <span className={styles.commandSub ?? ''}>Revenue Flight Deck · human-controlled growth</span>
-          </span>
-        </div>
-
-        <div className={styles.commandStrip ?? ''} tabIndex={0} role="group" aria-label="Workspace status indicators">
-          {facts.map((fact) => (
-            <div key={fact.label} className={styles.commandFact ?? ''}>
-              <span className={styles.commandFactLabel ?? ''}>{fact.label}</span>
-              <span className={styles.commandFactValue ?? ''}>{fact.value}</span>
-            </div>
-          ))}
-          <div className={styles.commandFact ?? ''}>
-            <span className={styles.commandFactLabel ?? ''}>Connection health</span>
-            <span className={styles.commandFactValue ?? ''} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-              {isDemoWorkspace ? (
-                <CapabilityBadge state="CONFIG_REQUIRED" />
-              ) : (
-                <span>Stored workspace · {connections.filter((connection) => connection.state === 'CONNECTED' && connection.origin !== 'FIXTURE').length}/{connections.length} connected</span>
-              )}
-              {needsWork > 0 ? <span>{needsWork} need attention</span> : null}
-              {blocked > 0 ? <span>{blocked} blocked</span> : null}
-            </span>
-          </div>
-          {/* The command route group hides the site masthead, so the one site
-              language authority has to be surfaced here — otherwise this
-              operating console is the one surface where the visitor cannot
-              choose the language. */}
-          <div className={styles.commandFact ?? ''}>
-            <SiteLanguagePicker />
-          </div>
-        </div>
-      </header>
-
-      <div className={styles.commandBody ?? ''}>
-        <button className={styles.commandNavigationToggle} type="button" aria-label={`Workspace navigation for ${activeClient.name}`} aria-haspopup="dialog" aria-controls="command-navigation" aria-expanded={navigationOpen} onClick={() => setNavigationOpen(true)}>{activeClient.name}<span>Workspace navigation +</span></button>
-        <nav className={styles.commandRail} aria-label="Command Center sections">{navigationContent}</nav>
-        <dialog ref={navigation} id="command-navigation" className={styles.navigationDialog} aria-label="Workspace navigation" onKeyDown={trapDialogFocus} onCancel={event => { event.preventDefault(); setNavigationOpen(false); }} onClick={(event) => { if (event.target === event.currentTarget) setNavigationOpen(false); }}><button type="button" className={styles.closeNavigation} onClick={() => setNavigationOpen(false)}>Close navigation ×</button><nav aria-label="Mobile Command Center sections">{navigationContent}</nav></dialog>
+        </nav>
 
         <main className={styles.commandMain ?? ''} id="main-content" tabIndex={-1}>
           <div className={styles.commandHead ?? ''}>
@@ -182,7 +136,7 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
               <span className={styles.commandEyebrow ?? ''}>
                 {area.code} · {activeClient.name}
               </span>
-              <h1 className={styles.commandTitle ?? ''}>{t(area.label, area.labelAr)}</h1>
+              <h1 className={styles.commandTitle ?? ''}>{area.label}</h1>
               <p className={styles.commandLede ?? ''}>{area.purpose}</p>
             </div>
             <div className={styles.commandHeadActions ?? ''}>

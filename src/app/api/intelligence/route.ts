@@ -1,18 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { randomUUID } from 'node:crypto';
 import { buildRouter } from '@/lib/growth/server/runtime';
 import { INTELLIGENCE_INTENTS, type IntelligenceFamily, type IntelligenceRequest } from '@/lib/growth/intelligence/types';
 import { INTELLIGENCE_FAMILIES } from '@/lib/growth/intelligence/types';
 import { AUTONOMY_MODES, DEFAULT_AUTONOMY } from '@/lib/growth/states';
 import { clientById } from '@/data/growth/clients';
 import { clientAddress, rateLimit } from '@/lib/http/rate-limit';
-import { readBoundedJson } from '@/lib/contact/intake-guard';
-import { guardGrowthProviderAccess } from '@/lib/growth/server/access';
-import { growthAgentBoundaryRequired } from '@/lib/growth/auth/enforcement';
 import { guardGrowth } from '@/lib/growth/auth/session';
-import { can } from '@/lib/growth/rbac';
-import { loadLiveWorkspace } from '@/lib/growth/persistence/workspace';
-import type { WorkspaceRecords } from '@/lib/growth/persistence/workspace-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,16 +26,23 @@ const MAX_BODY_BYTES = 24 * 1024;
  * tell a rate limit from a malformed request cannot act on either.
  */
 export async function POST(request: NextRequest) {
-  const denied = await guardGrowthProviderAccess(request);
-  if (denied) return denied;
-
-  const authGuard = growthAgentBoundaryRequired() ? await guardGrowth() : null;
-  if (authGuard && !authGuard.ok) {
+  /*
+   * Server-side authorisation, before anything else.
+   *
+   * The middleware already refuses anonymous callers, but the authoritative check
+   * lives here for two reasons: an API route must not depend on a matcher
+   * continuing to cover it, and middleware can only see "is there a session",
+   * which is a different question from "may this principal reason about this
+   * client". This resolves membership and the client boundary.
+   */
+  const guard = await guardGrowth({ permission: 'intelligence.use' });
+  if (!guard.ok) {
     return NextResponse.json(
-      { ok: false, code: authGuard.failure.code, message: authGuard.failure.message },
-      { status: authGuard.failure.status, headers: { 'cache-control': 'no-store' } },
+      { ok: false, code: guard.failure.code, message: guard.failure.message },
+      { status: guard.failure.status, headers: { 'cache-control': 'no-store' } },
     );
   }
+
   const limit = rateLimit(`intelligence:${clientAddress(request.headers)}`, {
     max: MAX_REQUESTS_PER_MINUTE,
   });
@@ -62,15 +62,22 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const parsed = await readBoundedJson(request, MAX_BODY_BYTES);
-  if (!parsed.ok) {
+  let body: Record<string, unknown>;
+  try {
+    const raw = await request.text();
+    if (raw.length > MAX_BODY_BYTES) {
+      return NextResponse.json(
+        { reason: 'Body exceeds the ceiling.' },
+        { status: 413, headers: { 'cache-control': 'no-store' } },
+      );
+    }
+    body = JSON.parse(raw) as Record<string, unknown>;
+  } catch {
     return NextResponse.json(
-      { reason: parsed.reason === 'body-too-large' ? 'Body exceeds the ceiling.' : 'The request body was not valid JSON.' },
-      { status: parsed.reason === 'body-too-large' ? 413 : 400, headers: { 'cache-control': 'no-store' } },
+      { reason: 'The request body was not valid JSON.' },
+      { status: 400, headers: { 'cache-control': 'no-store' } },
     );
   }
-  if (!isRecord(parsed.value)) return NextResponse.json({ reason: 'Expected a JSON object.' }, { status: 400 });
-  const body = parsed.value;
 
   const intent = typeof body.intent === 'string' ? body.intent : '';
   if (!INTELLIGENCE_INTENTS.includes(intent as (typeof INTELLIGENCE_INTENTS)[number])) {
@@ -81,21 +88,26 @@ export async function POST(request: NextRequest) {
   }
 
   const clientId = typeof body.clientId === 'string' ? body.clientId : '';
-  let client = authGuard?.ok ? undefined : clientById(clientId);
-  let records: WorkspaceRecords | undefined;
+  const client = clientById(clientId);
+  if (!client) {
+    return NextResponse.json(
+      { reason: 'Unknown client workspace.' },
+      { status: 400, headers: { 'cache-control': 'no-store' } },
+    );
+  }
 
-  if (authGuard?.ok) {
-    const boundary = can({
-      principal: authGuard.principal,
-      permission: 'intelligence.use',
-      clientId,
-    });
-    if (!boundary.allowed) {
-      return NextResponse.json(
-        { ok: false, code: 'FORBIDDEN', message: boundary.reason ?? 'Not permitted.' },
-        { status: 403, headers: { 'cache-control': 'no-store' } },
-      );
-    }
+  /*
+   * The client boundary, checked against the requested workspace rather than the
+   * route. `intelligence.use` alone does not authorise reasoning about *any*
+   * client: a CLIENT-role principal holds that permission and must still be
+   * refused for a workspace they are not bound to.
+   */
+  const boundary = await guardGrowth({ permission: 'intelligence.use', clientId });
+  if (!boundary.ok) {
+    return NextResponse.json(
+      { ok: false, code: boundary.failure.code, message: boundary.failure.message },
+      { status: boundary.failure.status, headers: { 'cache-control': 'no-store' } },
+    );
   }
 
   const requestedFamily = typeof body.family === 'string' ? body.family : '';
@@ -104,20 +116,12 @@ export async function POST(request: NextRequest) {
       ? (requestedFamily as IntelligenceFamily)
       : inferFamily(intent as IntelligenceRequest['intent']);
 
-  if (authGuard?.ok) {
-    const stored = await loadLiveWorkspace([clientId]);
-    if (!stored.ok) return NextResponse.json({ reason: stored.failure, message: stored.message }, { status: 503, headers: { 'cache-control': 'no-store' } });
-    client = stored.data.value.clients.find(row => row.id === clientId);
-    records = stored.data.value.recordsByClient[clientId];
-  }
-  if (!client) return NextResponse.json({ reason: 'Unknown client workspace.' }, { status: 404, headers: { 'cache-control': 'no-store' } });
-
   const autonomy = AUTONOMY_MODES.includes(body.autonomy as (typeof AUTONOMY_MODES)[number])
     ? (body.autonomy as IntelligenceRequest['context']['autonomy'])
     : DEFAULT_AUTONOMY;
 
   const intelligenceRequest: IntelligenceRequest = {
-    requestId: `ir_${randomUUID()}`,
+    requestId: `ir_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
     intent: intent as IntelligenceRequest['intent'],
     prompt: typeof body.prompt === 'string' ? body.prompt.slice(0, 2000) : '',
     inputs: isRecord(body.inputs) ? body.inputs : {},
@@ -136,14 +140,14 @@ export async function POST(request: NextRequest) {
         ...(client.brandNotes ? [client.brandNotes] : []),
       ],
       forbiddenClaims: client.brand.forbiddenClaims,
-      budgetCeilingMinor: records ? records.campaigns.reduce((sum, campaign) => sum + campaign.budgetMinor, 0) : budgetCeilingMinor(client.id),
+      budgetCeilingMinor: budgetCeilingMinor(client.id),
       currency: client.country === 'EG' ? 'EGP' : 'AED',
       autonomy,
     },
   };
 
   try {
-    const router = buildRouter(process.env, records ? { performanceRows: records.performanceRows, communities: records.communities } : undefined);
+    const router = buildRouter();
     const response = await router.reason(intelligenceRequest);
 
     return NextResponse.json(

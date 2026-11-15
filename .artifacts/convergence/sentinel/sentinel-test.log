@@ -1,0 +1,27 @@
+✔ Sentinel sources never roll Math.random (7.0077ms)
+✔ blink schedule is the authored sequence (0.3341ms)
+✔ ten visual states exist as one component (0.552ms)
+✔ there is one pointer owner, not a second follower (0.6773ms)
+✔ shards are authored, not generated at runtime (0.2191ms)
+✔ semantic colour only maps to real UI signals (0.2132ms)
+✔ sleep is a closed-eye rest state, not a blink override (0.1919ms)
+✔ the capability layer reads KNOuX instead of inventing capability (1.2124ms)
+✔ the Sentinel is constituted from the canonical mark geometry (1.4403ms)
+✔ telemetry is counted from the real registry and exposed honestly (0.4359ms)
+✔ capability reflexes only name surfaces that really exist (1.821ms)
+✔ the mark reading is not serialised into the document payload (0.2468ms)
+✔ reduced motion still silences every new animated element (0.1707ms)
+✔ the glyph is a real reading of the canonical mark, inside the shell (10.7915ms)
+✔ the glyph is deterministic and budget-clamped (9.7136ms)
+✔ KNOuX Core is the real centroid of the canonical dot path (1.4912ms)
+✔ telemetry is counted from the real registry, never hard-coded (0.8205ms)
+✔ aura and lit shards follow the registry and stay bounded (0.1964ms)
+✔ capability names describe real behaviour (0.1631ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1133.5779

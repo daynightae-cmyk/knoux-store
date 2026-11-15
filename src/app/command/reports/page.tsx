@@ -16,8 +16,15 @@ import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
 import { CodeBadge, DemoNotice, EmptyState, OriginLabel, Section } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-
-
+import {
+  campaignsFor,
+  contentFor,
+  creativesFor,
+  leadsFor,
+  locationsFor,
+  performanceRowsFor,
+} from '@/data/growth/workspace';
+import { distributionListsFor } from '@/data/growth/communities';
 import { formatBudget, daysInclusive } from '@/lib/growth/campaigns';
 import { LEAD_STATUSES } from '@/lib/growth/types';
 import styles from '@/components/command/command.module.css';
@@ -27,16 +34,16 @@ export default function ReportsPage() {
 }
 
 function Reports() {
-  const { records, activeClient } = useWorkspace();
+  const { activeClient } = useWorkspace();
   const area = areaBySlug('reports')!;
 
-  const campaigns = records.campaigns;
-  const rows = records.performanceRows;
-  const leads = records.leads;
-  const content = records.content;
-  const creatives = records.creatives;
-  const locations = records.locations;
-  const lists = records.distributionLists;
+  const campaigns = campaignsFor(activeClient.id);
+  const rows = performanceRowsFor(activeClient.id);
+  const leads = leadsFor(activeClient.id);
+  const content = contentFor(activeClient.id);
+  const creatives = creativesFor(activeClient.id);
+  const locations = locationsFor(activeClient.id);
+  const lists = distributionListsFor(activeClient.id);
   const currency = activeClient.country === 'EG' ? 'EGP' : 'AED';
 
   const committed = campaigns
@@ -56,7 +63,7 @@ function Reports() {
         contextLine: `${activeClient.name} · ${activeClient.city} · reporting period not set`,
       }}
       facts={[
-        { label: 'Committed', value: campaigns.length ? formatBudget(committed, currency) : 'No accessible campaign budgets' },
+        { label: 'Committed', value: formatBudget(committed, currency) },
         { label: 'Locations', value: String(locations.length) },
       ]}
     >
@@ -73,7 +80,7 @@ function Reports() {
             A report needs provider data. Nothing is estimated from campaign budget.
           </EmptyState>
         ) : (
-          <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+          <div className={styles.ccTableWrap ?? ''}>
             <table className={styles.ccTable ?? ''}>
               <thead>
                 <tr>
@@ -92,11 +99,11 @@ function Reports() {
                   <tr key={row.key}>
                     <td>{row.platformLabel}</td>
                     <Money value={row.metrics.spend} currency={currency} />
-                    <ReportNumber value={row.metrics.impressions} />
-                    <ReportNumber value={row.metrics.reach} />
-                    <ReportNumber value={row.metrics.leads} />
+                    <Number value={row.metrics.impressions} />
+                    <Number value={row.metrics.reach} />
+                    <Number value={row.metrics.leads} />
                     <Money value={row.derived.costPerLead} currency={currency} />
-                    <ReportNumber value={row.derived.roas} />
+                    <Number value={row.derived.roas} />
                     <td>
                       <OriginLabel origin={row.metrics.spend?.origin ?? 'FIXTURE'} />
                     </td>
@@ -111,9 +118,9 @@ function Reports() {
       <Section title="Lead quality" note="Source attribution across every channel.">
         <div className={styles.commandGrid4 ?? ''}>
           {LEAD_STATUSES.map((status) => (
-            <div key={status} className={styles.ccMetric ?? ''}>
-              <span className={styles.ccMetricLabel ?? ''}>{status}</span>
-              <span className={styles.ccMetricValue ?? ''}>
+            <div key={status} className={styles.ccPane ?? ''}>
+              <span className={styles.ccPaneTitle ?? ''}>{status}</span>
+              <span style={{ fontSize: 22, color: 'var(--cc-ink)' }}>
                 {leads.filter((lead) => lead.status === status).length}
               </span>
             </div>
@@ -122,7 +129,7 @@ function Reports() {
       </Section>
 
       <Section title="Community distribution" note="Manual-assisted posting, counted from operator confirmations.">
-        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+        <div className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>
@@ -160,13 +167,13 @@ function Reports() {
             </tbody>
           </table>
         </div>
-        <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 8, fontSize: 12 }}>
+        <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 8, fontSize: 11.5 }}>
           {distributed} post(s) confirmed as distributed by an operator. KNOuX posts nothing itself.
         </p>
       </Section>
 
       <Section title="Content output" note="Volume only. Quality is not scored here.">
-        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+        <div className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>
@@ -191,7 +198,7 @@ function Reports() {
       </Section>
 
       <Section title="Campaign ledger" note="Committed budget by plan.">
-        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+        <div className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>
@@ -238,7 +245,7 @@ function Reports() {
             </p>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               <CodeBadge tone="live">AVAILABLE</CodeBadge>
-              <button type="button" onClick={() => window.print()} className={`${styles.ccButton ?? ''} ${styles.ccButtonSm ?? ''}`}>
+              <button type="button" className={`${styles.ccButton ?? ''} ${styles.ccButtonSm ?? ''}`}>
                 Print
               </button>
             </div>
@@ -279,7 +286,7 @@ function Money({
   );
 }
 
-function ReportNumber({ value }: { value: { value: number; origin: string } | null | undefined }) {
+function Number({ value }: { value: { value: number; origin: string } | null | undefined }) {
   if (!value) return <td className={`${styles.ccTableNum ?? ''} ${styles.ccTableAbsent ?? ''}`}>Not reported</td>;
   return (
     <td className={styles.ccTableNum ?? ''}>{value.value.toLocaleString('en-AE', { maximumFractionDigits: 2 })}</td>

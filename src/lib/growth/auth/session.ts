@@ -24,6 +24,8 @@ import 'server-only';
 import { createClient } from '@/lib/supabase/server';
 import {
   can,
+  canAccessClient,
+  hasRolePermission,
   type Decision,
   type Permission,
   type Principal,
@@ -47,6 +49,7 @@ export type PrincipalResolution =
 
 /** Where memberships are stored. Matches the Phase 2 migration. */
 const MEMBERSHIP_TABLE = 'knoux_growth_memberships';
+const CLIENT_TABLE = 'knoux_growth_clients';
 
 /** Role names as they are stored, aligned with the Phase 1 vocabulary. */
 const STORED_ROLES: readonly string[] = ROLES;
@@ -89,8 +92,36 @@ export async function resolvePrincipal(): Promise<PrincipalResolution> {
     };
   }
 
-  const memberships = await readMemberships(user);
-  if (!Array.isArray(memberships)) return memberships;
+  // Membership is a second query, deliberately separate: it means a Supabase
+  // outage cannot be mistaken for "no memberships" and vice versa.
+  let memberships: { client_id: string; role: string }[] | null = null;
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from(MEMBERSHIP_TABLE)
+      .select('client_id, role')
+      .eq('user_id', user.id);
+
+    if (error) {
+      // A missing table is the common case right now: the migration is written
+      // but not applied. That is reported as its own state, never as "no
+      // access granted" and never as "access allowed".
+      return {
+        state: 'MEMBERSHIP_UNAVAILABLE',
+        userId: user.id,
+        ...(user.email ? { email: user.email } : {}),
+        reason: `Memberships could not be read: ${error.message}`,
+      };
+    }
+    memberships = (data ?? []) as { client_id: string; role: string }[];
+  } catch (error) {
+    return {
+      state: 'MEMBERSHIP_UNAVAILABLE',
+      userId: user.id,
+      ...(user.email ? { email: user.email } : {}),
+      reason: error instanceof Error ? error.message : 'Membership lookup threw.',
+    };
+  }
 
   if (memberships.length === 0) {
     return {
@@ -114,48 +145,18 @@ export async function resolvePrincipal(): Promise<PrincipalResolution> {
     };
   }
 
-  // The display role never overrides the individual client grants.
+  // Effective role is the most privileged granted role. A person who is OWNER on
+  // one client and VIEWER on another acts as OWNER on both — which is why the
+  // per-client role is also returned below for the boundary check to use.
   const role = mostPrivileged(usable.map((membership) => membership.role as Role));
 
   const principal: Principal = {
     userId: user.id,
     role,
     clientIds: [...new Set(usable.map((membership) => membership.client_id))],
-    clientRoles: Object.fromEntries(usable.map(membership => [membership.client_id, membership.role as Role])),
   };
 
   return { state: 'ALLOWED', principal, ...(user.email ? { email: user.email } : {}) };
-}
-
-async function readMemberships(user: { id: string; email?: string }): Promise<{ client_id: string; role: string }[] | PrincipalResolution> {
-  try {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from(MEMBERSHIP_TABLE)
-      .select('client_id, role')
-      .eq('user_id', user.id);
-
-    if (error) {
-      // A missing table is the common case right now: the migration is written
-      // but not applied. That is reported as its own state, never as "no
-      // access granted" and never as "access allowed".
-      return {
-        state: 'MEMBERSHIP_UNAVAILABLE',
-        userId: user.id,
-        ...(user.email ? { email: user.email } : {}),
-        reason: `Memberships could not be read: ${error.message}`,
-      };
-    }
-    return (data ?? []) as { client_id: string; role: string }[];
-  } catch (error) {
-    return {
-      state: 'MEMBERSHIP_UNAVAILABLE',
-      userId: user.id,
-      ...(user.email ? { email: user.email } : {}),
-      reason: error instanceof Error ? error.message : 'Membership lookup threw.',
-    };
-  }
-
 }
 
 /**
@@ -176,11 +177,8 @@ const ROLE_RANK: Readonly<Record<Role, number>> = {
 };
 
 function mostPrivileged(roles: Role[]): Role {
-  const [first, ...rest] = roles;
-  if (!first) throw new Error('At least one Growth role is required.');
-  return rest.reduce(
-    (best, candidate) => (ROLE_RANK[candidate] > ROLE_RANK[best] ? candidate : best),
-    first,
+  return roles.reduce((best, candidate) =>
+    ROLE_RANK[candidate] > ROLE_RANK[best] ? candidate : best,
   );
 }
 
@@ -205,15 +203,10 @@ export type GuardResult =
  * and 503 means "the permission system itself is unavailable" — which is a
  * different operational problem and must not be reported as a denial of access.
  */
-function resolutionFailure(resolution: Exclude<PrincipalResolution, { state: 'ALLOWED' }>): GuardFailure {
-  const status = { ANONYMOUS: 401, NOT_PROVISIONED: 403, MEMBERSHIP_UNAVAILABLE: 503 } as const;
-  return { status: status[resolution.state], code: resolution.state, message: resolution.reason };
-}
-
 export async function guardGrowth(request?: {
   permission?: Permission;
   clientId?: string;
-  platform?: NonNullable<Parameters<typeof can>[0]['platform']>;
+  platform?: Parameters<typeof can>[0]['platform'];
   touchesCredentials?: boolean;
 }): Promise<GuardResult> {
   const resolution = await resolvePrincipal();
@@ -222,7 +215,20 @@ export async function guardGrowth(request?: {
     return {
       ok: false,
       resolution,
-      failure: resolutionFailure(resolution),
+      failure:
+        resolution.state === 'ANONYMOUS'
+          ? { status: 401, code: 'ANONYMOUS', message: resolution.reason }
+          : resolution.state === 'NOT_PROVISIONED'
+            ? {
+                status: 403,
+                code: 'NOT_PROVISIONED',
+                message: resolution.reason,
+              }
+            : {
+                status: 503,
+                code: 'MEMBERSHIP_UNAVAILABLE',
+                message: resolution.reason,
+              },
     };
   }
 
@@ -255,4 +261,34 @@ export async function guardGrowth(request?: {
   };
 }
 
-export { MEMBERSHIP_TABLE };
+/**
+ * Convenience for read paths that only need the client list.
+ * Returns the principal or null, so a caller cannot accidentally treat an
+ * unresolved identity as an empty-but-allowed one.
+ */
+export async function requirePrincipal(): Promise<Principal | null> {
+  const resolution = await resolvePrincipal();
+  return resolution.state === 'ALLOWED' ? resolution.principal : null;
+}
+
+/**
+ * Which client ids this principal may read. Used by list endpoints so the query
+ * is scoped in SQL rather than filtered after the fetch.
+ */
+export async function visibleClientIdsFor(principal: Principal): Promise<string[]> {
+  const scopeAll = principal.role === 'OWNER' || principal.role === 'MANAGER';
+  if (scopeAll) {
+    try {
+      const supabase = await createClient();
+      const { data, error } = await supabase.from(CLIENT_TABLE).select('id');
+      if (!error && data) return (data as { id: string }[]).map((row) => row.id);
+    } catch {
+      /* fall through to the bound list */
+    }
+  }
+  return principal.clientIds;
+}
+
+/** Re-exported so route guards need only one import. */
+export { canAccessClient, hasRolePermission };
+export { CLIENT_TABLE, MEMBERSHIP_TABLE };

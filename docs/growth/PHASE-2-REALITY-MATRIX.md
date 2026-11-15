@@ -118,3 +118,4 @@ none blocks the product architecture from being reviewable.
 6. 164 growth tests pass (157 + 7 new regression tests).
 7. A configured production store failing produces an explicit refusal and never
    substitutes fixtures.
+

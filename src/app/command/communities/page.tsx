@@ -31,7 +31,7 @@ import {
   Section,
 } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-
+import { DEMO_COMMUNITIES, distributionListsFor } from '@/data/growth/communities';
 import {
   COMMUNITY_CATEGORIES,
   COMMUNITY_GEOGRAPHY,
@@ -52,9 +52,9 @@ export default function CommunitiesPage() {
 }
 
 function Communities() {
-  const { records } = useWorkspace();
+  const { activeClient } = useWorkspace();
   const area = areaBySlug('communities')!;
-  const lists = records.distributionLists;
+  const lists = distributionListsFor(activeClient.id);
 
   const [country, setCountry] = useState<CountryCode>('AE');
   const [city, setCity] = useState<string>('');
@@ -69,7 +69,7 @@ function Communities() {
   );
 
   const scored = useMemo(() => {
-    return records.communities.map((community) => ({
+    return DEMO_COMMUNITIES.map((community) => ({
       community,
       score: scoreCommunity(community, terms, city),
     }))
@@ -79,7 +79,7 @@ function Communities() {
       .filter((entry) => (platform ? entry.community.platform === platform : true))
       .filter((entry) => (terms.length > 0 ? entry.score > 0 : true))
       .sort((a, b) => b.score - a.score);
-  }, [country, city, category, platform, terms, records.communities]);
+  }, [country, city, category, platform, terms]);
 
   const bands: Record<RelevanceBand, typeof scored> = {
     HIGH: scored.filter((entry) => entry.score >= 60),
@@ -213,7 +213,7 @@ function Communities() {
               <li>3. An operator opens the group and posts.</li>
               <li>4. The operator marks it posted. That is recorded in the audit trail.</li>
             </ul>
-            <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 6, fontSize: 12 }}>
+            <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 6, fontSize: 11.5 }}>
               No member list is read. No private URL is stored. No message is sent by KNOuX.
             </p>
           </Pane>
@@ -301,7 +301,7 @@ function Communities() {
                 {list.description ? (
                   <p className={styles.ccPaneBody ?? ''}>{list.description}</p>
                 ) : null}
-                <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''} style={{ marginTop: 6 }}>
+                <div className={styles.ccTableWrap ?? ''} style={{ marginTop: 6 }}>
                   <table className={styles.ccTable ?? ''}>
                     <thead>
                       <tr>
@@ -312,7 +312,7 @@ function Communities() {
                     </thead>
                     <tbody>
                       {list.entries.map((entry) => {
-                        const community = records.communities.find(
+                        const community = DEMO_COMMUNITIES.find(
                           (candidate) => candidate.id === entry.communityId,
                         );
                         return (
@@ -375,8 +375,8 @@ function Communities() {
 
       <p className={styles.ccFoot ?? ''}>
         <strong>Discovery is lawful-only.</strong> KNOuX does not scrape member lists, private
-        profiles, hidden emails or closed content. Discovery is operator-supplied and imported.
-        Each record shows its own stored provenance.
+        profiles, hidden emails or closed content. Discovery is operator-supplied and imported. Every
+        record above is <OriginLabel origin="FIXTURE" />.
       </p>
     </CommandShell>
   );
@@ -415,7 +415,7 @@ function CommunityCard({ community, score }: { community: Community; score: numb
       </div>
 
       {community.notes ? (
-        <p style={{ fontSize: 12, color: 'var(--cc-ink-4)', margin: 0, lineHeight: 1.5 }}>
+        <p style={{ fontSize: 11.5, color: 'var(--cc-ink-4)', margin: 0, lineHeight: 1.5 }}>
           {community.notes}
         </p>
       ) : null}

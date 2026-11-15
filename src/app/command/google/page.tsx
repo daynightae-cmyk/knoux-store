@@ -23,8 +23,8 @@ import {
   Section,
 } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-
-
+import { locationsFor } from '@/data/growth/workspace';
+import { connectionsFor } from '@/data/growth/connections';
 import styles from '@/components/command/command.module.css';
 
 export default function GooglePage() {
@@ -40,10 +40,10 @@ const GOOGLE_SURFACES = [
 ] as const;
 
 function GooglePresence() {
-  const { records, activeClient } = useWorkspace();
+  const { activeClient } = useWorkspace();
   const area = areaBySlug('google')!;
-  const locations = records.locations;
-  const connections = records.connections;
+  const locations = locationsFor(activeClient.id);
+  const connections = connectionsFor(activeClient.id);
 
   return (
     <CommandShell
@@ -66,14 +66,14 @@ function GooglePresence() {
             const record = connections.find((connection) => connection.platform === surface.id);
             return (
               <Pane key={surface.id} title={surface.label}>
-                <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 12 }}>
+                <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 11.5 }}>
                   Scope: <code>{surface.scopes}</code>
                 </p>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   {record ? <CapabilityBadge state={record.capabilityState} /> : <CodeBadge>NO RECORD</CodeBadge>}
                 </div>
                 {record?.lastError ? (
-                  <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 12 }}>
+                  <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 11 }}>
                     {record.lastError}
                   </p>
                 ) : null}
@@ -100,7 +100,7 @@ function GooglePresence() {
             {locations.map((location) => (
               <article key={location.id} className={styles.ccPane ?? ''}>
                 <span className={styles.ccPaneTitle ?? ''}>{location.name}</span>
-                <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 12 }}>
+                <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 11.5 }}>
                   {location.addressLine} · {location.category ?? 'No category recorded'}
                 </p>
 
@@ -127,7 +127,7 @@ function GooglePresence() {
       </Section>
 
       <Section title="Maps visibility and keywords" note="Shown as architecture. No data source is connected.">
-        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+        <div className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>

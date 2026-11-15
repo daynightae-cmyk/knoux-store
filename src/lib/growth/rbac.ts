@@ -53,7 +53,6 @@ export const PERMISSIONS = [
   'budget.edit',
   'creative.view',
   'creative.create',
-  'creative.edit',
   'creative.approve',
   'content.view',
   'content.create',
@@ -91,7 +90,20 @@ const VIEWER: Permission[] = [
   'intelligence.use',
 ];
 
-const CREATIVE_READ_PERMISSIONS = VIEWER.filter(permission => permission !== 'budget.view');
+/*
+ * Designer and Content Creator.
+ *
+ * `budget.view` is removed deliberately. Both roles inherit the VIEWER set, which
+ * includes it, and that contradicted their documented meaning — "No campaign
+ * budget access". The documented meaning is the specification here: a creative
+ * role does not need to see what a campaign costs, and leaving it visible is both
+ * a minor disclosure and an inconsistency a reader would eventually trip over.
+ *
+ * `budget.edit` was never held, so no change there.
+ */
+const NO_BUDGET: readonly Permission[] = VIEWER.filter(
+  (permission) => permission !== 'budget.view',
+);
 
 export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
   VIEWER: VIEWER,
@@ -102,15 +114,14 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     'report.generate',
   ],
   CONTENT_CREATOR: [
-    ...CREATIVE_READ_PERMISSIONS,
+    ...NO_BUDGET,
     'content.create',
     'content.schedule',
     'creative.create',
-    'creative.edit',
     'campaign.create',
     'campaign.edit',
   ],
-  DESIGNER: [...CREATIVE_READ_PERMISSIONS, 'creative.create', 'creative.edit', 'creative.approve', 'content.create'],
+  DESIGNER: [...NO_BUDGET, 'creative.create', 'creative.approve', 'content.create'],
   ADS_SPECIALIST: [
     ...VIEWER,
     'campaign.create',
@@ -181,8 +192,6 @@ export type Principal = {
    * one client they belong to; an assigned staff role sees only these.
    */
   clientIds: string[];
-  /** Server-resolved membership grants. Their presence forbids workspace-wide escalation. */
-  clientRoles?: Readonly<Record<string, Role>>;
 };
 
 export type Decision = {
@@ -205,10 +214,6 @@ export function hasRolePermission(role: Role, permission: Permission): boolean {
  * so no permission set can accidentally grant cross-client reach.
  */
 export function canAccessClient(principal: Principal, clientId: string): Decision {
-  if (principal.clientRoles) {
-    return Object.hasOwn(principal.clientRoles, clientId)
-      ? ALLOW : deny('This principal is not bound to that client workspace.');
-  }
   const scope = ROLE_SCOPE[principal.role];
 
   if (scope === 'ALL_CLIENTS') return ALLOW;
@@ -231,26 +236,24 @@ export type AccessRequest = {
 
 export function can(request: AccessRequest): Decision {
   const { principal, permission, clientId, platform, touchesCredentials } = request;
-  const role = clientId && principal.clientRoles
-    ? principal.clientRoles[clientId] : principal.role;
 
   if (clientId) {
     const clientAccess = canAccessClient(principal, clientId);
     if (!clientAccess.allowed) return clientAccess;
-  } else if (principal.clientRoles || ROLE_SCOPE[principal.role] !== 'ALL_CLIENTS') {
+  } else if (ROLE_SCOPE[principal.role] !== 'ALL_CLIENTS') {
     return deny('This action is scoped to a client and none was supplied.');
   }
 
   if (touchesCredentials) {
-    if (role !== 'OWNER') {
+    if (principal.role !== 'OWNER') {
       return deny('Changing a connection credential is restricted to the workspace owner.');
     }
-  } else if (platform && isSensitivePlatform(platform) && !hasRolePermission(role, 'connection.view')) {
+  } else if (platform && isSensitivePlatform(platform) && !hasRolePermission(principal.role, 'connection.view')) {
     return deny('Viewing this platform connection requires the connection.view permission.');
   }
 
-  if (!hasRolePermission(role, permission)) {
-    return deny(`Role ${role} does not hold ${permission}.`);
+  if (!hasRolePermission(principal.role, permission)) {
+    return deny(`Role ${principal.role} does not hold ${permission}.`);
   }
 
   return ALLOW;
@@ -258,7 +261,6 @@ export function can(request: AccessRequest): Decision {
 
 /** Convenience for templates: the client list a principal is allowed to see. */
 export function visibleClientIds(principal: Principal, allClientIds: string[]): string[] {
-  if (principal.clientRoles) return allClientIds.filter(id => Object.hasOwn(principal.clientRoles!, id));
   if (ROLE_SCOPE[principal.role] === 'ALL_CLIENTS') return [...allClientIds];
   const allowed = new Set(principal.clientIds);
   return allClientIds.filter((id) => allowed.has(id));

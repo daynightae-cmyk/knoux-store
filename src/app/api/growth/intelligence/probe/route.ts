@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 import { buildRouter } from '@/lib/growth/server/runtime';
-import { guardGrowthProviderAccess } from '@/lib/growth/server/access';
-import { growthAgentBoundaryRequired } from '@/lib/growth/auth/enforcement';
 import { guardGrowth } from '@/lib/growth/auth/session';
 
 export const dynamic = 'force-dynamic';
@@ -17,18 +15,13 @@ export const dynamic = 'force-dynamic';
  * The response deliberately omits the endpoint URL and any token detail: an
  * operator needs to know the agent is unreachable, not where it lives.
  */
-export async function GET(request: Request) {
-  const denied = await guardGrowthProviderAccess(request);
-  if (denied) return denied;
-
-  if (growthAgentBoundaryRequired()) {
-    const guard = await guardGrowth({ permission: 'intelligence.use', clientId: new URL(request.url).searchParams.get('clientId') ?? undefined });
-    if (!guard.ok) {
-      return NextResponse.json(
-        { ok: false, code: guard.failure.code, message: guard.failure.message },
-        { status: guard.failure.status, headers: { 'cache-control': 'no-store' } },
-      );
-    }
+export async function GET() {
+  const guard = await guardGrowth({ permission: 'intelligence.use' });
+  if (!guard.ok) {
+    return NextResponse.json(
+      { ok: false, code: guard.failure.code, message: guard.failure.message },
+      { status: guard.failure.status, headers: { 'cache-control': 'no-store' } },
+    );
   }
 
   const router = buildRouter();

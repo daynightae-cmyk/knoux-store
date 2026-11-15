@@ -20,16 +20,6 @@ import 'server-only';
  */
 
 import type { DataOrigin } from '../states';
-import { redactSecrets } from '../../security/redact';
-
-export const WORKSPACE_RESOURCES = {
-  content: 'knoux_growth_content',
-  creatives: 'knoux_growth_creatives',
-  collections: 'knoux_growth_community_collections',
-  distribution: 'knoux_growth_distribution_runs',
-  automations: 'knoux_growth_automation_rules',
-} as const;
-export type WorkspaceResource = keyof typeof WORKSPACE_RESOURCES;
 
 /* ------------------------------------------------------------- provenance */
 
@@ -126,7 +116,6 @@ export interface GrowthRepository {
   listClientIds(): Promise<RepositoryResult<string[]>>;
   getClient(clientId: string): Promise<RepositoryResult<Record<string, unknown>>>;
 
-  listWorkspaceRecords(clientId: string, resource: WorkspaceResource): Promise<RepositoryResult<Record<string, unknown>[]>>;
   listCampaigns(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>>;
   getCampaign(campaignId: string): Promise<RepositoryResult<Record<string, unknown>>>;
 
@@ -159,8 +148,6 @@ export type MetricRow = {
   currency?: string;
   origin: StorageOrigin;
   evidence?: string;
-  periodStart?: string;
-  periodEnd?: string;
 };
 
 export type AuditWrite = {
@@ -218,10 +205,6 @@ export class FixtureGrowthRepository implements GrowthRepository {
     return this.ok(row);
   }
 
-  async listWorkspaceRecords(clientId: string, resource: WorkspaceResource): Promise<RepositoryResult<Record<string, unknown>[]>> {
-    return this.ok(this.data.supplementary?.[resource]?.[clientId] ?? []);
-  }
-
   async listCampaigns(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>> {
     return this.ok((this.data.campaigns[clientId] ?? []) as Record<string, unknown>[]);
   }
@@ -267,7 +250,6 @@ export class FixtureGrowthRepository implements GrowthRepository {
 }
 
 export type FixtureDataset = {
-  supplementary?: Partial<Record<WorkspaceResource, Record<string, Record<string, unknown>[]>>>;
   clientIds: string[];
   clients: Record<string, Record<string, unknown>>;
   campaigns: Record<string, Record<string, unknown>[]>;
@@ -424,24 +406,13 @@ export class SupabaseGrowthRepository implements GrowthRepository {
     return this.ok(row);
   }
 
-  async listWorkspaceRecords(clientId: string, resource: WorkspaceResource): Promise<RepositoryResult<Record<string, unknown>[]>> {
-    const denied = this.assertClient(clientId);
-    if (denied) return denied;
-    const table = WORKSPACE_RESOURCES[resource];
-    if (!table) return failed('INVALID_INPUT', 'Unknown workspace resource.');
-    let columns = '*';
-    if (resource === 'collections') columns = '*,knoux_growth_collection_members(community_id)';
-    if (resource === 'distribution') columns = '*,knoux_growth_distribution_items(*)';
-    return this.exec(this.supabase.from(table).select(columns).eq('client_id', clientId), 'Workspace records could not be read.');
-  }
-
   async listCampaigns(clientId: string): Promise<RepositoryResult<Record<string, unknown>[]>> {
     const denied = this.assertClient(clientId);
     if (denied) return denied;
     return this.exec(
       this.supabase
         .from(T.campaigns)
-        .select('*,knoux_growth_campaign_channels(platform,provider_campaign_id)')
+        .select('*')
         .eq('client_id', clientId)
         .order('updated_at', { ascending: false }),
       'Campaigns could not be listed.',
@@ -493,7 +464,7 @@ export class SupabaseGrowthRepository implements GrowthRepository {
     const denied = this.assertClient(clientId);
     if (denied) return denied;
     return this.exec(
-      this.supabase.from(T.connections).select('id,client_id,platform,state,account_label,account_id,granted_scopes,missing_scopes,token_expires_at,last_verified_at,last_error,capability_state,origin,updated_at').eq('client_id', clientId),
+      this.supabase.from(T.connections).select('*').eq('client_id', clientId),
       'Connections could not be listed.',
     );
   }
@@ -513,20 +484,12 @@ export class SupabaseGrowthRepository implements GrowthRepository {
     );
     if (!result.ok) return result;
 
-    if (result.data.value.some(row =>
-      !['LIVE', 'FIXTURE'].includes(String(row.origin)) ||
-      (typeof row.value !== 'number' && typeof row.value !== 'string') ||
-      String(row.value).trim() === '' || !Number.isFinite(Number(row.value))
-    )) return { ok: false, failure: 'QUERY_FAILED', message: 'Stored metrics contain invalid values or provenance. Fixtures were not substituted.' };
-
     return this.ok(
       result.data.value.map((row) => ({
         channel: String(row.channel ?? ''),
         ...(row.campaign_id ? { campaignId: String(row.campaign_id) } : {}),
         metricKey: String(row.metric_key ?? ''),
-        value: Number(row.value),
-        periodStart: String(row.period_start),
-        periodEnd: String(row.period_end),
+        value: Number(row.value ?? 0),
         ...(row.currency ? { currency: String(row.currency) } : {}),
         // The stored origin travels through, so a FIXTURE metric that was
         // imported into the database is still labelled as one.
@@ -580,9 +543,38 @@ export class SupabaseGrowthRepository implements GrowthRepository {
 
 /* ---------------------------------------------------------------- redaction */
 
-/** Redact through the canonical scanner before truncating a durable audit entry. */
+/**
+ * Patterns that must never reach the audit table.
+ *
+ * Redaction happens before the write rather than at read time, because a stored
+ * secret cannot be unstored. This is a backstop, not the primary control: the
+ * boundary already refuses to return a credential, and no caller should have one
+ * to log. It exists so that a mistake produces a redacted entry rather than a
+ * durable leak.
+ *
+ * The key pattern is written to match environment-variable *names* as well as
+ * prose. `\b` does not fire inside `META_APP_SECRET`, because an underscore is a
+ * word character — so a naive `\b(secret)\s*=` silently fails on exactly the
+ * shape this most needs to catch. The `[_\-\s]*` join is what makes
+ * `META_APP_SECRET=` and `app secret:` both match.
+ */
+const REDACTIONS: ReadonlyArray<[RegExp, string]> = [
+  [/Bearer\s+[A-Za-z0-9\-._~+/]+=*/gi, 'Bearer [REDACTED]'],
+  [/\bey[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{5,}\b/g, '[REDACTED_JWT]'],
+  [/\b(EA[A-Za-z0-9]{20,}|EAA[A-Za-z0-9]{20,})\b/g, '[REDACTED_META_TOKEN]'],
+  // Env-var and prose forms: SECRET=, APP_SECRET:, "client secret" =
+  [/\b[A-Za-z]*[_\- ]*(sk|pk|app|client|secret|access|refresh|bearer|token|apikey|api_key)[_\- ]*(id|secret|key|token)?[_\- ]*\s*[:=]\s*["']?[^\s"',;]+/gi, '[REDACTED]'],
+  // Bare UPPER_SNAKE names that look like credentials, whatever follows them.
+  [/\b[A-Z][A-Z0-9]*_(SECRET|TOKEN|PASSWORD|PRIVATE_KEY|API_KEY)[A-Z0-9_]*\b/g, '[REDACTED_ENV_NAME]'],
+  [/\b[0-9a-f]{64}\b/gi, '[REDACTED_HEX]'],
+];
+
 export function redactAuditDetail(detail: string): string {
-  return redactSecrets(detail)
-    .replace(/[A-Za-z0-9+/]{120,}={0,2}/g, '[REDACTED_LONG_TOKEN]')
-    .slice(0, 2000);
+  let out = detail;
+  for (const [pattern, replacement] of REDACTIONS) out = out.replace(pattern, replacement);
+  // A long unspaced run is almost always an encoded token rather than prose.
+  if (/[A-Za-z0-9+/]{120,}={0,2}/.test(out)) {
+    out = out.replace(/[A-Za-z0-9+/]{120,}={0,2}/g, '[REDACTED_LONG_TOKEN]');
+  }
+  return out.slice(0, 2000);
 }

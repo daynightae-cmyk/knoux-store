@@ -13,8 +13,6 @@
  * settings sub-tab.
  */
 
-import { BrandProfileEditor } from '@/components/command/studio/BrandProfileEditor';
-import { CreateGrowthDraft } from '@/components/command/studio/CreateGrowthDraft';
 import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
 import {
@@ -27,8 +25,8 @@ import {
   Section,
 } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-
-
+import { connectionsFor } from '@/data/growth/connections';
+import { DEMO_CLIENTS } from '@/data/growth/clients';
 import { countryByCode } from '@/data/growth/taxonomy';
 import { AUTONOMY_MEANING, type AutonomyMode } from '@/lib/growth/states';
 import styles from '@/components/command/command.module.css';
@@ -38,9 +36,9 @@ export default function ClientsPage() {
 }
 
 function Clients() {
-  const { records, activeClient, setActiveClientId, clients, isDemoWorkspace } = useWorkspace();
+  const { activeClient, setActiveClientId, clients } = useWorkspace();
   const area = areaBySlug('clients')!;
-  const connections = records.connections;
+  const connections = connectionsFor(activeClient.id);
   const country = countryByCode(activeClient.country);
 
   return (
@@ -56,18 +54,16 @@ function Clients() {
         { label: 'Workspaces', value: String(clients.length) },
       ]}
     >
-      <CreateGrowthDraft key={activeClient.id} kind="client" />
-      <BrandProfileEditor key={`${activeClient.id}:${activeClient.updatedAt}`} />
-      {isDemoWorkspace && <div style={{ padding: '16px 24px 0' }}>
+      <div style={{ padding: '16px 24px 0' }}>
         <DemoNotice>
           Every client here is an invented demonstration workspace. No real business, brand or contact
           detail is represented.
         </DemoNotice>
-      </div>}
+      </div>
 
       <Section title="Workspaces" note="Select a workspace to load it into every screen.">
         <div className={styles.commandGrid4 ?? ''}>
-          {clients.map((client) => (
+          {DEMO_CLIENTS.map((client) => (
             <button
               key={client.id}
               type="button"
@@ -83,7 +79,7 @@ function Clients() {
               aria-pressed={client.id === activeClient.id}
             >
               <span className={styles.ccPaneTitle ?? ''}>{client.name}</span>
-              <span className={styles.ccPaneBody ?? ''} style={{ fontSize: 12 }}>
+              <span className={styles.ccPaneBody ?? ''} style={{ fontSize: 11.5 }}>
                 {client.businessCategory} · {countryByCode(client.country)?.name}
               </span>
               <span style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
@@ -173,7 +169,7 @@ function Clients() {
                 />
               ))}
             </div>
-            <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 8, fontFamily: 'var(--mono)', fontSize: 12 }}>
+            <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 8, fontFamily: 'var(--mono)', fontSize: 10 }}>
               {activeClient.brand.colors.join('  ')}
             </p>
           </Pane>
@@ -204,7 +200,7 @@ function Clients() {
                 activeClient.brand.approvedAssets.map((asset) => <li key={asset}>{asset}</li>)
               )}
             </ul>
-            <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 6, fontSize: 12 }}>
+            <p className={styles.ccPaneBody ?? ''} style={{ marginTop: 6, fontSize: 11.5 }}>
               Only approved assets may appear in generated creative.
             </p>
           </Pane>
@@ -215,7 +211,7 @@ function Clients() {
         {activeClient.branches.length === 0 ? (
           <EmptyState title="No branches recorded" />
         ) : (
-          <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+          <div className={styles.ccTableWrap ?? ''}>
             <table className={styles.ccTable ?? ''}>
               <thead>
                 <tr>
@@ -272,12 +268,12 @@ function Clients() {
       </Section>
 
       <Section title="Products and services" note="The catalogue creative and landing pages reason over.">
-        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+        <div className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <tbody>
               {activeClient.brand.products.map((product, index) => (
                 <tr key={product}>
-                  <td style={{ fontFamily: 'var(--mono)', fontSize: 12, width: 40, color: 'var(--cc-ink-4)' }}>
+                  <td style={{ fontFamily: 'var(--mono)', fontSize: 10, width: 40, color: 'var(--cc-ink-4)' }}>
                     {String(index + 1).padStart(2, '0')}
                   </td>
                   <td>{product}</td>
@@ -301,7 +297,7 @@ function Term({ children }: { children: React.ReactNode }) {
     <dt
       style={{
         fontFamily: 'var(--mono)',
-        fontSize: 12,
+        fontSize: 9,
         letterSpacing: '0.12em',
         textTransform: 'uppercase',
         color: 'var(--cc-ink-4)',

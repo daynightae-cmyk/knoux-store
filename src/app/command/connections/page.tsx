@@ -32,7 +32,7 @@ import {
   Section,
 } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-import { CONNECTION_CATALOGUE } from '@/data/growth/connections';
+import { CONNECTION_CATALOGUE, connectionsFor } from '@/data/growth/connections';
 import type { SafeCapabilityView } from '@/lib/growth/connectors/boundary';
 import { CALL_FAILURE_MEANING } from '@/lib/growth/states';
 import styles from '@/components/command/command.module.css';
@@ -42,97 +42,49 @@ export default function ConnectionsPage() {
 }
 
 function Connections() {
-  const { records, activeClient, isDemoWorkspace } = useWorkspace();
+  const { activeClient } = useWorkspace();
   const area = areaBySlug('connections')!;
-  const connections = records.connections;
-  const [oauthMessage, setOAuthMessage] = useState<string | null>(null);
-  const [oauthBusy, setOAuthBusy] = useState(false);
-
-  async function authorise(platform: string) {
-    const choices: Record<string, { provider: string; capability: string }> = {
-      facebook: { provider: 'meta', capability: 'META_PAGES' },
-      instagram: { provider: 'meta', capability: 'META_INSTAGRAM' },
-      meta_ads: { provider: 'meta', capability: 'META_ADS_READ' },
-      whatsapp: { provider: 'meta', capability: 'META_WHATSAPP' },
-      google_ads: { provider: 'google', capability: 'GOOGLE_ADS' },
-      google_business: { provider: 'google', capability: 'GOOGLE_BUSINESS' },
-      ga4: { provider: 'google', capability: 'GOOGLE_ANALYTICS' },
-      search_console: { provider: 'google', capability: 'GOOGLE_SEARCH_CONSOLE' },
-      youtube: { provider: 'google', capability: 'GOOGLE_YOUTUBE' },
-    };
-    const choice = choices[platform];
-    if (!choice) return;
-    setOAuthBusy(true);
-    setOAuthMessage(null);
-    try {
-      const response = await fetch(`/api/growth/oauth/${choice.provider}/start`, {
-        method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ clientId: activeClient.id, capability: choice.capability }),
-      });
-      const result = await response.json() as { url?: string; reason?: string };
-      if (!response.ok || !result.url) throw new Error(result.reason ?? 'Authorization could not be started.');
-      window.location.assign(result.url);
-    } catch (error) {
-      setOAuthMessage(error instanceof Error ? error.message : 'Authorization could not be started.');
-      setOAuthBusy(false);
-    }
-  }
-
-  async function removeConnection(platform: string) {
-    setOAuthBusy(true);
-    setOAuthMessage(null);
-    try {
-      const response = await fetch(`/api/growth/connections/${encodeURIComponent(platform)}?clientId=${encodeURIComponent(activeClient.id)}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Connection removal was refused. Your stored connection was not reported as removed.');
-      window.location.reload();
-    } catch (error) {
-      setOAuthMessage(error instanceof Error ? error.message : 'Connection removal failed.');
-      setOAuthBusy(false);
-    }
-  }
+  const connections = connectionsFor(activeClient.id);
 
   const [capabilities, setCapabilities] = useState<{
-    capabilities: SafeCapabilityView[];
+    data: SafeCapabilityView[];
     requiredEnv: string[];
     notice: string;
   } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    void fetch(`/api/growth/capabilities?clientId=${encodeURIComponent(activeClient.id)}`, { cache: 'no-store' })
-      .then((res) => {
-        if (!res.ok) throw new Error('Capability access refused.');
-        return res.json();
-      })
+    void fetch('/api/growth/capabilities', { cache: 'no-store' })
+      .then((res) => res.json())
       .then((payload) => {
         if (!cancelled) setCapabilities(payload);
       })
       .catch(() => {
-        if (!cancelled) setCapabilities({ capabilities: [], requiredEnv: [], notice: 'Registry unavailable.' });
+        if (!cancelled) setCapabilities({ data: [], requiredEnv: [], notice: 'Registry unavailable.' });
       });
     return () => {
       cancelled = true;
     };
-  }, [activeClient.id]);
+  }, []);
 
-  const byFamily = groupByFamily(capabilities?.capabilities ?? []);
+  const byFamily = groupByFamily(capabilities?.data ?? []);
 
   return (
     <CommandShell
       area={area}
       dock={{
         surface: 'connections',
-        contextLine: `${activeClient.name} · ${connections.length} connection record(s) · ${capabilities?.capabilities.length ?? 0} registered capabilities`,
+        contextLine: `${activeClient.name} · ${connections.length} connection record(s) · ${capabilities?.data.length ?? 0} registered capabilities`,
       }}
       facts={[
         { label: 'Connected', value: String(connections.filter((c) => c.state === 'CONNECTED').length) },
-        { label: 'Registered', value: String(capabilities?.capabilities.length ?? 0) },
+        { label: 'Registered', value: String(capabilities?.data.length ?? 0) },
       ]}
     >
       <div style={{ padding: '16px 24px 0' }}>
         <DemoNotice>
-          This is an explicitly selected DEMO/FIXTURE workspace. Connection cards are
-          demonstrations; live authorization requires an authenticated stored workspace.
+          No provider credential exists in this deployment. Every card below is in an honest
+          pre-connection state, and the OAuth implementation is ready behind it.
         </DemoNotice>
       </div>
 
@@ -140,27 +92,23 @@ function Connections() {
         title="Platform connections"
         note="State is derived from stored credentials, never from a wish."
       >
-        {oauthMessage ? <p role="status">{oauthMessage}</p> : null}
-        <div className={styles.ccConnectionLanes ?? ''}>
+        <div className={styles.commandGrid3 ?? ''}>
           {CONNECTION_CATALOGUE.map((entry) => {
             const record = connections.find((connection) => connection.platform === entry.platform);
             const future = entry.group === 'Future';
 
             return (
-              <article key={entry.platform} className={styles.ccConnectionLane ?? ''}>
-                <div className={styles.ccConnectionIdentity ?? ''}>
+              <article key={entry.platform} className={styles.ccPane ?? ''}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <PlatformMark platform={entry.platform} />
                   <span className={styles.ccPaneTitle ?? ''}>{entry.label}</span>
                 </div>
 
-                <p className={styles.ccPaneBody ?? ''}>
+                <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 11.5 }}>
                   {entry.scopesHint}
                 </p>
-                </div>
 
-                <div className={styles.ccConnectionStatus ?? ''}>
-                <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   {future ? (
                     <CapabilityBadge state="UI_READY" />
                   ) : record ? (
@@ -177,7 +125,7 @@ function Connections() {
                 {record?.lastError ? (
                   <p
                     className={styles.ccPaneBody ?? ''}
-                    style={{ color: 'var(--cc-ink-4)' }}
+                    style={{ fontSize: 11, color: 'var(--cc-ink-4)' }}
                   >
                     {record.lastError}
                   </p>
@@ -192,7 +140,6 @@ function Connections() {
                     ))}
                   </div>
                 ) : null}
-                </div>
 
                 <div className={styles.ccCommunityActions ?? ''}>
                   {future ? (
@@ -206,24 +153,20 @@ function Connections() {
                     </button>
                   ) : (
                     <>
-                      <button type="button" className={`${styles.ccButton ?? ''} ${styles.ccButtonSm ?? ''}`} onClick={() => setOAuthMessage('Configure the provider app and registered callback URL on the server. Credentials are never entered into this screen.')}>
+                      <button type="button" className={`${styles.ccButton ?? ''} ${styles.ccButtonSm ?? ''}`}>
                         Configure
                       </button>
                       <button
                         type="button"
                         className={`${styles.ccButton ?? ''} ${styles.ccButtonSm ?? ''}`}
-                        disabled={isDemoWorkspace || oauthBusy}
-                        onClick={() => void authorise(entry.platform)}
-                        title={isDemoWorkspace ? 'Authorisation requires an authenticated stored workspace.' : 'Start owner-authorized OAuth; missing server configuration is reported explicitly.'}
+                        disabled
+                        title="Requires a server-side client id and secret before OAuth can begin."
                       >
                         Authorise
                       </button>
                       {record ? (
                         <button
                           type="button"
-                          disabled={isDemoWorkspace || oauthBusy}
-                          onClick={() => void removeConnection(entry.platform)}
-                          title="Remove this workspace's stored connection and credential references. Provider account permissions remain under the provider's controls."
                           className={`${styles.ccButton ?? ''} ${styles.ccButtonSm ?? ''} ${styles.ccButtonDanger ?? ''}`}
                         >
                           Remove
@@ -252,7 +195,7 @@ function Connections() {
                 <p className={styles.ccPaneTitle ?? ''} style={{ marginBottom: 6 }}>
                   {family}
                 </p>
-                <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+                <div className={styles.ccTableWrap ?? ''}>
                   <table className={styles.ccTable ?? ''}>
                     <thead>
                       <tr>
@@ -272,7 +215,7 @@ function Connections() {
                               style={{
                                 color: 'var(--cc-ink-4)',
                                 fontFamily: 'var(--mono)',
-                                fontSize: 12,
+                                fontSize: 9,
                               }}
                             >
                               {capability.id}
@@ -292,7 +235,7 @@ function Connections() {
                             {capability.blockedReason ? (
                               <p
                                 className={styles.ccTableAbsent ?? ''}
-                                style={{ fontSize: 12, marginTop: 4, maxWidth: 320 }}
+                                style={{ fontSize: 11, marginTop: 4, maxWidth: 320 }}
                               >
                                 {capability.blockedReason}
                               </p>

@@ -21,6 +21,7 @@ import {
   ACTION_LABELS,
   TRIGGER_LABELS,
   evaluateRules,
+  templateRules,
   validateRule,
   type AutomationEvent,
 } from '@/lib/growth/automation';
@@ -32,7 +33,7 @@ export default function AutomationsPage() {
 }
 
 function Automations() {
-  const { records, activeClient } = useWorkspace();
+  const { activeClient } = useWorkspace();
   const area = areaBySlug('automations')!;
 
   const [enabled, setEnabled] = useState<Record<string, boolean>>({});
@@ -44,7 +45,7 @@ function Automations() {
     campaignId: 'cmp_demo',
   });
 
-  const rules = records.automations.map((rule) => ({
+  const rules = templateRules(activeClient.id, '2026-10-04T00:00:00.000Z').map((rule) => ({
     ...rule,
     enabled: enabled[rule.id] ?? rule.enabled,
   }));
@@ -99,7 +100,7 @@ function Automations() {
       </Section>
 
       <Section title="Rules" note="Templates ship per client. Threshold rules start disabled.">
-        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+        <div className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>
@@ -198,7 +199,7 @@ function Automations() {
                 ))}
               </ul>
             )}
-            <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 12, marginTop: 8 }}>
+            <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 11.5, marginTop: 8 }}>
               Nothing was paused, rebalanced or unpublished. An outcome here creates a flag, an alert
               or a task — never a provider mutation.
             </p>

@@ -1,0 +1,225 @@
+# ============================================================
+# KNOuX SIGNAL — Source Registry Configuration
+# كل مصدر هنا مُصنّف: APPROVED / QUARANTINED / REJECTED
+# لا يتم تحميل أي مصدر REJECTED أو QUARANTINED تلقائيًا
+# ============================================================
+
+version: "1.0.0"
+last_review: "2025-01-15"
+
+global:
+  user_agent: "KNOuX-Signal/1.0 (lawful-data-ingestion; contact: data@knoux.app)"
+  rate_limit_rps: 2
+  timeout_seconds: 120
+  max_retries: 5
+  backoff_factor: 0.5
+  chunk_size_bytes: 65536
+  base_dir: "data/signal/raw"
+  descriptive_dir: "data/signal/descriptive"
+
+sources:
+
+  # ─────────────────────────────────────────────
+  # APPROVED SOURCES
+  # ─────────────────────────────────────────────
+
+  - id: osm-egypt-gcc
+    name: "OpenStreetMap POIs — Egypt & GCC"
+    status: APPROVED
+    priority: 2
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    publisher: "OpenStreetMap Foundation"
+    license: "ODbL-1.0"
+    license_url: "https://opendatacommons.org/licenses/odbl/1-0/"
+    commercial_use: true
+    redistribution: true
+    attribution_required: true
+    source_url: "https://www.openstreetmap.org"
+    download_urls:
+      egypt: "https://download.geofabrik.de/africa/egypt-latest.osm.pbf"
+      uae: "https://download.geofabrik.de/asia/gcc-states-latest.osm.pbf"
+    format: "osm.pbf"
+    contains:
+      phone_business: true
+      phone_person: false
+      phone_alias: false
+      telecom_metadata: false
+    notes: "يحتوي على phone= tag للأماكن (شركات، مؤسسات، مطاعم). يتطلب الإسناد لـ © OpenStreetMap contributors"
+
+  - id: wikidata-phones
+    name: "Wikidata — Official Phone Numbers (P1329)"
+    status: APPROVED
+    priority: 1
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    publisher: "Wikimedia Foundation"
+    license: "CC0-1.0"
+    license_url: "https://creativecommons.org/publicdomain/zero/1.0/"
+    commercial_use: true
+    redistribution: true
+    attribution_required: false
+    source_url: "https://www.wikidata.org"
+    download_url: "https://query.wikidata.org/sparql"
+    format: "json"
+    contains:
+      phone_business: true
+      phone_person: true
+      phone_alias: false
+      telecom_metadata: false
+    notes: "SPARQL query على الخاصية P1329 (phone number). محدود الحجم لكنه مجاني 100%"
+
+  - id: libphonenumber-ref
+    name: "Google libphonenumber — Metadata & Carrier Maps"
+    status: APPROVED
+    priority: 3
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    publisher: "Google LLC"
+    license: "Apache-2.0"
+    license_url: "https://www.apache.org/licenses/LICENSE-2.0"
+    commercial_use: true
+    redistribution: true
+    attribution_required: true
+    source_url: "https://github.com/google/libphonenumber"
+    download_urls:
+      metadata: "https://raw.githubusercontent.com/google/libphonenumber/master/resources/PhoneNumberMetadata.xml"
+      carrier_eg: "https://raw.githubusercontent.com/google/libphonenumber/master/resources/carrier/20/ar.txt"
+      carrier_ae: "https://raw.githubusercontent.com/google/libphonenumber/master/resources/carrier/971/ar.txt"
+      carrier_sa: "https://raw.githubusercontent.com/google/libphonenumber/master/resources/carrier/966/ar.txt"
+      carrier_kw: "https://raw.githubusercontent.com/google/libphonenumber/master/resources/carrier/965/ar.txt"
+      carrier_qa: "https://raw.githubusercontent.com/google/libphonenumber/master/resources/carrier/974/ar.txt"
+      carrier_bh: "https://raw.githubusercontent.com/google/libphonenumber/master/resources/carrier/973/ar.txt"
+      carrier_om: "https://raw.githubusercontent.com/google/libphonenumber/master/resources/carrier/968/ar.txt"
+    format: "xml/txt"
+    contains:
+      phone_business: false
+      phone_person: false
+      phone_alias: false
+      telecom_metadata: true
+    notes: "خرائط المشغلين لكل بادئة رقم. أساسي لـ E.164 validation و carrier detection"
+
+  - id: mcc-mnc-org
+    name: "MCC-MNC.org — Global Network Codes"
+    status: APPROVED
+    priority: 3
+    countries: [EG, AE, SA, KW, QA, BH, OM, GLOBAL]
+    publisher: "mcc-mnc.org"
+    license: "Open"
+    license_url: "https://mcc-mnc.org"
+    commercial_use: true
+    redistribution: true
+    attribution_required: false
+    source_url: "https://mcc-mnc.org"
+    download_url: "https://mcc-mnc.org/downloads/networks.csv"
+    format: "csv"
+    contains:
+      phone_business: false
+      phone_person: false
+      phone_alias: false
+      telecom_metadata: true
+    notes: "MCC/MNC codes لكل مشغل عالميًا. مصر=602، السعودية=420، الإمارات=424، الكويت=419، قطر=427، البحرين=426، عمان=422"
+
+  - id: itu-numbering-plans
+    name: "ITU National Numbering Plans (E.164)"
+    status: APPROVED
+    priority: 3
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    publisher: "International Telecommunication Union"
+    license: "ITU Public"
+    license_url: "https://www.itu.int"
+    commercial_use: true
+    redistribution: true
+    attribution_required: true
+    source_url: "https://www.itu.int/oth/T0202.aspx"
+    download_urls:
+      egypt: "https://www.itu.int/dms_pub/itu-t/oth/02/02/T02020000440001MSWE.pdf"
+      uae: "https://www.itu.int/dms_pub/itu-t/oth/02/02/T020200004F0001MSWE.pdf"
+      saudi: "https://www.itu.int/dms_pub/itu-t/oth/02/02/T02020000B50001MSWE.pdf"
+    format: "pdf"
+    contains:
+      phone_business: false
+      phone_person: false
+      phone_alias: false
+      telecom_metadata: true
+    notes: "وثائق PDF رسمية من الاتحاد الدولي للاتصالات. تحتاج استخراج يدوي أو عبر PyMuPDF"
+
+  # ─────────────────────────────────────────────
+  # QUARANTINED SOURCES — metadata only, NO auto-download
+  # ─────────────────────────────────────────────
+
+  - id: open-corporates
+    name: "OpenCorporates — Global Company Registry"
+    status: QUARANTINED
+    priority: 2
+    countries: [EG, AE, SA, KW, QA, BH, OM, GLOBAL]
+    publisher: "OpenCorporates"
+    license: "CC-BY-SA-4.0 (non-commercial unless agreed)"
+    license_url: "https://opencorporates.com/legal/terms"
+    commercial_use: false
+    redistribution: false
+    attribution_required: true
+    source_url: "https://opencorporates.com"
+    download_url: "https://api.opencorporates.com"
+    format: "json"
+    quarantine_reason: "يتطلب اتفاقية ترخيص تجاري. لا يمكن التحميل التلقائي بدون موافقة مكتوبة"
+    contains:
+      phone_business: true
+      phone_person: false
+      phone_alias: false
+      telecom_metadata: false
+
+  - id: citc-numbering-docs
+    name: "CST/CITC Saudi Numbering Plan Documents"
+    status: QUARANTINED
+    priority: 3
+    countries: [SA]
+    publisher: "Communications, Space & Technology Commission"
+    license: "Government — Restricted"
+    license_url: "https://www.cst.gov.sa"
+    commercial_use: false
+    redistribution: false
+    source_url: "https://www.cst.gov.sa"
+    quarantine_reason: "وثائق حكومية. تحتاج إذن رسمي أو تحقق من شروط الاستخدام قبل أي سحب"
+
+  - id: wikipedia-numbering
+    name: "Wikipedia Telephone Numbering Plans"
+    status: QUARANTINED
+    priority: 4
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    publisher: "Wikimedia Foundation"
+    license: "CC-BY-SA-4.0"
+    license_url: "https://creativecommons.org/licenses/by-sa/4.0/"
+    commercial_use: true
+    redistribution: true
+    source_url: "https://en.wikipedia.org/wiki/Telephone_numbers_in_Egypt"
+    quarantine_reason: "محتوى مجتمع غير مُحدّث باستمرار. يُستخدم كمرجع ثانوي فقط وليس كمصدر أساسي"
+
+  - id: tellows-reputation
+    name: "Tellows — Community Spam Reports"
+    status: QUARANTINED
+    priority: 4
+    countries: [EG, AE, SA, KW, QA, BH, OM]
+    publisher: "Tellows"
+    license: "Proprietary"
+    license_url: "https://www.tellows.net"
+    commercial_use: false
+    redistribution: false
+    source_url: "https://www.tellows.net"
+    quarantine_reason: "لا يوجد API رسمي عام. أي سحب يتطلب تفاوض تجاري مع المنصة"
+
+  # ─────────────────────────────────────────────
+  # REJECTED SOURCES — never download
+  # ─────────────────────────────────────────────
+
+  - id: truecaller-dumps
+    name: "Truecaller/Getcontact Data Dumps"
+    status: REJECTED
+    rejection_reason: "بيانات خاصة مسروقة/مسربة. انتهاك صارخ لجميع قوانين حماية البيانات"
+
+  - id: leaked-contact-lists
+    name: "Leaked Contact Lists / WhatsApp Dumps"
+    status: REJECTED
+    rejection_reason: "بيانات مسربة. غير قانونية بالكامل. مرفوضة نهائيًا"
+
+  - id: scraped-yellow-pages
+    name: "Scraped Yellow Pages (unauthorized)"
+    status: REJECTED
+    rejection_reason: "Scraping غير مصرح به. ينتهك شروط الخدمة"

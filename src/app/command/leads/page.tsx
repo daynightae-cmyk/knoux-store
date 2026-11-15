@@ -18,7 +18,7 @@ import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
 import { CodeBadge, DemoNotice, EmptyState, OriginLabel, Section } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-
+import { leadsFor } from '@/data/growth/workspace';
 import { LEAD_STATUSES, type LeadStatus } from '@/lib/growth/types';
 import styles from '@/components/command/command.module.css';
 
@@ -36,15 +36,15 @@ const STATUS_TONE: Record<LeadStatus, 'live' | 'info' | 'warn' | 'bad' | 'neutra
 };
 
 function Leads() {
-  const { records, activeClient } = useWorkspace();
+  const { activeClient } = useWorkspace();
   const area = areaBySlug('leads')!;
-  const leads = records.leads;
+  const leads = leadsFor(activeClient.id);
   const currency = activeClient.country === 'EG' ? 'EGP' : 'AED';
 
   const [status, setStatus] = useState<string>('all');
   const [source, setSource] = useState<string>('all');
 
-  const sources = useMemo(() => [...new Set(leads.map((lead) => lead.source))].sort((a, b) => a.localeCompare(b)), [leads]);
+  const sources = useMemo(() => [...new Set(leads.map((lead) => lead.source))].sort(), [leads]);
 
   const filtered = leads
     .filter((lead) => (status === 'all' ? true : lead.status === status))
@@ -124,7 +124,7 @@ function Leads() {
             fill this table.
           </EmptyState>
         ) : (
-          <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+          <div className={styles.ccTableWrap ?? ''}>
             <table className={styles.ccTable ?? ''}>
               <thead>
                 <tr>
@@ -141,7 +141,7 @@ function Leads() {
               <tbody>
                 {filtered.map((lead) => (
                   <tr key={lead.id}>
-                    <td style={{ fontFamily: 'var(--mono)', fontSize: 12 }}>{lead.occurredAt.slice(0, 10)}</td>
+                    <td style={{ fontFamily: 'var(--mono)', fontSize: 10.5 }}>{lead.occurredAt.slice(0, 10)}</td>
                     <td>
                       <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                         <CodeBadge>{lead.source}</CodeBadge>
@@ -152,7 +152,7 @@ function Leads() {
                     <td>{lead.name ?? <span className={styles.ccTableAbsent ?? ''}>Not provided</span>}</td>
                     <td>
                       {lead.phone ?? lead.email ? (
-                        <span style={{ fontFamily: 'var(--mono)', fontSize: 12 }}>
+                        <span style={{ fontFamily: 'var(--mono)', fontSize: 10.5 }}>
                           {lead.phone ?? lead.email}
                         </span>
                       ) : (
@@ -179,7 +179,7 @@ function Leads() {
       </Section>
 
       <Section title="Source attribution" note="Where enquiries actually came from, including manual community posts.">
-        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+        <div className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>

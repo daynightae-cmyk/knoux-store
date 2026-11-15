@@ -17,7 +17,6 @@ import { KnouxAgentIntelligence } from '../intelligence/adapters/knoux-agent';
 import { KnouxLocalIntelligence } from '../intelligence/adapters/local';
 import type { KnouxIntelligence } from '../intelligence/types';
 import { DEMO_PERFORMANCE_ROWS } from '@/data/growth/workspace';
-import type { PerformanceRow, Community } from '../types';
 import { DEMO_COMMUNITIES } from '@/data/growth/communities';
 
 /**
@@ -31,8 +30,7 @@ import { DEMO_COMMUNITIES } from '@/data/growth/communities';
  * outcome, not a silent substitution: every fallback response carries
  * `degradedFrom: 'knoux-agent'` and is labelled provisional in the UI.
  */
-export function buildRouter(env: Record<string, string | undefined> = process.env, snapshot?: { performanceRows: PerformanceRow[]; communities: Community[] }): KnouxIntelligenceRouter {
-  const liveSelected = env.KNOUX_GROWTH_DATA_SOURCE?.trim().toLowerCase() === 'supabase' || env.KNOUX_GROWTH_AUTH_ENFORCED === 'true';
+export function buildRouter(env: Record<string, string | undefined> = process.env): KnouxIntelligenceRouter {
   const providers: KnouxIntelligence[] = [
     new KnouxAgentIntelligence({
       ...(env.KNOUX_AGENT_ENDPOINT ? { endpointUrl: env.KNOUX_AGENT_ENDPOINT } : {}),
@@ -43,12 +41,26 @@ export function buildRouter(env: Record<string, string | undefined> = process.en
         : {}),
     }),
     new KnouxLocalIntelligence({
-      snapshot: snapshot ?? {
-        performanceRows: liveSelected ? [] : [...DEMO_PERFORMANCE_ROWS],
-        communities: liveSelected ? [] : [...DEMO_COMMUNITIES],
+      snapshot: {
+        performanceRows: [...DEMO_PERFORMANCE_ROWS],
+        communities: [...DEMO_COMMUNITIES],
       },
     }),
   ];
 
   return new KnouxIntelligenceRouter({ providers });
+}
+
+/**
+ * The workspace snapshot the local reasoner reads.
+ *
+ * Until a workspace is loaded from storage it is the demo fixture set. When the
+ * Supabase-backed repository lands, this is the single seam that changes — the
+ * reasoner itself is already a pure function of its snapshot.
+ */
+export function currentSnapshot() {
+  return {
+    performanceRows: [...DEMO_PERFORMANCE_ROWS],
+    communities: [...DEMO_COMMUNITIES],
+  };
 }

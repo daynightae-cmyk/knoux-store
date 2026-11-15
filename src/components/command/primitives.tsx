@@ -15,7 +15,6 @@ import type { CapabilityState, ConnectionState, DataOrigin } from '@/lib/growth/
 import { CAPABILITY_STATE_MEANING, CONNECTION_STATE_MEANING } from '@/lib/growth/states';
 import type { Sourced } from '@/lib/growth/states';
 import styles from './command.module.css';
-import { useWorkspace } from './workspace-context';
 
 /* ------------------------------------------------------------ state badge */
 
@@ -157,18 +156,13 @@ export function MetricCell({
   const available = value != null;
 
   let text = 'Not reported';
-  // A currency code is a unit, not part of the amount. Rendering it at the same
-  // size as the figure pushed "AED" onto its own line and split the number from
-  // its unit, which reads as two unrelated values.
-  let unit: string | null = null;
   if (available) {
     const digits = kind === 'number' ? 0 : 2;
     if (kind === 'currency') {
-      unit = currency;
-      text = value.value.toLocaleString('en-AE', {
+      text = `${currency} ${value.value.toLocaleString('en-AE', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      });
+      })}`;
     } else if (kind === 'percent') {
       text = `${value.value.toFixed(2)}%`;
     } else {
@@ -182,7 +176,6 @@ export function MetricCell({
       <span
         className={available ? (styles.ccMetricValue ?? '') : (styles.ccMetricValueAbsent ?? '')}
       >
-        {unit ? <span className={styles.ccMetricUnit ?? ''}>{unit}</span> : null}
         {text}
       </span>
       {available && value.origin === 'FIXTURE' ? (
@@ -201,8 +194,6 @@ export function MetricCell({
 /* ----------------------------------------------------------------- notice */
 
 export function DemoNotice({ children }: { children?: ReactNode }) {
-  const { isDemoWorkspace } = useWorkspace();
-  if (!isDemoWorkspace) return null;
   return (
     <div className={styles.ccDemo ?? ''} role="note">
       <span className={styles.ccDemoMark ?? ''}>DEMO</span>

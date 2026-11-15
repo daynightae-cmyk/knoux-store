@@ -23,7 +23,7 @@ import {
   Section,
 } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-
+import { performanceRowsFor } from '@/data/growth/workspace';
 import { mergeMetrics, PROVIDERS } from '@/lib/growth/metrics';
 import type { Sourced } from '@/lib/growth/states';
 import styles from '@/components/command/command.module.css';
@@ -45,9 +45,9 @@ const METRIC_COLUMNS = [
 ] as const;
 
 function Analytics() {
-  const { records, activeClient } = useWorkspace();
+  const { activeClient } = useWorkspace();
   const area = areaBySlug('analytics')!;
-  const rows = records.performanceRows;
+  const rows = performanceRowsFor(activeClient.id);
   const currency = activeClient.country === 'EG' ? 'EGP' : 'AED';
   const [provider, setProvider] = useState<string>('all');
 
@@ -108,7 +108,7 @@ function Analytics() {
         {filtered.length === 0 ? (
           <EmptyState title="No rows for this filter" />
         ) : (
-          <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+          <div className={styles.ccTableWrap ?? ''}>
             <table className={styles.ccTable ?? ''}>
               <caption>Canonical metrics. A blank cell means the provider did not report it.</caption>
               <thead>
@@ -142,7 +142,7 @@ function Analytics() {
       </Section>
 
       <Section title="Derived metrics" note="A ratio is computed only when both inputs exist and the divisor is non-zero.">
-        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+        <div className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>
@@ -175,7 +175,7 @@ function Analytics() {
       </Section>
 
       <Section title="Why cells are blank" note="Stated rather than assumed, so an operator can tell a gap from a zero.">
-        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+        <div className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>

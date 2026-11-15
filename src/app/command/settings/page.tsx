@@ -12,7 +12,7 @@ import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
 import { CodeBadge, DemoNotice, Pane, Section } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-
+import { activityFor } from '@/data/growth/connections';
 import {
   DEFAULT_AUTONOMY,
   RISK_LEVEL_MEANING,
@@ -39,9 +39,9 @@ const AUDIT_ACTIONS = [
 ] as const;
 
 function Settings() {
-  const { records, activeClient } = useWorkspace();
+  const { activeClient } = useWorkspace();
   const area = areaBySlug('settings')!;
-  const activity = records.activity;
+  const activity = activityFor(activeClient.id);
 
   return (
     <CommandShell
@@ -98,7 +98,7 @@ function Settings() {
       </Section>
 
       <Section title="Roles and permissions" note="Client scope is checked before any permission, so no role can cross clients.">
-        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+        <div className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>
@@ -125,7 +125,7 @@ function Settings() {
       </Section>
 
       <Section title="Separation of duties" note="An approval record only proves something if the approver is not the author.">
-        <div className={styles.commandGrid2 ?? ''}>
+        <div className={styles.ccGrid2Fallback ?? ''}>
           <Pane title="Campaign approval">
             <ul className={styles.ccPaneList ?? ''}>
               <li>The author of a plan cannot approve it.</li>
@@ -164,11 +164,11 @@ function Settings() {
                 {activity.map((entry) => (
                   <li key={entry.id}>
                     <CodeBadge tone="info">{entry.action.replace(/_/g, ' ')}</CodeBadge>{' '}
-                    <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--cc-ink-4)' }}>
+                    <span style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: 'var(--cc-ink-4)' }}>
                       {entry.at.slice(0, 16).replace('T', ' ')}
                     </span>{' '}
                     · {entry.actor}
-                    {entry.detail ? <div style={{ fontSize: 12 }}>{entry.detail}</div> : null}
+                    {entry.detail ? <div style={{ fontSize: 11.5 }}>{entry.detail}</div> : null}
                   </li>
                 ))}
               </ul>

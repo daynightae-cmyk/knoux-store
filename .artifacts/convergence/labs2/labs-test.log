@@ -1,0 +1,36 @@
+▶ Canonical Labs Truth & Integrity
+  ✔ exactly two real lab experiments exist: LAB-01 Quill and LAB-02 Crypt (2.7652ms)
+  ✔ both experiments are marked research — never released or production (2.3136ms)
+  ✔ no fake scientific metrics, models or benchmark claims added (0.4607ms)
+  ✔ honest PROTOTYPE FIELD / NOT A RELEASE badge is present (0.2074ms)
+✔ Canonical Labs Truth & Integrity (8.7575ms)
+▶ ExperimentChamber Component Architecture
+  ✔ derives data from canonical labExperiments (0.3521ms)
+  ✔ hash synchronization is implemented for #lab-quill and #lab-crypt (0.1521ms)
+  ✔ selector uses semantic button elements with aria-pressed (1.0108ms)
+  ✔ Labs page imports ExperimentChamberV2 directly so Three.js stays route-local (3.2093ms)
+  ✔ labs/page.tsx preserves experiment disclosures (3.1282ms)
+✔ ExperimentChamber Component Architecture (9.8998ms)
+▶ Science Lab SDF Dot-Matrix Visual Field Engine
+  ✔ uses raw Three.js with PlaneGeometry and ShaderMaterial (0.7418ms)
+  ✔ implements procedural SDF for Quill (linguistic flow) and Crypt (encryption volumes) (0.1945ms)
+  ✔ implements dot-matrix grid quantization in fragment shader (0.1302ms)
+  ✔ no Math.random() in component production code (0.2217ms)
+  ✔ pointer interaction mutates ref without React setState per frame (0.3702ms)
+  ✔ adaptive GPU quality tiers are defined with pixelRatio capped at <= 1.5 (0.1778ms)
+  ✔ IntersectionObserver and visibility API pause animation loop (0.1238ms)
+  ✔ reduced-motion path renders single static frame without continuous RAF loop (0.148ms)
+  ✔ robust WebGL fallback to Canvas 2D exists (0.136ms)
+  ✔ lifecycle cleanup releases all GPU resources on unmount (0.1997ms)
+✔ Science Lab SDF Dot-Matrix Visual Field Engine (3.1044ms)
+▶ Reference File Isolation & Immutability
+  ✔ authorized reference 02 files are isolated from runtime and not mutated (182.1111ms)
+✔ Reference File Isolation & Immutability (182.2823ms)
+ℹ tests 20
+ℹ suites 4
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 450.4243

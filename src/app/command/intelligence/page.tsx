@@ -65,8 +65,7 @@ function Intelligence() {
     // the agent is reachable.
     void (async () => {
       try {
-        const res = await fetch(`/api/growth/intelligence/probe?clientId=${encodeURIComponent(activeClient.id)}`, { cache: 'no-store' });
-        if (!res.ok) throw new Error('Intelligence probe access refused.');
+        const res = await fetch('/api/growth/intelligence/probe', { cache: 'no-store' });
         const payload = (await res.json()) as {
           failure?: string | null;
           detail?: string;
@@ -85,11 +84,8 @@ function Intelligence() {
       }
     })();
 
-    void fetch(`/api/growth/capabilities?clientId=${encodeURIComponent(activeClient.id)}`, { cache: 'no-store' })
-      .then((res) => {
-        if (!res.ok) throw new Error('Capability access refused.');
-        return res.json();
-      })
+    void fetch('/api/growth/capabilities', { cache: 'no-store' })
+      .then((res) => res.json())
       .then((payload: { capabilities?: SafeCapabilityView[] }) => {
         if (!cancelled) setCapabilities(payload.capabilities ?? []);
       })
@@ -100,7 +96,7 @@ function Intelligence() {
     return () => {
       cancelled = true;
     };
-  }, [activeClient.id]);
+  }, []);
 
   return (
     <CommandShell
@@ -186,7 +182,7 @@ function Intelligence() {
             ) : (
               <span className={styles.ccMetricMeta ?? ''}>Checking…</span>
             )}
-            <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 12 }}>
+            <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 11.5 }}>
               Families available on the deployed agent today: {AGENT_FAMILIES_LIVE.join(', ')}. Growth
               families require the sub-agent patch documented in{' '}
               <code>docs/growth/KNOUX-AI-INTEGRATION.md</code>.
@@ -234,7 +230,7 @@ function Intelligence() {
       </Section>
 
       <Section title="Naming rule" note="Enforced in code and asserted by tests.">
-        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+        <div className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
               <tr>
@@ -283,7 +279,7 @@ function CapabilityTable({ capabilities }: { capabilities: SafeCapabilityView[] 
         <CodeBadge>REGISTERED {capabilities.length}</CodeBadge>
       </div>
 
-      <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+      <div className={styles.ccTableWrap ?? ''}>
         <table className={styles.ccTable ?? ''}>
           <thead>
             <tr>
@@ -299,7 +295,7 @@ function CapabilityTable({ capabilities }: { capabilities: SafeCapabilityView[] 
               <tr key={capability.id}>
                 <td>
                   <div>{capability.label}</div>
-                  <small style={{ color: 'var(--cc-ink-4)', fontFamily: 'var(--mono)', fontSize: 12 }}>
+                  <small style={{ color: 'var(--cc-ink-4)', fontFamily: 'var(--mono)', fontSize: 9 }}>
                     {capability.id}
                   </small>
                 </td>

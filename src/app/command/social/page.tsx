@@ -13,13 +13,11 @@
  */
 
 import { useMemo, useState } from 'react';
-import { AdPreviewTheatre } from '@/components/command/studio/AdPreviewTheatre';
-import { EditorialBoard } from '@/components/command/studio/EditorialBoard';
 import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
 import { CodeBadge, DemoNotice, EmptyState, OriginLabel, Section } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-
+import { contentFor } from '@/data/growth/workspace';
 import { PLATFORM_IDS, type ContentItem, type ContentStatus, type PlatformId } from '@/lib/growth/types';
 import styles from '@/components/command/command.module.css';
 
@@ -38,10 +36,11 @@ export default function SocialPage() {
 }
 
 function Social() {
-  const { records, activeClient, clients, setActiveClientId } = useWorkspace();
+  const { activeClient, clients, setActiveClientId } = useWorkspace();
   const area = areaBySlug('social')!;
-  const items = records.content;
+  const items = contentFor(activeClient.id);
 
+  const [clientFilter, setClientFilter] = useState<string>(activeClient.id);
   const [platform, setPlatform] = useState<string>('all');
   const [status, setStatus] = useState<string>('all');
   const [monthAnchor, setMonthAnchor] = useState<Date>(() => {
@@ -73,8 +72,9 @@ function Social() {
           <span className={styles.ccFieldLabel ?? ''}>Client</span>
           <select
             className={styles.ccFieldControl ?? ''}
-            value={activeClient.id}
+            value={clientFilter}
             onChange={(event) => {
+              setClientFilter(event.target.value);
               setActiveClientId(event.target.value);
             }}
           >
@@ -147,7 +147,6 @@ function Social() {
         </div>
       </div>
 
-      <EditorialBoard />
       <Section
         title="Calendar"
         note="Scheduling records intent. Nothing is published by this build."
@@ -155,7 +154,7 @@ function Social() {
         {visible.length === 0 ? (
           <EmptyState title="Nothing scheduled for this filter" />
         ) : (
-          <div tabIndex={0} role="group" aria-label="Scrollable calendar" style={{ overflowX: 'auto' }}>
+          <div style={{ overflowX: 'auto' }}>
             <div className={styles.ccCalendar ?? ''} style={{ minWidth: 640 }}>
               {WEEKDAYS.map((day) => (
                 <div key={day} className={styles.ccCalendarDow ?? ''}>
@@ -190,7 +189,7 @@ function Social() {
         {visible.length === 0 ? (
           <EmptyState title="No content items" />
         ) : (
-          <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+          <div className={styles.ccTableWrap ?? ''}>
             <table className={styles.ccTable ?? ''}>
               <thead>
                 <tr>
@@ -220,7 +219,7 @@ function Social() {
                         ))}
                       </span>
                     </td>
-                    <td style={{ fontFamily: 'var(--mono)', fontSize: 12 }}>
+                    <td style={{ fontFamily: 'var(--mono)', fontSize: 10.5 }}>
                       {item.scheduledFor ? item.scheduledFor.slice(0, 10) : '—'}
                     </td>
                     <td>
@@ -244,7 +243,6 @@ function Social() {
           disabled because no account is connected.
         </DemoNotice>
       </div>
-      <Section title="Editorial preview" note="Shared local creative revisions. Calendar slots remain scheduling intent; editing this preview does not publish or rewrite a content record."><AdPreviewTheatre /></Section>
     </CommandShell>
   );
 }

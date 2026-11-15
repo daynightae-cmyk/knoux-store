@@ -23,9 +23,9 @@ import {
   Section,
 } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
-
-
-
+import { campaignsFor, performanceRowsFor } from '@/data/growth/workspace';
+import { connectionsFor, activityFor } from '@/data/growth/connections';
+import { distributionListsFor } from '@/data/growth/communities';
 import { CAMPAIGN_STATUS_MEANING } from '@/lib/growth/types';
 import { budgetMajor, daysInclusive } from '@/lib/growth/campaigns';
 import type { CanonicalMetrics, PerformanceRow } from '@/lib/growth/types';
@@ -36,14 +36,14 @@ export default function OverviewPage() {
 }
 
 function Overview() {
-  const { records, activeClient, isDemoWorkspace, demoReason } = useWorkspace();
+  const { activeClient, isDemoWorkspace, demoReason } = useWorkspace();
   const area = areaBySlug('')!;
 
-  const campaigns = records.campaigns;
-  const rows = records.performanceRows;
-  const connections = records.connections;
-  const activity = records.activity;
-  const lists = records.distributionLists;
+  const campaigns = campaignsFor(activeClient.id);
+  const rows = performanceRowsFor(activeClient.id);
+  const connections = connectionsFor(activeClient.id);
+  const activity = activityFor(activeClient.id);
+  const lists = distributionListsFor(activeClient.id);
 
   const awaitingApproval = campaigns.filter((campaign) => campaign.status === 'READY_FOR_REVIEW');
   const committedMinor = campaigns
@@ -65,7 +65,7 @@ function Overview() {
       }}
       facts={[
         { label: 'Awaiting approval', value: String(awaitingApproval.length) },
-        { label: 'Committed budget', value: campaigns.length ? `${currency} ${(committedMinor / 100).toFixed(2)}` : 'No accessible campaign budgets' },
+        { label: 'Committed budget', value: `${currency} ${(committedMinor / 100).toFixed(2)}` },
         { label: 'Queued posts', value: String(queuedPosts) },
       ]}
     >
@@ -144,7 +144,7 @@ function Overview() {
       </Section>
 
       <Section title="Connection state" note="Truthful states only. Nothing here reads as connected without a credential.">
-        <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
+        <div className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <caption>Platform connections for {activeClient.name}</caption>
             <thead>

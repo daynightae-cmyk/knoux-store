@@ -223,7 +223,7 @@ function DockResponse({ response }: { response: IntelligenceResponse }) {
       {response.proposedActions.length > 0 ? (
         <div className={styles.ccDockSection ?? ''}>
           <p className={styles.ccDockSectionHead ?? ''}>Proposed, not executed</p>
-          <ul className={styles.ccPaneList ?? ''}>
+          <ul className={styles.ccPane__list ?? ''}>
             {response.proposedActions.map((action) => (
               <li key={action.actionId}>
                 {action.label} · risk {action.risk}

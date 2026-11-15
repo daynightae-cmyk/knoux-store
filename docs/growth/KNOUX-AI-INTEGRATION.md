@@ -55,6 +55,9 @@ tests.
 
 ## 2. Audit findings — verified on disk, not assumed
 
+> **Phase 2 correction.** Three findings below were wrong or incomplete. Phase 2
+> repaired two of them and found two more. See §2a.
+
 Each row was checked against the filesystem on 2026-10-04. The brief listed these
 as "may include"; this table is what is actually there.
 
@@ -65,20 +68,31 @@ as "may include"; this table is what is actually there.
 | D3 | `google.auth.default()` and `storage.Client()` run at **module import time** (`agent.py:239-246`), so importing the module hard-depends on cloud credentials. | `agent.py:239` | **FRAGILITY** — works today (ADC present) |
 | D4 | MCP is restricted to a single tool. | `agent.py:366` `tool_filter=["gateway_status"]` | **CONFIRMED LIMITATION** |
 | D5 | The published MCP toolspec contains exactly one tool. | `KNOUX-AI-MCP-toolspec.json` | **CONFIRMED LIMITATION** |
-| D6 | Mojibake in the root instruction: `KNOUX Repairâ€”a local-first`. | `agent.py:354` | **CONFIRMED** |
+| D6 | Mojibake in the root instruction. The literal bytes in the source are not valid UTF-8. An intended em-dash renders as three junk characters, and every arrow in the safety chain `Scan -> Explain -> Preview -> Confirm -> Execute -> Verify` is mangled to the same junk, so the destructive-action chain a human reads is not what the model receives. Described rather than quoted on purpose: reproducing the corrupt bytes here would re-corrupt this file, which is how the previous version of this row was damaged. | `agent.py:354` (pre-repair; 368 after Phase 2) | **CONFIRMED** - still present and unrepaired; patch prepared, see section 3 |
 | D7 | `subprocess.run([...], shell=True)` passes a list to `cmd.exe`, which does not quote it correctly. | `agent.py:126-140` | **LATENT** |
 | D8 | No provider abstraction: `GlobalGemini(...)` is hardcoded in all three agents. | `agent.py:323,336,349` | **CONFIRMED** |
 | D9 | Root instructions are scoped entirely to KNOuX Repair — Windows diagnostics. No Growth family. | `agent.py:347-354` | **CONFIRMED** |
 
 ### Verified as *not* broken — do not "repair" these
 
-- `KNOUX_GCLOUD_PATH` points at `.tools\gcloud-fast\...` (`agent.py:73`). That
+- `KNOUX_GCLOUD_PATH` points at `.tools\gcloud-fast\` (`agent.py:73`). That
   path **exists**. The separately vendored `.tools\gcloud\` also exists. Not a
   defect.
-- Both `.venv` and `.venv-k7` exist.
 - Knowledge files `01`–`05` are present at the knowledge root; `SECURITY.md` and
   `web-frontend_README.md` are present in its `docs/` subdirectory, which the
   resolver already checks.
+
+### 2a. Phase 2 corrections
+
+| Phase 1 claim | Correction |
+|---|---|
+| "MCP exposes exactly one tool" | **Wrong.** Phase 1 read a *draft* toolspec in the knowledge pack. `D:\KNOUX-MCP-Gateway\server.py` publishes **three**: `gateway_status`, `local_readonly_tools`, `run_local_readonly_tool`. **D4** (`tool_filter`) is still true — the agent only *exposes* one. |
+| A2A wire format `class_method: "query"` with `request.message` | **Wrong.** `D:\KNOUX_Agent\e2e_gateway_status_proof.py` shows the real shape: `{"classMethod":"on_message_send","input":{"request": <A2A JSON-RPC>, "context":{}}}` against `https://us-west1-aiplatform.googleapis.com/v1/projects/30719047550/locations/us-west1/reasoningEngines/374423291676327936:query`. The Phase 1 adapter in `knoux-agent.ts` needs correcting. |
+| D1 "the `CLOUDSDK_PYTHON` path is the only Python313 reference" | **Incomplete.** `.venv-k7\pyvenv.cfg` pins `home = C:\Users\k7\AppData\Local\Programs\Python\Python313` — the same dead path. And `.venv\pyvenv.cfg` points at `C:\Users\day night\…`, a different user's profile. **Both venvs were unrunnable**, so fixing `agent.py` alone changed nothing. |
+| Not listed | **D11** — `requirements.txt` does not declare `mcp`, so a clean install cannot `import agent` at all. |
+
+**Repaired in Phase 2:** D1, D2, D11, plus a valid `.venv-p312`.
+Evidence: `docs/growth/AGENT-REPAIR-EVIDENCE.md`.
 
 ---
 

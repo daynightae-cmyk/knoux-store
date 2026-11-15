@@ -17,7 +17,7 @@ import 'server-only';
  *    default rather than something an operator has to remember.
  */
 
-import { scryptSync, randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 
 /* ------------------------------------------------------------------ state */
 
@@ -31,7 +31,7 @@ import { scryptSync, randomBytes, timingSafeEqual } from 'node:crypto';
  */
 export type OAuthState = {
   value: string;
-  /** Domain-separated memory-hard digest. The raw nonce is never persisted. */
+  /** SHA-256 of the nonce. The raw nonce is never persisted. */
   stateHash: string;
   expiresAt: Date;
 };
@@ -48,16 +48,9 @@ export function createOAuthState(now: () => number = Date.now): OAuthState {
   };
 }
 
-const OAUTH_STATE_DIGEST_DOMAIN = 'knoux-growth-oauth-state-v1';
-
-/**
- * One-way digest for high-entropy OAuth state and opaque secret references.
- * Inputs are random state/opaque references. The domain is a public salt, not
- * an embedded HMAC secret. Scrypt adds a memory-hard backstop and requires no
- * new secret mechanism. Existing state expires after ten minutes.
- */
+/** Stored form. The raw nonce is never written, only its digest. */
 export function hashState(value: string): string {
-  return scryptSync(value, OAUTH_STATE_DIGEST_DOMAIN, 32).toString('hex');
+  return createHash('sha256').update(value).digest('hex');
 }
 
 export type StateVerdict =
@@ -111,6 +104,7 @@ export function verifyOAuthState(params: {
 
 /* ----------------------------------------------------------------- scopes */
 
+export type OAuthProvider = 'meta' | 'google';
 export type OAuthCapability =
   | 'META_PAGES'
   | 'META_INSTAGRAM'
@@ -153,7 +147,7 @@ export function scopesFor(capabilities: readonly OAuthCapability[]): string[] {
   for (const capability of capabilities) {
     for (const scope of META_SCOPES[capability] ?? []) set.add(scope);
   }
-  return [...set].sort((a, b) => a.localeCompare(b));
+  return [...set].sort();
 }
 
 /** Capabilities whose scope set would permit spending money. */
@@ -346,45 +340,32 @@ export interface SecretStore {
   delete(ref: string): Promise<boolean>;
 }
 
-type CodeExchangeOptions = {
-  code: string;
-  tokenUrl?: string;
-  fetchImpl?: typeof fetch;
-  secretStore?: SecretStore;
-  /** Resolved by the authenticated callback, never taken from provider config. */
-  owner?: { clientId: string; userId: string };
-  now?: () => number;
-};
-
-function prepareCodeExchange(params: CodeExchangeOptions, redirectUri: string):
-  | Extract<TokenExchange, { ok: false }>
-  | { ok: true; secretStore: SecretStore; owner: { clientId: string; userId: string }; doFetch: typeof fetch } {
-  if (!redirectUri) {
-    return { ok: false, failure: 'CONFIG_REQUIRED', message: 'The OAuth redirect URI is not configured.' };
-  }
-  if (!params.code?.trim()) {
-    return { ok: false, failure: 'INVALID_INPUT', message: 'No authorisation code was returned.' };
-  }
-  if (!params.secretStore || !params.owner?.clientId || !params.owner.userId) {
-    return {
-      ok: false,
-      failure: 'CONFIG_REQUIRED',
-      message: 'A server secret store and authenticated client/user context are required.',
-    };
-  }
-  return { ok: true, secretStore: params.secretStore, owner: params.owner, doFetch: params.fetchImpl ?? fetch };
-}
-
 /**
  * Exchanges an authorisation code for tokens and stores the result.
  *
  * Returns a reference, never a token. The exchange itself needs the app secret,
  * which is why the secret is read here and never by the caller.
  */
-export async function exchangeMetaCode(params: CodeExchangeOptions & { config: Required<MetaConfig> }): Promise<TokenExchange> {
-  const prepared = prepareCodeExchange(params, params.config.redirectUri);
-  if (!prepared.ok) return prepared;
-  const { secretStore, owner, doFetch } = prepared;
+export async function exchangeMetaCode(params: {
+  config: Required<MetaConfig>;
+  code: string;
+  tokenUrl?: string;
+  fetchImpl?: typeof fetch;
+  secretStore?: SecretStore;
+  now?: () => number;
+}): Promise<TokenExchange> {
+  if (!params.config.redirectUri) {
+    return {
+      ok: false,
+      failure: 'CONFIG_REQUIRED',
+      message: 'META_OAUTH_REDIRECT_URI is not set, so the code exchange cannot be completed.',
+    };
+  }
+  if (!params.code || params.code.trim() === '') {
+    return { ok: false, failure: 'INVALID_INPUT', message: 'No authorisation code was returned.' };
+  }
+
+  const doFetch = params.fetchImpl ?? fetch;
   const body = new URLSearchParams({
     client_id: params.config.appId,
     client_secret: params.config.appSecret,
@@ -418,32 +399,52 @@ export async function exchangeMetaCode(params: CodeExchangeOptions & { config: R
 
     const now = (params.now ?? Date.now)();
     const token: StoredToken = {
-      secretRef: await secretStore.put(payload.access_token, {
-        kind: 'meta-access-token',
-        ...owner,
-      }),
+      secretRef: params.secretStore
+        ? await params.secretStore.put(payload.access_token, {
+            kind: 'meta-access-token',
+            clientId: params.config.appId,
+            userId: params.config.appId,
+          })
+        : `unmanaged://meta/${hashState(payload.access_token).slice(0, 32)}`,
       ...(payload.expires_in
         ? { accessTokenExpiresAt: new Date(now + payload.expires_in * 1000).toISOString() }
         : {}),
-      scopes: payload.scope ? payload.scope.split(',').map((entry) => entry.trim()).sort((a, b) => a.localeCompare(b)) : [],
+      scopes: payload.scope ? payload.scope.split(',').map((entry) => entry.trim()).sort() : [],
       grantedAt: new Date(now).toISOString(),
     };
 
     return { ok: true, token, grantedScopes: token.scopes };
-  } catch {
+  } catch (error) {
     return {
       ok: false,
       failure: 'API_ERROR',
-      message: 'The token exchange or secret storage could not be completed.',
+      message: 'The token exchange could not be completed.',
+      providerDetail: error instanceof Error ? error.message : 'transport failed',
     };
   }
 }
 
 /** Google's equivalent. Returns both an access token and a refresh token ref. */
-export async function exchangeGoogleCode(params: CodeExchangeOptions & { config: Required<GoogleConfig> }): Promise<TokenExchange> {
-  const prepared = prepareCodeExchange(params, params.config.redirectUri);
-  if (!prepared.ok) return prepared;
-  const { secretStore, owner, doFetch } = prepared;
+export async function exchangeGoogleCode(params: {
+  config: Required<GoogleConfig>;
+  code: string;
+  tokenUrl?: string;
+  fetchImpl?: typeof fetch;
+  secretStore?: SecretStore;
+  now?: () => number;
+}): Promise<TokenExchange> {
+  if (!params.config.redirectUri) {
+    return {
+      ok: false,
+      failure: 'CONFIG_REQUIRED',
+      message: 'GOOGLE_OAUTH_REDIRECT_URI is not set, so the code exchange cannot be completed.',
+    };
+  }
+  if (!params.code || params.code.trim() === '') {
+    return { ok: false, failure: 'INVALID_INPUT', message: 'No authorisation code was returned.' };
+  }
+
+  const doFetch = params.fetchImpl ?? fetch;
   const body = new URLSearchParams({
     client_id: params.config.clientId,
     client_secret: params.config.clientSecret,
@@ -479,18 +480,22 @@ export async function exchangeGoogleCode(params: CodeExchangeOptions & { config:
     }
 
     const now = (params.now ?? Date.now)();
-    const scopes = payload.scope ? payload.scope.split(' ').filter(Boolean).sort((a, b) => a.localeCompare(b)) : [];
+    const scopes = payload.scope ? payload.scope.split(' ').filter(Boolean).sort() : [];
 
     const token: StoredToken = {
-      secretRef: await secretStore.put(payload.access_token, {
-        kind: 'google-access-token',
-        ...owner,
-      }),
-      ...(payload.refresh_token
+      secretRef: params.secretStore
+        ? await params.secretStore.put(payload.access_token, {
+            kind: 'google-access-token',
+            clientId: params.config.clientId,
+            userId: params.config.clientId,
+          })
+        : `unmanaged://google/${hashState(payload.access_token).slice(0, 32)}`,
+      ...(payload.refresh_token && params.secretStore
         ? {
-            refreshTokenSecretRef: await secretStore.put(payload.refresh_token, {
+            refreshTokenSecretRef: await params.secretStore.put(payload.refresh_token, {
               kind: 'google-refresh-token',
-              ...owner,
+              clientId: params.config.clientId,
+              userId: params.config.clientId,
             }),
           }
         : {}),
@@ -502,11 +507,12 @@ export async function exchangeGoogleCode(params: CodeExchangeOptions & { config:
     };
 
     return { ok: true, token, grantedScopes: scopes };
-  } catch {
+  } catch (error) {
     return {
       ok: false,
       failure: 'API_ERROR',
-      message: 'The token exchange or secret storage could not be completed.',
+      message: 'The token exchange could not be completed.',
+      providerDetail: error instanceof Error ? error.message : 'transport failed',
     };
   }
 }

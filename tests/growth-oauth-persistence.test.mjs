@@ -39,9 +39,9 @@ const {
   redactAuditDetail,
 } = await import('../src/lib/growth/persistence/repository.ts');
 
-const { buildFixtureDataset, buildFixtureSupplementary } = await import('../src/lib/growth/persistence/fixture-dataset.ts');
+const { buildFixtureDataset } = await import('../src/lib/growth/persistence/fixture-dataset.ts');
 
-const { configuredDataSource, selectRepository, refusalMessage } = await import(
+const { configuredDataSource, refusalMessage } = await import(
   '../src/lib/growth/persistence/selection.ts'
 );
 
@@ -191,36 +191,11 @@ test('requesting no capability is refused rather than building an empty-scope UR
 
 /* --------------------------------------------------------- token exchange */
 
-const owner = { clientId: 'client-a', userId: 'user-a' };
-const secretStore = {
-  put: async () => 'vault://test/token',
-  get: async () => null,
-  delete: async () => true,
-};
-
-for (const [exchange, config] of [
-  [exchangeMetaCode, { appId: 'a', appSecret: 'b', redirectUri: 'https://example.invalid/cb' }],
-  [exchangeGoogleCode, { clientId: 'c', clientSecret: 's', redirectUri: 'https://example.invalid/cb' }],
-]) {
-  test(`${exchange.name} refuses missing secret storage or authenticated ownership before spending a code`, async () => {
-    for (const opts of [{ owner }, { secretStore }, { secretStore, owner: { clientId: '', userId: 'u' } }]) {
-      let called = false;
-      const result = await exchange({ config, code: 'code', ...opts, fetchImpl: async () => { called = true; } });
-      assert.equal(result.ok, false);
-      assert.equal(result.failure, 'CONFIG_REQUIRED');
-      assert.equal(called, false);
-    }
-  });
-}
-
-
 test('a token never appears in the exchange result, only a reference', async () => {
   const secret = 'EAA-super-secret-access-token-value';
   const result = await exchangeMetaCode({
     config: { appId: 'a', appSecret: 'b', redirectUri: 'https://example.invalid/cb' },
     code: 'auth-code',
-    secretStore,
-    owner,
     fetchImpl: async () => ({
       ok: true,
       status: 200,
@@ -231,7 +206,7 @@ test('a token never appears in the exchange result, only a reference', async () 
 
   assert.equal(result.ok, true);
   assert.equal(JSON.stringify(result).includes(secret), false, 'the token leaked into the result');
-  assert.equal(result.token.secretRef, 'vault://test/token');
+  assert.ok(result.token.secretRef.startsWith('unmanaged://'));
   assert.ok(result.token.accessTokenExpiresAt);
   assert.deepEqual(result.grantedScopes, ['ads_read', 'read_insights']);
 });
@@ -240,8 +215,6 @@ test('a provider rejection is preserved verbatim, not flattened', async () => {
   const result = await exchangeMetaCode({
     config: { appId: 'a', appSecret: 'b', redirectUri: 'https://example.invalid/cb' },
     code: 'auth-code',
-    secretStore,
-    owner,
     fetchImpl: async () => ({
       ok: false,
       status: 400,
@@ -334,33 +307,6 @@ test('a fixture miss is NOT_FOUND, not an empty result', async () => {
   const result = await repo.getClient('cl_does_not_exist');
   assert.equal(result.ok, false);
   assert.equal(result.failure, 'NOT_FOUND');
-});
-
-test('supplementary fixture records stay scoped to the requested client', () => {
-  const dataset = buildFixtureDataset();
-  assert.ok(dataset.clientIds.length > 0, 'fixture data must expose at least one client');
-  for (const clientId of dataset.clientIds) {
-    const supplementary = buildFixtureSupplementary(clientId);
-    for (const record of [
-      ...supplementary.content,
-      ...supplementary.creatives,
-      ...supplementary.distributionLists,
-    ]) {
-      assert.equal(record.clientId, clientId, 'supplementary fixture data crossed the client boundary');
-    }
-  }
-});
-
-test('repository selection enters fixture mode only when explicitly requested', async () => {
-  const selection = await selectRepository([], { KNOUX_GROWTH_DATA_SOURCE: 'fixture' });
-  assert.equal(selection.source, 'fixture');
-  assert.equal(selection.repository.holdsLiveData, false);
-
-  const ids = await selection.repository.listClientIds();
-  assert.equal(ids.ok, true);
-  assert.ok(ids.data.value.length > 0);
-  assert.equal(ids.data.meta.origin, 'FIXTURE');
-  assert.equal(ids.data.meta.stored, false);
 });
 
 /* ------------------------------------------------------ repository selection */
@@ -476,29 +422,4 @@ test('an approval does not unlock launch once the plan it approved is gone', () 
   );
   assert.notEqual(edited.budgetMinor, decided.approval.budgetSnapshot.budgetMinor);
   assert.equal(daysInclusive(edited.startDate, edited.endDate), 8);
-});
-test('Google stores access and refresh tokens under the authenticated tenant and user', async () => {
-  const writes = [];
-  const result = await exchangeGoogleCode({
-    config: { clientId: 'provider-app', clientSecret: 'app-secret', redirectUri: 'https://example.invalid/cb' },
-    code: 'code', owner,
-    secretStore: { ...secretStore, put: async (value, opts) => { writes.push({ value, opts }); return `vault://test/${opts.kind}`; } },
-    fetchImpl: async () => ({ ok: true, json: async () => ({ access_token: 'access', refresh_token: 'refresh' }) }),
-  });
-  assert.equal(result.ok, true);
-  assert.deepEqual(writes.map(write => write.opts), [
-    { kind: 'google-access-token', ...owner }, { kind: 'google-refresh-token', ...owner },
-  ]);
-  assert.deepEqual(writes.map(write => write.value), ['access', 'refresh']);
-});
-
-test('secret-store errors cannot echo tokens into exchange failures', async () => {
-  const secret = 'secret-from-provider';
-  const result = await exchangeMetaCode({
-    config: { appId: 'a', appSecret: 'b', redirectUri: 'https://example.invalid/cb' }, code: 'code', owner,
-    secretStore: { ...secretStore, put: async () => { throw new Error(secret); } },
-    fetchImpl: async () => ({ ok: true, json: async () => ({ access_token: secret }) }),
-  });
-  assert.equal(result.ok, false);
-  assert.equal(JSON.stringify(result).includes(secret), false);
 });
