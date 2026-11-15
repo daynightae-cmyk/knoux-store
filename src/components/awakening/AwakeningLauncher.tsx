@@ -71,16 +71,22 @@ export function AwakeningLauncher({
         <span className="awakening-header__key" aria-hidden="true">
           K
         </span>
-        <span className="awakening-header__label">{t('AWAKEN')}</span>
+        <span className="awakening-header__label" aria-hidden="true">{t('AWAKEN')}</span>
       </button>
     );
   }
 
   if (variant === 'menu') {
+    const label = `${t('The Awakening')} — ${t('Activate the KNOuX awakening')}`;
     return (
-      <button type="button" className="awakening-menu" onClick={activate}>
-        <span>00</span>
-        {t('The Awakening')}
+      <button
+        type="button"
+        className="awakening-menu"
+        onClick={activate}
+        aria-label={label}
+      >
+        <span aria-hidden="true">00</span>
+        <span aria-hidden="true">{t('The Awakening')}</span>
         <span aria-hidden="true">K ↗</span>
       </button>
     );
