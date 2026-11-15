@@ -1,0 +1,487 @@
+/* Canonical Sentinel geometry, staged. Scoped to the Awakening's presentation
+   copy of the character; the canonical interactive Sentinel keeps its own
+   `.knoux-sentinel` surface and pointer owner. */
+
+.forge-sentinel {
+  --forge-accent: #c44d4d;
+  --forge-eye: #fff3e8;
+  --forge-frame: #e8b08c;
+  --forge-face: #08090a;
+  --ks-accent: var(--forge-accent);
+  --ks-eye: var(--forge-eye);
+  --ks-frame: var(--forge-frame);
+  --ks-face: var(--forge-face);
+  --ks-glow: 0.5;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  filter: drop-shadow(0 20px 34px rgba(0, 0, 0, 0.62));
+  animation: forge-presence 6.8s ease-in-out infinite;
+}
+
+.forge-sentinel svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.forge-sentinel .ks-frame {
+  fill: color-mix(in srgb, var(--forge-frame) 20%, #15151a);
+  stroke: var(--forge-frame);
+}
+
+.forge-sentinel .ks-rim {
+  stroke: color-mix(in srgb, var(--forge-frame) 54%, #ffffff);
+}
+
+.forge-sentinel .ks-face {
+  fill: var(--forge-face);
+}
+
+.forge-sentinel .ks-sheen {
+  opacity: 0.075;
+}
+
+.forge-sentinel .ks-mark__p {
+  fill: color-mix(in srgb, var(--forge-frame) 76%, #ffffff);
+}
+
+.forge-sentinel .ks-mark__p--violet {
+  fill: var(--forge-accent);
+}
+
+.forge-sentinel .ks-core {
+  fill: var(--forge-eye);
+}
+
+.forge-sentinel .ks-crystal {
+  fill: color-mix(in srgb, var(--forge-accent) 52%, #141218);
+}
+
+.forge-sentinel .ks-shard {
+  fill: color-mix(in srgb, var(--forge-frame) 60%, #7d7686);
+  stroke: #9d96a4;
+}
+
+.forge-sentinel .ks-shard[data-lit='true'] {
+  fill: color-mix(in srgb, var(--forge-accent) 30%, var(--forge-frame));
+}
+
+.forge-aura {
+  opacity: 0.64;
+  animation: forge-aura 6.4s ease-in-out infinite;
+}
+
+.forge-orbit {
+  opacity: 0.9;
+}
+
+.forge-eyes {
+  --forge-glance: 0px;
+  --forge-squint: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: translate(var(--forge-glance), 0.2px) scaleY(var(--forge-squint));
+  animation: forge-blink 7.6s steps(1, end) infinite;
+}
+
+.forge-aperture {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 700ms ease, transform 700ms ease;
+}
+
+.forge-aperture__ring {
+  fill: none;
+  stroke: color-mix(in srgb, var(--forge-frame) 58%, transparent);
+  stroke-width: 0.32;
+  opacity: 0.62;
+}
+
+.forge-aperture__ring--inner {
+  stroke: var(--forge-eye);
+  opacity: 0.38;
+}
+
+.forge-aperture__lens {
+  opacity: 0.72;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: forge-lens-breathe 4.6s ease-in-out infinite;
+}
+
+.forge-aperture__core {
+  fill: #fffaf0;
+  filter: drop-shadow(0 0 2.2px var(--forge-eye));
+  animation: forge-core 3.4s ease-in-out infinite;
+}
+
+.forge-aperture__ray {
+  fill: none;
+  stroke: var(--forge-eye);
+  stroke-width: 0.28;
+  opacity: 0.42;
+}
+
+/* The aperture opens with the phase rather than with a frame loop. */
+.forge-sentinel[data-phase='ignition'] .forge-aperture {
+  opacity: 0.58;
+  transform: scale(0.72);
+  animation-duration: 52s;
+}
+
+.forge-sentinel[data-phase='awakening'] .forge-aperture {
+  opacity: 0.92;
+  transform: scale(1);
+}
+
+.forge-sentinel[data-phase='first-emission'] .forge-aperture,
+.forge-sentinel[data-phase='cascade'] .forge-aperture {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+.forge-sentinel[data-phase='overcharge'] .forge-aperture,
+.forge-sentinel[data-phase='fracture'] .forge-aperture {
+  opacity: 1;
+  transform: scale(1.16);
+}
+
+.forge-sentinel[data-phase='fracture'] .forge-shell {
+  transform: translateY(-1.2px) scale(1.012);
+}
+
+.forge-sentinel[data-phase='revelation'] .forge-aperture,
+.forge-sentinel[data-phase='explore'] .forge-aperture,
+.forge-sentinel[data-phase='skipped'] .forge-aperture {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.forge-sentinel[data-phase='paused'] * {
+  animation-play-state: paused !important;
+}
+
+.forge-sentinel[data-phase='error'] {
+  --forge-accent: var(--signal-red, #c98d7d);
+  --forge-eye: #efb5af;
+}
+
+.forge-shell {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 620ms ease;
+}
+
+/* The shout face. The mouth is drawn only for the staged performance; the
+   canonical idle Sentinel keeps its silent silhouette. */
+.forge-brows {
+  stroke: color-mix(in srgb, var(--forge-eye) 72%, var(--forge-frame));
+  stroke-width: 1.15;
+  stroke-linecap: round;
+  opacity: 0.82;
+  transition: transform 220ms ease;
+}
+
+.forge-expression[data-expression='shout'] .forge-brows {
+  transform: translateY(1.2px) scaleY(1.2);
+}
+
+.forge-mouth {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 180ms ease;
+}
+
+.forge-mouth__lip {
+  fill: none;
+  stroke: color-mix(in srgb, var(--forge-eye) 54%, transparent);
+  stroke-width: 1.6;
+  opacity: 0.5;
+}
+
+.forge-mouth__throat {
+  fill: #040406;
+}
+
+.forge-mouth__glow {
+  fill: var(--forge-accent);
+  opacity: 0.62;
+  filter: blur(0.6px);
+}
+
+.forge-mouth__rim {
+  fill: none;
+  stroke: color-mix(in srgb, var(--forge-eye) 76%, var(--forge-accent));
+  stroke-width: 0.62;
+  opacity: 0.9;
+}
+
+.forge-expression[data-expression='charge'] .forge-mouth {
+  transform: scale(0.52, 0.18);
+}
+
+.forge-expression[data-expression='shout'] .forge-mouth {
+  transform: scale(1.08, 1.04);
+  animation: forge-roar 320ms ease-in-out infinite alternate;
+}
+
+.forge-expression[data-expression='dizzy'] .forge-mouth {
+  transform: scale(0.62, 0.4) rotate(-4deg);
+}
+
+/* The conversation faces. The same canonical head is re-used; expression is
+   only a set of transforms on the drawn brows, eyes and mouth. */
+.forge-expression[data-expression='listen'] .forge-mouth {
+  transform: scale(0.7, 0.1);
+}
+
+.forge-expression[data-expression='listen'] .forge-brows {
+  transform: translateY(-0.4px);
+}
+
+.forge-expression[data-expression='speak'] .forge-mouth,
+.forge-expression[data-expression='annoyed'] .forge-mouth {
+  transform: scale(0.86, 0.6);
+}
+
+.forge-expression[data-expression='annoyed'] .forge-brows {
+  transform: translateY(0.8px) scaleY(1.08);
+}
+
+.forge-expression[data-expression='annoyed'] .forge-eyes {
+  --forge-squint: 0.88;
+}
+
+.forge-expression[data-expression='angry'] .forge-mouth {
+  transform: scale(1.02, 0.8);
+}
+
+.forge-expression[data-expression='angry'] .forge-brows {
+  transform: translateY(1.6px) scaleY(1.18);
+}
+
+.forge-expression[data-expression='angry'] .forge-brows path:first-child {
+  transform: rotate(7deg);
+  transform-origin: 29px 37px;
+}
+
+.forge-expression[data-expression='angry'] .forge-brows path:last-child {
+  transform: rotate(-7deg);
+  transform-origin: 51px 37px;
+}
+
+.forge-expression[data-expression='angry'] .forge-eyes {
+  --forge-squint: 0.74;
+}
+
+.forge-expression[data-expression='furious'] .forge-mouth {
+  transform: scale(1.16, 1.02);
+  animation: forge-roar 260ms ease-in-out infinite alternate;
+}
+
+.forge-expression[data-expression='furious'] .forge-brows {
+  transform: translateY(2.2px) scaleY(1.24);
+}
+
+.forge-expression[data-expression='furious'] .forge-brows path:first-child {
+  transform: rotate(12deg);
+  transform-origin: 29px 37px;
+}
+
+.forge-expression[data-expression='furious'] .forge-brows path:last-child {
+  transform: rotate(-12deg);
+  transform-origin: 51px 37px;
+}
+
+.forge-expression[data-expression='furious'] .forge-eyes {
+  --forge-squint: 0.54;
+}
+
+/* A talking mouth is a small, bounded loop; it never touches React. */
+.forge-sentinel[data-speaking='true'] .forge-mouth {
+  animation: forge-talk 210ms steps(2, end) infinite alternate;
+}
+
+.forge-sentinel[data-speaking='true'] .forge-mouth__glow {
+  animation: forge-talk-glow 210ms ease-in-out infinite alternate;
+}
+
+/* Glancing at the person who asked. The whole head turns a few degrees and the
+   eyes lead a fraction more, so the character looks rather than slides. */
+.forge-sentinel[data-facing='left'] .forge-eyes {
+  --forge-glance: -1.3px;
+}
+
+.forge-sentinel[data-facing='right'] .forge-eyes {
+  --forge-glance: 1.3px;
+}
+
+/* The head follows the eyes by a couple of degrees, so the Sentinel looks at
+   the person who asked instead of sliding sideways as a flat sticker. */
+.forge-sentinel[data-facing='left'] .forge-shell {
+  transform: rotate(-2deg) translateX(-1.1px);
+}
+
+.forge-sentinel[data-facing='right'] .forge-shell {
+  transform: rotate(2deg) translateX(1.1px);
+}
+
+@keyframes forge-talk {
+  from {
+    transform: scale(0.86, 0.34);
+  }
+  to {
+    transform: scale(0.98, 0.82);
+  }
+}
+
+@keyframes forge-talk-glow {
+  from {
+    opacity: 0.36;
+  }
+  to {
+    opacity: 0.84;
+  }
+}
+
+/* The core is the Sentinel's quiet light. While it is shouting, the mouth is
+   the emitter, so the core steps aside instead of sitting inside the throat. */
+.forge-sentinel[data-expression='shout'] .forge-core,
+.forge-sentinel[data-expression='shout'] .forge-core-halo {
+  opacity: 0;
+}
+
+.forge-sentinel[data-expression='dizzy'] .forge-core {
+  opacity: 0.32;
+}
+
+.forge-sentinel[data-expression='shout'] .forge-eyes .ks-eye--l {
+  transform: rotate(11deg) scaleY(0.66);
+  transform-origin: 32.4px 43.6px;
+}
+
+.forge-sentinel[data-expression='shout'] .forge-eyes .ks-eye--r {
+  transform: rotate(-11deg) scaleY(0.66);
+  transform-origin: 47.6px 43.6px;
+}
+
+.forge-sentinel[data-expression='charge'] .forge-eyes {
+  animation: forge-squint 1.1s ease-in-out infinite alternate;
+}
+
+.forge-sentinel[data-expression='dizzy'] .forge-eyes {
+  animation: forge-dizzy-eyes 1.3s linear infinite;
+  transform-origin: 40px 43.6px;
+}
+
+.forge-sentinel[data-expression='shout'] .forge-aperture {
+  opacity: 1;
+  transform: scale(1.3);
+}
+
+@keyframes forge-roar {
+  from {
+    transform: scale(1.02, 0.96);
+  }
+  to {
+    transform: scale(1.14, 1.1);
+  }
+}
+
+@keyframes forge-squint {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0.62);
+  }
+}
+
+@keyframes forge-dizzy-eyes {
+  0% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+  100% {
+    transform: rotate(-3deg);
+  }
+}
+
+@keyframes forge-aura {
+  0%,
+  100% {
+    opacity: 0.48;
+  }
+  50% {
+    opacity: 0.78;
+  }
+}
+
+@keyframes forge-blink {
+  0%,
+  92%,
+  94.5%,
+  100% {
+    opacity: 1;
+  }
+  93%,
+  94% {
+    opacity: 0.08;
+  }
+}
+
+@keyframes forge-lens-breathe {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes forge-core {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(0.88);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes forge-presence {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2.4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The root carries the presence bob, so it must be silenced too. The global
+     site rule only shortens animation-duration to 0.01ms; an infinite loop
+     would still be reported as running and can jitter at frame sampling. */
+  .forge-sentinel,
+  .forge-sentinel *,
+  .forge-sentinel *::before,
+  .forge-sentinel *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .forge-sentinel[data-phase='ignition'] .forge-aperture {
+    opacity: 0.92;
+    transform: none;
+  }
+}
