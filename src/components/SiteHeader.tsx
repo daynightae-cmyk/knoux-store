@@ -71,7 +71,7 @@ export function SiteHeader() {
   return (
     <>
       <header lang={language} dir={siteDirection(language)} className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
-        <Link href="/" className="brand">
+        <Link href="/" className="brand" aria-label={t('KNOuX home')}>
           <span className="brand-dot" aria-hidden="true" />
           KNOuX
           <span className="brand-end">r</span>{' '}
@@ -114,6 +114,7 @@ export function SiteHeader() {
             className="header-search"
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent(OPEN_EVENT))}
+            aria-label={t('Open search')}
           >
             <span>{t('SEARCH')}</span>
             <kbd>⌘K</kbd>{' '}
