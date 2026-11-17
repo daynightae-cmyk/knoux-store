@@ -706,12 +706,22 @@
   scrollbar-width: thin;
 }
 
+/*
+ * The founder, at the end.
+ *
+ * The image is the last thing the sequence says, so it is given the weight of a
+ * printed portrait rather than a card: larger than the copy column can steal
+ * from it, the heat of the fracture still breathing behind it, and a light that
+ * lands on the face from the same direction as the reveal. Everything here is
+ * one entrance animation and one slow, endless sheen — nothing reflows, nothing
+ * moves the text while it is being read.
+ */
 .shout-final__portrait {
   position: relative;
   grid-area: portrait;
   justify-self: center;
   align-self: center;
-  width: min(100%, 336px);
+  width: min(100%, 428px);
   aspect-ratio: 4 / 5;
   padding: 9px;
   transform: rotate(-1.6deg);
@@ -722,17 +732,79 @@
     0 38px 90px rgba(0, 0, 0, 0.62),
     0 0 80px rgba(161, 138, 203, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  animation: dialogue-portrait-in 980ms cubic-bezier(0.16, 0.84, 0.34, 1) both;
+  animation: dialogue-portrait-in 1240ms cubic-bezier(0.16, 0.84, 0.34, 1) both;
+  isolation: isolate;
 }
 
 @keyframes dialogue-portrait-in {
-  from {
+  0% {
     opacity: 0;
-    transform: rotate(-5deg) translateY(24px) scale(0.94);
+    filter: brightness(2.4) saturate(0.4);
+    transform: rotate(-5deg) translateY(30px) scale(0.9);
+  }
+  34% {
+    opacity: 1;
+    filter: brightness(1.5) saturate(0.9);
+  }
+  100% {
+    opacity: 1;
+    filter: brightness(1) saturate(1);
+    transform: rotate(-1.6deg) translateY(0) scale(1);
+  }
+}
+
+/* The heat the fracture released stays under the portrait: the same authored
+   vents as the break, held still, so the light is continuous from the moment
+   the glass gave way to the moment the founder is named. */
+.shout-final__portrait::before {
+  content: '';
+  position: absolute;
+  inset: -18% -12%;
+  z-index: -2;
+  background: radial-gradient(
+    circle at 50% 42%,
+    rgba(255, 186, 112, 0.3) 0%,
+    rgba(196, 92, 28, 0.18) 38%,
+    transparent 72%
+  );
+  filter: blur(26px);
+  pointer-events: none;
+  animation: portrait-heat 7.5s ease-in-out infinite alternate;
+}
+
+@keyframes portrait-heat {
+  from {
+    opacity: 0.62;
+    transform: scale(0.98);
   }
   to {
     opacity: 1;
-    transform: rotate(-1.6deg) translateY(0) scale(1);
+    transform: scale(1.05);
+  }
+}
+
+/* A single pass of light across the glass, once, as the name is read. */
+.shout-final__portrait-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    112deg,
+    transparent 30%,
+    rgba(255, 246, 226, 0.5) 48%,
+    transparent 64%
+  );
+  transform: translateX(-120%);
+  animation: portrait-sheen 1500ms cubic-bezier(0.3, 0.7, 0.2, 1) 620ms 1 both;
+  pointer-events: none;
+}
+
+@keyframes portrait-sheen {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(120%);
   }
 }
 
@@ -1150,7 +1222,7 @@
   }
 
   .shout-final__portrait {
-    width: min(34vw, 148px);
+    width: min(42vw, 172px);
   }
 
   .shout-final__name {
@@ -1244,7 +1316,7 @@
   }
 
   .shout-final__portrait {
-    width: 74px;
+    width: 108px;
   }
 
   .shout-final__name {
@@ -1292,5 +1364,18 @@
   .dialogue-echo {
     opacity: 0.3;
     transform: translate(-50%, -50%) rotate(var(--echo-rot)) scale(var(--echo-scale));
+  }
+
+  /* The founder still arrives, and the light under him still holds: only the
+     travelling parts stop. Removing the entrance entirely would make the most
+     important image on the page appear without ever being shown. */
+  .shout-final__portrait::before {
+    animation: none !important;
+    opacity: 0.8;
+  }
+
+  .shout-final__portrait-frame::after {
+    animation: none !important;
+    opacity: 0;
   }
 }

@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type KeyboardEvent } from 'react';
-import { describeEntry, entryForPage, findGuideEntries, guideEntryLabel, guideStatus, MAX_GUIDE_QUERY, type GuideEntry, type GuideLanguage } from '@/lib/sentinel/guide';
+import { describeEntry, entryForPage, findGuideEntries, guideEntryLabel, guideStatus, type GuideEntry, type GuideLanguage } from '@/lib/sentinel/guide';
 import { contextPrompt } from '@/lib/sentinel/context';
 import { GUIDE_LANGUAGES, GUIDE_LANGUAGE_IDS, guideDirection, guideLanguageTag, speechLocale } from '@/lib/sentinel/languages';
 import { visibleSectionText } from '@/lib/sentinel/visible-section';
 import styles from './SentinelGuide.module.css';
 import { setSentinelQuiet, subscribeSentinelQuiet, saveSentinelLanguage, sentinelPreferenceSnapshot, sentinelServerSnapshot, setSentinelOptions, resetSentinelPreferences } from './sentinel-preferences';
+import { COMPANION_MAX_QUESTION } from '@/lib/sentinel/companion-contract';
+import type { CompanionReply } from './KnouxThoughtBubble';
 
 const text = {
   en: { title: 'Your guide to KNOuX', mode: 'Published-site guide · Not conversational AI', close: 'Close guide', page: 'Explain this page', read: 'Read this section', query: 'What do you need?', placeholder: 'A store, website, academy…', search: 'Find a service', source: 'Published source', empty: 'No published match. Try a simpler need, or use the Composer.', loading: 'Loading published sources…', error: 'Sources are unavailable. Close and reopen to retry.', privacy: 'Search stays in this panel. No forms, typing or pointer movements are sent to an agent.', speech: 'Browser speech is optional and may use your device’s speech service. No microphone is used.', play: 'Read aloud', replay: 'Replay', stop: 'Stop', mute: 'Mute', unavailable: 'Speech is unavailable in this browser.', original: 'Original section language; no automatic translation.', noSection: 'No readable section in the current viewport. Close the guide, scroll to a section and reopen.', ready: 'Ready', speaking: 'Reading aloud', status: 'Published status' },
@@ -25,12 +27,24 @@ const text = {
  * new locale degrades to readable English instead of an empty panel.
  */
 const ui = {
-  en: { quiet: 'Quiet mode', settings: 'Sentinel settings', legend: 'Companion preferences', sound: 'Allow read aloud on demand', tips: 'Contextual tips', reduced: 'Reduced animation', visible: 'Show mascot', note: 'Speech starts only when you press Read aloud. Quiet mode suppresses tips and speech, keeping your companion available.', reset: 'Reset preferences' },
-  ar: { quiet: 'الوضع الهادئ', settings: 'إعدادات Sentinel', legend: 'تفضيلات رفيقك', sound: 'السماح بالقراءة الصوتية عند الطلب', tips: 'التلميحات السياقية', reduced: 'تقليل الحركة', visible: 'إظهار الشخصية', note: 'الصوت يبدأ فقط عند الضغط على القراءة. الوضع الهادئ يمنع التلميحات والصوت ويحافظ على الشخصية.', reset: 'إعادة ضبط التفضيلات' },
-  ur: { quiet: 'خاموش موڈ', settings: 'Sentinel ترتیبات', legend: 'رفیق کی ترجیحات', sound: 'طلب پر بلند آواز میں پڑھنے کی اجازت', tips: 'سیاقی تجاویز', reduced: 'حرکت کم کریں', visible: 'کردار دکھائیں', note: 'آواز صرف اُس وقت شروع ہوتی ہے جب آپ پڑھیں دبائیں۔ خاموش موڈ تجاویز اور آواز روک دیتا ہے مگر رفیق دستیاب رہتا ہے۔', reset: 'ترجیحات دوبارہ ترتیب دیں' },
+  en: { ask: 'Ask the companion', thinking: 'Thinking…', companionGap: 'The companion is unavailable right now. The published sources below are still the answer.', brief: 'A short answer, grounded in published records.', quiet: 'Quiet mode', settings: 'Sentinel settings', legend: 'Companion preferences', sound: 'Allow read aloud on demand', tips: 'Contextual tips', reduced: 'Reduced animation', visible: 'Show mascot', note: 'Speech starts only when you press Read aloud. Quiet mode suppresses tips and speech, keeping your companion available.', reset: 'Reset preferences' },
+  ar: { ask: 'اسأل الرفيق', thinking: 'أفكر…', companionGap: 'الرفيق غير متاح الآن. المصادر المنشورة أدناه تبقى الجواب.', brief: 'إجابة قصيرة مبنية على السجلات المنشورة.', quiet: 'الوضع الهادئ', settings: 'إعدادات Sentinel', legend: 'تفضيلات رفيقك', sound: 'السماح بالقراءة الصوتية عند الطلب', tips: 'التلميحات السياقية', reduced: 'تقليل الحركة', visible: 'إظهار الشخصية', note: 'الصوت يبدأ فقط عند الضغط على القراءة. الوضع الهادئ يمنع التلميحات والصوت ويحافظ على الشخصية.', reset: 'إعادة ضبط التفضيلات' },
+  ur: { ask: 'رفیق سے پوچھیں', thinking: 'سوچ رہا ہے…', companionGap: 'رفیق اس وقت دستیاب نہیں۔ نیچے دیے گئے شائع شدہ ماخذ ہی جواب ہیں۔', brief: 'شائع شدہ ریکارڈوں پر مبنی مختصر جواب۔', quiet: 'خاموش موڈ', settings: 'Sentinel ترتیبات', legend: 'رفیق کی ترجیحات', sound: 'طلب پر بلند آواز میں پڑھنے کی اجازت', tips: 'سیاقی تجاویز', reduced: 'حرکت کم کریں', visible: 'کردار دکھائیں', note: 'آواز صرف اُس وقت شروع ہوتی ہے جب آپ پڑھیں دبائیں۔ خاموش موڈ تجاویز اور آواز روک دیتا ہے مگر رفیق دستیاب رہتا ہے۔', reset: 'ترجیحات دوبارہ ترتیب دیں' },
 } as const;
 
-export default function SentinelGuidePanel({ onClose, closing, character, contextEntry, onSpeaking }: { onClose: () => void; closing: boolean; character: ReactNode; contextEntry?: GuideEntry; onSpeaking: (active: boolean) => void }) {
+export default function SentinelGuidePanel({ onClose, closing, character, contextEntry, onSpeaking, reply, onAsk, onStopCompanion, companionReady }: {
+  onClose: () => void;
+  closing: boolean;
+  character: ReactNode;
+  contextEntry?: GuideEntry;
+  onSpeaking: (active: boolean) => void;
+  /** The one live companion conversation, owned by the launcher. */
+  reply: CompanionReply;
+  onAsk: (question: string) => boolean;
+  onStopCompanion: () => void;
+  /** False before the published catalog resolves; the composer stays disabled. */
+  companionReady: boolean;
+}) {
   const pathname = usePathname();
   const dialog = useRef<HTMLDialogElement>(null);
   const speechSerial = useRef(0);
@@ -40,7 +54,7 @@ export default function SentinelGuidePanel({ onClose, closing, character, contex
   const [settings,setSettings] = useState(false);
   const [catalog, setCatalog] = useState<GuideEntry[] | null>(null);
   const [failed, setFailed] = useState(false);
-  const [query, setQuery] = useState('');
+  const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState<{ key: string; query?: string; section?: string; sectionLanguage?: string } | null>(null);
   const muted = !preferences.sound;
   const [speech, setSpeech] = useState({ key: '', active: false, used: false, error: false });
@@ -55,7 +69,17 @@ export default function SentinelGuidePanel({ onClose, closing, character, contex
   const selected = answer?.key === key ? answer : null;
   const pageEntry = contextEntry ?? entryForPage(catalog ?? [], pathname);
   const results = useMemo(() => selected?.query ? findGuideEntries(catalog ?? [], selected.query) : [], [catalog, selected]);
-  const response = selected?.section ?? (selected?.query ? (results.length ? results.map(entry => describeEntry(entry, language)).join('\n\n') : t.empty) : describeEntry(pageEntry, language, pathname));
+  /**
+   * The answer body.
+   *
+   * When the catalog has not arrived yet there is no page entry and no match,
+   * so this used to resolve to an empty string — the panel then painted an
+   * empty light card under the question while the status line said "loading".
+   * The loading and failure states are now part of the body itself, so the
+   * panel always has something true to say.
+   */
+  const response = failed ? t.error : !catalog ? t.loading
+    : selected?.section ?? (selected?.query ? (results.length ? results.map(entry => describeEntry(entry, language)).join('\n\n') : t.empty) : describeEntry(pageEntry, language, pathname));
   const speaking = speech.key === key && speech.active && !quiet && !muted;
 
   useEffect(() => {
@@ -104,6 +128,19 @@ export default function SentinelGuidePanel({ onClose, closing, character, contex
     setSpeech({ key, active: true, used: true, error: false });
     window.speechSynthesis.speak(utterance);
   };
+  /** Send the sentence to the companion and keep the panel open. */
+  const ask = () => {
+    stop();
+    if (!question.trim() || !companionReady) return;
+    onAsk(question.trim());
+  };
+  /** Search the published catalogue instead, in the existing answer card. */
+  const lookup = () => {
+    stop();
+    if (!question.trim()) return;
+    setAnswer({ key, query: question.trim() });
+  };
+  const asking = reply.state === 'thinking' || reply.state === 'streaming';
   const readSection = () => {
     stop();
     const headings = [...document.querySelectorAll('main h1,main h2,main h3')];
@@ -121,6 +158,51 @@ export default function SentinelGuidePanel({ onClose, closing, character, contex
     </header>
     <div className={styles.content}>
       {pageEntry && <p className={styles.greeting}>{contextPrompt(pageEntry,language)}</p>}
+      {/* One composer for what the visitor actually asks.
+          A published-site lookup and a question to the companion are different
+          jobs: the first searches the catalogue, the second is answered in the
+          conversation, in the panel, without closing it. Both start from the
+          same sentence, so the field takes the question and the two buttons
+          decide what to do with it. Typing answers nothing on its own — before,
+          Enter only ever searched the registry, which read as a dead input. */}
+      <form className={styles.composer} onSubmit={event => { event.preventDefault(); ask(); }}>
+        <label htmlFor="sentinel-composer">{t.query}</label>
+        <textarea
+          id="sentinel-composer"
+          value={question}
+          onChange={event => setQuestion(event.target.value)}
+          onKeyDown={event => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+              event.preventDefault();
+              ask();
+            }
+          }}
+          rows={2}
+          maxLength={COMPANION_MAX_QUESTION}
+          autoComplete="off"
+          placeholder={t.placeholder}
+          disabled={!companionReady}
+        />
+        <div className={styles.composer__actions}>
+          <button type="submit" className={styles.composer__ask} disabled={!companionReady || !question.trim() || asking}>
+            {reply.state === 'thinking' ? strings.thinking : strings.ask}
+          </button>
+          <button type="button" onClick={lookup} disabled={!catalog || !question.trim()}>
+            {t.search}
+          </button>
+          {asking ? (
+            <button type="button" onClick={onStopCompanion}>{t.stop}</button>
+          ) : null}
+        </div>
+      </form>
+      {reply.state !== 'idle' ? (
+        <section className={styles.conversation} aria-label={strings.ask} data-state={reply.state}>
+          <p className={styles.conversation__who}>KNOuX / SENTINEL</p>
+          <p className={styles.conversation__text} aria-live="polite">{reply.text || (reply.state === 'thinking' ? strings.thinking : '')}</p>
+          {reply.state === 'streaming' ? <span className={styles.conversation__caret} aria-hidden="true" /> : null}
+          {reply.state === 'error' ? <small>{strings.companionGap}</small> : null}
+        </section>
+      ) : null}
       {/* The switcher is generated from the language authority, so adding a locale
           can never be forgotten — the option simply exists. Each button carries
           its own `lang` and `dir`, so the picker itself never renders in the
@@ -133,9 +215,6 @@ export default function SentinelGuidePanel({ onClose, closing, character, contex
         <button type="button" onClick={() => {stop();resetSentinelPreferences();}}>{strings.reset}</button>
       </fieldset>}
       <div className={styles.actions}><button type="button" onClick={() => { stop(); setAnswer(null); }}>{t.page}</button><button type="button" onClick={readSection}>{t.read}</button></div>
-      <form onSubmit={event => { event.preventDefault(); stop(); setAnswer({ key, query: query.trim() }); }}>
-        <label htmlFor="sentinel-need">{t.query}</label><div className={styles.search}><input id="sentinel-need" value={query} onChange={event => setQuery(event.target.value)} maxLength={MAX_GUIDE_QUERY} autoComplete="off" placeholder={t.placeholder} /><button type="submit" disabled={!catalog || !query.trim()}>{t.search}</button></div>
-      </form>
       <section className={styles.answer} aria-label={t.page}>
         <p role="status" aria-live="polite" aria-atomic="true">{failed ? t.error : !catalog ? t.loading : response}</p>
         {selected?.section && <small>{t.original}</small>}

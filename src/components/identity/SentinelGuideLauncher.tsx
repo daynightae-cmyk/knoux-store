@@ -83,6 +83,20 @@ export function SentinelGuideLauncher() {
   const dismiss=()=>{stop();policy.current.dismiss();setDismissed(key);setComposerKey('');document.querySelector<HTMLButtonElement>('.ks-trigger')?.focus();};
   const activate=()=>{if(open){close();return;}setDismissed('');setComposerKey(key);};
   const ask=()=>{const page=entryForPage(catalog,pathname);if(!page){unavailable();return;}setDismissed('');send(context??{route:pathname,target:page.id},question);};
+  /**
+   * A question typed inside the guide panel.
+   *
+   * The panel is a modal over the same conversation the bubble shows, so the
+   * question is dispatched through the same transport and the same context. The
+   * only difference is where the answer is painted: in the panel, which is the
+   * surface the visitor is looking at, rather than in a bubble behind it.
+   */
+  const askPanelQuestion=(text:string)=>{
+    const page=entryForPage(catalog,pathname);
+    if(!page){unavailable();return false;}
+    send(context??{route:pathname,target:page.id},text.trim());
+    return true;
+  };
   const visible=!menuOpen && !open && dismissed!==key && (composing || reply.state!=='idle');
   const phase=preferences.quiet?'quiet':open?(speechActive?'speaking':'expanded'):reply.state==='thinking'?'thinking':reply.state==='streaming'?'speaking':visible?'guiding':'idle';
   const character=<KnouxSentinel expanded={open} docked={composing||visible||menuOpen} menuPaused={menuOpen} phase={phase} language={language} onActivate={activate}>
@@ -92,6 +106,16 @@ export function SentinelGuideLauncher() {
     <SentinelSpotlight target={!open&&!composing&&!menuOpen&&!preferences.quiet&&preferences.visible&&attention.key===key?attention.target:null}/>
     {!open && (preferences.visible?character:<button data-sentinel-fallback aria-haspopup="dialog" className={styles.fallback} type="button" onClick={activate} lang={guideLanguageTag(language)} dir={guideDirection(language)}>{launcherLabel[language]}</button>)}
     {!preferences.visible && visible && <div className={styles.hiddenCompanion}>{character}</div>}
-    {open && <Panel onClose={close} closing={closing} character={character} contextEntry={catalog.find(entry=>entry.id===context?.target)} onSpeaking={setSpeechActive} />}
+    {open && <Panel
+      onClose={close}
+      closing={closing}
+      character={character}
+      contextEntry={catalog.find(entry=>entry.id===context?.target)}
+      onSpeaking={setSpeechActive}
+      reply={reply}
+      onAsk={askPanelQuestion}
+      onStopCompanion={stop}
+      companionReady={catalog.length>0}
+    />}
   </>;
 }

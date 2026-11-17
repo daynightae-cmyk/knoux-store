@@ -59,3 +59,88 @@
 
 /* Keep one reading scroll surface; actions stay in the same reachable flow. */
 .aiBubble .streamText{max-height:none;overflow:visible}.aiBubble[data-proactive=true]{max-height:min(360px,calc(100dvh - 140px));overflow:hidden}.aiBubble[data-proactive=true] .streamText{max-height:none;overflow:visible}.aiBubble[data-proactive=true] .aiDisclosure:last-child{display:none}
+
+/*
+ * Composer and conversation.
+ *
+ * The input is a textarea that grows with the sentence, because a visitor
+ * asking a real question does not stop at ninety characters. The two actions
+ * are visually ranked — the companion answers, the registry is searched — so a
+ * visitor never has to guess which one they meant. The conversation reads as
+ * the same warm surface as the answer card but is visibly a different thing: it
+ * is what the companion said, and it is still arriving.
+ */
+.composer { display: grid; gap: 10px; }
+.composer label { display: block; font-size: 15px; }
+.composer textarea {
+  width: 100%;
+  min-height: 72px;
+  resize: vertical;
+  font: inherit;
+  line-height: 1.6;
+  color: #f2e9fb;
+  background: #0b0910;
+  border: 1px solid #715883;
+  border-radius: 12px;
+  padding: 12px 14px;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+.composer textarea::placeholder { color: #a795b6; }
+.composer textarea:focus-visible, .composer textarea:focus {
+  outline: none;
+  border-color: #cfb0e8;
+  box-shadow: 0 0 0 3px #b98ddd2e;
+}
+.composer textarea:disabled { opacity: .6; }
+.composer__actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.composer__actions button {
+  min-height: 44px;
+  border: 1px solid #6a517b;
+  border-radius: 10px;
+  background: #201729;
+  color: #eee2f5;
+  padding: 10px 16px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color .16s ease, border-color .16s ease, transform .16s cubic-bezier(.2,.75,.2,1);
+}
+.composer__actions button:hover:not(:disabled) { background: #2c2039; border-color: #a487bb; }
+.composer__actions button:active:not(:disabled) { transform: translateY(1px) scale(.99); }
+.composer__actions .composer__ask { background: #dac0ee; border-color: #e3cdf3; color: #1c1025; font-weight: 600; }
+.composer__actions .composer__ask:hover:not(:disabled) { background: #e8d5f8; }
+
+.conversation {
+  display: grid;
+  gap: 6px;
+  border: 1px solid #59426b;
+  border-radius: 18px;
+  padding: 18px;
+  background: linear-gradient(135deg, #221630, #150f1f);
+  color: #f4edfb;
+}
+.conversation__who { margin: 0; font: 10px var(--mono, ui-monospace, monospace); letter-spacing: .14em; color: #cdaee4; }
+.conversation__text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; font-size: 15px; }
+.conversation__text::after { content: ''; }
+.conversation small { color: #c9b8d4; font-size: 12px; }
+/* The caret is the only movement in the panel while a reply streams: it is the
+   signal that the answer is still being written, and it stops the moment the
+   stream ends. */
+.conversation__caret {
+  display: inline-block;
+  width: 7px;
+  height: 15px;
+  margin-top: -2px;
+  background: #dac0ee;
+  animation: sentinel-caret 1s steps(1, end) infinite;
+}
+@keyframes sentinel-caret { 50% { opacity: 0; } }
+
+/* Every interactive control in the panel gets the same arrival weight, so the
+   panel feels like one surface rather than a stack of widgets. */
+.panel :where(button, a, input, textarea, summary) { transition: background-color .16s ease, border-color .16s ease, color .16s ease, opacity .16s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .conversation__caret { animation: none; }
+  .composer__actions button { transition: none; }
+}

@@ -40,6 +40,7 @@ import { translatedSiteCopy } from '@/lib/i18n/site-copy';
 import { siteDirection, siteLanguageTag, speechLocale } from '@/lib/i18n/languages';
 import { ForgeSentinel, type ForgeExpression, type ForgeFacing } from './ForgeSentinel';
 import { FractureSurface } from './FractureSurface';
+import { HeatSurface } from './HeatSurface';
 import './knoux-awakening-stage.css';
 import './knoux-awakening-dialogue.css';
 
@@ -187,6 +188,10 @@ export function AwakeningStage() {
   const showReveal = isAwakeningReveal(visualPhase);
   const paused = state.phase === 'paused';
   const fractureMode = visualPhase === 'fracture' ? 'break' : showReveal ? 'drift' : 'off';
+  // The heat opens with the break and keeps breathing under the reveal. It is
+  // the same authored geometry in both cases, so the light under the final
+  // image is the light the glass released rather than a second, unrelated glow.
+  const heatMode = visualPhase === 'fracture' ? 'flare' : showReveal ? 'settle' : 'off';
   const activeBeat = showReveal ? null : awakeningBeatAt(state.beatIndex);
   const activeThread = activeBeat ? awakeningThreadAt(state.beatIndex) : null;
   const activeProduct = productFor(activeThread?.productId);
@@ -520,6 +525,7 @@ export function AwakeningStage() {
       <div className="shout-backdrop" aria-hidden="true" />
 
       <FractureSurface mode={fractureMode} />
+      <HeatSurface mode={heatMode} reduced={reduced} />
 
       {isFracture ? (
         <div className="shout-words" aria-hidden="true">
