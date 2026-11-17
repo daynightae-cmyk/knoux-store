@@ -3,6 +3,7 @@ import { normalizeGuideLanguage, type GuideLanguage } from '@/lib/sentinel/langu
 export const SENTINEL_PREFERENCES_EVENT = 'knoux:sentinel-preferences';
 export const SENTINEL_GUIDE_EVENT = 'knoux:sentinel-guide';
 const KEY = 'knoux.sentinel.quiet';
+const LANGUAGE_KEY = 'knoux.sentinel.language';
 let sessionQuiet = false;
 export function isSentinelQuiet(): boolean {
   try { const stored=localStorage.getItem(KEY);return stored===null?sessionQuiet:stored==='true'; } catch { return sessionQuiet; }
