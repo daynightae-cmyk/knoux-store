@@ -4,7 +4,7 @@ import { providerModelAllowed } from '@/lib/ai/provider-os/runtime-context';
 import { NextResponse, type NextRequest } from "next/server";
 import { guardBuildApi } from "@/lib/build/api-guard";
 import { getAdapter, updateHealth } from "@/lib/ai/registry";
-import { recordUsage } from "@/lib/ai/usage";
+import { reserveUsage, completeUsage } from "@/lib/ai/usage";
 import type { ArenaRequest, GenerationRequest } from "@/lib/ai/types";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +41,9 @@ async function handlePOST(request: NextRequest) {
       { status: 400 },
     );
   }
+  if (body.billingAcknowledged !== true) return NextResponse.json({ message: 'Review the request count, token ceiling and unknown pricing, then acknowledge provider charges.' }, { status: 400 });
+  const requestedMax = body.controls?.maxOutputTokens ?? 512;
+  if (!Number.isSafeInteger(requestedMax) || requestedMax < 1 || requestedMax > 2048) return NextResponse.json({ message: 'Arena output must be between 1 and 2048 tokens per model.' }, { status: 400 });
 
   // Run all generations in parallel
   const results = await Promise.allSettled(
@@ -57,16 +60,19 @@ async function handlePOST(request: NextRequest) {
         modelId: selection.modelId,
         messages: [{ role: "user", content: body.prompt }],
         system: body.system,
-        controls: body.controls,
+        controls: { ...body.controls, maxOutputTokens: requestedMax },
       };
 
       const startedAt = new Date().toISOString();
+      const attemptId = await reserveUsage(selection.providerId, selection.modelId);
       const response = await adapter.generate(genRequest, providerEnvironment());
       const completedAt = new Date().toISOString();
 
-      recordUsage({
+      await completeUsage(attemptId, {
         providerId: selection.providerId,
         modelId: selection.modelId,
+        actualModelId: response.modelUsed,
+        usageSource: response.usage.source,
         operation: "arena",
         taskClass: null,
         inputTokens: response.usage.inputTokens,

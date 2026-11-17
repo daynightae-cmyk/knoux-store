@@ -1,7 +1,10 @@
 import 'server-only';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import type { CapabilityState, NormalizedModel } from '../types';
+import type { ProviderRepository } from './repository';
 export type ProviderRuntimeContext = {
+    repository?: ProviderRepository;
+    runId?: string;
     authorizedRequest?: Request;
     namespace: string;
     env: Record<string, string | undefined>;

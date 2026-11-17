@@ -309,7 +309,7 @@ test('the finder cannot render a verdict it was not given', () => {
 
 test('the API route never answers "unavailable" for a failed check', () => {
   const route = sourceOf('src/app/api/domain/search/route.ts');
-  assert.match(route, /state: 'unconfigured'/, 'the unconfigured state is a real answer');
+  assert.match(route, /state: 'registration-checked'/, 'an unconfigured registrar falls back to registration data, never purchase availability');
   assert.match(route, /state: 'error'/, 'a provider failure is reported as a failure');
   // The route never invents the vocabulary a registrar owns. A result state is
   // either passed through from the adapter or absent.

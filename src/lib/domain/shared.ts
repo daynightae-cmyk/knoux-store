@@ -31,6 +31,8 @@
 
 /** What the provider said, or what we know about our own failure to ask. */
 export type DomainState =
+   | 'registered'
+   | 'no-record'
   /** The provider answered and the name is registerable. */
   | 'available'
   /** The provider answered and the name is already registered. */

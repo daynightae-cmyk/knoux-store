@@ -31,9 +31,51 @@ test.before(async () => {
 // Provider Registry
 // ---------------------------------------------------------------------------
 
-test("registers the 13 preserved providers and distinct Console V2 provider", () => {
+test("a public models endpoint cannot authenticate an invalid key", async () => {
+  const nvidia = registry.getAdapter("nvidia");
+  const seen = [];
+  const result = await withMockFetch(
+    async (url, init) => {
+      seen.push({ url: String(url), body: init?.body ?? null });
+      if (String(url).endsWith("/chat/completions")) {
+        return new Response(JSON.stringify({ status: 403, detail: "Authorization failed" }), {
+          status: 403,
+          headers: { "content-type": "application/json" },
+        });
+      }
+      // NVIDIA's /v1/models answers 200 without a valid key. A probe that
+      // trusted it would report this bad key as authenticated.
+      return new Response(JSON.stringify({ data: [{ id: "openai/gpt-oss-20b" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    },
+    () => nvidia.probe({ NVIDIA_API_KEY: "nvapi-invalid-probe-key" }),
+  );
+  assert.equal(result.authenticated, false);
+  assert.equal(result.error.category, "AUTHENTICATION");
+  assert.ok(seen.some((call) => call.url === "https://integrate.api.nvidia.com/v1/chat/completions"));
+});
+
+test("a 2xx completion authenticates and a listing-only vendor still probes models", async () => {
+  const nvidia = registry.getAdapter("nvidia");
+  const result = await withMockFetch(
+    async () => new Response(JSON.stringify({ choices: [{ message: { content: "" } }] }), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    }),
+    () => nvidia.probe({ NVIDIA_API_KEY: "nvapi-valid-shape" }),
+  );
+  assert.equal(result.authenticated, true);
+  assert.equal(result.error, null);
+});
+
+test("registers the preserved providers, Console V2 and the vendor catalogue", () => {
   const adapters = registry.getAdapters();
-  assert.equal(adapters.length, 14);
+  // 14 canonical providers (13 legacy + Console V2) plus the OpenAI-compatible
+  // vendor catalogue registered in adapters/vendors.ts. The exact number is
+  // asserted so an accidental drop of a provider fails loudly.
+  assert.equal(adapters.length, 33);
 });
 
 test("declared capabilities do not pass runtime acceptance without execution", () => {
@@ -76,6 +118,39 @@ test("includes all required provider IDs", () => {
   ]) {
     assert.ok(ids.includes(expected), `Missing provider: ${expected}`);
   }
+});
+
+test("registers the OpenAI-compatible vendor catalogue", () => {
+  const ids = registry.getAdapters().map((a) => a.id);
+  for (const expected of [
+    "nvidia",
+    "xai",
+    "together",
+    "fireworks",
+    "cerebras",
+    "perplexity",
+    "deepinfra",
+    "hyperbolic",
+    "novita",
+    "nebius",
+    "sambanova",
+    "moonshot",
+    "zhipu",
+    "siliconflow",
+    "upstage",
+    "ai21",
+    "cohere",
+    "github-models",
+    "vercel-gateway",
+  ]) {
+    assert.ok(ids.includes(expected), `Missing provider: ${expected}`);
+  }
+  const nvidia = registry.getAdapter("nvidia");
+  assert.ok(nvidia.requiredEnv.includes("NVIDIA_API_KEY"));
+  assert.equal(nvidia.isConfigured({ NVIDIA_API_KEY: "nvapi-test" }), true);
+  assert.equal(nvidia.isConfigured({}), false);
+  const perplexity = registry.getAdapter("perplexity");
+  assert.deepEqual(perplexity.requiredEnv, ["PERPLEXITY_API_KEY"]);
 });
 
 test("grok transport is OpenRouter, not xAI", () => {

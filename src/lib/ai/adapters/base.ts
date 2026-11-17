@@ -52,6 +52,28 @@ export type OpenAICompatibleConfig = {
   controls: ModelControls;
   /** Rate limit header prefixes to try. */
   rateLimitPrefixes?: string[];
+  /**
+   * Some vendors authenticate but do not publish a `/models` endpoint. When
+   * the key test gets 404/405, a one-token completion separates "wrong key"
+   * from "no listing endpoint" instead of reporting a false authentication
+   * failure and blocking the field in the browser.
+   */
+  probeCompletionModel?: string;
+  /** Published model identities for a vendor without a listing endpoint. */
+  staticModels?: string[];
+  /**
+   * `models` (default) proves the credential with the listing endpoint.
+   * `completion` uses a one-token chat request instead, for vendors whose
+   * `/models` is public and would answer 200 to any bearer token — a 200
+   * there would report a bad key as authenticated.
+   */
+  probeStrategy?: 'models' | 'completion';
+  /**
+   * `all` (default) requires every declared environment name; `any` treats the
+   * list as accepted aliases for the same credential (NVIDIA_API_KEY /
+   * NVIDIA_NIM_API_KEY).
+   */
+  envMode?: 'all' | 'any';
 };
 
 export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
@@ -83,10 +105,13 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
   }
 
   isConfigured(env: Record<string, string | undefined>): boolean {
-    return this.config.requiredEnv.every((name) => {
+    const present = (name: string) => {
       const value = env[name];
       return typeof value === "string" && value.trim().length > 0;
-    });
+    };
+    return this.config.envMode === "any"
+      ? this.config.requiredEnv.some(present)
+      : this.config.requiredEnv.every(present);
   }
 
   protected getApiKey(env: Record<string, string | undefined>): string | null {
@@ -164,6 +189,84 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
     return "/models";
   }
 
+  private async probeCompletion(
+    apiKey: string,
+    env: Record<string, string | undefined>,
+    start: number,
+  ): Promise<ProbeResult> {
+    const model = this.config.probeCompletionModel;
+    if (!model) return this.probeModels(apiKey, env, start);
+    const completion = await this.transportFetch(`${this.baseUrl(env)}/chat/completions`, {
+      method: "POST",
+      headers: this.buildHeaders(apiKey),
+      body: JSON.stringify({
+        model,
+        messages: [{ role: "user", content: "ping" }],
+        max_tokens: 1,
+        stream: false,
+      }),
+      redirect: "error",
+      signal: AbortSignal.timeout(15000),
+      cache: "no-store",
+    });
+    const latencyMs = Date.now() - start;
+    // Only a 2xx proves the credential. A 4xx can be emitted before the
+    // credential is examined (NVIDIA answers 410 for an end-of-life model and
+    // 403 for a bad key), so treating "not 401" as authenticated would report
+    // a rejected key as good.
+    if (completion.ok) {
+      return {
+        providerId: this.id,
+        authenticated: true,
+        detail: "Authenticated; completion endpoint accepted the credential.",
+        error: null,
+        latencyMs,
+      };
+    }
+    const bodyText = await completion.text().catch(() => null);
+    return {
+      providerId: this.id,
+      authenticated: false,
+      detail: `Authentication failed (HTTP ${completion.status}).`,
+      error: normalizeError(completion.status, bodyText),
+      latencyMs,
+    };
+  }
+
+  private async probeModels(
+    apiKey: string,
+    env: Record<string, string | undefined>,
+    start: number,
+  ): Promise<ProbeResult> {
+    const response = await this.transportFetch(`${this.baseUrl(env)}${this.probePath}`, {
+      headers: this.buildHeaders(apiKey),
+      redirect: "error",
+      signal: AbortSignal.timeout(10000),
+      cache: "no-store",
+    });
+    const latencyMs = Date.now() - start;
+    if (response.ok) {
+      return {
+        providerId: this.id,
+        authenticated: true,
+        detail: "Authenticated; models endpoint answered.",
+        error: null,
+        latencyMs,
+      };
+    }
+    if ((response.status === 404 || response.status === 405) && this.config.probeCompletionModel) {
+      return this.probeCompletion(apiKey, env, start);
+    }
+    const bodyText = await response.text().catch(() => null);
+    return {
+      providerId: this.id,
+      authenticated: false,
+      detail: `Authentication failed (HTTP ${response.status}).`,
+      error: normalizeError(response.status, bodyText),
+      latencyMs,
+    };
+  }
+
   async probe(env: Record<string, string | undefined>): Promise<ProbeResult> {
     const start = Date.now();
     const apiKey = this.getApiKey(env);
@@ -184,30 +287,9 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
       };
     }
     try {
-      const response = await this.transportFetch(`${this.baseUrl(env)}${this.probePath}`, {
-        headers: this.buildHeaders(apiKey),
-        redirect: "error",
-        signal: AbortSignal.timeout(10000),
-        cache: "no-store",
-      });
-      const latencyMs = Date.now() - start;
-      if (response.ok) {
-        return {
-          providerId: this.id,
-          authenticated: true,
-          detail: "Authenticated; models endpoint answered.",
-          error: null,
-          latencyMs,
-        };
-      }
-      const bodyText = await response.text().catch(() => null);
-      return {
-        providerId: this.id,
-        authenticated: false,
-        detail: `Authentication failed (HTTP ${response.status}).`,
-        error: normalizeError(response.status, bodyText),
-        latencyMs,
-      };
+      return this.config.probeStrategy === "completion"
+        ? await this.probeCompletion(apiKey, env, start)
+        : await this.probeModels(apiKey, env, start);
     } catch (cause) {
       const latencyMs = Date.now() - start;
       const message = cause instanceof Error ? cause.message : "Network error";
@@ -251,6 +333,16 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
       });
       if (!response.ok) {
         const bodyText = await response.text().catch(() => null);
+        if ((response.status === 404 || response.status === 405) && this.config.staticModels?.length) {
+          return {
+            providerId: this.id,
+            models: this.config.staticModels.map((modelId) => ({ ...this.normalizeModel(modelId), source: "STATIC" as const })),
+            source: "STATIC",
+            discoveredAt: new Date().toISOString(),
+            error: null,
+            fromCache: false,
+          };
+        }
         return {
           providerId: this.id,
           models: [],

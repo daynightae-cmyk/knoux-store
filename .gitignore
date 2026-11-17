@@ -88,3 +88,5 @@ node_modules*/
 # stay local. Ignore the awareness report family only; anything else placed under
 # .claude/ may be hand-maintained repository configuration and must stay trackable.
 .claude/*mcp-skills-awareness*.md
+
+supabase/.temp/

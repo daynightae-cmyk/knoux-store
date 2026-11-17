@@ -1,4 +1,5 @@
 import "server-only";
+import { randomUUID } from 'node:crypto';
 import { runtimeNamespace, providerRuntimeContext } from "./provider-os/runtime-context";
 import type { UsageRecord, UsageSummary, CostEstimate } from "./types";
 import { mergeCostBasis } from "./cost";
@@ -22,14 +23,36 @@ function scopedRecords(): UsageRecord[] {
   return ledgers.get(key)!;
 }
 
-let recordCounter = 0;
+export class UsageLimitError extends Error {
+  constructor() { super('Monthly workspace request limit reached. No provider request was sent.'); }
+}
+
+/** Reserve before each paid attempt, including fallback and Arena. Never trust a client limit. */
+export async function reserveUsage(providerId: string, modelId: string): Promise<string> {
+  const id = randomUUID(), context = providerRuntimeContext();
+  if (context?.repository) {
+    const configured = Number(context.env.KNOUX_AI_MONTHLY_REQUEST_LIMIT ?? 1000);
+    const limit = Number.isSafeInteger(configured) && configured > 0 && configured <= 1000000 ? configured : 1000;
+    if (!await context.repository.reserveUsage(id, providerId, modelId, context.profileIds.get(providerId) ?? null, limit)) throw new UsageLimitError();
+  }
+  return id;
+}
+
+export async function completeUsage(id: string, entry: Omit<UsageRecord, 'id' | 'timestamp'>): Promise<UsageRecord> {
+  const record = recordUsage(entry, id);
+  const repository = providerRuntimeContext()?.repository;
+  if (repository) await repository.completeUsage(record);
+  return record;
+}
 
 export function recordUsage(
   entry: Omit<UsageRecord, "id" | "timestamp">,
+  id: string = randomUUID(),
 ): UsageRecord {
   const records = scopedRecords();
   const record: UsageRecord = {
-    id: `usage-${Date.now().toString(36)}-${(recordCounter++).toString(36)}`,
+    id,
+    runId: providerRuntimeContext()?.runId ?? id,
     timestamp: new Date().toISOString(),
     ...entry,
     profileId: providerRuntimeContext()?.profileIds.get(entry.providerId) ?? null,
@@ -45,8 +68,7 @@ export function getUsageRecords(limit = 100): UsageRecord[] {
   return scopedRecords().slice(0, Math.max(0, Math.min(MAX_RECORDS, limit)));
 }
 
-export function getUsageSummary(): UsageSummary {
-  const records = scopedRecords();
+export function getUsageSummary(records = scopedRecords()): UsageSummary {
   const totalRequests = records.length;
   let totalInputTokens = 0;
   let totalOutputTokens = 0;

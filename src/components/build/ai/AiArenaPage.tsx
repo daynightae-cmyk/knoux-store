@@ -43,6 +43,7 @@ export function AiArenaPage() {
   const [results, setResults] = useState<ArenaResultView[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [acknowledged, setAcknowledged] = useState(false);
 
   useEffect(() => {
     void fetch("/api/build/ai/models", { cache: "no-store" })
@@ -64,6 +65,7 @@ export function AiArenaPage() {
   }, []);
 
   function toggleModel(model: ArenaModel) {
+    setAcknowledged(false);
     setSelected((old) => {
       const exists = old.some(
         (m) => m.providerId === model.providerId && m.modelId === model.modelId,
@@ -79,7 +81,7 @@ export function AiArenaPage() {
   }
 
   async function run() {
-    if (!prompt.trim() || selected.length < 2 || loading) return;
+    if (!prompt.trim() || selected.length < 2 || loading || !acknowledged) return;
     setLoading(true);
     setError(null);
     setResults(null);
@@ -91,9 +93,12 @@ export function AiArenaPage() {
           prompt,
           system: system || undefined,
           selections: selected,
+          controls: { maxOutputTokens: 512 },
+          billingAcknowledged: acknowledged,
         }),
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(data.message ?? 'Arena refused.');
       setResults(data.results ?? []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Arena failed");
@@ -194,10 +199,12 @@ export function AiArenaPage() {
       <div style={{ height: 16 }} />
 
       <div className="dev-actions">
+        <p>{selected.length} paid requests · max 512 output tokens per model · cost UNKNOWN unless the provider reports pricing. The workspace request ceiling applies to each request.</p>
+        <label><input type="checkbox" checked={acknowledged} onChange={event => setAcknowledged(event.target.checked)} />I approve these provider requests / موافق على طلبات المقارنة وتكلفتها</label>
         <button
           type="button"
           className="bo-action bo-action--primary"
-          disabled={!prompt.trim() || selected.length < 2 || loading}
+          disabled={!prompt.trim() || selected.length < 2 || loading || !acknowledged}
           onClick={() => void run()}
         >
           {loading ? "RUNNING ARENA…" : "RUN ARENA"}

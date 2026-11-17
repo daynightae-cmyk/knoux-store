@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import { AiCenterPage } from './AiCenterLayout';
 import { DevPanel } from '../dev/DevUI';
 import { useCanonicalModels } from '../generator/useCanonicalModels';
@@ -22,9 +23,19 @@ type GenerationResponse = {
   fallbackCount: number;
 };
 
-export function AiControlPage() {
-  const intelligence = useCanonicalModels();
-  const [selected, setSelected] = useState<NormalizedModel | null>(null);
+export function AiControlPage({ selection = {} }: { selection?: Record<string, string> }) {
+  const headers = useMemo(() => ({
+    ...(selection.profileId ? { 'x-knoux-provider-profile-id': selection.profileId } : {}),
+    ...(selection.workspaceId ? { 'x-knoux-workspace-id': selection.workspaceId } : {}),
+  }), [selection.profileId, selection.workspaceId]);
+  const intelligence = useCanonicalModels(headers);
+  const [chosen, setSelected] = useState<NormalizedModel | null>(null);
+  const selected = intelligence.models.find(model => model.providerId === (chosen?.providerId ?? selection.providerId) && model.modelId === (chosen?.modelId ?? selection.modelId)) ?? null;
+  const controller = useRef<AbortController | null>(null);
+  const [streamFacts, setStreamFacts] = useState<Record<string, unknown> | null>(null);
+  useEffect(() => {
+    return () => controller.current?.abort();
+  }, []);
   const [prompt, setPrompt] = useState('');
   const [system, setSystem] = useState('');
   const [temp, setTemp] = useState(0.7);
@@ -50,7 +61,8 @@ export function AiControlPage() {
   }
 
   async function generate() {
-    if (!selected || !prompt.trim() || loading) return;
+    if (!selected || !prompt.trim() || loading || streaming) return;
+    controller.current = new AbortController();
     setLoading(true);
     setError(null);
     setResponse(null);
@@ -60,14 +72,17 @@ export function AiControlPage() {
         modelId: selected.modelId,
         messages: [{ role: 'user', content: prompt }],
         controls: exposedControls(),
+        noFallback: true,
       };
       if (system) body.system = system;
       const res = await fetch('/api/build/ai/generate', {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: { 'content-type': 'application/json', ...headers },
+        signal: controller.current.signal,
         body: JSON.stringify(body),
       });
-      const data: GenerationResponse = await res.json();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message ?? data.error?.safeMessage ?? 'Generation refused.');
       setResponse(data);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Generation failed');
@@ -77,7 +92,9 @@ export function AiControlPage() {
   }
 
   async function stream() {
-    if (!selected || !prompt.trim() || streaming) return;
+    if (!selected || !prompt.trim() || streaming || loading) return;
+    controller.current = new AbortController();
+    setStreamFacts(null);
     setStreaming(true);
     setStreamText('');
     setError(null);
@@ -91,13 +108,15 @@ export function AiControlPage() {
       if (system) body.system = system;
       const res = await fetch('/api/build/ai/stream', {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: { 'content-type': 'application/json', ...headers },
+        signal: controller.current.signal,
         body: JSON.stringify(body),
       });
       if (!res.ok || !res.body) { setError('Stream failed'); setStreaming(false); return; }
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
+      let completed = false;
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -111,10 +130,11 @@ export function AiControlPage() {
             const chunk = JSON.parse(trimmed.slice(6));
             if (chunk.error) { setError(chunk.error.safeMessage ?? 'Provider stream failed.'); await reader.cancel(); return; }
             if (chunk.delta) setStreamText((prev) => prev + chunk.delta);
-            if (chunk.done) break;
+            if (chunk.done) { completed = true; setStreamFacts(chunk); break; }
           } catch { /* skip */ }
         }
       }
+      if (!completed) setError('Stream ended before completion. Partial output is not a completed run.');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Stream failed');
     } finally {
@@ -128,12 +148,15 @@ export function AiControlPage() {
         <span className="dev-mini-label">AI RUNTIME / CONTROL</span>
         <h2>Model Control Center</h2>
         <p>Generation controls for the selected model. Unsupported controls disappear. Each control only appears when the model supports it.</p>
+        <Link href="/build/providers">Connect provider / وصّل مزوّد ↗</Link>
       </header>
     }>
       <DevPanel title="Model Selection">
         <ModelNavigator {...intelligence} disabled={loading || streaming} selected={selected} onSelect={setSelected} />
         <p className="dev-note">Exact model selection · no automatic fallback. Hidden reasoning: {effortSupport(selected).replaceAll('_', ' ')}.</p>
       </DevPanel>
+      {loading || streaming ? <button type="button" className="bo-action" onClick={() => controller.current?.abort()}>Cancel / إلغاء</button> : null}
+      {streamFacts ? <details><summary>Run details / تفاصيل التشغيل</summary><pre style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{JSON.stringify(streamFacts, null, 2)}</pre></details> : null}
 
       <div style={{ height: 16 }} />
 
@@ -172,13 +195,13 @@ export function AiControlPage() {
           <div style={{ height: 16 }} />
 
           <DevPanel title="Prompt">
-            <input className="dev-field" style={{ width: '100%', padding: 8, marginBottom: 8 }} placeholder="System prompt (optional)" value={system} onChange={(e) => setSystem(e.target.value)} />
-            <textarea className="dev-field" style={{ width: '100%', minHeight: 80, padding: 12, fontFamily: 'inherit' }} placeholder="Enter your prompt…" value={prompt} onChange={(e) => setPrompt(e.target.value)} />
+            <input aria-label="System prompt (optional)" className="dev-field" style={{ width: '100%', padding: 8, marginBottom: 8 }} placeholder="System prompt (optional)" value={system} onChange={(e) => setSystem(e.target.value)} />
+            <textarea aria-label="Prompt" className="dev-field" style={{ width: '100%', minHeight: 80, padding: 12, fontFamily: 'inherit' }} placeholder="Enter your prompt…" value={prompt} onChange={(e) => setPrompt(e.target.value)} />
             <div className="dev-actions" style={{ marginTop: 8 }}>
-              <button type="button" className="bo-action bo-action--primary" disabled={loading} onClick={() => void generate()}>
+              <button type="button" className="bo-action bo-action--primary" disabled={loading || streaming} onClick={() => void generate()}>
                 {loading ? 'GENERATING…' : 'GENERATE'}
               </button>
-              <button type="button" disabled={streaming} onClick={() => void stream()}>
+              <button type="button" disabled={loading || streaming} onClick={() => void stream()}>
                 {streaming ? 'STREAMING…' : 'STREAM'}
               </button>
             </div>
@@ -199,6 +222,7 @@ export function AiControlPage() {
           {response ? (
             <div style={{ marginTop: 16 }}>
               <DevPanel title="Response">
+                <details><summary>Run details / تفاصيل التشغيل</summary><pre style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{JSON.stringify(response, null, 2)}</pre></details>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
                   <span className="dev-tag" data-tone={response.ok ? 'ok' : 'bad'}>{response.ok ? 'OK' : 'FAIL'}</span>
                   <span className="dev-tag">{response.modelUsed ?? '—'}</span>

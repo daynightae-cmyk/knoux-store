@@ -317,6 +317,12 @@ export type RouterDecision = {
 // ---------------------------------------------------------------------------
 
 export type UsageRecord = {
+  runId?: string;
+  actualModelId?: string | null;
+  usageSource?: string;
+  requestedControls?: GenerationControls | null;
+  controlsUsed?: GenerationControls | null;
+  persistence?: string;
   profileId?: string | null;
   id: string;
   timestamp: string;
@@ -356,6 +362,7 @@ export type UsageSummary = {
 // ---------------------------------------------------------------------------
 
 export type ArenaRequest = {
+  billingAcknowledged?: boolean;
   prompt: string;
   system?: string;
   controls?: GenerationControls;

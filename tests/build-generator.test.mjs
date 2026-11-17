@@ -179,7 +179,7 @@ test('a rejected arena adapter cannot serialize a raw exception to the browser',
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ prompt: 'Explicit isolated contract fixture', selections: [
         { providerId: 'deepseek', modelId: 'fixture' }, { providerId: 'deepseek', modelId: 'fixture' },
-      ] }),
+      ], billingAcknowledged: true }),
     }));
     const result = await response.json();
     assert.equal(JSON.stringify(result).includes(marker), false);

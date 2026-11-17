@@ -74,7 +74,7 @@ export function SiteHeader() {
         <Link href="/" className="brand" aria-label={t('KNOuX home')}>
           <span className="brand-dot" aria-hidden="true" />
           KNOuX
-          <span className="brand-end">r</span>{' '}
+          <span className="brand-end" aria-hidden="true">®</span>{' '}
           <span className="visually-hidden">{t('KNOuX home')}</span>
         </Link>
 

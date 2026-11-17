@@ -177,6 +177,7 @@
 .commandMain {
   min-width: 0;
   padding: 0 0 96px;
+  overflow-x: hidden;
 }
 
 /* -------------------------------------------------------------- rail items */
@@ -306,6 +307,7 @@
   flex-wrap: wrap;
   padding: 22px 24px 16px;
   border-bottom: 1px solid var(--cc-line);
+  min-width: 0;
 }
 
 .commandHeadText {
@@ -349,6 +351,7 @@
 .commandSection {
   padding: 22px 24px;
   border-bottom: 1px solid var(--cc-line-faint);
+  min-width: 0;
 }
 
 .commandSectionHead {
@@ -379,21 +382,21 @@
 
 .commandGrid2 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   gap: 24px;
   border: 0;
 }
 
 .commandGrid3 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
   gap: 24px;
   border: 0;
 }
 
 .commandGrid4 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
   gap: 24px;
   border: 0;
 }
@@ -457,6 +460,7 @@
 
 .ccTable {
   width: 100%;
+  max-width: 100%;
   border-collapse: collapse;
   font-size: 12.5px;
 }
@@ -500,16 +504,21 @@
   font-family: var(--cc-mono);
   font-size: 11.5px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ccTableAbsent {
   color: var(--cc-ink-4);
   font-style: italic;
+  overflow-wrap: anywhere;
+  word-wrap: break-word;
 }
 
 .ccTableWrap {
   border: 1px solid var(--cc-line);
   overflow-x: auto;
+  max-width: 100%;
 }
 
 /* ------------------------------------------------------------------- panes */
@@ -532,12 +541,16 @@
   text-transform: uppercase;
   color: var(--cc-ink-2);
   margin: 0;
+  overflow-wrap: anywhere;
+  word-wrap: break-word;
 }
 
 .ccPaneBody {
   font-size: 12.5px;
   color: var(--cc-ink-3);
   margin: 0;
+  overflow-wrap: anywhere;
+  word-wrap: break-word;
 }
 
 .ccPaneList {
@@ -570,6 +583,9 @@
   border: 0;
   color: var(--cc-ink-3);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .ccStateLive { border-color: color-mix(in srgb, var(--cc-green) 45%, var(--cc-line)); color: var(--cc-green); }
@@ -772,6 +788,10 @@
   color: var(--cc-ink-4);
   border: 0;
   padding: 3px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .ccCommunityActions {
@@ -1297,22 +1317,24 @@
 .command { --cc-ink-4: #a5a2af; }
 .ccPaneBody, .ccDemo { font-size: 14px; line-height: 1.7; }
 .ccStateDot { width: 6px; height: 6px; border-radius: 50%; }
-.ccCommunityTags { gap: 6px 16px; }
+.ccCommunityTags { gap: 6px 16px; flex-wrap: wrap; max-width: 100%; }
 .ccPaneTitle { color: var(--cc-ink); }
-.ccConnectionLanes { display: flex; flex-direction: column; }
+.ccConnectionLanes { display: flex; flex-direction: column; min-width: 0; }
 .ccConnectionLane {
   display: grid;
-  grid-template-columns: minmax(200px, 1fr) minmax(240px, 1.2fr) minmax(220px, .9fr);
+  grid-template-columns: minmax(min(200px, 100%), 1fr) minmax(min(240px, 100%), 1.2fr) minmax(min(220px, 100%), .9fr);
   align-items: start;
   gap: 22px;
   padding: 24px 0;
   border-top: 1px solid var(--cc-line);
+  min-width: 0;
 }
-.ccConnectionIdentity, .ccConnectionStatus { display: grid; gap: 8px; min-width: 0; }
-.ccConnectionIdentity .ccPaneTitle { font-family: var(--cc-sans); font-size: 18px; letter-spacing: -.02em; text-transform: none; }
-.ccConnectionLane .ccCommunityActions { border: 0; padding: 0; margin: 0; align-self: center; }
+.ccConnectionIdentity, .ccConnectionStatus { display: grid; gap: 8px; min-width: 0; overflow: hidden; }
+.ccConnectionIdentity > *, .ccConnectionStatus > * { min-width: 0; }
+.ccConnectionIdentity .ccPaneTitle { font-family: var(--cc-sans); font-size: 18px; letter-spacing: -.02em; text-transform: none; overflow-wrap: anywhere; word-wrap: break-word; }
+.ccConnectionLane .ccCommunityActions { border: 0; padding: 0; margin: 0; align-self: center; min-width: 0; }
 @media(max-width:1200px) {
-  .ccConnectionLane { grid-template-columns: minmax(160px, 1fr) minmax(220px, 1.4fr); }
+  .ccConnectionLane { grid-template-columns: minmax(min(160px, 100%), 1fr) minmax(min(220px, 100%), 1.4fr); }
   .ccConnectionLane .ccCommunityActions { grid-column: 2; }
 }
 @media(max-width:600px) {

@@ -181,7 +181,7 @@ export default function SentinelGuidePanel({ onClose, closing, character, contex
           maxLength={COMPANION_MAX_QUESTION}
           autoComplete="off"
           placeholder={t.placeholder}
-          disabled={!companionReady}
+          disabled={!companionReady && !catalog}
         />
         <div className={styles.composer__actions}>
           <button type="submit" className={styles.composer__ask} disabled={!companionReady || !question.trim() || asking}>

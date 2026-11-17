@@ -13,7 +13,7 @@ export function ChamberIdentity({ index }: { index: string }) {
       <span className="auth-identity__mark" aria-hidden="true">
         <span className="brand-dot" />
         KNOuX
-        <span className="brand-end">r</span>
+        <span className="brand-end" aria-hidden="true">®</span>
       </span>
       <span className="auth-identity__code">
         KN / AUTH — {index}

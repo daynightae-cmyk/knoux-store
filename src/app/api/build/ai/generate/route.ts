@@ -86,6 +86,7 @@ async function handlePOST(request: NextRequest) {
   return NextResponse.json(
     {
       ...result.response,
+      runId: result.runId,
       controlsUsed: result.controlsUsed,
       routedModelId: result.routedModelId,
       actualProviderId: result.actualProviderId,

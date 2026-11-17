@@ -1,0 +1,34 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { PGlite } from '@electric-sql/pglite';
+const owner = '11111111-1111-4111-8111-111111111111';
+const other = '22222222-2222-4222-8222-222222222222';
+test('SQL reservations serialize competing requests, retain uncertain usage, isolate owners, and cannot be replayed', async t => {
+  const db = new PGlite(); t.after(() => db.close());
+  await db.exec(`create role anon; create role authenticated; create role service_role bypassrls;
+    create schema auth; create table auth.users(id uuid primary key);
+    grant usage on schema auth to authenticated;
+    create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;`);
+  for (const file of ['20261008234936_provider_operating_system.sql', '20261117110000_provider_usage_ledger.sql'])
+    await db.exec(readFileSync(new URL(`../supabase/migrations/${file}`, import.meta.url), 'utf8'));
+  await db.query('insert into auth.users values($1),($2)', [owner, other]);
+  await db.query("insert into public.knoux_provider_workspaces(id,owner_id,name) values($1,$1,'First'),($2,$2,'Second')", [owner, other]);
+  await db.exec('set role service_role');
+  const reserve = (id, principal = owner, workspace = owner) => db.query("select public.knoux_reserve_usage($1,$2,$3,null,'openai','fixture',1) as allowed", [principal, workspace, id]);
+  const ids = ['33333333-3333-4333-8333-333333333333', '44444444-4444-4444-8444-444444444444'];
+  const results = await Promise.all(ids.map(id => reserve(id)));
+  assert.equal(results.filter(result => result.rows[0].allowed).length, 1);
+  const winning = ids[results.findIndex(result => result.rows[0].allowed)];
+  assert.equal((await reserve(winning)).rows[0].allowed, false);
+  assert.equal((await db.query('select count(*)::integer as count from public.knoux_provider_usage')).rows[0].count, 1);
+  await assert.rejects(reserve(ids[1], other, owner), error => error.code === '42501');
+  await db.query("update public.knoux_provider_usage set body=$1::jsonb where id=$2 and body is null", [JSON.stringify({ actualModelId: 'actual-fixture', usageSource: 'provider' }), winning]);
+  const replay = await db.query("update public.knoux_provider_usage set body='{}' where id=$1 and body is null returning id", [winning]);
+  assert.equal(replay.rows.length, 0);
+  await db.exec(`reset role; set role authenticated; select set_config('request.jwt.claim.sub','${other}',false);`);
+  assert.equal((await db.query('select * from public.knoux_provider_usage')).rows.length, 0);
+  await assert.rejects(reserve(ids[1], other, other), error => error.code === '42501');
+  await db.exec(`select set_config('request.jwt.claim.sub','${owner}',false);`);
+  assert.equal((await db.query('select body from public.knoux_provider_usage')).rows[0].body.actualModelId, 'actual-fixture');
+});

@@ -48,6 +48,7 @@ export function WordPressStudio({ themes }: { themes: ExternalItem[] }) {
     {theme ? <p className={styles.byline}>{t('Published by')} <b>{theme.author}</b> · <a href={theme.sourceUrl} target="_blank" rel="noopener noreferrer">{t('Open official theme & live preview')} ↗</a></p> : null}
     <a className={styles.request} href={`/contact?${params}`}>{t('Compose a site request')} ↗</a>
     <a className={styles.browse} href="/wordpress/themes">{t('Search the full catalogue')} →</a>
+    <a className={styles.browse} href="#domain">{t('Find your domain', 'ابحث عن دومينك')} →</a>
     <p className={styles.caption}>{t('Planning studio · nothing installed or published')}</p>
   </section>;
 }

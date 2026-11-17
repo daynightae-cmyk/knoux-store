@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { NormalizedModel, ProviderHealth } from '@/lib/ai/types';
 
 /** One cancellable pass over existing server projections; no client catalog fallback. */
-export function useCanonicalModels() {
+export function useCanonicalModels(headers?: Record<string, string>) {
   const [revision, setRevision] = useState(0);
   const refresh = useCallback(() => setRevision((value) => value + 1), []);
   const [data, setData] = useState<{ models: NormalizedModel[]; providers: ProviderHealth[]; loading: boolean; error: string | null }>({ models: [], providers: [], loading: true, error: null });
@@ -12,7 +12,7 @@ export function useCanonicalModels() {
     const controller = new AbortController();
     async function load() {
       const results = await Promise.allSettled(['/api/build/ai/models', '/api/build/ai/providers'].map(async (url) => {
-        const response = await fetch(url, { cache: 'no-store', signal: controller.signal });
+        const response = await fetch(url, { cache: 'no-store', signal: controller.signal, headers });
         if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? 'AUTH REQUIRED · Sign in to inspect server intelligence.' : 'UNAVAILABLE · Canonical model metadata could not be read.');
         return response.json();
       }));
@@ -24,6 +24,6 @@ export function useCanonicalModels() {
     }
     void load();
     return () => controller.abort();
-  }, [revision]);
+  }, [revision, headers]);
   return { ...data, refresh };
 }

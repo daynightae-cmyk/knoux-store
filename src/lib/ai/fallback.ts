@@ -4,7 +4,7 @@ import type { GenerationResponse } from './types';
 import { getAdapter, getDiscoveryCache, updateHealth } from "./registry";
 import { profileToControls } from '../build/profile';
 import { estimateTokens } from './contract';
-import { recordUsage } from "./usage";
+import { reserveUsage, completeUsage } from "./usage";
 import type { GenerationRequest } from "./types";
 
 /**
@@ -23,6 +23,7 @@ import type { GenerationRequest } from "./types";
 export type FallbackResult = {
   routedModelId: string | null;
   controlsUsed: GenerationRequest['controls'] | null;
+  runId?: string;
   actualProviderId: string | null;
   actualModelId: string | null;
   response: GenerationResponse;
@@ -75,6 +76,7 @@ export async function generateWithFallback(
     };
     controlsUsed = actualRequest.controls ?? null;
     fallbackCount = attempts++;
+    const attemptId = await reserveUsage(providerId, modelId);
     const response = await adapter.generate(actualRequest, env);
     lastResponse = response;
     actualProviderId = providerId;
@@ -82,9 +84,13 @@ export async function generateWithFallback(
     actualModelId = response.modelUsed ?? null;
 
     // Record usage
-    recordUsage({
+    const usage = await completeUsage(attemptId, {
       providerId,
       modelId,
+      actualModelId: response.modelUsed,
+      usageSource: response.usage.source,
+      requestedControls: request.controls ?? null,
+      controlsUsed,
       operation: "generate",
       taskClass: null,
       inputTokens: response.usage.inputTokens,
@@ -107,6 +113,7 @@ export async function generateWithFallback(
       });
 
       return {
+        runId: usage.runId,
         actualProviderId, actualModelId, routedModelId, controlsUsed,
         response,
         fallbackUsed: i > 0,
@@ -127,6 +134,7 @@ export async function generateWithFallback(
 
       // For RATE_LIMITED, mark as rate-limited but still try fallback
       return {
+        runId: usage.runId,
         actualProviderId, actualModelId, routedModelId, controlsUsed,
         response,
         fallbackUsed: i > 0,

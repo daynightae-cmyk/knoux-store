@@ -4,6 +4,11 @@ import { AiCenterPage } from "./AiCenterLayout";
 import { DevPanel, DevEmpty } from "../dev/DevUI";
 
 type UsageRecord = {
+  runId?: string;
+  profileId?: string | null;
+  actualModelId?: string | null;
+  usageSource?: string;
+  persistence?: string;
   id: string;
   timestamp: string;
   providerId: string;
@@ -40,6 +45,10 @@ export function AiUsagePage() {
   const [records, setRecords] = useState<UsageRecord[]>([]);
   const [summary, setSummary] = useState<UsageSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [persistence, setPersistence] = useState('UNKNOWN');
+  const [profileFilter, setProfileFilter] = useState('');
+  const [modelFilter, setModelFilter] = useState('');
 
   // Polling owns its fetch inside the effect so no state is set synchronously
   // in the effect body, and teardown cancels both the interval and any
@@ -48,14 +57,19 @@ export function AiUsagePage() {
     let active = true;
     async function load() {
       try {
-        const res = await fetch("/api/build/ai/usage", { cache: "no-store" });
-        if (!res.ok) return;
+        const query = new URLSearchParams({ profileId: profileFilter, modelId: modelFilter });
+        if (!profileFilter) query.delete('profileId');
+        if (!modelFilter) query.delete('modelId');
+        const res = await fetch(`/api/build/ai/usage?${query}`, { cache: "no-store" });
+        if (!res.ok) throw new Error('Usage history unavailable. Sign in and check workspace storage.');
         const data = await res.json();
         if (!active) return;
         setRecords(data.records ?? []);
         setSummary(data.summary ?? null);
+        setError('');
+        setPersistence(data.persistence ?? 'UNKNOWN');
       } catch {
-        // silent
+        if (active) { setRecords([]); setSummary(null); setError('Usage history unavailable. No empty history is claimed.'); }
       } finally {
         if (active) setLoading(false);
       }
@@ -68,7 +82,7 @@ export function AiUsagePage() {
       active = false;
       clearInterval(interval);
     };
-  }, []);
+  }, [profileFilter, modelFilter]);
 
   if (loading)
     return (
@@ -101,6 +115,9 @@ export function AiUsagePage() {
         </header>
       }
     >
+      <p role="status">{error || `Storage: ${persistence} · Summary covers the returned records in your selected workspace.`}</p>
+      <label>Profile ID / البروفايل<input value={profileFilter} onChange={event => setProfileFilter(event.target.value)} /></label>
+      <label>Model ID / الموديل<input value={modelFilter} onChange={event => setModelFilter(event.target.value)} /></label>
       {summary && summary.totalRequests > 0 ? (
         <>
           <DevPanel title="By Provider">
@@ -216,7 +233,12 @@ export function AiUsagePage() {
                         {r.success ? "OK" : "FAIL"}
                       </span>
                     </td>
-                    <td>{r.fallbackCount > 0 ? `×${r.fallbackCount}` : "—"}</td>
+                    <td><details><summary>Run details / تفاصيل التشغيل</summary>
+                      <p>Run: {r.runId ?? r.id}</p><p>Requested: {r.modelId} · Actual: {r.actualModelId ?? 'UNKNOWN'}</p>
+                      <p>Profile: {r.profileId ?? 'UNKNOWN'} · Tokens: {r.usageSource ?? 'unknown'}</p>
+                      <p>Pricing basis: {r.estimatedCost?.basis ?? 'UNKNOWN'} · Fallbacks: {r.fallbackCount}</p>
+                      <p>{r.persistence ?? 'Completed record'}</p>
+                    </details></td>
                   </tr>
                 ))}
               </tbody>

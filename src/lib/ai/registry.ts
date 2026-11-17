@@ -15,6 +15,7 @@ import { OpenCodeConsoleV2Adapter } from "./adapters/opencode-console-v2";
 import { OllamaAdapter } from "./adapters/ollama";
 import { LMStudioAdapter } from "./adapters/lm-studio";
 import { CustomOpenAIAdapter } from "./adapters/custom-openai";
+import { vendorAdapters } from "./adapters/vendors";
 
 import type {
   ProviderHealth,
@@ -54,6 +55,7 @@ export function getRegisteredAdapters(): ProviderAdapter[] {
     new OllamaAdapter(),
     new LMStudioAdapter(),
     new CustomOpenAIAdapter(),
+    ...vendorAdapters(),
   ];
   return _adapters;
 }

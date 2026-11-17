@@ -1,4 +1,5 @@
 import 'server-only';
+import { randomUUID } from 'node:crypto';
 import type { NextRequest } from 'next/server';
 import { guardBuildApi, resolveBuildOwnerId } from '../../build/api-guard';
 import { isBuildOperator } from '../../build/operator';
@@ -13,12 +14,14 @@ import type { ProviderProfile } from './types';
 import { validIdentifier } from './policy';
 import { checkRequestOrigin, publicRequestOrigin } from '../../contact/intake-guard';
 import { persistRuntimeEvidence } from './runtime-evidence';
+import { UsageLimitError } from '../usage';
 export function environmentContext(env: Record<string, string | undefined> = process.env): ProviderRuntimeContext {
     return { namespace: 'legacy-environment', env: { ...env }, disabled: new Set(), manualOnly: new Set(), modelAllowlists: new Map(), seedModels: new Map(), seedHealth: new Map(), profileIds: new Map(), profileRevisions: new Map() };
 }
 export async function scopedRuntime(repository: ProviderRepository, profiles: ProviderProfile[], operator: boolean, env: Record<string, string | undefined> = process.env, selectedProfileId?: string): Promise<ProviderRuntimeContext> {
     const context = environmentContext(env);
     context.namespace = `${repository.ownerId}:${repository.workspaceId}`;
+    context.repository = repository;
     const store = new ScopedProviderSecretStore(repository, env);
     const definitions = providerDefinitions();
     for (const adapter of getRegisteredAdapters()) {
@@ -120,8 +123,15 @@ export async function providerRequest(request: NextRequest, scope: string, handl
         }
     }
     context.authorizedRequest = request;
+    context.runId = randomUUID();
     return withProviderRuntime(context, async () => {
-        const response = await handler(request);
+        let response: Response;
+        try { response = await handler(request); }
+        catch (cause) {
+            if (cause instanceof UsageLimitError) return Response.json({ message: cause.message }, { status: 429, headers: { 'cache-control': 'no-store' } });
+            if (cause instanceof ProviderStorageError) return Response.json({ message: 'Usage storage unavailable. Check the provider usage migration before running again.' }, { status: 503, headers: { 'cache-control': 'no-store' } });
+            throw cause;
+        }
         if (response.body && response.headers.get('content-type')?.includes('text/event-stream')) {
             const reader = response.body.getReader();
             const stream = new ReadableStream<Uint8Array>({

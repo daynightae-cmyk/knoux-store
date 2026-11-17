@@ -27,6 +27,7 @@ export const primaryNavigation: readonly NavItem[] = [
 ];
 
 export const institutionNavigation: readonly NavItem[] = [
+  { label: 'Domain search / بحث الدومين', href: '/wordpress#domain', code: 'DNS' },
   { label: 'Labs', href: '/labs', code: '08' },
   { label: 'Work', href: '/work', code: '09' },
   { label: 'Engineering', href: '/engineering', code: '10' },
@@ -57,6 +58,7 @@ export const divisionSubnavs: readonly DivisionSubnav[] = [
     label: 'WordPress',
     items: [
       { label: 'Overview', href: '/wordpress', code: 'WP' },
+      { label: 'Domain search / بحث الدومين', href: '/wordpress#domain', code: 'DNS' },
       { label: 'Themes', href: '/wordpress/themes', code: 'WP-01' },
       { label: 'Plugins', href: '/wordpress/plugins', code: 'WP-02' },
       { label: 'Blocks', href: '/wordpress/blocks', code: 'WP-03' },
@@ -69,6 +71,7 @@ export const divisionSubnavs: readonly DivisionSubnav[] = [
     label: 'Web',
     items: [
       { label: 'Systems Studio', href: '/web', code: 'WEB' },
+      { label: 'Domain search / بحث الدومين', href: '/wordpress#domain', code: 'DNS' },
       ...webSystems.map((system) => ({ label: system.shortName, href: `/web/${system.slug}`, code: system.code })),
       { label: 'Capability Matrix', href: '/web#matrix', code: 'MTX' },
       { label: 'Engineering', href: '/engineering', code: 'ENG' },

@@ -7,6 +7,7 @@ import {
   TLD_SHORTCUTS,
 } from '@/lib/domain/shared';
 import { activeDomainProvider, runDomainCheck } from '@/lib/domain';
+import { checkRegistration } from '@/lib/domain/rdap';
 
 /**
  * Public domain availability endpoint.
@@ -90,16 +91,17 @@ export async function GET(request: Request) {
   const active = activeDomainProvider();
 
   if (!active.provider) {
-    // 200, not 503. "No registrar is configured" is a state this deployment
-    // renders on purpose, so it is a successful answer to a question that was
-    // successfully asked — not a server fault.
+    const results = await checkRegistration(parsed.candidates);
     return json(
       {
-        state: 'unconfigured',
+        state: 'registration-checked',
         message:
-          'Live availability is not configured on this deployment. KNOuX will check a name and confirm registration on request once a registrar connection is in place.',
+          'Registration data only. A missing record does not prove purchase availability. / بيانات تسجيل فقط؛ غياب السجل مش تأكيد توافر للشراء.',
         candidates: parsed.candidates,
-        provider: null,
+        provider: 'IANA RDAP',
+        bootstrap: 'https://www.iana.org/assignments/rdap-dns',
+        checkedAt: checkedNow(),
+        results,
         status: active.status,
       },
       200,

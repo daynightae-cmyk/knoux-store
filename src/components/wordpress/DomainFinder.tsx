@@ -30,13 +30,15 @@ type ResultState =
   | { phase: 'results'; results: DomainAvailability[]; provider: string | null; checkedAt: string };
 
 const STATE_COPY: Record<DomainAvailability['state'], { label: string; tone: string }> = {
+  registered: { label: 'REGISTERED · مسجّل', tone: 'off' },
+  'no-record': { label: 'NO VISIBLE RECORD · مفيش سجل ظاهر', tone: 'signal' },
   available: { label: 'AVAILABLE', tone: 'ok' },
   premium: { label: 'PREMIUM', tone: 'signal' },
   unavailable: { label: 'UNAVAILABLE', tone: 'off' },
   unsupported: { label: 'UNSUPPORTED TLD', tone: 'off' },
   unknown: { label: 'NOT DETERMINED', tone: 'off' },
   unconfigured: { label: 'PROVIDER NOT CONFIGURED', tone: 'off' },
-  error: { label: 'CHECK FAILED', tone: 'warn' },
+  error: { label: 'CHECK FAILED · تعذّر التحقق', tone: 'warn' },
 };
 
 function ResultRow({ result }: { result: DomainAvailability }) {
@@ -154,6 +156,7 @@ export function DomainFinder() {
 
       try {
         const response = await fetch(`/api/domain/search?${params.toString()}`, {
+          cache: 'no-store',
           headers: { accept: 'application/json' },
         });
         const body = (await response.json()) as {
@@ -173,14 +176,14 @@ export function DomainFinder() {
           setState({ phase: 'error' });
         } else if (body.state === 'invalid' || body.state === 'rate-limited') {
           setState({ phase: 'invalid', message: body.message ?? 'That search could not be run.' });
-        } else {
+        } else if (response.ok && ['checked', 'registration-checked'].includes(body.state ?? '') && Array.isArray(body.results) && body.checkedAt) {
           setState({
             phase: 'results',
             results: body.results ?? [],
             provider: body.provider ?? null,
             checkedAt: body.checkedAt ?? new Date().toISOString(),
           });
-        }
+        } else setState({ phase: 'error' });
       } catch {
         if (requestRef.current !== ticket) return;
         // A network failure is reported as a failure. It is never rendered as
@@ -198,7 +201,7 @@ export function DomainFinder() {
       <form className="domain-finder__form" onSubmit={submit} role="search" noValidate>
         <div className="domain-finder__input-row">
           <label className="domain-finder__label" htmlFor={fieldId}>
-            Find your domain
+             Find your domain / ابحث عن دومينك
           </label>
           <div className="domain-finder__field">
             <span className="domain-finder__prefix" aria-hidden="true">
@@ -214,11 +217,11 @@ export function DomainFinder() {
               autoComplete="off"
               autoCapitalize="none"
               spellCheck={false}
-              maxLength={63}
+              maxLength={253}
               aria-describedby={`${fieldId}-hint`}
             />
             <button className="action action--primary domain-finder__submit" type="submit" disabled={busy}>
-              {busy ? 'Checking' : 'Search'}
+               {busy ? 'Checking / جاري الفحص' : 'Search / بحث'}
               <span className="action-arrow" aria-hidden="true">
                 ↗
               </span>
@@ -260,8 +263,7 @@ export function DomainFinder() {
           <p className="domain-finder__idle">
             <span className="label label--signal">AWAITING A QUERY</span>
             <span>
-              A registrar answers availability. When one is connected, its verdict and its published prices appear
-              here, attributed to the registrar that produced them.
+               Search live registration data through IANA RDAP when no registrar is connected. A missing record needs registrar confirmation before purchase availability or pricing.
             </span>
           </p>
         ) : null}
@@ -269,7 +271,7 @@ export function DomainFinder() {
         {state.phase === 'checking' ? (
           <p className="domain-finder__idle">
             <span className="label label--signal">CHECKING</span>
-            <span>Asking the registrar. No result is assumed while this runs.</span>
+             <span>Checking the registration source. No result is assumed while this runs. / بنراجع المصدر.</span>
           </p>
         ) : null}
 
@@ -350,8 +352,7 @@ export function DomainFinder() {
         <p className="domain-finder__preflight">
           <span className="label label--signal">PROVIDER STATE: NOT CONFIGURED</span>
           <span>
-            The complete finder is rendered and functional. Availability will be filled in by a registrar the moment
-            one is connected to this deployment.
+            Live registration lookup uses the official IANA RDAP registry. No visible record does not mean available to buy. / البحث شغّال لبيانات التسجيل؛ الشراء محتاج تأكيد Registrar.
           </span>
         </p>
       ) : null}

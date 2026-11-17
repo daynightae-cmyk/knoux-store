@@ -13,11 +13,21 @@ const nextConfig = {
   // dev server without the two fighting over the same build directory.
   distDir: process.env.NEXT_DIST_DIR || '.next',
 
-  // Base44 preview origin — Next.js gates dev assets/HMR by origin; without
-  // this the preview's requests for dev modules are blocked.
-  allowedDevOrigins: process.env.BASE44_PUBLIC_HOST_SUFFIX
-    ? ['3000-' + process.env.BASE44_PUBLIC_HOST_SUFFIX]
-    : [],
+  // Dev assets and HMR are gated by origin. The preview origin and the
+  // local addresses a person actually opens (localhost, 127.0.0.1, the LAN
+  // address) must be named, or the page renders its shell without hydrating:
+  // the effect that reads the provider registry never runs.
+  allowedDevOrigins: [
+    'localhost',
+    '127.0.0.1',
+    ...(process.env.KNOUX_DEV_ORIGINS ?? '')
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean),
+    ...(process.env.BASE44_PUBLIC_HOST_SUFFIX
+      ? ['3000-' + process.env.BASE44_PUBLIC_HOST_SUFFIX]
+      : []),
+  ],
 
   /**
    * Applied to every response, including the routes the workspace guard

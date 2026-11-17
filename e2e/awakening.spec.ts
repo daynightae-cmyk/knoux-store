@@ -385,7 +385,7 @@ test('RTL mirrors the hall without overflow and leaves product tokens intact', a
 
   await expect(stage).toHaveAttribute('dir', 'rtl');
   await expect(stage.getByRole('heading', { name: 'Eng Sadek elgazar' })).toBeVisible();
-  await expect(stage.locator('.shout-final__tagline')).toHaveText('الكون ينبض بالحياة.');
+  await expect(stage.locator('.shout-final__tagline')).toHaveText('الكون يستيقظ.');
   await expect(stage.locator('.final-narration blockquote')).toContainText('الآلة تكتب');
   await expect(stage.locator('.shout-final__id strong').first()).toHaveText('KNOUX ONE');
   expect(await stage.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);

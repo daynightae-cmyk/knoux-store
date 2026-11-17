@@ -226,6 +226,8 @@ export function SystemsStudio({
             <h3>{current.title}</h3>
             <p>{current.statement}</p>
             <Link href={`/web/${current.slug}`} className="action" style={{ marginTop: 22 }}>{t('EXPLORE SYSTEM')} <span className="action-arrow" aria-hidden="true">↗</span></Link>
+            <Link href={`/contact?${new URLSearchParams({ requestType: 'web', items: `${current.title}; source: https://knoux.store/web/${current.slug}; ${current.artefacts.join('; ')}` })}`} className="action">{t('Compose a site request', 'تكوين طلب موقع')} ↗</Link>
+            <Link href="/wordpress#domain" className="action">{t('Find your domain', 'ابحث عن دومينك')} ↗</Link>
           </div>
           <div className="systems-panel__body">
             <div>

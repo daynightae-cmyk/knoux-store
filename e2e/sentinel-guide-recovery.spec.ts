@@ -18,7 +18,7 @@ test('published guide searches locally, persists Arabic, restores focus and clos
   await dialog.getByRole('button', { name: 'العربية', exact: true }).click();
   await expect(dialog).toHaveAttribute('dir', 'rtl');
   await expect(dialog).toHaveAttribute('lang', 'ar');
-  await dialog.locator('input').fill('الْمَتْجَر،');
+  await dialog.getByRole('textbox').fill('الْمَتْجَر،');
   await dialog.getByRole('button', { name: 'ابحث عن خدمة' }).click();
   await expect(dialog.locator('section nav a').first()).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('sentinel-ar.png') });

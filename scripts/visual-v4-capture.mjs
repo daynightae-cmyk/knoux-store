@@ -11,20 +11,20 @@
  *   node scripts/visual-v4-capture.mjs after
  */
 import { chromium } from '@playwright/test';
-import { mkdir, writeFile, readdir } from 'node:fs/promises';
+import { mkdir, writeFile, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { startOwnedServer, stopOwnedServer } from './css-integrity.mjs';
 
 const PHASE = process.argv[2] ?? 'before';
 if (PHASE !== 'before' && PHASE !== 'after') {
   throw new Error('phase must be "before" or "after"');
 }
 
-/** Resume an interrupted run rather than recapturing what already exists. */
-const RESUME = process.env.KNOUX_V4_RESUME !== '0';
-
 const PORT = Number(process.env.KNOUX_V4_PORT ?? 4411);
 const BASE = `http://127.0.0.1:${PORT}`;
-const OUT = join(process.cwd(), 'references', 'visual-v4', PHASE);
+const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+const OUT = join(process.cwd(), 'references', 'visual-v4', 'runs', `${PHASE}-${head.slice(0, 12)}-${Date.now()}`);
 
 /** App families that actually ship, grouped for the gallery. */
 const FAMILIES = [
@@ -55,6 +55,13 @@ const FAMILIES = [
   { family: 'build-engineering', route: '/build/engineering' },
   { family: 'auth', route: '/login' },
   { family: 'register', route: '/register' },
+  { family: 'about', route: '/about' },
+  { family: 'contact', route: '/contact' },
+  { family: 'engineering', route: '/engineering' },
+  { family: 'labs', route: '/labs' },
+  { family: 'work', route: '/work' },
+  { family: 'account', route: '/account' },
+  { family: 'build-control', route: '/build/ai/control' },
 ];
 
 /** The width matrix the mission requires. */
@@ -70,19 +77,19 @@ const VIEWPORTS = [
   { name: '430x932', width: 430, height: 932, cls: 'mobile' },
   { name: '390x844', width: 390, height: 844, cls: 'mobile' },
   { name: '360x800', width: 360, height: 800, cls: 'mobile' },
+  { name: '375x812', width: 375, height: 812, cls: 'mobile' },
 ];
 
 const records = [];
 
 await mkdir(OUT, { recursive: true });
 
-const existing = new Set(
-  RESUME
-    ? (await readdir(OUT)).filter((name) => name.endsWith('.png'))
-    : [],
-);
-
-const browser = await chromium.launch({ channel: 'chrome' });
+const server = await startOwnedServer(process.cwd(), PORT);
+const provenance = { ...server.provenance, buildId: (await readFile('.next/BUILD_ID', 'utf8')).trim(), dirty: !!execFileSync('git', ['status', '--porcelain', '--untracked-files=no'], { encoding: 'utf8' }).trim() };
+await writeFile(join(OUT, 'provenance.json'), JSON.stringify(provenance, null, 2));
+let browser;
+try {
+browser = await chromium.launch({ channel: 'chrome' });
 
 for (const entry of FAMILIES) {
   const context = await browser.newContext({
@@ -93,24 +100,6 @@ for (const entry of FAMILIES) {
 
   for (const vp of VIEWPORTS) {
     const file = `${entry.family}-${vp.name}.png`;
-
-    if (existing.has(file)) {
-      records.push({
-        phase: PHASE,
-        family: entry.family,
-        route: entry.route,
-        viewport: vp.name,
-        widthClass: vp.cls,
-        status: -1,
-        overflow: -1,
-        docHeight: -1,
-        consoleErrorCount: -1,
-        consoleErrors: [],
-        file,
-        resumed: true,
-      });
-      continue;
-    }
 
     const page = await context.newPage();
     await page.setViewportSize({ width: vp.width, height: vp.height });
@@ -153,7 +142,14 @@ for (const entry of FAMILIES) {
       consoleErrors.push(`NAV: ${error instanceof Error ? error.message : String(error)}`);
     }
 
-    await page.screenshot({ path: join(OUT, file), fullPage: false });
+    let captured = false;
+    try {
+      if (status === 0) throw new Error('Navigation failed; refusing to capture an error document as product evidence.');
+      await page.screenshot({ path: join(OUT, file), fullPage: false });
+      captured = true;
+    } catch (error) {
+      consoleErrors.push(`CAPTURE: ${error instanceof Error ? error.message : String(error)}`);
+    }
     await page.close();
 
     records.push({
@@ -168,7 +164,9 @@ for (const entry of FAMILIES) {
       consoleErrorCount: consoleErrors.length,
       consoleErrors: consoleErrors.slice(0, 3),
       file,
+      captured,
     });
+    await writeFile(join(OUT, 'capture-matrix.json'), `${JSON.stringify(records, null, 2)}\n`, 'utf8');
     process.stdout.write(
       `${PHASE} ${entry.family} ${vp.name} status=${status} overflow=${overflow} h=${docHeight} err=${consoleErrors.length}\n`,
     );
@@ -177,11 +175,15 @@ for (const entry of FAMILIES) {
   await context.close();
 }
 
-await browser.close();
+} finally {
+  await browser?.close();
+  await stopOwnedServer(server.child);
+}
 
 await writeFile(join(OUT, 'capture-matrix.json'), `${JSON.stringify(records, null, 2)}\n`, 'utf8');
 
-const bad = records.filter((r) => r.status >= 400 || r.overflow > 0);
+const bad = records.filter((r) => !r.captured || r.status === 0 || r.status >= 400 || r.overflow > 0);
+if (bad.length) process.exitCode = 1;
 process.stdout.write(`\n=== ${PHASE} complete: ${records.length} captures ===\n`);
 process.stdout.write(`failures/overflow: ${bad.length}\n`);
 for (const row of bad) {

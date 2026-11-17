@@ -2,6 +2,7 @@ import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ProviderProfile, CredentialReference, AuditEvent } from './types';
 import type { SecretEnvelope } from './secret-cipher';
+import type { UsageRecord } from '../types';
 export class ProviderStorageError extends Error {
     readonly code: 'CONFIG_REQUIRED' | 'CONFLICT' | 'DEPENDENCY' | 'BLOCKED';
     constructor(code: ProviderStorageError['code']) {
@@ -40,6 +41,23 @@ export class ProviderRepository {
         return result.data;
     }
     async ensureWorkspace(): Promise<void> { await this.command('ENSURE_WORKSPACE'); }
+    async reserveUsage(id: string, providerId: string, modelId: string, profileId: string | null, limit: number): Promise<boolean> {
+        const result = await this.client.rpc('knoux_reserve_usage', { p_owner: this.ownerId, p_workspace: this.workspaceId, p_id: id, p_profile: profileId, p_provider: providerId, p_model: modelId, p_limit: limit });
+        if (result.error) throw storageError(result.error);
+        return result.data === true;
+    }
+    async completeUsage(record: UsageRecord): Promise<void> {
+        const result = await this.client.from('knoux_provider_usage').update({ body: record }).eq('id', record.id).eq('owner_id', this.ownerId).eq('workspace_id', this.workspaceId).is('body', null).select('id');
+        if (result.error || !result.data?.length) throw storageError(result.error);
+    }
+    async usage(limit: number, profileId?: string, modelId?: string): Promise<UsageRecord[]> {
+        let query = this.client.from('knoux_provider_usage').select('id,profile_id,provider_id,model_id,created_at,body').eq('owner_id', this.ownerId).eq('workspace_id', this.workspaceId);
+        if (profileId) query = query.eq('profile_id', profileId);
+        if (modelId) query = query.eq('model_id', modelId);
+        const result = await query.order('created_at', { ascending: false }).limit(limit);
+        if (result.error) throw storageError(result.error);
+        return (result.data ?? []).map(row => row.body ?? { id: row.id, timestamp: row.created_at, profileId: row.profile_id, providerId: row.provider_id, modelId: row.model_id, actualModelId: null, operation: 'generate', taskClass: null, inputTokens: null, outputTokens: null, cachedTokens: null, latencyMs: null, ttftMs: null, estimatedCost: null, success: false, errorCategory: null, fallbackCount: 0, usageSource: 'unknown', persistence: 'RESERVED_OUTCOME_UNKNOWN' });
+    }
     async listWorkspaces(): Promise<{
         id: string;
         name: string;

@@ -7,6 +7,7 @@ import { providerConnectionLabel } from '@/lib/ai/provider-os/connection-label';
 import styles from './providers.module.css';
 import { PlatformFacts } from './PlatformFacts';
 import { CustomMetadata } from './CustomMetadata';
+import { ConnectProvider } from './ConnectProvider';
 const classes = [['ALL', 'All providers'], ['INTELLIGENCE', 'Intelligence'], ['CODING_AGENT', 'Coding agents'], ['LOCAL', 'Local'], ['CUSTOM', 'Custom']] as const;
 const unknown = 'UNKNOWN · not reported';
 export function ProviderCenter({ embedded = false }: Readonly<{
@@ -63,9 +64,9 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     const profile = profiles.find(item => item.active) ?? profiles[0], credentials = data?.credentials.filter(item => item.providerId === selected) ?? [], agent = data?.agents.find(item => item.id === selected);
     const writable = data?.persistence === 'AVAILABLE', vaultWritable = writable && data?.secretStore.writable;
     const filtered = definitions.filter(item => (category === 'ALL' || item.class === category) && `${item.name} ${item.id} ${item.transport}`.toLowerCase().includes(search.toLowerCase()));
-    async function command(input: Record<string, unknown>, workspaceId?: string): Promise<boolean> {
+    async function command(input: Record<string, unknown>, workspaceId?: string): Promise<ProviderWorkspaceSnapshot | null> {
         if (inFlight.current)
-            return false;
+            return null;
         inFlight.current = true;
         setBusy(true);
         setMessage('');
@@ -78,11 +79,11 @@ export function ProviderCenter({ embedded = false }: Readonly<{
             if (workspaceId) clearCredentialDraft();
             window.dispatchEvent(new Event('knoux-provider-profiles-changed'));
             setMessage('Configuration saved. Measured connection facts remain separate.');
-            return true;
+            return result;
         }
         catch (error) {
             setMessage(error instanceof Error ? error.message : 'Provider operation refused.');
-            return false;
+            return null;
         }
         finally {
             setBusy(false);
@@ -157,6 +158,7 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     const heading = <header className={styles.heading}><span className={styles.eyebrow}>KNOuX / PROVIDER OPERATING SYSTEM</span>{embedded ? <h2>Providers</h2> : <h1>Providers</h1>}<p>Your intelligence, your agents, your rules.</p><span className={styles.caption}>One canonical runtime. Configuration, authentication, discovery and execution are independently measured.</span></header>;
     return <div className={`${styles.center} dev-route`}>
     {heading}
+    {data?.persistence === 'AVAILABLE' ? <ConnectProvider key={data.workspaceId} snapshot={data} command={command} /> : null}
     <div className={styles.toolbar}><label className={styles.search}>Search providers<input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Provider, transport, agent…"/></label>{data?.workspaces?.length ? <label>Provider workspace<select disabled={busy} value={data.workspaceId ?? ''} onChange={event => void command({ action: 'WORKSPACE_SELECT' }, event.target.value)}>{data.workspaces.map(workspace => <option key={workspace.id} value={workspace.id}>{workspace.name}</option>)}</select></label> : null}<button type="button" disabled={busy} onClick={() => void load().catch(() => setMessage('Provider refresh failed.'))}>Refresh facts ↗</button>{writable ? <button type="button" disabled={busy} onClick={() => {
                 const name = window.prompt('New provider workspace name');
                 if (name)
