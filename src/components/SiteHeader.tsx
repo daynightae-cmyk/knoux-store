@@ -92,7 +92,12 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="header-actions"><AwakeningLauncher variant="header" /><SiteLanguagePicker />
+        <div className="header-actions">
+          {/* Language sits leftmost in the action group: it is a site-level
+              control rather than a page one, and it stays visible at the
+              breakpoints that hide the desktop nav and search. */}
+          <SiteLanguagePicker />
+          <AwakeningLauncher variant="header" />
           {authRoute ? (
             <Link className="header-access header-home" href="/" aria-label={t('Return to KNOuX home')}>
               <svg className="header-home__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">

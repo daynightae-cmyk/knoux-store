@@ -3,6 +3,7 @@ import { normalizeGuideLanguage, type GuideLanguage } from '@/lib/sentinel/langu
 export const SENTINEL_PREFERENCES_EVENT = 'knoux:sentinel-preferences';
 export const SENTINEL_GUIDE_EVENT = 'knoux:sentinel-guide';
 const KEY = 'knoux.sentinel.quiet';
+const LANGUAGE_KEY = 'knoux.sentinel.language';
 let sessionQuiet = false;
 export function isSentinelQuiet(): boolean {
   try { const stored=localStorage.getItem(KEY);return stored===null?sessionQuiet:stored==='true'; } catch { return sessionQuiet; }
@@ -19,16 +20,22 @@ export function subscribeSentinelQuiet(callback: () => void) {
   return () => { window.removeEventListener(SENTINEL_PREFERENCES_EVENT, callback); window.removeEventListener('storage', callback); };
 }
 
+/**
+ * The visitor's language.
+ *
+ * One stored value is shared by the site picker and the Sentinel guide, so the
+ * two can never disagree about the language the visitor is reading. The value is
+ * normalised on read, which means a preference written by an older build, or a
+ * full BCP 47 tag such as `ur-PK`, resolves to a real supported language instead
+ * of being silently dropped back to English.
+ */
 let sessionLanguage: GuideLanguage = 'en';
 export function readSentinelLanguage(): GuideLanguage {
-  // Normalising on read means a value written by an older build, or a full BCP 47
-  // tag such as `ur-PK`, resolves to a real supported language instead of being
-  // silently dropped back to English.
-  try { const stored=localStorage.getItem('knoux.sentinel.language');return stored===null?sessionLanguage:normalizeGuideLanguage(stored,sessionLanguage); } catch { return sessionLanguage; }
+  try { const stored=localStorage.getItem(LANGUAGE_KEY);return stored===null?sessionLanguage:normalizeGuideLanguage(stored,sessionLanguage); } catch { return sessionLanguage; }
 }
 export function saveSentinelLanguage(language: GuideLanguage) {
   sessionLanguage = normalizeGuideLanguage(language);
-  try { localStorage.setItem('knoux.sentinel.language', sessionLanguage); } catch { /* Optional preference. */ }
+  try { localStorage.setItem(LANGUAGE_KEY, sessionLanguage); } catch { /* Optional preference. */ }
   window.dispatchEvent(new Event(SENTINEL_PREFERENCES_EVENT));
 }
 
