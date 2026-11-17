@@ -89,6 +89,14 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
     });
   }
 
+  /** Published model identities for vendors without a usable listing endpoint.
+   * Returned even when the provider is unconfigured, so the picker can show
+   * them as catalogue-only / CONFIG REQUIRED instead of an empty list.
+   */
+  staticModels(): string[] {
+    return this.config.staticModels ?? [];
+  }
+
   protected getApiKey(env: Record<string, string | undefined>): string | null {
     for (const name of this.config.requiredEnv) {
       const value = env[name]?.trim();

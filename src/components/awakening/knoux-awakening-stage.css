@@ -1064,6 +1064,123 @@
   }
 }
 
+/* -------------------------------------------------------------------- breach */
+
+.shout-breach {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 700ms ease;
+  text-align: center;
+  padding: 0 clamp(18px, 4vw, 60px);
+}
+
+.awakening-stage[data-phase='fracture'] .shout-breach {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.shout-breach__kicker {
+  margin: 0 0 10px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--awake-lilac);
+}
+
+.shout-breach__line {
+  margin: 0 0 26px;
+  font-size: clamp(20px, 3.5vw, 34px);
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.04em;
+  color: #e8deef;
+  max-width: 620px;
+}
+
+.shout-breach__systems {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(14px, 3vw, 26px);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.shout-breach__system {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: clamp(150px, 20vw, 210px);
+  padding: 14px 12px;
+  border: 1px solid color-mix(in srgb, #c4b4da 25%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, #111319 70%, transparent);
+  color: #e8deef;
+  text-decoration: none;
+  transition: border-color 250ms ease, transform 250ms ease, box-shadow 250ms ease;
+}
+
+.shout-breach__system:hover,
+.shout-breach__system:focus-visible {
+  border-color: color-mix(in srgb, #e89ad1 45%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  outline: 2px solid #dabfed;
+  outline-offset: 4px;
+}
+
+.shout-breach__logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0a0a10;
+  border: 1px solid color-mix(in srgb, #c4b4da 15%, transparent);
+}
+
+.shout-breach__logo Image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.shout-breach__id {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.shout-breach__id strong {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #f4f1ea;
+}
+
+.shout-breach__id span {
+  font: 10px var(--font-mono, monospace);
+  letter-spacing: 0.14em;
+  color: #c3bbcf;
+  text-transform: uppercase;
+}
+
+.shout-breach__arrow {
+  font-size: 16px;
+  color: #c4b4da;
+}
+
 /* --------------------------------------------------------------------- final */
 
 .shout-final {

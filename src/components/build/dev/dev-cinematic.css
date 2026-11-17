@@ -168,3 +168,188 @@ body:has(.dev-cinematic) { overflow: hidden; }
   .dev-cinematic .dev-machine__core { width:85px; height:85px; }
 }
 @media(prefers-reduced-motion:reduce) { .dev-cinematic *, .dev-cinematic *:before, .dev-cinematic *:after { animation:none!important; transition:none!important; scroll-behavior:auto!important; } }
+
+/* ===== Neon Interactive Buttons ===== */
+.dev-neon-btn{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 18px;
+  border:1px solid transparent;
+  border-radius:10px;
+  background:linear-gradient(135deg,#1a1823,#0e1014);
+  color:#e8deef;
+  font:12px var(--sans,sans-serif);
+  cursor:pointer;
+  overflow:hidden;
+  transition:all .25s cubic-bezier(.16,.84,.34,1);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.03),
+    0 0 0 1px rgba(196,180,218,.1),
+    0 4px 20px rgba(0,0,0,.4);
+}
+.dev-neon-btn::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:linear-gradient(90deg,transparent,rgba(196,180,218,.08),transparent);
+  opacity:0;
+  transition:opacity .3s;
+}
+.dev-neon-btn::after{
+  content:'';
+  position:absolute;
+  inset:-2px;
+  border-radius:12px;
+  background:conic-gradient(from 0deg,#c4b4da,#8cebb2,#c4b4da);
+  opacity:0;
+  filter:blur(8px);
+  z-index:-1;
+  transition:opacity .4s;
+}
+.dev-neon-btn:hover{
+  border-color:#c4b4da;
+  color:#f4f1ea;
+  transform:translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.05),
+    0 0 0 1px rgba(196,180,218,.3),
+    0 8px 32px rgba(196,180,218,.15);
+}
+.dev-neon-btn:hover::before{opacity:1}
+.dev-neon-btn:hover::after{opacity:.6}
+.dev-neon-btn:active{transform:translateY(0) scale(.98)}
+.dev-neon-btn:focus-visible{
+  outline:2px solid #dabfed;
+  outline-offset:3px;
+}
+
+/* Neon variants */
+.dev-neon-btn--primary{background:linear-gradient(135deg,#2a1a3a,#1a0a2a)}
+.dev-neon-btn--primary:hover{border-color:#e89ad1;box-shadow:0 0 0 1px rgba(232,154,209,.3),0 8px 32px rgba(232,154,209,.2)}
+.dev-neon-btn--primary::after{background:conic-gradient(from 0deg,#e89ad1,#8cebb2,#e89ad1)}
+.dev-neon-btn--success{border-color:#8cebb2}
+.dev-neon-btn--success:hover{border-color:#5bd98e;box-shadow:0 0 0 1px rgba(140,235,178,.3),0 8px 32px rgba(140,235,178,.2)}
+.dev-neon-btn--success::after{background:conic-gradient(from 0deg,#8cebb2,#5bd98e,#8cebb2)}
+.dev-neon-btn--ghost{background:transparent;border-color:rgba(196,180,218,.2)}
+.dev-neon-btn--ghost:hover{background:#1a1823;border-color:#c4b4da}
+
+/* ===== Card-based Layout ===== */
+.dev-card{
+  background:linear-gradient(145deg,#12101a,#0b0c12);
+  border:1px solid rgba(196,180,218,.12);
+  border-radius:14px;
+  padding:20px;
+  box-shadow:
+    0 8px 32px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.02);
+  transition:transform .25s,box-shadow .25s,border-color .25s;
+}
+.dev-card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(196,180,218,.25);
+  box-shadow:
+    0 16px 48px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.03),
+    0 0 40px rgba(196,180,218,.08);
+}
+.dev-card:focus-within{
+  border-color:#c4b4da;
+  box-shadow:0 0 0 2px rgba(196,180,218,.15),0 16px 48px rgba(0,0,0,.45);
+}
+.dev-card--interactive{cursor:pointer}
+.dev-card--interactive:hover{transform:translateY(-3px)}
+
+.dev-card-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:16px;
+}
+
+/* ===== Provider cards ===== */
+.dev-provider-card{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:18px;
+}
+.dev-provider-card__header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.dev-provider-card__icon{
+  width:40px;
+  height:40px;
+  display:grid;
+  place-items:center;
+  font-size:22px;
+  background:rgba(196,180,218,.08);
+  border:1px solid rgba(196,180,218,.15);
+  border-radius:10px;
+  color:#c4b4da;
+}
+.dev-provider-card__meta{
+  flex:1;
+  min-width:0;
+}
+.dev-provider-card__name{font-size:15px;font-weight:500;color:#e8deef;margin:0 0 4px}
+.dev-provider-card__class{font:9px var(--font-mono,monospace);letter-spacing:.1em;color:#858693;text-transform:uppercase}
+.dev-provider-card__status{font:8px var(--font-mono,monospace);letter-spacing:.08em;padding:3px 8px;border-radius:999px;background:rgba(196,180,218,.1);color:#c4b4da}
+.dev-provider-card__status--active{background:rgba(140,235,178,.15);color:#8cebb2}
+.dev-provider-card__status--unconfigured{background:rgba(232,154,209,.15);color:#e89ad1}
+.dev-provider-card__actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ===== Quick intent cards ===== */
+.dev-quick-card{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:16px;
+  text-align:left;
+}
+.dev-quick-card__label{font:10px var(--font-mono,monospace);letter-spacing:.12em;color:#c4b4da;text-transform:uppercase}
+.dev-quick-card__desc{font-size:12px;color:#b5b3c1;line-height:1.5}
+
+/* ===== Stage view cards ===== */
+.dev-stage-card{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:16px;
+  align-items:center;
+  padding:14px 18px;
+}
+.dev-stage-card__icon{
+  width:44px;
+  height:44px;
+  display:grid;
+  place-items:center;
+  font-size:20px;
+  background:rgba(196,180,218,.06);
+  border:1px solid rgba(196,180,218,.12);
+  border-radius:10px;
+  color:#c4b4da;
+}
+.dev-stage-card__content{flex:1}
+.dev-stage-card__title{font-size:13px;font-weight:500;color:#e8deef;margin:0 0 2px}
+.dev-stage-card__desc{font-size:11px;color:#858693;margin:0}
+
+/* ===== Glow pulse for active states ===== */
+@keyframes dev-glow-pulse{
+  0%,100%{box-shadow:0 0 20px rgba(196,180,218,.15)}
+  50%{box-shadow:0 0 40px rgba(196,180,218,.35),0 0 80px rgba(196,180,218,.15)}
+}
+.dev-glow-active{animation:dev-glow-pulse 3s ease-in-out infinite}
+
+/* ===== Reduced motion ===== */
+@media(prefers-reduced-motion:reduce){
+  .dev-neon-btn,.dev-neon-btn::before,.dev-neon-btn::after,
+  .dev-card,.dev-provider-card,.dev-quick-card,.dev-stage-card{
+    animation:none!important;
+    transition:none!important;
+  }
+  .dev-glow-active{animation:none!important}
+}

@@ -33,18 +33,22 @@ export type ForgeExpression =
 
 export type ForgeFacing = 'left' | 'right' | 'center';
 
+export type ForgeStatus = 'listening' | 'answering' | 'holding' | 'breaching';
+
 export function ForgeSentinel({
   phase,
   compact = false,
   expression = 'idle',
   speaking = false,
   facing = 'center',
+  status,
 }: {
   phase: AwakeningPhase;
   compact?: boolean;
   expression?: ForgeExpression;
   speaking?: boolean;
   facing?: ForgeFacing;
+  status?: ForgeStatus;
 }) {
   const uid = useId().replace(/:/g, '');
   const glyph = sentinelMarkGlyph(compact ? 22 : 54);
@@ -58,6 +62,7 @@ export function ForgeSentinel({
       data-expression={expression}
       data-speaking={speaking ? 'true' : 'false'}
       data-facing={facing}
+      data-status={status ?? ''}
       aria-hidden="true"
     >
       <svg viewBox="0 0 80 100" focusable="false">
@@ -192,6 +197,21 @@ export function ForgeSentinel({
           </g>
         </g>
       </svg>
+
+      {/* Presence plate: name + current state, so the Sentinel is a person with a
+         posture, not just a body emitting particles. Hidden in compact mode. */}
+      {!compact && (
+        <span className="forge-presence" data-status={status ?? ''}>
+          <span className="forge-presence__name">Sentinel</span>
+          <span className="forge-presence__state">
+            {status === 'listening' ? 'Listening to Mariam'
+            : status === 'answering' ? 'Answering'
+            : status === 'holding' ? 'Holding'
+            : status === 'breaching' ? 'Breaching'
+            : '—'}
+          </span>
+        </span>
+      )}
     </span>
   );
 }

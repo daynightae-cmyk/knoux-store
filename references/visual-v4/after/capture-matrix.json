@@ -1,0 +1,4689 @@
+[
+  {
+    "phase": "after",
+    "family": "home",
+    "route": "/",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 8444,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "home-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "home",
+    "route": "/",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 8682,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "home-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "home",
+    "route": "/",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 8310,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "home-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "home",
+    "route": "/",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7968,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "home-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "home",
+    "route": "/",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7894,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "home-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "home",
+    "route": "/",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 8928,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "home-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "home",
+    "route": "/",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9095,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "home-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "home",
+    "route": "/",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 8752,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "home-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "home",
+    "route": "/",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9130,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "home-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "home",
+    "route": "/",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9117,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "home-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "home",
+    "route": "/",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9281,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "home-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "products",
+    "route": "/products",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 11185,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "products-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "products",
+    "route": "/products",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 11592,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "products-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "products",
+    "route": "/products",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 11628,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "products-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "products",
+    "route": "/products",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 11631,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "products-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "products",
+    "route": "/products",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 11513,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "products-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "products",
+    "route": "/products",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 11856,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "products-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "products",
+    "route": "/products",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 12451,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "products-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "products",
+    "route": "/products",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 12427,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "products-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "products",
+    "route": "/products",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 13889,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "products-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "products",
+    "route": "/products",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 14280,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "products-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "products",
+    "route": "/products",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 14578,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "products-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "product-detail",
+    "route": "/products/knoux-one",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5773,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "product-detail-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "product-detail",
+    "route": "/products/knoux-one",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5762,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "product-detail-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "product-detail",
+    "route": "/products/knoux-one",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5735,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "product-detail-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "product-detail",
+    "route": "/products/knoux-one",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5727,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "product-detail-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "product-detail",
+    "route": "/products/knoux-one",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5739,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "product-detail-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "product-detail",
+    "route": "/products/knoux-one",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 6288,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "product-detail-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "product-detail",
+    "route": "/products/knoux-one",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7125,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "product-detail-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "product-detail",
+    "route": "/products/knoux-one",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7102,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "product-detail-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "product-detail",
+    "route": "/products/knoux-one",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7597,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "product-detail-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "product-detail",
+    "route": "/products/knoux-one",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7786,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "product-detail-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "product-detail",
+    "route": "/products/knoux-one",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7916,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "product-detail-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command",
+    "route": "/command",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4977,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "command",
+    "route": "/command",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4589,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "command",
+    "route": "/command",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4376,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "command",
+    "route": "/command",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4277,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "command",
+    "route": "/command",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4163,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command",
+    "route": "/command",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 3821,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "command",
+    "route": "/command",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 3567,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "command",
+    "route": "/command",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 3516,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "command",
+    "route": "/command",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 122,
+    "docHeight": 3329,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "command",
+    "route": "/command",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 162,
+    "docHeight": 3285,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "command",
+    "route": "/command",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 192,
+    "docHeight": 3265,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-analytics",
+    "route": "/command/analytics",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4758,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-analytics-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-analytics",
+    "route": "/command/analytics",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4371,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-analytics-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-analytics",
+    "route": "/command/analytics",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4157,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-analytics-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-analytics",
+    "route": "/command/analytics",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4059,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-analytics-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-analytics",
+    "route": "/command/analytics",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 3944,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-analytics-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-analytics",
+    "route": "/command/analytics",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 3693,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-analytics-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-analytics",
+    "route": "/command/analytics",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 21,
+    "docHeight": 3529,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-analytics-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-analytics",
+    "route": "/command/analytics",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 73,
+    "docHeight": 3495,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-analytics-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-analytics",
+    "route": "/command/analytics",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 411,
+    "docHeight": 3192,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-analytics-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-analytics",
+    "route": "/command/analytics",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 451,
+    "docHeight": 3175,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-analytics-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-analytics",
+    "route": "/command/analytics",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 481,
+    "docHeight": 3155,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-analytics-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-social",
+    "route": "/command/social",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 10731,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-social-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-social",
+    "route": "/command/social",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9760,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-social-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-social",
+    "route": "/command/social",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9245,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-social-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-social",
+    "route": "/command/social",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 8998,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-social-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-social",
+    "route": "/command/social",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 8712,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-social-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-social",
+    "route": "/command/social",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7899,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-social-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-social",
+    "route": "/command/social",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7454,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-social-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-social",
+    "route": "/command/social",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7389,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-social-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-social",
+    "route": "/command/social",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 154,
+    "docHeight": 6964,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-social-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-social",
+    "route": "/command/social",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 194,
+    "docHeight": 6928,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-social-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-social",
+    "route": "/command/social",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 224,
+    "docHeight": 6914,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-social-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-campaigns",
+    "route": "/command/campaigns",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 8400,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-campaigns-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-campaigns",
+    "route": "/command/campaigns",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7758,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-campaigns-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-campaigns",
+    "route": "/command/campaigns",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7420,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-campaigns-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-campaigns",
+    "route": "/command/campaigns",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7248,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-campaigns-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-campaigns",
+    "route": "/command/campaigns",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7065,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-campaigns-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-campaigns",
+    "route": "/command/campaigns",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 6533,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-campaigns-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-campaigns",
+    "route": "/command/campaigns",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 6204,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-campaigns-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-campaigns",
+    "route": "/command/campaigns",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 6172,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-campaigns-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-campaigns",
+    "route": "/command/campaigns",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 83,
+    "docHeight": 5794,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-campaigns-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-campaigns",
+    "route": "/command/campaigns",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 123,
+    "docHeight": 5785,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-campaigns-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-campaigns",
+    "route": "/command/campaigns",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 153,
+    "docHeight": 5903,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-campaigns-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-reports",
+    "route": "/command/reports",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5115,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-reports-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-reports",
+    "route": "/command/reports",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4728,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-reports-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-reports",
+    "route": "/command/reports",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4514,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-reports-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-reports",
+    "route": "/command/reports",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4416,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-reports-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-reports",
+    "route": "/command/reports",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4301,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-reports-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-reports",
+    "route": "/command/reports",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 3996,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-reports-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-reports",
+    "route": "/command/reports",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 3724,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-reports-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-reports",
+    "route": "/command/reports",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 3708,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-reports-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-reports",
+    "route": "/command/reports",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 113,
+    "docHeight": 3433,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-reports-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-reports",
+    "route": "/command/reports",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 153,
+    "docHeight": 3430,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-reports-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-reports",
+    "route": "/command/reports",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 183,
+    "docHeight": 3428,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-reports-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-leads",
+    "route": "/command/leads",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4520,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-leads-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-leads",
+    "route": "/command/leads",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4132,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-leads-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-leads",
+    "route": "/command/leads",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 3919,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-leads-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-leads",
+    "route": "/command/leads",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 3820,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-leads-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-leads",
+    "route": "/command/leads",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 3706,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-leads-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-leads",
+    "route": "/command/leads",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 3382,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-leads-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-leads",
+    "route": "/command/leads",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 3170,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-leads-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-leads",
+    "route": "/command/leads",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 3131,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-leads-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-leads",
+    "route": "/command/leads",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 185,
+    "docHeight": 2842,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-leads-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-leads",
+    "route": "/command/leads",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 225,
+    "docHeight": 2753,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-leads-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-leads",
+    "route": "/command/leads",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 255,
+    "docHeight": 2697,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-leads-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-clients",
+    "route": "/command/clients",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5412,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-clients-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-clients",
+    "route": "/command/clients",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5025,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-clients-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-clients",
+    "route": "/command/clients",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4811,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-clients-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-clients",
+    "route": "/command/clients",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4713,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-clients-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-clients",
+    "route": "/command/clients",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4598,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-clients-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-clients",
+    "route": "/command/clients",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4339,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-clients-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-clients",
+    "route": "/command/clients",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4085,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-clients-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-clients",
+    "route": "/command/clients",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4033,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-clients-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-clients",
+    "route": "/command/clients",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4034,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-clients-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-clients",
+    "route": "/command/clients",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4036,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-clients-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-clients",
+    "route": "/command/clients",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4062,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-clients-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-connections",
+    "route": "/command/connections",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 121,
+    "docHeight": 8089,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-connections-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-connections",
+    "route": "/command/connections",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 425,
+    "docHeight": 7720,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-connections-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-connections",
+    "route": "/command/connections",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 585,
+    "docHeight": 7506,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-connections-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-connections",
+    "route": "/command/connections",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 659,
+    "docHeight": 7408,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-connections-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-connections",
+    "route": "/command/connections",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 745,
+    "docHeight": 7293,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-connections-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-connections",
+    "route": "/command/connections",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 1001,
+    "docHeight": 7006,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-connections-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-connections",
+    "route": "/command/connections",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 1205,
+    "docHeight": 6992,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-connections-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-connections",
+    "route": "/command/connections",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 1257,
+    "docHeight": 7134,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-connections-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-connections",
+    "route": "/command/connections",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 1595,
+    "docHeight": 8289,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-connections-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-connections",
+    "route": "/command/connections",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 1635,
+    "docHeight": 8236,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-connections-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-connections",
+    "route": "/command/connections",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 1665,
+    "docHeight": 8324,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-connections-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-communities",
+    "route": "/command/communities",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 6591,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-communities-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-communities",
+    "route": "/command/communities",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 6221,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-communities-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-communities",
+    "route": "/command/communities",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 6026,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-communities-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-communities",
+    "route": "/command/communities",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5945,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-communities-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-communities",
+    "route": "/command/communities",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5831,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-communities-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-communities",
+    "route": "/command/communities",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5528,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-communities-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-communities",
+    "route": "/command/communities",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5274,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-communities-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-communities",
+    "route": "/command/communities",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5319,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-communities-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-communities",
+    "route": "/command/communities",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5497,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-communities-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-communities",
+    "route": "/command/communities",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5542,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-communities-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-communities",
+    "route": "/command/communities",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5692,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-communities-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-automations",
+    "route": "/command/automations",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5184,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-automations-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-automations",
+    "route": "/command/automations",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4796,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-automations-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-automations",
+    "route": "/command/automations",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4601,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-automations-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-automations",
+    "route": "/command/automations",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4502,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-automations-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-automations",
+    "route": "/command/automations",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4388,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-automations-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-automations",
+    "route": "/command/automations",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4085,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-automations-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-automations",
+    "route": "/command/automations",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 3909,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-automations-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-automations",
+    "route": "/command/automations",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 3876,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-automations-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-automations",
+    "route": "/command/automations",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 74,
+    "docHeight": 3855,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-automations-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-automations",
+    "route": "/command/automations",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 114,
+    "docHeight": 3820,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-automations-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-automations",
+    "route": "/command/automations",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 144,
+    "docHeight": 3764,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-automations-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-intelligence",
+    "route": "/command/intelligence",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7051,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-intelligence-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-intelligence",
+    "route": "/command/intelligence",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 6700,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-intelligence-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-intelligence",
+    "route": "/command/intelligence",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 6505,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-intelligence-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-intelligence",
+    "route": "/command/intelligence",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 6442,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-intelligence-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-intelligence",
+    "route": "/command/intelligence",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 6345,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-intelligence-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-intelligence",
+    "route": "/command/intelligence",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 6184,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-intelligence-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-intelligence",
+    "route": "/command/intelligence",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 63,
+    "docHeight": 6286,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-intelligence-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-intelligence",
+    "route": "/command/intelligence",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 115,
+    "docHeight": 6253,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-intelligence-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-intelligence",
+    "route": "/command/intelligence",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 453,
+    "docHeight": 6254,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-intelligence-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-intelligence",
+    "route": "/command/intelligence",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 493,
+    "docHeight": 6219,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-intelligence-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "command-intelligence",
+    "route": "/command/intelligence",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 523,
+    "docHeight": 6199,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "command-intelligence-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "growth",
+    "route": "/growth",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9880,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "growth-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "growth",
+    "route": "/growth",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9575,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "growth-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "growth",
+    "route": "/growth",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9258,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "growth-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "growth",
+    "route": "/growth",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9090,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "growth-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "growth",
+    "route": "/growth",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 8891,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "growth-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "growth",
+    "route": "/growth",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9003,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "growth-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "growth",
+    "route": "/growth",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9302,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "growth-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "growth",
+    "route": "/growth",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9325,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "growth-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "growth",
+    "route": "/growth",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 11055,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "growth-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "growth",
+    "route": "/growth",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 11194,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "growth-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "growth",
+    "route": "/growth",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 11377,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "growth-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "wordpress",
+    "route": "/wordpress",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 12572,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "wordpress-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "wordpress",
+    "route": "/wordpress",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 12576,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "wordpress-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "wordpress",
+    "route": "/wordpress",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 12492,
+    "consoleErrorCount": 3,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "wordpress-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "wordpress",
+    "route": "/wordpress",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 12340,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "wordpress-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "wordpress",
+    "route": "/wordpress",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 12142,
+    "consoleErrorCount": 3,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "wordpress-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "wordpress",
+    "route": "/wordpress",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 13019,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "wordpress-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "wordpress",
+    "route": "/wordpress",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 13265,
+    "consoleErrorCount": 3,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "wordpress-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "wordpress",
+    "route": "/wordpress",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 13625,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "wordpress-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "wordpress",
+    "route": "/wordpress",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 16426,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "wordpress-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "wordpress",
+    "route": "/wordpress",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 16888,
+    "consoleErrorCount": 3,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "wordpress-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "wordpress",
+    "route": "/wordpress",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 17568,
+    "consoleErrorCount": 3,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "wordpress-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "creative",
+    "route": "/creative",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9886,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "creative-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "creative",
+    "route": "/creative",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9819,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "creative-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "creative",
+    "route": "/creative",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9686,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "creative-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "creative",
+    "route": "/creative",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9546,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "creative-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "creative",
+    "route": "/creative",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9352,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "creative-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "creative",
+    "route": "/creative",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 8879,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "creative-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "creative",
+    "route": "/creative",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9127,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "creative-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "creative",
+    "route": "/creative",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 9783,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "creative-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "creative",
+    "route": "/creative",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 11957,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "creative-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "creative",
+    "route": "/creative",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 12084,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "creative-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "creative",
+    "route": "/creative",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 12430,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "creative-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "web",
+    "route": "/web",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7984,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "web-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "web",
+    "route": "/web",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7892,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "web-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "web",
+    "route": "/web",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7675,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "web-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "web",
+    "route": "/web",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7551,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "web-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "web",
+    "route": "/web",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7390,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "web-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "web",
+    "route": "/web",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7350,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "web-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "web",
+    "route": "/web",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7565,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "web-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "web",
+    "route": "/web",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 7538,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "web-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "web",
+    "route": "/web",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 8058,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "web-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "web",
+    "route": "/web",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 8300,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "web-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "web",
+    "route": "/web",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 8513,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "web-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "solutions",
+    "route": "/solutions",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4455,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "solutions-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "solutions",
+    "route": "/solutions",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4445,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "solutions-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "solutions",
+    "route": "/solutions",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4409,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "solutions-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "solutions",
+    "route": "/solutions",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4382,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "solutions-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "solutions",
+    "route": "/solutions",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4343,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "solutions-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "solutions",
+    "route": "/solutions",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4437,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "solutions-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "solutions",
+    "route": "/solutions",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4747,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "solutions-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "solutions",
+    "route": "/solutions",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 4733,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "solutions-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "solutions",
+    "route": "/solutions",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5575,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "solutions-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "solutions",
+    "route": "/solutions",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5771,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "solutions-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "solutions",
+    "route": "/solutions",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 5977,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "solutions-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "build",
+    "route": "/build",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 880,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "build",
+    "route": "/build",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1000,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "build",
+    "route": "/build",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 900,
+    "consoleErrorCount": 8,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "build",
+    "route": "/build",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 768,
+    "consoleErrorCount": 8,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "build",
+    "route": "/build",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 800,
+    "consoleErrorCount": 8,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "build",
+    "route": "/build",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1366,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "build",
+    "route": "/build",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1180,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "build",
+    "route": "/build",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1024,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "build",
+    "route": "/build",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 932,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "build",
+    "route": "/build",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 844,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "build",
+    "route": "/build",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 800,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-providers",
+    "route": "/build/providers",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 880,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-providers-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-providers",
+    "route": "/build/providers",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1000,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-providers-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-providers",
+    "route": "/build/providers",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 900,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-providers-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-providers",
+    "route": "/build/providers",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 768,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-providers-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-providers",
+    "route": "/build/providers",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 800,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-providers-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-providers",
+    "route": "/build/providers",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1366,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-providers-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-providers",
+    "route": "/build/providers",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1180,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-providers-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-providers",
+    "route": "/build/providers",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1024,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-providers-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-providers",
+    "route": "/build/providers",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 932,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-providers-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-providers",
+    "route": "/build/providers",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 844,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-providers-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-providers",
+    "route": "/build/providers",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 800,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-providers-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-models",
+    "route": "/build/ai/models",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 880,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-models-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-models",
+    "route": "/build/ai/models",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1000,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-models-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-models",
+    "route": "/build/ai/models",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 900,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-models-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-models",
+    "route": "/build/ai/models",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 768,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-models-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-models",
+    "route": "/build/ai/models",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 800,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-models-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-models",
+    "route": "/build/ai/models",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1366,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-models-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-models",
+    "route": "/build/ai/models",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1180,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-models-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-models",
+    "route": "/build/ai/models",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1024,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-models-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-models",
+    "route": "/build/ai/models",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 932,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-models-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-models",
+    "route": "/build/ai/models",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 844,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-models-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-models",
+    "route": "/build/ai/models",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 800,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-models-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-router",
+    "route": "/build/ai/router",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 880,
+    "consoleErrorCount": 5,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-router-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-router",
+    "route": "/build/ai/router",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1000,
+    "consoleErrorCount": 5,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-router-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-router",
+    "route": "/build/ai/router",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 900,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-router-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-router",
+    "route": "/build/ai/router",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 768,
+    "consoleErrorCount": 5,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-router-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-router",
+    "route": "/build/ai/router",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 800,
+    "consoleErrorCount": 5,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-router-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-router",
+    "route": "/build/ai/router",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1366,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-router-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-router",
+    "route": "/build/ai/router",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1180,
+    "consoleErrorCount": 5,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-router-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-router",
+    "route": "/build/ai/router",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1024,
+    "consoleErrorCount": 5,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-router-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-router",
+    "route": "/build/ai/router",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 932,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-router-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-router",
+    "route": "/build/ai/router",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 844,
+    "consoleErrorCount": 5,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-router-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-ai-router",
+    "route": "/build/ai/router",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 800,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-ai-router-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-terminal",
+    "route": "/build/terminal",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 880,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-terminal-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-terminal",
+    "route": "/build/terminal",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1000,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-terminal-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-terminal",
+    "route": "/build/terminal",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 900,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-terminal-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-terminal",
+    "route": "/build/terminal",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 768,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-terminal-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-terminal",
+    "route": "/build/terminal",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 800,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-terminal-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-terminal",
+    "route": "/build/terminal",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1366,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-terminal-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-terminal",
+    "route": "/build/terminal",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1180,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-terminal-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-terminal",
+    "route": "/build/terminal",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1024,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-terminal-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-terminal",
+    "route": "/build/terminal",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 932,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-terminal-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-terminal",
+    "route": "/build/terminal",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 844,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-terminal-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-terminal",
+    "route": "/build/terminal",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 800,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-terminal-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-engineering",
+    "route": "/build/engineering",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 880,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-engineering-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-engineering",
+    "route": "/build/engineering",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1000,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-engineering-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-engineering",
+    "route": "/build/engineering",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 900,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-engineering-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-engineering",
+    "route": "/build/engineering",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 768,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-engineering-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-engineering",
+    "route": "/build/engineering",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 800,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-engineering-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-engineering",
+    "route": "/build/engineering",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1366,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-engineering-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-engineering",
+    "route": "/build/engineering",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1180,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-engineering-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-engineering",
+    "route": "/build/engineering",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 1024,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-engineering-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-engineering",
+    "route": "/build/engineering",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 932,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-engineering-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-engineering",
+    "route": "/build/engineering",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 844,
+    "consoleErrorCount": 7,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-engineering-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "build-engineering",
+    "route": "/build/engineering",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 800,
+    "consoleErrorCount": 6,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "file": "build-engineering-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "auth",
+    "route": "/login",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2087,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "auth-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "auth",
+    "route": "/login",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2076,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "auth-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "auth",
+    "route": "/login",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2051,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "auth-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "auth",
+    "route": "/login",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2037,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "auth-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "auth",
+    "route": "/login",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2015,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "auth-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "auth",
+    "route": "/login",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2347,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "auth-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "auth",
+    "route": "/login",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2463,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "auth-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "auth",
+    "route": "/login",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2298,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "auth-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "auth",
+    "route": "/login",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2226,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "auth-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "auth",
+    "route": "/login",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2230,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "auth-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "auth",
+    "route": "/login",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2296,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "auth-360x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "register",
+    "route": "/register",
+    "viewport": "1904x880",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2245,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "register-1904x880.png"
+  },
+  {
+    "phase": "after",
+    "family": "register",
+    "route": "/register",
+    "viewport": "1600x1000",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2234,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "register-1600x1000.png"
+  },
+  {
+    "phase": "after",
+    "family": "register",
+    "route": "/register",
+    "viewport": "1440x900",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2209,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "register-1440x900.png"
+  },
+  {
+    "phase": "after",
+    "family": "register",
+    "route": "/register",
+    "viewport": "1366x768",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2195,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "register-1366x768.png"
+  },
+  {
+    "phase": "after",
+    "family": "register",
+    "route": "/register",
+    "viewport": "1280x800",
+    "widthClass": "desktop",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2121,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "register-1280x800.png"
+  },
+  {
+    "phase": "after",
+    "family": "register",
+    "route": "/register",
+    "viewport": "1024x1366",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2347,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "register-1024x1366.png"
+  },
+  {
+    "phase": "after",
+    "family": "register",
+    "route": "/register",
+    "viewport": "820x1180",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2463,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "register-820x1180.png"
+  },
+  {
+    "phase": "after",
+    "family": "register",
+    "route": "/register",
+    "viewport": "768x1024",
+    "widthClass": "tablet",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2351,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "register-768x1024.png"
+  },
+  {
+    "phase": "after",
+    "family": "register",
+    "route": "/register",
+    "viewport": "430x932",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2333,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "register-430x932.png"
+  },
+  {
+    "phase": "after",
+    "family": "register",
+    "route": "/register",
+    "viewport": "390x844",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2342,
+    "consoleErrorCount": 2,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "register-390x844.png"
+  },
+  {
+    "phase": "after",
+    "family": "register",
+    "route": "/register",
+    "viewport": "360x800",
+    "widthClass": "mobile",
+    "status": 200,
+    "overflow": 0,
+    "docHeight": 2407,
+    "consoleErrorCount": 1,
+    "consoleErrors": [
+      "Refused to apply style from 'http://127.0.0.1:4411/_next/static/chunks/2d06nf6js8a1j.css' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled."
+    ],
+    "file": "register-360x800.png"
+  }
+]

@@ -2,14 +2,16 @@
 
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { useRef, useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent, useEffect } from 'react';
 import { compileBuildIntent, summariseIntent } from '@/lib/build/intent';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { BuildEntryGate } from './BuildEntryGate';
 import { workspaceFacts } from './workspace-facts';
 import { useCanonicalModels } from '../generator/useCanonicalModels';
-import { ModelNavigator } from '../generator/ModelNavigator';
+import { ComposerModelPicker } from '../generator/ComposerModelPicker';
 import { GenerationProfileRail } from '../generator/GenerationProfileRail';
+import { ModelControlsPanel } from '../generator/ModelControlsPanel';
+import { SplitView } from '../generator/SplitView';
 import { PlanSystemMap } from '../generator/PlanSystemMap';
 import { profileToControls } from '@/lib/build/profile';
 import styles from '../generator/generator.module.css';
@@ -33,6 +35,15 @@ export function DevWorkspaceHome() {
   const intelligence = useCanonicalModels();
   const chosenModel = intelligence.models.find((model) => model.providerId === (selection?.providerId ?? state.ai.providerId) && model.modelId === (selection?.modelId ?? state.ai.modelId)) ?? null;
   const planning = ['RESOLVING', 'ROUTING', 'GENERATING'].includes(stage);
+  const [showSplitView, setShowSplitView] = useState(false);
+
+  // Auto-grow the composer textarea so the full intent stays visible.
+  useEffect(() => {
+    const target = input.current;
+    if (!target) return;
+    target.style.height = 'auto';
+    target.style.height = `${Math.max(target.scrollHeight, 72)}px`;
+  }, [draft, planning]);
 
   async function compile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -101,18 +112,31 @@ export function DevWorkspaceHome() {
           <p className="dev-build-center__eyebrow">KNOuX BUILD</p>
           <h1>What are we building today?</h1>
           <div className="dev-engine" data-stage={stage}><p><span role="status">ENGINE / {stage}</span><small aria-live="off">{planning ? `${characters.toLocaleString()} characters received` : stage === 'LISTENING' ? 'Describe a system. Resolve its architecture.' : stage === 'PLANNED' ? 'Proposal ready · review before execution' : stage === 'AUTH_REQUIRED' ? 'Provider access requires an authorized account' : stage === 'EXECUTOR_NOT_CONNECTED' ? 'Plan retained · trusted execution required' : 'Canonical engineering state'}</small></p></div>
-          <div className="dev-composer-routing"><label>Routing<select aria-label="Routing" disabled={planning} value={state.ai.routingMode} onChange={(event) => dispatch({ type: 'ai/routing-mode', mode: event.target.value === 'manual' ? 'manual' : 'auto' })}><option value="auto">AUTO · eligible runtime</option><option value="manual">MANUAL · operator selection</option></select></label><ModelNavigator {...intelligence} disabled={planning} selected={state.ai.routingMode === 'manual' && state.ai.providerId && state.ai.modelId ? { providerId: state.ai.providerId, modelId: state.ai.modelId } : null} onSelect={(model) => { dispatch({ type: 'ai/routing-mode', mode: 'manual' }); dispatch({ type: 'ai/selection', providerId: model.providerId, modelId: model.modelId }); }} /></div>
+          <div className="dev-composer-routing">
+            <ComposerModelPicker
+              models={intelligence.models}
+              providers={intelligence.providers}
+              selected={state.ai.routingMode === 'manual' && state.ai.providerId && state.ai.modelId ? { providerId: state.ai.providerId, modelId: state.ai.modelId } : null}
+              routingMode={state.ai.routingMode}
+              onSelect={(model) => { dispatch({ type: 'ai/routing-mode', mode: 'manual' }); dispatch({ type: 'ai/selection', providerId: model.providerId, modelId: model.modelId }); }}
+              onSetAuto={() => dispatch({ type: 'ai/routing-mode', mode: 'auto' })}
+              disabled={planning}
+              loading={intelligence.loading}
+              error={intelligence.error}
+            />
+          </div>
           <p className={styles.note}>{state.ai.routingMode === 'auto' ? 'AUTO uses RouterV2. Choosing a discovered model explicitly enters MANUAL.' : 'MANUAL uses the exact provider/model. No automatic fallback.'}</p>
           <form className="dev-floating-compose" onSubmit={(event) => void compile(event)}>
             <label className="dev-visually-hidden" htmlFor="dev-intent-input">Describe what you want to build</label>
-            <textarea ref={input} id="dev-intent-input" maxLength={16000} disabled={planning} value={draft} onChange={(event) => setDraftOverride(event.target.value)} placeholder="Describe what you want to build…" rows={3} />
+            <textarea ref={input} id="dev-intent-input" maxLength={16000} disabled={planning} value={draft} onChange={(event) => setDraftOverride(event.target.value)} onInput={(event) => { const target = event.target as HTMLTextAreaElement; target.style.height = 'auto'; target.style.height = `${Math.max(target.scrollHeight, 72)}px`; }} placeholder="Describe what you want to build…" rows={3} style={{ height: 'auto', minHeight: 72 }} />
             <div className="dev-floating-compose__tools">
-              <div className="dev-compose-modes" role="group" aria-label="Build actions"><span>BUILD</span><button type="button" onClick={() => setView('preview')}>PREVIEW</button><Link href="/build/pipeline">VERIFY ↗</Link></div>
-              <div className="dev-compose-actions"><Link href="/build/docs" aria-label="Open project files" title="Docs & project files">▤</Link><Link href="/build/terminal" aria-label="Open terminal" title="Terminal">⌘</Link><button type="submit" disabled={!draft.trim() || planning} aria-label="Generate engineering plan" title="Generate a plan with the canonical provider runtime">↑</button></div>
+              <div className="dev-compose-modes" role="group" aria-label="Build actions"><span>BUILD</span><button type="button" className="dev-neon-btn dev-neon-btn--ghost" onClick={() => setView('preview')}>PREVIEW</button><Link href="/build/pipeline" className="dev-neon-btn dev-neon-btn--ghost">VERIFY ↗</Link></div>
+              <div className="dev-compose-actions"><Link href="/build/docs" aria-label="Open project files" title="Docs & project files">▤</Link><Link href="/build/terminal" aria-label="Open terminal" title="Terminal">⌘</Link><button type="submit" className="dev-neon-btn dev-neon-btn--primary" disabled={!draft.trim() || planning} aria-label="Generate engineering plan" title="Generate a plan with the canonical provider runtime">↑</button></div>
             </div>
           </form>
           <GenerationProfileRail value={state.ai.generationProfile} onChange={(profile) => dispatch({ type: 'ai/profile', profile })} model={chosenModel} disabled={planning} />
-          <div className="dev-quick-intents" role="group" aria-label="Intent suggestions">{QUICK_INTENTS.map((item) => <button type="button" key={item.label} onClick={() => { setDraftOverride(item.prompt); input.current?.focus(); }}>{item.label}</button>)}</div>
+          <ModelControlsPanel model={chosenModel} profile={state.ai.generationProfile} disabled={planning} />
+          <div className="dev-card-grid" role="group" aria-label="Intent suggestions">{QUICK_INTENTS.map((item) => <button type="button" key={item.label} className="dev-card dev-card--interactive dev-quick-card" onClick={() => { setDraftOverride(item.prompt); input.current?.focus(); }}><span className="dev-quick-card__label">{item.label}</span><span className="dev-quick-card__desc">{item.prompt.slice(0, 80)}…</span></button>)}</div>
           <p className="dev-compiler-note" aria-live="off">{stage}{planning ? ` · ${characters.toLocaleString()} characters received` : ''} · {selection ? `${selection.providerId} / ${selection.modelId}` : 'Canonical runtime · planning only'}</p>
           {requested ? <div className={styles.runtimeReading} aria-label="Requested and actual intelligence"><p>Requested: {requested.mode.toUpperCase()} · {requested.profile} · {requested.providerId ? `${requested.providerId} / ${requested.modelId}` : 'RouterV2 eligible selection'}</p><p>Routed endpoint: {selection ? `${selection.providerId} / ${selection.modelId}` : 'UNRESOLVED'}</p><p>Actual: {measurement?.actualProviderId ?? 'UNKNOWN'} / {measurement?.actualModelId ?? 'UNKNOWN'} · latency {measurement?.latencyMs ?? 'UNKNOWN'} ms · TTFT {measurement?.ttftMs ?? 'UNKNOWN'} ms</p>{measurement?.controlsUsed ? <p>Applied controls: output {measurement.controlsUsed.maxOutputTokens ?? 'provider default'} · temperature {measurement.controlsUsed.temperature ?? 'provider default'}</p> : null}{selection?.reasons.length ? <details><summary>Routing and fallback evidence</summary><ul>{selection.reasons.map((reason, index) => <li key={index}>{reason}</li>)}</ul></details> : null}</div> : null}
           {streamText && !plan ? <details className={styles.streamEvidence}><summary>Provider text received · {characters.toLocaleString()} characters · unvalidated</summary><pre aria-live="off">{streamText}</pre></details> : null}
@@ -122,15 +146,18 @@ export function DevWorkspaceHome() {
       </div> : <div className="dev-stage-surface"><h1 className="dev-surface-title">{view === 'preview' ? 'Project preview' : 'Product constellation'}</h1>{view === 'preview' ? <Preview cinematic /> : <Registry />}</div>}
       {planError ? <p className="dev-plan-error" role="alert">{planError} <Link href="/build/providers">Inspect providers ↗</Link></p> : null}
       {!plan && draftPlan && Object.keys(draftPlan).length ? <PlanSystemMap plan={draftPlan} draft /> : null}
-      {plan ? <section className="dev-engineering-plan" aria-label="Engineering plan">
-        <header><div><span className="dev-mini-label">ENGINEERING ARTIFACT / PROPOSAL</span><h2>From intent to architecture.</h2></div><button type="button" onClick={() => setStage('REVIEWING')}>Review plan</button></header>
-        <dl className="dev-plan-context"><div><dt>Agent</dt><dd>KNOuX Architect · logical planning profile</dd></div><div><dt>Runtime / profile</dt><dd>{selection?.providerId} / {selection?.modelId} · {requested?.profile}</dd></div><div><dt>Worktree</dt><dd>{state.engineering.context?.worktree ?? 'No worktree connected'}</dd></div><div><dt>Measurements</dt><dd>{measurement?.latencyMs ?? 'UNKNOWN'} ms · input {measurement?.usage?.inputTokens ?? 'UNKNOWN'} / output {measurement?.usage?.outputTokens ?? 'UNKNOWN'} tokens · cost {measurement?.estimatedCost?.amount != null ? `${measurement.estimatedCost.basis} ${measurement.estimatedCost.amount} ${measurement.estimatedCost.currency}` : 'UNKNOWN'}</dd></div></dl>
-        <p className={styles.note}>Session-only proposal: retained while navigating Build; a new request or page reload clears it. No plan is stored on the server.</p>
-        <PlanSystemMap plan={plan} />
-        <nav className="dev-plan-index" aria-label="Plan architecture">{PLAN_SECTIONS.map((section, index) => <a key={section} href={`#plan-${index}`} onClick={() => { const detail = document.getElementById(`plan-${index}`); if (detail instanceof HTMLDetailsElement) detail.open = true; }}>{section.replaceAll('_', ' ')}</a>)}</nav>
-        <div className="dev-plan-sections">{PLAN_SECTIONS.map((section, index) => <details id={`plan-${index}`} key={section} open={index < 3}><summary><span>{String(index + 1).padStart(2, '0')}</span><h3>{section.replaceAll('_', ' ')}</h3><span>{plan[section].length} items</span></summary><ul>{plan[section].map((line, i) => <li key={i}>{line}</li>)}</ul></details>)}</div>
-        {stage === 'REVIEWING' || stage === 'EXECUTOR_NOT_CONNECTED' ? <aside className="dev-plan-review" aria-label="Execution review"><h3>Review before execution</h3><p>Proposed files and actions appear above. Planning has provider generation permission only; no shell, browser, Git write, MCP, plugin or skill tools were invoked. Execution risk is unverified until a trusted executor validates this proposal.</p><p>{selection?.reasons.join(' ')}</p><button type="button" onClick={() => setStage('EXECUTOR_NOT_CONNECTED')}>Check execution availability</button>{stage === 'EXECUTOR_NOT_CONNECTED' ? <p role="status">EXECUTOR_NOT_CONNECTED · This plan has no structured write executor. Connect and approve a trusted local execution environment. The public server cannot modify its deployed source.</p> : null}<Link href="/build/pipeline">Inspect real verification ↗</Link></aside> : null}
-      </section> : null}
+      {plan ? <>
+          <section className="dev-engineering-plan" aria-label="Engineering plan">
+            <header><div><span className="dev-mini-label">ENGINEERING ARTIFACT / PROPOSAL</span><h2>From intent to architecture.</h2></div><div style={{display:'flex',gap:'12px',flexWrap:'wrap',alignItems:'center'}}><button type="button" className="dev-neon-btn dev-neon-btn--ghost" onClick={() => setStage('REVIEWING')}>Review plan</button><button type="button" className="dev-neon-btn dev-neon-btn--primary" onClick={() => setShowSplitView(true)}><span aria-hidden="true">▦</span> Open Preview & Code</button></div></header>
+            <dl className="dev-plan-context"><div><dt>Agent</dt><dd>KNOuX Architect · logical planning profile</dd></div><div><dt>Runtime / profile</dt><dd>{selection?.providerId} / {selection?.modelId} · {requested?.profile}</dd></div><div><dt>Worktree</dt><dd>{state.engineering.context?.worktree ?? 'No worktree connected'}</dd></div><div><dt>Measurements</dt><dd>{measurement?.latencyMs ?? 'UNKNOWN'} ms · input {measurement?.usage?.inputTokens ?? 'UNKNOWN'} / output {measurement?.usage?.outputTokens ?? 'UNKNOWN'} tokens · cost {measurement?.estimatedCost?.amount != null ? `${measurement.estimatedCost.basis} ${measurement.estimatedCost.amount} ${measurement.estimatedCost.currency}` : 'UNKNOWN'}</dd></div></dl>
+            <p className={styles.note}>Session-only proposal: retained while navigating Build; a new request or page reload clears it. No plan is stored on the server.</p>
+            <PlanSystemMap plan={plan} />
+            <nav className="dev-plan-index" aria-label="Plan architecture">{PLAN_SECTIONS.map((section, index) => <a key={section} href={`#plan-${index}`} onClick={() => { const detail = document.getElementById(`plan-${index}`); if (detail instanceof HTMLDetailsElement) detail.open = true; }}>{section.replaceAll('_', ' ')}</a>)}</nav>
+            <div className="dev-plan-sections">{PLAN_SECTIONS.map((section, index) => <details id={`plan-${index}`} key={section} open={index < 3}><summary><span>{String(index + 1).padStart(2, '0')}</span><h3>{section.replaceAll('_', ' ')}</h3><span>{plan[section].length} items</span></summary><ul>{plan[section].map((line, i) => <li key={i}>{line}</li>)}</ul></details>)}</div>
+            {stage === 'REVIEWING' || stage === 'EXECUTOR_NOT_CONNECTED' ? <aside className="dev-plan-review" aria-label="Execution review"><h3>Review before execution</h3><p>Proposed files and actions appear above. Planning has provider generation permission only; no shell, browser, Git write, MCP, plugin or skill tools were invoked. Execution risk is unverified until a trusted executor validates this proposal.</p><p>{selection?.reasons.join(' ')}</p><div style={{display:'flex',gap:'12px',flexWrap:'wrap',marginTop:'16px'}}><button type="button" className="dev-neon-btn dev-neon-btn--ghost" onClick={() => setStage('EXECUTOR_NOT_CONNECTED')}>Check execution availability</button><Link href="/build/pipeline" className="dev-neon-btn dev-neon-btn--success"><span aria-hidden="true">⌁</span> Inspect real verification ↗</Link></div>{stage === 'EXECUTOR_NOT_CONNECTED' ? <p role="status">EXECUTOR_NOT_CONNECTED · This plan has no structured write executor. Connect and approve a trusted local execution environment. The public server cannot modify its deployed source.</p> : null}</aside> : null}
+          </section>
+          {showSplitView && <SplitView plan={plan} onClose={() => setShowSplitView(false)} onBackToPlan={() => setShowSplitView(false)} />}
+        </> : null}
       {state.access === 'refused' ? <div className="dev-access-note"><span>Project, provider and environment details require an account.</span><Link href="/login?next=%2Fbuild">SIGN IN TO INSPECT ↗</Link></div> : state.error ? <p className="dev-access-note" role="status">{state.error}</p> : null}
     </section>
   </>;

@@ -51,6 +51,10 @@ export interface ProviderAdapter {
   /** Check if all required credentials are present. */
   isConfigured(env: Record<string, string | undefined>): boolean;
 
+  /** Published model identities for vendors without a usable listing endpoint.
+   * Returned even when the provider is unconfigured. Default empty. */
+  staticModels(): string[];
+
   /** Lightweight authentication probe. No generation tokens consumed. */
   probe(env: Record<string, string | undefined>): Promise<ProbeResult>;
 

@@ -32,18 +32,40 @@ test('Console authentication uses only non-inference config; discovery projects 
   assert.doesNotMatch(JSON.stringify(result), /NEVER_PROJECT_THIS|oc_sk_|org_fixture/);
 });
 
-test('Console transport refuses missing models, foreign endpoints and unsupported SDK protocols before inference', async t => {
-  let value = config(), calls = 0;
-  t.mock.method(globalThis, 'fetch', async url => { calls++; assert.equal(url, 'https://opencode.ai/console/api/v2/config'); return Response.json(value); });
+test('Console transport accepts newer config without package/baseURL and routes to fixed inference endpoint', async t => {
+  let value = config();
+  // Newer Console V2 config: no package, no settings.baseURL — only name, headers, models.
+  delete value.providers.opencode.package;
+  delete value.providers.opencode.settings;
+  t.mock.method(globalThis, 'fetch', async url => {
+    assert.equal(url, 'https://opencode.ai/console/api/v2/config');
+    return Response.json(value);
+  });
   const adapter = new OpenCodeConsoleV2Adapter();
+  // Missing model still refused before inference.
   assert.equal((await adapter.generate({ ...request, modelId: 'missing' }, env)).error.category, 'MODEL_NOT_FOUND');
-  value.providers.opencode.settings.baseURL = 'http://127.0.0.1:52440';
-  assert.equal((await adapter.generate(request, env)).error.category, 'UNSUPPORTED_CAPABILITY');
-  value = config(); value.providers.opencode.package = 'aisdk:@ai-sdk/anthropic';
-  const chunks = [];
-  for await (const chunk of adapter.stream(request, env)) chunks.push(chunk);
-  assert.equal(chunks[0].error.category, 'UNSUPPORTED_CAPABILITY');
-  assert.equal(calls, 3);
+  // Newer config without package/baseURL is accepted; org header present so we proceed to inference.
+  // The chat endpoint isn't mocked, so fetch throws → NETWORK error (not the old UNSUPPORTED_CAPABILITY protocol blocker).
+  const result = await adapter.generate(request, env);
+  assert.notEqual(result.error?.category, 'UNSUPPORTED_CAPABILITY');
+  assert.equal(result.error?.category, 'NETWORK');
+});
+
+test('Console transport still refuses disabled models before inference', async t => {
+  let value = config(), calls = 0;
+  value.providers.opencode.models['kimi-k2.6'] = { name: 'Fixture model', disabled: true };
+  t.mock.method(globalThis, 'fetch', async url => {
+    calls++;
+    assert.equal(url, 'https://opencode.ai/console/api/v2/config');
+    return Response.json(value);
+  });
+  const adapter = new OpenCodeConsoleV2Adapter();
+  const result = await adapter.generate(request, env);
+  assert.equal(result.error.category, 'AUTHENTICATION');
+  assert.equal(result.error.httpStatus, 403);
+  assert.match(result.error.safeMessage, /Model access is disabled/);
+  assert.match(result.error.safeMessage, /opencode\.ai\/console/);
+  assert.equal(calls, 1);
 });
 
 test('Console chat contract uses a per-request workspace header and sanitizes authentication failures', async t => {

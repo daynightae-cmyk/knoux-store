@@ -485,3 +485,66 @@
     transform: none;
   }
 }
+
+/* ===== Sentinel presence plate ===== */
+.forge-presence {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: color-mix(in srgb, #000 70%, transparent);
+  border: 1px solid color-mix(in srgb, #c4b4da 20%, transparent);
+  color: #e8deef;
+  font: 10px var(--font-mono, monospace);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  pointer-events: none;
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 400ms ease, transform 400ms ease, border-color 400ms ease;
+  z-index: 10;
+}
+.forge-sentinel:hover .forge-presence,
+.forge-sentinel[data-speaking='true'] .forge-presence,
+.forge-sentinel[data-status='breaching'] .forge-presence {
+  opacity: 1;
+}
+.forge-presence__name {
+  font-weight: 600;
+  color: #c4b4da;
+}
+.forge-presence__state {
+  color: #e8deef;
+}
+
+/* Mood-reactive status colors */
+.forge-sentinel[data-status='answering'] .forge-presence {
+  border-color: color-mix(in srgb, #c4b4da 40%, transparent);
+}
+.forge-sentinel[data-status='holding'] .forge-presence {
+  border-color: color-mix(in srgb, #8ee8ad 35%, transparent);
+  color: #b7e8c7;
+}
+.forge-sentinel[data-status='breaching'] .forge-presence {
+  border-color: color-mix(in srgb, #e89ad1 45%, transparent);
+  color: #f4cbf2;
+  animation: forge-presence-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes forge-presence-pulse {
+  0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.04); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forge-presence,
+  .forge-presence * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
