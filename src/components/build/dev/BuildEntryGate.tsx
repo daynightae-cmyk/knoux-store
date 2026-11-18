@@ -1,5 +1,6 @@
 'use client';
 
+import { cueAtmosphere } from './living-atmosphere';
 import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { compileBuildIntent } from '@/lib/build/intent';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
@@ -110,6 +111,7 @@ export function BuildEntryGate() {
         // A blocked storage API must not block entry; the intent still compiles.
       }
       dispatch({ type: 'intent/compiled', intent: compileBuildIntent(intent) });
+      cueAtmosphere('wake');
       setPhase('leaving');
     },
     [dispatch]

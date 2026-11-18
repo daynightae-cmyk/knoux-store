@@ -1,4 +1,4 @@
-export type AtmosphereCue = 'wake' | 'ready' | 'confirm';
+export type AtmosphereCue = 'wake' | 'ambient-storm' | 'activation-storm' | 'ready' | 'confirm' | 'settle';
 
 const CUE_EVENT = 'knoux:atmosphere-cue';
 

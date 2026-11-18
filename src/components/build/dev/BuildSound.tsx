@@ -5,51 +5,61 @@ import { listenAtmosphere, type AtmosphereCue } from './living-atmosphere';
 
 const SOUND_PREFERENCE = 'knoux-build-sound';
 
+function cloudBuffer(context: AudioContext, seconds: number) {
+  const buffer = context.createBuffer(1, Math.ceil(context.sampleRate * seconds), context.sampleRate);
+  const samples = buffer.getChannelData(0);
+  let drift = 0;
+  const seam = Math.round(context.sampleRate * .12);
+  for (let index = 0; index < samples.length; index++) {
+    drift = (drift + (Math.random() * 2 - 1) * .035) / 1.035;
+    samples[index] = drift * 2.5 * Math.min(1, index / seam, (samples.length - index - 1) / seam);
+  }
+  return buffer;
+}
+
 function startAmbience(context: AudioContext) {
   const volume = context.createGain();
-  volume.gain.value = .008;
+  volume.gain.value = .019;
   volume.connect(context.destination);
-  const voices = [55, 82.41].map((frequency) => {
-    const tone = context.createOscillator();
-    tone.frequency.value = frequency;
-    tone.connect(volume);
-    tone.start();
-    return tone;
-  });
+  const air = context.createBufferSource();
+  const filter = context.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = 520;
+  air.buffer = cloudBuffer(context, 7);
+  air.loop = true;
+  air.connect(filter).connect(volume);
+  air.start();
   return () => {
-    for (const tone of voices) { tone.stop(); tone.disconnect(); }
+    air.stop();
+    air.disconnect();
+    filter.disconnect();
     volume.disconnect();
   };
 }
 
 function playCue(context: AudioContext, cue: AtmosphereCue) {
   const now = context.currentTime;
-  const duration = cue === 'wake' ? 1.7 : .32;
+  const storm = cue === 'ambient-storm' || cue === 'activation-storm';
+  const duration = storm ? 1.75 : .29;
   const envelope = context.createGain();
   const filter = context.createBiquadFilter();
   filter.type = 'lowpass';
-  filter.frequency.value = cue === 'wake' ? 145 : 920;
+  filter.frequency.value = storm ? 165 : 880;
   filter.connect(envelope).connect(context.destination);
   envelope.gain.setValueAtTime(0, now);
-  envelope.gain.linearRampToValueAtTime(cue === 'wake' ? .1 : .027, now + .08);
+  const peak = cue === 'activation-storm' ? .17 : storm ? .09 : .035;
+  envelope.gain.linearRampToValueAtTime(peak, now + (storm ? .14 : .045));
   envelope.gain.exponentialRampToValueAtTime(.001, now + duration);
   let source: AudioScheduledSourceNode;
-  if (cue === 'wake') {
+  if (storm) {
     const noise = context.createBufferSource();
-    const buffer = context.createBuffer(1, Math.ceil(context.sampleRate * duration), context.sampleRate);
-    const samples = buffer.getChannelData(0);
-    let drift = 0;
-    for (let index = 0; index < samples.length; index++) {
-      drift = (drift + (Math.random() * 2 - 1) * .025) / 1.025;
-      samples[index] = drift * 2.8;
-    }
-    noise.buffer = buffer;
+    noise.buffer = cloudBuffer(context, duration);
     source = noise;
   } else {
     const tone = context.createOscillator();
     tone.type = 'sine';
-    tone.frequency.setValueAtTime(cue === 'ready' ? 330 : 450, now);
-    tone.frequency.exponentialRampToValueAtTime(cue === 'ready' ? 550 : 570, now + .25);
+    tone.frequency.setValueAtTime(cue === 'settle' ? 240 : cue === 'ready' ? 330 : 450, now);
+    tone.frequency.exponentialRampToValueAtTime(cue === 'settle' ? 145 : cue === 'ready' ? 550 : 570, now + .25);
     source = tone;
   }
   source.connect(filter);
@@ -90,15 +100,20 @@ export function BuildSound() {
   }
 
   useEffect(() => {
-    const restore = (event: PointerEvent) => {
+    const restore = (event: PointerEvent | KeyboardEvent) => {
+      if (event instanceof KeyboardEvent && (event.repeat || (event.key !== 'Enter' && event.key !== ' '))) return;
       if (event.target instanceof Element && event.target.closest('[data-build-sound]')) return;
       try { if (localStorage.getItem(SOUND_PREFERENCE) === 'on') void enable(); } catch { /* Optional browser storage. */ }
     };
     let lastCue = -Infinity;
+    let stormUntil = -Infinity;
     const unsubscribe = listenAtmosphere((cue) => {
       const audio = context.current;
-      if (!active.current || audio?.state !== 'running' || document.hidden || performance.now() - lastCue < 900) return;
-      lastCue = performance.now();
+      const now = performance.now();
+      const storm = cue === 'activation-storm' || cue === 'ambient-storm';
+      if (!active.current || audio?.state !== 'running' || document.hidden || (!storm && now < stormUntil) || (!storm && now - lastCue < 180)) return;
+      lastCue = now;
+      if (storm) stormUntil = now + 1700;
       stop.current?.();
       stop.current = playCue(audio, cue);
     });
@@ -112,10 +127,12 @@ export function BuildSound() {
       } else if (active.current) void audio.resume().catch(() => {});
     };
     window.addEventListener('pointerdown', restore, { passive: true });
+    window.addEventListener('keydown', restore);
     document.addEventListener('visibilitychange', visibility);
     return () => {
       unsubscribe();
       window.removeEventListener('pointerdown', restore);
+      window.removeEventListener('keydown', restore);
       document.removeEventListener('visibilitychange', visibility);
       active.current = false;
       stop.current?.();

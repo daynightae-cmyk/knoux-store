@@ -175,3 +175,26 @@
   0%, 100% { filter: brightness(1); }
   26% { filter: brightness(1.46) drop-shadow(0 0 10px #bb84f55c); }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .dev-shell__stage[data-cosmic-energy='active'] .dev-floating-compose { position: relative; }
+  .dev-shell__stage[data-cosmic-energy='active'] .dev-floating-compose::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    padding: 1px;
+    pointer-events: none;
+    border-radius: inherit;
+    background: conic-gradient(from var(--build-trace-angle), transparent 70%, #c697ff52 89%, #f3d8ff 98%, transparent);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    animation: dev-build-trace 1.5s ease-out both;
+  }
+}
+@property --build-trace-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+@keyframes dev-build-trace {
+  0% { --build-trace-angle: 0deg; opacity: 0; }
+  22% { opacity: .8; }
+  100% { --build-trace-angle: 360deg; opacity: 0; }
+}
