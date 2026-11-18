@@ -10,13 +10,10 @@ import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import styles from './providers.module.css';
 import { PlatformFacts } from './PlatformFacts';
 import { CustomMetadata } from './CustomMetadata';
+import { providerMark } from './provider-marks';
+import { cueAtmosphere } from '../dev/living-atmosphere';
 const classes = [['ALL', 'All providers'], ['INTELLIGENCE', 'Intelligence'], ['CODING_AGENT', 'Coding agents'], ['LOCAL', 'Local'], ['CUSTOM', 'Custom']] as const;
 const unknown = 'UNKNOWN · not reported';
-const providerMarks = new Map(Object.entries({
-    'opencode-console-v2': 'opencode', 'opencode-go': 'opencode',
-    openai: 'openai', anthropic: 'anthropic', gemini: 'gemini',
-    openrouter: 'openrouter', mistral: 'mistral', deepseek: 'deepseek', qwen: 'qwen', ollama: 'ollama',
-}));
 const consoleProvider = 'opencode-console-v2';
 const orbitSlots = [
     ['openai', 41, 28], ['anthropic', 55, 8], ['gemini', 69, 24], ['openrouter', 81, 92],
@@ -26,7 +23,7 @@ const orbitSlots = [
 const providerOrder = new Map<string, number>([consoleProvider, ...orbitSlots.map(([id]) => id)].map((id, rank) => [id, rank]));
 
 function ProviderMark({ definition }: { definition: ProviderDefinition }) {
-    const mark = providerMarks.get(definition.id);
+    const mark = providerMark(definition.id);
     return <span className={styles.orbit} data-mark={mark} data-provider={definition.id} aria-hidden="true">{mark ? <Image src={`/providers/${mark}.svg`} alt="" width={26} height={26} loading="eager" /> : definition.id === 'groq' || definition.id === 'grok' ? definition.name : definition.class === 'CODING_AGENT' ? '⌘' : definition.class === 'LOCAL' ? '◉' : '✦'}</span>;
 }
 export function ProviderCenter({ embedded = false }: Readonly<{
@@ -123,6 +120,7 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     }
     function choose(item: ProviderDefinition) {
         if (inFlight.current) return;
+        if (item.id !== selected) cueAtmosphere('confirm');
         clearCredentialDraft();
         setSelected(item.id);
         setTab('Overview');
@@ -212,6 +210,17 @@ export function ProviderCenter({ embedded = false }: Readonly<{
       <details ref={providerBrowse} className={styles.providerBrowse} open><summary>Browse providers &#8599;</summary><nav className={styles.providerList} aria-label="Provider registry">{filtered.map(item => { const own = data?.profiles.filter(profile => profile.providerId === item.id) ?? [], active = own.find(profile => profile.active); return <button key={item.id} type="button" aria-current={selected === item.id ? 'true' : undefined} onClick={() => choose(item)}><ProviderMark definition={item} /><span><strong>{item.name}</strong><small>{item.gateway ? 'GATEWAY · ' : ''}{item.class.replace('_', ' ')} · {active ? active.enabled ? 'PROFILE ACTIVE' : 'PROVIDER DISABLED' : own.length ? 'PROFILE INACTIVE' : 'UNCONFIGURED'}</small></span><span aria-hidden="true">↗</span></button>; })}{!filtered.length ? <p>{data ? 'No provider matches this search. Coding agents appear only from a paired trusted bridge.' : 'Provider registry is unavailable until its status has been read.'}</p> : null}</nav></details>
       {embedded ? null : <details className={styles.registryUtilities}><summary>Search &amp; workspace</summary>{toolbar}<PlatformFacts /></details>}
       </div>
+      {!embedded && orbitProviders.length > 0 ? (
+        <aside className={styles.providerOrbit} aria-label="Provider shortcuts">
+          <div className={styles.orbitTrack} aria-hidden="true" />
+          {orbitProviders.map(({ provider, left, top }) => (
+            <button key={provider.id} type="button" style={{ '--orbit-left': `${left}%`, '--orbit-top': `${top}px` } as CSSProperties} aria-current={selected === provider.id ? 'true' : undefined} onClick={() => choose(provider)}>
+              <ProviderMark definition={provider} />
+              <span>{provider.name}</span>
+            </button>
+          ))}
+        </aside>
+      ) : null}
       <section ref={detail} tabIndex={-1} className={styles.detail} aria-label="Provider detail">{!definition ? <div className={styles.intro}><span aria-hidden="true" className={styles.constellation}>✦</span><h2>A connected constellation.</h2><p>Select a provider to configure its profiles and inspect measured capabilities. Keys stay on the server; unmeasured usage remains unknown.</p><p>{data?.blocker}</p></div> : <>
         {!embedded ? <div className={styles.detailMark} aria-hidden="true">
           <svg viewBox={`0 0 ${MARK_VIEW_BOX.width} ${MARK_VIEW_BOX.height}`}>{MARK_PATHS.map(({ id, d }) => <path key={id} d={d} />)}</svg>
@@ -253,17 +262,6 @@ export function ProviderCenter({ embedded = false }: Readonly<{
         {tab === 'Health' || tab === 'Diagnostics' ? <><h3>Measured diagnostics</h3><p>{profile?.connection.blocker ?? 'No measured refusal.'}</p><p>Last test: {profile?.connection.lastTestedAt ?? 'UNTESTED'} · last success: {profile?.connection.lastSuccessAt ?? 'UNTESTED'} · category: {profile?.connection.lastErrorCategory ?? 'NONE'}</p><h4>Last explicit live test</h4>{profile?.lastLiveTest ? <dl className={styles.facts}>{Object.entries(profile.lastLiveTest).map(([key, value]) => <div key={key}><dt>{key}</dt><dd>{value ?? "UNKNOWN"}</dd></div>)}</dl> : <p>UNTESTED — no acknowledged live generation test.</p>}<h4>Safe audit</h4>{data?.audit.filter(event => event.profileId === profile?.id || credentials.some(item => item.id === event.credentialId)).map(event => <p key={event.id}>{event.event} · {event.createdAt}</p>)}{profile && !definition.detectionOnly ? <><label className={styles.check}><input type="checkbox" checked={billing} onChange={event => setBilling(event.target.checked)}/>I acknowledge that a live generation test may incur provider charges.</label><label className={styles.check}><input type="checkbox" checked={streamBilling} onChange={event => setStreamBilling(event.target.checked)}/>Also run a separate tiny streaming request (may incur additional charges).</label><button type="button" disabled={!writable || busy || !billing} onClick={() => void command({ action: 'RUN_LIVE_GENERATION_TEST', id: profile.id, version: profile.version, billingAcknowledged: true, streamingAcknowledged: streamBilling })}>RUN LIVE GENERATION TEST</button><p>This separate action never runs during connection testing.</p></> : null}</> : null}
         </section>
       </>}</section>
-      {!embedded && orbitProviders.length > 0 ? (
-        <aside className={styles.providerOrbit} aria-label="Provider shortcuts">
-          <div className={styles.orbitTrack} aria-hidden="true" />
-          {orbitProviders.map(({ provider, left, top }) => (
-            <button key={provider.id} type="button" style={{ '--orbit-left': `${left}%`, '--orbit-top': `${top}px` } as CSSProperties} aria-current={selected === provider.id ? 'true' : undefined} onClick={() => choose(provider)}>
-              <ProviderMark definition={provider} />
-              <span>{provider.name}</span>
-            </button>
-          ))}
-        </aside>
-      ) : null}
     </div>
     <dialog className={styles.dialog} ref={dialog} onCancel={event => { event.preventDefault(); closeWizard(); }} onClose={() => { setWizard(false); setSecret(''); }} aria-labelledby="provider-profile-title"><form className={styles.form} onSubmit={event => void createProfile(event)}><div className={styles.actions}><h2 id="provider-profile-title">{editProfile ? `Edit ${definition?.name} authentication` : `Add ${definition?.name} profile`}</h2><button type="button" onClick={closeWizard}>Close</button></div><label>Profile name<input autoFocus required maxLength={80} value={profileName} onChange={event => setProfileName(event.target.value)}/></label><label>Authentication source<select value={authMode} onChange={event => { setAuthMode(event.target.value as AuthSource['mode']); setReference(event.target.value === 'ENV_REFERENCE' ? definition?.environmentNames[0] ?? '' : ''); }}>{definition?.authModes.map(mode => <option key={mode} disabled={mode === 'ENV_REFERENCE' && !data?.operator}>{mode}</option>)}</select></label>{authMode === 'ENV_REFERENCE' ? <label>Declared environment name<select value={reference} onChange={event => setReference(event.target.value)}>{definition?.environmentNames.map(variable => <option key={variable}>{variable}</option>)}</select></label> : authMode === 'CLI_PROFILE' ? <label>CLI profile reference<input required maxLength={80} value={reference} onChange={event => setReference(event.target.value)}/></label> : <>{authMode === 'LOCAL_ENDPOINT' || authMode === 'CUSTOM_ENDPOINT' ? <label>Endpoint URL<input required type="url" value={reference} onChange={event => setReference(event.target.value)} placeholder={authMode === 'LOCAL_ENDPOINT' ? 'http://127.0.0.1:11434/v1' : 'https://approved-host.example/v1'}/></label> : null}<label>Stored credential<select value={credentialId} onChange={event => setCredentialId(event.target.value)}><option value="">Unconfigured / no credential</option>{credentials.filter(item => item.configured).map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><p>Add a write-only credential in Credentials first. No key is exposed by this selector.</p></>}<button type="submit" disabled={!writable || busy}>{editProfile ? "Save authentication" : "Create profile"}</button><p>New profiles are inactive until explicitly selected. Authentication and execution remain UNTESTED.</p></form></dialog>
   </div>;

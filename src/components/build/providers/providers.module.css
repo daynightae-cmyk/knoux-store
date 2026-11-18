@@ -193,3 +193,62 @@
   50% { transform: translateY(-5px) rotate(-9deg); }
 }
 .docsLink{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:10px 17px;background:rgba(184,170,204,.09);color:#ded8e7;font:inherit;font-size:12px;border:0;border-radius:24px;cursor:pointer;text-decoration:none;transition:background .2s,color .2s,box-shadow .2s}.docsLink:hover:not(:disabled){background:rgba(172,147,200,.18);color:#e2d6f2;box-shadow:0 0 24px rgba(196,180,218,.12)}.docsLink:focus-visible{outline:2px solid #dbc7f4;outline-offset:4px}
+
+@media (max-width: 999px) {
+  .standalone .composition.withOrbit {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  .withOrbit .providerOrbit {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-color: #8d60c0 #1d152b;
+    gap: 8px;
+    padding: 12px 8px;
+    border-block: 1px solid #bc92ec61;
+    border-radius: 22px;
+    background: radial-gradient(ellipse at center, #342052 0%, #100b19 73%);
+  }
+  .withOrbit .providerOrbit .orbitTrack { display: none; }
+  .center.center.center .providerOrbit button {
+    flex: 0 0 80px;
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 5px;
+    min-width: 0;
+    min-height: 78px;
+    padding: 5px 3px;
+    font-size: 10px;
+    line-height: 1.25;
+    scroll-snap-align: center;
+  }
+  .providerOrbit button > span:nth-child(2) { overflow-wrap: anywhere; }
+  .providerOrbit .orbit {
+    width: 39px;
+    height: 39px;
+    border: 1px solid #ad85d980;
+    border-radius: 50%;
+    background: #211432;
+  }
+  .providerOrbit button[aria-current='true'] .orbit { box-shadow: 0 0 14px #ab7cf8aa; border-color: #e9c2ff; }
+}
+
+@media (min-width: 1000px) and (prefers-reduced-motion: no-preference) {
+  :global(.dev-shell:not([data-cosmic-reduced])) .orbitTrack::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #edd7ff;
+    box-shadow: 0 0 10px 3px #b789f9;
+    offset-path: ellipse(50% 50% at center);
+    animation: provider-orbit-travel 23s linear infinite;
+  }
+}
+@keyframes provider-orbit-travel { to { offset-distance: 100%; } }
