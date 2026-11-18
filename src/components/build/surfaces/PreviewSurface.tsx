@@ -17,6 +17,8 @@ const MODES = ['LIVE PREVIEW', 'ROUTE ATLAS', 'RESPONSIVE LAB', 'ACCESSIBILITY',
 export function PreviewSurface({ cinematic = false, workspace = false }: { cinematic?: boolean; workspace?: boolean }) {
   const { state, dispatch } = useBuildWorkspace();
   const [showPublicStore, setShowPublicStore] = useState(false);
+  const [publicViewport, setPublicViewport] = useState(VIEWPORTS[6]);
+  const [publicRefresh, setPublicRefresh] = useState(0);
   const frame = useRef<HTMLIFrameElement>(null); const stage = useRef<HTMLDivElement>(null);
   const sweepFrames = useRef<(HTMLIFrameElement | null)[]>([]);
   const [availableWidth, setAvailableWidth] = useState(0);
@@ -81,17 +83,25 @@ export function PreviewSurface({ cinematic = false, workspace = false }: { cinem
   if (state.adapter.capabilities['preview.live'] !== 'available' || !target) {
     const blocker = state.adapter.blockers['preview.live'] ?? 'No project runtime is available in this session.';
     if (!workspace) return <Pane title="Preview Studio"><Blocked title="NO ACTIVE RUNTIME" body={blocker} requirement="A real preview runtime is required." /></Pane>;
+    const publicScale = Math.min(1, (availableWidth || 260) / publicViewport.width, 492 / publicViewport.height);
+    const publicPortrait = publicViewport.height > publicViewport.width;
     return <Pane title="Preview Studio" meta={<span>{showPublicStore ? 'PUBLIC STORE' : 'RUNTIME REQUIRED'}</span>}>
-      <div className={styles.studioStage}>
+      {showPublicStore ? <div className={styles.publicToolbar}>
+        <Chips ariaLabel="Public preview device" options={[{ id: 'desktop', label: 'Desktop' }, { id: 'tablet', label: 'Tablet' }, { id: 'phone', label: 'Mobile' }]} value={publicViewport.id} onChange={(id) => {
+          const selected = VIEWPORTS.find((viewport) => viewport.id === id);
+          if (selected) setPublicViewport(selected);
+        }} />
+        <button type="button" className="bo-chip" onClick={() => setPublicRefresh((n) => n + 1)}>Refresh public preview</button>
+      </div> : null}
+      <div className={styles.studioStage} ref={stage}>
         <div className={styles.platformGlow} aria-hidden="true" />
-        <div className={styles.phone}>
-          {showPublicStore
-            ? <iframe src="/products" title="Public Store preview" sandbox="allow-same-origin" referrerPolicy="no-referrer" />
-            : <div className={styles.phoneEmpty}>
+        {showPublicStore ? <div className={styles.publicScreen} data-portrait={publicPortrait} style={{ width: publicViewport.width * publicScale, height: publicViewport.height * publicScale }}>
+            <iframe key={publicRefresh} src="/products" title="Public Store preview" sandbox="allow-same-origin" referrerPolicy="no-referrer" style={{ width: publicViewport.width, height: publicViewport.height, transform: `scale(${publicScale})` }} />
+          </div>
+          : <div className={styles.phone}><div className={styles.phoneEmpty}>
                 <span aria-hidden="true" className={styles.phoneIcon}>▯</span>
                 <Blocked title="NO ACTIVE RUNTIME" body={blocker} requirement="Connect a project runtime to preview its output." />
-              </div>}
-        </div>
+              </div></div>}
       </div>
       <div className={styles.studioFooter}>
         <button type="button" className="bo-chip" aria-pressed={showPublicStore} onClick={() => setShowPublicStore((open) => !open)}>
@@ -99,7 +109,7 @@ export function PreviewSurface({ cinematic = false, workspace = false }: { cinem
         </button>
         {state.access === 'refused' ? <Link href="/login?next=%2Fbuild">Sign in to inspect</Link> : null}
       </div>
-      {showPublicStore ? <p className={styles.publicNote}>Public Store · responsive web view</p> : null}
+      {showPublicStore ? <p className={styles.publicNote}>Public Store · {publicViewport.width} × {publicViewport.height} browser viewport</p> : null}
     </Pane>;
   }
   return <Pane title="Preview Studio" meta={<span>{viewport.width}×{viewport.height} · {ready ? 'SAME-ORIGIN DOCUMENT LOADED' : 'LOAD UNMEASURED'}</span>} actions={<button className="bo-chip" type="button" aria-pressed={inspecting} disabled={!ready} title={!ready ? 'Inspection requires a loaded same-origin document.' : 'Arm DOM inspection'} onClick={() => setInspecting((value) => !value)}>INSPECT</button>}>

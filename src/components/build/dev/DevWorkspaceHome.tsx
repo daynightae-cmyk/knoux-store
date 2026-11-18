@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { useRef, useState, type FormEvent, useEffect } from 'react';
+import { useRef, useState, type CSSProperties, type FormEvent, useEffect } from 'react';
 import { compileBuildIntent, summariseIntent } from '@/lib/build/intent';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { BuildEntryGate } from './BuildEntryGate';
@@ -58,6 +58,8 @@ export function DevWorkspaceHome() {
   const planning = ['RESOLVING', 'ROUTING', 'GENERATING'].includes(stage);
   const [showSplitView, setShowSplitView] = useState(false);
   const [expandedPreview, setExpandedPreview] = useState(false);
+  const [previewWidth, setPreviewWidth] = useState(44);
+  const [compactPanel, setCompactPanel] = useState<'preview' | 'generation'>('preview');
 
   // Auto-grow the composer textarea so the full intent stays visible.
   useEffect(() => {
@@ -180,11 +182,21 @@ export function DevWorkspaceHome() {
         <div className={previewStyles.workspace} data-reduced={state.preferences.motion === 'reduced' ? '' : undefined}>
           <header className={previewStyles.workspaceHeading}>
             <div><span>BUILD / GENERATION</span><h1>Project preview</h1><p>Inspect the runtime while you plan and review changes.</p></div>
-            <button type="button" className="bo-chip" aria-pressed={expandedPreview} onClick={() => setExpandedPreview((expanded) => !expanded)}>
-              {expandedPreview ? 'Show generation panel' : 'Expand preview'}
-            </button>
+            <div className={previewStyles.desktopControls}>
+              {!expandedPreview && <label className={previewStyles.resizeControl}>
+                <span>Preview width <output>{previewWidth}%</output></span>
+                <input type="range" min={36} max={64} value={previewWidth} onChange={(event) => setPreviewWidth(event.currentTarget.valueAsNumber)} aria-label="Preview width" aria-valuetext={`${previewWidth}%`} />
+              </label>}
+              <button type="button" className="bo-chip" aria-pressed={expandedPreview} onClick={() => setExpandedPreview((expanded) => !expanded)}>
+                {expandedPreview ? 'Show generation panel' : 'Expand preview'}
+              </button>
+            </div>
           </header>
-          <div className={previewStyles.layout} data-expanded={expandedPreview}>
+          <div className={previewStyles.compactControls} role="group" aria-label="Compact workspace panel">
+            <button type="button" className="bo-chip" aria-pressed={compactPanel === 'preview'} onClick={() => setCompactPanel('preview')}>Preview</button>
+            <button type="button" className="bo-chip" aria-pressed={compactPanel === 'generation'} onClick={() => setCompactPanel('generation')}>Generation</button>
+          </div>
+          <div className={previewStyles.layout} data-expanded={expandedPreview} data-compact-panel={compactPanel} style={{ '--preview-share': `${previewWidth}fr`, '--generation-share': `${100 - previewWidth}fr` } as CSSProperties}>
             <section className={previewStyles.preview} aria-label="Preview workspace"><Preview cinematic workspace /></section>
             <GenerationMonitor draft={draft} onDraft={setDraftOverride} onCompile={(event) => void compile(event)} planning={planning} onReview={reviewFromPreview} />
           </div>
