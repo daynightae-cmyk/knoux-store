@@ -59,14 +59,11 @@ export function SplitView({ plan, onClose, onBackToPlan }: Props) {
       </header>
 
       <div className={styles.splitViewBody} data-view={viewMode}>
-      {viewMode !== 'code' && (
-        <div className={`${styles.splitViewPreview} ${previewStyles.preview}`}>
+        <div className={`${styles.splitViewPreview} ${previewStyles.preview}`} hidden={viewMode === 'code'}>
           <Preview cinematic workspace />
         </div>
-      )}
 
-      {viewMode !== 'preview' && (
-      <div className={styles.splitViewCode}>
+      <div className={styles.splitViewCode} hidden={viewMode === 'preview'}>
         <aside className={styles.splitViewFileTree}>
           <h3>Proposed files and modules</h3>
           <ul className={styles.splitViewFileList}>
@@ -104,7 +101,6 @@ export function SplitView({ plan, onClose, onBackToPlan }: Props) {
           </div>
         )}
       </div>
-      )}
       </div>
 
       <footer className={styles.splitViewFooter}>

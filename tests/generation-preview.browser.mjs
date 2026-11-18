@@ -45,6 +45,17 @@ try {
     await expect(page.getByRole('region', { name: 'Engineering plan', exact: true })).toBeVisible();
     assert.equal(streams, 1);
     assert.equal(fallbacks, 0);
+    await page.getByRole('button', { name: 'Open Preview & Code' }).click();
+    const split = page.getByRole('region', { name: 'Generation result: preview and code' });
+    const splitPreview = split.locator('.bo-pane').first();
+    await expect(splitPreview).toBeVisible();
+    const mountedPreview = await splitPreview.elementHandle();
+    await split.getByRole('button', { name: 'Code', exact: true }).click();
+    await expect(splitPreview).toBeHidden();
+    assert.equal(await mountedPreview.evaluate((element) => element.isConnected), true);
+    await split.getByRole('button', { name: 'Split', exact: true }).click();
+    await expect(splitPreview).toBeVisible();
+    await split.getByRole('button', { name: 'Close split view' }).click();
     await page.getByRole('group', { name: 'Workspace view' }).getByRole('button', { name: 'PREVIEW', exact: true }).click();
     if (width <= 900) await page.getByRole('group', { name: 'Compact workspace panel' }).getByRole('button', { name: 'Generation', exact: true }).click();
     const monitor = page.getByRole('region', { name: 'Generation Process', exact: true });

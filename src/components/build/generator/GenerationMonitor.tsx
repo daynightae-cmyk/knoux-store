@@ -64,9 +64,10 @@ export function deriveGenerationLifecycle(state: Pick<BuildWorkspaceState, 'proj
   ];
 }
 
-export function GenerationLifecycleRail({ state, session }: { state: BuildWorkspaceState; session?: EngineeringSession }) {
+export function GenerationLifecycleRail({ state, session, heading = 'h2' }: { state: BuildWorkspaceState; session?: EngineeringSession; heading?: 'h2' | 'h3' }) {
+  const Heading = heading;
   return <section className={styles.lifecycle} aria-label="Generation evidence lifecycle">
-    <h3>Proposal → execution evidence</h3>
+    <Heading className={styles.lifecycleHeading}>Proposal → execution evidence</Heading>
     <p>Checkout checks are independent evidence, not proof this proposal was executed.</p>
     <ol>{deriveGenerationLifecycle(state, session).map((step) => <li key={step.name} data-status={step.status}><strong>{step.name}</strong><span>{step.status}</span><small>{step.evidence}</small></li>)}</ol>
   </section>;
@@ -139,7 +140,7 @@ export function GenerationMonitor({
           </li>
         ))}
       </ol>
-      <GenerationLifecycleRail state={state} session={session} />
+      <GenerationLifecycleRail state={state} session={session} heading="h3" />
 
       {error ? <p className={styles.monitorError} role="alert">{error} <Link href="/build/providers">Inspect providers</Link></p> : null}
       <div className={styles.output}>

@@ -75,7 +75,7 @@
 .cancelButton:focus-visible, .monitor button:focus-visible { outline: 2px solid #e5c2ff; outline-offset: 3px; }
 .homeTools, .homeActions { flex-wrap: wrap; }
 .lifecycle { margin: 16px 0; text-align: start; min-width: 0; }
-.lifecycle h3 { margin: 0 0 5px; color: #f3e2ff; font-size: 14px; font-weight: 550; }
+.lifecycleHeading { margin: 0 0 5px; color: #f3e2ff; font-size: 14px; font-weight: 550; }
 .lifecycle > p { margin: 0 0 10px; color: #cfbedf; font-size: 12px; line-height: 1.5; }
 .lifecycle ol { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 145px), 1fr)); gap: 7px; list-style: none; padding: 0; margin: 0; }
 .lifecycle li { min-width: 0; display: grid; align-content: start; gap: 6px; padding: 11px; border: 1px solid #a782c34d; border-radius: 9px; background: radial-gradient(ellipse at 100% 0, #7549a32b, transparent 70%), #170f24; overflow-wrap: anywhere; }

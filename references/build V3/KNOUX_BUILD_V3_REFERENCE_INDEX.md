@@ -64,3 +64,14 @@ The correction batch preserves the public Store homepage, the approved Awakening
 `e2e/build-atmosphere.spec.ts` defines the five exact viewports (1920×1080, 1366×768, 768×1024, 390×844, 360×800), ten optional motion recordings, native Web Audio checks and compact-provider touch targets. `e2e/generation-lifecycle.spec.ts` runs explicitly fixture-backed cancellation/revision contracts against the owned production server. Definitions are not successful-run evidence. Production verification, final implementation SHAs, remote/CI state and main integration are still pending for this batch.
 
 Generated applications, authenticated provider writes, trusted file execution, bridge pairing and deployment transitions must never be inferred from decorative animation, fixture output, capability flags, existing project checks or an available preview. Source references and useful QA evidence are protected from cleanup.
+
+### Local browser evidence before the Qoder handoff
+
+These local captures were collected at `http://127.0.0.1:3000/build` during the correction batch before `a9235c7c0eb83b7e06081422386d3f8fceb66abf`. They stay local under `qa/final-living/`. Recheck current behavior after changes to the same surfaces.
+
+| References | Implementation checkpoint | Evidence | Observed behavior |
+| --- | --- | --- | --- |
+| 01 | `ac7acde887f2e4d102f26d1720e1618759b417ee` | `sky-activation-desktop.webm`, `sky-playback.webm`, `sky-playback.json` | Idle storm, New Build activation, settling and opt-in mute. The actual Web Audio output was captured separately. The browser recorded 4.4 ms and 4.3 ms from visual strike to thunder buffer start. |
+| 02 | `89c0f023cf9b47188e4d56cc83796e23978487cf` | `engineering-1920.png`, `engineering-390.png`, `engineering-providers-390.webm` | Desktop hover and emulated touch feedback. Layout checked at all five specified viewport sizes. |
+| 03 | `c852ae294699d76674825a1de047d560a577db30` | `providers-1920.png`, `providers-390.png`, `providers-360.png` | Compact orbit paging and provider selection. The 390 px screenshot includes the subsequent container and assistant-overlay corrections incorporated by Qoder. |
+| 19, 32 | `b654068d01dc3b8dc3329dc890ba22f5458ab83f` | `connected-inspect-390.png`, `connected-inspect-768.png`, `model-profile-preview-1366-fixture.webm` | Same-origin Store document and DOM inspection on compact layouts. The model/profile clip uses a browser fixture. |
