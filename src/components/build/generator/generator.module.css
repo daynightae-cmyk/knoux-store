@@ -80,6 +80,36 @@
 /* ===== SplitView ===== */
 .splitView{position:relative;display:flex;flex-direction:column;height:100%;min-height:600px;background:#0a0b10;border:1px solid #b9a8d233;border-radius:16px;overflow:hidden;box-shadow:0 24px 80px #000a,inset 0 1px 0 #ffffff08}
 .splitViewHeader{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;border-bottom:1px solid #b9a8d222;background:linear-gradient(90deg,#1a1823cc,#0e1014e8);backdrop-filter:blur(12px);flex-shrink:0}
+.splitViewBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  padding: 14px;
+}
+.splitViewBody[data-view='split'] { grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); }
+.splitViewBody > div { min-width: 0; }
+.splitViewBody .splitViewPreview { display: block; }
+.splitViewBody .splitViewCode {
+  display: grid;
+  grid-template-columns: minmax(125px, .55fr) minmax(0, 1fr);
+  align-content: start;
+  min-height: 240px;
+  border: 1px solid #b298da70;
+  border-radius: 12px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 85% 0, #2b1c442f, transparent 66%), #100c19;
+}
+.splitViewBody .splitViewFileTree { width: auto; min-width: 0; max-width: none; }
+.splitViewBody .splitViewFileBtn { overflow-wrap: anywhere; }
+.splitViewBody .splitViewEditorContent { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 900px) {
+  .splitViewBody[data-view='split'] { grid-template-columns: minmax(0, 1fr); }
+  .splitViewHeader, .splitViewActions { flex-wrap: wrap; }
+}
+@media (max-width: 450px) {
+  .splitViewBody .splitViewCode { grid-template-columns: minmax(0, 1fr); }
+  .splitViewBody .splitViewFileTree { border-right: 0; border-bottom: 1px solid #b298da38; }
+}
 .splitViewBadge{font:10px var(--font-mono,monospace);letter-spacing:.1em;color:#c4b4da;padding:4px 10px;border:1px solid #b9a8d244;border-radius:999px;background:#0e1014e8;text-transform:uppercase}
 .splitViewTitle h2{margin:0;font-size:clamp(18px,2.5vw,24px);font-weight:500;color:#e8deef}
 .splitViewActions{display:flex;align-items:center;gap:8px}

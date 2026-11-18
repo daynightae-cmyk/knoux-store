@@ -18,6 +18,7 @@ import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { Blocked, Empty, Pane, Section, StatusBadge } from '../workspace/Primitives';
 import { tokenize } from '@/lib/build/tokenizer';
 import type { SourceFileEntry } from '@/lib/build/types';
+import styles from '../generator/code-constellation.module.css';
 
 type FileResponse = {
   path: string;
@@ -43,63 +44,76 @@ function groupFor(role: string): string {
 export function CodeSurface() {
   const { state, dispatch } = useBuildWorkspace();
   const [files, setFiles] = useState<SourceFileEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [listedProject, setListedProject] = useState<string | null>();
   const [loadError, setLoadError] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
   const paneRef = useRef<HTMLDivElement>(null);
+  const fileRequest = useRef<AbortController | null>(null);
 
   const capabilities = state.adapter.capabilities;
+  const loading = listedProject !== state.projectRef;
   const readOnlyReason = state.adapter.blockers['project.write'] ?? null;
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
+    const suffix = state.projectRef ? `?project=${encodeURIComponent(state.projectRef)}` : '';
     void (async () => {
       try {
-        const response = await fetch('/api/build/project', { cache: 'no-store' });
+        const response = await fetch(`/api/build/project${suffix}`, { cache: 'no-store', signal: AbortSignal.any([controller.signal, AbortSignal.timeout(25_000)]) });
         if (!response.ok) throw new Error(`Project snapshot responded ${response.status}.`);
         const body = (await response.json()) as {
           snapshot: { files: SourceFileEntry[] };
         };
-        if (cancelled) return;
+        if (controller.signal.aborted) return;
         setFiles(body.snapshot.files);
         setLoadError(null);
       } catch (error) {
-        if (!cancelled) {
+        if (!controller.signal.aborted) {
           setLoadError(error instanceof Error ? error.message : 'The file list could not be read.');
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!controller.signal.aborted) setListedProject(state.projectRef);
       }
     })();
     return () => {
-      cancelled = true;
+      controller.abort();
+      fileRequest.current?.abort();
     };
-  }, []);
+  }, [state.projectRef]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, SourceFileEntry[]>();
+    const filter = query.trim().toLowerCase();
     for (const file of files) {
+      if (filter && !file.path.toLowerCase().includes(filter)) continue;
       const group = groupFor(file.role);
       const list = map.get(group) ?? [];
       list.push(file);
       map.set(group, list);
     }
     return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
-  }, [files]);
+  }, [files, query]);
 
   const open = useCallback(
     async (entry: SourceFileEntry) => {
+      fileRequest.current?.abort();
+      const controller = new AbortController();
+      fileRequest.current = controller;
       setFileError(null);
-      dispatch({ type: 'file/close', path: '__none__' });
       try {
-        const response = await fetch(`/api/build/file?path=${encodeURIComponent(entry.path)}`, {
+        const query = new URLSearchParams({ path: entry.path });
+        if (state.projectRef) query.set('project', state.projectRef);
+        const response = await fetch(`/api/build/file?${query}`, {
           cache: 'no-store',
+          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(25_000)]),
         });
         if (!response.ok) {
           const body = (await response.json().catch(() => null)) as { message?: string } | null;
           throw new Error(body?.message ?? `Reading ${entry.path} responded ${response.status}.`);
         }
         const body = (await response.json()) as FileResponse;
+        if (controller.signal.aborted) return;
         dispatch({
           type: 'file/open',
           file: {
@@ -116,10 +130,10 @@ export function CodeSurface() {
           },
         });
       } catch (error) {
-        setFileError(error instanceof Error ? error.message : 'The file could not be read.');
+        if (!controller.signal.aborted) setFileError(error instanceof Error ? error.message : 'The file could not be read.');
       }
     },
-    [dispatch],
+    [dispatch, state.projectRef],
   );
 
   // Ctrl/Cmd+S must never attempt a write. It says so instead of failing.
@@ -166,14 +180,16 @@ export function CodeSurface() {
         </>
       }
     >
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(190px, 260px) minmax(0, 1fr)', minHeight: '58vh' }}>
-        <aside style={{ borderRight: '1px solid var(--bo-line-faint)', overflow: 'auto' }} aria-label="Project files">
+      <div className={styles.layout}>
+        <aside className={styles.tree} aria-label="Project files">
+          <label className={styles.search}>Filter source files<input type="search" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
           {loading ? <Empty title="Reading tree" body="Listing the files in this deployment." /> : null}
-          {loadError ? (
+          {!loading && loadError ? (
             <Blocked title="File list unavailable" body={loadError} requirement="The project snapshot endpoint did not respond." />
           ) : null}
           {!loading && !loadError ? (
             <>
+              {!grouped.length ? <Empty title="No matching files" body="Try another path from the project snapshot." /> : null}
               {grouped.map(([group, entries]) => (
                 <div key={group}>
                   <div className="bo-cortex__lane" style={{ padding: '10px 12px 6px' }}>
