@@ -155,7 +155,7 @@ for (const [width, height] of viewports) {
         }
       }
       const readCues = () => page.evaluate(() => (window as unknown as { measuredAtmosphereCues: string[] }).measuredAtmosphereCues);
-      // Storms advance with painted time, which trails wall time under CI load.
+      // The elapsed deadline becomes a cue on the next visible Canvas paint.
       const expectedCue = scene === 'engineering' ? 'ambient-storm' : 'activation-storm';
       await expect.poll(readCues, { timeout: scene === 'engineering' ? 40_000 : 5_000 }).toContain(expectedCue);
       if (scene === 'engineering') await page.waitForTimeout(1_000);

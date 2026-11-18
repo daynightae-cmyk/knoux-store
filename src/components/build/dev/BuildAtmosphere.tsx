@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { ACTIVATION_DURATION_MS, activationPhase, cueAtmosphere, lightningBranches, listenAtmosphere, seededRandom, type LightningPoint } from './living-atmosphere';
+import { ACTIVATION_DURATION_MS, activationPhase, cueAtmosphere, lightningBranches, listenAtmosphere, seededRandom, type ActivationPhase, type LightningPoint } from './living-atmosphere';
 
 type Star = { x: number; y: number; depth: number; phase: number; cadence: number };
 type Sky = {
-  width: number; height: number; time: number; wake: number; storm: number; nextStorm: number;
+  width: number; height: number; time: number; storm: number; nextStorm: number;
   pendingWake: boolean; cloudX: number; cloudY: number; branches: LightningPoint[][];
   trail: number; nextTrail: number; trailX: number; trailY: number; offsetX: number; offsetY: number;
 };
@@ -55,8 +55,8 @@ function shootingStar(ctx: CanvasRenderingContext2D, sky: Sky) {
   ctx.beginPath(); ctx.moveTo(x + 40, y - 19); ctx.lineTo(x, y); ctx.stroke();
 }
 
-function lightning(ctx: CanvasRenderingContext2D, sky: Sky) {
-  const elapsed = sky.time - sky.storm;
+function lightning(ctx: CanvasRenderingContext2D, sky: Sky, visibleSeconds: number) {
+  const elapsed = visibleSeconds - sky.storm;
   if (elapsed < 0 || elapsed > 1.4) return;
   const flash = Math.min(1, (elapsed + .025) * 11) * Math.exp(-elapsed * 2.9);
   if (flash <= .02) return;
@@ -77,8 +77,7 @@ function lightning(ctx: CanvasRenderingContext2D, sky: Sky) {
   ctx.restore();
 }
 
-function activation(ctx: CanvasRenderingContext2D, sky: Sky, energy: number) {
-  const phase = activationPhase((sky.time - sky.wake) * 1000);
+function activation(ctx: CanvasRenderingContext2D, sky: Sky, phase: ActivationPhase | null, energy: number) {
   if (!phase || phase === 'prepare') return;
   const x = sky.width * .52, y = sky.height * .36;
   const radius = Math.min(sky.width * .42, 430);
@@ -86,12 +85,12 @@ function activation(ctx: CanvasRenderingContext2D, sky: Sky, energy: number) {
   ctx.beginPath(); ctx.ellipse(x, y, radius, radius * .18, -.12, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
 }
 
-function advanceEvents(sky: Sky, random: () => number) {
-  const activationStrike = sky.pendingWake && sky.time >= sky.wake + .7;
-  if (activationStrike || (!sky.pendingWake && sky.time >= sky.nextStorm)) {
-    sky.storm = sky.time; sky.cloudX = .63 + random() * .26; sky.cloudY = .12 + random() * .24;
+function advanceEvents(sky: Sky, random: () => number, visibleSeconds: number, wakeElapsed: number) {
+  const activationStrike = sky.pendingWake && wakeElapsed >= 700 && wakeElapsed < ACTIVATION_DURATION_MS;
+  if (activationStrike || (!sky.pendingWake && visibleSeconds >= sky.nextStorm)) {
+    sky.storm = visibleSeconds; sky.cloudX = .63 + random() * .26; sky.cloudY = .12 + random() * .24;
     sky.branches = lightningBranches(random); sky.pendingWake = false;
-    sky.nextStorm = sky.time + 18 + random() * 23;
+    sky.nextStorm = visibleSeconds + 18 + random() * 23;
     // The same event paints the bolt and starts its thunder. No audio storm timer exists.
     cueAtmosphere(activationStrike ? 'activation-storm' : 'ambient-storm');
   }
@@ -107,16 +106,17 @@ export function BuildAtmosphere({ reduced }: Readonly<{ reduced: boolean }>) {
     if (!surface || !stage || !ctx) return;
     const motion = matchMedia('(prefers-reduced-motion: reduce)'), random = seededRandom();
     const stars = Array.from({ length: 120 }, () => ({ x: random(), y: random(), depth: .2 + random() * .8, phase: random() * Math.PI * 2, cadence: .34 + random() * .48 }));
-    const sky: Sky = { width: 0, height: 0, time: 0, wake: -100, storm: -100, nextStorm: 12 + random() * 8,
+    const sky: Sky = { width: 0, height: 0, time: 0, storm: -100, nextStorm: 12 + random() * 8,
       pendingWake: false, cloudX: .83, cloudY: .22, branches: [], trail: -100, nextTrail: 6 + random() * 5,
       trailX: .7, trailY: .13, offsetX: 0, offsetY: 0 };
     let frame = 0, previous = 0, pointerX = 0, pointerY = 0, decay: number | undefined;
     let wakeStarted = -Infinity, paints = 0, paintTotal = 0;
+    let accumulatedVisibleMs = 0, visibleSince: number | null = null;
     let bounds = stage.getBoundingClientRect();
 
     function clearActivation() {
       wakeStarted = -Infinity;
-      sky.pendingWake = false; sky.wake = -100; sky.storm = -100; sky.trail = -100;
+      sky.pendingWake = false; sky.storm = -100; sky.trail = -100;
       window.clearTimeout(decay); delete stage!.dataset.cosmicEnergy; delete stage!.dataset.cosmicPhase;
     }
     function draw(now: number) {
@@ -125,24 +125,26 @@ export function BuildAtmosphere({ reduced }: Readonly<{ reduced: boolean }>) {
       const still = reduced || motion.matches;
       if (!still) frame = requestAnimationFrame(draw);
       if (!still && previous && now - previous < 32) return;
-      if (still) clearActivation();
-      else {
+      // A frame's timestamp can precede a wake gesture queued in that frame.
+      const frameStarted = performance.now();
+      const wakeElapsed = Math.max(0, frameStarted - wakeStarted);
+      const visibleSeconds = (accumulatedVisibleMs + (visibleSince === null ? 0 : frameStarted - visibleSince)) / 1000;
+      if (!still) {
+        // Smooth star movement uses a bounded step; storms use visible elapsed time.
         sky.time += Math.min((now - (previous || now)) / 1000, .075);
-        // Activation uses the same wall clock as CSS/audio even if a paint stalls.
-        if (Number.isFinite(wakeStarted)) sky.wake = sky.time - (now - wakeStarted) / 1000;
-        advanceEvents(sky, random);
+        advanceEvents(sky, random, visibleSeconds, wakeElapsed);
       }
       previous = now;
       sky.offsetX += (pointerX - sky.offsetX) * .1; sky.offsetY += (pointerY - sky.offsetY) * .1;
-      const phase = activationPhase((sky.time - sky.wake) * 1000);
-      if (phase && !still) stage!.dataset.cosmicPhase = phase;
+      const phase = still ? null : activationPhase(wakeElapsed);
+      if (phase) stage!.dataset.cosmicPhase = phase;
       else delete stage!.dataset.cosmicPhase;
-      const energy = still ? 0 : Math.pow(Math.max(0, 1 - (sky.time - sky.wake) / 4.8), 1.5);
-      const paintStarted = performance.now();
+      const energy = phase ? Math.pow(1 - wakeElapsed / ACTIVATION_DURATION_MS, 1.5) : 0;
+      const renderStarted = performance.now();
       ctx!.clearRect(0, 0, sky.width, sky.height);
       nebula(ctx!, sky, energy); starfield(ctx!, sky, stars, energy, still);
-      if (!still) { shootingStar(ctx!, sky); lightning(ctx!, sky); activation(ctx!, sky, energy); }
-      paintTotal += performance.now() - paintStarted; paints++;
+      if (!still) { shootingStar(ctx!, sky); lightning(ctx!, sky, visibleSeconds); activation(ctx!, sky, phase, energy); }
+      paintTotal += performance.now() - renderStarted; paints++;
       surface!.dataset.motion = still ? 'stable' : 'animated';
       surface!.dataset.stars = String(sky.width < 700 ? 48 : stars.length);
       surface!.dataset.paints = String(paints);
@@ -150,8 +152,13 @@ export function BuildAtmosphere({ reduced }: Readonly<{ reduced: boolean }>) {
     }
     function refresh() {
       cancelAnimationFrame(frame); previous = 0;
-      if (document.hidden) { clearActivation(); return; }
-      frame = requestAnimationFrame(draw);
+      const now = performance.now();
+      if (document.hidden || reduced || motion.matches || !sky.width || !sky.height) {
+        if (visibleSince !== null) accumulatedVisibleMs += now - visibleSince;
+        visibleSince = null;
+        clearActivation();
+      } else visibleSince ??= now;
+      if (!document.hidden) frame = requestAnimationFrame(draw);
     }
     function resize() {
       bounds = stage!.getBoundingClientRect(); sky.width = surface!.clientWidth; sky.height = surface!.clientHeight;
@@ -167,7 +174,7 @@ export function BuildAtmosphere({ reduced }: Readonly<{ reduced: boolean }>) {
     const settle = () => { pointerX = 0; pointerY = 0; };
     const unsubscribe = listenAtmosphere((cue) => {
       if (cue !== 'wake' || reduced || motion.matches || document.hidden) return;
-      wakeStarted = performance.now(); sky.wake = sky.time; sky.pendingWake = true;
+      wakeStarted = performance.now(); sky.pendingWake = true;
       stage.dataset.cosmicEnergy = 'active'; stage.dataset.cosmicPhase = 'prepare';
       window.clearTimeout(decay); decay = window.setTimeout(clearActivation, ACTIVATION_DURATION_MS);
     });
