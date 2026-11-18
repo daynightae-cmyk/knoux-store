@@ -126,3 +126,42 @@
 @media (prefers-reduced-motion: reduce) {
   .pipelineStages [data-status='running'] i { animation: none; }
 }
+
+.agentLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr);
+  gap: 16px;
+}
+.agentDirectory { display: grid; align-content: start; gap: 8px; }
+.agentDirectory button, .agentProfile {
+  border: 1px solid #ae8ccb55;
+  border-radius: 10px;
+  color: #efe6fa;
+  background: #100b1bbf;
+  text-align: start;
+}
+.agentDirectory button {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-height: 46px;
+  padding: 10px;
+  cursor: pointer;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.agentDirectory small { color: #d3b9ed; font: 10px var(--font-mono, monospace); }
+.agentDirectory button[aria-pressed='true'] {
+  border-color: #caa1ee;
+  box-shadow: inset 0 0 18px #a65ee344;
+}
+.agentDirectory button:hover, .agentDirectory button:focus-visible { border-color: #dbb5ff; }
+.agentProfile {
+  padding: clamp(12px, 2vw, 22px);
+  background: radial-gradient(ellipse at 90% 0, #35214d75, #100b1bbf 75%);
+}
+.agentProfile h2 { margin: 6px 0 12px; }
+.agentProfile dd { overflow-wrap: anywhere; }
+@media (max-width: 720px) { .agentLayout { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .agentDirectory button { transition: none; } }
