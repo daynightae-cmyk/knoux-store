@@ -80,6 +80,36 @@
 /* ===== SplitView ===== */
 .splitView{position:relative;display:flex;flex-direction:column;height:100%;min-height:600px;background:#0a0b10;border:1px solid #b9a8d233;border-radius:16px;overflow:hidden;box-shadow:0 24px 80px #000a,inset 0 1px 0 #ffffff08}
 .splitViewHeader{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;border-bottom:1px solid #b9a8d222;background:linear-gradient(90deg,#1a1823cc,#0e1014e8);backdrop-filter:blur(12px);flex-shrink:0}
+.splitViewBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  padding: 14px;
+}
+.splitViewBody[data-view='split'] { grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); }
+.splitViewBody > div { min-width: 0; }
+.splitViewBody .splitViewPreview { display: block; }
+.splitViewBody .splitViewCode {
+  display: grid;
+  grid-template-columns: minmax(125px, .55fr) minmax(0, 1fr);
+  align-content: start;
+  min-height: 240px;
+  border: 1px solid #b298da70;
+  border-radius: 12px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 85% 0, #2b1c442f, transparent 66%), #100c19;
+}
+.splitViewBody .splitViewFileTree { width: auto; min-width: 0; max-width: none; }
+.splitViewBody .splitViewFileBtn { overflow-wrap: anywhere; }
+.splitViewBody .splitViewEditorContent { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 900px) {
+  .splitViewBody[data-view='split'] { grid-template-columns: minmax(0, 1fr); }
+  .splitViewHeader, .splitViewActions { flex-wrap: wrap; }
+}
+@media (max-width: 450px) {
+  .splitViewBody .splitViewCode { grid-template-columns: minmax(0, 1fr); }
+  .splitViewBody .splitViewFileTree { border-right: 0; border-bottom: 1px solid #b298da38; }
+}
 .splitViewBadge{font:10px var(--font-mono,monospace);letter-spacing:.1em;color:#c4b4da;padding:4px 10px;border:1px solid #b9a8d244;border-radius:999px;background:#0e1014e8;text-transform:uppercase}
 .splitViewTitle h2{margin:0;font-size:clamp(18px,2.5vw,24px);font-weight:500;color:#e8deef}
 .splitViewActions{display:flex;align-items:center;gap:8px}
@@ -127,4 +157,56 @@
 }
 @media(prefers-reduced-motion:reduce){
   .splitView *{animation:none !important;transition:none !important}
+}
+
+.profileTelemetry[data-intensive='true'] {
+  border-color: #ab81dc80;
+  background: radial-gradient(ellipse at 100% 0%, #9660e326, transparent 68%);
+}
+.profileMetrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 114px), 1fr));
+  gap: 6px;
+  margin: 8px 0 0;
+}
+.profileMetrics > div {
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid #af9fc139;
+  border-radius: 7px;
+  background: #100d1b8c;
+}
+.profileMetrics dt { color: #c6b6d6; font-size: 0.68rem; }
+.profileMetrics dd { margin: 3px 0 0; color: #f3e9ff; font-size: 0.75rem; }
+.modelOrbit {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid #9f73da65;
+  border-radius: 38% / 32%;
+  background: radial-gradient(ellipse, #ab78f43b, #21173320 70%);
+  box-shadow: inset 0 0 18px #ae74f229;
+}
+.modelOrbit button {
+  min-width: 0;
+  max-width: 100%;
+  display: grid;
+  gap: 3px;
+  justify-items: center;
+  padding: 6px 11px;
+  border: 1px solid #ac80cc8c;
+  border-radius: 20px;
+  background: #201630;
+  color: #f2e7ff;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+  transition: translate 180ms ease, box-shadow 180ms ease;
+}
+.modelOrbit small { color: #d6bdef; }
+.modelOrbit button:hover, .modelOrbit button:focus-visible { translate: 0 -2px; box-shadow: 0 0 18px #bf8cfa69; }
+@media (prefers-reduced-motion: reduce) {
+  .modelOrbit button { transition: none; }
+  .modelOrbit button:hover, .modelOrbit button:focus-visible { translate: none; }
 }

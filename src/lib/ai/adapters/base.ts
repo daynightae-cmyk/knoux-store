@@ -52,6 +52,28 @@ export type OpenAICompatibleConfig = {
   controls: ModelControls;
   /** Rate limit header prefixes to try. */
   rateLimitPrefixes?: string[];
+  /**
+   * Some vendors authenticate but do not publish a `/models` endpoint. When
+   * the key test gets 404/405, a one-token completion separates "wrong key"
+   * from "no listing endpoint" instead of reporting a false authentication
+   * failure and blocking the field in the browser.
+   */
+  probeCompletionModel?: string;
+  /** Published model identities for a vendor without a listing endpoint. */
+  staticModels?: string[];
+  /**
+   * `models` (default) proves the credential with the listing endpoint.
+   * `completion` uses a one-token chat request instead, for vendors whose
+   * `/models` is public and would answer 200 to any bearer token — a 200
+   * there would report a bad key as authenticated.
+   */
+  probeStrategy?: 'models' | 'completion';
+  /**
+   * `all` (default) requires every declared environment name; `any` treats the
+   * list as accepted aliases for the same credential (NVIDIA_API_KEY /
+   * NVIDIA_NIM_API_KEY).
+   */
+  envMode?: 'all' | 'any';
 };
 
 export abstract class OpenAICompatibleAdapter implements ProviderAdapter {

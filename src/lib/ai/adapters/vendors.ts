@@ -32,6 +32,10 @@ type VendorSpec = Omit<
   vision?: boolean;
   tools?: boolean;
   structuredOutput?: boolean;
+  probeCompletionModel?: string;
+  staticModels?: string[];
+  probeStrategy?: 'models' | 'completion';
+  envMode?: 'all' | 'any';
 };
 
 function spec(input: VendorSpec): OpenAICompatibleConfig {

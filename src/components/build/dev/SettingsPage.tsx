@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { PREFERENCES_KEY, type WorkspacePreferences } from '@/lib/build/preferences';
 import { DevPageHeading, DevPanel } from './DevUI';
+import styles from './operational-v3.module.css';
 
 /**
  * What a bridge check can honestly conclude.
@@ -45,7 +46,7 @@ export function SettingsPage() {
     if (bridge.kind === 'checking') return;
     setBridge({ kind: 'checking' });
     try {
-      const response = await fetch('/api/build/bridge/status', { cache: 'no-store' });
+      const response = await fetch('/api/build/bridge/status', { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
       if (response.status === 401) {
         setBridge({ kind: 'auth-required' });
         return;
@@ -76,7 +77,7 @@ export function SettingsPage() {
     try { const response = await fetch('/api/build/bridge/pair', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ url, code }) }); const result = await response.json(); if (!response.ok) throw new Error(result.message ?? 'Pairing failed.'); setCode(''); setMessage(`Bridge pairing recorded. Compare fingerprint ${result.fingerprint} with the trusted machine, then refresh status in the launcher.`); dispatch({ type: 'activity/record', message: 'Bridge pairing recorded' }); } catch (cause) { setMessage(cause instanceof Error ? cause.message : 'Pairing request failed.'); } finally { setBusy(false); }
   }
   const prefs = state.preferences;
-  return <div className="dev-route"><DevPageHeading eyebrow="WORKSPACE / SETTINGS" title="Settings" description="Non-secret display preferences in this browser, and authenticated bridge setup." detail="BROWSER-LOCAL PREFERENCES" /><div className="dev-route__grid"><DevPanel title="Workspace preferences"><div className="dev-settings-list">
+  return <div className={`dev-route ${styles.page} ${styles.settings}`} data-reduced={state.preferences.motion === "reduced" ? "" : undefined}><DevPageHeading eyebrow="WORKSPACE / SETTINGS" title="Settings" description="Non-secret display preferences in this browser, and authenticated bridge setup." detail="BROWSER-LOCAL PREFERENCES" /><div className="dev-route__grid"><DevPanel title="Workspace preferences"><div className="dev-settings-list">
     <label><span><strong>Compact lists & rail</strong><small>Reduce navigation and list spacing.</small></span><input type="checkbox" checked={prefs.compact} onChange={(e) => update({ ...prefs, compact: e.target.checked })} /></label>
     <label><span><strong>Show evidence detail</strong><small>Show application provenance rows.</small></span><input type="checkbox" checked={prefs.showEvidence} onChange={(e) => update({ ...prefs, showEvidence: e.target.checked })} /></label>
     <label><span><strong>Motion level</strong><small>System reduced-motion is always respected.</small></span><select value={prefs.motion} onChange={(e) => update({ ...prefs, motion: e.target.value === 'reduced' ? 'reduced' : 'auto' })}><option value="auto">System preference</option><option value="reduced">Stable composed mark</option></select></label>
@@ -86,6 +87,7 @@ export function SettingsPage() {
     <label><span><strong>Allow evidence exports</strong><small>Enable explicit Preview metadata downloads.</small></span><input type="checkbox" checked={prefs.evidence} onChange={(e) => update({ ...prefs, evidence: e.target.checked })} /></label>
   </div><p className="dev-note">Only these display preferences are persisted. Credentials and project contents are never stored here.</p></DevPanel>
   <DevPanel title="Trusted local bridge">
+    <div className={styles.bridgeMeter} data-state={bridge.kind} aria-hidden="true">{bridge.kind.replaceAll('-', ' ').toUpperCase()}</div>
     {/* Announced politely so a screen-reader user learns the outcome of the
         check without having to go looking for it. */}
     <div className="dev-note" role="status" aria-live="polite" style={{ padding: '14px 0' }}>

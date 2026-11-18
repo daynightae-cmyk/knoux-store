@@ -13,12 +13,16 @@ import { GenerationProfileRail } from '../generator/GenerationProfileRail';
 import { ModelControlsPanel } from '../generator/ModelControlsPanel';
 import { SplitView } from '../generator/SplitView';
 import { PlanSystemMap } from '../generator/PlanSystemMap';
+import { GenerationMonitor } from '../generator/GenerationMonitor';
+import previewStyles from '../generator/preview-workspace.module.css';
 import { profileToControls } from '@/lib/build/profile';
+import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
 import styles from '../generator/generator.module.css';
 import { consumePlanStream, parseEngineeringPlan, canFallbackPlanError, PlanStreamError, ENGINEERING_PLAN_SYSTEM, PLAN_SECTIONS, planPrompt, type EngineeringPlan, type EngineeringStage } from '@/lib/build/engineering-plan';
 import { QUICK_INTENTS } from './quick-intents';
 
 const Preview = dynamic(() => import('../surfaces/PreviewSurface').then((mod) => mod.PreviewSurface));
+const Code = dynamic(() => import('../surfaces/CodeSurface').then((mod) => mod.CodeSurface));
 const Registry = dynamic(() => import('./ProductMachine').then((mod) => mod.ProductMachine));
 
 const INTENT_ICON_PATHS: Record<string, string> = {
@@ -39,9 +43,11 @@ function IntentIcon({ label }: { label: string }) {
 export function DevWorkspaceHome() {
   const { state, dispatch } = useBuildWorkspace();
   const [draftOverride, setDraftOverride] = useState<string | null>(null);
-  const view = state.workspace.activeSurface === 'preview' ? 'preview' : state.workspace.activeSurface === 'data' ? 'registry' : 'build';
-  const setView = (view: 'build' | 'preview' | 'registry') => dispatch({ type: 'surface/active', surface: view === 'preview' ? 'preview' : view === 'registry' ? 'data' : 'genesis' });
+  const surface = state.workspace.activeSurface;
+  const view = surface === 'preview' || surface === 'code' ? surface : surface === 'data' ? 'registry' : 'build';
+  const setView = (view: 'build' | 'preview' | 'code' | 'registry') => dispatch({ type: 'surface/active', surface: view === 'build' ? 'genesis' : view === 'registry' ? 'data' : view });
   const input = useRef<HTMLTextAreaElement>(null);
+  const planPanel = useRef<HTMLElement>(null);
   const draft = draftOverride ?? state.intent?.rawInput ?? '';
   const facts = workspaceFacts(state);
   const attempt = useRef<string | null>(state.engineering.requestId);
@@ -51,6 +57,7 @@ export function DevWorkspaceHome() {
   const chosenModel = intelligence.models.find((model) => model.providerId === (selection?.providerId ?? state.ai.providerId) && model.modelId === (selection?.modelId ?? state.ai.modelId)) ?? null;
   const planning = ['RESOLVING', 'ROUTING', 'GENERATING'].includes(stage);
   const [showSplitView, setShowSplitView] = useState(false);
+  const [expandedPreview, setExpandedPreview] = useState(false);
 
   // Auto-grow the composer textarea so the full intent stays visible.
   useEffect(() => {
@@ -58,7 +65,13 @@ export function DevWorkspaceHome() {
     if (!target) return;
     target.style.height = 'auto';
     target.style.height = `${Math.max(target.scrollHeight, 72)}px`;
-  }, [draft, planning]);
+  }, [draft, planning, view]);
+
+  function reviewFromPreview() {
+    setStage('REVIEWING');
+    setView('build');
+    requestAnimationFrame(() => planPanel.current?.focus());
+  }
 
   async function compile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -117,7 +130,7 @@ export function DevWorkspaceHome() {
       <header className="dev-stage-head">
         <span className="dev-mini-label">KNOuX / ENGINEERING ENVIRONMENT</span>
         <div className="dev-stage-views" role="group" aria-label="Workspace view">
-          {(['build', 'preview', 'registry'] as const).map((item) => <button key={item} type="button" aria-pressed={view === item} onClick={() => setView(item)}>{item.toUpperCase()}</button>)}
+          {(['build', 'preview', 'code', 'registry'] as const).map((item) => <button key={item} type="button" aria-pressed={view === item} onClick={() => setView(item)}>{item.toUpperCase()}</button>)}
         </div>
       </header>
       <details className="dev-context-rail" open><summary><span>{state.project?.name ?? 'Project not connected'}</span><span>{state.git?.branch ?? 'No branch'}</span><span>{state.engineering.host?.name ?? 'Host unmeasured'}</span><span>KNOuX Architect</span><span>{selection?.modelId ?? state.ai.modelId ?? 'Model per request'}</span><span>{state.ai.routingMode.toUpperCase()}</span><b>Context ↓</b></summary><dl className="dev-home-context"><div><dt>PROJECT / WORKTREE</dt><dd>{state.project?.root ?? 'NOT CONNECTED'}</dd></div><div><dt>HOST</dt><dd>{state.engineering.host?.kind ?? facts.environment}</dd></div><div><dt>PROVIDER</dt><dd>{facts.provider}</dd></div><div><dt>AGENT / TOOLS</dt><dd>Logical planning profile · provider planning only</dd></div></dl></details>
@@ -126,7 +139,12 @@ export function DevWorkspaceHome() {
         <div className="dev-build-center">
           <p className="dev-build-center__eyebrow">KNOuX BUILD</p>
           <h1>What are we building today?</h1>
-          <div className="dev-engine" data-stage={stage}><p><span role="status">ENGINE / {stage}</span><small aria-live="off">{planning ? `${characters.toLocaleString()} characters received` : stage === 'LISTENING' ? 'Describe a system. Resolve its architecture.' : stage === 'PLANNED' ? 'Proposal ready · review before execution' : stage === 'AUTH_REQUIRED' ? 'Provider access requires an authorized account' : stage === 'EXECUTOR_NOT_CONNECTED' ? 'Plan retained · trusted execution required' : 'Canonical engineering state'}</small></p></div>
+          <div className="dev-engine" data-stage={stage} data-reduced={state.preferences.motion === 'reduced' ? '' : undefined}>
+            <svg className="dev-engine__glyph" viewBox={`0 0 ${MARK_VIEW_BOX.width} ${MARK_VIEW_BOX.height}`} aria-hidden="true">
+              {MARK_PATHS.map(({ id, d }) => <path key={id} d={d} />)}
+            </svg>
+            <p><span role="status">ENGINE / {stage}</span><small aria-live="off">{planning ? `${characters.toLocaleString()} characters received` : stage === 'LISTENING' ? 'Describe a system. Resolve its architecture.' : stage === 'PLANNED' ? 'Proposal ready · review before execution' : stage === 'AUTH_REQUIRED' ? 'Provider access requires an authorized account' : stage === 'EXECUTOR_NOT_CONNECTED' ? 'Plan retained · trusted execution required' : 'Canonical engineering state'}</small></p>
+          </div>
           <div className="dev-composer-routing">
             <ComposerModelPicker
               models={intelligence.models}
@@ -158,11 +176,25 @@ export function DevWorkspaceHome() {
           <div className="dev-intent-reading" role="status">{state.intent ? summariseIntent(state.intent) : 'Describe your next system to compile its intent.'}</div>
         </div>
         <div className="dev-universe__caption"><span>PROJECT CONSTELLATION</span><button type="button" onClick={() => setView('registry')}>EXPLORE {facts.registryCount} PRODUCTS ↗</button></div>
-      </div> : <div className="dev-stage-surface"><h1 className="dev-surface-title">{view === 'preview' ? 'Project preview' : 'Product constellation'}</h1>{view === 'preview' ? <Preview cinematic /> : <Registry />}</div>}
-      {planError ? <p className="dev-plan-error" role="alert">{planError} <Link href="/build/providers">Inspect providers ↗</Link></p> : null}
-      {!plan && draftPlan && Object.keys(draftPlan).length ? <PlanSystemMap plan={draftPlan} draft /> : null}
-      {plan ? <>
-          <section className="dev-engineering-plan" aria-label="Engineering plan">
+      </div> : view === 'preview' ? (
+        <div className={previewStyles.workspace} data-reduced={state.preferences.motion === 'reduced' ? '' : undefined}>
+          <header className={previewStyles.workspaceHeading}>
+            <div><span>BUILD / GENERATION</span><h1>Project preview</h1><p>Inspect the runtime while you plan and review changes.</p></div>
+            <button type="button" className="bo-chip" aria-pressed={expandedPreview} onClick={() => setExpandedPreview((expanded) => !expanded)}>
+              {expandedPreview ? 'Show generation panel' : 'Expand preview'}
+            </button>
+          </header>
+          <div className={previewStyles.layout} data-expanded={expandedPreview}>
+            <section className={previewStyles.preview} aria-label="Preview workspace"><Preview cinematic workspace /></section>
+            <GenerationMonitor draft={draft} onDraft={setDraftOverride} onCompile={(event) => void compile(event)} planning={planning} onReview={reviewFromPreview} />
+          </div>
+        </div>
+      ) : view === 'code' ? <div className={previewStyles.workspace}><header className={previewStyles.workspaceHeading}><div><span>BUILD / CHECKOUT</span><h1>Code Constellation</h1><p>Inspect the real source and file metadata for this checkout.</p></div></header><Code /></div>
+        : <div className="dev-stage-surface"><h1 className="dev-surface-title">Product constellation</h1><Registry /></div>}
+      {planError && view === 'build' ? <p className="dev-plan-error" role="alert">{planError} <Link href="/build/providers">Inspect providers ↗</Link></p> : null}
+      {view === 'build' && !plan && draftPlan && Object.keys(draftPlan).length ? <PlanSystemMap plan={draftPlan} draft /> : null}
+      {plan && view === 'build' ? <>
+          <section ref={planPanel} tabIndex={-1} className="dev-engineering-plan" aria-label="Engineering plan">
             <header><div><span className="dev-mini-label">ENGINEERING ARTIFACT / PROPOSAL</span><h2>From intent to architecture.</h2></div><div style={{display:'flex',gap:'12px',flexWrap:'wrap',alignItems:'center'}}><button type="button" className="dev-neon-btn dev-neon-btn--ghost" onClick={() => setStage('REVIEWING')}>Review plan</button><button type="button" className="dev-neon-btn dev-neon-btn--primary" onClick={() => setShowSplitView(true)}><span aria-hidden="true">▦</span> Open Preview & Code</button></div></header>
             <dl className="dev-plan-context"><div><dt>Agent</dt><dd>KNOuX Architect · logical planning profile</dd></div><div><dt>Runtime / profile</dt><dd>{selection?.providerId} / {selection?.modelId} · {requested?.profile}</dd></div><div><dt>Worktree</dt><dd>{state.engineering.context?.worktree ?? 'No worktree connected'}</dd></div><div><dt>Measurements</dt><dd>{measurement?.latencyMs ?? 'UNKNOWN'} ms · input {measurement?.usage?.inputTokens ?? 'UNKNOWN'} / output {measurement?.usage?.outputTokens ?? 'UNKNOWN'} tokens · cost {measurement?.estimatedCost?.amount != null ? `${measurement.estimatedCost.basis} ${measurement.estimatedCost.amount} ${measurement.estimatedCost.currency}` : 'UNKNOWN'}</dd></div></dl>
             <p className={styles.note}>Session-only proposal: retained while navigating Build; a new request or page reload clears it. No plan is stored on the server.</p>

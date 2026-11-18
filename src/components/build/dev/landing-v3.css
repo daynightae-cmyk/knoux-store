@@ -67,8 +67,36 @@
 }
 
 .dev-shell--landing .dev-engine::after { height: 47%; border-color: #ae87e02d; }
+.dev-shell--landing .dev-engine[data-stage='PLANNED']::before { border-color: #e5d6faba; box-shadow: 0 0 24px #b69aef65; }
+.dev-shell--landing .dev-engine:not([data-reduced]):is([data-stage='RESOLVING'],[data-stage='ROUTING'],[data-stage='GENERATING'])::before {
+  animation: dev-engine-orbit 2.8s ease-in-out infinite;
+}
+
+@keyframes dev-engine-orbit {
+  0%, 100% { border-color: #c394fc6e; box-shadow: 0 0 14px #9f5ce13d; }
+  50% { border-color: #ead3ffca; box-shadow: 0 0 24px #b274f891; }
+}
+
 .dev-shell--landing .dev-engine p { gap: 4px; }
+.dev-engine__glyph {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  bottom: 37px;
+  width: auto;
+  height: 152px;
+  transform: translateX(-50%);
+  overflow: visible;
+  fill: #b57bf22e;
+  stroke: #ead2ff;
+  stroke-width: 3;
+  filter: drop-shadow(0 0 9px #b16dff) drop-shadow(0 0 22px #9749fc);
+  pointer-events: none;
+}
+
+.dev-shell__stage:has(.dev-living-mark canvas[data-motion]) .dev-engine__glyph { visibility: hidden; }
 .dev-shell--landing .dev-living-mark { opacity: 1; }
+.dev-shell--landing .dev-living-mark canvas { filter: drop-shadow(0 0 8px #ab72fc9e); }
 .dev-cinematic.dev-shell--landing .dev-composer-routing { margin: 7px 0 0; }
 .dev-shell--landing .dev-composer-routing button { border-color: #bc8df16b; }
 
@@ -117,6 +145,7 @@
   .dev-cinematic.dev-shell--landing .dev-context-rail .dev-home-context { gap: 8px 12px; }
   .dev-shell--landing .dev-build-center__eyebrow { padding: 0; }
   .dev-cinematic.dev-shell--landing .dev-build-center h1 { margin-inline: 0; width: 100%; }
+  .dev-engine__glyph { height: 126px; }
   .dev-shell--landing .dev-compose-actions { gap: 0; }
   .dev-cinematic.dev-shell--landing .dev-floating-compose { padding-inline: 9px; }
 }
