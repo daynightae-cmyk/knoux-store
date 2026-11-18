@@ -1,11 +1,12 @@
 import { softwareProducts } from '@/data/software';
 import type { BuildWorkspaceState } from '@/lib/build/workspace-state';
+import { currentWorkspaceVerificationChecks } from './verification-results';
 
 /** A display projection of observed facts; no status is promoted to success. */
 export function workspaceFacts(state: BuildWorkspaceState) {
   const refused = state.access === 'refused';
   const provider = state.ai.providers.find((item) => item.id === state.ai.providerId);
-  const checks = state.verification?.checks ?? [];
+  const checks = currentWorkspaceVerificationChecks(state);
   const measured = state.engineering.selection;
   const generationState = state.engineering.plan ? 'GENERATION_VERIFIED' : state.engineering.stage;
   return {

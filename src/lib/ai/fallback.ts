@@ -3,7 +3,7 @@ import { providerModelAllowed, providerAutomatic } from "./provider-os/runtime-c
 import type { GenerationResponse } from './types';
 import { getAdapter, getDiscoveryCache, updateHealth } from "./registry";
 import { profileToControls } from '../build/profile';
-import { estimateTokens } from './contract';
+import { cancelledGenerationResponse, estimateTokens } from './contract';
 import { recordUsage } from "./usage";
 import type { GenerationRequest } from "./types";
 
@@ -45,7 +45,9 @@ export async function generateWithFallback(
   env: Record<string, string | undefined>,
   fallbackChain: { providerId: string; modelId: string }[] = [],
   noFallback = false,
+  signal?: AbortSignal,
 ): Promise<FallbackResult> {
+  const started = Date.now();
   const chain = [
     { providerId: request.providerId, modelId: request.modelId },
     ...(noFallback ? [] : fallbackChain),
@@ -61,6 +63,16 @@ export async function generateWithFallback(
   let controlsUsed: GenerationRequest['controls'] | null = null;
 
   for (let i = 0; i < chain.length; i++) {
+    if (signal?.aborted) {
+      return {
+        actualProviderId, actualModelId, routedModelId, controlsUsed,
+        response: cancelledGenerationResponse(Date.now() - started, lastResponse ?? undefined),
+        fallbackUsed: fallbackCount > 0,
+        fallbackFrom,
+        fallbackChain: chain.slice(0, i),
+        fallbackCount,
+      };
+    }
     const { providerId, modelId } = chain[i];
     const adapter = getAdapter(providerId);
     if (!adapter || !providerModelAllowed(providerId, modelId) || (i > 0 && !providerAutomatic(providerId))) {
@@ -75,10 +87,21 @@ export async function generateWithFallback(
     };
     controlsUsed = actualRequest.controls ?? null;
     fallbackCount = attempts++;
-    const response = await adapter.generate(actualRequest, env);
-    lastResponse = response;
     actualProviderId = providerId;
     routedModelId = modelId;
+    let response: GenerationResponse;
+    try {
+      response = await adapter.generate(actualRequest, env, signal);
+    } catch (cause) {
+      if (!signal?.aborted && !(cause instanceof Error && cause.name === 'AbortError')) throw cause;
+      response = cancelledGenerationResponse(Date.now() - started);
+    }
+    // An adapter can ignore the signal or return a retryable failure after abort.
+    // Neither result may escape as success or trigger another charged attempt.
+    if (signal?.aborted || response.error?.category === 'ABORTED') {
+      response = cancelledGenerationResponse(response.latencyMs, response);
+    }
+    lastResponse = response;
     actualModelId = response.modelUsed ?? null;
 
     // Record usage
@@ -97,6 +120,18 @@ export async function generateWithFallback(
       errorCategory: response.error?.category ?? null,
       fallbackCount,
     });
+
+    if (response.error?.category === 'ABORTED') {
+      // Cancellation is a request outcome, not evidence of provider health.
+      return {
+        actualProviderId, actualModelId, routedModelId, controlsUsed,
+        response,
+        fallbackUsed: fallbackCount > 0,
+        fallbackFrom,
+        fallbackChain: chain.slice(0, i),
+        fallbackCount,
+      };
+    }
 
     if (response.ok) {
       // Update health: generation verified

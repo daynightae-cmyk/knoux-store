@@ -66,7 +66,26 @@
 .compose :is(textarea, select):focus-visible { outline: 2px solid #d8b3ff; outline-offset: 2px; }
 .composeActions { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 10px; }
 .composeActions label { display: grid; gap: 5px; }
-.composeActions button { min-height: 40px; color: #f3e7ff; background: linear-gradient(130deg, #51327a, #2d194b); }
+.composeActions button, .monitor :global(.bo-chip), .desktopControls button { min-height: 44px; color: #f3e7ff; background: linear-gradient(130deg, #51327a, #2d194b); }
+.cancelButton, :global(.dev-cinematic) :global(.dev-compose-actions) button.cancelButton[type='button'] {
+  width: auto; height: auto; min-width: 44px; min-height: 44px; padding: 10px 14px;
+  border: 1px solid #d6b0f0; border-radius: 9px; color: #f7eaff;
+  background: linear-gradient(135deg, #51345f, #2b183e); font: 12px/1.4 var(--font-mono, monospace); cursor: pointer;
+}
+.cancelButton:focus-visible, .monitor button:focus-visible { outline: 2px solid #e5c2ff; outline-offset: 3px; }
+.homeTools, .homeActions { flex-wrap: wrap; }
+.lifecycle { margin: 16px 0; text-align: start; min-width: 0; }
+.lifecycle h3 { margin: 0 0 5px; color: #f3e2ff; font-size: 14px; font-weight: 550; }
+.lifecycle > p { margin: 0 0 10px; color: #cfbedf; font-size: 12px; line-height: 1.5; }
+.lifecycle ol { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 145px), 1fr)); gap: 7px; list-style: none; padding: 0; margin: 0; }
+.lifecycle li { min-width: 0; display: grid; align-content: start; gap: 6px; padding: 11px; border: 1px solid #a782c34d; border-radius: 9px; background: radial-gradient(ellipse at 100% 0, #7549a32b, transparent 70%), #170f24; overflow-wrap: anywhere; }
+.lifecycle strong { color: #f1e2ff; font-size: 12px; font-weight: 550; }
+.lifecycle li > span { color: #d5b7ee; font: 10px/1.5 var(--font-mono, monospace); }
+.lifecycle small { color: #cebedb; font-size: 11px; line-height: 1.5; }
+.lifecycle li[data-status='IN PROGRESS'], .lifecycle li[data-status='READY FOR REVIEW'] { border-color: #cf9ef1; background-color: #2a193d; }
+.lifecycle li[data-status='PASS'], .lifecycle li[data-status='MEASURED OUTCOMES'] { border-color: #a99cdb; }
+.lifecycle li[data-status='FAIL'], .lifecycle li[data-status='CANCELLED'], .lifecycle li[data-status='BLOCKED'] { border-color: #e2a7c6; }
+.lifecycle li[data-status='FAIL'] > span, .lifecycle li[data-status='CANCELLED'] > span { color: #ffd4e8; }
 .composeActions button:disabled { opacity: .56; }
 .facts { display: grid; grid-template-columns: .75fr 1fr 1.25fr; gap: 9px; margin: 16px 0; }
 .facts div { min-width: 0; border: 1px solid #b99ad538; background: #20162d89; border-radius: 9px; padding: 8px 10px; }
@@ -136,7 +155,7 @@
 @media (max-width: 900px) {
   .workspaceHeading .desktopControls { display: none; }
   .compactControls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-  .compactControls button { min-height: 42px; border: 1px solid #b395d364; border-radius: 9px; background: #130d22; }
+  .compactControls button { min-height: 44px; border: 1px solid #b395d364; border-radius: 9px; background: #130d22; }
   .compactControls button[aria-pressed='true'] { border-color: #d4a7ff; box-shadow: inset 0 0 15px #b671ed49; color: #fff; }
   .layout, .layout[data-expanded='true'] { display: block; }
   .layout[data-expanded] .monitor { display: block; }

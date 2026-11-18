@@ -82,7 +82,8 @@ export function AiModelsPage() {
     source: model.source === "LIVE" && entry.source === "CACHED_LIVE" ? entry.source : model.source,
     discoveredAt: model.discoveredAt ?? entry.discoveredAt,
   })));
-  const providers = [...new Set(data.filter((entry) => entry.models.length).map((entry) => entry.providerId))].sort();
+  const providers = [...new Set(data.filter((entry) => entry.models.length).map((entry) => entry.providerId))]
+    .sort((a, b) => modelNameOrder.compare(a, b));
   const providerFilter = providers.includes(provider) ? provider : "";
   const filtered = searchModels(models, filter, providerFilter, capability ? capability as keyof NormalizedModel["capabilities"] : undefined)
     .sort((a, b) => (descending ? -1 : 1) * modelNameOrder.compare(a.displayName, b.displayName));

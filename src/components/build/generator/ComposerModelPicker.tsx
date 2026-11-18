@@ -2,7 +2,7 @@
 import { Fragment, useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import Image from 'next/image';
 import type { NormalizedModel, ProviderHealth } from '@/lib/ai/types';
-import { providerState, searchModels } from '@/lib/build/model-search';
+import { modelPriceLabel, providerState, searchModels } from '@/lib/build/model-search';
 import styles from './generator.module.css';
 import { providerMark } from '../providers/provider-marks';
 import { cueAtmosphere } from '../dev/living-atmosphere';
@@ -65,9 +65,6 @@ export function ComposerModelPicker({
   const flatOptions = groups.flatMap((group) => group.models);
   const index = Math.min(active, Math.max(0, flatOptions.length - 1));
   const focusedModel = chosen ?? flatOptions[index];
-
-  const isFree = (model: NormalizedModel) =>
-    model.pricing.inputPerMillion === 0 && model.pricing.outputPerMillion === 0;
 
   const close = () => { setOpen(false); trigger.current?.focus(); };
 
@@ -237,9 +234,12 @@ export function ComposerModelPicker({
                               CATALOG ONLY
                             </span>
                           )}
-                          {isFree(model) && <span className={styles.composerPickerBadgeFree} title="Free model">FREE</span>}
-                          {!isFree(model) && eligible(model) && (
-                            <span className={styles.composerPickerBadgePlan} title="Paid plan model">PLAN</span>
+                          {modelPriceLabel(model) === 'FREE' && <span className={styles.composerPickerBadgeFree} title="Published zero input and output pricing">FREE</span>}
+                          {modelPriceLabel(model) === 'PLAN' && eligible(model) && (
+                            <span className={styles.composerPickerBadgePlan} title="Published paid model pricing">PLAN</span>
+                          )}
+                          {modelPriceLabel(model) === 'PRICE UNKNOWN' && (
+                            <span className={styles.composerPickerBadgeStatic} title="Pricing has not been reported">PRICE UNKNOWN</span>
                           )}
                           {model.source === 'STATIC' && (
                             <span className={styles.composerPickerBadgeStatic} title="Published identity · key required">

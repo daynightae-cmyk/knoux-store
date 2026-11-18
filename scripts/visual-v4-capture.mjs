@@ -15,7 +15,7 @@ const directory = join(root, 'references/visual-v4-verified', phase + (quick ? '
 await mkdir(directory, { recursive: true });
 const viewports = [[1904,880],[1600,1000],[1440,900],[1366,768],[1280,800],[1024,1366],[820,1180],[768,1024],[430,932],[390,844],[375,812],[360,800]];
 const routes = ['/', '/products', '/products/knoux-one', '/build', '/build/providers', '/build/ai/models', '/build/ai/router', '/build/terminal', '/build/engineering', '/command', '/command/analytics', '/command/google', '/command/social', '/command/campaigns', '/command/reports', '/command/leads', '/command/clients', '/command/connections', '/command/communities', '/command/automations', '/command/intelligence', '/command/creative', '/command/settings', '/growth', '/wordpress', '/creative', '/creative/art-direction', '/creative/brand-identity', '/web', '/engineering', '/solutions', '/login', '/register', '/account'];
-const buildDirectory = resolve(root, '.next');
+const buildDirectory = resolve(root, process.env.NEXT_DIST_DIR ?? '.next');
 const nextVersion = JSON.parse(await readFile(join(root,'node_modules/next/package.json'),'utf8')).version;
 const disk = await inspectBuild(buildDirectory);
 const server = await startOwnedServer(root, Number(process.env.KNOUX_V4_PORT ?? 4470));

@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import * as nodeFs from 'node:fs';
 import * as nodePath from 'node:path';
 import * as nodeChildProcess from 'node:child_process';
+import * as nodeCrypto from 'node:crypto';
 import ts from 'typescript';
 import { root } from './helpers.mjs';
 
@@ -40,9 +41,11 @@ function load(relativePath, dependencies = {}) {
     'node:fs': nodeFs,
     'node:path': nodePath,
     'node:child_process': nodeChildProcess,
+    'node:crypto': nodeCrypto,
   };
   const req = (specifier) => {
     if (specifier in dependencies) return dependencies[specifier];
+    if (specifier === '../security/redact') return load('src/lib/security/redact.ts');
     if (specifier in builtins) return builtins[specifier];
     throw new Error(`Unexpected dependency: ${specifier}`);
   };

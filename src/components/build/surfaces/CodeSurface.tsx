@@ -18,6 +18,7 @@ import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { Blocked, Empty, Pane, Section, StatusBadge } from '../workspace/Primitives';
 import { tokenize } from '@/lib/build/tokenizer';
 import type { SourceFileEntry } from '@/lib/build/types';
+import { currentWorkspaceVerificationChecks } from '../dev/verification-results';
 import styles from '../generator/code-constellation.module.css';
 
 type FileResponse = {
@@ -50,6 +51,7 @@ export function CodeSurface() {
   const fileRequest = useRef<AbortController | null>(null);
 
   const capabilities = state.adapter.capabilities;
+  const currentChecks = currentWorkspaceVerificationChecks(state);
   const files = state.snapshot?.files ?? EMPTY_FILES;
   const loading = !state.snapshot && (state.status === 'idle' || state.status === 'loading');
   const readOnlyReason = state.adapter.blockers['project.write'] ?? null;
@@ -283,10 +285,10 @@ export function CodeSurface() {
             <dt>Planning state</dt><dd>{state.engineering.stage.replaceAll('_', ' ')}</dd>
             <dt>Project writes</dt><dd>{capabilities['project.write'] === 'available' ? 'Available' : 'Read-only workspace'}</dd>
           </dl>
-          <h4>Verification output</h4>
-          {state.verification?.checks.length ? <ul>
-            {state.verification.checks.map((check) => <li key={check.id}><strong>{check.label}</strong><span>{check.status}</span></li>)}
-          </ul> : <p>No verification output in this session.</p>}
+          <h4>Current checkout verification</h4>
+          {currentChecks.length ? <ul>
+            {currentChecks.map((check) => <li key={check.id}><strong>{check.label}</strong><span>{check.status}</span></li>)}
+          </ul> : <p>No verification belongs to the current clean checkout. Bounded task output is available in Build pipeline.</p>}
         </aside>
       </div>
     </Pane>

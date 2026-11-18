@@ -18,6 +18,8 @@ import {
   type RateLimitSnapshot,
   type NormalizedError,
   unknownPricing,
+  cancelledGenerationResponse,
+  generationSignal,
 } from "../contract";
 import type { DiscoveryResult, NormalizedModel, ModelControls } from "../types";
 
@@ -317,8 +319,10 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
   async generate(
     request: GenerationRequest,
     env: Record<string, string | undefined>,
+    signal?: AbortSignal,
   ): Promise<GenerationResponse> {
     const start = Date.now();
+    if (signal?.aborted) return cancelledGenerationResponse();
     const apiKey = this.getApiKey(env);
     if (!apiKey) {
       return this.errorResponse(
@@ -336,18 +340,22 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
     }
 
     const body = this.buildRequestBody(request, false);
+    const transportSignal = generationSignal(signal);
     try {
+      transportSignal.throwIfAborted();
       const response = await this.transportFetch(`${this.baseUrl(env)}/chat/completions`, {
         method: "POST",
         headers: this.buildHeaders(apiKey),
         body: JSON.stringify(body),
         redirect: "error",
-        signal: AbortSignal.timeout(120000),
+        signal: transportSignal,
         cache: "no-store",
       });
+      transportSignal.throwIfAborted();
       const latencyMs = Date.now() - start;
       if (!response.ok) {
         const bodyText = await response.text().catch(() => null);
+        transportSignal.throwIfAborted();
         return this.errorResponse(
           normalizeError(response.status, bodyText),
           latencyMs,
@@ -355,14 +363,18 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
         );
       }
       const json = await response.json();
-      return this.parseCompletionResponse(json, latencyMs, request);
+      const measured = this.parseCompletionResponse(json, Date.now() - start, request);
+      if (signal?.aborted) return cancelledGenerationResponse(Date.now() - start, measured);
+      transportSignal.throwIfAborted();
+      return measured;
     } catch (cause) {
       const latencyMs = Date.now() - start;
-      if (cause instanceof DOMException && cause.name === "TimeoutError") {
+      if (signal?.aborted) return cancelledGenerationResponse(latencyMs);
+      if (cause instanceof Error && cause.name === "TimeoutError") {
         return this.errorResponse(timeoutError(), latencyMs, request.modelId);
       }
-      if (cause instanceof DOMException && cause.name === "AbortError") {
-        return this.errorResponse(abortedError(), latencyMs, request.modelId);
+      if (cause instanceof Error && cause.name === "AbortError") {
+        return cancelledGenerationResponse(latencyMs);
       }
       return this.errorResponse(
         networkError(cause instanceof Error ? cause.message : "Network error"),
@@ -378,6 +390,7 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
     signal?: AbortSignal,
   ): AsyncGenerator<StreamChunk, void, void> {
     const start = Date.now();
+    if (signal?.aborted) { yield this.streamError(abortedError(), 0); return; }
     const apiKey = this.getApiKey(env);
     if (!apiKey) {
       yield this.streamError({
@@ -438,12 +451,15 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
         }
       }
 
+      signal?.throwIfAborted();
       yield { ...this.streamComplete(start, firstTokenTime, finishReason, usage), modelUsed };
     } catch (cause) {
       yield this.streamError(
-        cause instanceof DOMException && cause.name === "AbortError"
+        signal?.aborted || (cause instanceof Error && cause.name === "AbortError")
           ? abortedError()
-          : networkError(cause instanceof Error ? cause.message : "Network error"),
+          : cause instanceof Error && cause.name === "TimeoutError"
+            ? timeoutError()
+            : networkError(cause instanceof Error ? cause.message : "Network error"),
         Date.now() - start, firstTokenTime, finishReason, usage,
       );
     }
@@ -459,16 +475,20 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
     noBodyMessage = "No response body",
     noBodySafeMessage = "Provider returned no body.",
   ): AsyncGenerator<string | StreamChunk, void, void> {
+    const transportSignal = generationSignal(signal);
+    transportSignal.throwIfAborted();
     const response = await this.transportFetch(url, {
       method: "POST",
       headers: this.buildHeaders(apiKey),
       body: JSON.stringify(body),
       redirect: "error",
-      signal: signal ?? AbortSignal.timeout(120000),
+      signal: transportSignal,
       cache: "no-store",
     });
+    transportSignal.throwIfAborted();
     if (!response.ok) {
       const bodyText = await response.text().catch(() => null);
+      transportSignal.throwIfAborted();
       yield this.streamError(normalizeError(response.status, bodyText), Date.now() - start);
       return;
     }
@@ -486,16 +506,24 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop() ?? "";
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (trimmed.startsWith("data: ")) yield trimmed.slice(6);
+    try {
+      while (true) {
+        transportSignal.throwIfAborted();
+        const { done, value } = await reader.read();
+        transportSignal.throwIfAborted();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          transportSignal.throwIfAborted();
+          const trimmed = line.trim();
+          if (trimmed.startsWith("data: ")) yield trimmed.slice(6);
+        }
       }
+    } finally {
+      await reader.cancel().catch(() => {});
+      reader.releaseLock();
     }
   }
 

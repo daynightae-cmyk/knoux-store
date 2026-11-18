@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { useRef, useState, type CSSProperties, type FormEvent, useEffect } from 'react';
+import { useRef, useState, type CSSProperties, type FormEvent, useEffect, useLayoutEffect } from 'react';
+import type { NormalizedModel } from '@/lib/ai/types';
+import type { EngineeringSession } from '@/lib/build/engineering-plan';
 import { compileBuildIntent, summariseIntent } from '@/lib/build/intent';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { BuildEntryGate } from './BuildEntryGate';
@@ -13,7 +15,7 @@ import { GenerationProfileRail } from '../generator/GenerationProfileRail';
 import { ModelControlsPanel } from '../generator/ModelControlsPanel';
 import { SplitView } from '../generator/SplitView';
 import { PlanSystemMap } from '../generator/PlanSystemMap';
-import { GenerationMonitor } from '../generator/GenerationMonitor';
+import { GenerationMonitor, GenerationLifecycleRail, generationCheckoutScope, scopedEngineeringSession } from '../generator/GenerationMonitor';
 import previewStyles from '../generator/preview-workspace.module.css';
 import { profileToControls } from '@/lib/build/profile';
 import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
@@ -40,6 +42,93 @@ function IntentIcon({ label }: { label: string }) {
   );
 }
 
+type GenerationRequest = { id: string; scope: string; controller: AbortController };
+
+/** Acquired before the first await; an old finally can never release a newer lock. */
+export function createGenerationRequestLock() {
+  let active: GenerationRequest | null = null;
+  return {
+    start(scope: string) {
+      if (active) return null;
+      active = { id: crypto.randomUUID(), scope, controller: new AbortController() };
+      return active;
+    },
+    peek: () => active,
+    isCurrent: (request: GenerationRequest, scope: string) => active === request && request.scope === scope && !request.controller.signal.aborted,
+    cancel(request = active) {
+      if (!request || active !== request) return null;
+      active = null;
+      request.controller.abort();
+      return request;
+    },
+    finish(request: GenerationRequest) { if (active === request) active = null; },
+  };
+}
+
+/** The shipped request pipeline, also exercised with deferred transports in tests. */
+export async function generateEngineeringProposal({ request, requirement, mode, profile, manualSelection, models, messages, isCurrent, update, record }: {
+  request: GenerationRequest;
+  requirement: string;
+  mode: 'auto' | 'manual';
+  profile: NonNullable<EngineeringSession['requested']>['profile'];
+  manualSelection: { providerId: string | null; modelId: string | null };
+  models: NormalizedModel[];
+  messages: { role: string; content: string }[];
+  isCurrent: () => boolean;
+  update: (patch: Partial<EngineeringSession>) => void;
+  record: (message: string) => void;
+}) {
+  const signal = request.controller.signal;
+  const assertCurrent = () => { if (!isCurrent() || signal.aborted) throw new DOMException('Planning request cancelled or superseded.', 'AbortError'); };
+  const post = async (url: string, body: unknown) => {
+    assertCurrent();
+    const response = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal });
+    assertCurrent();
+    return response;
+  };
+  try {
+    const prepared = await post('/api/build/ai/prepare', { prompt: requirement, mode, generationProfile: profile, manualSelection });
+    if (prepared.status === 401 || prepared.status === 403) { update({ stage: 'AUTH_REQUIRED', error: 'Sign in with an authorized Build account to use the provider runtime.' }); return; }
+    if (!prepared.ok) throw new Error(prepared.status === 400 ? 'Select a discovered provider/model for MANUAL routing.' : 'The canonical provider runtime could not resolve this request.');
+    const runtime = await prepared.json();
+    assertCurrent();
+    if (!runtime.decision?.selected) { update({ stage: runtime.state === 'CONFIG_REQUIRED' ? 'CONFIG_REQUIRED' : 'PROVIDER_BLOCKED', error: runtime.decision?.blocker ?? 'No runtime-eligible provider is available.' }); return; }
+    const selected = runtime.decision.selected as { providerId: string; modelId: string };
+    update({ selection: { ...selected, reasons: runtime.decision.reasons }, stage: 'ROUTING' });
+    const selectedModel = models.find((model) => model.providerId === selected.providerId && model.modelId === selected.modelId);
+    const controls = profileToControls(profile, selectedModel).controls;
+    const stream = await post('/api/build/ai/stream', { ...selected, generationProfile: profile, system: ENGINEERING_PLAN_SYSTEM, messages, controls });
+    if (stream.status === 401 || stream.status === 403) { update({ stage: 'AUTH_REQUIRED', error: 'The runtime refused access. No plan was generated.' }); return; }
+    if (!stream.ok || !stream.body) throw new Error('The provider stream could not be opened.');
+    update({ stage: 'GENERATING' });
+    try {
+      const result = await consumePlanStream(stream.body, (characters) => { if (isCurrent()) update({ characters }); }, (draftPlan) => { if (isCurrent()) update({ draftPlan }); }, (streamText) => { if (isCurrent()) update({ streamText }); });
+      assertCurrent();
+      update({ plan: result.plan, measurement: result.terminal, stage: 'PLANNED' });
+      record(`Engineering plan generated by ${selected.providerId}/${selected.modelId}. No project mutations.`);
+    } catch (cause) {
+      assertCurrent(); // Includes fetch AbortError: cancellation must never charge a fallback.
+      if (cause instanceof Error && cause.name === 'AbortError') throw cause;
+      const alternatives = runtime.decision.fallbackChain as { providerId: string; modelId: string }[];
+      if (mode === 'manual' || !alternatives?.length || !canFallbackPlanError(cause)) throw cause;
+      const [primary, ...fallbackChain] = alternatives;
+      update({ draftPlan: null, streamText: '' });
+      const response = await post('/api/build/ai/generate', { ...primary, fallbackChain, generationProfile: profile, system: ENGINEERING_PLAN_SYSTEM, messages, controls });
+      if (!response.ok) throw new Error('The canonical fallback runtime refused this request.');
+      const result = await response.json();
+      assertCurrent();
+      if (!result.ok || !result.actualProviderId || !result.routedModelId) throw new Error(result.error?.safeMessage ?? 'No eligible fallback completed the plan.');
+      const artifact = parseEngineeringPlan(result.text);
+      update({ selection: { ...selected, reasons: [...runtime.decision.reasons, `Requested ${selected.providerId}/${selected.modelId}. Streaming failed; canonical generation fallback used ${result.actualProviderId}/${result.routedModelId}; actual model ${result.actualModelId ?? 'UNKNOWN'}. ${1 + (result.fallbackCount ?? 0)} fallback attempts.`] }, plan: artifact, measurement: result, stage: 'PLANNED' });
+      record(`Engineering plan generated by fallback ${result.actualProviderId}/${result.actualModelId}. Requested ${selected.providerId}/${selected.modelId}. No project mutations.`);
+    }
+  } catch (cause) {
+    if (!isCurrent() || signal.aborted) return;
+    if ((cause instanceof Error && cause.name === 'AbortError') || (cause instanceof PlanStreamError && cause.category === 'ABORTED')) { update({ stage: 'CANCELLED', error: null }); return; }
+    update({ stage: cause instanceof PlanStreamError && cause.category === 'AUTHENTICATION' ? 'AUTH_REQUIRED' : 'PROVIDER_BLOCKED', error: cause instanceof Error ? cause.message : 'Planning failed.' });
+  }
+}
+
 export function DevWorkspaceHome() {
   const { state, dispatch } = useBuildWorkspace();
   const [draftOverride, setDraftOverride] = useState<string | null>(null);
@@ -50,9 +139,28 @@ export function DevWorkspaceHome() {
   const planPanel = useRef<HTMLElement>(null);
   const draft = draftOverride ?? state.intent?.rawInput ?? '';
   const facts = workspaceFacts(state);
-  const attempt = useRef<string | null>(state.engineering.requestId);
-  const { stage, plan, draftPlan, streamText, requested, error: planError, selection, characters, measurement } = state.engineering;
-  const setStage = (stage: EngineeringStage) => dispatch({ type: 'engineering/update', requestId: attempt.current, patch: { stage } });
+  const scope = generationCheckoutScope(state);
+  const currentScope = useRef(scope);
+  const [requests] = useState(createGenerationRequestLock);
+  const engineering = scopedEngineeringSession(state);
+  const { stage, plan, draftPlan, streamText, requested, error: planError, selection, characters, measurement } = engineering;
+  const setStage = (stage: EngineeringStage) => { if (engineering.requestId) dispatch({ type: 'engineering/update', requestId: engineering.requestId, patch: { stage } }); };
+  useLayoutEffect(() => {
+    currentScope.current = scope;
+    return () => {
+      const request = requests.peek();
+      if (request?.scope === scope && requests.cancel(request)) {
+        dispatch({ type: 'engineering/update', requestId: request.id, patch: { stage: 'CANCELLED', error: null } });
+      }
+    };
+  }, [scope, requests, dispatch]);
+
+  function cancelPlanning() {
+    const request = requests.peek();
+    if (!request || !requests.isCurrent(request, currentScope.current)) return;
+    requests.cancel(request);
+    dispatch({ type: 'engineering/update', requestId: request.id, patch: { stage: 'CANCELLED', error: null } });
+  }
   const intelligence = useCanonicalModels();
   const chosenModel = intelligence.models.find((model) => model.providerId === (selection?.providerId ?? state.ai.providerId) && model.modelId === (selection?.modelId ?? state.ai.modelId)) ?? null;
   const planning = ['RESOLVING', 'ROUTING', 'GENERATING'].includes(stage);
@@ -92,55 +200,23 @@ export function DevWorkspaceHome() {
   async function compile(event: FormEvent<HTMLFormElement>, revision?: { text: string; previousPlan: EngineeringPlan }) {
     event.preventDefault();
     const requirement = revision?.text.trim() ?? draft.trim();
-    if (!requirement || planning) return;
-    const context = { project: state.project?.name ?? null, worktree: state.project?.root ?? null, branch: state.git?.branch ?? null };
-    attempt.current = crypto.randomUUID();
-    const requestId = attempt.current;
-    const update = (patch: Partial<typeof state.engineering>) => dispatch({ type: 'engineering/update', requestId, patch });
-    const setStage = (stage: EngineeringStage) => update({ stage });
-    const setPlan = (plan: EngineeringPlan | null) => update({ plan });
-    const setPlanError = (error: string | null) => update({ error });
-    const setSelection = (selection: typeof state.engineering.selection) => update({ selection });
-    const setCharacters = (characters: number) => update({ characters });
-    const setMeasurement = (measurement: typeof state.engineering.measurement) => update({ measurement });
-    dispatch({ type: 'engineering/begin', requestId: attempt.current, context, requested: { mode: state.ai.routingMode, profile: state.ai.generationProfile, providerId: state.ai.routingMode === 'manual' ? state.ai.providerId : null, modelId: state.ai.routingMode === 'manual' ? state.ai.modelId : null } });
+    if (!requirement || planning || currentScope.current !== scope) return;
+    const request = requests.start(scope);
+    if (!request) return;
+    const isCurrent = () => requests.isCurrent(request, currentScope.current);
+    const context = { project: state.project?.name ?? null, worktree: state.project?.root ?? null, branch: state.git?.branch ?? null, projectRef: state.projectRef, projectId: state.project?.id ?? null, headSha: state.git?.headSha ?? null };
+    const update = (patch: Partial<EngineeringSession>) => { if (isCurrent()) dispatch({ type: 'engineering/update', requestId: request.id, patch }); };
+    const record = (message: string) => { if (isCurrent()) dispatch({ type: 'activity/record', message }); };
+    dispatch({ type: 'engineering/begin', requestId: request.id, context, requested: { mode: state.ai.routingMode, profile: state.ai.generationProfile, providerId: state.ai.routingMode === 'manual' ? state.ai.providerId : null, modelId: state.ai.routingMode === 'manual' ? state.ai.modelId : null } });
     const intent = compileBuildIntent(requirement);
     dispatch({ type: 'intent/compiled', intent });
-    const messages = [{ role: "user", content: planPrompt(intent, context, revision?.previousPlan) }];
-    setPlan(null); setPlanError(null); setSelection(null); setMeasurement(null); setCharacters(0); setStage('RESOLVING');
+    const messages = [{ role: 'user', content: planPrompt(intent, context, revision?.previousPlan) }];
     try {
-      const prepared = await fetch('/api/build/ai/prepare', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt: requirement, mode: state.ai.routingMode, generationProfile: state.ai.generationProfile, manualSelection: { providerId: state.ai.providerId, modelId: state.ai.modelId } }) });
-      if (prepared.status === 401 || prepared.status === 403) { setStage('AUTH_REQUIRED'); setPlanError('Sign in with an authorized Build account to use the provider runtime.'); return; }
-      if (!prepared.ok) throw new Error(prepared.status === 400 ? 'Select a discovered provider/model for MANUAL routing.' : 'The canonical provider runtime could not resolve this request.');
-      const runtime = await prepared.json();
-      if (!runtime.decision?.selected) { setStage(runtime.state === 'CONFIG_REQUIRED' ? 'CONFIG_REQUIRED' : 'PROVIDER_BLOCKED'); setPlanError(runtime.decision?.blocker ?? 'No runtime-eligible provider is available.'); return; }
-      const selected = runtime.decision.selected as { providerId: string; modelId: string };
-      setSelection({ ...selected, reasons: runtime.decision.reasons }); setStage('ROUTING');
-      const selectedModel = intelligence.models.find((model) => model.providerId === selected.providerId && model.modelId === selected.modelId);
-      const controls = profileToControls(state.ai.generationProfile, selectedModel).controls;
-      const stream = await fetch('/api/build/ai/stream', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...selected, generationProfile: state.ai.generationProfile, system: ENGINEERING_PLAN_SYSTEM, messages, controls }) });
-      if (stream.status === 401 || stream.status === 403) { setStage('AUTH_REQUIRED'); setPlanError('The runtime refused access. No plan was generated.'); return; }
-      if (!stream.ok || !stream.body) throw new Error('The provider stream could not be opened.');
-      setStage('GENERATING');
-      try {
-        const result = await consumePlanStream(stream.body, setCharacters, (draftPlan) => update({ draftPlan }), (streamText) => update({ streamText }));
-        setPlan(result.plan); setMeasurement(result.terminal); setStage('PLANNED');
-        dispatch({ type: 'activity/record', message: `Engineering plan generated by ${selected.providerId}/${selected.modelId}. No project mutations.` });
-      } catch (cause) {
-        const alternatives = runtime.decision.fallbackChain as { providerId: string; modelId: string }[];
-        if (state.ai.routingMode === 'manual' || !alternatives?.length || !canFallbackPlanError(cause)) throw cause;
-        const [primary, ...fallbackChain] = alternatives;
-        update({ draftPlan: null, streamText: '' });
-        const response = await fetch('/api/build/ai/generate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...primary, fallbackChain, generationProfile: state.ai.generationProfile, system: ENGINEERING_PLAN_SYSTEM, messages, controls }) });
-        if (!response.ok) throw new Error('The canonical fallback runtime refused this request.');
-        const result = await response.json();
-        if (!result.ok || !result.actualProviderId || !result.routedModelId) throw new Error(result.error?.safeMessage ?? 'No eligible fallback completed the plan.');
-        const artifact = parseEngineeringPlan(result.text);
-        setSelection({ ...selected, reasons: [...runtime.decision.reasons, `Requested ${selected.providerId}/${selected.modelId}. Streaming failed; canonical generation fallback used ${result.actualProviderId}/${result.routedModelId}; actual model ${result.actualModelId ?? 'UNKNOWN'}. ${1 + (result.fallbackCount ?? 0)} fallback attempts.`] });
-        setPlan(artifact); setMeasurement(result); setStage('PLANNED');
-        dispatch({ type: 'activity/record', message: `Engineering plan generated by fallback ${result.actualProviderId}/${result.actualModelId}. Requested ${selected.providerId}/${selected.modelId}. No project mutations.` });
-      }
-    } catch (cause) { setStage(cause instanceof PlanStreamError && cause.category === 'AUTHENTICATION' ? 'AUTH_REQUIRED' : 'PROVIDER_BLOCKED'); setPlanError(cause instanceof Error ? cause.message : 'Planning failed.'); } finally { intelligence.refresh(); }
+      await generateEngineeringProposal({ request, requirement, mode: state.ai.routingMode, profile: state.ai.generationProfile, manualSelection: { providerId: state.ai.providerId, modelId: state.ai.modelId }, models: intelligence.models, messages, isCurrent, update, record });
+    } finally {
+      if (isCurrent()) intelligence.refresh();
+      requests.finish(request);
+    }
   }
 
   return <>
@@ -162,7 +238,7 @@ export function DevWorkspaceHome() {
             <svg className="dev-engine__glyph" viewBox={`0 0 ${MARK_VIEW_BOX.width} ${MARK_VIEW_BOX.height}`} aria-hidden="true">
               {MARK_PATHS.map(({ id, d }) => <path key={id} d={d} />)}
             </svg>
-            <p><span role="status">ENGINE / {stage}</span><small aria-live="off">{planning ? `${characters.toLocaleString()} characters received` : stage === 'LISTENING' ? 'Describe a system. Resolve its architecture.' : stage === 'PLANNED' ? 'Proposal ready · review before execution' : stage === 'AUTH_REQUIRED' ? 'Provider access requires an authorized account' : stage === 'EXECUTOR_NOT_CONNECTED' ? 'Plan retained · trusted execution required' : 'Canonical engineering state'}</small></p>
+            <p><span role="status">ENGINE / {stage}</span><small aria-live="off">{planning ? `${characters.toLocaleString()} characters received` : stage === 'LISTENING' ? 'Describe a system. Resolve its architecture.' : stage === 'PLANNED' ? 'Proposal ready · review before execution' : stage === 'CANCELLED' ? 'Request aborted · no further output or fallback accepted' : stage === 'AUTH_REQUIRED' ? 'Provider access requires an authorized account' : stage === 'EXECUTOR_NOT_CONNECTED' ? 'Plan retained · trusted execution required' : 'Canonical engineering state'}</small></p>
           </div>
           <div className="dev-composer-routing">
             {modelPicker}
@@ -171,14 +247,15 @@ export function DevWorkspaceHome() {
           <form className="dev-floating-compose" onSubmit={(event) => void compile(event)}>
             <label className="dev-visually-hidden" htmlFor="dev-intent-input">Describe what you want to build</label>
             <textarea ref={input} id="dev-intent-input" maxLength={16000} disabled={planning} value={draft} onChange={(event) => setDraftOverride(event.target.value)} onInput={(event) => { const target = event.target as HTMLTextAreaElement; target.style.height = 'auto'; target.style.height = `${Math.max(target.scrollHeight, 72)}px`; }} placeholder="Describe what you want to build…" rows={2} style={{ height: 'auto', minHeight: 72 }} />
-            <div className="dev-floating-compose__tools">
+            <div className={`dev-floating-compose__tools ${previewStyles.homeTools}`}>
               <div className="dev-compose-modes" role="group" aria-label="Build actions"><span>BUILD</span><button type="button" className="dev-neon-btn dev-neon-btn--ghost" onClick={() => setView('preview')}>PREVIEW</button><Link href="/build/pipeline" className="dev-neon-btn dev-neon-btn--ghost">VERIFY ↗</Link></div>
-              <div className="dev-compose-actions"><Link href="/build/docs" aria-label="Open project files" title="Docs & project files">▤</Link><Link href="/build/terminal" aria-label="Open terminal" title="Terminal">⌘</Link><button type="submit" className="dev-neon-btn dev-neon-btn--primary" disabled={!draft.trim() || planning} aria-label="Generate engineering plan" title="Generate a plan with the canonical provider runtime">↑</button></div>
+              <div className={`dev-compose-actions ${previewStyles.homeActions}`}>{planning ? <button type="button" className={previewStyles.cancelButton} onClick={cancelPlanning}>Cancel planning</button> : null}<Link href="/build/docs" aria-label="Open project files" title="Docs & project files">▤</Link><Link href="/build/terminal" aria-label="Open terminal" title="Terminal">⌘</Link><button type="submit" className="dev-neon-btn dev-neon-btn--primary" disabled={!draft.trim() || planning} aria-label="Generate engineering plan" title="Generate a plan with the canonical provider runtime">↑</button></div>
             </div>
           </form>
           <GenerationProfileRail value={state.ai.generationProfile} onChange={(profile) => dispatch({ type: 'ai/profile', profile })} model={chosenModel} disabled={planning} />
           <ModelControlsPanel model={chosenModel} profile={state.ai.generationProfile} disabled={planning} />
           <div className="dev-card-grid dev-card-grid--intents" role="group" aria-label="Intent suggestions">{QUICK_INTENTS.slice(0, 4).map((item) => <button type="button" key={item.label} className="dev-card dev-card--interactive dev-quick-card" onClick={() => { setDraftOverride(item.prompt); input.current?.focus(); }}><span className="dev-quick-card__icon"><IntentIcon label={item.label} /></span><span className="dev-quick-card__text"><span className="dev-quick-card__label">{item.label}</span><span className="dev-quick-card__desc">{item.prompt}…</span></span><span className="dev-quick-card__arrow" aria-hidden="true">→</span></button>)}</div>
+          <GenerationLifecycleRail state={state} session={engineering} />
           <p className="dev-compiler-note" aria-live="off">{stage}{planning ? ` · ${characters.toLocaleString()} characters received` : ''} · {selection ? `${selection.providerId} / ${selection.modelId}` : 'Canonical runtime · planning only'}</p>
           {requested ? <div className={styles.runtimeReading} aria-label="Requested and actual intelligence"><p>Requested: {requested.mode.toUpperCase()} · {requested.profile} · {requested.providerId ? `${requested.providerId} / ${requested.modelId}` : 'RouterV2 eligible selection'}</p><p>Routed endpoint: {selection ? `${selection.providerId} / ${selection.modelId}` : 'UNRESOLVED'}</p><p>Actual: {measurement?.actualProviderId ?? 'UNKNOWN'} / {measurement?.actualModelId ?? 'UNKNOWN'} · latency {measurement?.latencyMs ?? 'UNKNOWN'} ms · TTFT {measurement?.ttftMs ?? 'UNKNOWN'} ms</p>{measurement?.controlsUsed ? <p>Applied controls: output {measurement.controlsUsed.maxOutputTokens ?? 'provider default'} · temperature {measurement.controlsUsed.temperature ?? 'provider default'}</p> : null}{selection?.reasons.length ? <details><summary>Routing and fallback evidence</summary><ul>{selection.reasons.map((reason, index) => <li key={index}>{reason}</li>)}</ul></details> : null}</div> : null}
           {streamText && !plan ? <details className={styles.streamEvidence}><summary>Provider text received · {characters.toLocaleString()} characters · unvalidated</summary><pre aria-live="off">{streamText}</pre></details> : null}
@@ -205,7 +282,7 @@ export function DevWorkspaceHome() {
           </div>
           <div className={previewStyles.layout} data-expanded={expandedPreview} data-compact-panel={compactPanel} style={{ '--preview-share': `${previewWidth}fr`, '--generation-share': `${100 - previewWidth}fr` } as CSSProperties}>
             <section className={previewStyles.preview} aria-label="Preview workspace"><Preview cinematic workspace /></section>
-            <GenerationMonitor modelPicker={modelPicker} draft={draft} onDraft={setDraftOverride} onCompile={(event) => void compile(event)} planning={planning} onReview={reviewFromPreview} onFollowUp={(event, text, previousPlan) => void compile(event, { text, previousPlan })} />
+            <GenerationMonitor modelPicker={modelPicker} draft={draft} onDraft={setDraftOverride} onCompile={(event) => void compile(event)} planning={planning} engineering={engineering} onCancel={cancelPlanning} onReview={reviewFromPreview} onFollowUp={(event, text, previousPlan) => void compile(event, { text, previousPlan })} />
           </div>
         </div>
       ) : view === 'code' ? <div className={previewStyles.workspace}><header className={previewStyles.workspaceHeading}><div><span>BUILD / CHECKOUT</span><h1>Code Constellation</h1><p>Inspect the real source and file metadata for this checkout.</p></div></header><Code /></div>

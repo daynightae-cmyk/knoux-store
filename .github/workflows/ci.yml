@@ -193,6 +193,7 @@ jobs:
             references/build-cinematic/qa/
             references/build-connected/qa/
             references/build-generator/qa/
+            references/build V3/qa/final-verified/
             references/provider-os/qa/
           if-no-files-found: ignore
           retention-days: 7

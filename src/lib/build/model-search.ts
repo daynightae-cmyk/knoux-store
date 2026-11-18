@@ -13,6 +13,12 @@ export function searchModels<T extends NormalizedModel>(models: readonly T[], qu
   });
 }
 
+export function modelPriceLabel(model: Pick<NormalizedModel, 'pricing'>): 'FREE' | 'PLAN' | 'PRICE UNKNOWN' {
+  const { inputPerMillion, outputPerMillion } = model.pricing;
+  if (inputPerMillion === null || outputPerMillion === null) return 'PRICE UNKNOWN';
+  return inputPerMillion === 0 && outputPerMillion === 0 ? 'FREE' : 'PLAN';
+}
+
 export function providerState(provider: ProviderHealth) {
   if (!provider.configured) return 'CONFIG REQUIRED';
   if (['BLOCKED', 'FAILED', 'DEGRADED', 'RATE_LIMITED'].includes(provider.generation)) return 'BLOCKED';

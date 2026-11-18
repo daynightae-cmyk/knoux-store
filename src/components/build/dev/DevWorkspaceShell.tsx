@@ -10,7 +10,7 @@ import { workspaceFacts } from './workspace-facts';
 import { EngineeringSky } from './EngineeringSky';
 import { BuildAtmosphere } from './BuildAtmosphere';
 import { BuildSound } from './BuildSound';
-import { cueAtmosphere } from './living-atmosphere';
+import { cueAtmosphere, engineeringCue } from './living-atmosphere';
 
 const LivingMark = dynamic(() => import('./BuildLivingMarkBackdrop').then((mod) => mod.BuildLivingMarkBackdrop), { ssr: false });
 const Launcher = dynamic(() => import('./ProjectLauncher').then((mod) => mod.ProjectLauncher));
@@ -44,9 +44,8 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
     const stage = state.engineering.stage;
     if (stage === lastStage.current) return;
     lastStage.current = stage;
-    if (stage === 'RESOLVING') cueAtmosphere('wake');
-    if (stage === 'PLANNED' || stage === 'COMPLETE') cueAtmosphere('ready');
-    if (['AUTH_REQUIRED', 'CONFIG_REQUIRED', 'PROVIDER_BLOCKED', 'EXECUTOR_NOT_CONNECTED'].includes(stage)) cueAtmosphere('settle');
+    const cue = engineeringCue(stage);
+    if (cue) cueAtmosphere(cue);
   }, [state.engineering.stage]);
   useEffect(() => {
     if (state.projectRef) cueAtmosphere('wake');
@@ -97,8 +96,8 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
       <aside ref={sidebar} id="dev-sidebar" className={`dev-sidebar ${navOpen ? 'dev-sidebar--open' : ''}`} aria-label="KNOuX DEV workspace" role={navOpen ? 'dialog' : undefined} aria-modal={navOpen ? true : undefined}>
         <div className="dev-sidebar__brand"><Link href="/"><span className="dev-dot" aria-hidden="true" />KNOuX <small>BUILD</small>{' '}<span className="visually-hidden">KNOuX Store home</span></Link><button className="dev-sidebar__close" type="button" onClick={() => setNavOpen(false)} aria-label="Close workspace navigation">×</button></div>
         <button type="button" className="dev-sidebar__action" onClick={openLauncher}>New build <span aria-hidden="true">↗</span></button>
-        <nav aria-label="Workspace destinations">{DEV_DESTINATIONS.map((item) => <Link key={item.href} href={item.href} className={`dev-nav-link ${pathname === item.href ? 'dev-nav-link--active' : ''}`} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => setNavOpen(false)}><span aria-hidden="true">{item.icon}</span><small>{item.code}</small>{item.label}</Link>)}</nav>
-        <div className="dev-sidebar__projects"><div className="dev-mini-label">PROJECTS <button type="button" onClick={() => { setNavOpen(false); setUtility('launcher'); }} aria-label="Add or open project">+</button></div>{softwareProducts.slice(0, 4).map((product) => <Link key={product.id} href={`/build/apps?product=${product.slug}`} onClick={() => setNavOpen(false)}>{product.name}</Link>)}</div>
+        <nav aria-label="Workspace destinations">{DEV_DESTINATIONS.map((item) => <Link key={item.href} href={item.href} className={`dev-nav-link ${pathname === item.href ? 'dev-nav-link--active' : ''}`} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => { setNavOpen(false); if (item.href === '/build') cueAtmosphere('wake'); }}><span aria-hidden="true">{item.icon}</span><small>{item.code}</small>{item.label}</Link>)}</nav>
+        <div className="dev-sidebar__projects"><div className="dev-mini-label">PROJECTS <button type="button" onClick={openLauncher} aria-label="Add or open project">+</button></div>{softwareProducts.slice(0, 4).map((product) => <Link key={product.id} href={`/build/apps?product=${product.slug}`} onClick={() => setNavOpen(false)}>{product.name}</Link>)}</div>
         <dl className="dev-sidebar__facts"><dt>ADAPTER STATUS</dt><dd>{facts.adapter}</dd><dt>PROJECT STATUS</dt><dd>{facts.project}</dd><dt>ENVIRONMENT</dt><dd>{facts.environment}</dd></dl>
       </aside>
       <div className="dev-shell__stage" inert={navOpen}>

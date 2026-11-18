@@ -105,7 +105,10 @@ for (const width of [1440, 390])
         await mkdir(directory, { recursive: true });
         const capture = async (name: string) => { expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true); await page.screenshot({ path: path.join(directory, `${name}.png`) }); };
         await page.goto('/build/providers');
-        await expect(page.getByRole('link', { name: 'Sign in ↗', exact: true })).toBeVisible();
+        const signIn = page.getByRole('link', { name: 'Sign in', exact: true });
+        await expect(signIn).toBeVisible();
+        await expect(signIn).toHaveAttribute('href', '/login');
+        await expect(page.getByText('to manage your provider profiles.', { exact: false })).toBeVisible();
         await capture('real-anonymous-auth-required');
         const fixture = await providerFixture(page);
         await page.getByText('Search & workspace', { exact: true }).click();

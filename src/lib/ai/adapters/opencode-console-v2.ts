@@ -1,5 +1,7 @@
 import 'server-only';
 import { OpenAICompatibleAdapter } from './base';
+import { cancelledGenerationResponse, generationSignal } from '../contract';
+import { abortedError, timeoutError } from '../errors';
 import type { DiscoveryResult, GenerationRequest, GenerationResponse, NormalizedError, ProbeResult, StreamChunk } from '../contract';
 
 export const OPENCODE_CONSOLE_ID = 'opencode-console-v2';
@@ -32,16 +34,25 @@ export class OpenCodeConsoleV2Adapter extends OpenAICompatibleAdapter {
       supportsVision: false, supportsTools: false, supportsStructuredOutput: false, supportsStreaming: true,
       controls: { temperature: true, topP: true, maxTokens: true, reasoningEffort: false, seed: false, stop: true, toolChoice: false } });
   }
-  private async workspace(env: Record<string, string | undefined>): Promise<{ config?: ConsoleConfig; error: NormalizedError | null }> {
+  private async workspace(env: Record<string, string | undefined>, signal?: AbortSignal): Promise<{ config?: ConsoleConfig; error: NormalizedError | null }> {
+    if (signal?.aborted) return { error: abortedError() };
     const token = env[OPENCODE_CONSOLE_ENV]?.trim();
     if (!token?.startsWith('oc_sk_')) return { error: refused('A workspace-bound Console V2 service-account token is required. Legacy Zen keys are not accepted.', 'AUTHENTICATION') };
+    const transportSignal = generationSignal(signal, 10000);
     try {
-      const response = await fetch(CONFIG_URL, { headers: { authorization: `Bearer ${token}` }, cache: 'no-store', redirect: 'error', signal: AbortSignal.timeout(10000) });
+      transportSignal.throwIfAborted();
+      const response = await fetch(CONFIG_URL, { headers: { authorization: `Bearer ${token}` }, cache: 'no-store', redirect: 'error', signal: transportSignal });
+      transportSignal.throwIfAborted();
       if (!response.ok) return { error: refused(`Console V2 configuration request refused (HTTP ${response.status}).`, response.status === 401 || response.status === 403 ? 'AUTHENTICATION' : 'INVALID_REQUEST', response.status) };
       const config: ConsoleConfig = await response.json();
+      transportSignal.throwIfAborted();
       if (!config?.providers?.opencode?.models || typeof config.providers.opencode.models !== 'object' || Array.isArray(config.providers.opencode.models)) return { error: refused('Console configuration has no OpenCode model map.', 'INVALID_REQUEST') };
       return { config, error: null };
-    } catch { return { error: refused('Console V2 configuration is unreachable.', 'NETWORK') }; }
+    } catch (cause) {
+      if (signal?.aborted || (cause instanceof Error && cause.name === 'AbortError')) return { error: abortedError() };
+      if (cause instanceof Error && cause.name === 'TimeoutError') return { error: timeoutError() };
+      return { error: refused('Console V2 configuration is unreachable.', 'NETWORK') };
+    }
   }
   override async probe(env: Record<string, string | undefined>): Promise<ProbeResult> {
     const started = Date.now(), result = await this.workspace(env);
@@ -73,9 +84,11 @@ export class OpenCodeConsoleV2Adapter extends OpenAICompatibleAdapter {
       catalogModels: result.error ? undefined : models,
     };
   }
-  private async chatTransport(request: GenerationRequest, env: Record<string, string | undefined>) {
+  private async chatTransport(request: GenerationRequest, env: Record<string, string | undefined>, signal?: AbortSignal) {
+    if (signal?.aborted) return { error: abortedError() };
     if (request.tools?.length || request.responseSchema) return { error: refused('Tools and structured output have not been verified for this Console transport.') };
-    const result = await this.workspace(env);
+    const result = await this.workspace(env, signal);
+    if (signal?.aborted) return { error: abortedError() };
     if (result.error) return { error: result.error };
     const provider = result.config?.providers?.opencode;
     if (!provider || !Object.hasOwn(provider?.models ?? {}, request.modelId)) return { error: refused('Model is not available in this Console workspace.', 'MODEL_NOT_FOUND') };
@@ -90,16 +103,20 @@ export class OpenCodeConsoleV2Adapter extends OpenAICompatibleAdapter {
     // org header is present — the inference endpoint is the fixed Console V2 URL.
     return { adapter: new OpenCodeConsoleV2Adapter(org), error: null };
   }
-  override async generate(request: GenerationRequest, env: Record<string, string | undefined>): Promise<GenerationResponse> {
-    const result = await this.chatTransport(request, env);
-    if (result.error) return this.errorResponse(result.error, 0, request.modelId);
-    return result.adapter!.generateChat(request, env);
+  override async generate(request: GenerationRequest, env: Record<string, string | undefined>, signal?: AbortSignal): Promise<GenerationResponse> {
+    const started = Date.now();
+    if (signal?.aborted) return cancelledGenerationResponse();
+    const result = await this.chatTransport(request, env, signal);
+    if (signal?.aborted) return cancelledGenerationResponse(Date.now() - started);
+    if (result.error) return this.errorResponse(result.error, Date.now() - started, request.modelId);
+    const response = await result.adapter!.generateChat(request, env, signal);
+    return signal?.aborted ? cancelledGenerationResponse(Date.now() - started, response) : response;
   }
-  private generateChat(request: GenerationRequest, env: Record<string, string | undefined>) { return super.generate(request, env); }
+  private generateChat(request: GenerationRequest, env: Record<string, string | undefined>, signal?: AbortSignal) { return super.generate(request, env, signal); }
   override async *stream(request: GenerationRequest, env: Record<string, string | undefined>, signal?: AbortSignal): AsyncGenerator<StreamChunk, void, void> {
-    if (signal?.aborted) { yield this.streamError(refused('Request cancelled.', 'ABORTED'), 0); return; }
-    const result = await this.chatTransport(request, env);
-    if (signal?.aborted) { yield this.streamError(refused('Request cancelled.', 'ABORTED'), 0); return; }
+    if (signal?.aborted) { yield this.streamError(abortedError(), 0); return; }
+    const result = await this.chatTransport(request, env, signal);
+    if (signal?.aborted) { yield this.streamError(abortedError(), 0); return; }
     if (result.error) { yield this.streamError(result.error, 0); return; }
     yield* result.adapter!.streamChat(request, env, signal);
   }

@@ -5,17 +5,27 @@ import { guardBuildApi } from "@/lib/build/api-guard";
 import { getAdapter } from "@/lib/ai/registry";
 import { generateWithFallback } from "@/lib/ai/fallback";
 import { createNormalizedError } from "@/lib/ai/errors";
+import { cancelledGenerationResponse } from "@/lib/ai/contract";
 import type { GenerationRequest } from "@/lib/ai/types";
 import { publicRequestOrigin, checkRequestOrigin } from '@/lib/contact/intake-guard';
 import { isGenerationProfile } from '@/lib/build/profile';
 
 export const dynamic = "force-dynamic";
 
+function cancelledResponse() {
+  return NextResponse.json({
+    ...cancelledGenerationResponse(),
+    controlsUsed: null, routedModelId: null, actualProviderId: null, actualModelId: null,
+    fallbackUsed: false, fallbackFrom: null, fallbackCount: 0,
+  }, { headers: { "cache-control": "no-store" } });
+}
+
 /** POST /api/build/ai/generate — real text generation with optional fallback. */
 async function handlePOST(request: NextRequest) {
   if (!checkRequestOrigin(request.headers, publicRequestOrigin(request)).ok) return NextResponse.json({ message: 'Cross-site generation request refused.' }, { status: 403 });
   const denied = await guardBuildApi(request, { scope: "ai-generate" });
   if (denied) return denied;
+  if (request.signal.aborted) return cancelledResponse();
 
   let body: GenerationRequest & {
     fallbackChain?: { providerId: string; modelId: string }[];
@@ -24,12 +34,14 @@ async function handlePOST(request: NextRequest) {
   try {
     body = await request.json();
   } catch {
+    if (request.signal.aborted) return cancelledResponse();
     return NextResponse.json(
       { message: "Expected generation request." },
       { status: 400 },
     );
   }
 
+  if (request.signal.aborted) return cancelledResponse();
   if (!body.providerId || !body.modelId || !body.messages?.length) {
     return NextResponse.json(
       { message: "providerId, modelId, and messages are required." },
@@ -81,6 +93,7 @@ async function handlePOST(request: NextRequest) {
     providerEnvironment(),
     body.fallbackChain ?? [],
     body.noFallback ?? false,
+    request.signal,
   );
 
   return NextResponse.json(

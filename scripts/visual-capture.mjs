@@ -12,6 +12,9 @@ import { prepareVisualOutputDirectory } from './visual-output-directory.mjs';
 const base = process.env.BASE_URL ?? 'http://localhost:3000';
 const outDir = prepareVisualOutputDirectory(process.argv[2], 'visual-audit/capture');
 const targets = process.argv.slice(3);
+if (!targets.length || targets.some((spec) => !/^[\w-]+=\//.test(spec))) {
+  throw new Error('At least one label=/route capture target is required.');
+}
 
 const VIEWPORTS = [
   ['desktop', { width: 1440, height: 900 }],
@@ -25,11 +28,13 @@ const browser = await chromium.launch();
 async function capture(name, path, states = []) {
   for (const [vname, viewport] of VIEWPORTS) {
     const page = await browser.newPage({ viewport });
+    page.on('pageerror', (error) => errors.push(`${name}:${vname}: ${error.message.slice(0, 260)}`));
     page.on('console', (msg) => {
       if (msg.type() === 'error') errors.push(`${name}:${vname}: ${msg.text().slice(0, 260)}`);
     });
     try {
-      await page.goto(base + path, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      const response = await page.goto(base + path, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      if (!response?.ok()) throw new Error(`Route returned HTTP ${response?.status() ?? 'unavailable'}`);
       await page.waitForTimeout(2600);
       // Pre-scroll through the page so reveal-gated content is visible, then return to top.
       await page.evaluate(async () => {
@@ -77,6 +82,7 @@ for (const spec of targets) {
     const sep = ss.indexOf('::');
     const sname = ss.slice(0, sep);
     const [action, locator] = ss.slice(sep + 2).split('|');
+    if (sep < 1 || !locator || !['hover', 'click'].includes(action)) throw new Error('Invalid requested capture state.');
     if (action === 'hover') states.push([sname, hover(locator)]);
     if (action === 'click') states.push([sname, click(locator)]);
   }
@@ -85,3 +91,4 @@ for (const spec of targets) {
 await Promise.all(jobs);
 await browser.close();
 console.log('ERRORS:', errors.length ? JSON.stringify(errors, null, 2) : 'none');
+if (errors.length) process.exitCode = 1;
