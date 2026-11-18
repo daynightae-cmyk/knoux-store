@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { AiCenterPage } from "./AiCenterLayout";
 import { DevPanel } from "../dev/DevUI";
+import { useBuildWorkspace } from "../workspace/KnouxBuildWorkspace";
+import styles from "./router-workspace.module.css";
 
 type RouterDecision = {
   taskClass: string;
@@ -37,6 +39,7 @@ const TASK_CLASSES = [
 ];
 
 export function AiRouterPage() {
+  const { state } = useBuildWorkspace();
   const [prompt, setPrompt] = useState("");
   const [taskClass, setTaskClass] = useState("general");
   const [mode, setMode] = useState<"auto" | "manual">("auto");
@@ -51,8 +54,10 @@ export function AiRouterPage() {
   const [error, setError] = useState<string | null>(null);
 
   async function runRouter() {
+    if (loading) return;
     setLoading(true);
     setError(null);
+    setDecision(null);
     try {
       const body: Record<string, unknown> = {
         taskClass,
@@ -65,16 +70,21 @@ export function AiRouterPage() {
       };
       if (mode === "manual" && manualProvider && manualModel) {
         body.manualSelection = {
-          providerId: manualProvider,
-          modelId: manualModel,
+          providerId: manualProvider.trim(),
+          modelId: manualModel.trim(),
         };
       }
       const res = await fetch("/api/build/ai/router", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body),
+        signal: AbortSignal.timeout(25_000),
       });
+      if (!res.ok) throw new Error(res.status === 401 || res.status === 403
+        ? "Sign in with Build access to resolve a route."
+        : "The router could not evaluate this request.");
       const data: RouterDecision = await res.json();
+      if (!Array.isArray(data.candidates) || !Array.isArray(data.reasons) || !Array.isArray(data.fallbackChain)) throw new Error("The router returned an invalid decision.");
       setDecision(data);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Router failed");
@@ -84,9 +94,10 @@ export function AiRouterPage() {
   }
 
   return (
+    <div className={styles.router} data-routing={loading} data-reduced={state.preferences.motion === "reduced" ? "" : undefined}>
     <AiCenterPage
       heading={
-        <header className="dev-page-heading" style={{ marginBottom: 16 }}>
+        <header className={`dev-page-heading ${styles.title}`}>
           <span className="dev-mini-label">AI RUNTIME / ROUTER</span>
           <h2>Router v2</h2>
           <p>
@@ -94,10 +105,17 @@ export function AiRouterPage() {
             factors. AUTO explains its decision. MANUAL is never silently
             overridden.
           </p>
+          <figure className={styles.network} aria-label="Automatic routing factors">
+            <svg viewBox="0 0 440 236" aria-hidden="true" preserveAspectRatio="none">
+              <path d="M220 204Q166 124 35 135 M220 204Q184 87 114 72 M220 204Q215 85 220 37 M220 204Q268 75 334 72 M220 204Q302 106 410 135" />
+            </svg>
+            <span>Cost</span><span>Latency</span><span>Quality</span><span>Context</span><span>Health</span>
+            <figcaption>{mode.toUpperCase()}</figcaption>
+          </figure>
         </header>
       }
     >
-      <DevPanel title="Router Input">
+      <DevPanel title="Router Input" className={styles.prompt}>
         <textarea
           className="dev-field"
           style={{
@@ -107,6 +125,8 @@ export function AiRouterPage() {
             fontFamily: "inherit",
           }}
           placeholder="Enter a prompt to route…"
+          aria-label="Routing prompt"
+          maxLength={16000}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
         />
@@ -151,11 +171,12 @@ export function AiRouterPage() {
         </div>
 
         {mode === "manual" ? (
-          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <div className={styles.manualFields}>
             <input
               className="dev-field"
               style={{ flex: 1, padding: 8 }}
               placeholder="Provider ID"
+              aria-label="Provider ID"
               value={manualProvider}
               onChange={(e) => setManualProvider(e.target.value)}
             />
@@ -163,6 +184,7 @@ export function AiRouterPage() {
               className="dev-field"
               style={{ flex: 1, padding: 8 }}
               placeholder="Model ID"
+              aria-label="Model ID"
               value={manualModel}
               onChange={(e) => setManualModel(e.target.value)}
             />
@@ -210,7 +232,7 @@ export function AiRouterPage() {
           <button
             type="button"
             className="bo-action bo-action--primary"
-            disabled={loading}
+            disabled={loading || (mode === "manual" && (!manualProvider.trim() || !manualModel.trim()))}
             onClick={() => void runRouter()}
           >
             {loading ? "ROUTING…" : "ROUTE"}
@@ -300,6 +322,7 @@ export function AiRouterPage() {
             <>
               <div style={{ height: 16 }} />
               <DevPanel title={`Candidates (${decision.candidates.length})`}>
+                <div className={styles.tableScroll} tabIndex={0} role="region" aria-label="Routing candidates">
                 <table className="dev-kv-table" style={{ width: "100%" }}>
                   <thead>
                     <tr>
@@ -329,11 +352,13 @@ export function AiRouterPage() {
                     ))}
                   </tbody>
                 </table>
+                </div>
               </DevPanel>
             </>
           ) : null}
         </>
       ) : null}
     </AiCenterPage>
+    </div>
   );
 }
