@@ -1,25 +1,33 @@
 'use client';
 
 import Link from 'next/link';
-import type { FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { GENERATION_PROFILES, type GenerationProfile } from '@/lib/build/profile';
-import { PLAN_SECTIONS } from '@/lib/build/engineering-plan';
+import { PLAN_SECTIONS, type EngineeringPlan } from '@/lib/build/engineering-plan';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import styles from './preview-workspace.module.css';
 
 const phases = ['Resolve', 'Route', 'Plan', 'Review'];
 
 export function GenerationMonitor({
-  draft, onDraft, onCompile, onReview, planning,
+  draft, onDraft, onCompile, onReview, onFollowUp, planning,
 }: {
   draft: string;
   onDraft: (value: string) => void;
   onCompile: (event: FormEvent<HTMLFormElement>) => void;
   onReview: () => void;
+  onFollowUp: (event: FormEvent<HTMLFormElement>, text: string, previousPlan: EngineeringPlan) => void;
   planning: boolean;
 }) {
   const { state, dispatch } = useBuildWorkspace();
-  const { stage, plan, streamText, characters, selection, requested, error } = state.engineering;
+  const { stage, plan, streamText, characters, selection, requested, error, context } = state.engineering;
+  const [followUp, setFollowUp] = useState('');
+  const [submitted, setSubmitted] = useState<{ text: string; plan: EngineeringPlan; scope: string } | null>(null);
+  const scope = JSON.stringify([state.projectRef, state.project?.name ?? null, state.project?.root ?? null, state.git?.branch ?? null]);
+  const lastRevision = submitted?.scope === scope ? submitted : null;
+  const sameCheckout = context && context.project === (state.project?.name ?? null)
+    && context.worktree === (state.project?.root ?? null) && context.branch === (state.git?.branch ?? null);
+  const revisionPlan = (sameCheckout ? plan : null) ?? lastRevision?.plan;
   const active = stage === 'RESOLVING' ? 0 : stage === 'ROUTING' ? 1 : stage === 'GENERATING' ? 2 : plan ? 3 : -1;
   const visibleSections = plan ? PLAN_SECTIONS.filter((section) => plan[section].length) : [];
 
@@ -33,7 +41,7 @@ export function GenerationMonitor({
         <span className={styles.stage} data-active={planning} role="status">{stage.replaceAll('_', ' ')}</span>
       </header>
 
-      <form className={styles.compose} onSubmit={onCompile}>
+      <form className={styles.compose} onSubmit={(event) => { setSubmitted(null); setFollowUp(''); onCompile(event); }}>
         <label htmlFor="preview-build-intent">What are you building?</label>
         <textarea id="preview-build-intent" value={draft} maxLength={16000} rows={3} onChange={(event) => onDraft(event.target.value)} disabled={planning} />
         <div className={styles.composeActions}>
@@ -74,6 +82,23 @@ export function GenerationMonitor({
         ) : streamText ? <pre tabIndex={0} aria-label="Unvalidated provider text">{streamText}</pre>
           : <p className={styles.outputEmpty}>{planning ? 'Waiting for provider output…' : 'Provider output will appear here during planning.'}</p>}
       </div>
+
+      {revisionPlan ? <section className={styles.followUp} aria-labelledby="revision-heading">
+        <h3 id="revision-heading">Revise the proposal</h3>
+        {lastRevision && <p className={styles.previousRequest}><strong>Last follow-up</strong>{lastRevision.text}</p>}
+        <form className={styles.compose} onSubmit={(event) => {
+          event.preventDefault();
+          const text = followUp.trim();
+          if (!text || planning) return;
+          setSubmitted({ text, plan: revisionPlan, scope });
+          onFollowUp(event, text, revisionPlan);
+        }}>
+          <label htmlFor="preview-follow-up">What should change?</label>
+          <textarea id="preview-follow-up" value={followUp} rows={2} maxLength={2000} disabled={planning} onChange={(event) => setFollowUp(event.target.value)} />
+          <p>The provider receives your follow-up and an excerpt of the previous plan.</p>
+          <button className="bo-chip" type="submit" disabled={!followUp.trim() || planning}>Generate revised plan</button>
+        </form>
+      </section> : null}
 
       <footer className={styles.monitorFooter}>
         <span>Project checks · {state.verification?.checks.length ?? 'not run'}</span>

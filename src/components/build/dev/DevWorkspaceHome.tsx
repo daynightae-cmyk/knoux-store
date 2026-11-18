@@ -75,9 +75,11 @@ export function DevWorkspaceHome() {
     requestAnimationFrame(() => planPanel.current?.focus());
   }
 
-  async function compile(event: FormEvent<HTMLFormElement>) {
+  async function compile(event: FormEvent<HTMLFormElement>, revision?: { text: string; previousPlan: EngineeringPlan }) {
     event.preventDefault();
-    if (!draft.trim() || planning) return;
+    const requirement = revision?.text.trim() ?? draft.trim();
+    if (!requirement || planning) return;
+    const context = { project: state.project?.name ?? null, worktree: state.project?.root ?? null, branch: state.git?.branch ?? null };
     attempt.current = crypto.randomUUID();
     const requestId = attempt.current;
     const update = (patch: Partial<typeof state.engineering>) => dispatch({ type: 'engineering/update', requestId, patch });
@@ -87,12 +89,13 @@ export function DevWorkspaceHome() {
     const setSelection = (selection: typeof state.engineering.selection) => update({ selection });
     const setCharacters = (characters: number) => update({ characters });
     const setMeasurement = (measurement: typeof state.engineering.measurement) => update({ measurement });
-    dispatch({ type: 'engineering/begin', requestId: attempt.current, context: { project: state.project?.name ?? null, worktree: state.project?.root ?? null, branch: state.git?.branch ?? null }, requested: { mode: state.ai.routingMode, profile: state.ai.generationProfile, providerId: state.ai.routingMode === 'manual' ? state.ai.providerId : null, modelId: state.ai.routingMode === 'manual' ? state.ai.modelId : null } });
-    const intent = compileBuildIntent(draft);
+    dispatch({ type: 'engineering/begin', requestId: attempt.current, context, requested: { mode: state.ai.routingMode, profile: state.ai.generationProfile, providerId: state.ai.routingMode === 'manual' ? state.ai.providerId : null, modelId: state.ai.routingMode === 'manual' ? state.ai.modelId : null } });
+    const intent = compileBuildIntent(requirement);
     dispatch({ type: 'intent/compiled', intent });
+    const messages = [{ role: "user", content: planPrompt(intent, context, revision?.previousPlan) }];
     setPlan(null); setPlanError(null); setSelection(null); setMeasurement(null); setCharacters(0); setStage('RESOLVING');
     try {
-      const prepared = await fetch('/api/build/ai/prepare', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt: draft, mode: state.ai.routingMode, generationProfile: state.ai.generationProfile, manualSelection: { providerId: state.ai.providerId, modelId: state.ai.modelId } }) });
+      const prepared = await fetch('/api/build/ai/prepare', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt: requirement, mode: state.ai.routingMode, generationProfile: state.ai.generationProfile, manualSelection: { providerId: state.ai.providerId, modelId: state.ai.modelId } }) });
       if (prepared.status === 401 || prepared.status === 403) { setStage('AUTH_REQUIRED'); setPlanError('Sign in with an authorized Build account to use the provider runtime.'); return; }
       if (!prepared.ok) throw new Error(prepared.status === 400 ? 'Select a discovered provider/model for MANUAL routing.' : 'The canonical provider runtime could not resolve this request.');
       const runtime = await prepared.json();
@@ -101,7 +104,7 @@ export function DevWorkspaceHome() {
       setSelection({ ...selected, reasons: runtime.decision.reasons }); setStage('ROUTING');
       const selectedModel = intelligence.models.find((model) => model.providerId === selected.providerId && model.modelId === selected.modelId);
       const controls = profileToControls(state.ai.generationProfile, selectedModel).controls;
-      const stream = await fetch('/api/build/ai/stream', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...selected, generationProfile: state.ai.generationProfile, system: ENGINEERING_PLAN_SYSTEM, messages: [{ role: 'user', content: planPrompt(intent, { project: state.project?.name ?? null, worktree: state.project?.root ?? null, branch: state.git?.branch ?? null }) }], controls }) });
+      const stream = await fetch('/api/build/ai/stream', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...selected, generationProfile: state.ai.generationProfile, system: ENGINEERING_PLAN_SYSTEM, messages, controls }) });
       if (stream.status === 401 || stream.status === 403) { setStage('AUTH_REQUIRED'); setPlanError('The runtime refused access. No plan was generated.'); return; }
       if (!stream.ok || !stream.body) throw new Error('The provider stream could not be opened.');
       setStage('GENERATING');
@@ -114,7 +117,7 @@ export function DevWorkspaceHome() {
         if (state.ai.routingMode === 'manual' || !alternatives?.length || !canFallbackPlanError(cause)) throw cause;
         const [primary, ...fallbackChain] = alternatives;
         update({ draftPlan: null, streamText: '' });
-        const response = await fetch('/api/build/ai/generate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...primary, fallbackChain, generationProfile: state.ai.generationProfile, system: ENGINEERING_PLAN_SYSTEM, messages: [{ role: 'user', content: planPrompt(intent, { project: state.project?.name ?? null, worktree: state.project?.root ?? null, branch: state.git?.branch ?? null }) }], controls }) });
+        const response = await fetch('/api/build/ai/generate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...primary, fallbackChain, generationProfile: state.ai.generationProfile, system: ENGINEERING_PLAN_SYSTEM, messages, controls }) });
         if (!response.ok) throw new Error('The canonical fallback runtime refused this request.');
         const result = await response.json();
         if (!result.ok || !result.actualProviderId || !result.routedModelId) throw new Error(result.error?.safeMessage ?? 'No eligible fallback completed the plan.');
@@ -171,7 +174,7 @@ export function DevWorkspaceHome() {
           </form>
           <GenerationProfileRail value={state.ai.generationProfile} onChange={(profile) => dispatch({ type: 'ai/profile', profile })} model={chosenModel} disabled={planning} />
           <ModelControlsPanel model={chosenModel} profile={state.ai.generationProfile} disabled={planning} />
-          <div className="dev-card-grid dev-card-grid--intents" role="group" aria-label="Intent suggestions">{QUICK_INTENTS.slice(0, 4).map((item) => <button type="button" key={item.label} className="dev-card dev-card--interactive dev-quick-card" onClick={() => { setDraftOverride(item.prompt); input.current?.focus(); }}><span className="dev-quick-card__icon"><IntentIcon label={item.label} /></span><span className="dev-quick-card__text"><span className="dev-quick-card__label">{item.label}</span><span className="dev-quick-card__desc">{item.prompt}…</span></span><span className="dev-quick-card__arrow" aria-hidden="true">→</span></button>)}</div>
+          <div className="dev-card-grid dev-card-grid--intents" role="group" aria-label="Intent suggestions">{QUICK_INTENTS.slice(0, 4).map((item) => <button type="button" key={item.label} aria-label={item.label} aria-describedby={`intent-${item.label.replaceAll(" ", "-").toLowerCase()}`} className="dev-card dev-card--interactive dev-quick-card" onClick={() => { setDraftOverride(item.prompt); input.current?.focus(); }}><span className="dev-quick-card__icon"><IntentIcon label={item.label} /></span><span className="dev-quick-card__text"><span className="dev-quick-card__label">{item.label}</span><span id={`intent-${item.label.replaceAll(" ", "-").toLowerCase()}`} className="dev-quick-card__desc">{item.prompt}…</span></span><span className="dev-quick-card__arrow" aria-hidden="true">→</span></button>)}</div>
           <p className="dev-compiler-note" aria-live="off">{stage}{planning ? ` · ${characters.toLocaleString()} characters received` : ''} · {selection ? `${selection.providerId} / ${selection.modelId}` : 'Canonical runtime · planning only'}</p>
           {requested ? <div className={styles.runtimeReading} aria-label="Requested and actual intelligence"><p>Requested: {requested.mode.toUpperCase()} · {requested.profile} · {requested.providerId ? `${requested.providerId} / ${requested.modelId}` : 'RouterV2 eligible selection'}</p><p>Routed endpoint: {selection ? `${selection.providerId} / ${selection.modelId}` : 'UNRESOLVED'}</p><p>Actual: {measurement?.actualProviderId ?? 'UNKNOWN'} / {measurement?.actualModelId ?? 'UNKNOWN'} · latency {measurement?.latencyMs ?? 'UNKNOWN'} ms · TTFT {measurement?.ttftMs ?? 'UNKNOWN'} ms</p>{measurement?.controlsUsed ? <p>Applied controls: output {measurement.controlsUsed.maxOutputTokens ?? 'provider default'} · temperature {measurement.controlsUsed.temperature ?? 'provider default'}</p> : null}{selection?.reasons.length ? <details><summary>Routing and fallback evidence</summary><ul>{selection.reasons.map((reason, index) => <li key={index}>{reason}</li>)}</ul></details> : null}</div> : null}
           {streamText && !plan ? <details className={styles.streamEvidence}><summary>Provider text received · {characters.toLocaleString()} characters · unvalidated</summary><pre aria-live="off">{streamText}</pre></details> : null}
@@ -198,7 +201,7 @@ export function DevWorkspaceHome() {
           </div>
           <div className={previewStyles.layout} data-expanded={expandedPreview} data-compact-panel={compactPanel} style={{ '--preview-share': `${previewWidth}fr`, '--generation-share': `${100 - previewWidth}fr` } as CSSProperties}>
             <section className={previewStyles.preview} aria-label="Preview workspace"><Preview cinematic workspace /></section>
-            <GenerationMonitor draft={draft} onDraft={setDraftOverride} onCompile={(event) => void compile(event)} planning={planning} onReview={reviewFromPreview} />
+            <GenerationMonitor draft={draft} onDraft={setDraftOverride} onCompile={(event) => void compile(event)} planning={planning} onReview={reviewFromPreview} onFollowUp={(event, text, previousPlan) => void compile(event, { text, previousPlan })} />
           </div>
         </div>
       ) : view === 'code' ? <div className={previewStyles.workspace}><header className={previewStyles.workspaceHeading}><div><span>BUILD / CHECKOUT</span><h1>Code Constellation</h1><p>Inspect the real source and file metadata for this checkout.</p></div></header><Code /></div>

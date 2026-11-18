@@ -81,6 +81,12 @@
 .output pre { margin: 0; max-height: 240px; padding: 12px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; color: #e4d2f4; font: 11px/1.6 var(--font-mono, monospace); }
 .outputEmpty, .planSummary { margin: 0; padding: 13px; color: #d1bfdc; font-size: 12px; }
 .planSummary p { margin: 0 0 8px; overflow-wrap: anywhere; }
+.followUp { margin: 14px 0; border-top: 1px solid #b395d345; padding: 13px 0 0; }
+.followUp h3 { margin: 0; color: #f0ddff; font-size: 14px; }
+.followUp .compose { margin: 9px 0 0; }
+.followUp .compose p { margin: 0; color: #cfc0da; font-size: 12px; }
+.followUp .compose button { justify-self: end; }
+.previousRequest { margin: 9px 0 0; padding: 9px 11px; display: grid; gap: 5px; overflow-wrap: anywhere; border: 1px solid #a384c44d; border-radius: 8px; color: #e8d6f5; font-size: 12px; background: #251733; }
 .monitorFooter, .studioFooter { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 9px; color: #cfc0da; font-size: 12px; }
 .studioFooter { margin: 12px 0 0; }
 .publicNote { margin: 8px 0 0; color: #cfc0da; font-size: 11px; }
