@@ -158,3 +158,55 @@
 @media(prefers-reduced-motion:reduce){
   .splitView *{animation:none !important;transition:none !important}
 }
+
+.profileTelemetry[data-intensive='true'] {
+  border-color: #ab81dc80;
+  background: radial-gradient(ellipse at 100% 0%, #9660e326, transparent 68%);
+}
+.profileMetrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 114px), 1fr));
+  gap: 6px;
+  margin: 8px 0 0;
+}
+.profileMetrics > div {
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid #af9fc139;
+  border-radius: 7px;
+  background: #100d1b8c;
+}
+.profileMetrics dt { color: #c6b6d6; font-size: 0.68rem; }
+.profileMetrics dd { margin: 3px 0 0; color: #f3e9ff; font-size: 0.75rem; }
+.modelOrbit {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid #9f73da65;
+  border-radius: 38% / 32%;
+  background: radial-gradient(ellipse, #ab78f43b, #21173320 70%);
+  box-shadow: inset 0 0 18px #ae74f229;
+}
+.modelOrbit button {
+  min-width: 0;
+  max-width: 100%;
+  display: grid;
+  gap: 3px;
+  justify-items: center;
+  padding: 6px 11px;
+  border: 1px solid #ac80cc8c;
+  border-radius: 20px;
+  background: #201630;
+  color: #f2e7ff;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+  transition: translate 180ms ease, box-shadow 180ms ease;
+}
+.modelOrbit small { color: #d6bdef; }
+.modelOrbit button:hover, .modelOrbit button:focus-visible { translate: 0 -2px; box-shadow: 0 0 18px #bf8cfa69; }
+@media (prefers-reduced-motion: reduce) {
+  .modelOrbit button { transition: none; }
+  .modelOrbit button:hover, .modelOrbit button:focus-visible { translate: none; }
+}

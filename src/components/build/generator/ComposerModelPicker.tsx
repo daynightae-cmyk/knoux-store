@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
+import { Fragment, useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import type { NormalizedModel, ProviderHealth } from '@/lib/ai/types';
 import { providerState, searchModels } from '@/lib/build/model-search';
 import styles from './generator.module.css';
@@ -49,11 +49,17 @@ export function ComposerModelPicker({
 
   const results = searchModels(models.filter(eligible), query, providerFilter);
 
-  const index = Math.min(active, Math.max(0, results.length - 1));
   const chosen = models.find(
     (model) => model.modelId === selected?.modelId && model.providerId === selected.providerId,
   );
   const facets = [...new Set([...providers.map((item) => item.providerId), ...models.map((item) => item.providerId)])];
+  const groups = facets.map((facet) => ({
+    id: facet,
+    name: providers.find((item) => item.providerId === facet)?.displayName ?? facet,
+    models: results.filter((model) => model.providerId === facet),
+  })).filter((group) => group.models.length);
+  const flatOptions = groups.flatMap((group) => group.models);
+  const index = Math.min(active, Math.max(0, flatOptions.length - 1));
 
   const isFree = (model: NormalizedModel) =>
     model.pricing.inputPerMillion === 0 && model.pricing.outputPerMillion === 0;
@@ -77,7 +83,7 @@ export function ComposerModelPicker({
     }
     if (event.key === 'Home') { event.preventDefault(); setActive(0); }
     if (event.key === 'End') { event.preventDefault(); setActive(Math.max(0, results.length - 1)); }
-    if (event.key === 'Enter' && results[index]) { event.preventDefault(); choose(results[index]); }
+    if (event.key === 'Enter' && flatOptions[index]) { event.preventDefault(); choose(flatOptions[index]); }
     if (event.key === 'Escape') { event.preventDefault(); close(); }
   };
 
@@ -92,18 +98,6 @@ export function ComposerModelPicker({
     close();
   };
 
-  // Build provider-grouped result lists for sectioned rendering.
-  const groups: Array<{ id: string; name: string; models: NormalizedModel[] }> = facets.map((facet) => ({
-    id: facet,
-    name: providers.find((item) => item.providerId === facet)?.displayName ?? facet,
-    models: results.filter((model) => model.providerId === facet),
-  }));
-
-  const flatOptions: NormalizedModel[] = [];
-  groups.forEach((group) => {
-    flatOptions.push(...group.models);
-  });
-
   return (
     <div ref={root} className={styles.composerPicker} onKeyDown={(event) => { if (event.key === 'Escape') { event.preventDefault(); close(); } }}>
       <button
@@ -111,7 +105,7 @@ export function ComposerModelPicker({
         type="button"
         className={styles.composerPickerTrigger}
         disabled={disabled}
-        aria-haspopup="listbox"
+        aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={`${id}-popover`}
         onClick={() => setOpen((value) => !value)}
@@ -126,12 +120,11 @@ export function ComposerModelPicker({
       {error && !loading && <p className={styles.note}>{error}</p>}
 
       {open ? (
-        <div className={styles.composerPickerPopover} id={`${id}-popover`} role="listbox" aria-label="Choose model">
+        <div className={styles.composerPickerPopover} id={`${id}-popover`} role="dialog" aria-label="Choose model">
           <div className={styles.composerPickerSection}>
             <button
               type="button"
-              role="option"
-              aria-selected={routingMode === 'auto' && !selected}
+              aria-pressed={routingMode === 'auto' && !selected}
               className={`${styles.composerPickerOption} ${routingMode === 'auto' && !selected ? styles.composerPickerOptionActive : ''}`}
               onClick={chooseAuto}
               data-active={active === -1}
@@ -140,6 +133,15 @@ export function ComposerModelPicker({
               <span className={styles.composerPickerOptionMeta}>Canonical runtime selects the provider</span>
             </button>
           </div>
+
+          {results.length > 0 && <div className={styles.modelOrbit} role="group" aria-label="Matching models">
+            {results.slice(0, 3).map((model) => (
+              <button type="button" key={`${model.providerId}/${model.modelId}`} onClick={() => choose(model)}>
+                <strong>{model.displayName}</strong>
+                <small>{model.providerId}</small>
+              </button>
+            ))}
+          </div>}
 
           <label className={styles.composerPickerSearchLabel} htmlFor={`${id}-search`}>
             Search model or provider
@@ -187,7 +189,7 @@ export function ComposerModelPicker({
 
           <ul id={`${id}-list`} role="listbox" aria-label="Canonical models" className={styles.composerPickerModelList}>
             {groups.map((group) => (
-              <>
+              <Fragment key={group.id}>
                 <li className={styles.composerPickerGroupLabel} aria-hidden="true">{group.name}</li>
                 {group.models.map((model, item) => {
                   const groupIndex = groups.indexOf(group);
@@ -233,7 +235,7 @@ export function ComposerModelPicker({
                     </li>
                   );
                 })}
-              </>
+              </Fragment>
             ))}
             {!results.length ? (
               <li className={styles.composerPickerEmpty}>
