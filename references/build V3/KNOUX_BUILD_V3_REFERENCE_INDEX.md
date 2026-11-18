@@ -52,3 +52,7 @@ The 32 source images keep their stable IDs. These captures are browser evidence 
 | 03 | Providers | cb782dfefb162ad15fd6f4e49605be09c46863b1 | `qa/03-revised-mobile.png`, `qa/living-provider-orbit-mobile.png` | Mobile orbit selection and horizontal page fit verified. Provider credentials stayed out of QA. |
 | 23, 24 | Generation Profile and model selector | f25198e7f5a00359a04aa343c23b1e60695b4c1a | `qa/23-profile-desktop.png`, `qa/living-awakening-desktop.png`, `qa/living-model-mobile-fixture.png` | Native radio selection, live effective profile values, catalog fixture search and keyboard selection. |
 | 13, 19, 26, 28, 32 | Code Constellation, Preview and generation workspace | c7110b4894b6549bcc75ec5c394e65e9be5a0fe4 | `qa/32-preview-connected-desktop.png`, `qa/living-connected-preview-desktop.png`, `qa/living-code-desktop.png` | Real project source read and same-origin preview. The transfer panel presents independent build and preview evidence. Live generation, writes and bundle events depend on a connected runtime. |
+
+The preview planning controls share the original picker, routing state and generation profile. The browser checked desktop and mobile requests with fixtures at $sourceSha. See qa/living-planning-controls-desktop-fixture.png and qa/living-planning-controls-mobile-fixture.png.
+
+The Engineering pointer response and traveling path were checked in motion. See qa/living-engineering-hover-desktop.png and qa/living-engineering-desktop.webm.
