@@ -25,7 +25,8 @@
     "src/components/motion/PointerField.tsx",
     "src/components/products/ProductSceneBase.tsx",
     "src/lib/auth/provider.ts",
-    "src/lib/supabase/client.ts"
+    "src/lib/supabase/client.ts",
+    "src/lib/ai/adapters/vendors.ts"
   ],
   "ignoreDependencies": [],
   "ignoreBinaries": [],

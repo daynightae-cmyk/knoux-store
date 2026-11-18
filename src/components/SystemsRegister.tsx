@@ -48,7 +48,8 @@ function readTier(): Tier {
 }
 
 export function SystemsRegister() {
-  const language = useSiteLanguage(), t = (text: string) => translatedSiteCopy(text, language);
+  const language = useSiteLanguage();
+  const t = useCallback((text: string) => translatedSiteCopy(text, language), [language]);
   const [activeId, setActiveId] = useState<string>(softwareProducts[0].id);
   const [engagedId, setEngagedId] = useState<string | null>(null);
   const [announced, setAnnounced] = useState<string>('');

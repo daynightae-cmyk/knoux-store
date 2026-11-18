@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { track } from '@/lib/analytics';
 import { solutions } from '@/data/solutions';
 import { webSystems } from '@/data/services';
@@ -126,13 +126,13 @@ export function RequestForm() {
   const router = useRouter();
   const params = useSearchParams();
   const language = useSiteLanguage();
-  const t = (text: string) => translatedSiteCopy(text, language);
+  const t = useCallback((text: string) => translatedSiteCopy(text, language), [language]);
   const context = useMemo(() => readEntryContext(params), [params]);
 
-  const REQUEST_TYPES = makeRequestTypes(t);
-  const TIMELINES = makeTimelines(t);
-  const BUDGET_BANDS = makeBudgetBands(t);
-  const CHANNELS = makeChannels(t);
+  const REQUEST_TYPES = useMemo(() => makeRequestTypes(t), [t]);
+  const TIMELINES = useMemo(() => makeTimelines(t), [t]);
+  const BUDGET_BANDS = useMemo(() => makeBudgetBands(t), [t]);
+  const CHANNELS = useMemo(() => makeChannels(t), [t]);
 
   const [type, setType] = useState<RequestType>(context.type ?? 'web');
   const [items, setItems] = useState<string[]>(context.items);

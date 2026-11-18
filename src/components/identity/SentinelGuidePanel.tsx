@@ -73,7 +73,7 @@ export default function SentinelGuidePanel({ onClose, closing, character, contex
     }).catch(() => { if (!controller.signal.aborted || node?.open) setFailed(true); }).finally(() => clearTimeout(timeout));
     // Feature detection after mounting; voices never start automatically.
     const detection = window.setTimeout(() => setVoiceSupported(typeof window.speechSynthesis?.speak === 'function' && typeof window.SpeechSynthesisUtterance === 'function'), 0);
-    return () => { controller.abort(); clearTimeout(timeout); clearTimeout(detection); speechSerial.current++; window.speechSynthesis?.cancel(); node?.close(); document.body.style.overflow = previous; };
+    return () => { const serial = ++speechSerial.current; controller.abort(); clearTimeout(timeout); clearTimeout(detection); window.speechSynthesis?.cancel(); node?.close(); document.body.style.overflow = previous; };
   }, []);
   useEffect(() => { speechSerial.current++; window.speechSynthesis?.cancel(); }, [key]);
 

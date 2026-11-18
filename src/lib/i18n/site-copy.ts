@@ -314,7 +314,7 @@ export const SITE_COPY: Record<string, readonly [string, string]> = {
   'The published software registry is unavailable, so no product was invented to fill the scene.': ['سجل البرمجيات المنشور غير متاح، لذلك لم يُختَرع أي منتج لملء المشهد.', 'شائع شدہ سافٹ ویئر رجسٹری دستیاب نہیں، اس لیے منظر بھرنے کے لیے کوئی پروڈکٹ ایجاد نہیں کی گئی۔'],
   'Try again': ['إعادة المحاولة', 'دوبارہ کوشش کریں'],
   'Registry': ['السجل', 'رجسٹری'],
-  'THE UNIVERSE COMES ALIVE.': ['الكون يستيقظ.', 'کائنات زندہ ہوتی ہے۔'],
+  'THE UNIVERSE COMES ALIVE.': ['الكون ينبض بالحياة.', 'کائنات زندہ ہوتی ہے۔'],
   'Play it again': ['شغّله مرة أخرى', 'دوبارہ چلائیں'],
   'Verified systems from the registry': ['أنظمة موثقة من السجل', 'رجسٹری سے تصدیق شدہ نظام'],
   'Reduce motion is on. The reveal is shown directly.': ['تقليل الحركة مُفعّل. يُعرض الكشف مباشرة.', 'حرکت کم کرنا فعال ہے۔ انکشاف براہ راست دکھایا گیا ہے۔'],
