@@ -195,6 +195,7 @@ function git(root: string, args: string[], timeout = GIT_TIMEOUT_MS): Promise<st
       const child = spawn(gitExecutable, ['-c', 'core.fsmonitor=false', ...args], {
         cwd: root, windowsHide: true, shell: false,
         env: {
+          NODE_ENV: 'production',
           ...(process.platform === 'win32' ? { SystemRoot: windowsSystemRoot } : {}),
           PATH: process.platform === 'win32' ? path.join(windowsSystemRoot, 'System32') : '/usr/bin:/bin',
           GIT_OPTIONAL_LOCKS: '0',

@@ -193,8 +193,8 @@ function adapterHarness({ before = {}, after = {}, output = 'Controlled success'
         assert.deepEqual(argv.slice(0, 2), ['-c', 'core.fsmonitor=false']);
         const systemRoot = process.env.SystemRoot || 'C:\\Windows';
         assert.deepEqual(options.env, process.platform === 'win32'
-          ? { SystemRoot: systemRoot, PATH: nodePath.join(systemRoot, 'System32'), GIT_OPTIONAL_LOCKS: '0' }
-          : { PATH: '/usr/bin:/bin', GIT_OPTIONAL_LOCKS: '0' });
+          ? { NODE_ENV: 'production', SystemRoot: systemRoot, PATH: nodePath.join(systemRoot, 'System32'), GIT_OPTIONAL_LOCKS: '0' }
+          : { NODE_ENV: 'production', PATH: '/usr/bin:/bin', GIT_OPTIONAL_LOCKS: '0' });
         if (args[0] === 'rev-parse') value = args.at(-1) === 'HEAD' ? (state.headReads?.shift() ?? state.head) : HEAD_A;
         else if (args[0] === 'status') value = state.statusReads?.shift() ?? state.status;
         else if (args[0] === 'diff') {
