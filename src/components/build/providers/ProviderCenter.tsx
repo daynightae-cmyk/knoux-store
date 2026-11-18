@@ -32,6 +32,7 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     const { dispatch } = useBuildWorkspace();
     const [data, setData] = useState<ProviderWorkspaceSnapshot | null>(null), [message, setMessage] = useState(''), [busy, setBusy] = useState(false);
     const [search, setSearch] = useState(''), [category, setCategory] = useState('ALL'), [selected, setSelected] = useState(''), [tab, setTab] = useState('Overview');
+    const [orbitPage, setOrbitPage] = useState(0);
     const [wizard, setWizard] = useState(false), [profileName, setProfileName] = useState(''), [authMode, setAuthMode] = useState<AuthSource['mode']>('API_KEY'), [credentialId, setCredentialId] = useState(''), [reference, setReference] = useState('');
     const [editProfile, setEditProfile] = useState<{
         id: string;
@@ -92,6 +93,9 @@ export function ProviderCenter({ embedded = false }: Readonly<{
         const provider = filtered.find(item => item.id === id);
         return provider ? [{ provider, left, top }] : [];
     });
+    const lastOrbitPage = Math.max(0, Math.ceil(orbitProviders.length / 3) - 1);
+    const visibleOrbitPage = Math.min(orbitPage, lastOrbitPage);
+    const compactOrbit = orbitProviders.slice(visibleOrbitPage * 3, visibleOrbitPage * 3 + 3);
     async function command(input: Record<string, unknown>, workspaceId?: string): Promise<boolean> {
         if (inFlight.current)
             return false;
@@ -185,7 +189,7 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     }
     const models = (profile?.models ?? []).filter(model => (showAll || (model.modalities.text && model.lifecycle !== 'deprecated' && model.catalog?.buildEligible !== false)) && (!freeOnly || (model.pricing.inputPerMillion === 0 && model.pricing.outputPerMillion === 0)) && `${model.modelId} ${model.displayName}`.toLowerCase().includes(modelSearch.toLowerCase()));
     const heading = <header className={styles.heading}><span className={styles.eyebrow}>PROVIDERS / AI ECOSYSTEM</span>{embedded ? <h2>Providers</h2> : <h1>Providers</h1>}</header>;
-    const toolbar = <div className={styles.toolbar}><label className={styles.search}>Search providers<input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Provider, transport, agent…"/></label>{data?.workspaces?.length ? <label>Provider workspace<select disabled={busy} value={data.workspaceId ?? ''} onChange={event => void command({ action: 'WORKSPACE_SELECT' }, event.target.value)}>{data.workspaces.map(workspace => <option key={workspace.id} value={workspace.id}>{workspace.name}</option>)}</select></label> : null}<button type="button" disabled={busy} onClick={() => void load().catch(() => setMessage('Provider refresh failed.'))}>Refresh facts ↗</button>{writable ? <button type="button" disabled={busy} onClick={() => {
+    const toolbar = <div className={styles.toolbar}><label className={styles.search}>Search providers<input type="search" value={search} onChange={event => { setSearch(event.target.value); setOrbitPage(0); if (providerBrowse.current) providerBrowse.current.open = true; }} placeholder="Provider, transport, agent…"/></label>{data?.workspaces?.length ? <label>Provider workspace<select disabled={busy} value={data.workspaceId ?? ''} onChange={event => void command({ action: 'WORKSPACE_SELECT' }, event.target.value)}>{data.workspaces.map(workspace => <option key={workspace.id} value={workspace.id}>{workspace.name}</option>)}</select></label> : null}<button type="button" disabled={busy} onClick={() => void load().catch(() => setMessage('Provider refresh failed.'))}>Refresh facts ↗</button>{writable ? <button type="button" disabled={busy} onClick={() => {
                 const name = window.prompt('New provider workspace name');
                 if (name)
                     void command({ action: 'WORKSPACE_CREATE', name });
@@ -214,11 +218,30 @@ export function ProviderCenter({ embedded = false }: Readonly<{
         <aside className={styles.providerOrbit} aria-label="Provider shortcuts">
           <div className={styles.orbitTrack} aria-hidden="true" />
           {orbitProviders.map(({ provider, left, top }) => (
-            <button key={provider.id} type="button" style={{ '--orbit-left': `${left}%`, '--orbit-top': `${top}px` } as CSSProperties} aria-current={selected === provider.id ? 'true' : undefined} onClick={() => choose(provider)}>
+            <button className={styles.desktopOrbitNode} key={provider.id} type="button" style={{ '--orbit-left': `${left}%`, '--orbit-top': `${top}px` } as CSSProperties} aria-current={selected === provider.id ? 'true' : undefined} onClick={() => choose(provider)}>
               <ProviderMark definition={provider} />
               <span>{provider.name}</span>
             </button>
           ))}
+          <div className={styles.compactOrbit}>
+            <div className={styles.compactTrack} aria-hidden="true" />
+            <div className={styles.orbitCore}>
+              {definition && <ProviderMark definition={definition} />}
+              <span>{definition?.name ?? 'Provider orbit'}</span>
+            </div>
+            <div className={styles.orbitOptions}>
+              {compactOrbit.map(({ provider }) => (
+                <button key={provider.id} type="button" aria-current={selected === provider.id ? 'true' : undefined} onClick={() => choose(provider)}>
+                  <ProviderMark definition={provider} /><span>{provider.name}</span>
+                </button>
+              ))}
+            </div>
+            {lastOrbitPage > 0 && <div className={styles.orbitPaging}>
+              <button type="button" aria-label="Previous provider orbit page" disabled={visibleOrbitPage === 0} onClick={() => setOrbitPage(visibleOrbitPage - 1)}>‹</button>
+              <span aria-live="polite">{visibleOrbitPage + 1} / {lastOrbitPage + 1}</span>
+              <button type="button" aria-label="Next provider orbit page" disabled={visibleOrbitPage === lastOrbitPage} onClick={() => setOrbitPage(visibleOrbitPage + 1)}>›</button>
+            </div>}
+          </div>
         </aside>
       ) : null}
       <section ref={detail} tabIndex={-1} className={styles.detail} aria-label="Provider detail">{!definition ? <div className={styles.intro}><span aria-hidden="true" className={styles.constellation}>✦</span><h2>A connected constellation.</h2><p>Select a provider to configure its profiles and inspect measured capabilities. Keys stay on the server; unmeasured usage remains unknown.</p><p>{data?.blocker}</p></div> : <>
