@@ -13,20 +13,41 @@ import { GenerationProfileRail } from '../generator/GenerationProfileRail';
 import { ModelControlsPanel } from '../generator/ModelControlsPanel';
 import { SplitView } from '../generator/SplitView';
 import { PlanSystemMap } from '../generator/PlanSystemMap';
+import { GenerationMonitor } from '../generator/GenerationMonitor';
+import previewStyles from '../generator/preview-workspace.module.css';
 import { profileToControls } from '@/lib/build/profile';
+import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
 import styles from '../generator/generator.module.css';
 import { consumePlanStream, parseEngineeringPlan, canFallbackPlanError, PlanStreamError, ENGINEERING_PLAN_SYSTEM, PLAN_SECTIONS, planPrompt, type EngineeringPlan, type EngineeringStage } from '@/lib/build/engineering-plan';
 import { QUICK_INTENTS } from './quick-intents';
 
 const Preview = dynamic(() => import('../surfaces/PreviewSurface').then((mod) => mod.PreviewSurface));
+const Code = dynamic(() => import('../surfaces/CodeSurface').then((mod) => mod.CodeSurface));
 const Registry = dynamic(() => import('./ProductMachine').then((mod) => mod.ProductMachine));
+
+const INTENT_ICON_PATHS: Record<string, string> = {
+  'WEB APP': 'M8 6l-5 6 5 6M16 6l5 6-5 6M13 4l-2 16',
+  'DESKTOP APP': 'M3 5h18v11H3zM9 20h6M12 16v4',
+  ANDROID: 'M7 9h10v8a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2zM7 9a5 5 0 0 1 10 0M4 10v5M20 10v5M9 19v2M15 19v2',
+  'SYSTEM TOOL': 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1',
+};
+
+function IntentIcon({ label }: { label: string }) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d={INTENT_ICON_PATHS[label] ?? INTENT_ICON_PATHS['WEB APP']} />
+    </svg>
+  );
+}
 
 export function DevWorkspaceHome() {
   const { state, dispatch } = useBuildWorkspace();
   const [draftOverride, setDraftOverride] = useState<string | null>(null);
-  const view = state.workspace.activeSurface === 'preview' ? 'preview' : state.workspace.activeSurface === 'data' ? 'registry' : 'build';
-  const setView = (view: 'build' | 'preview' | 'registry') => dispatch({ type: 'surface/active', surface: view === 'preview' ? 'preview' : view === 'registry' ? 'data' : 'genesis' });
+  const surface = state.workspace.activeSurface;
+  const view = surface === 'preview' || surface === 'code' ? surface : surface === 'data' ? 'registry' : 'build';
+  const setView = (view: 'build' | 'preview' | 'code' | 'registry') => dispatch({ type: 'surface/active', surface: view === 'build' ? 'genesis' : view === 'registry' ? 'data' : view });
   const input = useRef<HTMLTextAreaElement>(null);
+  const planPanel = useRef<HTMLElement>(null);
   const draft = draftOverride ?? state.intent?.rawInput ?? '';
   const facts = workspaceFacts(state);
   const attempt = useRef<string | null>(state.engineering.requestId);
@@ -36,6 +57,7 @@ export function DevWorkspaceHome() {
   const chosenModel = intelligence.models.find((model) => model.providerId === (selection?.providerId ?? state.ai.providerId) && model.modelId === (selection?.modelId ?? state.ai.modelId)) ?? null;
   const planning = ['RESOLVING', 'ROUTING', 'GENERATING'].includes(stage);
   const [showSplitView, setShowSplitView] = useState(false);
+  const [expandedPreview, setExpandedPreview] = useState(false);
 
   // Auto-grow the composer textarea so the full intent stays visible.
   useEffect(() => {
@@ -43,7 +65,13 @@ export function DevWorkspaceHome() {
     if (!target) return;
     target.style.height = 'auto';
     target.style.height = `${Math.max(target.scrollHeight, 72)}px`;
-  }, [draft, planning]);
+  }, [draft, planning, view]);
+
+  function reviewFromPreview() {
+    setStage('REVIEWING');
+    setView('build');
+    requestAnimationFrame(() => planPanel.current?.focus());
+  }
 
   async function compile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -102,16 +130,21 @@ export function DevWorkspaceHome() {
       <header className="dev-stage-head">
         <span className="dev-mini-label">KNOuX / ENGINEERING ENVIRONMENT</span>
         <div className="dev-stage-views" role="group" aria-label="Workspace view">
-          {(['build', 'preview', 'registry'] as const).map((item) => <button key={item} type="button" aria-pressed={view === item} onClick={() => setView(item)}>{item.toUpperCase()}</button>)}
+          {(['build', 'preview', 'code', 'registry'] as const).map((item) => <button key={item} type="button" aria-pressed={view === item} onClick={() => setView(item)}>{item.toUpperCase()}</button>)}
         </div>
       </header>
-      <details className="dev-context-rail"><summary><span>{state.project?.name ?? 'Project not connected'}</span><span>{state.git?.branch ?? 'No branch'}</span><span>{state.engineering.host?.name ?? 'Host unmeasured'}</span><span>KNOuX Architect</span><span>{selection?.modelId ?? state.ai.modelId ?? 'Model per request'}</span><span>{state.ai.routingMode.toUpperCase()}</span><b>Context ↓</b></summary><dl className="dev-home-context"><div><dt>PROJECT / WORKTREE</dt><dd>{state.project?.root ?? 'NOT CONNECTED'}</dd></div><div><dt>HOST</dt><dd>{state.engineering.host?.kind ?? facts.environment}</dd></div><div><dt>AGENT / TOOLS</dt><dd>Logical planning profile · provider planning only</dd></div><div><dt>ENGINE</dt><dd>Workspace interface online · {facts.runtime} (project runtime)</dd></div><div><dt>PROVIDER</dt><dd>{facts.provider}</dd></div></dl></details>
+      <details className="dev-context-rail" open><summary><span>{state.project?.name ?? 'Project not connected'}</span><span>{state.git?.branch ?? 'No branch'}</span><span>{state.engineering.host?.name ?? 'Host unmeasured'}</span><span>KNOuX Architect</span><span>{selection?.modelId ?? state.ai.modelId ?? 'Model per request'}</span><span>{state.ai.routingMode.toUpperCase()}</span><b>Context ↓</b></summary><dl className="dev-home-context"><div><dt>PROJECT / WORKTREE</dt><dd>{state.project?.root ?? 'NOT CONNECTED'}</dd></div><div><dt>HOST</dt><dd>{state.engineering.host?.kind ?? facts.environment}</dd></div><div><dt>PROVIDER</dt><dd>{facts.provider}</dd></div><div><dt>AGENT / TOOLS</dt><dd>Logical planning profile · provider planning only</dd></div></dl></details>
       {view === 'build' ? <div className="dev-universe">
         <div className="dev-universe__orbit" aria-hidden="true" />
         <div className="dev-build-center">
           <p className="dev-build-center__eyebrow">KNOuX BUILD</p>
           <h1>What are we building today?</h1>
-          <div className="dev-engine" data-stage={stage}><p><span role="status">ENGINE / {stage}</span><small aria-live="off">{planning ? `${characters.toLocaleString()} characters received` : stage === 'LISTENING' ? 'Describe a system. Resolve its architecture.' : stage === 'PLANNED' ? 'Proposal ready · review before execution' : stage === 'AUTH_REQUIRED' ? 'Provider access requires an authorized account' : stage === 'EXECUTOR_NOT_CONNECTED' ? 'Plan retained · trusted execution required' : 'Canonical engineering state'}</small></p></div>
+          <div className="dev-engine" data-stage={stage} data-reduced={state.preferences.motion === 'reduced' ? '' : undefined}>
+            <svg className="dev-engine__glyph" viewBox={`0 0 ${MARK_VIEW_BOX.width} ${MARK_VIEW_BOX.height}`} aria-hidden="true">
+              {MARK_PATHS.map(({ id, d }) => <path key={id} d={d} />)}
+            </svg>
+            <p><span role="status">ENGINE / {stage}</span><small aria-live="off">{planning ? `${characters.toLocaleString()} characters received` : stage === 'LISTENING' ? 'Describe a system. Resolve its architecture.' : stage === 'PLANNED' ? 'Proposal ready · review before execution' : stage === 'AUTH_REQUIRED' ? 'Provider access requires an authorized account' : stage === 'EXECUTOR_NOT_CONNECTED' ? 'Plan retained · trusted execution required' : 'Canonical engineering state'}</small></p>
+          </div>
           <div className="dev-composer-routing">
             <ComposerModelPicker
               models={intelligence.models}
@@ -128,7 +161,7 @@ export function DevWorkspaceHome() {
           <p className={styles.note}>{state.ai.routingMode === 'auto' ? 'AUTO uses RouterV2. Choosing a discovered model explicitly enters MANUAL.' : 'MANUAL uses the exact provider/model. No automatic fallback.'}</p>
           <form className="dev-floating-compose" onSubmit={(event) => void compile(event)}>
             <label className="dev-visually-hidden" htmlFor="dev-intent-input">Describe what you want to build</label>
-            <textarea ref={input} id="dev-intent-input" maxLength={16000} disabled={planning} value={draft} onChange={(event) => setDraftOverride(event.target.value)} onInput={(event) => { const target = event.target as HTMLTextAreaElement; target.style.height = 'auto'; target.style.height = `${Math.max(target.scrollHeight, 72)}px`; }} placeholder="Describe what you want to build…" rows={3} style={{ height: 'auto', minHeight: 72 }} />
+            <textarea ref={input} id="dev-intent-input" maxLength={16000} disabled={planning} value={draft} onChange={(event) => setDraftOverride(event.target.value)} onInput={(event) => { const target = event.target as HTMLTextAreaElement; target.style.height = 'auto'; target.style.height = `${Math.max(target.scrollHeight, 72)}px`; }} placeholder="Describe what you want to build…" rows={2} style={{ height: 'auto', minHeight: 72 }} />
             <div className="dev-floating-compose__tools">
               <div className="dev-compose-modes" role="group" aria-label="Build actions"><span>BUILD</span><button type="button" className="dev-neon-btn dev-neon-btn--ghost" onClick={() => setView('preview')}>PREVIEW</button><Link href="/build/pipeline" className="dev-neon-btn dev-neon-btn--ghost">VERIFY ↗</Link></div>
               <div className="dev-compose-actions"><Link href="/build/docs" aria-label="Open project files" title="Docs & project files">▤</Link><Link href="/build/terminal" aria-label="Open terminal" title="Terminal">⌘</Link><button type="submit" className="dev-neon-btn dev-neon-btn--primary" disabled={!draft.trim() || planning} aria-label="Generate engineering plan" title="Generate a plan with the canonical provider runtime">↑</button></div>
@@ -136,18 +169,32 @@ export function DevWorkspaceHome() {
           </form>
           <GenerationProfileRail value={state.ai.generationProfile} onChange={(profile) => dispatch({ type: 'ai/profile', profile })} model={chosenModel} disabled={planning} />
           <ModelControlsPanel model={chosenModel} profile={state.ai.generationProfile} disabled={planning} />
-          <div className="dev-card-grid" role="group" aria-label="Intent suggestions">{QUICK_INTENTS.map((item) => <button type="button" key={item.label} className="dev-card dev-card--interactive dev-quick-card" onClick={() => { setDraftOverride(item.prompt); input.current?.focus(); }}><span className="dev-quick-card__label">{item.label}</span><span className="dev-quick-card__desc">{item.prompt.slice(0, 80)}…</span></button>)}</div>
+          <div className="dev-card-grid dev-card-grid--intents" role="group" aria-label="Intent suggestions">{QUICK_INTENTS.slice(0, 4).map((item) => <button type="button" key={item.label} className="dev-card dev-card--interactive dev-quick-card" onClick={() => { setDraftOverride(item.prompt); input.current?.focus(); }}><span className="dev-quick-card__icon"><IntentIcon label={item.label} /></span><span className="dev-quick-card__text"><span className="dev-quick-card__label">{item.label}</span><span className="dev-quick-card__desc">{item.prompt}…</span></span><span className="dev-quick-card__arrow" aria-hidden="true">→</span></button>)}</div>
           <p className="dev-compiler-note" aria-live="off">{stage}{planning ? ` · ${characters.toLocaleString()} characters received` : ''} · {selection ? `${selection.providerId} / ${selection.modelId}` : 'Canonical runtime · planning only'}</p>
           {requested ? <div className={styles.runtimeReading} aria-label="Requested and actual intelligence"><p>Requested: {requested.mode.toUpperCase()} · {requested.profile} · {requested.providerId ? `${requested.providerId} / ${requested.modelId}` : 'RouterV2 eligible selection'}</p><p>Routed endpoint: {selection ? `${selection.providerId} / ${selection.modelId}` : 'UNRESOLVED'}</p><p>Actual: {measurement?.actualProviderId ?? 'UNKNOWN'} / {measurement?.actualModelId ?? 'UNKNOWN'} · latency {measurement?.latencyMs ?? 'UNKNOWN'} ms · TTFT {measurement?.ttftMs ?? 'UNKNOWN'} ms</p>{measurement?.controlsUsed ? <p>Applied controls: output {measurement.controlsUsed.maxOutputTokens ?? 'provider default'} · temperature {measurement.controlsUsed.temperature ?? 'provider default'}</p> : null}{selection?.reasons.length ? <details><summary>Routing and fallback evidence</summary><ul>{selection.reasons.map((reason, index) => <li key={index}>{reason}</li>)}</ul></details> : null}</div> : null}
           {streamText && !plan ? <details className={styles.streamEvidence}><summary>Provider text received · {characters.toLocaleString()} characters · unvalidated</summary><pre aria-live="off">{streamText}</pre></details> : null}
           <div className="dev-intent-reading" role="status">{state.intent ? summariseIntent(state.intent) : 'Describe your next system to compile its intent.'}</div>
         </div>
         <div className="dev-universe__caption"><span>PROJECT CONSTELLATION</span><button type="button" onClick={() => setView('registry')}>EXPLORE {facts.registryCount} PRODUCTS ↗</button></div>
-      </div> : <div className="dev-stage-surface"><h1 className="dev-surface-title">{view === 'preview' ? 'Project preview' : 'Product constellation'}</h1>{view === 'preview' ? <Preview cinematic /> : <Registry />}</div>}
-      {planError ? <p className="dev-plan-error" role="alert">{planError} <Link href="/build/providers">Inspect providers ↗</Link></p> : null}
-      {!plan && draftPlan && Object.keys(draftPlan).length ? <PlanSystemMap plan={draftPlan} draft /> : null}
-      {plan ? <>
-          <section className="dev-engineering-plan" aria-label="Engineering plan">
+      </div> : view === 'preview' ? (
+        <div className={previewStyles.workspace} data-reduced={state.preferences.motion === 'reduced' ? '' : undefined}>
+          <header className={previewStyles.workspaceHeading}>
+            <div><span>BUILD / GENERATION</span><h1>Project preview</h1><p>Inspect the runtime while you plan and review changes.</p></div>
+            <button type="button" className="bo-chip" aria-pressed={expandedPreview} onClick={() => setExpandedPreview((expanded) => !expanded)}>
+              {expandedPreview ? 'Show generation panel' : 'Expand preview'}
+            </button>
+          </header>
+          <div className={previewStyles.layout} data-expanded={expandedPreview}>
+            <section className={previewStyles.preview} aria-label="Preview workspace"><Preview cinematic workspace /></section>
+            <GenerationMonitor draft={draft} onDraft={setDraftOverride} onCompile={(event) => void compile(event)} planning={planning} onReview={reviewFromPreview} />
+          </div>
+        </div>
+      ) : view === 'code' ? <div className={previewStyles.workspace}><header className={previewStyles.workspaceHeading}><div><span>BUILD / CHECKOUT</span><h1>Code Constellation</h1><p>Inspect the real source and file metadata for this checkout.</p></div></header><Code /></div>
+        : <div className="dev-stage-surface"><h1 className="dev-surface-title">Product constellation</h1><Registry /></div>}
+      {planError && view === 'build' ? <p className="dev-plan-error" role="alert">{planError} <Link href="/build/providers">Inspect providers ↗</Link></p> : null}
+      {view === 'build' && !plan && draftPlan && Object.keys(draftPlan).length ? <PlanSystemMap plan={draftPlan} draft /> : null}
+      {plan && view === 'build' ? <>
+          <section ref={planPanel} tabIndex={-1} className="dev-engineering-plan" aria-label="Engineering plan">
             <header><div><span className="dev-mini-label">ENGINEERING ARTIFACT / PROPOSAL</span><h2>From intent to architecture.</h2></div><div style={{display:'flex',gap:'12px',flexWrap:'wrap',alignItems:'center'}}><button type="button" className="dev-neon-btn dev-neon-btn--ghost" onClick={() => setStage('REVIEWING')}>Review plan</button><button type="button" className="dev-neon-btn dev-neon-btn--primary" onClick={() => setShowSplitView(true)}><span aria-hidden="true">▦</span> Open Preview & Code</button></div></header>
             <dl className="dev-plan-context"><div><dt>Agent</dt><dd>KNOuX Architect · logical planning profile</dd></div><div><dt>Runtime / profile</dt><dd>{selection?.providerId} / {selection?.modelId} · {requested?.profile}</dd></div><div><dt>Worktree</dt><dd>{state.engineering.context?.worktree ?? 'No worktree connected'}</dd></div><div><dt>Measurements</dt><dd>{measurement?.latencyMs ?? 'UNKNOWN'} ms · input {measurement?.usage?.inputTokens ?? 'UNKNOWN'} / output {measurement?.usage?.outputTokens ?? 'UNKNOWN'} tokens · cost {measurement?.estimatedCost?.amount != null ? `${measurement.estimatedCost.basis} ${measurement.estimatedCost.amount} ${measurement.estimatedCost.currency}` : 'UNKNOWN'}</dd></div></dl>
             <p className={styles.note}>Session-only proposal: retained while navigating Build; a new request or page reload clears it. No plan is stored on the server.</p>

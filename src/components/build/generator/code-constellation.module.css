@@ -1,0 +1,22 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(165px, 260px) minmax(0, 1fr);
+  min-height: 58vh;
+  border: 1px solid #b598d674;
+  border-radius: 13px;
+  background: radial-gradient(ellipse at 62% 0, #28193e59, transparent 62%), #0d0916;
+  box-shadow: inset 0 0 24px #a16dd020, 0 13px 30px #05040b80;
+}
+.tree { min-width: 0; max-height: 62dvh; overflow: auto; border-right: 1px solid #b598d650; scrollbar-color: #7a60a0 #100a1c; }
+.tree button { width: 100%; text-align: start; overflow-wrap: anywhere; }
+.tree button[aria-current='true'] { box-shadow: inset 2px 0 #d2a7ff, inset 0 0 14px #9865cc40; }
+.search { display: grid; gap: 6px; margin: 12px; color: #e1cef2; font-size: 12px; }
+.search input {
+  width: 100%; min-width: 0; min-height: 42px; padding: 8px 10px;
+  border: 1px solid #b99ad574; border-radius: 7px; background: #181022; color: #f3e8f9;
+}
+.search input:focus-visible { outline: 2px solid #d8adff; outline-offset: 2px; }
+@media (max-width: 600px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .tree { max-height: 33dvh; border-right: 0; border-bottom: 1px solid #b598d650; }
+}

@@ -7,6 +7,7 @@ import '@/components/build/dev/dev-cinematic.css';
 import '@/components/build/dev/dev-connected.css';
 import '@/components/build/dev/engineering-os.css';
 import '@/components/build/dev/visual-v3.css';
+import '@/components/build/dev/landing-v3.css';
 
 export const dynamic = 'force-dynamic';
 

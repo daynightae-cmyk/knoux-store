@@ -13,20 +13,35 @@ export function EngineeringConsole({ area }: { area: string }) {
   const { state } = useBuildWorkspace();
   const [context, setContext] = useState<EngineeringContext | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  async function refresh() {
-    setBusy(true); setError(null);
-    try { const response = await fetch('/api/build/context', { cache: 'no-store' }); if (!response.ok) throw new Error(response.status === 401 ? 'AUTH_REQUIRED · Sign in to inspect the active host.' : 'Host context could not be measured.'); setContext(await response.json()); } catch (cause) { setError(cause instanceof Error ? cause.message : 'Context unavailable.'); } finally { setBusy(false); }
-  }
+  const [busy, setBusy] = useState(true);
+  const [request, retry] = useState(0);
   useEffect(() => {
-    let cancelled = false;
-    void fetch('/api/build/context', { cache: 'no-store' }).then(async (response) => { if (!response.ok) throw new Error(response.status === 401 ? 'AUTH_REQUIRED · Sign in to inspect the active host.' : 'Host context could not be measured.'); const value = await response.json(); if (!cancelled) setContext(value); }).catch((cause) => { if (!cancelled) setError(cause instanceof Error ? cause.message : 'Context unavailable.'); });
-    return () => { cancelled = true; };
-  }, []);
+    const controller = new AbortController();
+    const timeout = AbortSignal.timeout(15_000);
+    const signal = AbortSignal.any([controller.signal, timeout]);
+
+    async function measureHost() {
+      try {
+        const response = await fetch('/api/build/context', { cache: 'no-store', signal });
+        if (!response.ok) throw new Error(response.status === 401 ? 'AUTH_REQUIRED · Sign in to inspect the active host.' : 'Host context could not be measured.');
+        const value = await response.json();
+        if (!controller.signal.aborted) setContext(value);
+      } catch (cause) {
+        if (!controller.signal.aborted) {
+          setError(timeout.aborted ? 'The active host did not respond within 15 seconds. Refresh to try again.' : cause instanceof Error ? cause.message : 'Context unavailable.');
+        }
+      } finally {
+        if (!controller.signal.aborted) setBusy(false);
+      }
+    }
+
+    void measureHost();
+    return () => controller.abort();
+  }, [request]);
   const host = context?.host;
   return <div className="dev-route dev-engineering-console"><DevPageHeading eyebrow="ENGINEERING / ACTIVE ENVIRONMENT" title={active.charAt(0).toUpperCase() + active.slice(1)} description="Measured host and project facts, resolved capabilities, and explicit operating boundaries." detail={context ? `Last checked ${context.measuredAt}` : 'UNTESTED'} />
     <nav className="dev-engineering-tabs" aria-label="Engineering areas">{AREAS.map((item) => <Link key={item} aria-current={active === item ? 'page' : undefined} href={`/build/engineering?area=${item}`}>{item}</Link>)}</nav>
-    <div className="dev-actions"><button type="button" disabled={busy} onClick={() => void refresh()}>{busy ? 'Measuring…' : 'Refresh host facts'}</button></div>
+    <div className="dev-actions"><button type="button" disabled={busy} onClick={() => { setBusy(true); setError(null); retry((current) => current + 1); }}><span aria-hidden="true">⟳</span>{busy ? 'Measuring…' : 'Refresh host facts'}</button></div>
     {error ? <p role="alert" className="dev-plan-error">{error}</p> : null}
     {active === 'host' || active === 'overview' ? <DevPanel title="Viewing — Active Host"><dl className="dev-kv"><dt>Identity</dt><dd>{host?.name ?? 'UNKNOWN'} · {host?.kind ?? 'UNTESTED'}</dd><dt>OS / architecture</dt><dd>{host?.os ?? 'UNKNOWN'} / {host?.architecture ?? 'UNKNOWN'}</dd><dt>CPU</dt><dd>{host?.cpu ?? 'UNKNOWN'} · {host?.cores ?? 'UNKNOWN'} cores</dd><dt>RAM</dt><dd>{host ? `${(host.ramBytes / 2 ** 30).toFixed(1)} GiB total / ${(host.freeRamBytes / 2 ** 30).toFixed(1)} GiB free` : 'UNKNOWN'}</dd><dt>Disk</dt><dd>{host?.disk ? `${(host.disk.totalBytes / 2 ** 30).toFixed(1)} GiB total / ${(host.disk.freeBytes / 2 ** 30).toFixed(1)} GiB free` : 'UNKNOWN'}</dd><dt>Node</dt><dd>{host?.node ?? 'UNKNOWN'}</dd><dt>Project root</dt><dd>{host?.root ?? 'UNKNOWN'}</dd></dl><div className="dev-list">{context?.tools.filter((tool) => tool.category === 'runtime').map((tool) => <div key={tool.id}><span><strong>{tool.label}</strong><small>{tool.binary ?? 'No executable detected in PATH'}</small></span><span>{tool.state} · {tool.version ?? 'VERSION UNKNOWN'}</span></div>)}</div><p className="dev-note">These facts describe the server handling this request. A local machine is a separate host and requires an authenticated paired Bridge.</p></DevPanel> : null}
     {active === 'agents' ? <><DevPanel title="Logical agent profiles"><div className="dev-agent-profiles">{['Architect', 'Builder', 'UI', 'Research', 'Release'].map((name, index) => <article key={name}><span className="dev-mini-label">{index === 0 ? 'PRIMARY' : index === 4 ? 'REVIEW' : 'OPTIONAL'} PROFILE</span><h2>KNOuX {name}</h2><p>{name === 'Architect' ? 'Canonical provider planning on Getting Started.' : 'A logical role. No standalone executable or automatic tool permission is implied.'}</p><dl className="dev-kv"><dt>Provider / model</dt><dd>{state.engineering.selection?.providerId ?? state.ai.providerId ?? 'AUTO · resolved per request'} / {state.engineering.selection?.modelId ?? state.ai.modelId ?? 'UNKNOWN'}</dd><dt>Project</dt><dd>{state.project?.name ?? 'NOT CONNECTED'}</dd><dt>Worktree</dt><dd>{state.project?.root ?? 'NOT CONNECTED'}</dd><dt>Tool / MCP / plugin / skill access</dt><dd>No agent capability binding connected</dd><dt>Shell / browser / Git writes</dt><dd>Explicit trusted executor approval required</dd><dt>Network</dt><dd>Provider request only during planning</dd><dt>Execution</dt><dd>{name === 'Architect' ? 'Planning available when provider resolves' : 'AGENT_UNAVAILABLE'}</dd></dl></article>)}</div></DevPanel><DevPanel title="Detected CLI tooling"><div className="dev-list">{context?.tools.filter((tool) => tool.category === 'agent').map((tool) => <div key={tool.id}><span><strong>{tool.label}</strong><small>{tool.binary ?? 'Discovery target · absent from PATH'}</small></span><span>{tool.state} · {tool.version ?? 'VERSION UNKNOWN'} · auth {tool.authenticated}</span></div>)}</div><p className="dev-note">Detection proves a binary exists. It does not prove login, permissions, generation, agent execution or a connection to this workspace. Fallback selection is recorded by the canonical provider router.</p></DevPanel></> : null}
