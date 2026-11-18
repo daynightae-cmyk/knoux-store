@@ -105,6 +105,7 @@ export function ComposerModelPicker({
         type="button"
         className={styles.composerPickerTrigger}
         disabled={disabled}
+        aria-label={chosen ? `Choose model · ${chosen.providerId} / ${chosen.displayName}` : 'Choose model · AUTO'}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={`${id}-popover`}

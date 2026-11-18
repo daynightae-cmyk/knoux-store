@@ -57,3 +57,12 @@ export async function providerFixture(page: Page) {
     });
     return { data, requests };
 }
+
+export async function openProviderRegistry(page: Page) {
+  await page.getByLabel('Provider workspace').waitFor();
+  const summary = page.locator('summary').filter({ hasText: 'Browse providers' });
+  if (await summary.isVisible() && !(await summary.locator('..').evaluate((details) => (details as HTMLDetailsElement).open))) {
+    await summary.click();
+  }
+  return page.getByRole('navigation', { name: 'Provider registry' });
+}

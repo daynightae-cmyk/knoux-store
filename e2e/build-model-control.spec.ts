@@ -6,18 +6,18 @@ test.beforeEach(async ({ page }) => { await intelligenceFixture(page); });
 
 test('navigator is reachable in AUTO and keyboard selection explicitly enters MANUAL', async ({ page }) => {
   await page.goto('/build');
-  const trigger = page.getByRole('button', { name: /INTELLIGENCE/ });
+  const trigger = page.getByRole('button', { name: /^Choose model/ });
   await trigger.click();
   await expect(page.getByRole('list', { name: 'Provider runtime states' })).toContainText('CONFIG REQUIRED');
   await expect(page.getByRole('list', { name: 'Provider runtime states' })).toContainText('BLOCKED');
   expect((await new AxeBuilder({ page }).include('.dev-cinematic').analyze()).violations).toEqual([]);
-  const search = page.getByRole('combobox', { name: 'Search intelligence' });
+  const search = page.getByRole('combobox', { name: 'Search model or provider' });
   await search.fill('gemini thinking');
   await expect(page.getByRole('listbox', { name: 'Canonical models' }).getByRole('option')).toHaveCount(1);
   await search.press('ArrowDown'); await search.press('Enter');
-  await expect(page.getByLabel('Routing', { exact: true })).toHaveValue('manual');
+  await expect(trigger).toHaveAccessibleName(/gemini \/ Thinking/);
   await expect(trigger).toBeFocused();
-  await expect(page.getByText('Hidden reasoning: MODEL MANAGED', { exact: false })).toBeVisible();
+  await expect(page.getByText('MODEL MANAGED', { exact: true })).toBeVisible();
   await trigger.click();
   await expect(page.getByRole('listbox', { name: 'Canonical models' }).getByRole('option', { selected: true })).toHaveCount(1);
   await search.fill('no-such-model');
@@ -27,7 +27,7 @@ test('navigator is reachable in AUTO and keyboard selection explicitly enters MA
   await trigger.click();
   await page.getByLabel('Provider', { exact: true }).selectOption('deepseek');
   await search.fill('fixed'); await search.press('Enter');
-  await expect(page.getByText('Hidden reasoning: FIXED BY PROVIDER', { exact: false })).toBeVisible();
+  await expect(page.getByText('FIXED BY PROVIDER', { exact: true })).toBeVisible();
 });
 
 test('all profiles reach the canonical request with supported, capped controls', async ({ page }) => {
@@ -35,8 +35,8 @@ test('all profiles reach the canonical request with supported, capped controls',
   const requests: Record<string, unknown>[] = [];
   page.on('request', (request) => { if (request.url().endsWith('/api/build/ai/stream')) requests.push(request.postDataJSON()); });
   await page.goto('/build');
-  await page.getByRole('button', { name: /INTELLIGENCE/ }).click();
-  const search = page.getByRole('combobox', { name: 'Search intelligence' });
+  await page.getByRole('button', { name: /^Choose model/ }).click();
+  const search = page.getByRole('combobox', { name: 'Search model or provider' });
   await search.fill('gemini'); await search.press('Enter');
   for (const [profile, budget, temperature] of [['FAST', 2048, .2], ['BALANCED', 4096, .4], ['DEEP', 8192, .3], ['MAX', 8192, .1]] as const) {
     await page.getByRole('radio', { name: profile, exact: true }).check();

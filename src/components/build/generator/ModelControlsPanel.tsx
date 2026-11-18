@@ -28,7 +28,7 @@ export function ModelControlsPanel({ model, profile, disabled = false, onOverrid
     return (
       <label key={key} className={styles.modelControl} htmlFor={controlId}>
         <span className={styles.modelControlLabel}>{label}</span>
-        {typeof value === 'boolean' ? (
+        {!onOverride ? <output id={controlId}>{String(value)}</output> : typeof value === 'boolean' ? (
           <input id={controlId} type="checkbox" disabled={disabled} defaultChecked={value} onChange={(e) => onOverride?.({ [key]: e.target.checked })} />
         ) : typeof value === 'number' ? (
           <input id={controlId} type="range" disabled={disabled} min={min ?? 0} max={max ?? 1} step={step ?? 0.01} defaultValue={value} onChange={(e) => onOverride?.({ [key]: Number(e.target.value) })} />
@@ -41,7 +41,7 @@ export function ModelControlsPanel({ model, profile, disabled = false, onOverrid
 
   return (
     <div className={styles.modelControlsPanel}>
-      <h4 className={styles.modelControlsTitle}>Model Controls</h4>
+      <h2 className={styles.modelControlsTitle}>Model Controls</h2>
       <div className={styles.modelControlsGrid}>
         {renderControl('temperature', 'Temperature', profileControls.temperature, 0, 2, 0.1)}
         {renderControl('topP', 'Top-p', profileControls.topP, 0, 1, 0.05)}
