@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { GENERATION_PROFILES, type GenerationProfile } from '@/lib/build/profile';
 import { PLAN_SECTIONS, type EngineeringPlan } from '@/lib/build/engineering-plan';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
@@ -10,7 +10,7 @@ import styles from './preview-workspace.module.css';
 const phases = ['Resolve', 'Route', 'Plan', 'Review'];
 
 export function GenerationMonitor({
-  draft, onDraft, onCompile, onReview, onFollowUp, planning,
+  draft, onDraft, onCompile, onReview, onFollowUp, planning, modelPicker,
 }: {
   draft: string;
   onDraft: (value: string) => void;
@@ -18,6 +18,7 @@ export function GenerationMonitor({
   onReview: () => void;
   onFollowUp: (event: FormEvent<HTMLFormElement>, text: string, previousPlan: EngineeringPlan) => void;
   planning: boolean;
+  modelPicker: ReactNode;
 }) {
   const { state, dispatch } = useBuildWorkspace();
   const { stage, plan, streamText, characters, selection, requested, error, context } = state.engineering;
@@ -59,6 +60,12 @@ export function GenerationMonitor({
         <div><dt>Provider</dt><dd>{selection?.providerId ?? state.ai.providerId ?? 'Per request'}</dd></div>
         <div><dt>Model</dt><dd>{selection?.modelId ?? state.ai.modelId ?? 'Per request'}</dd></div>
       </dl>
+      <details className={styles.intelligenceInspector}>
+        <summary>Planning model and agent</summary>
+        <p>KNOuX Architect · planning</p>
+        {modelPicker}
+        <Link href="/build/engineering?area=agents">Inspect agent access ↗</Link>
+      </details>
       <ol className={styles.phases} aria-label="Planning stages">
         {phases.map((phase, index) => (
           <li key={phase} data-state={index === active ? 'active' : index < active ? 'done' : 'pending'} aria-current={index === active ? 'step' : undefined}>

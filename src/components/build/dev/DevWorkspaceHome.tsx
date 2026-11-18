@@ -61,6 +61,20 @@ export function DevWorkspaceHome() {
   const [previewWidth, setPreviewWidth] = useState(44);
   const [compactPanel, setCompactPanel] = useState<'preview' | 'generation'>('preview');
 
+  const modelPicker = (
+    <ComposerModelPicker
+      models={intelligence.models}
+      providers={intelligence.providers}
+      selected={state.ai.routingMode === 'manual' && state.ai.providerId && state.ai.modelId ? { providerId: state.ai.providerId, modelId: state.ai.modelId } : null}
+      routingMode={state.ai.routingMode}
+      onSelect={(model) => { dispatch({ type: 'ai/routing-mode', mode: 'manual' }); dispatch({ type: 'ai/selection', providerId: model.providerId, modelId: model.modelId }); }}
+      onSetAuto={() => dispatch({ type: 'ai/routing-mode', mode: 'auto' })}
+      disabled={planning}
+      loading={intelligence.loading}
+      error={intelligence.error}
+    />
+  );
+
   // Auto-grow the composer textarea so the full intent stays visible.
   useEffect(() => {
     const target = input.current;
@@ -138,7 +152,7 @@ export function DevWorkspaceHome() {
           {(['build', 'preview', 'code', 'registry'] as const).map((item) => <button key={item} type="button" aria-pressed={view === item} onClick={() => setView(item)}>{item.toUpperCase()}</button>)}
         </div>
       </header>
-      <details className="dev-context-rail" open><summary><span>{state.project?.name ?? 'Project not connected'}</span><span>{state.git?.branch ?? 'No branch'}</span><span>{state.engineering.host?.name ?? 'Host unmeasured'}</span><span>KNOuX Architect</span><span>{selection?.modelId ?? state.ai.modelId ?? 'Model per request'}</span><span>{state.ai.routingMode.toUpperCase()}</span><b>Context ↓</b></summary><dl className="dev-home-context"><div><dt>PROJECT / WORKTREE</dt><dd>{state.project?.root ?? 'NOT CONNECTED'}</dd></div><div><dt>HOST</dt><dd>{state.engineering.host?.kind ?? facts.environment}</dd></div><div><dt>PROVIDER</dt><dd>{facts.provider}</dd></div><div><dt>AGENT / TOOLS</dt><dd>Logical planning profile · provider planning only</dd></div></dl></details>
+      <details className="dev-context-rail" open={view !== 'preview'}><summary><span>{state.project?.name ?? 'Project not connected'}</span><span>{state.git?.branch ?? 'No branch'}</span><span>{state.engineering.host?.name ?? 'Host unmeasured'}</span><span>KNOuX Architect</span><span>{selection?.modelId ?? state.ai.modelId ?? 'Model per request'}</span><span>{state.ai.routingMode.toUpperCase()}</span><b>Context ↓</b></summary><dl className="dev-home-context"><div><dt>PROJECT / WORKTREE</dt><dd>{state.project?.root ?? 'NOT CONNECTED'}</dd></div><div><dt>HOST</dt><dd>{state.engineering.host?.kind ?? facts.environment}</dd></div><div><dt>PROVIDER</dt><dd>{facts.provider}</dd></div><div><dt>AGENT / TOOLS</dt><dd>Logical planning profile · provider planning only</dd></div></dl></details>
       {view === 'build' ? <div className="dev-universe">
         <div className="dev-universe__orbit" aria-hidden="true" />
         <div className="dev-build-center">
@@ -151,17 +165,7 @@ export function DevWorkspaceHome() {
             <p><span role="status">ENGINE / {stage}</span><small aria-live="off">{planning ? `${characters.toLocaleString()} characters received` : stage === 'LISTENING' ? 'Describe a system. Resolve its architecture.' : stage === 'PLANNED' ? 'Proposal ready · review before execution' : stage === 'AUTH_REQUIRED' ? 'Provider access requires an authorized account' : stage === 'EXECUTOR_NOT_CONNECTED' ? 'Plan retained · trusted execution required' : 'Canonical engineering state'}</small></p>
           </div>
           <div className="dev-composer-routing">
-            <ComposerModelPicker
-              models={intelligence.models}
-              providers={intelligence.providers}
-              selected={state.ai.routingMode === 'manual' && state.ai.providerId && state.ai.modelId ? { providerId: state.ai.providerId, modelId: state.ai.modelId } : null}
-              routingMode={state.ai.routingMode}
-              onSelect={(model) => { dispatch({ type: 'ai/routing-mode', mode: 'manual' }); dispatch({ type: 'ai/selection', providerId: model.providerId, modelId: model.modelId }); }}
-              onSetAuto={() => dispatch({ type: 'ai/routing-mode', mode: 'auto' })}
-              disabled={planning}
-              loading={intelligence.loading}
-              error={intelligence.error}
-            />
+            {modelPicker}
           </div>
           <p className={styles.note}>{state.ai.routingMode === 'auto' ? 'AUTO uses RouterV2. Choosing a discovered model explicitly enters MANUAL.' : 'MANUAL uses the exact provider/model. No automatic fallback.'}</p>
           <form className="dev-floating-compose" onSubmit={(event) => void compile(event)}>
@@ -201,7 +205,7 @@ export function DevWorkspaceHome() {
           </div>
           <div className={previewStyles.layout} data-expanded={expandedPreview} data-compact-panel={compactPanel} style={{ '--preview-share': `${previewWidth}fr`, '--generation-share': `${100 - previewWidth}fr` } as CSSProperties}>
             <section className={previewStyles.preview} aria-label="Preview workspace"><Preview cinematic workspace /></section>
-            <GenerationMonitor draft={draft} onDraft={setDraftOverride} onCompile={(event) => void compile(event)} planning={planning} onReview={reviewFromPreview} onFollowUp={(event, text, previousPlan) => void compile(event, { text, previousPlan })} />
+            <GenerationMonitor modelPicker={modelPicker} draft={draft} onDraft={setDraftOverride} onCompile={(event) => void compile(event)} planning={planning} onReview={reviewFromPreview} onFollowUp={(event, text, previousPlan) => void compile(event, { text, previousPlan })} />
           </div>
         </div>
       ) : view === 'code' ? <div className={previewStyles.workspace}><header className={previewStyles.workspaceHeading}><div><span>BUILD / CHECKOUT</span><h1>Code Constellation</h1><p>Inspect the real source and file metadata for this checkout.</p></div></header><Code /></div>

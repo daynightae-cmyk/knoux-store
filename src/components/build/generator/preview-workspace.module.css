@@ -165,3 +165,8 @@
 .workspace .preview :global(.dev-viewport-constellation) { padding-block: 4px; }
 .workspace .preview :global(.dev-viewport-constellation > div) { margin-block: 4px; }
 .workspace .preview :global(.bo-preview) { padding: 9px 0 12px; }
+
+.intelligenceInspector { margin: 12px 0; padding: 9px 11px; border: 1px solid #ab89cd5a; border-radius: 9px; background: #1b1228; color: #e9d6fb; font-size: 12px; }
+.intelligenceInspector summary { cursor: pointer; }
+.intelligenceInspector p { margin: 9px 0; }
+.intelligenceInspector a { display: inline-block; margin-top: 9px; color: #e4c5ff; text-underline-offset: 3px; }
