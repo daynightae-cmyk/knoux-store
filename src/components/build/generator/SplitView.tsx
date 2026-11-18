@@ -3,7 +3,6 @@ import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import Link from 'next/link';
 import type { EngineeringPlan } from '@/lib/build/engineering-plan';
-import { PLAN_SECTIONS } from '@/lib/build/engineering-plan';
 import styles from './generator.module.css';
 import previewStyles from './preview-workspace.module.css';
 
@@ -15,26 +14,11 @@ type Props = {
   onBackToPlan: () => void;
 };
 
-function extractFiles(plan: EngineeringPlan): Map<string, string> {
-  const files = new Map<string, string>();
-  PLAN_SECTIONS.forEach((section) => {
-    const items = plan[section] || [];
-    items.forEach((item) => {
-      const pathMatch = item.match(/(?:file|path|create|write)\s+[:=]\s*[`"']?([\w/.-]+)/i);
-      if (pathMatch) {
-        files.set(pathMatch[1], item);
-      }
-    });
-  });
-  return files;
-}
-
 export function SplitView({ plan, onClose, onBackToPlan }: Props) {
-  const [activeFile, setActiveFile] = useState<string | null>(null);
+  const [activeEntry, setActiveEntry] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<'preview' | 'code' | 'split'>('split');
-  const filesMap = extractFiles(plan);
-  const fileList = Array.from(filesMap.keys());
-  const fileProposal = activeFile ? filesMap.get(activeFile) : undefined;
+  const proposals = plan['FILES / MODULES'];
+  const proposal = activeEntry === null ? undefined : proposals[activeEntry];
 
   return (
     <section className={styles.splitView} role="region" aria-label="Generation result: preview and code">
@@ -84,43 +68,39 @@ export function SplitView({ plan, onClose, onBackToPlan }: Props) {
       {viewMode !== 'preview' && (
       <div className={styles.splitViewCode}>
         <aside className={styles.splitViewFileTree}>
-          <h3>Proposed files</h3>
-          {fileList.length === 0 ? (
-            <p className={styles.splitViewEmpty}>No files extracted from plan. Open the plan sections for details.</p>
-          ) : (
-            <ul className={styles.splitViewFileList}>
-              {fileList.map((file) => (
-                <li key={file}>
+          <h3>Proposed files and modules</h3>
+          <ul className={styles.splitViewFileList}>
+              {proposals.map((entry, index) => (
+                <li key={index}>
                   <button
                     type="button"
-                    className={`${styles.splitViewFileBtn} ${activeFile === file ? styles.active : ''}`}
-                    onClick={() => setActiveFile(file)}
+                    className={`${styles.splitViewFileBtn} ${activeEntry === index ? styles.active : ''}`}
+                    aria-pressed={activeEntry === index}
+                    onClick={() => setActiveEntry(index)}
                   >
-                    <span aria-hidden="true">📄</span>
-                    <span>{file}</span>
+                    <span>{entry.length > 85 ? `${entry.slice(0, 84)}…` : entry}</span>
                   </button>
                 </li>
               ))}
             </ul>
-          )}
         </aside>
 
-        {activeFile && fileProposal && (
+        {proposal && (
           <div className={styles.splitViewEditor}>
             <header className={styles.splitViewEditorHeader}>
-              <span className={styles.splitViewEditorFilename}>{activeFile}</span>
-              <button type="button" className={styles.splitViewEditorClose} onClick={() => setActiveFile(null)} aria-label="Close file">✕</button>
+              <span className={styles.splitViewEditorFilename}>Plan entry</span>
+              <button type="button" className={styles.splitViewEditorClose} onClick={() => setActiveEntry(null)} aria-label="Close plan entry">✕</button>
             </header>
             <pre className={styles.splitViewEditorContent}>
-              <code>{fileProposal}</code>
+              {proposal}
             </pre>
           </div>
         )}
 
-        {!fileProposal && fileList.length > 0 && (
+        {!proposal && (
           <div className={styles.splitViewEditorPlaceholder}>
             <span aria-hidden="true">▤</span>
-            <p>Select a file to read its plan entry.</p>
+            <p>Select a proposal to read its full plan entry.</p>
           </div>
         )}
       </div>
