@@ -21,6 +21,10 @@
 }
 .workspace .preview :global(.bo-pane) { border: 0; background: transparent; }
 .workspace .preview :global(.bo-pane__body) { padding-inline: 14px; }
+.runtimeToolbar { display: flex; align-items: end; gap: 8px; padding-block: 8px; min-width: 0; }
+.runtimeToolbar label { display: grid; gap: 5px; min-width: 0; flex: 1; color: #e0caef; font-size: 12px; }
+.runtimeToolbar select { width: 100%; min-height: 38px; color: #f5e9ff; background: #171023; border: 1px solid #b890d76e; border-radius: 8px; padding-inline: 8px; }
+.runtimeToolbar button { min-height: 38px; font-size: 11px; }
 .workspace .preview :global(.bo-pane__head) { border-bottom: 1px solid #ccb2e31f; background: #1d142a9d; }
 .workspace .preview :global(.bo-preview__stage) {
   box-sizing: border-box;
@@ -146,3 +150,18 @@
   .platformGlow { height: 47px; }
   .facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+.transfer { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; padding: 0; margin: 7px 0; }
+.transfer li { display: grid; gap: 4px; min-width: 0; padding: 6px 4px; text-align: center; border-block-start: 2px solid #74558c; background: #20172d; color: #eee0fa; font-size: 10px; overflow-wrap: anywhere; }
+.transfer small { color: #d5bfe9; font: inherit; }
+.transfer li[data-state='pass'], .transfer li[data-state='ready'] { border-color: #b4aeff; background: #30274f; box-shadow: inset 0 5px 12px #7964e448; }
+.transfer li[data-state='fail'] { border-color: #e592ba; }
+@media (prefers-reduced-motion: no-preference) {
+  :global(.dev-shell:not([data-cosmic-reduced])) .transfer li[data-state='ready'] { animation: preview-transfer 700ms ease-out; }
+}
+@keyframes preview-transfer { from { box-shadow: inset 0 0 18px #d0baffd0; } }
+
+.inspectorControls { width: 100%; }
+.workspace .preview :global(.dev-viewport-constellation) { padding-block: 4px; }
+.workspace .preview :global(.dev-viewport-constellation > div) { margin-block: 4px; }
+.workspace .preview :global(.bo-preview) { padding: 9px 0 12px; }
