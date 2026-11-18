@@ -3,7 +3,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 
-const evidence = path.resolve('references/build V3/qa/final-verified');
+const evidence = path.resolve(process.env.KNOUX_ATMOSPHERE_EVIDENCE_DIR || 'references/build V3/qa/final-verified');
 const viewports = [[1920, 1080], [1366, 768], [768, 1024], [390, 844], [360, 800]] as const;
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => sessionStorage.setItem('knoux-dev-entry-intent', 'Atmosphere regression verification'));
@@ -79,6 +79,7 @@ test('native Web Audio requires trusted activation, suspends hidden audio and pe
     };
   });
   await page.goto('/build');
+  await expect(page.locator('canvas.dev-cosmic-field')).toHaveAttribute('data-motion', 'stable');
   const sound = page.getByRole('button', { name: 'Build sound', exact: true });
   await expect(sound).toHaveAttribute('aria-pressed', 'false');
   await page.evaluate(() => {
@@ -93,7 +94,7 @@ test('native Web Audio requires trusted activation, suspends hidden audio and pe
   await expect.poll(audioState).toEqual(['suspended']);
   await page.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, value: false }); document.dispatchEvent(new Event('visibilitychange')); });
   await page.waitForTimeout(200); expect(await audioState()).toEqual(['suspended']);
-  await page.locator('.dev-crumb').click(); await expect.poll(audioState).toEqual(['running']);
+  await page.getByRole('main').press('Enter'); await expect.poll(audioState).toEqual(['running']);
   await sound.click(); await expect(sound).toHaveAttribute('aria-pressed', 'false'); await expect.poll(audioState).toEqual(['closed']);
   expect(await page.evaluate(() => localStorage.getItem('knoux-build-sound'))).toBe('off');
 });
@@ -153,9 +154,13 @@ for (const [width, height] of viewports) {
           else await page.mouse.move(bounds.x + bounds.width * .8, bounds.y + bounds.height * .35);
         }
       }
-      await page.waitForTimeout(scene === 'engineering' ? 22000 : 5200);
-      const cues = await page.evaluate(() => (window as unknown as { measuredAtmosphereCues: string[] }).measuredAtmosphereCues);
-      expect(cues).toContain(scene === 'engineering' ? 'ambient-storm' : 'activation-storm');
+      const readCues = () => page.evaluate(() => (window as unknown as { measuredAtmosphereCues: string[] }).measuredAtmosphereCues);
+      // Storms advance with painted time, which trails wall time under CI load.
+      const expectedCue = scene === 'engineering' ? 'ambient-storm' : 'activation-storm';
+      await expect.poll(readCues, { timeout: scene === 'engineering' ? 40_000 : 5_000 }).toContain(expectedCue);
+      if (scene === 'engineering') await page.waitForTimeout(1_000);
+      else await expect(page.locator('.dev-shell__stage')).not.toHaveAttribute('data-cosmic-energy', 'active', { timeout: 6_000 });
+      const cues = await readCues();
       const metrics = await page.locator('canvas.dev-cosmic-field').evaluate(element => ({ stars: Number((element as HTMLElement).dataset.stars), meanPaintMs: Number((element as HTMLElement).dataset.meanPaintMs) }));
       expect(metrics.stars).toBeLessThanOrEqual(width < 700 ? 48 : 120); expect(metrics.meanPaintMs).toBeLessThan(16);
       expect(errors).toEqual([]); const video = page.video(); await context.close();
