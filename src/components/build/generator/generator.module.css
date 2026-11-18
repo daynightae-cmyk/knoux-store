@@ -210,3 +210,50 @@
   .modelOrbit button { transition: none; }
   .modelOrbit button:hover, .modelOrbit button:focus-visible { translate: none; }
 }
+
+.profileOptions.energyRail {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+}
+.energyRail::before {
+  content: '';
+  position: absolute;
+  inset: 13px 12.5% auto;
+  height: 1px;
+  background: linear-gradient(90deg, #613d8c, #b884e8, #613d8c);
+}
+.energyMarker {
+  pointer-events: none;
+  position: absolute;
+  top: 9px;
+  left: calc(12.5% + 25% * var(--profile-position, 0));
+  translate: -50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #f4d7ff;
+  box-shadow: 0 0 11px 3px #b36df8;
+  transition: left 280ms cubic-bezier(.2,.75,.3,1);
+}
+.energyRail label { display: grid; place-items: center; padding-top: 17px; min-width: 0; min-height: 44px; }
+.energyRail label::before {
+  content: '';
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  translate: -50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #c397e4;
+}
+.energyRail label span { font-size: clamp(10px, 2.4vw, 13px); padding: 5px 0; }
+@media (prefers-reduced-motion: reduce) { .energyMarker { transition: none; } }
+:global([data-cosmic-reduced]) .energyMarker { transition: none; }
+
+.modelOrbitCore { flex-basis: 100%; display: grid; justify-items: center; gap: 4px; padding: 4px 8px 10px; overflow-wrap: anywhere; text-align: center; }
+.modelOrbitCore strong { color: #f3e0ff; font-size: 15px; text-shadow: 0 0 11px #b877ed8c; }
+.modelOrbitCore span { color: #dfc6f3; font-size: 11px; }
+.modelOrbit img:is([data-mark='openai'], [data-mark='ollama'], [data-mark='qwen']) { filter: invert(1); }

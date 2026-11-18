@@ -1,8 +1,11 @@
 'use client';
 import { Fragment, useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
+import Image from 'next/image';
 import type { NormalizedModel, ProviderHealth } from '@/lib/ai/types';
 import { providerState, searchModels } from '@/lib/build/model-search';
 import styles from './generator.module.css';
+import { providerMark } from '../providers/provider-marks';
+import { cueAtmosphere } from '../dev/living-atmosphere';
 
 /**
  * ComposerModelPicker — OpenCode-style model selector embedded in the composer.
@@ -52,6 +55,7 @@ export function ComposerModelPicker({
   const chosen = models.find(
     (model) => model.modelId === selected?.modelId && model.providerId === selected.providerId,
   );
+  const selectionLabel = chosen ? `${chosen.providerId} / ${chosen.displayName}` : 'AUTO · eligible runtime';
   const facets = [...new Set([...providers.map((item) => item.providerId), ...models.map((item) => item.providerId)])];
   const groups = facets.map((facet) => ({
     id: facet,
@@ -60,6 +64,7 @@ export function ComposerModelPicker({
   })).filter((group) => group.models.length);
   const flatOptions = groups.flatMap((group) => group.models);
   const index = Math.min(active, Math.max(0, flatOptions.length - 1));
+  const focusedModel = chosen ?? flatOptions[index];
 
   const isFree = (model: NormalizedModel) =>
     model.pricing.inputPerMillion === 0 && model.pricing.outputPerMillion === 0;
@@ -90,6 +95,7 @@ export function ComposerModelPicker({
   const choose = (model: NormalizedModel) => {
     if (!eligible(model)) return;
     onSelect(model);
+    cueAtmosphere('confirm');
     close();
   };
 
@@ -105,14 +111,14 @@ export function ComposerModelPicker({
         type="button"
         className={styles.composerPickerTrigger}
         disabled={disabled}
-        aria-label={chosen ? `Choose model · ${chosen.providerId} / ${chosen.displayName}` : 'Choose model · AUTO'}
+        aria-label={`Choose model · ${selectionLabel}`}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={`${id}-popover`}
         onClick={() => setOpen((value) => !value)}
       >
         <span className={styles.composerPickerLabel}>
-          {chosen ? `${chosen.providerId} / ${chosen.displayName}` : 'AUTO · eligible runtime'}
+          {selectionLabel}
         </span>
         <span aria-hidden="true">▾</span>
       </button>
@@ -136,12 +142,21 @@ export function ComposerModelPicker({
           </div>
 
           {results.length > 0 && <div className={styles.modelOrbit} role="group" aria-label="Matching models">
-            {results.slice(0, 3).map((model) => (
+            <div className={styles.modelOrbitCore}>
+              <small>{chosen ? 'Selected model' : 'Catalog focus'}</small>
+              <strong>{focusedModel?.displayName}</strong>
+              <span>{focusedModel?.providerId} · {focusedModel?.contextWindow?.toLocaleString() ?? 'Unknown'} context</span>
+            </div>
+            {results.slice(0, 3).map((model) => {
+              const mark = providerMark(model.providerId);
+              return (
               <button type="button" key={`${model.providerId}/${model.modelId}`} onClick={() => choose(model)}>
+                {mark && <Image src={`/providers/${mark}.svg`} data-mark={mark} alt="" width={18} height={18} />}
                 <strong>{model.displayName}</strong>
                 <small>{model.providerId}</small>
               </button>
-            ))}
+              );
+            })}
           </div>}
 
           <label className={styles.composerPickerSearchLabel} htmlFor={`${id}-search`}>
