@@ -1,0 +1,127 @@
+/* Build landing artwork is decorative and stays behind the live workspace. */
+.dev-cinematic.dev-shell--landing .dev-shell__stage {
+  background-color: #090810;
+  background-image: linear-gradient(#0c0a1550, #0c0a151e 25%, #0c0a151e 85%, #0c0a1550), url('/creative/build-v3-nebula.webp');
+  background-size: cover;
+  background-position: center;
+}
+
+.dev-cinematic.dev-shell--landing .dev-stage-head { min-height: 44px; }
+.dev-shell--landing .dev-context-rail { margin: 0 0 8px; }
+.dev-cinematic.dev-shell--landing .dev-context-rail > summary { padding-block: 7px; }
+.dev-cinematic.dev-shell--landing .dev-context-rail .dev-home-context { padding: 4px 0 7px; }
+.dev-shell--landing .dev-home-context dt { margin-bottom: 3px; }
+.dev-shell--landing .dev-home-context dd { font-size: 12px; }
+
+.dev-cinematic.dev-shell--landing .dev-universe {
+  align-items: flex-start;
+  min-height: 0;
+  padding: 6px 0 42px;
+}
+
+.dev-shell--landing .dev-universe::after { content: none; }
+
+.dev-cinematic.dev-shell--landing .dev-universe__orbit {
+  top: 6%;
+  left: 9%;
+  width: 83%;
+  height: clamp(210px, 30vw, 370px);
+  border: 1px solid #ad79e634;
+  border-radius: 50%;
+  transform: rotate(-7deg);
+  background: none;
+}
+
+.dev-shell--landing .dev-universe__orbit::before,
+.dev-shell--landing .dev-universe__orbit::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #efdaff;
+  box-shadow: 0 0 5px 2px #c693ff, 0 0 15px 4px #6435c2;
+}
+
+.dev-shell--landing .dev-universe__orbit::before { top: 24%; left: 6%; }
+.dev-shell--landing .dev-universe__orbit::after { bottom: 20%; right: 7%; }
+
+.dev-cinematic.dev-shell--landing .dev-build-center { width: min(710px, 100%); }
+.dev-cinematic.dev-shell--landing .dev-build-center__eyebrow { margin: 0 0 6px; }
+.dev-cinematic.dev-shell--landing .dev-build-center h1 {
+  max-width: 18ch;
+  margin-inline-start: 12%;
+  color: #f5f0fc;
+  font-size: clamp(37px, 4vw, 55px);
+  line-height: 1;
+}
+
+.dev-shell--landing .dev-build-center__eyebrow { padding-inline-start: 12%; }
+.dev-shell--landing .dev-engine { height: clamp(124px, 9vw, 132px); margin: 0; }
+.dev-shell--landing .dev-engine::before {
+  height: 61%;
+  width: min(460px, 93%);
+  transform: translate(-50%, -50%) rotate(-8deg);
+  border-color: #d1abff67;
+  box-shadow: 0 0 14px #9f5ce12c;
+}
+
+.dev-shell--landing .dev-engine::after { height: 47%; border-color: #ae87e02d; }
+.dev-shell--landing .dev-engine p { gap: 4px; }
+.dev-shell--landing .dev-living-mark { opacity: 1; }
+.dev-cinematic.dev-shell--landing .dev-composer-routing { margin: 7px 0 0; }
+.dev-shell--landing .dev-composer-routing button { border-color: #bc8df16b; }
+
+.dev-cinematic.dev-shell--landing .dev-floating-compose {
+  border: 1px solid #c794ff9c;
+  border-radius: 13px;
+  padding: 10px 15px 9px;
+  background:
+    radial-gradient(ellipse at 86% 0%, #7643a844, transparent 58%),
+    linear-gradient(145deg, #1d152d, #12111d 58%, #191327);
+  box-shadow: inset 0 0 20px #ae69ff26, 0 0 23px #8e47d93b, 0 16px 38px #02010890;
+}
+
+.dev-cinematic.dev-shell--landing .dev-floating-compose textarea { font-size: 16px; }
+.dev-cinematic.dev-shell--landing .dev-compose-modes { background: transparent; }
+.dev-cinematic.dev-shell--landing .dev-compose-modes span { background: linear-gradient(160deg, #654698, #412962); }
+.dev-cinematic.dev-shell--landing .dev-compose-actions button {
+  background: linear-gradient(150deg, #7552a3, #412268);
+  border-color: #bd94efb8;
+  box-shadow: inset 0 0 10px #be91f85c;
+}
+
+.dev-shell--landing .dev-card-grid--intents { gap: 9px 12px; margin-top: 9px; }
+.dev-cinematic.dev-shell--landing .dev-card-grid--intents .dev-quick-card {
+  padding: 8px 11px;
+  background: linear-gradient(155deg, #241733c9, #100e198f 68%);
+  border-color: #b08ddb57;
+}
+
+.dev-cinematic.dev-shell--landing .dev-card-grid--intents .dev-quick-card:hover {
+  border-color: #d1a5ff;
+  background: linear-gradient(155deg, #37234dc9, #161023);
+}
+
+.dev-shell--landing .dev-quick-card__icon { color: #e2c7ff; background: #774bb347; }
+.dev-cinematic.dev-shell--landing .dev-sidebar { scrollbar-color: #5d476f transparent; }
+
+@media (min-width: 1025px) {
+  .dev-cinematic.dev-shell--landing { padding-block: 4px 6px; }
+  .dev-cinematic.dev-shell--landing .dev-sidebar nav { gap: 3px; }
+  .dev-cinematic.dev-shell--landing .dev-nav-link { min-height: 34px; }
+}
+
+@media (max-width: 600px) {
+  .dev-cinematic.dev-shell--landing .dev-shell__stage { background-position: 63% center; }
+  .dev-cinematic.dev-shell--landing .dev-context-rail .dev-home-context { gap: 8px 12px; }
+  .dev-shell--landing .dev-build-center__eyebrow { padding: 0; }
+  .dev-cinematic.dev-shell--landing .dev-build-center h1 { margin-inline: 0; width: 100%; }
+  .dev-shell--landing .dev-compose-actions { gap: 0; }
+  .dev-cinematic.dev-shell--landing .dev-floating-compose { padding-inline: 9px; }
+}
+
+@media (max-width: 360px) {
+  .dev-shell--landing .dev-floating-compose__tools { flex-wrap: wrap; }
+  .dev-shell--landing .dev-compose-actions { margin-inline-start: auto; }
+}
