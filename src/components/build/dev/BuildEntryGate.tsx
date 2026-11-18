@@ -56,7 +56,8 @@ export function BuildEntryGate() {
       return;
     }
 
-    window.setTimeout(openGate, 0);
+    // The landing composer collects intent directly; the staged gate remains
+    // reachable through ?intro=1 / replayEntryGate().
   }, [dispatch, openGate]);
 
   // The field only accepts pointer and keyboard input once the reveal has run.

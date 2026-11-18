@@ -91,3 +91,7 @@
 .dev-cinematic .dev-list strong,.dev-cinematic .dev-selector strong{font-size:14px}
 .dev-cinematic .dev-crumb{font-size:11px}
 .dev-cinematic .dev-card__body p,.dev-cinematic .dev-card__body li{font-size:14px;line-height:1.75}
+@media(max-width:600px){.dev-cinematic .dev-stage-head>.dev-mini-label{max-width:none;flex:1 1 auto;font-size:9px;letter-spacing:.1em}}
+/* The planet limb is a child box; left visible it extends the scrollable
+   overflow region into hundreds of pixels of empty arc below the cards. */
+.dev-cinematic.dev-shell--landing .dev-universe{overflow:hidden}

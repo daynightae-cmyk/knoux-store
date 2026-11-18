@@ -35,7 +35,11 @@ export function BuildLivingMarkBackdrop() {
     content?.addEventListener('scroll', place, { passive: true });
     content?.addEventListener('toggle', place, true);
     place();
-    return () => { observer.disconnect(); content?.removeEventListener('scroll', place); content?.removeEventListener('toggle', place, true); };
+    // Font swaps shift the aperture after first layout; size observers alone
+    // never fire for a pure position change.
+    let live = true;
+    document.fonts?.ready.then(() => { if (live) place(); }, () => {});
+    return () => { live = false; observer.disconnect(); content?.removeEventListener('scroll', place); content?.removeEventListener('toggle', place, true); };
   }, [pathname, state.workspace.activeSurface]);
 
   useEffect(() => {
@@ -85,7 +89,7 @@ export function BuildLivingMarkBackdrop() {
         centerY,
         centered ? height * 0.6 : Math.max(width, height) * 0.78,
       );
-      halo.addColorStop(0, 'rgba(206,196,244,0.25)');
+      halo.addColorStop(0, centered ? 'rgba(206,196,244,0.32)' : 'rgba(206,196,244,0.25)');
       halo.addColorStop(0.2, 'rgba(151,130,204,0.18)');
       halo.addColorStop(0.52, 'rgba(91,78,128,0.10)');
       halo.addColorStop(1, 'rgba(6,8,14,0)');
@@ -111,7 +115,7 @@ export function BuildLivingMarkBackdrop() {
         const driftY = reduced() || blocked || resolved ? 0 : Math.cos(now * 0.00042 + particle.random * 12) * 0.03;
         const x = centerX + (particle.x * breath + Math.cos(phase) * (scatter + wave) * 5 + driftX) * scale;
         const y = centerY - (particle.y * breath + Math.sin(phase) * (scatter + wave) * 5 + driftY) * scale;
-        const size = Math.max(0.6, particle.size * scale * 0.24 * pulse * (isCompact ? 0.9 : 1.1));
+        const size = Math.max(0.6, particle.size * scale * 0.24 * pulse * (centered ? 1.35 : isCompact ? 0.9 : 1.1));
         context.rect(x, y, size, size);
       }
 
