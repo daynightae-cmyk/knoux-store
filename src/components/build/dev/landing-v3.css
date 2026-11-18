@@ -154,3 +154,24 @@
   .dev-shell--landing .dev-floating-compose__tools { flex-wrap: wrap; }
   .dev-shell--landing .dev-compose-actions { margin-inline-start: auto; }
 }
+
+.dev-status-rail [data-build-sound][aria-pressed='true'] {
+  border-color: #c599f4;
+  box-shadow: inset 0 0 12px #a566df55;
+  color: #f2e3ff;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .dev-shell__stage[data-cosmic-energy='active'] .dev-universe__orbit {
+    animation: dev-energy-ring 4.8s ease-out both;
+  }
+  .dev-shell__stage[data-cosmic-energy='active'] .dev-engine {
+    animation: dev-energy-ring 4.8s ease-out both;
+  }
+  .dev-shell__stage[data-cosmic-energy='active'] .dev-floating-compose {
+    animation: dev-energy-ring 4.8s ease-out both;
+  }
+}
+@keyframes dev-energy-ring {
+  0%, 100% { filter: brightness(1); }
+  26% { filter: brightness(1.46) drop-shadow(0 0 10px #bb84f55c); }
+}

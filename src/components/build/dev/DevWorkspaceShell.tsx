@@ -8,6 +8,9 @@ import { softwareProducts } from '@/data/software';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { workspaceFacts } from './workspace-facts';
 import { EngineeringSky } from './EngineeringSky';
+import { BuildAtmosphere } from './BuildAtmosphere';
+import { BuildSound } from './BuildSound';
+import { cueAtmosphere } from './living-atmosphere';
 
 const LivingMark = dynamic(() => import('./BuildLivingMarkBackdrop').then((mod) => mod.BuildLivingMarkBackdrop), { ssr: false });
 const Launcher = dynamic(() => import('./ProjectLauncher').then((mod) => mod.ProjectLauncher));
@@ -36,6 +39,17 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
   const facts = workspaceFacts(state);
   const [navOpen, setNavOpen] = useState(false);
   const [utility, setUtility] = useState<'launcher' | 'palette' | 'activity' | null>(null);
+  const lastStage = useRef(state.engineering.stage);
+  useEffect(() => {
+    const stage = state.engineering.stage;
+    if (stage === lastStage.current) return;
+    lastStage.current = stage;
+    if (stage === 'RESOLVING') cueAtmosphere('wake');
+    if (stage === 'PLANNED' || stage === 'COMPLETE') cueAtmosphere('ready');
+  }, [state.engineering.stage]);
+  useEffect(() => {
+    if (state.projectRef) cueAtmosphere('wake');
+  }, [state.projectRef]);
   useEffect(() => {
     const key = (event: KeyboardEvent) => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); setNavOpen(false); setUtility((value) => value === 'palette' ? null : 'palette'); } };
     document.addEventListener('keydown', key); return () => document.removeEventListener('keydown', key);
@@ -65,7 +79,7 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
     return () => { document.removeEventListener('keydown', onKey); window.removeEventListener('resize', onResize); toggle?.focus(); };
   }, [navOpen]);
 
-  return <div className={`dev-shell dev-cinematic ${pathname === '/build' ? 'dev-shell--landing' : 'dev-shell--operational'}`}>
+  return <div data-cosmic-reduced={state.preferences.motion === 'reduced' ? '' : undefined} className={`dev-shell dev-cinematic ${pathname === '/build' ? 'dev-shell--landing' : 'dev-shell--operational'}`}>
     {/* A `header` element, not a styled `div`: this bar carries the site
         identity and the navigation control, and content outside every landmark
         is exactly what landmark navigation cannot reach. The class list is
@@ -82,6 +96,7 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
         <dl className="dev-sidebar__facts"><dt>ADAPTER STATUS</dt><dd>{facts.adapter}</dd><dt>PROJECT STATUS</dt><dd>{facts.project}</dd><dt>ENVIRONMENT</dt><dd>{facts.environment}</dd></dl>
       </aside>
       <div className="dev-shell__stage" inert={navOpen}>
+        <BuildAtmosphere reduced={state.preferences.motion === 'reduced'} />
         <LivingMark />
         {pathname === '/build/engineering' && <EngineeringSky reducedMotion={state.preferences.motion === 'reduced'} />}
         <main id="main-content" tabIndex={0} className="dev-shell__content">
@@ -89,7 +104,7 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
           {children}
         </main>
         <footer className="dev-status-rail" aria-label="Workspace status">
-          <div className="dev-utility-actions"><button type="button" onClick={() => setUtility('palette')}>COMMANDS · Ctrl K</button><button type="button" onClick={() => setUtility('activity')}>ACTIVITY · {state.activity.length}</button></div>
+          <div className="dev-utility-actions"><button type="button" onClick={() => setUtility('palette')}>COMMANDS · Ctrl K</button><button type="button" onClick={() => setUtility('activity')}>ACTIVITY · {state.activity.length}</button><BuildSound /></div>
           <span><i aria-hidden="true" />{facts.runtime}</span>
           <Link href="/build/pipeline">{facts.verification}</Link>
           <Link href="/build/deployments">DEPLOYMENT · {facts.deployment}</Link>

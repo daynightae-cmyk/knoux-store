@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import type { VerificationSnapshot } from '@/lib/build/types';
+import { cueAtmosphere } from './living-atmosphere';
 export function useWorkspaceVerification() {
   const { state, dispatch } = useBuildWorkspace();
   const [running, setRunning] = useState<string | null>(null);
@@ -10,10 +11,12 @@ export function useWorkspaceVerification() {
   async function run(task: string) {
     const blocked = blocker(task); if (blocked) { setError(blocked); return; }
     setRunning(task); setError(null); dispatch({ type: 'activity/record', message: `Verification requested: ${task}` });
+    if (task === 'build') cueAtmosphere('wake');
     try {
       const response = await fetch('/api/build/verify', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ task }) });
       const result = await response.json() as { snapshot?: VerificationSnapshot; message?: string };
       if (!response.ok || !result.snapshot) throw new Error(result.message ?? 'Verification could not run.');
+      if (task === 'build' && result.snapshot.checks.find((check) => check.id === 'build')?.status === 'pass') cueAtmosphere('ready');
       dispatch({ type: 'verification/resolved', snapshot: { ...result.snapshot, checks: [...(state.verification?.checks ?? []).filter((check) => check.id !== task), ...result.snapshot.checks] } });
       dispatch({ type: 'activity/record', message: `Verification ${task}: ${result.snapshot.checks[0]?.status ?? 'unknown'}` });
     } catch (cause) { const message = cause instanceof Error ? cause.message : 'Verification request failed.'; setError(message); dispatch({ type: 'activity/record', message: `Verification refused: ${task}` }); }

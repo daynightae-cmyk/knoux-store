@@ -1,4 +1,5 @@
 "use client";
+import { cueAtmosphere } from '../dev/living-atmosphere';
 import { useState } from "react";
 import { AiCenterPage } from "./AiCenterLayout";
 import { DevPanel } from "../dev/DevUI";
@@ -56,6 +57,7 @@ export function AiRouterPage() {
   async function runRouter() {
     if (loading) return;
     setLoading(true);
+    cueAtmosphere('wake');
     setError(null);
     setDecision(null);
     try {
