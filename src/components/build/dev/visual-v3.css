@@ -204,3 +204,25 @@
   .dev-constellations, .dev-operational-sky::after { display: none; }
   .dev-cinematic .dev-engineering-tabs a { min-height: 44px; align-content: center; }
 }
+
+.dev-figure-energy {
+  position: absolute;
+  inset: 12% 5% auto auto;
+  width: min(31%, 340px);
+  height: 76%;
+  transform: translate(var(--figure-x, 0px), var(--figure-y, 0px));
+  transition: transform 380ms cubic-bezier(.2,.72,.24,1), opacity 350ms ease;
+  opacity: .45;
+  color: #cc9efb;
+}
+.dev-figure-energy__links { stroke: currentColor; stroke-width: .7; opacity: .65; }
+.dev-figure-energy__nodes { stroke: #e8ccff; stroke-width: 3.4; stroke-linecap: round; filter: drop-shadow(0 0 4px #bb85ff); }
+.dev-figure-energy__travel { stroke: #e9caff; stroke-width: 1.4; stroke-dasharray: 12 340; stroke-dashoffset: 20; opacity: .45; }
+.dev-operational-sky[data-illuminated] .dev-figure-energy { opacity: .85; }
+@media (prefers-reduced-motion: no-preference) {
+  .dev-operational-sky:not([data-reduced]) .dev-figure-energy__travel { animation: dev-figure-travel 9s linear infinite; }
+}
+@media (prefers-reduced-motion: reduce) { .dev-figure-energy { transition: none; } }
+.dev-operational-sky[data-reduced] .dev-figure-energy { transition: none; }
+@keyframes dev-figure-travel { to { stroke-dashoffset: -332; } }
+@media (max-width: 760px) { .dev-figure-energy { inset-inline-end: 2%; opacity: .32; } }
