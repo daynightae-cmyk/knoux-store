@@ -4,7 +4,19 @@ import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer } from 'node:http';
-import { inspectBuild, assetPath, cssReferences, verifyServedAsset, startOwnedServer } from '../scripts/css-integrity.mjs';
+import { inspectBuild, assetPath, cssReferences, verifyServedAsset, startOwnedServer, windowsLoopbackListenerOwner } from '../scripts/css-integrity.mjs';
+
+test('Windows provenance accepts exactly one listener bound to the owned IPv4 endpoint', () => {
+  const exact = 'TCP 127.0.0.1:4469 0.0.0.0:0 LISTENING 701';
+  const others = [
+    'TCP 0.0.0.0:4469 0.0.0.0:0 LISTENING 702',
+    'TCP 127.0.0.1:14469 0.0.0.0:0 LISTENING 703',
+    'TCP 127.0.0.1:4469 127.0.0.1:4523 ESTABLISHED 704',
+  ].join('\r\n');
+  assert.equal(windowsLoopbackListenerOwner(others, 4469), null);
+  assert.equal(windowsLoopbackListenerOwner(`${others}\r\n${exact}`, 4469), 701);
+  assert.equal(windowsLoopbackListenerOwner(`${exact}\r\n${exact}`, 4469), null);
+});
 
 test('stylesheet inspection discovers changing chunk names across every emitted document', async () => {
   const root = await mkdtemp(join(tmpdir(), 'knoux-css-'));
