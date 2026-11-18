@@ -76,14 +76,14 @@ export function BuildSound() {
     try {
       const audio = context.current ?? (context.current = new AudioContext());
       await audio.resume();
-      if (attempt !== version.current) return;
+      if (!active.current || attempt !== version.current || context.current !== audio) return;
       setEnabled(true);
       setUnavailable(false);
       try { localStorage.setItem(SOUND_PREFERENCE, 'on'); } catch { /* Optional browser storage. */ }
       stopAmbience.current = startAmbience(audio);
       stop.current = playCue(audio, 'confirm');
     } catch {
-      if (attempt !== version.current) return;
+      if (!active.current || attempt !== version.current) return;
       active.current = false;
       setUnavailable(true);
     }
@@ -118,7 +118,6 @@ export function BuildSound() {
       window.removeEventListener('pointerdown', restore);
       document.removeEventListener('visibilitychange', visibility);
       active.current = false;
-      version.current++;
       stop.current?.();
       stop.current = null;
       stopAmbience.current?.();
