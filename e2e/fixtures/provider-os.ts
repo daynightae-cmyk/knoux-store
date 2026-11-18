@@ -59,7 +59,7 @@ export async function providerFixture(page: Page) {
 }
 
 export async function openProviderRegistry(page: Page) {
-  await page.getByLabel('Provider workspace').waitFor();
+  await page.getByRole('heading', { name: 'OpenCode Console V2', exact: true }).waitFor();
   const summary = page.locator('summary').filter({ hasText: 'Browse providers' });
   if (await summary.isVisible() && !(await summary.locator('..').evaluate((details) => (details as HTMLDetailsElement).open))) {
     await summary.click();

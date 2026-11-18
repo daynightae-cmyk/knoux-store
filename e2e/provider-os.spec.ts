@@ -108,6 +108,7 @@ for (const width of [1440, 390])
         await expect(page.getByRole('link', { name: 'Sign in ↗', exact: true })).toBeVisible();
         await capture('real-anonymous-auth-required');
         const fixture = await providerFixture(page);
+        await page.getByText('Search & workspace', { exact: true }).click();
         await page.getByRole('button', { name: 'Refresh facts ↗', exact: true }).click();
         await expect(page.getByLabel('Provider workspace')).toContainText('CONTRACT FIXTURE');
         await page.getByLabel('Search providers', { exact: true }).fill('Groq');

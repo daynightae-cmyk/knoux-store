@@ -77,7 +77,7 @@ test('real local Preview studio observes DOM, console, resource failures, respon
     await page.getByRole('group', { name: 'Workspace view' }).getByRole('button', { name: 'PREVIEW' }).click();
     const iframe = page.locator('iframe[title^="Live preview"]'); await expect(iframe).toHaveCount(1); await expect(page.getByRole('button', { name: 'INSPECT', exact: true })).toBeEnabled();
     const studio = page.getByRole('group', { name: 'Preview studio tools' });
-    await page.getByRole('group', { name: 'Preview route' }).getByRole('button', { name: '/products', exact: true }).click();
+    await page.getByRole('combobox', { name: 'Preview route', exact: true }).selectOption('/products');
     await expect(page.frameLocator('iframe[title^="Live preview"]').locator('h1').first()).toBeVisible(); await expect(page.getByRole('button', { name: 'INSPECT', exact: true })).toBeEnabled();
     await page.getByRole('button', { name: 'INSPECT', exact: true }).click(); await page.frameLocator('iframe[title^="Live preview"]').locator('h1').first().click({ position: { x: 5, y: 5 } }); await expect(page.locator('.bo-preview')).toContainText('font-size');
     await studio.getByRole('button', { name: 'CONSOLE', exact: true }).click();
@@ -92,7 +92,7 @@ test('real local Preview studio observes DOM, console, resource failures, respon
     await studio.getByRole('button', { name: 'LIVE PREVIEW', exact: true }).click(); await page.getByText('Canvas dimensions, zoom & reference', { exact: true }).click();
     const reference = join(evidence, `actual-preview-reference-${info.project.name}.png`); await iframe.screenshot({ path: reference }); await page.getByLabel('Approved reference screenshot').setInputFiles(reference); await expect(page.locator('.dev-reference-ghost')).toBeVisible();
     await page.getByRole('button', { name: 'DIFFERENCE VIEW', exact: true }).click(); await expect(page.locator('.dev-reference-ghost')).toHaveCSS('mix-blend-mode', 'difference');
-    await page.getByLabel('Preview width', { exact: true }).fill('430'); await page.getByLabel('Preview height', { exact: true }).fill('932'); await page.getByRole('button', { name: 'APPLY SIZE' }).click(); await expect(iframe).toHaveAttribute('width', '430');
+    await page.getByRole('spinbutton', { name: 'Preview width', exact: true }).fill('430'); await page.getByLabel('Preview height', { exact: true }).fill('932'); await page.getByRole('button', { name: 'APPLY SIZE' }).click(); await expect(iframe).toHaveAttribute('width', '430');
     await page.getByLabel('Real baseline URL').fill(`${origin}/services`); await page.getByRole('button', { name: 'COMPARE URL', exact: true }).click(); await expect(page.locator('iframe[title="User-supplied comparison baseline"]')).toHaveAttribute('src', `${origin}/services`);
     if (info.project.name === 'desktop') await page.screenshot({ path: join(evidence, 'preview-ghost-comparison.png') });
     await studio.getByRole('button', { name: 'EVIDENCE', exact: true }).click(); await expect(page.getByRole('button', { name: 'CAPTURE SCREENSHOT TO PROJECT' })).toBeDisabled();
