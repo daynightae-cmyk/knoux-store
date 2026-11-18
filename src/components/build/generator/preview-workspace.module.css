@@ -170,3 +170,21 @@
 .intelligenceInspector summary { cursor: pointer; }
 .intelligenceInspector p { margin: 9px 0; }
 .intelligenceInspector a { display: inline-block; margin-top: 9px; color: #e4c5ff; text-underline-offset: 3px; }
+
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  :global(.dev-shell:not([data-cosmic-reduced])) .layout:not([data-expanded='true']) .monitor { position: relative; }
+  :global(.dev-shell:not([data-cosmic-reduced])) .layout:not([data-expanded='true']) .monitor::before {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    inset: 12px auto 12px -10px;
+    width: 2px;
+    border-radius: 2px;
+    background: linear-gradient(transparent, #a775e574 35%, #edc8ff 52%, #a775e574 66%, transparent);
+    opacity: .45;
+  }
+  :global(.dev-shell:not([data-cosmic-reduced])) .monitor:has([data-active='true'])::before {
+    animation: stream-divider 2.6s ease-in-out infinite alternate;
+  }
+}
+@keyframes stream-divider { from { opacity: .32; } to { opacity: .9; } }

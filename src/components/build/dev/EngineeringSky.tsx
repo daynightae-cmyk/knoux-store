@@ -11,15 +11,40 @@ export function EngineeringSky({ reducedMotion }: { reducedMotion: boolean }) {
     if (!sky || !stage || reducedMotion) return;
 
     const motion = matchMedia('(min-width: 761px) and (any-hover: hover) and (prefers-reduced-motion: no-preference)');
+    const still = matchMedia('(prefers-reduced-motion: reduce)');
     let frame = 0;
+    let settle: number | undefined;
+    let touch: { x: number; y: number } | undefined;
 
     function reset() {
       cancelAnimationFrame(frame);
+      window.clearTimeout(settle);
       if (!sky) return;
       delete sky.dataset.illuminated;
       sky.style.removeProperty('--figure-x');
       sky.style.removeProperty('--figure-y');
     }
+
+    function light() {
+      if (!sky || still.matches) return;
+      sky.dataset.illuminated = '';
+      window.clearTimeout(settle);
+      settle = window.setTimeout(reset, 1550);
+    }
+    const startTouch = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') touch = { x: event.clientX, y: event.clientY };
+    };
+    const endTouch = (event: PointerEvent) => {
+      if (!touch) return;
+      const moved = Math.hypot(event.clientX - touch.x, event.clientY - touch.y);
+      touch = undefined;
+      if (moved < 12) light();
+    };
+    const cancelTouch = () => { touch = undefined; };
+    const leave = (event: PointerEvent) => { if (event.pointerType === 'mouse') reset(); };
+    const controls = (event: MouseEvent) => {
+      if (event.target instanceof Element && event.target.closest('.dev-engineering-tabs, .dev-engineering-console button')) light();
+    };
 
     function follow(event: PointerEvent) {
       if (!motion.matches || event.pointerType !== 'mouse') return;
@@ -42,13 +67,23 @@ export function EngineeringSky({ reducedMotion }: { reducedMotion: boolean }) {
     }
 
     stage.addEventListener('pointermove', follow, { passive: true });
-    stage.addEventListener('pointerleave', reset);
+    stage.addEventListener('pointerleave', leave);
+    stage.addEventListener('pointerdown', startTouch, { passive: true });
+    stage.addEventListener('pointerup', endTouch, { passive: true });
+    stage.addEventListener('pointercancel', cancelTouch);
+    stage.addEventListener('click', controls);
     motion.addEventListener('change', reset);
+    still.addEventListener('change', reset);
     return () => {
       reset();
       stage.removeEventListener('pointermove', follow);
-      stage.removeEventListener('pointerleave', reset);
+      stage.removeEventListener('pointerleave', leave);
+      stage.removeEventListener('pointerdown', startTouch);
+      stage.removeEventListener('pointerup', endTouch);
+      stage.removeEventListener('pointercancel', cancelTouch);
+      stage.removeEventListener('click', controls);
       motion.removeEventListener('change', reset);
+      still.removeEventListener('change', reset);
     };
   }, [reducedMotion]);
 

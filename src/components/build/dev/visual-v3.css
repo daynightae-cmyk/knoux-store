@@ -226,3 +226,20 @@
 .dev-operational-sky[data-reduced] .dev-figure-energy { transition: none; }
 @keyframes dev-figure-travel { to { stroke-dashoffset: -332; } }
 @media (max-width: 760px) { .dev-figure-energy { inset-inline-end: 2%; opacity: .32; } }
+
+/* Action feedback stays within the control's existing geometry. */
+@media (prefers-reduced-motion: no-preference) {
+  .dev-cinematic:not([data-cosmic-reduced]) :is(button:not(:disabled), .dev-nav-link, .dev-neon-btn) {
+    transition: box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease, scale 130ms ease;
+  }
+  .dev-cinematic:not([data-cosmic-reduced]) :is(button:not(:disabled), .dev-nav-link, .dev-neon-btn):active { scale: .976; }
+  .dev-cinematic:not([data-cosmic-reduced]) :is(.dev-sidebar__action, .dev-stage-views button, .dev-quick-card):is(:hover, :focus-visible) {
+    box-shadow: inset 0 0 0 1px #c6a2ee73, inset 0 0 16px #9863e127;
+  }
+  .dev-cinematic:not([data-cosmic-reduced]) .dev-sidebar__action > span { transition: translate 180ms ease; }
+  .dev-cinematic:not([data-cosmic-reduced]) .dev-sidebar__action:hover > span { translate: 2px -2px; }
+  .dev-operational-sky:not([data-reduced]) .dev-figure-energy__nodes { animation: figure-points-breathe 8s ease-in-out infinite alternate; }
+  .dev-operational-sky:not([data-reduced]) .dev-engineering-figure::after { animation: figure-cloud-breathe 10s ease-in-out infinite alternate; }
+}
+@keyframes figure-points-breathe { from { opacity: .45; } to { opacity: .94; } }
+@keyframes figure-cloud-breathe { from { transform: scale(.94); } to { transform: scale(1.06); } }
