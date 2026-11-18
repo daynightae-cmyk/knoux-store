@@ -176,8 +176,10 @@ function adapterHarness({ before = {}, after = {}, output = 'Controlled success'
       },
     },
   };
-  const spawn = (binary, args, options) => {
-    calls.push({ binary, args, options });
+  const spawn = (binary, argv, options) => {
+    const isGit = /^git(?:\.exe)?$/i.test(nodePath.basename(binary));
+    const args = isGit ? argv.slice(2) : argv;
+    calls.push({ isGit, args });
     assert.equal(options.cwd, fixtureRoot);
     assert.equal(options.shell, false);
     const child = new EventEmitter();
@@ -186,8 +188,13 @@ function adapterHarness({ before = {}, after = {}, output = 'Controlled success'
     child.kill = () => {};
     queueMicrotask(() => {
       let value = null;
-      if (binary === 'git') {
-        assert.equal(options.env.GIT_OPTIONAL_LOCKS, '0', 'read-only Git must not refresh the index');
+      if (isGit) {
+        assert.ok(nodePath.isAbsolute(binary), 'Git must not be resolved from the ambient PATH');
+        assert.deepEqual(argv.slice(0, 2), ['-c', 'core.fsmonitor=false']);
+        const systemRoot = process.env.SystemRoot || 'C:\\Windows';
+        assert.deepEqual(options.env, process.platform === 'win32'
+          ? { SystemRoot: systemRoot, PATH: nodePath.join(systemRoot, 'System32'), GIT_OPTIONAL_LOCKS: '0' }
+          : { PATH: '/usr/bin:/bin', GIT_OPTIONAL_LOCKS: '0' });
         if (args[0] === 'rev-parse') value = args.at(-1) === 'HEAD' ? (state.headReads?.shift() ?? state.head) : HEAD_A;
         else if (args[0] === 'status') value = state.statusReads?.shift() ?? state.status;
         else if (args[0] === 'diff') {
@@ -213,7 +220,7 @@ function adapterHarness({ before = {}, after = {}, output = 'Controlled success'
         onRun?.();
       }
       if (value !== null) child.stdout.write(Buffer.from(value));
-      child.emit('close', binary === 'git' ? value === null ? 128 : 0 : code);
+      child.emit('close', isGit && value === null ? 128 : isGit ? 0 : code);
     });
     return child;
   };
@@ -311,7 +318,7 @@ test('source measurement remains covered by the process-wide single-run lock', a
   } });
   assert.equal((await h.adapter.runVerification('typecheck')).checks[0].status, 'pass');
   assert.match((await concurrent).message, /already in progress/);
-  assert.equal(h.calls.filter(call => call.binary !== 'git').length, 1);
+  assert.equal(h.calls.filter(call => !call.isGit).length, 1);
 });
 
 test('adapter flag and task allowlist refuse without any process', async t => {

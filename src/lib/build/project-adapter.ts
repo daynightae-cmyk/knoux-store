@@ -173,7 +173,12 @@ async function readJson<T>(file: string, fallback: T): Promise<T> {
   }
 }
 
-/** Run a git subcommand with a fixed argv. Never a shell string, never user input. */
+const windowsSystemRoot = process.env.SystemRoot || 'C:\\Windows';
+const gitExecutable = process.platform === 'win32'
+  ? path.join(process.env.ProgramW6432 || process.env.ProgramFiles || 'C:\\Program Files', 'Git', 'cmd', 'git.exe')
+  : '/usr/bin/git';
+
+/** Run a git subcommand with a fixed argv and an isolated search path. */
 function git(root: string, args: string[], timeout = GIT_TIMEOUT_MS): Promise<string | null> {
   return new Promise((resolve) => {
     let settled = false;
@@ -183,9 +188,17 @@ function git(root: string, args: string[], timeout = GIT_TIMEOUT_MS): Promise<st
       resolve(value);
     };
     try {
-      const child = spawn('git', args, {
+      if (!path.isAbsolute(gitExecutable) || (process.platform === 'win32' && !path.isAbsolute(windowsSystemRoot))) {
+        finish(null);
+        return;
+      }
+      const child = spawn(gitExecutable, ['-c', 'core.fsmonitor=false', ...args], {
         cwd: root, windowsHide: true, shell: false,
-        env: { ...process.env, GIT_OPTIONAL_LOCKS: '0' },
+        env: {
+          ...(process.platform === 'win32' ? { SystemRoot: windowsSystemRoot } : {}),
+          PATH: process.platform === 'win32' ? path.join(windowsSystemRoot, 'System32') : '/usr/bin:/bin',
+          GIT_OPTIONAL_LOCKS: '0',
+        },
       });
       const chunks: Buffer[] = [];
       let bytes = 0;
