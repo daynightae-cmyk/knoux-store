@@ -14,6 +14,7 @@ import { ModelControlsPanel } from '../generator/ModelControlsPanel';
 import { SplitView } from '../generator/SplitView';
 import { PlanSystemMap } from '../generator/PlanSystemMap';
 import { profileToControls } from '@/lib/build/profile';
+import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
 import styles from '../generator/generator.module.css';
 import { consumePlanStream, parseEngineeringPlan, canFallbackPlanError, PlanStreamError, ENGINEERING_PLAN_SYSTEM, PLAN_SECTIONS, planPrompt, type EngineeringPlan, type EngineeringStage } from '@/lib/build/engineering-plan';
 import { QUICK_INTENTS } from './quick-intents';
@@ -126,7 +127,12 @@ export function DevWorkspaceHome() {
         <div className="dev-build-center">
           <p className="dev-build-center__eyebrow">KNOuX BUILD</p>
           <h1>What are we building today?</h1>
-          <div className="dev-engine" data-stage={stage}><p><span role="status">ENGINE / {stage}</span><small aria-live="off">{planning ? `${characters.toLocaleString()} characters received` : stage === 'LISTENING' ? 'Describe a system. Resolve its architecture.' : stage === 'PLANNED' ? 'Proposal ready · review before execution' : stage === 'AUTH_REQUIRED' ? 'Provider access requires an authorized account' : stage === 'EXECUTOR_NOT_CONNECTED' ? 'Plan retained · trusted execution required' : 'Canonical engineering state'}</small></p></div>
+          <div className="dev-engine" data-stage={stage} data-reduced={state.preferences.motion === 'reduced' ? '' : undefined}>
+            <svg className="dev-engine__glyph" viewBox={`0 0 ${MARK_VIEW_BOX.width} ${MARK_VIEW_BOX.height}`} aria-hidden="true">
+              {MARK_PATHS.map(({ id, d }) => <path key={id} d={d} />)}
+            </svg>
+            <p><span role="status">ENGINE / {stage}</span><small aria-live="off">{planning ? `${characters.toLocaleString()} characters received` : stage === 'LISTENING' ? 'Describe a system. Resolve its architecture.' : stage === 'PLANNED' ? 'Proposal ready · review before execution' : stage === 'AUTH_REQUIRED' ? 'Provider access requires an authorized account' : stage === 'EXECUTOR_NOT_CONNECTED' ? 'Plan retained · trusted execution required' : 'Canonical engineering state'}</small></p>
+          </div>
           <div className="dev-composer-routing">
             <ComposerModelPicker
               models={intelligence.models}

@@ -27,14 +27,15 @@ export function BuildLivingMarkBackdrop() {
     const place = () => {
       const target = aperture.getBoundingClientRect();
       const parent = container.getBoundingClientRect();
+      const overlap = Math.min(56, Math.round(target.width * (target.width < 390 ? .1 : .14)));
       const left = Math.round(target.left - parent.left);
-      const top = Math.round(target.top - parent.top);
+      const top = Math.round(target.top - parent.top) - overlap;
       if (left !== x || top !== y) {
         x = left; y = top;
         Object.assign(mark.style, { inset: 'auto', left: `${x}px`, top: `${y}px` });
       }
-      if (target.width !== width || target.height !== height) {
-        width = target.width; height = target.height;
+      if (target.width !== width || target.height + overlap !== height) {
+        width = target.width; height = target.height + overlap;
         Object.assign(mark.style, { width: `${width}px`, height: `${height}px` });
       }
     };
@@ -86,7 +87,8 @@ export function BuildLivingMarkBackdrop() {
       const resolved = ['PLANNED', 'REVIEWING', 'COMPLETE'].includes(stage.current);
       const centered = landing.current;
       const centerX = width * (centered ? 0.5 : 0.69);
-      const centerY = height * (centered ? 0.36 : 0.48);
+      const scale = Math.min(width * 0.68 / 3, height * (centered ? 0.82 : 0.8) / 5);
+      const centerY = centered ? height - 37 - scale * 2.5 : height * 0.48;
       surface.dataset.state = stage.current;
       context.clearRect(0, 0, width, height);
 
@@ -105,14 +107,13 @@ export function BuildLivingMarkBackdrop() {
       context.fillStyle = halo;
       context.fillRect(0, 0, width, height);
 
-      const scale = Math.min(width * 0.68 / 3, height * (centered ? 0.76 : 0.8) / 5);
       const impulse = reduced() ? 0 : Math.exp(-Math.max(0, now - transition.current) / 900) * 0.11;
       const scatter = reduced() || blocked || resolved ? 0 : Math.pow(Math.max(0, Math.sin(elapsed / (active ? 3 : 6.2))), 10) * (active ? 0.1 : 0.025) + impulse;
       const pulse = reduced() || blocked ? 1 : 1 + Math.sin(elapsed * (active ? 2 : 0.8)) * (active ? 0.08 : 0.025);
       const wave = reduced() ? 0 : Math.sin(elapsed * 0.9) * 0.018;
 
       context.save();
-      context.fillStyle = blocked ? '#a89fac' : resolved ? '#fff7e7' : '#eef1ff';
+      context.fillStyle = blocked ? '#a89fac' : resolved ? '#fff7e7' : centered ? '#f4eaff' : '#eef1ff';
       context.shadowBlur = reduced() ? 8 : isCompact ? 17 : 24;
       context.shadowColor = centered ? 'rgba(172, 120, 255, 0.98)' : 'rgba(170, 157, 216, 0.9)';
       context.beginPath();
