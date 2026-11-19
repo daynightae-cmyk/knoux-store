@@ -50,6 +50,55 @@ const ANY_DEPTH_SKIP = new Set(['.git', '.next', '.vercel', '.traycer', '.turbo'
 
 const MAX_FILE_BYTES = 512 * 1024;
 const MAX_FILES = 4000;
+
+/**
+ * Extensions whose contents are bytes, not text.
+ *
+ * A line count describes text. Reading a PNG, a video or an archive to count
+ * newlines costs the same I/O as reading its source and produces a number
+ * that describes nothing, so binary assets are measured by size only.
+ *
+ * The rule is a denylist rather than an allowlist on purpose: an allowlist
+ * would silently report zero lines for every text file whose extension this
+ * module has not heard of — a `Makefile`, a `Dockerfile`, an `.env` example
+ * — and that would be a lie about the checkout.
+ */
+const BINARY_EXTENSIONS = new Set([
+  '.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.ico', '.bmp', '.tiff',
+  '.zip', '.gz', '.tar', '.bz2', '.xz', '.7z', '.rar',
+  '.mp4', '.webm', '.mov', '.avi', '.mkv', '.mp3', '.wav', '.ogg', '.flac',
+  '.woff', '.woff2', '.ttf', '.otf', '.eot',
+  '.pdf', '.exe', '.dll', '.so', '.dylib', '.class', '.bin', '.wasm', '.node',
+]);
+
+/** The extension of a path, ignoring a stray trailing quote in its name. */
+function extensionOf(file: string): string {
+  const extension = path.extname(file).toLowerCase();
+  return extension.replace(/["']+$/, '');
+}
+
+/** How many files may be measured at the same time. */
+const MEASURE_CONCURRENCY = 24;
+
+/**
+ * Run one worker over a list with a bounded number of workers in flight.
+ *
+ * The order of the results matches the order of the input, so the snapshot
+ * stays identical to a sequential walk; only the waiting changes.
+ */
+async function mapWithLimit<T, R>(items: T[], limit: number, worker: (item: T) => Promise<R>): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let index = 0;
+  const runners = Array.from({ length: Math.max(1, Math.min(limit, items.length)) }, async () => {
+    while (index < items.length) {
+      const current = index;
+      index += 1;
+      results[current] = await worker(items[current]);
+    }
+  });
+  await Promise.all(runners);
+  return results;
+}
 const GIT_TIMEOUT_MS = 8000;
 const MAX_GIT_BYTES = 400_000;
 const MAX_IDENTITY_BYTES = 8 * 1024 * 1024;
@@ -363,17 +412,21 @@ export class FsProjectAdapter implements ProjectAdapter {
     const apiRoutes: { route: string; file: string }[] = [];
     const tests: { file: string; bytes: number }[] = [];
 
-    for (const file of relative) {
+    // Measuring a file is I/O, and the walk measured one file at a time in
+    // a serial loop, so a checkout with a few thousand files spent seconds
+    // inside the adapter before the shell could show a single fact. The
+    // reads are independent, so they run with a bounded number of workers.
+    const measured = await mapWithLimit(relative, MEASURE_CONCURRENCY, async (file) => {
       const role = roleOf(file);
-      if (role === 'reference') continue;
+      if (role === 'reference') return null;
       let bytes = 0;
       try {
         bytes = (await fs.stat(path.join(this.root, file))).size;
       } catch {
-        continue;
+        return null;
       }
       let lines = 0;
-      if (bytes < MAX_FILE_BYTES) {
+      if (bytes < MAX_FILE_BYTES && !BINARY_EXTENSIONS.has(extensionOf(file))) {
         try {
           const text = await fs.readFile(path.join(this.root, file), 'utf8');
           lines = text.length === 0 ? 0 : text.split('\n').length;
@@ -381,6 +434,12 @@ export class FsProjectAdapter implements ProjectAdapter {
           lines = 0;
         }
       }
+      return { file, role, bytes, lines };
+    });
+
+    for (const entry of measured) {
+      if (!entry) continue;
+      const { file, role, bytes, lines } = entry;
       files.push({ path: file, language: languageOf(file), bytes, lines, role });
       if (role === 'app-route' && /(?:^|\/)page\.tsx?$/.test(file)) {
         const route = routeOf(file);
