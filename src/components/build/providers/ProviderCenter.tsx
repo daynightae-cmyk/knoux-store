@@ -15,11 +15,24 @@ import { cueAtmosphere } from '../dev/living-atmosphere';
 const classes = [['ALL', 'All providers'], ['INTELLIGENCE', 'Intelligence'], ['CODING_AGENT', 'Coding agents'], ['LOCAL', 'Local'], ['CUSTOM', 'Custom']] as const;
 const unknown = 'UNKNOWN · not reported';
 const consoleProvider = 'opencode-console-v2';
+// Providers arranged evenly around a large slow-orbiting circle (angle in degrees, 0 = top).
 const orbitSlots = [
-    ['openai', 41, 28], ['anthropic', 55, 8], ['gemini', 69, 24], ['openrouter', 81, 92],
-    ['groq', 90, 176], ['mistral', 94, 284], ['deepseek', 92, 395], ['qwen', 87, 502],
-    ['grok', 89, 607], ['opencode-go', 83, 714],
+    ['openai', 0], ['anthropic', 36], ['gemini', 72], ['openrouter', 108],
+    ['groq', 144], ['mistral', 180], ['deepseek', 216], ['qwen', 252],
+    ['grok', 288], ['opencode-go', 324],
 ] as const;
+const ORBIT_CX = 50; // center X %
+const ORBIT_CY = 50; // center Y %
+const ORBIT_RX = 42; // orbit radius X %
+const ORBIT_RY = 42; // orbit radius Y %
+function orbitPoint(angleDeg: number) {
+    const rad = (angleDeg * Math.PI) / 180;
+    // 0 deg = top, clockwise; screen Y grows downward
+    const left = ORBIT_CX + ORBIT_RX * Math.sin(rad);
+    const top = ORBIT_CY - ORBIT_RY * Math.cos(rad);
+    const start = (angleDeg / 360) * 100; // offset-distance start %
+    return { left: `${left}%`, top: `${top}%`, start: `${start}%` };
+}
 const providerOrder = new Map<string, number>([consoleProvider, ...orbitSlots.map(([id]) => id)].map((id, rank) => [id, rank]));
 
 function ProviderMark({ definition }: { definition: ProviderDefinition }) {
@@ -89,9 +102,11 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     const writable = data?.persistence === 'AVAILABLE', vaultWritable = writable && data?.secretStore.writable;
     const filtered = definitions.filter(item => (category === 'ALL' || item.class === category) && `${item.name} ${item.id} ${item.transport}`.toLowerCase().includes(search.toLowerCase()));
     if (!embedded) filtered.sort((a, b) => (providerOrder.get(a.id) ?? Infinity) - (providerOrder.get(b.id) ?? Infinity));
-    const orbitProviders = orbitSlots.flatMap(([id, left, top]) => {
+    const orbitProviders = orbitSlots.flatMap(([id, angle]) => {
         const provider = filtered.find(item => item.id === id);
-        return provider ? [{ provider, left, top }] : [];
+        if (!provider) return [];
+        const point = orbitPoint(angle);
+        return [{ provider, ...point }];
     });
     const lastOrbitPage = Math.max(0, Math.ceil(orbitProviders.length / 3) - 1);
     const visibleOrbitPage = Math.min(orbitPage, lastOrbitPage);
@@ -217,8 +232,8 @@ export function ProviderCenter({ embedded = false }: Readonly<{
       {!embedded && orbitProviders.length > 0 ? (
         <aside className={styles.providerOrbit} aria-label="Provider shortcuts">
           <div className={styles.orbitTrack} aria-hidden="true" />
-          {orbitProviders.map(({ provider, left, top }) => (
-            <button className={styles.desktopOrbitNode} key={provider.id} type="button" style={{ '--orbit-left': `${left}%`, '--orbit-top': `${top}px` } as CSSProperties} aria-current={selected === provider.id ? 'true' : undefined} onClick={() => choose(provider)}>
+          {orbitProviders.map(({ provider, left, top, start }) => (
+            <button className={styles.desktopOrbitNode} key={provider.id} type="button" style={{ '--orbit-left': left, '--orbit-top': top, '--orbit-start': start } as CSSProperties} aria-current={selected === provider.id ? 'true' : undefined} onClick={() => choose(provider)}>
               <ProviderMark definition={provider} />
               <span>{provider.name}</span>
             </button>
@@ -267,7 +282,7 @@ export function ProviderCenter({ embedded = false }: Readonly<{
                     }}>Revoke {item.name}</button><button type="button" disabled={!writable || busy || item.referencedBy.length > 0} title={item.referencedBy.length ? 'Remove all profile bindings before deletion.' : undefined} onClick={() => {
                         if (window.confirm('Permanently delete this unreferenced credential?'))
                             void command({ action: 'CREDENTIAL_DELETE', id: item.id, version: item.revision });
-                    }}>Delete {item.name}</button></div></article>)}<form className={styles.form} onSubmit={event => void saveSecret(event)}><h4>{editCredential ? rotate ? 'Rotate credential' : 'Replace credential' : 'Add credential'}</h4>{!editCredential ? <label>Credential name<input required maxLength={80} value={credentialName} onChange={event => setCredentialName(event.target.value)}/></label> : <button type="button" onClick={() => { setEditCredential(''); setSecret(''); }}>Add a different credential</button>}<label>Secret (write only)<input type="password" autoComplete="new-password" required maxLength={8192} disabled={!vaultWritable} value={secret} onChange={event => setSecret(event.target.value)}/></label><p>No reveal control. Replacement and rotation invalidate dependent connection facts. The field clears after a successful save. Failed saves preserve the unsaved value in this form only.</p><button type="submit" disabled={!vaultWritable || busy}>{editCredential ? 'Save replacement' : 'SAVE API KEY'}</button></form></> : null}
+                    }}>Delete {item.name}</button></div></article>)}<form className={styles.form} onSubmit={event => void saveSecret(event)}><h4>{editCredential ? rotate ? 'Rotate credential' : 'Replace credential' : 'Add credential'}</h4>{!editCredential ? <label>Credential name<input required maxLength={80} value={credentialName} onChange={event => setCredentialName(event.target.value)}/></label> : <button type="button" onClick={() => { setEditCredential(''); setSecret(''); }}>Add a different credential</button>}<div className={styles.secretField}><label>Secret key</label><input type="password" autoComplete="new-password" required maxLength={8192} disabled={!vaultWritable} value={secret} onChange={event => setSecret(event.target.value)}/><span className={styles.secretHint}>Paste the full key — typing is not required</span></div><p>No reveal control. Replacement and rotation invalidate dependent connection facts. The field clears after a successful save. Failed saves preserve the unsaved value in this form only.</p><button type="submit" disabled={!vaultWritable || busy}>{editCredential ? 'Save replacement' : 'SAVE API KEY'}</button></form></> : null}
         {tab === 'Endpoint' ? <><h3>Endpoint binding</h3><p>{profile && 'endpoint' in profile.auth ? profile.auth.endpoint : 'No endpoint bound.'}</p><p>{definition.class === 'LOCAL' ? 'Loopback only, through an authorized local server. A hosted deployment cannot execute a runtime on your computer.' : 'Public HTTPS only. The server operator must allow the hostname; DNS is checked and the socket is pinned. Redirects are refused.'}</p>{profile ? <form className={styles.form} onSubmit={event => {
                         event.preventDefault();
                         const endpoint = String(new FormData(event.currentTarget).get('endpoint'));
