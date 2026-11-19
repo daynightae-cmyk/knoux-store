@@ -15,6 +15,7 @@ type CueProfile = {
 
 const CUE_PROFILES = {
   'ambient-storm': { kind: 'noise', priority: 'storm', duration: 1.75, attack: .14, peak: .09, cutoff: 165 },
+  'provider-authenticated': { kind: 'noise', priority: 'storm', duration: 1.65, attack: .035, peak: .24, cutoff: 1450 },
   'activation-storm': { kind: 'noise', priority: 'storm', duration: 1.75, attack: .14, peak: .17, cutoff: 165 },
   wake: { kind: 'tone', priority: 'action', duration: .34, attack: .035, peak: .035, cutoff: 1100, wave: 'triangle', pitches: [[0, 165], [.29, 330]] },
   'generation-start': { kind: 'tone', priority: 'action', duration: .52, attack: .04, peak: .035, cutoff: 1200, wave: 'triangle', pitches: [[0, 220], [.2, 330], [.46, 440]] },
@@ -267,7 +268,7 @@ function createSoundController(update: (status: SoundStatus) => void) {
     if (profile.priority === 'action' && now - lastAction < 180) return;
     if (cue === 'ambient-storm' && now < activationUntil) return;
     if (profile.priority === 'action') lastAction = now;
-    if (cue === 'activation-storm') activationUntil = now + profile.duration * 1000;
+    if (cue === 'activation-storm' || cue === 'provider-authenticated') activationUntil = now + profile.duration * 1000;
     // Results bypass interaction throttling; thunder has its own voice and
     // cannot interrupt or suppress success, error, cancellation or readiness.
     try { play(owned, profile); } catch { fail(owned); }
