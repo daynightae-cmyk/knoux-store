@@ -130,9 +130,11 @@ jobs:
     # viewport projects ran one after another, each re-running `routes.spec.ts`
     # and each re-walking the evidence matrix. Splitting by project makes the
     # wall clock the cost of the heaviest project, not the sum of all three.
-    # `fail-fast: false` keeps a red tablet run from cancelling a green desktop
-    # run, and the timeout is sized to one project, not to the whole suite.
-    timeout-minutes: 25
+    # `fail-fast: false` keeps a red tablet run from cancelling a green desktop.
+    # Run 44455302989 reached only 733/786 desktop checks before the 25-minute
+    # job limit, losing its failure summary. Budget for the complete suite,
+    # including install/build and evidence upload, without skipping assertions.
+    timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:
@@ -195,6 +197,16 @@ jobs:
             references/build-generator/qa/
             references/build V3/qa/final-verified/
             references/provider-os/qa/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload browser failures and machine-readable results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: browser-results-${{ matrix.project }}
+          path: e2e/.artifacts/
+          include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 7
 

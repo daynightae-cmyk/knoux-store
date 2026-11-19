@@ -20,12 +20,14 @@ export function HomeCinema() {
   const [label, title, sub, desc, playLabel, closeLabel, watchLabel, buildLabel, privacy] = copy[language];
   const [playing, setPlaying] = useState(false);
   const play = useRef<HTMLButtonElement>(null);
-  const player = useRef<HTMLIFrameElement>(null);
+  const close = useRef<HTMLButtonElement>(null);
   const restorePlayFocus = useRef(false);
 
   useEffect(() => {
     if (playing) {
-      const frame = requestAnimationFrame(() => player.current?.focus());
+      // Keep an immediate keyboard exit outside the cross-origin player.
+      // The next Tab enters YouTube's native controls in document order.
+      const frame = requestAnimationFrame(() => close.current?.focus());
       return () => cancelAnimationFrame(frame);
     }
 
@@ -56,13 +58,14 @@ export function HomeCinema() {
         <div className={styles.theatre}>
           <div className={styles.rail} dir="ltr">
             <span><span className={styles.dot} /> KNOuX STORE</span>
-            <span>ORIGINAL FILM / 01 · 00:30</span>
+            {playing
+              ? <button ref={close} type="button" className={styles.control} onClick={closeFilm}>{closeLabel}</button>
+              : <span>ORIGINAL FILM / 01 · 00:30</span>}
           </div>
 
           <div className={styles.screen} dir="ltr">
             {playing ? (
               <iframe
-                ref={player}
                 className={styles.player}
                 title={`KNOuX Store — ${title}`}
                 src={FILM_EMBED_URL}
@@ -89,7 +92,6 @@ export function HomeCinema() {
           <div className={styles.rail}>
             <span>{label}</span>
             <div className={styles.actions}>
-              {playing && <button type="button" className={styles.control} onClick={closeFilm}>{closeLabel}</button>}
               <a className={styles.control} href={FILM_WATCH_URL} target="_blank" rel="noopener noreferrer">
                 {watchLabel} <span aria-hidden="true">↗</span>
               </a>

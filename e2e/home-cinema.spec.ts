@@ -59,6 +59,15 @@ test.describe('KNOuX Store film', () => {
   });
 
   test('is keyboard operable and exposes the native player to focus', async ({ page }) => {
+    // Exercise a loaded cross-origin document with multiple native controls.
+    // YouTube's live control count/loading is external to our focus contract;
+    // assuming one Tab always leaves that iframe made the CI result random.
+    await page.route(`https://www.youtube-nocookie.com/embed/${FILM_ID}?*`, (route) =>
+      route.fulfill({
+        contentType: 'text/html',
+        body: '<!doctype html><html lang="en"><title>Player focus fixture</title><button>Playback</button><button>Captions</button></html>',
+      }),
+    );
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     const play = page.getByRole('button', { name: 'Play the film', exact: true });
@@ -68,9 +77,17 @@ test.describe('KNOuX Store film', () => {
     const player = page.locator(FILM_IFRAME);
     await expect(player).toHaveCount(1);
     await expect(player).toBeFocused();
+    const close = page.getByRole('button', { name: 'Close film', exact: true });
+    const playback = page.frameLocator(FILM_IFRAME).getByRole('button', { name: 'Playback', exact: true });
+    const captions = page.frameLocator(FILM_IFRAME).getByRole('button', { name: 'Captions', exact: true });
+    await expect(playback).toBeVisible();
 
     await page.keyboard.press('Tab');
-    await expect(page.getByRole('button', { name: 'Close film', exact: true })).toBeFocused();
+    await expect(playback).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(captions).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(close).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(page.locator(FILM_IFRAME)).toHaveCount(0);
     await expect(play).toBeFocused();
