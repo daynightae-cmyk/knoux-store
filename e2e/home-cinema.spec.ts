@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 
 const FILM_ID = 'NOhO02YeGg4';
 const FILM_IFRAME = `iframe[title^="KNOuX Store"]`;
@@ -29,6 +30,20 @@ test.describe('KNOuX Store film', () => {
     await expect(player).toHaveAttribute('allow', /autoplay/);
     await expect(player).toHaveAttribute('allow', /fullscreen/);
     await expect(player).toHaveAttribute('allowfullscreen', '');
+  });
+
+  test('has no critical or serious automated accessibility violation', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+    const results = await new AxeBuilder({ page })
+      .include('#knoux-film')
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'])
+      .analyze();
+    const blocking = results.violations.filter(
+      (violation) => violation.impact === 'critical' || violation.impact === 'serious',
+    );
+
+    expect(blocking).toEqual([]);
   });
 
   test('closes the film, stops the embed and restores focus', async ({ page }) => {
