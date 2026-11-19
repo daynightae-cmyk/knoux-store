@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './universal-provider-engine.module.css';
+import { providerMark } from './provider-marks';
 
 
 const PROVIDERS = [
@@ -59,7 +60,7 @@ export default function UniversalProviderEngine() {
                 onMouseEnter={() => setHovered(p.id)}
                 onMouseLeave={() => setHovered('')}
               >
-                <ProviderMark mark={p.mark} size={20} />
+                <ProviderMark mark={p.mark} name={p.name} size={20} />
                 <span>{p.name}</span>
                 <span className={styles.arrow}>→</span>
               </Link>
@@ -106,18 +107,19 @@ export default function UniversalProviderEngine() {
           {/* Orbiting provider nodes */}
           {PROVIDERS.map((p, i) => {
             const angle = (i / PROVIDERS.length) * 360;
+            const delay = -((angle / 360) * 26);
             return (
               <Link
                 key={p.id}
                 href={`/build/providers?provider=${p.id}`}
                 className={`${styles.node} ${hovered === p.id ? styles.active : ''}`}
-                style={{ '--angle': `${angle}deg` } as React.CSSProperties}
+                style={{ '--orbit-delay': `${delay}s` } as React.CSSProperties}
                 onMouseEnter={() => setHovered(p.id)}
                 onMouseLeave={() => setHovered('')}
                 aria-label={p.name}
               >
                 <div className={styles.nodeMark}>
-                  <ProviderMark mark={p.mark} size={32} />
+                  <ProviderMark mark={p.mark} name={p.name} size={32} />
                 </div>
                 <span className={styles.nodeName}>{p.name}</span>
               </Link>
@@ -135,7 +137,7 @@ export default function UniversalProviderEngine() {
             <span className={styles.panelTitle}>Model Discovery</span>
           </div>
           <div className={styles.discoveryGrid} role="grid" aria-label="Discovered models">
-            {['Gemini 2.5 Pro', 'Claude 3.7 Sonnet', 'GPT-4o', 'Grok 3', 'DeepSeek V3', 'Qwen 2.5 Max'].map((model, i) => (
+            {['Gemini 2.5 Pro', 'Claude 3.7 Sonnet', 'GPT-4o', 'Grok 3', 'DeepSeek V3', 'Qwen 2.5 Max'].map((model) => (
               <div key={model} className={styles.discoveryCard} role="gridcell">
                 <span className={styles.dotBadge} aria-hidden="true"></span>
                 <span>{model}</span>
@@ -163,19 +165,24 @@ export default function UniversalProviderEngine() {
 
 interface ProviderMarkProps {
   mark: string;
+  name: string;
   size?: number;
 }
 
-function ProviderMark({ mark, size = 28 }: ProviderMarkProps) {
-  return (
-    <Image
-      src={`/providers/${mark}.svg`}
-      alt=""
-      width={size}
-      height={size}
-      loading="eager"
-      className={styles.markImg}
-      style={{ filter: 'invert(1) drop-shadow(0 0 10px rgba(201,151,255,0.45))' }}
-    />
-  );
+function ProviderMark({ mark, name, size = 28 }: ProviderMarkProps) {
+  const available = providerMark(mark);
+  if (available) {
+    return (
+      <Image
+        src={`/providers/${available}.svg`}
+        alt=""
+        width={size}
+        height={size}
+        loading="eager"
+        className={styles.markImg}
+        style={{ filter: 'invert(1) drop-shadow(0 0 10px rgba(201,151,255,0.45))' }}
+      />
+    );
+  }
+  return <span className={styles.markText} aria-hidden="true">{name}</span>;
 }
