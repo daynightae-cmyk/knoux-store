@@ -128,7 +128,10 @@ export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }
                   <article key={item.slug} className={styles.themeCard} aria-label={item.name}>
                     <div className={styles.themeThumb}>
                       {item.screenshotUrl ? (
-                        <img src={`/api/wp-image?u=${encodeURIComponent(item.screenshotUrl)}`} alt={`${item.name} · WordPress.org`} loading="lazy" />
+                        <>
+                          {/* eslint-disable-next-line @next/next/no-img-element -- unmodified official image through the existing allowlisted proxy */}
+                          <img src={`/api/wp-image?u=${encodeURIComponent(item.screenshotUrl)}`} alt={`${item.name} · WordPress.org`} loading="lazy" />
+                        </>
                       ) : (
                         <div className={styles.themePlaceholder}>{t('No screenshot')}</div>
                       )}
@@ -207,7 +210,10 @@ export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }
               <div className={styles.previewFrame}>
                 <div className={styles.chrome}>{theme?.name ?? 'WordPress'}</div>
                 {theme?.screenshotUrl ? (
-                  <img src={`/api/wp-image?u=${encodeURIComponent(theme.screenshotUrl)}`} alt={`${theme.name} · WordPress.org`} width={1200} height={900} loading="lazy" />
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element -- unmodified official image through the existing allowlisted proxy */}
+                    <img src={`/api/wp-image?u=${encodeURIComponent(theme.screenshotUrl)}`} alt={`${theme.name} · WordPress.org`} width={1200} height={900} loading="lazy" />
+                  </>
                 ) : (
                   <p className={styles.note}>{t('This theme has no official screenshot.')}</p>
                 )}
