@@ -50,7 +50,7 @@ test('launcher, command palette and integration controls expose exact blockers w
   await page.getByRole('navigation',{name:'Provider registry'}).getByRole('button',{name:/^OpenAI\b/}).click();
   await page.getByRole('navigation',{name:'OpenAI sections'}).getByRole('button',{name:'Credentials',exact:true}).click();
   await expect(page.getByRole('button',{name:'SAVE API KEY'})).toBeDisabled();
-  await expect(page.getByLabel('Secret (write only)')).toBeDisabled();
+  await expect(page.getByLabel('Secret key')).toBeDisabled();
   await expect(page.getByRole('button',{name:'Add profile +'})).toBeDisabled();
   const audit = await new AxeBuilder({ page }).include('.dev-cinematic').analyze(); expect(audit.violations).toEqual([]);
 });
