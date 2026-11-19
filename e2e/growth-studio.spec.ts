@@ -133,21 +133,72 @@ test('Growth brief validates, reviews exact payload and reports an unavailable i
   await page.screenshot({ path: testInfo.outputPath('growth-ar.png'), fullPage: true });
 });
 
-test('responsive Growth and theatre geometry and automated accessibility', async ({ page }, testInfo) => {
+/**
+ * One surface per test, at every width the Growth theatre claims to support.
+ *
+ * The measurement was a loop inside a single test: one test loaded six widths
+ * of four routes and switched the language on each one. Every page was
+ * measured exactly as before, but all of it had to fit inside one 60s budget,
+ * and on a real mobile profile it did not — the run expired mid-way through
+ * the language switch, which says nothing about the page and hides the page
+ * it happened on.
+ *
+ * The claim is per surface and per width, so it is now measured that way, at
+ * the same widths, with the same tolerance and the same screenshots.
+ */
+/**
+ * Wait until the page has stopped changing shape.
+ *
+ * A width measured the instant `domcontentloaded` fires measures a page that
+ * is still mounting, and a page that is still mounting can be wider than the
+ * page it becomes. The page is settled when its height is the same in two
+ * consecutive frames and its fonts have loaded; the wait is bounded so a page
+ * that never settles is measured rather than hanging the run.
+ */
+async function settleLayout(page: import('@playwright/test').Page): Promise<void> {
+  await page.evaluate(() => document.fonts?.ready).catch(() => undefined);
+  await page
+    .waitForFunction(
+      () => {
+        const height = document.documentElement.scrollHeight;
+        const state = window as unknown as { __knouxMeasuredHeight?: number };
+        if (state.__knouxMeasuredHeight === height) return true;
+        state.__knouxMeasuredHeight = height;
+        return false;
+      },
+      undefined,
+      { timeout: 5_000, polling: 'raf' },
+    )
+    .catch(() => undefined);
+}
+
+test.describe('responsive Growth and theatre geometry', () => {
   for (const [width, height] of [[360, 800], [390, 844], [768, 1024], [1024, 768], [1440, 900], [1920, 1080]]) {
-    await page.setViewportSize({ width, height });
     for (const route of ['/growth', '/command/creative', '/command/campaigns', '/command/social']) {
-      await page.goto(route);
-      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${route} at ${width}`).toBe(true);
-      if (width === 360 || width === 1440) await page.screenshot({ path: testInfo.outputPath(`${route.replaceAll('/', '-')}-${width}.png`), fullPage: true });
-      await chooseLanguage(page, 'ar');
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${route} Arabic at ${width}`).toBe(true);
-      if (width === 360 || width === 1440) await page.screenshot({ path: testInfo.outputPath(`${route.replaceAll('/', '-')}-ar-${width}.png`), fullPage: true });
+      test(`${route} stays within the viewport at ${width}x${height}`, async ({ page }, testInfo) => {
+        await page.setViewportSize({ width, height });
+        await page.goto(route);
+        await settleLayout(page);
+        await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${route} at ${width}`).toBe(true);
+        if (width === 360 || width === 1440) await page.screenshot({ path: testInfo.outputPath(`${route.replaceAll('/', '-')}-${width}.png`), fullPage: true });
+        await chooseLanguage(page, 'ar');
+        await settleLayout(page);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${route} Arabic at ${width}`).toBe(true);
+        if (width === 360 || width === 1440) await page.screenshot({ path: testInfo.outputPath(`${route.replaceAll('/', '-')}-ar-${width}.png`), fullPage: true });
+      });
     }
   }
-  const results = await new AxeBuilder({ page }).include('main').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
-  expect(results.violations.map(({ id, description }) => ({ id, description }))).toEqual([]);
+
+  test('the Growth surface carries no automated accessibility violation', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.goto('/command/social');
+    await settleLayout(page);
+    await chooseLanguage(page, 'ar');
+    await settleLayout(page);
+    const results = await new AxeBuilder({ page }).include('main').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    expect(results.violations.map(({ id, description }) => ({ id, description }))).toEqual([]);
+  });
 });
 
 test('remaining command routes retain source-aware screens under the shared shell', async ({ page }, testInfo) => {
