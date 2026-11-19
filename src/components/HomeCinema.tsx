@@ -19,6 +19,7 @@ export function HomeCinema() {
   const language = useSiteLanguage();
   const [label, title, sub, desc, playLabel, closeLabel, watchLabel, buildLabel, privacy] = copy[language];
   const [playing, setPlaying] = useState(false);
+  const [playerReady, setPlayerReady] = useState(false);
   const play = useRef<HTMLButtonElement>(null);
   const close = useRef<HTMLButtonElement>(null);
   const restorePlayFocus = useRef(false);
@@ -37,9 +38,13 @@ export function HomeCinema() {
     }
   }, [playing]);
 
-  const openFilm = () => setPlaying(true);
+  const openFilm = () => {
+    setPlayerReady(false);
+    setPlaying(true);
+  };
   const closeFilm = () => {
     restorePlayFocus.current = true;
+    setPlayerReady(false);
     setPlaying(false);
   };
 
@@ -65,15 +70,24 @@ export function HomeCinema() {
 
           <div className={styles.screen} dir="ltr">
             {playing ? (
-              <iframe
-                className={styles.player}
-                title={`KNOuX Store — ${title}`}
-                src={FILM_EMBED_URL}
-                allow="autoplay; fullscreen"
-                allowFullScreen
-                referrerPolicy="strict-origin-when-cross-origin"
-                tabIndex={0}
-              />
+              <>
+                <span
+                  className={styles.still}
+                  data-film-still=""
+                  data-ready={playerReady}
+                  aria-hidden="true"
+                />
+                <iframe
+                  className={styles.player}
+                  title={`KNOuX Store - ${title}`}
+                  src={FILM_EMBED_URL}
+                  allow="autoplay; fullscreen"
+                  allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  tabIndex={0}
+                  onLoad={() => setPlayerReady(true)}
+                />
+              </>
             ) : (
               <button type="button" ref={play} className={styles.poster} onClick={openFilm} aria-label={playLabel}>
                 <span className={styles.orbit} aria-hidden="true" />
