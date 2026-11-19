@@ -140,7 +140,7 @@
     background: transparent;
     text-align: center;
     white-space: nowrap;
-    pointer-events: auto;
+    pointer-events: none;
     backdrop-filter: blur(6px);
     animation: provider-orbit-travel 52s linear infinite;
   }
@@ -258,3 +258,16 @@
   }
 }
 @keyframes provider-orbit-travel { to { offset-distance: 100%; } }
+
+/* Provider reference is an independent first screen; management remains below. */
+.center.standalone{max-width:none;padding:0!important}
+.standalone .composition{padding:32px clamp(16px,4vw,70px);background:#0b0812;gap:32px}
+.standalone .workspaceViews{display:none}
+:global(.dev-cinematic):has(.standalone) :global(.dev-shell__content){padding:0!important}
+:global(.dev-cinematic):has(.standalone) :global(.dev-crumb){display:none}
+:global(.dev-cinematic):has(.standalone) :global(.dev-shell__stage){background:#07050e!important}
+@media(min-width:1025px){
+ :global(.dev-cinematic):has(.standalone) :global(.dev-shell__grid){display:block;max-width:none}
+ :global(.dev-cinematic):has(.standalone) :global(.dev-sidebar),:global(.dev-cinematic):has(.standalone) :global(.dev-shell__top){display:none}
+ :global(.dev-cinematic):has(.standalone){padding:0!important}
+}
