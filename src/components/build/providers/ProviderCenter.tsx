@@ -1,19 +1,38 @@
 'use client';
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { AGENT_PERMISSIONS, type ProviderWorkspaceSnapshot, type ProviderDefinition, type ProviderProfile, type AuthSource } from '@/lib/ai/provider-os/types';
 import { routingEligibility } from '@/lib/ai/provider-os/policy';
 import { providerConnectionLabel } from '@/lib/ai/provider-os/connection-label';
+import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
+import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import styles from './providers.module.css';
 import { PlatformFacts } from './PlatformFacts';
 import { CustomMetadata } from './CustomMetadata';
+import { providerMark } from './provider-marks';
+import { cueAtmosphere } from '../dev/living-atmosphere';
 const classes = [['ALL', 'All providers'], ['INTELLIGENCE', 'Intelligence'], ['CODING_AGENT', 'Coding agents'], ['LOCAL', 'Local'], ['CUSTOM', 'Custom']] as const;
 const unknown = 'UNKNOWN · not reported';
+const consoleProvider = 'opencode-console-v2';
+const orbitSlots = [
+    ['openai', 41, 28], ['anthropic', 55, 8], ['gemini', 69, 24], ['openrouter', 81, 92],
+    ['groq', 90, 176], ['mistral', 94, 284], ['deepseek', 92, 395], ['qwen', 87, 502],
+    ['grok', 89, 607], ['opencode-go', 83, 714],
+] as const;
+const providerOrder = new Map<string, number>([consoleProvider, ...orbitSlots.map(([id]) => id)].map((id, rank) => [id, rank]));
+
+function ProviderMark({ definition }: { definition: ProviderDefinition }) {
+    const mark = providerMark(definition.id);
+    return <span className={styles.orbit} data-mark={mark} data-provider={definition.id} aria-hidden="true">{mark ? <Image src={`/providers/${mark}.svg`} alt="" width={26} height={26} loading="eager" /> : definition.id === 'groq' || definition.id === 'grok' ? definition.name : definition.class === 'CODING_AGENT' ? '⌘' : definition.class === 'LOCAL' ? '◉' : '✦'}</span>;
+}
 export function ProviderCenter({ embedded = false }: Readonly<{
     embedded?: boolean;
 }>) {
+    const { dispatch } = useBuildWorkspace();
     const [data, setData] = useState<ProviderWorkspaceSnapshot | null>(null), [message, setMessage] = useState(''), [busy, setBusy] = useState(false);
     const [search, setSearch] = useState(''), [category, setCategory] = useState('ALL'), [selected, setSelected] = useState(''), [tab, setTab] = useState('Overview');
+    const [orbitPage, setOrbitPage] = useState(0);
     const [wizard, setWizard] = useState(false), [profileName, setProfileName] = useState(''), [authMode, setAuthMode] = useState<AuthSource['mode']>('API_KEY'), [credentialId, setCredentialId] = useState(''), [reference, setReference] = useState('');
     const [editProfile, setEditProfile] = useState<{
         id: string;
@@ -40,8 +59,14 @@ export function ProviderCenter({ embedded = false }: Readonly<{
             try {
                 const response = await fetch('/api/build/provider-os', { cache: 'no-store', signal: controller.signal });
                 const result = await response.json();
-                if (result.definitions)
+                if (result.definitions) {
                     setData(result);
+                    if (!embedded && (result as ProviderWorkspaceSnapshot).definitions.some(item => item.id === consoleProvider)) {
+                        setSelected(consoleProvider);
+                        setTab('Credentials');
+                        if (window.matchMedia('(max-width: 650px)').matches && providerBrowse.current) providerBrowse.current.open = false;
+                    }
+                }
                 else
                     setMessage(result.message ?? 'Provider persistence unavailable. No fixtures were substituted.');
             }
@@ -52,7 +77,7 @@ export function ProviderCenter({ embedded = false }: Readonly<{
         }
         void initialize();
         return () => controller.abort();
-    }, []);
+    }, [embedded]);
     useEffect(() => {
         if (wizard && !dialog.current?.open)
             dialog.current?.showModal();
@@ -63,6 +88,14 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     const profile = profiles.find(item => item.active) ?? profiles[0], credentials = data?.credentials.filter(item => item.providerId === selected) ?? [], agent = data?.agents.find(item => item.id === selected);
     const writable = data?.persistence === 'AVAILABLE', vaultWritable = writable && data?.secretStore.writable;
     const filtered = definitions.filter(item => (category === 'ALL' || item.class === category) && `${item.name} ${item.id} ${item.transport}`.toLowerCase().includes(search.toLowerCase()));
+    if (!embedded) filtered.sort((a, b) => (providerOrder.get(a.id) ?? Infinity) - (providerOrder.get(b.id) ?? Infinity));
+    const orbitProviders = orbitSlots.flatMap(([id, left, top]) => {
+        const provider = filtered.find(item => item.id === id);
+        return provider ? [{ provider, left, top }] : [];
+    });
+    const lastOrbitPage = Math.max(0, Math.ceil(orbitProviders.length / 3) - 1);
+    const visibleOrbitPage = Math.min(orbitPage, lastOrbitPage);
+    const compactOrbit = orbitProviders.slice(visibleOrbitPage * 3, visibleOrbitPage * 3 + 3);
     async function command(input: Record<string, unknown>, workspaceId?: string): Promise<boolean> {
         if (inFlight.current)
             return false;
@@ -91,6 +124,7 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     }
     function choose(item: ProviderDefinition) {
         if (inFlight.current) return;
+        if (item.id !== selected) cueAtmosphere('confirm');
         clearCredentialDraft();
         setSelected(item.id);
         setTab('Overview');
@@ -154,23 +188,67 @@ export function ProviderCenter({ embedded = false }: Readonly<{
             void command({ action: 'PROFILE_UPDATE', id: profile.id, version: profile.version, patch });
     }
     const models = (profile?.models ?? []).filter(model => (showAll || (model.modalities.text && model.lifecycle !== 'deprecated' && model.catalog?.buildEligible !== false)) && (!freeOnly || (model.pricing.inputPerMillion === 0 && model.pricing.outputPerMillion === 0)) && `${model.modelId} ${model.displayName}`.toLowerCase().includes(modelSearch.toLowerCase()));
-    const heading = <header className={styles.heading}><span className={styles.eyebrow}>KNOuX / PROVIDER OPERATING SYSTEM</span>{embedded ? <h2>Providers</h2> : <h1>Providers</h1>}<p>Your intelligence, your agents, your rules.</p><span className={styles.caption}>One canonical runtime. Configuration, authentication, discovery and execution are independently measured.</span></header>;
-    return <div className={`${styles.center} dev-route`}>
-    {heading}
-    <div className={styles.toolbar}><label className={styles.search}>Search providers<input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Provider, transport, agent…"/></label>{data?.workspaces?.length ? <label>Provider workspace<select disabled={busy} value={data.workspaceId ?? ''} onChange={event => void command({ action: 'WORKSPACE_SELECT' }, event.target.value)}>{data.workspaces.map(workspace => <option key={workspace.id} value={workspace.id}>{workspace.name}</option>)}</select></label> : null}<button type="button" disabled={busy} onClick={() => void load().catch(() => setMessage('Provider refresh failed.'))}>Refresh facts ↗</button>{writable ? <button type="button" disabled={busy} onClick={() => {
+    const heading = <header className={styles.heading}><span className={styles.eyebrow}>PROVIDERS / AI ECOSYSTEM</span>{embedded ? <h2>Providers</h2> : <h1>Providers</h1>}</header>;
+    const toolbar = <div className={styles.toolbar}><label className={styles.search}>Search providers<input type="search" value={search} onChange={event => { setSearch(event.target.value); setOrbitPage(0); if (providerBrowse.current) providerBrowse.current.open = true; }} placeholder="Provider, transport, agent…"/></label>{data?.workspaces?.length ? <label>Provider workspace<select disabled={busy} value={data.workspaceId ?? ''} onChange={event => void command({ action: 'WORKSPACE_SELECT' }, event.target.value)}>{data.workspaces.map(workspace => <option key={workspace.id} value={workspace.id}>{workspace.name}</option>)}</select></label> : null}<button type="button" disabled={busy} onClick={() => void load().catch(() => setMessage('Provider refresh failed.'))}>Refresh facts ↗</button>{writable ? <button type="button" disabled={busy} onClick={() => {
                 const name = window.prompt('New provider workspace name');
                 if (name)
                     void command({ action: 'WORKSPACE_CREATE', name });
             }}>Add workspace +</button> : null}</div>
+    const controls = <>
+    {heading}
+    {message ? <p role="status" className={styles.notice}>{message}</p> : null}
+    {data?.persistence !== 'AVAILABLE' ? <p className={styles.notice}>{data?.persistence === 'AUTH_REQUIRED' ? <><Link href="/login">Sign in</Link> to manage your provider profiles. Operator environment providers remain available through the canonical runtime.</> : data?.blocker ?? 'Reading the authenticated provider registry…'}</p> : null}
     <div className={styles.filters} role="group" aria-label="Provider class">{classes.map(([id, label]) => <button key={id} type="button" aria-pressed={category === id} onClick={() => { setCategory(id); setSelected(''); setTab('Overview'); if (providerBrowse.current)
         providerBrowse.current.open = true; }}>{label}</button>)}</div>
-    {message ? <p role="status" className={styles.notice}>{message}</p> : null}
-    {data?.persistence !== 'AVAILABLE' ? <p className={styles.notice}>{data?.blocker ?? 'Reading the authenticated provider registry…'} {data?.persistence === 'AUTH_REQUIRED' ? <Link href="/login">Sign in ↗</Link> : null}</p> : null}
-    <PlatformFacts />
-    <div className={styles.composition}>
-      <details ref={providerBrowse} className={styles.providerBrowse} open><summary>Browse providers &#8599;</summary><nav className={styles.providerList} aria-label="Provider registry">{filtered.map(item => { const own = data?.profiles.filter(profile => profile.providerId === item.id) ?? [], active = own.find(profile => profile.active); return <button key={item.id} type="button" aria-current={selected === item.id ? 'true' : undefined} onClick={() => choose(item)}><span className={styles.orbit} aria-hidden="true">{item.class === 'CODING_AGENT' ? '⌘' : item.class === 'LOCAL' ? '◉' : '✦'}</span><span><strong>{item.name}</strong><small>{item.gateway ? 'GATEWAY · ' : ''}{item.class.replace('_', ' ')} · {active ? active.enabled ? 'PROFILE ACTIVE' : 'PROVIDER DISABLED' : own.length ? 'PROFILE INACTIVE' : 'UNCONFIGURED'}</small></span><span aria-hidden="true">↗</span></button>; })}{!filtered.length ? <p>No provider matches this search. Coding agents appear only from a paired trusted bridge.</p> : null}</nav></details>
+    </>;
+    return <div className={`${styles.center} ${!embedded ? styles.standalone : ''} dev-route`}>
+    {!embedded ? <nav className={styles.workspaceViews} aria-label="Build workspace views">
+      {([['Build', 'genesis'], ['Preview', 'preview'], ['Registry', 'data']] as const).map(([label, surface]) => (
+        <Link href="/build" key={surface} onClick={() => dispatch({ type: 'surface/active', surface })}>{label}</Link>
+      ))}
+    </nav> : null}
+    {embedded ? <>{controls}{toolbar}<PlatformFacts /></> : null}
+    <div className={`${styles.composition} ${!embedded && orbitProviders.length ? styles.withOrbit : ''}`}>
+      <div className={styles.registryRail}>
+      {embedded ? null : controls}
+      <details ref={providerBrowse} className={styles.providerBrowse} open><summary>Browse providers &#8599;</summary><nav className={styles.providerList} aria-label="Provider registry">{filtered.map(item => { const own = data?.profiles.filter(profile => profile.providerId === item.id) ?? [], active = own.find(profile => profile.active); return <button key={item.id} type="button" aria-current={selected === item.id ? 'true' : undefined} onClick={() => choose(item)}><ProviderMark definition={item} /><span><strong>{item.name}</strong><small>{item.gateway ? 'GATEWAY · ' : ''}{item.class.replace('_', ' ')} · {active ? active.enabled ? 'PROFILE ACTIVE' : 'PROVIDER DISABLED' : own.length ? 'PROFILE INACTIVE' : 'UNCONFIGURED'}</small></span><span aria-hidden="true">↗</span></button>; })}{!filtered.length ? <p>{data ? 'No provider matches this search. Coding agents appear only from a paired trusted bridge.' : 'Provider registry is unavailable until its status has been read.'}</p> : null}</nav></details>
+      {embedded ? null : <details className={styles.registryUtilities}><summary>Search &amp; workspace</summary>{toolbar}<PlatformFacts /></details>}
+      </div>
+      {!embedded && orbitProviders.length > 0 ? (
+        <aside className={styles.providerOrbit} aria-label="Provider shortcuts">
+          <div className={styles.orbitTrack} aria-hidden="true" />
+          {orbitProviders.map(({ provider, left, top }) => (
+            <button className={styles.desktopOrbitNode} key={provider.id} type="button" style={{ '--orbit-left': `${left}%`, '--orbit-top': `${top}px` } as CSSProperties} aria-current={selected === provider.id ? 'true' : undefined} onClick={() => choose(provider)}>
+              <ProviderMark definition={provider} />
+              <span>{provider.name}</span>
+            </button>
+          ))}
+          <div className={styles.compactOrbit}>
+            <div className={styles.compactTrack} aria-hidden="true" />
+            <div className={styles.orbitCore}>
+              {definition && <ProviderMark definition={definition} />}
+              <span>{definition?.name ?? 'Provider orbit'}</span>
+            </div>
+            <div className={styles.orbitOptions}>
+              {compactOrbit.map(({ provider }) => (
+                <button key={provider.id} type="button" aria-current={selected === provider.id ? 'true' : undefined} onClick={() => choose(provider)}>
+                  <ProviderMark definition={provider} /><span>{provider.name}</span>
+                </button>
+              ))}
+            </div>
+            {lastOrbitPage > 0 && <div className={styles.orbitPaging}>
+              <button type="button" aria-label="Previous provider orbit page" disabled={visibleOrbitPage === 0} onClick={() => setOrbitPage(visibleOrbitPage - 1)}>‹</button>
+              <span aria-live="polite">{visibleOrbitPage + 1} / {lastOrbitPage + 1}</span>
+              <button type="button" aria-label="Next provider orbit page" disabled={visibleOrbitPage === lastOrbitPage} onClick={() => setOrbitPage(visibleOrbitPage + 1)}>›</button>
+            </div>}
+          </div>
+        </aside>
+      ) : null}
       <section ref={detail} tabIndex={-1} className={styles.detail} aria-label="Provider detail">{!definition ? <div className={styles.intro}><span aria-hidden="true" className={styles.constellation}>✦</span><h2>A connected constellation.</h2><p>Select a provider to configure its profiles and inspect measured capabilities. Keys stay on the server; unmeasured usage remains unknown.</p><p>{data?.blocker}</p></div> : <>
-        <header className={styles.detailHeading}><span className={styles.eyebrow}>{definition.class.replace('_', ' ')} / {definition.transport}</span><h2>{definition.name}</h2><p data-provider-connection>Connection: <strong>{providerConnectionLabel(profile)}</strong></p>{profile ? <p>Profile: <strong>{profile.name}</strong> · {profile.active ? "ACTIVE" : "INACTIVE"} · {profile.enabled ? "ENABLED" : "DISABLED"}</p> : null}<p>{definition.gateway ? 'Gateway transport. Author namespaces do not prove the actual upstream route.' : definition.detectionOnly ? 'CLI discovery is a separate fact from authentication and execution.' : 'A scoped profile feeds the existing KNOuX adapters and Router V2.'}</p><div className={styles.actions}><button type="button" disabled={!writable || busy} onClick={event => openWizard(event.currentTarget)}>Add profile +</button>{profile ? <><button type="button" disabled={!writable || busy} onClick={() => update({ enabled: !profile.enabled })}>{profile.enabled ? 'Disable provider' : 'Enable provider'}</button><button type="button" disabled={!writable || busy} onClick={() => void command({ action: 'TEST_CONNECTION', id: profile.id, version: profile.version })}>Test connection</button></> : null}</div><small>Connection testing checks authentication and discovery only; it does not generate content.</small></header>
+        {!embedded ? <div className={styles.detailMark} aria-hidden="true">
+          <svg viewBox={`0 0 ${MARK_VIEW_BOX.width} ${MARK_VIEW_BOX.height}`}>{MARK_PATHS.map(({ id, d }) => <path key={id} d={d} />)}</svg>
+        </div> : null}
+        <header className={styles.detailHeading}><span className={styles.eyebrow}>{definition.class.replace('_', ' ')} / {definition.transport}</span><h2 className={styles.detailTitle}>{embedded ? null : <ProviderMark definition={definition} />}{definition.name}</h2><p data-provider-connection>Connection: <strong>{providerConnectionLabel(profile)}</strong></p>{profile ? <p>Profile: <strong>{profile.name}</strong> · {profile.active ? "ACTIVE" : "INACTIVE"} · {profile.enabled ? "ENABLED" : "DISABLED"}</p> : null}<p>{definition.gateway ? 'Gateway transport. Author namespaces do not prove the actual upstream route.' : definition.detectionOnly ? 'CLI discovery is a separate fact from authentication and execution.' : 'A scoped profile feeds the existing KNOuX adapters and Router V2.'}</p><div className={styles.actions}><button type="button" disabled={!writable || busy} onClick={event => openWizard(event.currentTarget)}>Add profile +</button>{profile ? <><button type="button" disabled={!writable || busy} onClick={() => update({ enabled: !profile.enabled })}>{profile.enabled ? 'Disable provider' : 'Enable provider'}</button><button type="button" disabled={!writable || busy} onClick={() => void command({ action: 'TEST_CONNECTION', id: profile.id, version: profile.version })}>Test connection</button></> : null}{definition.docsUrl ? <a href={definition.docsUrl} target="_blank" rel="noopener noreferrer" className={styles.docsLink}><span aria-hidden="true">↗</span> Get API Key</a> : null}</div><small>Connection testing checks authentication and discovery only; it does not generate content.</small></header>
         <nav className={styles.tabs} aria-label={`${definition.name} sections`}>{definition.tabs.map(item => <button type="button" key={item} aria-pressed={tab === item} onClick={() => setTab(item)}>{item}</button>)}</nav>
         <section className={styles.tabContent} aria-label={tab}>
         {tab === 'Endpoint' && definition.class === 'CUSTOM' ? <CustomMetadata /> : null}

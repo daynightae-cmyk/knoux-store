@@ -22,6 +22,7 @@ import { ProjectCore } from './ProjectCore';
 import { ExecutionSpine } from './ExecutionSpine';
 import { EvidencePanel, ProjectHud } from './ProjectHud';
 import type { ProjectNodeDomain, WorkspaceSurface } from '@/lib/build/types';
+import { currentWorkspaceVerificationChecks } from '../dev/verification-results';
 import './spatial.css';
 
 const SURFACE_RAIL: { id: WorkspaceSurface; label: string }[] = [
@@ -187,7 +188,7 @@ export function SpatialWorkspace() {
 
 /** Map the ledger onto a single posture value the core can draw. */
 function verificationStatus(state: ReturnType<typeof useBuildWorkspace>['state']) {
-  const checks = state.verification?.checks ?? [];
+  const checks = currentWorkspaceVerificationChecks(state);
   if (checks.length === 0) return 'not-run' as const;
   if (checks.some((check) => check.status === 'fail')) return 'fail' as const;
   if (checks.some((check) => check.status === 'blocked')) return 'blocked' as const;

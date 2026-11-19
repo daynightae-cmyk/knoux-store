@@ -24,6 +24,8 @@ export type ProviderDefinition = {
     tabs: string[];
     gateway: boolean;
     detectionOnly: boolean;
+    /** URL to the provider's API key management page (for "Get API Key" button). */
+    docsUrl?: string;
 };
 export const AGENT_PERMISSIONS = ['READ_PROJECT', 'WRITE_PROJECT', 'RUN_TESTS', 'TERMINAL', 'BROWSER', 'GIT_READ', 'GIT_WRITE', 'COMMIT', 'PUSH', 'NETWORK', 'MCP', 'PLUGINS', 'SKILLS', 'WORKTREES', 'SUBAGENTS'] as const;
 export type AgentPermission = typeof AGENT_PERMISSIONS[number];

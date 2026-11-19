@@ -73,7 +73,7 @@ export default function SentinelGuidePanel({ onClose, closing, character, contex
     }).catch(() => { if (!controller.signal.aborted || node?.open) setFailed(true); }).finally(() => clearTimeout(timeout));
     // Feature detection after mounting; voices never start automatically.
     const detection = window.setTimeout(() => setVoiceSupported(typeof window.speechSynthesis?.speak === 'function' && typeof window.SpeechSynthesisUtterance === 'function'), 0);
-    return () => { controller.abort(); clearTimeout(timeout); clearTimeout(detection); speechSerial.current++; window.speechSynthesis?.cancel(); node?.close(); document.body.style.overflow = previous; };
+    return () => { const _serial = ++speechSerial.current; controller.abort(); clearTimeout(timeout); clearTimeout(detection); window.speechSynthesis?.cancel(); node?.close(); document.body.style.overflow = previous; };
   }, []);
   useEffect(() => { speechSerial.current++; window.speechSynthesis?.cancel(); }, [key]);
 
@@ -90,7 +90,7 @@ export default function SentinelGuidePanel({ onClose, closing, character, contex
   };
   const speak = () => {
     if (!voiceSupported || muted || quiet || !catalog) return;
-    const serial = ++speechSerial.current;
+    const _serial = ++speechSerial.current;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(response.slice(0, 3600));
     // Speech locale follows the selected language, so Urdu is spoken with an
@@ -99,8 +99,8 @@ export default function SentinelGuidePanel({ onClose, closing, character, contex
     // stands and nothing is silently mispronounced.
     utterance.lang = selected?.sectionLanguage ?? speechLocale(language);
     utterance.voice = window.speechSynthesis.getVoices().find(voice => voice.lang.startsWith(utterance.lang.split('-')[0])) ?? null;
-    utterance.onend = () => setSpeech(previous => serial === speechSerial.current && previous.key === key ? { ...previous, active: false } : previous);
-    utterance.onerror = () => setSpeech(previous => serial === speechSerial.current && previous.key === key ? { ...previous, active: false, error: true } : previous);
+    utterance.onend = () => setSpeech(previous => _serial === speechSerial.current && previous.key === key ? { ...previous, active: false } : previous);
+    utterance.onerror = () => setSpeech(previous => _serial === speechSerial.current && previous.key === key ? { ...previous, active: false, error: true } : previous);
     setSpeech({ key, active: true, used: true, error: false });
     window.speechSynthesis.speak(utterance);
   };

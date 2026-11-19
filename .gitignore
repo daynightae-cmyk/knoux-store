@@ -16,6 +16,9 @@ npm-debug.log*
 qa-*.png
 *.png
 !public/creative/material-study-v2.png
+# Preserve the supplied design originals; generated browser evidence stays local.
+!/references/build V3/*.png
+/references/build V3/qa/
 
 # Accidental nested checkout of this same repository. It carries its own .git,
 # its own node_modules and its own .next, none of which belong in this tree.

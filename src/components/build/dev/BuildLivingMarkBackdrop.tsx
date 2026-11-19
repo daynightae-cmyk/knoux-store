@@ -23,11 +23,21 @@ export function BuildLivingMarkBackdrop() {
     const container = mark?.parentElement;
     if (!mark || !container) return;
     if (!aperture) { mark.style.cssText = ''; return; }
+    let x = NaN, y = NaN, width = NaN, height = NaN;
     const place = () => {
       const target = aperture.getBoundingClientRect();
       const parent = container.getBoundingClientRect();
-      Object.assign(mark.style, { inset: 'auto', left: `${target.left - parent.left}px`, top: `${target.top - parent.top}px`, width: `${target.width}px`, height: `${target.height}px` });
-      window.dispatchEvent(new Event('resize'));
+      const overlap = Math.min(56, Math.round(target.width * (target.width < 390 ? .1 : .14)));
+      const left = Math.round(target.left - parent.left);
+      const top = Math.round(target.top - parent.top) - overlap;
+      if (left !== x || top !== y) {
+        x = left; y = top;
+        Object.assign(mark.style, { inset: 'auto', left: `${x}px`, top: `${y}px` });
+      }
+      if (target.width !== width || target.height + overlap !== height) {
+        width = target.width; height = target.height + overlap;
+        Object.assign(mark.style, { width: `${width}px`, height: `${height}px` });
+      }
     };
     const observer = new ResizeObserver(place);
     observer.observe(aperture); observer.observe(container);
@@ -35,7 +45,11 @@ export function BuildLivingMarkBackdrop() {
     content?.addEventListener('scroll', place, { passive: true });
     content?.addEventListener('toggle', place, true);
     place();
-    return () => { observer.disconnect(); content?.removeEventListener('scroll', place); content?.removeEventListener('toggle', place, true); };
+    // Font swaps shift the aperture after first layout; size observers alone
+    // never fire for a pure position change.
+    let live = true;
+    document.fonts?.ready.then(() => { if (live) place(); }, () => {});
+    return () => { live = false; observer.disconnect(); content?.removeEventListener('scroll', place); content?.removeEventListener('toggle', place, true); };
   }, [pathname, state.workspace.activeSurface]);
 
   useEffect(() => {
@@ -73,7 +87,8 @@ export function BuildLivingMarkBackdrop() {
       const resolved = ['PLANNED', 'REVIEWING', 'COMPLETE'].includes(stage.current);
       const centered = landing.current;
       const centerX = width * (centered ? 0.5 : 0.69);
-      const centerY = height * (centered ? 0.4 : 0.48);
+      const scale = Math.min(width * 0.68 / 3, height * (centered ? 0.82 : 0.8) / 5);
+      const centerY = centered ? height - 37 - scale * 2.5 : height * 0.48;
       surface.dataset.state = stage.current;
       context.clearRect(0, 0, width, height);
 
@@ -85,23 +100,22 @@ export function BuildLivingMarkBackdrop() {
         centerY,
         centered ? height * 0.6 : Math.max(width, height) * 0.78,
       );
-      halo.addColorStop(0, 'rgba(206,196,244,0.25)');
-      halo.addColorStop(0.2, 'rgba(151,130,204,0.18)');
+      halo.addColorStop(0, centered ? 'rgba(192,146,255,0.46)' : 'rgba(206,196,244,0.25)');
+      halo.addColorStop(0.2, centered ? 'rgba(151,110,231,0.25)' : 'rgba(151,130,204,0.18)');
       halo.addColorStop(0.52, 'rgba(91,78,128,0.10)');
       halo.addColorStop(1, 'rgba(6,8,14,0)');
       context.fillStyle = halo;
       context.fillRect(0, 0, width, height);
 
-      const scale = Math.min(width * 0.68 / 3, height * (centered ? 0.65 : 0.8) / 5);
       const impulse = reduced() ? 0 : Math.exp(-Math.max(0, now - transition.current) / 900) * 0.11;
       const scatter = reduced() || blocked || resolved ? 0 : Math.pow(Math.max(0, Math.sin(elapsed / (active ? 3 : 6.2))), 10) * (active ? 0.1 : 0.025) + impulse;
       const pulse = reduced() || blocked ? 1 : 1 + Math.sin(elapsed * (active ? 2 : 0.8)) * (active ? 0.08 : 0.025);
       const wave = reduced() ? 0 : Math.sin(elapsed * 0.9) * 0.018;
 
       context.save();
-      context.fillStyle = blocked ? '#a89fac' : resolved ? '#fff7e7' : '#eef1ff';
+      context.fillStyle = blocked ? '#a89fac' : resolved ? '#fff7e7' : centered ? '#f4eaff' : '#eef1ff';
       context.shadowBlur = reduced() ? 8 : isCompact ? 17 : 24;
-      context.shadowColor = 'rgba(170, 157, 216, 0.9)';
+      context.shadowColor = centered ? 'rgba(172, 120, 255, 0.98)' : 'rgba(170, 157, 216, 0.9)';
       context.beginPath();
 
       for (const particle of samples) {
@@ -111,7 +125,7 @@ export function BuildLivingMarkBackdrop() {
         const driftY = reduced() || blocked || resolved ? 0 : Math.cos(now * 0.00042 + particle.random * 12) * 0.03;
         const x = centerX + (particle.x * breath + Math.cos(phase) * (scatter + wave) * 5 + driftX) * scale;
         const y = centerY - (particle.y * breath + Math.sin(phase) * (scatter + wave) * 5 + driftY) * scale;
-        const size = Math.max(0.6, particle.size * scale * 0.24 * pulse * (isCompact ? 0.9 : 1.1));
+        const size = Math.max(0.6, particle.size * scale * 0.24 * pulse * (centered ? 1.35 : isCompact ? 0.9 : 1.1));
         context.rect(x, y, size, size);
       }
 
@@ -145,7 +159,8 @@ export function BuildLivingMarkBackdrop() {
     });
 
     observer.observe(surface);
-    resize();
+    const sizeObserver = new ResizeObserver(wake);
+    sizeObserver.observe(surface);
     wake();
     document.addEventListener('visibilitychange', wake);
     motion.addEventListener('change', wake);
@@ -155,6 +170,7 @@ export function BuildLivingMarkBackdrop() {
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
+      sizeObserver.disconnect();
       document.removeEventListener('visibilitychange', wake);
       motion.removeEventListener('change', wake);
       window.removeEventListener('resize', wake);

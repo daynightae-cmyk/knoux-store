@@ -40,7 +40,7 @@ for (const width of widths) {
 
 test('Composer compiles real categories and the registry remains interactive', async ({ page }) => {
   await page.goto('/build');
-  await page.getByRole('button', { name: 'DESKTOP APP', exact: true }).click();
+  await page.getByRole('button', { name: /^DESKTOP APP\b/ }).click();
   await expect(page.getByLabel('Describe what you want to build', { exact: true })).toBeFocused();
   await page.getByRole('button', { name: 'Generate engineering plan', exact: true }).click();
   await expect(page.locator('.dev-intent-reading')).toContainText('DESKTOP');
@@ -138,7 +138,7 @@ test('Real local preview loads, resizes, refreshes and inspects DOM facts', asyn
     await expect(iframe).toHaveAttribute('width', '768');
     await page.getByRole('group', { name: 'Preview viewport' }).getByRole('button', { name: 'DESKTOP' }).click();
     await expect(iframe).toHaveAttribute('width', '1600');
-    await page.getByRole('group', { name: 'Preview route' }).getByRole('button', { name: '/products', exact: true }).click();
+    await page.getByRole('combobox', { name: 'Preview route' }).selectOption('/products');
     await expect(iframe).toHaveAttribute('src', `${origin}/products`);
     await expect(page.frameLocator('iframe[title^="Live preview"]').locator('h1')).toBeVisible();
     const refresh = page.waitForResponse((response) => response.url() === `${origin}/products` && response.request().resourceType() === 'document');

@@ -105,7 +105,7 @@ test('bridge records translate database columns and keep updates owner scoped', 
 test('workspace CSP adds only an explicit loopback bridge and never widens frames or scripts', () => {
   const base = buildContentSecurityPolicy({ isDevelopment: false });
   assert.ok(!base.includes('7331')); const policy = buildContentSecurityPolicy({ isDevelopment: false, bridgeOrigin: 'http://127.0.0.1:7331' });
-  assert.match(policy, /connect-src[^;]*http:\/\/127\.0\.0\.1:7331 ws:\/\/127\.0\.0\.1:7331/); assert.match(policy, /frame-src 'self';/); assert.ok(!policy.includes("'unsafe-eval'"));
+  assert.match(policy, /connect-src[^;]*http:\/\/127\.0\.0\.1:7331 ws:\/\/127\.0\.0\.1:7331/); assert.match(policy, /frame-src 'self' https:\/\/www\.youtube-nocookie\.com\/embed\/NOhO02YeGg4;/); assert.ok(!policy.includes("'unsafe-eval'"));
   for (const origin of ['https://evil.test', 'http://user:password@localhost:7331', 'http://localhost:7331/path', 'http://localhost:7331?token=secret']) assert.equal(buildContentSecurityPolicy({ isDevelopment: false, bridgeOrigin: origin }), base);
 });
 

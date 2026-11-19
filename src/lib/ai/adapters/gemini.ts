@@ -4,8 +4,10 @@ import {
   createNormalizedError,
   networkError,
   normalizeError,
+  timeoutError,
 } from "../errors";
 import { calculateCost } from "../cost";
+import { cancelledGenerationResponse, generationSignal } from "../contract";
 import { OpenAICompatibleAdapter } from "./base";
 import type {
   GenerationRequest,
@@ -397,8 +399,10 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
   override async generate(
     request: GenerationRequest,
     env: Record<string, string | undefined>,
+    signal?: AbortSignal,
   ): Promise<GenerationResponse> {
     const start = Date.now();
+    if (signal?.aborted) return cancelledGenerationResponse();
     const apiKey = this.getApiKey(env);
     if (!apiKey) {
       return this.errorResponse(
@@ -431,7 +435,9 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
     }
 
     const body = this.buildGeminiRequestBody(request);
+    const transportSignal = generationSignal(signal);
     try {
+      transportSignal.throwIfAborted();
       const response = await fetch(
         this.buildModelUrl(modelId, "generateContent"),
         {
@@ -439,13 +445,15 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
           headers: this.buildHeaders(apiKey),
           body: JSON.stringify(body),
           redirect: "error",
-          signal: AbortSignal.timeout(120000),
+          signal: transportSignal,
           cache: "no-store",
         },
       );
+      transportSignal.throwIfAborted();
       const latencyMs = Date.now() - start;
       if (!response.ok) {
         const bodyText = await response.text().catch(() => null);
+        transportSignal.throwIfAborted();
         return this.errorResponse(
           normalizeError(response.status, bodyText),
           latencyMs,
@@ -453,10 +461,14 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
         );
       }
       const json = await response.json();
-      return this.parseGeminiResponse(json, latencyMs, request);
+      const measured = this.parseGeminiResponse(json, Date.now() - start, request);
+      if (signal?.aborted) return cancelledGenerationResponse(Date.now() - start, measured);
+      transportSignal.throwIfAborted();
+      return measured;
     } catch (cause) {
       const latencyMs = Date.now() - start;
-      if (cause instanceof DOMException && cause.name === "TimeoutError") {
+      if (signal?.aborted) return cancelledGenerationResponse(latencyMs);
+      if (cause instanceof Error && cause.name === "TimeoutError") {
         return this.errorResponse(
           {
             category: "TIMEOUT",
@@ -470,8 +482,8 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
           request.modelId,
         );
       }
-      if (cause instanceof DOMException && cause.name === "AbortError") {
-        return this.errorResponse(abortedError(), latencyMs, request.modelId);
+      if (cause instanceof Error && cause.name === "AbortError") {
+        return cancelledGenerationResponse(latencyMs);
       }
       return this.errorResponse(
         networkError(cause instanceof Error ? cause.message : "Network error"),
@@ -487,6 +499,7 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
     signal?: AbortSignal,
   ): AsyncGenerator<StreamChunk, void, void> {
     const start = Date.now();
+    if (signal?.aborted) { yield this.streamError(abortedError(), 0); return; }
     const apiKey = this.getApiKey(env);
     if (!apiKey) {
       yield this.streamError({
@@ -570,12 +583,15 @@ export class GeminiAdapter extends OpenAICompatibleAdapter {
         }
       }
 
+      signal?.throwIfAborted();
       yield { ...this.streamComplete(start, firstTokenTime, finishReason, usage), modelUsed };
     } catch (cause) {
       yield this.streamError(
-        cause instanceof DOMException && cause.name === "AbortError"
+        signal?.aborted || (cause instanceof Error && cause.name === "AbortError")
           ? abortedError()
-          : networkError(cause instanceof Error ? cause.message : "Network error"),
+          : cause instanceof Error && cause.name === "TimeoutError"
+            ? timeoutError()
+            : networkError(cause instanceof Error ? cause.message : "Network error"),
         Date.now() - start, firstTokenTime, finishReason, usage,
       );
     }

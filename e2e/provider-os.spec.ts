@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { providerFixture } from './fixtures/provider-os';
+import { openProviderRegistry, providerFixture } from './fixtures/provider-os';
 const widths = [[1904, 880], [1600, 1000], [1440, 900], [1366, 768], [1280, 800], [1024, 1366], [820, 1180], [768, 1024], [430, 932], [390, 844], [375, 812], [360, 800]] as const;
 test.beforeEach(async ({ page }) => { await page.addInitScript(() => sessionStorage.setItem('knoux-dev-entry-intent', 'Provider operating system')); });
 test('Provider OS HTTP boundary refuses anonymous and cross-site credential access without echoes', async ({ request }) => {
@@ -23,7 +23,7 @@ test('Provider OS HTTP boundary refuses anonymous and cross-site credential acce
 test('catalog, profile switching, disabling and write-only credential rotation have truthful UI contracts', async ({ page }) => {
     const fixture = await providerFixture(page);
     await page.goto('/build/providers');
-    const registry = page.getByRole('navigation', { name: 'Provider registry' });
+    const registry = await openProviderRegistry(page);
     await registry.getByRole('button', { name: /^Groq\b/ }).click();
     const tabs = page.getByRole('navigation', { name: 'Groq sections' });
     await tabs.getByRole('button', { name: 'Models', exact: true }).click();
@@ -57,7 +57,7 @@ test('catalog, profile switching, disabling and write-only credential rotation h
 test('connection wizard traps focus and billing acknowledgement is separate from connection testing', async ({ page }) => {
     await providerFixture(page);
     await page.goto('/build/providers');
-    await page.getByRole('navigation', { name: 'Provider registry' }).getByRole('button', { name: /^Groq\b/ }).click();
+    await (await openProviderRegistry(page)).getByRole('button', { name: /^Groq\b/ }).click();
     const add = page.getByRole('button', { name: 'Add profile +' });
     await add.click();
     const dialog = page.getByRole('dialog', { name: 'Add Groq profile' });
@@ -105,9 +105,13 @@ for (const width of [1440, 390])
         await mkdir(directory, { recursive: true });
         const capture = async (name: string) => { expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true); await page.screenshot({ path: path.join(directory, `${name}.png`) }); };
         await page.goto('/build/providers');
-        await expect(page.getByRole('link', { name: 'Sign in ↗', exact: true })).toBeVisible();
+        const signIn = page.getByRole('link', { name: 'Sign in', exact: true });
+        await expect(signIn).toBeVisible();
+        await expect(signIn).toHaveAttribute('href', '/login');
+        await expect(page.getByText('to manage your provider profiles.', { exact: false })).toBeVisible();
         await capture('real-anonymous-auth-required');
         const fixture = await providerFixture(page);
+        await page.getByText('Search & workspace', { exact: true }).click();
         await page.getByRole('button', { name: 'Refresh facts ↗', exact: true }).click();
         await expect(page.getByLabel('Provider workspace')).toContainText('CONTRACT FIXTURE');
         await page.getByLabel('Search providers', { exact: true }).fill('Groq');
@@ -162,6 +166,7 @@ for (const [width, height] of widths)
         await expect(page.getByLabel('Provider workspace')).toContainText('CONTRACT FIXTURE');
         await capture('center');
         if (width <= 650) {
+            await openProviderRegistry(page);
             await capture('mobile-provider-drawer');
             await page.getByText('Browse providers ↗', { exact: true }).click();
             await expect(page.getByRole('navigation', { name: 'Provider registry' })).not.toBeVisible();

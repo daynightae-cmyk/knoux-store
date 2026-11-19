@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { providerFixture } from './fixtures/provider-os';
+import { openProviderRegistry, providerFixture } from './fixtures/provider-os';
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => sessionStorage.setItem('knoux-dev-entry-intent', 'Provider recovery QA'));
@@ -15,7 +15,7 @@ test('a failed credential save keeps the unsaved value and synchronous duplicate
     await route.fulfill({ status: 503, json: { message: 'CONTRACT FIXTURE refusal: no credential stored.' } });
   });
   await page.goto('/build/providers');
-  await page.getByRole('navigation', { name: 'Provider registry' }).getByRole('button', { name: /^Groq\b/ }).click();
+  await (await openProviderRegistry(page)).getByRole('button', { name: /^Groq\b/ }).click();
   await expect(page.locator('[data-provider-connection]')).toContainText('VERIFIED');
   await page.getByRole('navigation', { name: 'Groq sections' }).getByRole('button', { name: 'Credentials', exact: true }).click();
   await page.getByLabel('Credential name', { exact: true }).fill('CONTRACT FIXTURE only');

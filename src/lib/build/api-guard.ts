@@ -120,7 +120,7 @@ export async function guardBuildApi(
 
 /* ------------------------------------------------------------------- caching */
 
-type CacheEntry = { expiresAt: number; value: unknown };
+type CacheEntry = { expiresAt: number; value: Promise<unknown> };
 
 const cache = new Map<string, CacheEntry>();
 const CACHE_TTL_MS = 15_000;
@@ -133,6 +133,13 @@ const CACHE_MAX = 64;
  * answering the tenth request in the same fifteen seconds from memory instead
  * of re-walking the tree is a correctness-preserving saving. The window is
  * deliberately short: a developer pressing refresh must see their own edit.
+ *
+ * The pending promise is the cached value, not its result. A workspace shell
+ * asks for the project, the environment and the Git state at once, so several
+ * callers can miss the cache within the same millisecond; caching the promise
+ * makes them share one walk instead of starting one each. The window is
+ * measured from the moment the answer was produced, so a slow read is not
+ * already stale by the time it is stored, and a failed read is never cached.
  */
 export async function withShortCache<T>(
   key: string,
@@ -140,15 +147,23 @@ export async function withShortCache<T>(
   now = Date.now(),
 ): Promise<T> {
   const hit = cache.get(key);
-  if (hit && hit.expiresAt > now) return hit.value as T;
+  if (hit && hit.expiresAt > now) return hit.value as Promise<T>;
 
-  const value = await produce();
-  if (cache.size >= CACHE_MAX) {
-    const oldest = [...cache.entries()].sort((a, b) => a[1].expiresAt - b[1].expiresAt)[0];
-    if (oldest) cache.delete(oldest[0]);
+  const pending = produce();
+  cache.set(key, { expiresAt: Number.POSITIVE_INFINITY, value: pending });
+  try {
+    const value = await pending;
+    if (cache.size >= CACHE_MAX) {
+      const oldest = [...cache.entries()].sort((a, b) => a[1].expiresAt - b[1].expiresAt)[0];
+      if (oldest) cache.delete(oldest[0]);
+    }
+    cache.set(key, { expiresAt: Date.now() + CACHE_TTL_MS, value: Promise.resolve(value) });
+    return value;
+  } catch (error) {
+    // A failed read is not an answer. Nothing about it may be cached.
+    if (cache.get(key)?.value === pending) cache.delete(key);
+    throw error;
   }
-  cache.set(key, { expiresAt: now + CACHE_TTL_MS, value });
-  return value;
 }
 
 export function resetCache(): void {

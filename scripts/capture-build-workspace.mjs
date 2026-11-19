@@ -22,7 +22,8 @@ try {
     page.on('pageerror', (error) => errors.push(`${name}: ${error.message.slice(0, 160)}`));
     page.on('console', (message) => { if (message.type() === 'error') errors.push(`${name}: ${message.text().slice(0, 160)}`); });
 
-    await page.goto(`${base}/build?intro=1`, { waitUntil: 'domcontentloaded' });
+    const response = await page.goto(`${base}/build?intro=1`, { waitUntil: 'domcontentloaded' });
+    if (!response?.ok()) throw new Error(`Build route returned HTTP ${response?.status() ?? 'unavailable'}`);
     await page.waitForTimeout(1100);
     await page.getByRole('group', { name: 'Starter intents' }).getByRole('button', { name: 'WEB APP' }).click();
     await page.locator('.dev-entry__field button').click();
@@ -40,3 +41,4 @@ try {
   await browser.close();
 }
 console.log('ERRORS:', errors.length ? JSON.stringify(errors, null, 2) : 'none');
+if (errors.length) process.exitCode = 1;

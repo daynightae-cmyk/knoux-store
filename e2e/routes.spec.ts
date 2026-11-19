@@ -12,6 +12,39 @@ import { join } from 'node:path';
 
 const slug = (route: string) => route.replace(/^\//, '').replace(/\//g, '-') || 'home';
 
+/**
+ * Wait until the page has stopped changing shape.
+ *
+ * A geometry measurement taken the instant `domcontentloaded` fires measures a
+ * page that is still mounting: on `/products` the document was 11380px tall at
+ * that moment and 11646px two frames later, and the region between the two
+ * heights was — correctly, for a page that had not finished arriving — an
+ * empty band of 620px. The page was never broken; it had not finished
+ * arriving. Measuring it anyway turned a page that reads correctly into a
+ * failure that named a defect that did not exist.
+ *
+ * The page is settled when its height is the same in two consecutive frames
+ * and its fonts have loaded. That is the page a visitor reads, and it is the
+ * page this suite means to measure. The wait is bounded, so a page that
+ * genuinely never settles is measured rather than hanging the run.
+ */
+async function settleLayout(page: import('@playwright/test').Page): Promise<void> {
+  await page.evaluate(() => document.fonts?.ready).catch(() => undefined);
+  await page
+    .waitForFunction(
+      () => {
+        const height = document.documentElement.scrollHeight;
+        const state = window as unknown as { __knouxMeasuredHeight?: number };
+        if (state.__knouxMeasuredHeight === height) return true;
+        state.__knouxMeasuredHeight = height;
+        return false;
+      },
+      undefined,
+      { timeout: 5_000, polling: 'raf' },
+    )
+    .catch(() => undefined);
+}
+
 test('Home wing descriptions remain fully readable with keyboard focus at narrow widths', async ({ page }) => {
   for (const width of [1440, 820, 768, 390, 360]) {
     await page.setViewportSize({ width, height: 900 });
@@ -104,12 +137,29 @@ test.describe('route rendering', () => {
  * a regression introduced anywhere is caught.
  */
 test.describe('responsive geometry', () => {
+  /**
+   * One route per test, at every width the site claims to support.
+   *
+   * The measurement was a loop inside a single test: one test loaded all
+   * forty-two public routes at one width. Every route was measured exactly as
+   * before, but the test had to finish all of them inside one 60s budget, so
+   * on a real mobile profile — where a page costs a second and a half — the
+   * budget expired before the last route was measured. The failure that came
+   * out of that was a timeout, not a defect, and a timeout hides the route it
+   * happened on.
+   *
+   * The property being claimed is per page: this route does not overflow at
+   * this width. So it is now measured per page, at the same widths, with the
+   * same threshold and the same message. Nothing is skipped, nothing is
+   * relaxed, and a failure names the route and the width that failed.
+   */
   for (const size of RESPONSIVE_MATRIX) {
-    test(`no horizontal overflow at ${size.name}`, async ({ page }) => {
-      await page.setViewportSize({ width: size.width, height: size.height });
+    for (const route of PRIMARY_ROUTES) {
+      test(`no horizontal overflow at ${size.name} · ${route}`, async ({ page }) => {
+        await page.setViewportSize({ width: size.width, height: size.height });
 
-      for (const route of PRIMARY_ROUTES) {
         await page.goto(route, { waitUntil: 'domcontentloaded' });
+        await settleLayout(page);
 
         const measurement = await page.evaluate(() => {
           const doc = document.documentElement;
@@ -140,8 +190,8 @@ test.describe('responsive geometry', () => {
             measurement.offenders.join(', ') || 'not identified'
           }`,
         ).toBeLessThanOrEqual(1);
-      }
-    });
+      });
+    }
   }
 });
 
@@ -177,11 +227,19 @@ test.describe('composition', () => {
     await expect(prompt).toBeFocused();
     await expect(prompt).toBeInViewport();
   });
-  test('desktop content uses a meaningful share of the viewport', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
+  /**
+   * One route per test, for the same reason as the geometry measurement.
+   *
+   * The composition claim is per page as well — this route fills the viewport,
+   * and this route has no dead band — so it is measured per page, at the same
+   * width, with the same thresholds.
+   */
+  for (const route of PRIMARY_ROUTES) {
+    test(`desktop content uses a meaningful share of the viewport · ${route}`, async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
 
-    for (const route of PRIMARY_ROUTES) {
       await page.goto(route, { waitUntil: 'domcontentloaded' });
+      await settleLayout(page);
 
       const geometry = await page.evaluate(() => {
         const main = document.querySelector<HTMLElement>('main, [role="main"]');
@@ -212,7 +270,7 @@ test.describe('composition', () => {
         };
       });
 
-      if (!geometry) continue;
+      if (!geometry) return;
 
       const share = geometry.width / geometry.viewport;
       // A main region narrower than a third of the viewport at desktop width
@@ -233,8 +291,8 @@ test.describe('composition', () => {
         largestBlank,
         `${route} has a ${Math.round(largestBlank)}px vertical band with nothing in it`,
       ).toBeLessThan(geometry.viewportHeight * 0.5);
-    }
-  });
+    });
+  }
 
   test('the workspace enters its operational shell without replaying the landing sequence', async ({ page }) => {
     // The entry gate, particle hero and product machine belong to /build. An

@@ -429,6 +429,8 @@ export type VerificationCheck = {
 export type VerificationSnapshot = {
   checks: VerificationCheck[];
   headSha: string | null;
+  /** Safe metadata only. WIP measurements cannot be pooled using HEAD alone. */
+  sourceState?: 'clean' | 'wip' | 'unknown';
   capturedAt: string;
 };
 
@@ -539,7 +541,8 @@ export type GitSnapshot = {
   branch: string | null;
   headSha: string | null;
   originMainSha: string | null;
-  dirty: boolean;
+  /** Null when HEAD or working-tree status could not be measured. */
+  dirty: boolean | null;
   ahead: number | null;
   behind: number | null;
   files: { path: string; state: GitFileState }[];

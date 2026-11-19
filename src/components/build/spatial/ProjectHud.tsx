@@ -12,6 +12,7 @@
 
 import { STAGES, type Stage } from '@/lib/build/stages';
 import { aggregate, measurableScore } from '@/lib/build/verification';
+import { currentWorkspaceVerificationChecks } from '../dev/verification-results';
 import type { BuildWorkspaceState } from '@/lib/build/workspace-state';
 import { StatusBadge } from '../workspace/Primitives';
 
@@ -24,9 +25,9 @@ function or(value: string | null | undefined, absence: string): { text: string; 
 }
 
 export function ProjectHud({ state, stage }: { state: BuildWorkspaceState; stage: Stage }) {
-  const { project, git, runtime, ai, environment, verification, adapter } = state;
+  const { project, git, runtime, ai, environment, adapter } = state;
 
-  const checks = verification?.checks ?? [];
+  const checks = currentWorkspaceVerificationChecks(state);
   const gate = aggregate(checks);
   const score = measurableScore(checks);
 
@@ -97,8 +98,8 @@ export type Evidence = {
  * says so in the same shape rather than collapsing to an empty box.
  */
 export function EvidencePanel({ state, stage }: { state: BuildWorkspaceState; stage: Stage }) {
-  const { git, project, verification, runtime, ai, database, environment } = state;
-  const snapshot = verification?.checks ?? [];
+  const { git, project, runtime, ai, database, environment } = state;
+  const snapshot = currentWorkspaceVerificationChecks(state);
   const byId = new Map(snapshot.map((check) => [check.id, check]));
 
   const evidence = buildEvidence(state, stage, byId, {
@@ -212,7 +213,7 @@ function buildEvidence(
     }
     case 'verify': {
       const ran = context.snapshot.length;
-      const gate = aggregate(state.verification?.checks ?? []);
+      const gate = aggregate(context.snapshot);
       return {
         ...base,
         source: stage.evidenceSource,

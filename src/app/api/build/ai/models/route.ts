@@ -34,11 +34,29 @@ async function handleGET(request: NextRequest) {
         };
       }
       if (!adapter.isConfigured(providerEnvironment())) {
+        // Unconfigured providers with a published static catalogue still show
+        // their model identities, marked catalogue-only (CONFIG REQUIRED) so
+        // the picker is never empty and never fabricates LIVE availability.
+        const staticIds = adapter.staticModels();
         return {
           providerId: adapter.id,
-          models: [],
-          source: "UNKNOWN" as const,
-          discoveredAt: null,
+          models: staticIds.map((modelId) => ({
+            providerId: adapter.id,
+            modelId,
+            displayName: modelId,
+            discoveredAt: new Date().toISOString(),
+            contextWindow: null,
+            maxOutputTokens: null,
+            modalities: { text: true, imageInput: false, audioInput: false, audioOutput: false },
+            capabilities: { streaming: 'UNKNOWN', tools: 'UNKNOWN', structuredOutput: 'UNKNOWN', reasoning: 'UNKNOWN', vision: 'UNKNOWN' },
+            controls: { temperature: true, topP: true, maxTokens: true, reasoningEffort: false, seed: false, stop: true, toolChoice: true },
+            pricing: { inputPerMillion: null, outputPerMillion: null, cachedInputPerMillion: null, currency: 'USD' },
+            lifecycle: 'unknown' as const,
+            source: 'STATIC' as const,
+            catalog: { categories: [], gateway: false, authorNamespace: null, supportedParameters: null, free: null, buildEligible: false, metadataSource: 'IDENTITY_HINT' as const },
+          })),
+          source: "STATIC" as const,
+          discoveredAt: new Date().toISOString(),
           fromCache: false,
         };
       }

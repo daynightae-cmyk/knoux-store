@@ -7,6 +7,10 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { softwareProducts } from '@/data/software';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { workspaceFacts } from './workspace-facts';
+import { EngineeringSky } from './EngineeringSky';
+import { BuildAtmosphere } from './BuildAtmosphere';
+import { BuildSound } from './BuildSound';
+import { cueAtmosphere, engineeringCue } from './living-atmosphere';
 
 const LivingMark = dynamic(() => import('./BuildLivingMarkBackdrop').then((mod) => mod.BuildLivingMarkBackdrop), { ssr: false });
 const Launcher = dynamic(() => import('./ProjectLauncher').then((mod) => mod.ProjectLauncher));
@@ -35,6 +39,22 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
   const facts = workspaceFacts(state);
   const [navOpen, setNavOpen] = useState(false);
   const [utility, setUtility] = useState<'launcher' | 'palette' | 'activity' | null>(null);
+  const lastStage = useRef(state.engineering.stage);
+  useEffect(() => {
+    const stage = state.engineering.stage;
+    if (stage === lastStage.current) return;
+    lastStage.current = stage;
+    const cue = engineeringCue(stage);
+    if (cue) cueAtmosphere(cue);
+  }, [state.engineering.stage]);
+  useEffect(() => {
+    if (state.projectRef) cueAtmosphere('wake');
+  }, [state.projectRef]);
+  function openLauncher() {
+    cueAtmosphere('wake');
+    setNavOpen(false);
+    setUtility('launcher');
+  }
   useEffect(() => {
     const key = (event: KeyboardEvent) => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); setNavOpen(false); setUtility((value) => value === 'palette' ? null : 'palette'); } };
     document.addEventListener('keydown', key); return () => document.removeEventListener('keydown', key);
@@ -64,7 +84,7 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
     return () => { document.removeEventListener('keydown', onKey); window.removeEventListener('resize', onResize); toggle?.focus(); };
   }, [navOpen]);
 
-  return <div className={`dev-shell dev-cinematic ${pathname === '/build' ? 'dev-shell--landing' : 'dev-shell--operational'}`}>
+  return <div data-cosmic-reduced={state.preferences.motion === 'reduced' ? '' : undefined} className={`dev-shell dev-cinematic ${pathname === '/build' ? 'dev-shell--landing' : 'dev-shell--operational'}`}>
     {/* A `header` element, not a styled `div`: this bar carries the site
         identity and the navigation control, and content outside every landmark
         is exactly what landmark navigation cannot reach. The class list is
@@ -75,13 +95,28 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
       {navOpen ? <button type="button" className="dev-nav-backdrop" tabIndex={-1} aria-label="Close workspace navigation" onClick={() => setNavOpen(false)} /> : null}
       <aside ref={sidebar} id="dev-sidebar" className={`dev-sidebar ${navOpen ? 'dev-sidebar--open' : ''}`} aria-label="KNOuX DEV workspace" role={navOpen ? 'dialog' : undefined} aria-modal={navOpen ? true : undefined}>
         <div className="dev-sidebar__brand"><Link href="/"><span className="dev-dot" aria-hidden="true" />KNOuX <small>BUILD</small>{' '}<span className="visually-hidden">KNOuX Store home</span></Link><button className="dev-sidebar__close" type="button" onClick={() => setNavOpen(false)} aria-label="Close workspace navigation">×</button></div>
-        <button type="button" className="dev-sidebar__action" onClick={() => { setNavOpen(false); setUtility('launcher'); }}>New build <span aria-hidden="true">↗</span></button>
-        <nav aria-label="Workspace destinations">{DEV_DESTINATIONS.map((item) => <Link key={item.href} href={item.href} className={`dev-nav-link ${pathname === item.href ? 'dev-nav-link--active' : ''}`} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => setNavOpen(false)}><span aria-hidden="true">{item.icon}</span><small>{item.code}</small>{item.label}</Link>)}</nav>
-        <div className="dev-sidebar__projects"><div className="dev-mini-label">PROJECTS <button type="button" onClick={() => { setNavOpen(false); setUtility('launcher'); }} aria-label="Add or open project">+</button></div>{softwareProducts.slice(0, 4).map((product) => <Link key={product.id} href={`/build/apps?product=${product.slug}`} onClick={() => setNavOpen(false)}>{product.name}</Link>)}</div>
+        <button type="button" className="dev-sidebar__action" onClick={openLauncher}>New build <span aria-hidden="true">↗</span></button>
+        <nav aria-label="Workspace destinations">{DEV_DESTINATIONS.map((item) => <Link key={item.href} href={item.href} className={`dev-nav-link ${pathname === item.href ? 'dev-nav-link--active' : ''}`} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => { setNavOpen(false); if (item.href === '/build') cueAtmosphere('wake'); }}><span aria-hidden="true">{item.icon}</span><small>{item.code}</small>{item.label}</Link>)}</nav>
+        <div className="dev-sidebar__projects"><div className="dev-mini-label">PROJECTS <button type="button" onClick={openLauncher} aria-label="Add or open project">+</button></div>{softwareProducts.slice(0, 4).map((product) => <Link key={product.id} href={`/build/apps?product=${product.slug}`} onClick={() => setNavOpen(false)}>{product.name}</Link>)}</div>
         <dl className="dev-sidebar__facts"><dt>ADAPTER STATUS</dt><dd>{facts.adapter}</dd><dt>PROJECT STATUS</dt><dd>{facts.project}</dd><dt>ENVIRONMENT</dt><dd>{facts.environment}</dd></dl>
       </aside>
-      <div className="dev-shell__stage" inert={navOpen}><LivingMark /><main id="main-content" tabIndex={0} className="dev-shell__content"><div className="dev-crumb"><span>KN / DEV</span> / {current?.label ?? 'Workspace'}<span className="dev-crumb__right">{facts.environment}</span></div>{children}</main><footer className="dev-status-rail" aria-label="Workspace status"><div className="dev-utility-actions"><button type="button" onClick={() => setUtility('palette')}>COMMANDS · Ctrl K</button><button type="button" onClick={() => setUtility('activity')}>ACTIVITY · {state.activity.length}</button></div><span><i aria-hidden="true" />{facts.runtime}</span><Link href="/build/pipeline">{facts.verification}</Link><Link href="/build/deployments">DEPLOYMENT · {facts.deployment}</Link><Link href="/build/providers">{facts.provider}</Link></footer></div>
+      <div className="dev-shell__stage" inert={navOpen}>
+        <BuildAtmosphere reduced={state.preferences.motion === 'reduced'} />
+        <LivingMark />
+        {pathname === '/build/engineering' && <EngineeringSky reducedMotion={state.preferences.motion === 'reduced'} />}
+        <main id="main-content" tabIndex={0} className="dev-shell__content">
+          <div className="dev-crumb"><span>KN / DEV</span> / {current?.label ?? 'Workspace'}<span className="dev-crumb__right">{facts.environment}</span></div>
+          {children}
+        </main>
+        <footer className="dev-status-rail" aria-label="Workspace status">
+          <div className="dev-utility-actions"><button type="button" onClick={() => setUtility('palette')}>COMMANDS · Ctrl K</button><button type="button" onClick={() => setUtility('activity')}>ACTIVITY · {state.activity.length}</button><BuildSound /></div>
+          <span><i aria-hidden="true" />{facts.runtime}</span>
+          <Link href="/build/pipeline">{facts.verification}</Link>
+          <Link href="/build/deployments">DEPLOYMENT · {facts.deployment}</Link>
+          <Link href="/build/providers">{facts.provider}</Link>
+        </footer>
+      </div>
     </div>
-    {utility === 'launcher' ? <Launcher onClose={() => setUtility(null)} /> : utility === 'palette' ? <Palette onClose={() => setUtility(null)} onLaunch={() => setUtility('launcher')} /> : utility === 'activity' ? <Activity onClose={() => setUtility(null)} /> : null}
+    {utility === 'launcher' ? <Launcher onClose={() => setUtility(null)} /> : utility === 'palette' ? <Palette onClose={() => setUtility(null)} onLaunch={openLauncher} /> : utility === 'activity' ? <Activity onClose={() => setUtility(null)} /> : null}
   </div>;
 }

@@ -18,6 +18,8 @@ import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { Blocked, Empty, Pane, Section, StatusBadge } from '../workspace/Primitives';
 import { tokenize } from '@/lib/build/tokenizer';
 import type { SourceFileEntry } from '@/lib/build/types';
+import { currentWorkspaceVerificationChecks } from '../dev/verification-results';
+import styles from '../generator/code-constellation.module.css';
 
 type FileResponse = {
   path: string;
@@ -28,6 +30,7 @@ type FileResponse = {
   readOnly: boolean;
   readOnlyReason: string | null;
 };
+const EMPTY_FILES: SourceFileEntry[] = [];
 
 /** Files a reader actually wants, in a deliberate order. */
 function groupFor(role: string): string {
@@ -42,64 +45,51 @@ function groupFor(role: string): string {
 
 export function CodeSurface() {
   const { state, dispatch } = useBuildWorkspace();
-  const [files, setFiles] = useState<SourceFileEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
   const paneRef = useRef<HTMLDivElement>(null);
+  const fileRequest = useRef<AbortController | null>(null);
 
   const capabilities = state.adapter.capabilities;
+  const currentChecks = currentWorkspaceVerificationChecks(state);
+  const files = state.snapshot?.files ?? EMPTY_FILES;
+  const loading = !state.snapshot && (state.status === 'idle' || state.status === 'loading');
   const readOnlyReason = state.adapter.blockers['project.write'] ?? null;
 
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const response = await fetch('/api/build/project', { cache: 'no-store' });
-        if (!response.ok) throw new Error(`Project snapshot responded ${response.status}.`);
-        const body = (await response.json()) as {
-          snapshot: { files: SourceFileEntry[] };
-        };
-        if (cancelled) return;
-        setFiles(body.snapshot.files);
-        setLoadError(null);
-      } catch (error) {
-        if (!cancelled) {
-          setLoadError(error instanceof Error ? error.message : 'The file list could not be read.');
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  useEffect(() => () => fileRequest.current?.abort(), [state.projectRef]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, SourceFileEntry[]>();
+    const filter = query.trim().toLowerCase();
     for (const file of files) {
+      if (filter && !file.path.toLowerCase().includes(filter)) continue;
       const group = groupFor(file.role);
       const list = map.get(group) ?? [];
       list.push(file);
       map.set(group, list);
     }
     return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
-  }, [files]);
+  }, [files, query]);
 
   const open = useCallback(
     async (entry: SourceFileEntry) => {
+      fileRequest.current?.abort();
+      const controller = new AbortController();
+      fileRequest.current = controller;
       setFileError(null);
-      dispatch({ type: 'file/close', path: '__none__' });
       try {
-        const response = await fetch(`/api/build/file?path=${encodeURIComponent(entry.path)}`, {
+        const query = new URLSearchParams({ path: entry.path });
+        if (state.projectRef) query.set('project', state.projectRef);
+        const response = await fetch(`/api/build/file?${query}`, {
           cache: 'no-store',
+          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(25_000)]),
         });
         if (!response.ok) {
           const body = (await response.json().catch(() => null)) as { message?: string } | null;
           throw new Error(body?.message ?? `Reading ${entry.path} responded ${response.status}.`);
         }
         const body = (await response.json()) as FileResponse;
+        if (controller.signal.aborted) return;
         dispatch({
           type: 'file/open',
           file: {
@@ -116,10 +106,10 @@ export function CodeSurface() {
           },
         });
       } catch (error) {
-        setFileError(error instanceof Error ? error.message : 'The file could not be read.');
+        if (!controller.signal.aborted) setFileError(error instanceof Error ? error.message : 'The file could not be read.');
       }
     },
-    [dispatch],
+    [dispatch, state.projectRef],
   );
 
   // Ctrl/Cmd+S must never attempt a write. It says so instead of failing.
@@ -144,6 +134,10 @@ export function CodeSurface() {
     [selected],
   );
 
+  if (loading) {
+    return <Pane title="Code"><Empty title="Reading tree" body="Waiting for the workspace snapshot." /></Pane>;
+  }
+
   if (capabilities['project.files'] !== 'available') {
     return (
       <Pane title="Code">
@@ -166,48 +160,45 @@ export function CodeSurface() {
         </>
       }
     >
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(190px, 260px) minmax(0, 1fr)', minHeight: '58vh' }}>
-        <aside style={{ borderRight: '1px solid var(--bo-line-faint)', overflow: 'auto' }} aria-label="Project files">
-          {loading ? <Empty title="Reading tree" body="Listing the files in this deployment." /> : null}
-          {loadError ? (
-            <Blocked title="File list unavailable" body={loadError} requirement="The project snapshot endpoint did not respond." />
-          ) : null}
-          {!loading && !loadError ? (
-            <>
-              {grouped.map(([group, entries]) => (
-                <div key={group}>
-                  <div className="bo-cortex__lane" style={{ padding: '10px 12px 6px' }}>
-                    <span className="bo-label">{group}</span>
-                  </div>
-                  {entries.map((entry) => (
-                    <button
-                      key={entry.path}
-                      type="button"
-                      className="bo-row-btn"
-                      aria-current={state.workspace.selectedFilePath === entry.path}
-                      style={{
-                        display: 'block',
-                        padding: '5px 12px',
-                        borderBottom: '1px solid color-mix(in srgb, var(--bo-line-faint) 45%, transparent)',
-                        background:
-                          state.workspace.selectedFilePath === entry.path
-                            ? 'color-mix(in srgb, var(--bo-violet) 10%, transparent)'
-                            : 'none',
-                        color: state.workspace.selectedFilePath === entry.path ? 'var(--bo-ink)' : 'var(--bo-ink-3)',
-                        fontSize: 12,
-                      }}
-                      onClick={() => void open(entry)}
-                    >
-                      {entry.path}
-                      <span style={{ color: 'var(--bo-ink-4)', marginLeft: 6, fontSize: 12 }}>
-                        {entry.lines}L
-                      </span>
-                    </button>
-                  ))}
-                </div>
+      <div className={styles.layout}>
+        <aside className={styles.tree} aria-label="Project files">
+          <div className={styles.fileConstellation} aria-label="File groups in the current filter">
+            {grouped.map(([group, entries]) => <span key={group}><i aria-hidden="true" />{group} <small>{entries.length}</small></span>)}
+          </div>
+          <label className={styles.search}>Filter source files<input type="search" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
+          {!grouped.length ? <Empty title="No matching files" body="Try another path from the project snapshot." /> : null}
+          {grouped.map(([group, entries]) => (
+            <div key={group}>
+              <div className="bo-cortex__lane" style={{ padding: '10px 12px 6px' }}>
+                <span className="bo-label">{group}</span>
+              </div>
+              {entries.map((entry) => (
+                <button
+                  key={entry.path}
+                  type="button"
+                  className="bo-row-btn"
+                  aria-current={state.workspace.selectedFilePath === entry.path}
+                  style={{
+                    display: 'block',
+                    padding: '5px 12px',
+                    borderBottom: '1px solid color-mix(in srgb, var(--bo-line-faint) 45%, transparent)',
+                    background:
+                      state.workspace.selectedFilePath === entry.path
+                        ? 'color-mix(in srgb, var(--bo-violet) 10%, transparent)'
+                        : 'none',
+                    color: state.workspace.selectedFilePath === entry.path ? 'var(--bo-ink)' : 'var(--bo-ink-3)',
+                    fontSize: 12,
+                  }}
+                  onClick={() => void open(entry)}
+                >
+                  {entry.path}
+                  <span style={{ color: 'var(--bo-ink-4)', marginLeft: 6, fontSize: 12 }}>
+                    {entry.lines}L
+                  </span>
+                </button>
               ))}
-            </>
-          ) : null}
+            </div>
+          ))}
         </aside>
 
         <div ref={paneRef} style={{ minWidth: 0, overflow: 'auto' }}>
@@ -287,6 +278,18 @@ export function CodeSurface() {
             </div>
           ) : null}
         </div>
+        <aside className={styles.activity} aria-label="Code activity">
+          <h3>Workspace activity</h3>
+          <dl>
+            <dt>Active file</dt><dd>{selected?.path ?? 'None selected'}</dd>
+            <dt>Planning state</dt><dd>{state.engineering.stage.replaceAll('_', ' ')}</dd>
+            <dt>Project writes</dt><dd>{capabilities['project.write'] === 'available' ? 'Available' : 'Read-only workspace'}</dd>
+          </dl>
+          <h4>Current checkout verification</h4>
+          {currentChecks.length ? <ul>
+            {currentChecks.map((check) => <li key={check.id}><strong>{check.label}</strong><span>{check.status}</span></li>)}
+          </ul> : <p>No verification belongs to the current clean checkout. Bounded task output is available in Build pipeline.</p>}
+        </aside>
       </div>
     </Pane>
   );

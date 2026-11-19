@@ -17,7 +17,9 @@
 
 import { promises as fs, existsSync, constants, realpathSync } from 'node:fs';
 import { spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
+import { redactSecrets } from '../security/redact';
 import {
   type BuildCapability,
   type CapabilityStatus,
@@ -48,7 +50,72 @@ const ANY_DEPTH_SKIP = new Set(['.git', '.next', '.vercel', '.traycer', '.turbo'
 
 const MAX_FILE_BYTES = 512 * 1024;
 const MAX_FILES = 4000;
+
+/**
+ * Extensions whose contents are bytes, not text.
+ *
+ * A line count describes text. Reading a PNG, a video or an archive to count
+ * newlines costs the same I/O as reading its source and produces a number
+ * that describes nothing, so binary assets are measured by size only.
+ *
+ * The rule is a denylist rather than an allowlist on purpose: an allowlist
+ * would silently report zero lines for every text file whose extension this
+ * module has not heard of — a `Makefile`, a `Dockerfile`, an `.env` example
+ * — and that would be a lie about the checkout.
+ */
+const BINARY_EXTENSIONS = new Set([
+  '.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.ico', '.bmp', '.tiff',
+  '.zip', '.gz', '.tar', '.bz2', '.xz', '.7z', '.rar',
+  '.mp4', '.webm', '.mov', '.avi', '.mkv', '.mp3', '.wav', '.ogg', '.flac',
+  '.woff', '.woff2', '.ttf', '.otf', '.eot',
+  '.pdf', '.exe', '.dll', '.so', '.dylib', '.class', '.bin', '.wasm', '.node',
+]);
+
+/** The extension of a path, ignoring a stray trailing quote in its name. */
+function extensionOf(file: string): string {
+  const extension = path.extname(file).toLowerCase();
+  return extension.replace(/["']+$/, '');
+}
+
+/** How many files may be measured at the same time. */
+const MEASURE_CONCURRENCY = 24;
+
+/**
+ * Run one worker over a list with a bounded number of workers in flight.
+ *
+ * The order of the results matches the order of the input, so the snapshot
+ * stays identical to a sequential walk; only the waiting changes.
+ */
+async function mapWithLimit<T, R>(items: T[], limit: number, worker: (item: T) => Promise<R>): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let index = 0;
+  const runners = Array.from({ length: Math.max(1, Math.min(limit, items.length)) }, async () => {
+    while (index < items.length) {
+      const current = index;
+      index += 1;
+      results[current] = await worker(items[current]);
+    }
+  });
+  await Promise.all(runners);
+  return results;
+}
 const GIT_TIMEOUT_MS = 8000;
+const MAX_GIT_BYTES = 400_000;
+const MAX_IDENTITY_BYTES = 8 * 1024 * 1024;
+// Ignored files, dependencies, generated outputs and external inputs are not attested.
+const VERIFICATION_SOURCE_SCOPE = [
+  'src', 'tests', 'e2e', 'scripts', 'public', 'config', 'security', 'gateway', 'openapi',
+  'package.json', 'package-lock.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lock', 'bun.lockb',
+  'tsconfig*.json', 'next-env.d.ts', 'next.config.*', 'eslint.config.*',
+  'playwright.config.*', 'proxy.*',
+];
+
+type VerificationIdentity = { head: string | null; dirty: boolean | null; digest: string | null };
+
+function measuredHead(value: string | null): string | null {
+  const head = value?.trim() ?? '';
+  return /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/i.test(head) ? head : null;
+}
 
 function isReadableProjectPath(relative: string): boolean {
   const segments = relative.split('/');
@@ -155,7 +222,12 @@ async function readJson<T>(file: string, fallback: T): Promise<T> {
   }
 }
 
-/** Run a git subcommand with a fixed argv. Never a shell string, never user input. */
+const windowsSystemRoot = process.env.SystemRoot || 'C:\\Windows';
+const gitExecutable = process.platform === 'win32'
+  ? path.join(process.env.ProgramW6432 || process.env.ProgramFiles || 'C:\\Program Files', 'Git', 'cmd', 'git.exe')
+  : '/usr/bin/git';
+
+/** Run a git subcommand with a fixed argv and an isolated search path. */
 function git(root: string, args: string[], timeout = GIT_TIMEOUT_MS): Promise<string | null> {
   return new Promise((resolve) => {
     let settled = false;
@@ -165,19 +237,43 @@ function git(root: string, args: string[], timeout = GIT_TIMEOUT_MS): Promise<st
       resolve(value);
     };
     try {
-      const child = spawn('git', args, { cwd: root, windowsHide: true, shell: false });
-      let out = '';
-      let err = '';
+      if (!path.isAbsolute(gitExecutable) || (process.platform === 'win32' && !path.isAbsolute(windowsSystemRoot))) {
+        finish(null);
+        return;
+      }
+      const child = spawn(gitExecutable, ['-c', 'core.fsmonitor=false', ...args], {
+        cwd: root, windowsHide: true, shell: false,
+        env: {
+          NODE_ENV: 'production',
+          ...(process.platform === 'win32' ? { SystemRoot: windowsSystemRoot } : {}),
+          PATH: process.platform === 'win32' ? path.join(windowsSystemRoot, 'System32') : '/usr/bin:/bin',
+          GIT_OPTIONAL_LOCKS: '0',
+        },
+      });
+      const chunks: Buffer[] = [];
+      let bytes = 0;
+      let overflow = false;
       const timer = setTimeout(() => {
         child.kill();
         finish(null);
       }, timeout);
-      child.stdout.on('data', (chunk: Buffer) => { if (out.length < 400_000) out += chunk.toString(); });
-      child.stderr.on('data', (chunk: Buffer) => { if (err.length < 40_000) err += chunk.toString(); });
+      child.stdout.on('data', (chunk: Buffer) => {
+        bytes += chunk.length;
+        if (bytes > MAX_GIT_BYTES) {
+          overflow = true;
+          clearTimeout(timer);
+          child.kill();
+          finish(null);
+        } else {
+          chunks.push(chunk);
+        }
+      });
+      // Drain errors without returning command text as evidence.
+      child.stderr.on('data', () => undefined);
       child.on('error', () => { clearTimeout(timer); finish(null); });
       child.on('close', (code) => {
         clearTimeout(timer);
-        finish(code === 0 ? out : null);
+        finish(code === 0 && !overflow ? Buffer.concat(chunks).toString('utf8') : null);
       });
     } catch {
       finish(null);
@@ -316,17 +412,21 @@ export class FsProjectAdapter implements ProjectAdapter {
     const apiRoutes: { route: string; file: string }[] = [];
     const tests: { file: string; bytes: number }[] = [];
 
-    for (const file of relative) {
+    // Measuring a file is I/O, and the walk measured one file at a time in
+    // a serial loop, so a checkout with a few thousand files spent seconds
+    // inside the adapter before the shell could show a single fact. The
+    // reads are independent, so they run with a bounded number of workers.
+    const measured = await mapWithLimit(relative, MEASURE_CONCURRENCY, async (file) => {
       const role = roleOf(file);
-      if (role === 'reference') continue;
+      if (role === 'reference') return null;
       let bytes = 0;
       try {
         bytes = (await fs.stat(path.join(this.root, file))).size;
       } catch {
-        continue;
+        return null;
       }
       let lines = 0;
-      if (bytes < MAX_FILE_BYTES) {
+      if (bytes < MAX_FILE_BYTES && !BINARY_EXTENSIONS.has(extensionOf(file))) {
         try {
           const text = await fs.readFile(path.join(this.root, file), 'utf8');
           lines = text.length === 0 ? 0 : text.split('\n').length;
@@ -334,6 +434,12 @@ export class FsProjectAdapter implements ProjectAdapter {
           lines = 0;
         }
       }
+      return { file, role, bytes, lines };
+    });
+
+    for (const entry of measured) {
+      if (!entry) continue;
+      const { file, role, bytes, lines } = entry;
       files.push({ path: file, language: languageOf(file), bytes, lines, role });
       if (role === 'app-route' && /(?:^|\/)page\.tsx?$/.test(file)) {
         const route = routeOf(file);
@@ -587,11 +693,17 @@ export class FsProjectAdapter implements ProjectAdapter {
       git(this.root, ['rev-parse', 'origin/main']),
     ]);
 
-    if (head === null) {
+    const headSha = measuredHead(head);
+    if (headSha === null || status === null) {
       return {
-        available: false, branch: null, headSha: null, originMainSha: null, dirty: false,
+        // Consumers gate clean claims on availability. Partial Git reads cannot
+        // establish a clean checkout, even when rev-parse succeeded.
+        available: false, branch: branch?.trim() ?? null, headSha,
+        originMainSha: measuredHead(mainSha), dirty: null,
         ahead: null, behind: null, files: [], commits: [],
-        blocker: 'The deployment has no .git directory, so no Git state can be read. Source is shipped as a build artefact.',
+        blocker: headSha === null
+          ? 'Git HEAD could not be measured. Checkout identity and cleanliness are unknown.'
+          : 'Git working-tree status could not be measured. Cleanliness is unknown.',
       };
     }
 
@@ -632,15 +744,74 @@ export class FsProjectAdapter implements ProjectAdapter {
     return {
       available: true,
       branch: branch?.trim() ?? null,
-      headSha: head.trim(),
-      originMainSha: mainSha?.trim() ?? null,
-      dirty: files.length > 0,
+      headSha,
+      originMainSha: measuredHead(mainSha),
+      dirty: status.length > 0,
       ahead,
       behind,
       files,
       commits,
       blocker: null,
     };
+  }
+
+  /** Internal only: never return diffs, source bytes or their digest to callers. */
+  private async verificationIdentity(): Promise<VerificationIdentity> {
+    const [rawHead, status] = await Promise.all([
+      git(this.root, ['rev-parse', 'HEAD']),
+      git(this.root, ['status', '--porcelain=v1', '-z']),
+    ]);
+    const head = measuredHead(rawHead);
+    const unknown: VerificationIdentity = { head, dirty: status === null ? null : status.length > 0, digest: null };
+    if (head === null || status === null) return unknown;
+
+    // HEAD alone misses WIP; status alone misses further edits to dirty files.
+    // Disable external diff/textconv programs and fail closed on output bounds.
+    const [diff, untracked] = await Promise.all([
+      git(this.root, ['diff', '--no-ext-diff', '--no-textconv', '--binary', head, '--', '.']),
+      git(this.root, ['ls-files', '--others', '--exclude-standard', '-z', '--', ...VERIFICATION_SOURCE_SCOPE]),
+    ]);
+    if (diff === null || untracked === null || (untracked !== '' && !untracked.endsWith('\0'))) return unknown;
+    const files = untracked.split('\0').filter(Boolean).sort((a, b) => a.localeCompare(b));
+    if (files.length > MAX_FILES) return unknown;
+    const hash = createHash('sha256').update(JSON.stringify([head, status, diff, files]));
+    let totalBytes = 0;
+    try {
+      for (const file of files) {
+        const candidate = path.resolve(this.root, file);
+        if (!this.isInsideRoot(candidate)) return unknown;
+        const actual = await fs.realpath(candidate);
+        // Refuse symlinks/junction aliases rather than fingerprint their targets.
+        if (actual !== candidate) return unknown;
+        const handle = await fs.open(actual, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+        try {
+          const stat = await handle.stat();
+          totalBytes += stat.size;
+          if (!stat.isFile() || stat.size > MAX_FILE_BYTES || totalBytes > MAX_IDENTITY_BYTES) return unknown;
+          const buffer = Buffer.alloc(stat.size + 1);
+          let read = 0;
+          while (read < buffer.length) {
+            const { bytesRead } = await handle.read(buffer, read, buffer.length - read, null);
+            if (bytesRead === 0) break;
+            read += bytesRead;
+          }
+          const after = await handle.stat();
+          if (read !== stat.size || after.size !== stat.size || after.mtimeMs !== stat.mtimeMs || after.ctimeMs !== stat.ctimeMs) return unknown;
+          hash.update(JSON.stringify([file, read])).update(buffer.subarray(0, read));
+        } finally {
+          await handle.close();
+        }
+      }
+    } catch {
+      return unknown;
+    }
+    // Bracket the non-atomic filesystem reads; a moving HEAD/status is unknown.
+    const [endHead, endStatus] = await Promise.all([
+      git(this.root, ['rev-parse', 'HEAD']),
+      git(this.root, ['status', '--porcelain=v1', '-z']),
+    ]);
+    if (measuredHead(endHead) !== head || endStatus !== status) return unknown;
+    return { head, dirty: status.length > 0, digest: hash.digest('hex') };
   }
 
   /**
@@ -680,21 +851,31 @@ export class FsProjectAdapter implements ProjectAdapter {
     const started = Date.now();
     activeVerification = script;
     try {
-      const result = await this.spawnCapture(args, script, 300_000);
+      const before = await this.verificationIdentity();
+      const result = before.digest === null ? null : await this.spawnCapture(args, script, 300_000);
+      const after = result === null ? null : await this.verificationIdentity();
+      const unavailable = before.digest === null || after?.digest == null;
+      const changed = !unavailable && before.digest !== after?.digest;
       return {
         checks: [
           {
             id: task,
             label: script,
             command: `${packageManager} ${args.join(' ')}`,
-            exitCode: result.code,
-            status: result.code === 0 ? 'pass' : 'fail',
-            evidence: summariseOutput(result.stdout, result.stderr),
-            ranAt: new Date().toISOString(),
+            exitCode: result?.code ?? null,
+            status: unavailable || changed ? 'blocked' : result?.code === 0 ? 'pass' : 'fail',
+            evidence: unavailable
+              ? `Source identity unavailable or exceeded measurement bounds; no PASS can be established.${result === null ? ' Task not started.' : ''}`
+              : changed
+                ? 'Source identity changed during verification (HEAD, status, tracked content or scoped untracked source); command output cannot establish PASS for the current source.'
+                : `Source identity matched at bounded pre/post measurements: HEAD, repository status, tracked diff and scoped untracked source. Working tree ${before.dirty ? 'dirty (WIP)' : 'clean'}. Edit-and-revert between measurements is not detected; ignored files and external inputs are not attested.\n${summariseOutput(redactSecrets(result?.stdout ?? ''), redactSecrets(result?.stderr ?? ''))}`,
+            ranAt: result === null ? null : new Date().toISOString(),
             durationMs: Date.now() - started,
           },
         ],
-        headSha: (await git(this.root, ['rev-parse', 'HEAD']))?.trim() ?? null,
+        // A check belongs to the starting checkout, never the HEAD seen after it.
+        headSha: before.head,
+        sourceState: unavailable || changed ? 'unknown' : before.dirty ? 'wip' : 'clean',
         capturedAt: new Date().toISOString(),
       };
     } finally {

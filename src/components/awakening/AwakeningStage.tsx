@@ -38,7 +38,7 @@ import { AwakeningAudio } from '@/lib/awakening/audio';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
 import { translatedSiteCopy } from '@/lib/i18n/site-copy';
 import { siteDirection, siteLanguageTag, speechLocale } from '@/lib/i18n/languages';
-import { ForgeSentinel, type ForgeExpression, type ForgeFacing } from './ForgeSentinel';
+import { ForgeSentinel, type ForgeExpression, type ForgeFacing, type ForgeStatus } from './ForgeSentinel';
 import { FractureSurface } from './FractureSurface';
 import './knoux-awakening-stage.css';
 import './knoux-awakening-dialogue.css';
@@ -202,6 +202,12 @@ export function AwakeningStage() {
       : MOOD_EXPRESSION[mood];
   const facing: ForgeFacing = isFracture || showReveal ? 'center' : activeBeat?.side ?? 'center';
   const speaking = Boolean(isAnswer && !isFracture);
+  const sentinelStatus: ForgeStatus | undefined = isFracture || showReveal
+    ? 'breaching'
+    : isAnswer ? 'answering'
+    : isQuestion ? 'listening'
+    : visualPhase === 'overcharge' ? 'holding'
+    : 'listening';
   const progress = Math.max(
     0,
     Math.min(1, state.beatIndex < 0 ? 0 : (state.beatIndex + 1) / AWAKENING_BEAT_COUNT),
@@ -522,11 +528,36 @@ export function AwakeningStage() {
       <FractureSurface mode={fractureMode} />
 
       {isFracture ? (
-        <div className="shout-words" aria-hidden="true">
-          <span className="shout-word shout-word--break" style={{ '--wd': '0.02s' } as CSSProperties}>
-            {t('BREAK!')}
-          </span>
-        </div>
+        <>
+          <div className="shout-words" aria-hidden="true">
+            <span className="shout-word shout-word--break" style={{ '--wd': '0.02s' } as CSSProperties}>
+              {t('BREAK!')}
+            </span>
+          </div>
+
+          {/* Fracture breach: the glass breaks and the five real systems are
+             revealed behind it, carrying into the final reveal. */}
+          <section className="shout-breach" aria-label={t('Behind the fracture')}>
+            <p className="shout-breach__kicker">{t('Behind the fracture')}</p>
+            <p className="shout-breach__line">{t('The glass breaks. The work remains.')}</p>
+            <ul className="shout-breach__systems" aria-label={t('Verified systems behind the glass')}>
+              {awakeningProducts.map((product) => (
+                <li key={product.id}>
+                  <Link href={product.route} className="shout-breach__system" data-product-id={product.id}>
+                    <span className="shout-breach__logo">
+                      <Image src={product.logoSrc} alt="" width={48} height={48} unoptimized />
+                    </span>
+                    <span className="shout-breach__id">
+                      <strong>{product.name}</strong>
+                      <span>{product.code}</span>
+                    </span>
+                    <span className="shout-breach__arrow" aria-hidden="true">↗</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </>
       ) : null}
 
       <header className="shout-bar">
@@ -823,6 +854,7 @@ export function AwakeningStage() {
               expression={expression}
               speaking={speaking}
               facing={facing}
+              status={sentinelStatus}
             />
             {speaking ? (
               <span className="dialogue-voice" aria-hidden="true">
@@ -855,15 +887,20 @@ export function AwakeningStage() {
               <p className="dialogue-reply__text">{t(activeBeat.text)}</p>
               {activeProduct ? (
                 <div className="dialogue-product">
-                  <span className="dialogue-product__logo">
-                    <Image src={activeProduct.logoSrc} alt="" width={40} height={40} unoptimized />
-                  </span>
-                  <span className="dialogue-product__id">
-                    <strong>{activeProduct.name}</strong>
-                    <span>
-                      {activeProduct.code} / {activeProduct.family}
+                  <Link href={activeProduct.route} className="dialogue-product__link" data-product-id={activeProduct.id}>
+                    <span className="dialogue-product__logo">
+                      <Image src={activeProduct.logoSrc} alt="" width={40} height={40} unoptimized />
                     </span>
-                  </span>
+                    <span className="dialogue-product__id">
+                      <strong>{activeProduct.name}</strong>
+                      <span>
+                        {activeProduct.code} / {activeProduct.family}
+                      </span>
+                    </span>
+                    <span className="dialogue-product__badge">
+                      {t('Open dossier')} <span aria-hidden="true">↗</span>
+                    </span>
+                  </Link>
                   <span className="dialogue-product__verified">
                     <span aria-hidden="true">✓</span> {t('Registry verified')}
                   </span>
@@ -882,10 +919,13 @@ export function AwakeningStage() {
                     data-active={activeProduct?.id === product.id}
                     data-discussed={discussed}
                   >
-                    <span className="dialogue-registry__logo">
-                      <Image src={product.logoSrc} alt="" width={32} height={32} unoptimized />
-                    </span>
-                    <span className="dialogue-registry__name">{product.shortName}</span>
+                    <Link href={product.route} className="dialogue-registry__chip" data-product-id={product.id}>
+                      <span className="dialogue-registry__logo">
+                        <Image src={product.logoSrc} alt="" width={32} height={32} unoptimized />
+                      </span>
+                      <span className="dialogue-registry__name">{product.shortName}</span>
+                      <span className="dialogue-registry__arrow" aria-hidden="true">↗</span>
+                    </Link>
                   </li>
                 );
               })}

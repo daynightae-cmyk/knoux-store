@@ -1,4 +1,5 @@
 import "server-only";
+import { abortedError } from "./errors";
 import type {
   CostEstimate,
   DiscoveryResult,
@@ -51,6 +52,10 @@ export interface ProviderAdapter {
   /** Check if all required credentials are present. */
   isConfigured(env: Record<string, string | undefined>): boolean;
 
+  /** Published model identities for vendors without a usable listing endpoint.
+   * Returned even when the provider is unconfigured. Default empty. */
+  staticModels(): string[];
+
   /** Lightweight authentication probe. No generation tokens consumed. */
   probe(env: Record<string, string | undefined>): Promise<ProbeResult>;
 
@@ -59,10 +64,11 @@ export interface ProviderAdapter {
     env: Record<string, string | undefined>,
   ): Promise<DiscoveryResult>;
 
-  /** Real text generation. */
+  /** Real text generation. Cancellation never permits a subsequent fallback. */
   generate(
     request: GenerationRequest,
     env: Record<string, string | undefined>,
+    signal?: AbortSignal,
   ): Promise<GenerationResponse>;
 
   /** Real streaming generation via async generator. */
@@ -96,6 +102,32 @@ export interface ProviderAdapter {
 // ---------------------------------------------------------------------------
 // Shared utilities for adapters
 // ---------------------------------------------------------------------------
+
+/** Retain transport safety deadlines even when the caller supplies cancellation. */
+export function generationSignal(signal?: AbortSignal, timeoutMs = 120000): AbortSignal {
+  const deadline = AbortSignal.timeout(timeoutMs);
+  return signal ? AbortSignal.any([signal, deadline]) : deadline;
+}
+
+/** Discard cancelled output, without erasing any usage/identity actually measured. */
+export function cancelledGenerationResponse(
+  latencyMs = 0,
+  measured?: GenerationResponse,
+): GenerationResponse {
+  return {
+    ok: false,
+    text: "",
+    finishReason: null,
+    usage: measured?.usage ?? { inputTokens: null, outputTokens: null, cachedTokens: null, source: "unknown" },
+    latencyMs,
+    ttftMs: measured?.ttftMs ?? null,
+    providerRequestId: measured?.providerRequestId ?? null,
+    modelUsed: measured?.modelUsed ?? null,
+    warnings: measured?.warnings ?? [],
+    error: abortedError(),
+    estimatedCost: measured?.estimatedCost ?? null,
+  };
+}
 
 /** Approximate token count: ~4 chars per token. Good enough for routing/UX. */
 export function estimateTokens(text: string): number {

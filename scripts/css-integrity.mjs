@@ -101,6 +101,16 @@ async function assertFreePort(port) {
   await new Promise(accept => probe.close(accept));
 }
 
+export function windowsLoopbackListenerOwner(listings, port) {
+  const owners = listings.split(/\r?\n/).flatMap(line => {
+    const [protocol, local, remote, state, pid] = line.trim().split(/\s+/);
+    return protocol === 'TCP' && local === `127.0.0.1:${port}` &&
+      remote === '0.0.0.0:0' && state === 'LISTENING' && /^\d+$/.test(pid ?? '')
+      ? [Number(pid)] : [];
+  });
+  return owners.length === 1 ? owners[0] : null;
+}
+
 export async function startOwnedServer(root, port) {
   await assertFreePort(port); // Occupied ports fail; never reuse another server.
   const startedAt = new Date().toISOString();
@@ -122,7 +132,11 @@ export async function startOwnedServer(root, port) {
   const provenance = { pid: child.pid, startedAt, root, port, executable, entry, head: gitHead(root) };
   if (process.platform === 'win32') {
     try {
-      const observed = JSON.parse(execFileSync('C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe', ['-NoProfile', '-Command', `$observedProcess=Get-CimInstance Win32_Process -Filter 'ProcessId=${child.pid}'; $listener=Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction Stop; [pscustomobject]@{pid=$observedProcess.ProcessId; startedAt=$observedProcess.CreationDate.ToUniversalTime().ToString('o'); commandLine=$observedProcess.CommandLine; owner=$listener.OwningProcess} | ConvertTo-Json -Compress`], { encoding: 'utf8', windowsHide: true, timeout: 30000 }));
+      const probeOptions = { encoding: 'utf8', windowsHide: true, timeout: 30000 };
+      const listings = execFileSync('C:\\Windows\\System32\\netstat.exe', ['-ano', '-p', 'TCP'], probeOptions);
+      const owner = windowsLoopbackListenerOwner(listings, port);
+      const observed = JSON.parse(execFileSync('C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe', ['-NoProfile', '-Command', `$observedProcess=Get-CimInstance Win32_Process -Filter 'ProcessId=${child.pid}' -ErrorAction Stop; [pscustomobject]@{pid=$observedProcess.ProcessId; startedAt=$observedProcess.CreationDate.ToUniversalTime().ToString('o'); commandLine=$observedProcess.CommandLine} | ConvertTo-Json -Compress`], probeOptions));
+      observed.owner = owner;
       if (observed.pid !== child.pid || observed.owner !== child.pid || !observed.commandLine.includes(entry)) throw new Error('Listening process does not match the owned checkout');
       provenance.observed = observed;
     } catch (error) { await stopOwnedServer(child); throw error; }

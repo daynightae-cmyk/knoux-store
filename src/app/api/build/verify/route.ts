@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createProjectAdapter } from '@/lib/build/adapter-factory';
-import { guardBuildApi } from '@/lib/build/api-guard';
+import { guardBuildApi, resolveBuildOwnerId } from '@/lib/build/api-guard';
+import { isBuildOperator } from '@/lib/build/operator';
 import { parseEslint, parseTestRunner, parseTypeScript } from '@/lib/build/diagnostics';
 import type { VerificationCheck } from '@/lib/build/types';
 
@@ -17,20 +18,23 @@ const TASKS = new Set(['lint', 'typecheck', 'test', 'build']);
  * the adapter builds the argument vector itself. There is no path from this
  * handler to `spawn` with caller-controlled arguments.
  *
- * Three independent conditions must all hold before anything runs:
- *
- *   1. a verified session, from the workspace boundary;
- *   2. `KNOUX_BUILD_ALLOW_VERIFY=1` on the deployment;
- *   3. the task name is on the four-item allowlist.
- *
- * Condition 1 is the security boundary. Condition 2 is an operator decision.
- * Condition 3 bounds what a permitted caller can ask for. The adapter
+ * All conditions must hold before anything runs: the workspace boundary,
+ * a same-origin authenticated operator in KNOUX_BUILD_OPERATOR_IDS,
+ * `KNOUX_BUILD_ALLOW_VERIFY=1`, and a task on the four-item allowlist.
+ * Local/public workspace read access does not grant execution permission.
+ * The adapter
  * additionally refuses to start a second run while one is active, so a
  * permitted caller still cannot fan the host out with concurrent builds.
  */
 export async function POST(request: NextRequest) {
   const denied = await guardBuildApi(request, { scope: 'verify' });
   if (denied) return denied;
+  if (request.headers.get('origin') !== request.nextUrl.origin || !isBuildOperator(await resolveBuildOwnerId())) {
+    return NextResponse.json(
+      { enabled: false, error: 'verification-forbidden', message: 'Verification requires a same-origin authenticated operator in KNOUX_BUILD_OPERATOR_IDS.' },
+      { status: 403, headers: { 'cache-control': 'no-store' } },
+    );
+  }
 
   if (process.env.KNOUX_BUILD_ALLOW_VERIFY !== '1') {
     return NextResponse.json(
@@ -96,6 +100,17 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const denied = await guardBuildApi(request, { scope: 'verify' });
   if (denied) return denied;
+  const origin = request.headers.get('origin');
+  // Browsers normally omit Origin on same-origin GETs. Fetch metadata permits
+  // that read, but never relaxes POST's exact Origin execution requirement.
+  const sameOrigin = origin === request.nextUrl.origin ||
+    (origin === null && request.headers.get('sec-fetch-site') === 'same-origin');
+  if (!sameOrigin || !isBuildOperator(await resolveBuildOwnerId())) {
+    return NextResponse.json(
+      { enabled: false, error: 'verification-forbidden', message: 'Verification requires a same-origin authenticated operator in KNOUX_BUILD_OPERATOR_IDS.' },
+      { status: 403, headers: { 'cache-control': 'no-store' } },
+    );
+  }
 
   const enabled = process.env.KNOUX_BUILD_ALLOW_VERIFY === '1';
   const status: VerificationCheck = {

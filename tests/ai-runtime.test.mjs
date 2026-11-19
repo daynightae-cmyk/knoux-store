@@ -656,12 +656,17 @@ test("native streams yield before EOF and preserve split UTF-8 and protocol usag
     await t.test(entry.id, async () => {
       let controller;
       const body = new ReadableStream({ start(c) { controller = c; } });
-      const signal = new AbortController().signal;
+      const cancellation = new AbortController();
+      const signal = cancellation.signal;
+      let upstreamSignal;
       await withMockFetch((url, init) => {
         assert.equal(url, entry.url);
         assert.equal(init.redirect, "error");
         assert.equal(init.cache, "no-store");
-        assert.equal(init.signal, signal);
+        assert.ok(init.signal instanceof AbortSignal);
+        assert.notEqual(init.signal, signal, 'transport must compose caller cancellation with its deadline');
+        assert.equal(init.signal.aborted, false);
+        upstreamSignal = init.signal;
         return Promise.resolve(new Response(body));
       }, async () => {
         const iterator = registry.getAdapter(entry.id).stream({
@@ -692,6 +697,9 @@ test("native streams yield before EOF and preserve split UTF-8 and protocol usag
           inputTokens: 7, outputTokens: 2, cachedTokens: 1, source: "provider",
         });
         assert.equal(last.ttftMs, first.value.ttftMs);
+        cancellation.abort(new DOMException('Fixture cancellation', 'AbortError'));
+        assert.equal(upstreamSignal.aborted, true, 'composed transport retains caller cancellation');
+        assert.equal(upstreamSignal.reason, signal.reason);
       });
     });
   }

@@ -43,6 +43,7 @@ function loadCatalog():Promise<GuideEntry[]> {
 }
 export function SentinelGuideLauncher() {
   const pathname=usePathname();
+  const buildWorkspace=pathname==='/build'||pathname.startsWith('/build/');
   const preferences=JSON.parse(useSyncExternalStore(subscribeSentinelQuiet,sentinelPreferenceSnapshot,sentinelServerSnapshot));
   const language:GuideLanguage=preferences.language,key=`${pathname}:${language}`;
   const [open,setOpen]=useState(false),[closing,setClosing]=useState(false),[composerKey,setComposerKey]=useState('');
@@ -55,9 +56,10 @@ export function SentinelGuideLauncher() {
   const {reply,send,stop,unavailable}=useCompanionReply(pathname,language,preferences.quiet);
   const composing=composerKey===key,question=questionValue.key===key?questionValue.text:'';
   const onIntent=useCallback((context:CompanionContext)=>{
-    if(menuOpen || preferences.quiet || !preferences.tips || document.activeElement?.closest('form,input,textarea,select,[contenteditable]') || !policy.current.allow(pathname,`${context.target}:${context.section??''}:${context.topic??''}`,Date.now()))return;
+    // Keep editing and same-origin preview hit targets clear while the guide is idle.
+    if(buildWorkspace || window.frameElement?.closest('.bo-preview') || menuOpen || preferences.quiet || !preferences.tips || document.activeElement?.closest('form,input,textarea,select,[contenteditable]') || !policy.current.allow(pathname,`${context.target}:${context.section??''}:${context.topic??''}`,Date.now()))return;
     setDismissed('');send(context,'',false);
-  },[pathname,preferences.quiet,preferences.tips,send,menuOpen]);
+  },[pathname,preferences.quiet,preferences.tips,send,menuOpen,buildWorkspace]);
   const context=useCompanionContext(pathname,catalog,onIntent,!menuOpen && !open && !composing && preferences.tips && !preferences.quiet && preferences.visible,open||composing||menuOpen,onAttention);
   useEffect(()=>{
     const toggle=document.querySelector('.mobile-toggle');if(!toggle)return;
@@ -83,7 +85,7 @@ export function SentinelGuideLauncher() {
   const dismiss=()=>{stop();policy.current.dismiss();setDismissed(key);setComposerKey('');document.querySelector<HTMLButtonElement>('.ks-trigger')?.focus();};
   const activate=()=>{if(open){close();return;}setDismissed('');setComposerKey(key);};
   const ask=()=>{const page=entryForPage(catalog,pathname);if(!page){unavailable();return;}setDismissed('');send(context??{route:pathname,target:page.id},question);};
-  const visible=!menuOpen && !open && dismissed!==key && (composing || reply.state!=='idle');
+  const visible=!menuOpen && !open && dismissed!==key && (composing || (!buildWorkspace && reply.state!=='idle'));
   const phase=preferences.quiet?'quiet':open?(speechActive?'speaking':'expanded'):reply.state==='thinking'?'thinking':reply.state==='streaming'?'speaking':visible?'guiding':'idle';
   const character=<KnouxSentinel expanded={open} docked={composing||visible||menuOpen} menuPaused={menuOpen} phase={phase} language={language} onActivate={activate}>
     {visible && <KnouxThoughtBubble language={language} reply={reply} question={question} setQuestion={text=>setQuestionValue({key,text})} onAsk={ask} onStop={stop} onDismiss={dismiss} onSources={()=>{stop();setOpen(true);}} onClear={()=>{stop();setQuestionValue({key,text:''});}} catalog={catalog} composing={composing} />}
