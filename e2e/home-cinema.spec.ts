@@ -76,8 +76,8 @@ test.describe('KNOuX Store film', () => {
 
     const player = page.locator(FILM_IFRAME);
     await expect(player).toHaveCount(1);
-    await expect(player).toBeFocused();
     const close = page.getByRole('button', { name: 'Close film', exact: true });
+    await expect(close).toBeFocused();
     const playback = page.frameLocator(FILM_IFRAME).getByRole('button', { name: 'Playback', exact: true });
     const captions = page.frameLocator(FILM_IFRAME).getByRole('button', { name: 'Captions', exact: true });
     await expect(playback).toBeVisible();
@@ -86,7 +86,8 @@ test.describe('KNOuX Store film', () => {
     await expect(playback).toBeFocused();
     await page.keyboard.press('Tab');
     await expect(captions).toBeFocused();
-    await page.keyboard.press('Tab');
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Shift+Tab');
     await expect(close).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(page.locator(FILM_IFRAME)).toHaveCount(0);
