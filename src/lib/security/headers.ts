@@ -68,8 +68,9 @@ export function buildContentSecurityPolicy(options: HeaderPolicyOptions): string
     ['font-src', ["'self'", 'data:']],
     // Supabase auth: HTTPS for REST and a WebSocket for realtime.
     ['connect-src', ["'self'", SUPABASE_ORIGIN, 'wss://cnkddxxhcfceokxzaaot.supabase.co', ...bridge]],
-    // Workspace previews frame this origin only.
-    ['frame-src', ["'self'"]],
+    // Workspace previews frame this origin. The official film is the only
+    // foreign frame, and the path pins that allowance to its exact embed.
+    ['frame-src', ["'self'", 'https://www.youtube-nocookie.com/embed/NOhO02YeGg4']],
     ['worker-src', ["'self'", 'blob:']],
     ['manifest-src', ["'self'"]],
     // No plugin content, ever.
@@ -104,9 +105,9 @@ export function buildSecurityHeaders(options: HeaderPolicyOptions): Header[] {
     { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
     {
       key: 'Permissions-Policy',
-      // The site asks for no device capability. `self` is granted for the
-      // clipboard only, because the workspace copies a build report.
-      value: 'accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), usb=(), xr-spatial-tracking=()',
+      // The site asks for no device capability. The official film is the only
+      // origin allowed to autoplay or present itself in fullscreen.
+      value: 'accelerometer=(), autoplay=(self "https://www.youtube-nocookie.com"), camera=(), display-capture=(), encrypted-media=(), fullscreen=(self "https://www.youtube-nocookie.com"), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), usb=(), xr-spatial-tracking=()',
     },
     { key: 'X-DNS-Prefetch-Control', value: 'off' },
     { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },

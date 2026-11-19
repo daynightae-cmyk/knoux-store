@@ -8,6 +8,7 @@ import { QualityControl } from '@/components/QualityControl';
 import { RevealGroup } from '@/components/blocks';
 import { ArchitecturalMap, MissionPath } from '@/components/SpatialExperiences';
 import { HomeSoftwareField } from '@/components/HomeSoftwareField';
+import { HomeCinema } from '@/components/HomeCinema';
 import { AwakeningLauncher } from '@/components/awakening/AwakeningLauncher';
 import { AwakeningStage } from '@/components/awakening/AwakeningStage';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
@@ -85,6 +86,8 @@ export function HomeExperience() {
           </div>
         </div>
       </section>
+
+      <HomeCinema />
 
       {/* 01 — Divisions */}
       <section className="home-divisions shell" aria-labelledby="divisions-heading">
