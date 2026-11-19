@@ -37,7 +37,7 @@ const JOURNEYS = [
   { id: 'operations', code: '10', label: 'Operations Command Center' },
 ] as const;
 
-export function WordPressStudio({ themes }: { themes: ExternalItem[] }) {
+export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }) {
   const t = useRouteCopy();
   const [active, setActive] = useState<string>(JOURNEYS[0].id);
   const [slug, setSlug] = useState<string>(themes[0]?.slug ?? '');
@@ -189,7 +189,8 @@ export function WordPressStudio({ themes }: { themes: ExternalItem[] }) {
           <section className={styles.section}>
             <h3>{t('Live Responsive Canvas')}</h3>
             <p>{t('Desktop · Mobile · Tablet')}</p>
-            <div className={styles.deviceRail} role="group" aria-label={t('Screenshot width')}>
+            <fieldset className={styles.deviceRail} aria-label={t('Screenshot width')}>
+              <legend className={styles.visuallyHidden}>{t('Screenshot width')}</legend>
               {(['desktop', 'tablet', 'mobile'] as const).map((value) => (
                 <button
                   key={value}
@@ -201,7 +202,7 @@ export function WordPressStudio({ themes }: { themes: ExternalItem[] }) {
                   {t(deviceLabel[value])}
                 </button>
               ))}
-            </div>
+            </fieldset>
             <div className={styles.canvasWrapper} data-device={device}>
               <div className={styles.previewFrame}>
                 <div className={styles.chrome}>{theme?.name ?? 'WordPress'}</div>
