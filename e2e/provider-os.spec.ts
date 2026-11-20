@@ -44,9 +44,9 @@ test('catalog, profile switching, disabling and write-only credential rotation h
     await expect(page.getByRole('button', { name: 'Delete Shared · CONTRACT FIXTURE' })).toBeDisabled();
     await page.getByRole('button', { name: 'Rotate Shared · CONTRACT FIXTURE' }).click();
     const value = 'TEST_ONLY_SENTINEL_WRITE_ONLY';
-    await page.getByLabel('Secret (write only)').fill(value);
+    await page.getByLabel('Secret key').fill(value);
     await page.getByRole('button', { name: 'Save replacement', exact: true }).click();
-    await expect(page.getByLabel('Secret (write only)')).toHaveValue('');
+    await expect(page.getByLabel('Secret key')).toHaveValue('');
     expect(fixture.requests.at(-1)?.secret).toBe(value);
     expect(await page.locator('body').innerText()).not.toContain(value);
     const storage = await page.evaluate(() => JSON.stringify({ local: { ...localStorage }, session: { ...sessionStorage } }));

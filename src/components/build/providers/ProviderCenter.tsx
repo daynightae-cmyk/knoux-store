@@ -4,11 +4,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { AGENT_PERMISSIONS, type ProviderWorkspaceSnapshot, type ProviderDefinition, type ProviderProfile, type AuthSource } from '@/lib/ai/provider-os/types';
 import { routingEligibility } from '@/lib/ai/provider-os/policy';
-import { providerConnectionLabel } from '@/lib/ai/provider-os/connection-label';
+import { freshVerifiedConnection, providerConnectionLabel } from '@/lib/ai/provider-os/connection-label';
 import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import styles from './providers.module.css';
 import { ProviderHero } from './ProviderHero';
+import { ProviderAuthFeedback } from './ProviderAuthFeedback';
 import { PlatformFacts } from './PlatformFacts';
 import { CustomMetadata } from './CustomMetadata';
 import { providerMark } from './provider-marks';
@@ -32,8 +33,10 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     embedded?: boolean;
 }>) {
     const { dispatch } = useBuildWorkspace();
+    const [celebration, setCelebration] = useState<{name: string; sequence: number} | null>(null);
     const [data, setData] = useState<ProviderWorkspaceSnapshot | null>(null), [message, setMessage] = useState(''), [busy, setBusy] = useState(false);
     const [search, setSearch] = useState(''), [category, setCategory] = useState('ALL'), [selected, setSelected] = useState(''), [tab, setTab] = useState('Overview');
+    const [orbitPage, setOrbitPage] = useState(0);
 
     const [wizard, setWizard] = useState(false), [profileName, setProfileName] = useState(''), [authMode, setAuthMode] = useState<AuthSource['mode']>('API_KEY'), [credentialId, setCredentialId] = useState(''), [reference, setReference] = useState('');
     const [editProfile, setEditProfile] = useState<{
@@ -91,6 +94,15 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     const writable = data?.persistence === 'AVAILABLE', vaultWritable = writable && data?.secretStore.writable;
     const filtered = definitions.filter(item => (category === 'ALL' || item.class === category) && `${item.name} ${item.id} ${item.transport}`.toLowerCase().includes(search.toLowerCase()));
     if (!embedded) filtered.sort((a, b) => (providerOrder.get(a.id) ?? Infinity) - (providerOrder.get(b.id) ?? Infinity));
+    // Compact orbit below 1000px: the reference hero stays the desktop authority,
+    // while narrow screens keep a pageable, touch-sized shortcut surface.
+    const orbitProviders = orbitSlots.flatMap(([id]) => {
+        const provider = filtered.find(item => item.id === id);
+        return provider ? [provider] : [];
+    });
+    const lastOrbitPage = Math.max(0, Math.ceil(orbitProviders.length / 3) - 1);
+    const visibleOrbitPage = Math.min(orbitPage, lastOrbitPage);
+    const compactOrbit = orbitProviders.slice(visibleOrbitPage * 3, visibleOrbitPage * 3 + 3);
     async function command(input: Record<string, unknown>, workspaceId?: string): Promise<boolean> {
         if (inFlight.current)
             return false;
@@ -105,7 +117,20 @@ export function ProviderCenter({ embedded = false }: Readonly<{
             setData(result);
             if (workspaceId) clearCredentialDraft();
             window.dispatchEvent(new Event('knoux-provider-profiles-changed'));
-            setMessage('Configuration saved. Measured connection facts remain separate.');
+            if (input.action === 'TEST_CONNECTION') {
+                const before = data?.profiles.find(item => item.id === input.id);
+                const after = (result as ProviderWorkspaceSnapshot).profiles?.find(item => item.id === input.id);
+                if (result.persistence === 'AVAILABLE' && freshVerifiedConnection(before, after)) {
+                    const name = definitions.find(item => item.id === after?.providerId)?.name ?? 'Provider';
+                    setCelebration(value => ({ name, sequence: (value?.sequence ?? 0) + 1 }));
+                    cueAtmosphere('provider-authenticated');
+                    setMessage(name + ': authentication and model discovery verified. Generation is not tested.');
+                } else {
+                    setMessage('Connection test result: ' + providerConnectionLabel(after) + '. No success effect was triggered.');
+                }
+            } else {
+                setMessage('Configuration saved. Measured connection facts remain separate.');
+            }
             return true;
         }
         catch (error) {
@@ -202,14 +227,38 @@ export function ProviderCenter({ embedded = false }: Readonly<{
         <Link href="/build" key={surface} onClick={() => dispatch({ type: 'surface/active', surface })}>{label}</Link>
       ))}
     </nav> : null}
+    <ProviderAuthFeedback celebration={celebration} />
     {!embedded && <ProviderHero definitions={definitions} selected={selected} onSelect={item => { choose(item); requestAnimationFrame(() => { detail.current?.scrollIntoView({ block: "start" }); detail.current?.focus({ preventScroll: true }); }); }} onBrowse={() => { if (providerBrowse.current) { providerBrowse.current.open = true; providerBrowse.current.scrollIntoView({ block: "start" }); } }} onGetApi={() => { if (inFlight.current) return; if (definition) { setTab("Credentials"); requestAnimationFrame(() => { detail.current?.scrollIntoView({ block: "start" }); detail.current?.focus({ preventScroll: true }); }); } else { providerBrowse.current?.scrollIntoView({ block: "start" }); } }} />}
     {embedded ? <>{controls}{toolbar}<PlatformFacts /></> : null}
-    <div className={`${styles.composition} `}>
+    <div className={`${styles.composition} ${!embedded && orbitProviders.length ? styles.withOrbit : ''}`}>
       <div className={styles.registryRail}>
       {embedded ? null : controls}
       <details ref={providerBrowse} className={styles.providerBrowse} open><summary>Browse providers &#8599;</summary><nav className={styles.providerList} aria-label="Provider registry">{filtered.map(item => { const own = data?.profiles.filter(profile => profile.providerId === item.id) ?? [], active = own.find(profile => profile.active); return <button key={item.id} type="button" aria-current={selected === item.id ? 'true' : undefined} onClick={() => choose(item)}><ProviderMark definition={item} /><span><strong>{item.name}</strong><small>{item.gateway ? 'GATEWAY · ' : ''}{item.class.replace('_', ' ')} · {active ? active.enabled ? 'PROFILE ACTIVE' : 'PROVIDER DISABLED' : own.length ? 'PROFILE INACTIVE' : 'UNCONFIGURED'}</small></span><span aria-hidden="true">↗</span></button>; })}{!filtered.length ? <p>{data ? 'No provider matches this search. Coding agents appear only from a paired trusted bridge.' : 'Provider registry is unavailable until its status has been read.'}</p> : null}</nav></details>
       {embedded ? null : <details className={styles.registryUtilities}><summary>Search &amp; workspace</summary>{toolbar}<PlatformFacts /></details>}
       </div>
+      {!embedded && orbitProviders.length > 0 ? (
+        <aside className={styles.providerOrbit} aria-label="Provider shortcuts">
+          <div className={styles.compactOrbit}>
+            <div className={styles.compactTrack} aria-hidden="true" />
+            <div className={styles.orbitCore}>
+              {definition && <ProviderMark definition={definition} />}
+              <span>{definition?.name ?? 'Provider orbit'}</span>
+            </div>
+            <div className={styles.orbitOptions}>
+              {compactOrbit.map(provider => (
+                <button key={provider.id} type="button" aria-current={selected === provider.id ? 'true' : undefined} onClick={() => choose(provider)}>
+                  <ProviderMark definition={provider} /><span>{provider.name}</span>
+                </button>
+              ))}
+            </div>
+            {lastOrbitPage > 0 && <div className={styles.orbitPaging}>
+              <button type="button" aria-label="Previous provider orbit page" disabled={visibleOrbitPage === 0} onClick={() => setOrbitPage(visibleOrbitPage - 1)}>‹</button>
+              <span aria-live="polite">{visibleOrbitPage + 1} / {lastOrbitPage + 1}</span>
+              <button type="button" aria-label="Next provider orbit page" disabled={visibleOrbitPage === lastOrbitPage} onClick={() => setOrbitPage(visibleOrbitPage + 1)}>›</button>
+            </div>}
+          </div>
+        </aside>
+      ) : null}
       <section ref={detail} tabIndex={-1} className={styles.detail} aria-label="Provider detail">{!definition ? <div className={styles.intro}><span aria-hidden="true" className={styles.constellation}>✦</span><h2>A connected constellation.</h2><p>Select a provider to configure its profiles and inspect measured capabilities. Keys stay on the server; unmeasured usage remains unknown.</p><p>{data?.blocker}</p></div> : <>
         {!embedded ? <div className={styles.detailMark} aria-hidden="true">
           <svg viewBox={`0 0 ${MARK_VIEW_BOX.width} ${MARK_VIEW_BOX.height}`}>{MARK_PATHS.map(({ id, d }) => <path key={id} d={d} />)}</svg>

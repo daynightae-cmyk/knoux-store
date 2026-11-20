@@ -49,3 +49,47 @@
 .hero .coreLight::after{transform:translate(-50%,-50%) rotate(54deg);width:7cqw}
 .hero .leftPanel,.hero .rightPanel{box-shadow:inset 0 0 1.8cqw #bc8bff22,0 0 1cqw #8058c326}
 @media(max-width:650px){.hero .core{height:166px}.hero .coreLinks{height:44px}.hero .coreLinks button,.hero .coreLinks a{height:44px;min-width:44px!important}.hero .getApi{min-height:44px!important}}
+
+/* Choreography: one shared cycle, stable upright logos and a quiet optical pulse. */
+.hero .title h1{font-size:clamp(28px,3.25cqw,52px)!important;font-weight:450;letter-spacing:-.025em}
+.hero .title p{font-size:clamp(12px,1.35cqw,23px)!important;letter-spacing:.17em}
+.hero .brand{font-size:2cqw}.hero .brand span{font-size:1.12cqw}
+.hero .motionControl{position:absolute;z-index:8;right:2%;top:3%;font-size:11px!important;color:#ddd0f3;border:1px solid #a88bd64d!important;background:#171124bb!important;min-height:44px!important}
+.hero .sphere{display:grid;place-items:center;position:relative;aspect-ratio:1;flex:none;width:5.1cqw;height:5.1cqw}
+.hero .node .sphere img{width:52%;height:52%;object-fit:contain}
+.hero .node span:last-child{line-height:1.15;font-size:1.05cqw!important}
+.hero .core{top:41%;height:30%;transform:perspective(900px) rotateX(-12deg) rotateY(5deg) rotateZ(2deg)}
+.hero .getApi{top:86%}
+.hero .orbits g:first-of-type{opacity:.85}
+@keyframes providerJourney{from{offset-distance:var(--phase)}to{offset-distance:calc(var(--phase) + 100%)}}
+@keyframes providerBreath{0%,100%{opacity:.62}50%{opacity:1}}
+@keyframes providerFloat{0%,100%{translate:0 0}50%{translate:0 -5px}}
+@keyframes providerStars{0%,100%{opacity:.42}50%{opacity:.86}}
+@media(min-width:651px) and (prefers-reduced-motion:no-preference){
+ @supports(offset-path:ellipse(32% 25% at 50% 52%)){
+  .hero .node{left:0;top:0;translate:none;offset-path:ellipse(32% 25% at 50% 52%);offset-rotate:0deg;offset-anchor:50% 39%;offset-distance:var(--phase);animation:providerJourney 94s linear infinite;pointer-events:auto!important}
+  .hero:has(.node:hover,.node:focus-visible,.leftPanel:hover,.rightPanel:hover,.coreLinks:hover) .node{animation-play-state:paused}
+ }
+ .hero .core{animation:providerFloat 6s ease-in-out infinite}
+ .hero .coreLight,.hero .mark,.hero .orbits circle,.hero .brand i{animation:providerBreath 6s ease-in-out infinite}
+ .hero::before,.hero::after{animation:providerStars 6s ease-in-out infinite}
+ .hero[data-paused=true] *,.hero[data-motion-active=false] *,.hero[data-paused=true]::before,.hero[data-paused=true]::after,.hero[data-motion-active=false]::before,.hero[data-motion-active=false]::after{animation-play-state:paused!important}
+ :global([data-cosmic-reduced]) .hero *,:global([data-cosmic-reduced]) .hero::before,:global([data-cosmic-reduced]) .hero::after{animation:none!important}
+}
+@media(max-width:650px){
+ .hero .title h1{font-size:clamp(25px,7cqw,38px)!important}
+ .hero .brand{font-size:21px}.hero .brand span{font-size:11px}
+ .hero .core{top:auto;height:166px;transform:none}
+ .hero .sphere{width:40px;height:40px}
+ .hero .node span:last-child{font-size:11px!important}
+ .hero .motionControl{display:none}
+}
+.authFeedback{position:fixed;inset:0;z-index:1000;pointer-events:none;display:grid;place-items:center}
+.authFeedback>svg{position:absolute;inset:0;width:100%;height:100%;animation:authBolt 1.45s ease-out both}
+.boltHalo{stroke:#a16aff;stroke-width:13;filter:blur(7px)}.boltLine{stroke:#f6e9ff;stroke-width:3.5;filter:drop-shadow(0 0 9px #a16aff)}
+.authReceipt{position:absolute;left:50%;bottom:12%;translate:-50% 0;max-width:calc(100% - 32px);width:max-content;padding:14px 24px;border:1px solid #bda0ff;border-radius:16px;background:#100c20f2;box-shadow:0 0 32px #8750ca88;color:#fff;display:grid;gap:6px;text-align:center;animation:authReceiptIn .5s ease-out both}
+.authReceipt strong{font-size:21px;font-weight:550}.authReceipt span{font-size:12px;color:#d4c3ed}
+@keyframes authBolt{0%{opacity:0}12%{opacity:.95}100%{opacity:0}}
+@keyframes authReceiptIn{from{opacity:0;translate:-50% 8px}to{opacity:1;translate:-50% 0}}
+@media(prefers-reduced-motion:reduce){.authFeedback>svg{display:none}.authReceipt{animation:none}}
+:global([data-cosmic-reduced]) .authFeedback>svg{display:none}:global([data-cosmic-reduced]) .authReceipt{animation:none}

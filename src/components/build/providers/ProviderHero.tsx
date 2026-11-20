@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import Image from 'next/image';
-import { type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
 import type { ProviderDefinition } from '@/lib/ai/provider-os/types';
 import { providerMark } from './provider-marks';
@@ -22,7 +22,21 @@ export function ProviderHero({ definitions, selected, onSelect, onGetApi, onBrow
   onGetApi: () => void;
   onBrowse: () => void;
 }) {
-  return <section className={s.hero} aria-label="Universal Provider Engine">
+  const hero = useRef<HTMLElement>(null);
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    const element = hero.current;
+    if (!element) return;
+    let visible = true;
+    const sync = () => { element.dataset.motionActive = String(visible && !document.hidden); };
+    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); });
+    observer.observe(element);
+    document.addEventListener('visibilitychange', sync);
+    sync();
+    return () => { observer.disconnect(); document.removeEventListener('visibilitychange', sync); };
+  }, []);
+  return <section ref={hero} className={s.hero} data-paused={paused} aria-label="Universal Provider Engine">
+    <button type="button" className={s.motionControl} aria-pressed={paused} onClick={()=>setPaused(value=>!value)}>{paused?'Resume orbit':'Pause orbit'}</button>
     <div className={s.planet} aria-hidden="true" />
     <Link href="/build" className={s.brand}><i aria-hidden="true" /> <b>KNOuX</b> <span>STORE</span></Link>
     <header className={s.title}><h1>Universal Provider Engine</h1><p>Connect. Discover. Route.</p></header>
@@ -42,7 +56,7 @@ export function ProviderHero({ definitions, selected, onSelect, onGetApi, onBrow
     <div className={s.rightPanel}><Link href="/build/ai/models"><span aria-hidden="true">◇</span> Model Discovery</Link><div aria-hidden="true" className={s.skeleton}>{Array.from({length:4},(_,i)=><i key={i}/>)}</div></div>
     <div className={s.lowerLeft} aria-hidden="true"><div className={s.skeleton}>{Array.from({length:5},(_,i)=><i key={i}/>)}</div></div>
     <div className={s.lowerRight} aria-hidden="true"><div className={s.skeleton}>{Array.from({length:5},(_,i)=><i key={i}/>)}</div></div>
-    {positions.map(([id,name,x,y])=>{const d=definitions.find(p=>p.id===id),mark=providerMark(id);return <button type="button" key={id} className={s.node} style={{'--x':x+'%','--y':y+'%'} as CSSProperties} disabled={!d} aria-label={'Select '+name} aria-pressed={selected===id} onClick={()=>d&&onSelect(d)}><span className={s.sphere} aria-hidden="true">{mark?<Image src={'/providers/'+mark+'.svg'} alt="" width={48} height={48}/>:<b data-provider={id} />}</span><span>{name}</span></button>})}
+    {positions.map(([id,name,x,y], index)=>{const d=definitions.find(p=>p.id===id),mark=providerMark(id);return <button type="button" key={id} className={s.node} style={{'--x':x+'%','--y':y+'%','--phase':(([6,7,8,5,0,4,1,3,2][index] / 9)*100)+'%'} as CSSProperties} disabled={!d} aria-label={'Select '+name+' provider'} aria-pressed={selected===id} onClick={()=>d&&onSelect(d)}><span className={s.sphere} aria-hidden="true">{mark?<Image src={'/providers/'+mark+'.svg'} alt="" width={48} height={48}/>:<b data-provider={id} />}</span><span>{name}</span></button>})}
     <div className={s.core}>
       <svg className={s.mark} viewBox={'0 0 '+MARK_VIEW_BOX.width+' '+MARK_VIEW_BOX.height} aria-hidden="true">
         <defs><pattern id="provider-mark-particles" width="12" height="13" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.6" fill="#fff"/><circle cx="9" cy="9" r="1" fill="#c6a4ff"/><circle cx="1" cy="10" r=".7" fill="#fff"/><circle cx="8" cy="2" r=".5" fill="#b486ff"/></pattern></defs>

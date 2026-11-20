@@ -126,9 +126,14 @@ test('Real local preview loads, resizes, refreshes and inspects DOM facts', asyn
   // No API interception or fabricated provider/project state is used.
   const server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '-H', '127.0.0.1', '-p', String(port)], { cwd: process.cwd(), env: { ...process.env, KNOUX_BUILD_ENVIRONMENT: 'local' }, stdio: 'ignore' });
   try {
-    await expect.poll(async () => { try { return (await request.get(`${origin}/build`)).status(); } catch { return 0; } }, { timeout: 30_000 }).toBe(200);
+    // Boot and first-snapshot margins are generous: this test spawns its own
+    // production server beside the suite's server, and on a loaded developer
+    // host the cold boot plus the full checkout walk can exceed the default
+    // 15s/30s budgets even though both complete honestly. The assertions
+    // themselves are unchanged.
+    await expect.poll(async () => { try { return (await request.get(`${origin}/build`)).status(); } catch { return 0; } }, { timeout: 90_000 }).toBe(200);
     await page.goto(`${origin}/build`);
-    await expect(page.locator('.dev-sidebar__facts')).toContainText('LOCAL');
+    await expect(page.locator('.dev-sidebar__facts')).toContainText('LOCAL', { timeout: 60_000 });
     await page.getByRole('group', { name: 'Workspace view' }).getByRole('button', { name: 'PREVIEW' }).click();
     const iframe = page.locator('iframe[title^="Live preview"]');
     await expect(iframe).toHaveCount(1);
