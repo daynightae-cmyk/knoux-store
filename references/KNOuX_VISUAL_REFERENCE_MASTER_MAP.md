@@ -106,6 +106,25 @@ Never turn it into:
 Already represented by reference **11** above.  
 **Scope:** Entry Gate mechanics only.
 
+### NSIS & Onboarding Pack (owner-confirmed definitive, 2026-11-20)
+`references/nsis/` — ten unmodified owner PNGs with `manifest.json` + `REFERENCE_INDEX.md`.
+
+| Original | Role | Primary scope |
+|---|---|---|
+| 82226 | Device Link — Windows / Android concept | Installer / device-link artwork |
+| 82231 | Welcome — orbital navigation | NSIS welcome / onboarding |
+| 82230 | Engineering Environment — wide banner | Engineering environment banner |
+| 82229 | Portrait brand / splash artwork | Splash / portrait brand |
+| 82228 | Universal Provider Engine — provider orbit | Provider hero (supersedes earlier provider compositions) |
+| 82227 | One Platform — 3:2 composition | One Platform / build home |
+| 82236 | One Platform — wide alternate composition | Same concept as 82227, alternate aspect |
+| 82234 | Local Engineering Runtime — terminal / bridge | Runtime / terminal surfaces |
+| 82235 | Uninstall / Manage — portrait artwork | Uninstall / manage artwork |
+| 82232 | Live Release Center — deployment stations | Release / deployment surfaces |
+
+Take: composition, violet-nebula atmosphere, raised-glass panels, orbit grammar, typography hierarchy.
+Never: functional QR pairing code (82226 artwork is illustrative), version numbers, commands, provider logos or status badges as real runtime values — visual references only. 82227 and 82236 are one concept, not two milestones. Originals stay byte-preserved; installer derivatives are generated separately.
+
 ---
 
 ## 5. TASK ALLOWLISTS
