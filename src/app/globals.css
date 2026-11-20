@@ -2123,8 +2123,10 @@
 .chamber__void{
   position:absolute;
   inset:0;
-  /* The homepage's own arrival gradient, so the two rooms share a floor. */
-  background:radial-gradient(ellipse at 62% 38%,#131217 0%,#090a0b 54%,#070809 100%);
+  /* The homepage's own arrival gradient, so the two rooms share a floor.
+     Owner directive 2026-11-20: the void is violet, with the same nebula
+     corners as the division heroes; the canonical white mark stays exact. */
+  background:radial-gradient(ellipse 42% 34% at 6% -4%,rgba(168,85,247,.16),transparent 70%),radial-gradient(ellipse 40% 30% at 96% 0%,rgba(217,70,239,.1),transparent 70%),radial-gradient(ellipse at 62% 38%,#150f26 0%,#0b0716 54%,#080612 100%);
 }
 /* --- The field ---------------------------------------------------- */
 /* The canvas is the whole particle universe: ambient stars and the canonical
