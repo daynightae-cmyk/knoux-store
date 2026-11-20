@@ -264,7 +264,7 @@
 .standalone .composition{padding:32px clamp(16px,4vw,70px);background:#0b0812;gap:32px}
 .standalone .workspaceViews{display:none}
 :global(.dev-cinematic):has(.standalone) :global(.dev-shell__content){padding:0!important}
-:global(.dev-cinematic):has(.standalone) :global(.dev-crumb){display:none}
+:global(.dev-cinematic):has(.standalone) :global(.dev-crumb){height:34px}
 :global(.dev-cinematic):has(.standalone) :global(.dev-shell__stage){background:#07050e!important}
 @media(min-width:1025px){
  :global(.dev-cinematic):has(.standalone) :global(.dev-shell__grid){display:block;max-width:none}

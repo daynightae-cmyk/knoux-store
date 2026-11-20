@@ -185,7 +185,7 @@ test('seven lifecycle steps separate validated proposal from execution and deplo
   assert.deepEqual(lifecycle.deriveGenerationLifecycle(state).map((entry) => entry.name), ['Planning', 'Generated proposal', 'Real file execution', 'Build', 'Test', 'Verification', 'Deployment']);
   assert.equal(step(state, 'Generated proposal').status, 'READY FOR REVIEW');
   assert.equal(step(state, 'Real file execution').status, 'UNCONNECTED');
-  assert.equal(step(state, 'Deployment').status, 'UNCONNECTED');
+  assert.equal(step(state, 'Deployment').status, 'AVAILABLE');
   assert.equal(step(state, 'Build').status, 'NOT MEASURED');
   assert.equal(step(state, 'Test').status, 'NOT MEASURED');
   assert.equal(step(state, 'Verification').status, 'NOT MEASURED');
@@ -288,4 +288,33 @@ test('both scoped UI surfaces wire a real cancel handler and accessible minimum 
   assert.match(monitor, /onClick=\{onCancel\}>Cancel planning/);
   assert.match(css, /min-height: 44px/);
   assert.match(css, /minmax\(min\(100%, 145px\), 1fr\)/);
+});
+
+test('a receipt is execution evidence while an unreviewed artifact is only awaiting confirmation', () => {
+  const generatedProject = { kind: 'static-web', files: [{ path: 'index.html', content: '<!doctype html><title>Reviewed fixture</title>' }] };
+  const state = currentState('REVIEWING');
+  state.engineering.plan = { ...artifact, generatedProject };
+  assert.equal(step(state, 'Real file execution').status, 'AWAITING CONFIRMATION');
+  assert.doesNotMatch(step(state, 'Real file execution').evidence, /bytes written/);
+
+  const preview = { url: 'http://127.0.0.1:4311/' + 'a'.repeat(64) + '/index.html', origin: 'http://127.0.0.1:4311', processId: 5150, httpStatus: 200, readinessMs: 120, expiresAt: '2026-11-19T00:15:00Z', blocker: null };
+  state.engineering.execution = {
+    operationId: '6f1c0a7e-2f6b-4d8e-9a1b-2c3d4e5f6a7b', ownerId: 'owner-fixture', kind: 'static-web',
+    planSha256: 'a'.repeat(64), state: 'ready', files: [{ path: 'index.html', bytes: 51, sha256: 'b'.repeat(64) }],
+    bytes: 51, sourceSha256: 'c'.repeat(64),
+    build: { command: 'knoux-static-validate@1 · no shell', exitCode: 0, status: 'passed', evidence: 'Fixture only.', durationMs: null },
+    bundle: { path: 'artifacts/knoux-static-app.zip', bytes: 240, sha256: 'd'.repeat(64) },
+    preview, externalReference: 'generated-static:fixture', createdAt: '2026-11-19T00:00:00Z', updatedAt: '2026-11-19T00:00:01Z', error: null,
+  };
+  const ready = step(state, 'Real file execution');
+  assert.equal(ready.status, 'PREVIEW LIVE');
+  assert.match(ready.evidence, /1 reviewed static files · 51 bytes/);
+  assert.match(ready.evidence, /bundle SHA-256 dddddddddddddddd/);
+  assert.match(ready.evidence, /http:\/\/127\.0\.0\.1:4311/);
+
+  state.engineering.execution = { ...state.engineering.execution, state: 'failed', error: 'Preview stopped.', preview: { ...preview, url: null, processId: null, httpStatus: null, blocker: 'Preview process is no longer running.' } };
+  const failed = step(state, 'Real file execution');
+  assert.equal(failed.status, 'FAILED');
+  assert.match(failed.evidence, /Preview process is no longer running/);
+  assert.match(failed.evidence, /Preview stopped/);
 });

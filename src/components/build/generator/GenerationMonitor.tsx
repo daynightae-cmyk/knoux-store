@@ -1,13 +1,24 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useState, type FormEvent, type ReactNode, useEffect, useCallback } from 'react';
 import { GENERATION_PROFILES, type GenerationProfile } from '@/lib/build/profile';
 import { PLAN_SECTIONS, parseEngineeringPlan, type EngineeringPlan, type EngineeringSession } from '@/lib/build/engineering-plan';
 import type { BuildWorkspaceState } from '@/lib/build/workspace-state';
 import type { VerificationCheck } from '@/lib/build/types';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { currentWorkspaceVerificationChecks } from '../dev/verification-results';
+import {
+  createWriteBatchClient,
+  computeWriteDiffsClient,
+  authorizeWriteBatchClient,
+  executeWriteBatchClient,
+  cancelWriteBatchClient,
+  planToWriteOperations,
+  summarizeDiffResult,
+  type DiffResult,
+} from '@/lib/build/write-executor-client';
+import { GeneratedProjectExecution } from './GeneratedProjectExecution';
 import styles from './preview-workspace.module.css';
 
 const phases = ['Resolve', 'Route', 'Plan', 'Review'];
@@ -26,7 +37,7 @@ export function scopedEngineeringSession(state: CheckoutState & { engineering: E
   const sameCheckout = context && context.projectRef === state.projectRef && context.projectId === (state.project?.id ?? null)
     && context.project === (state.project?.name ?? null) && context.worktree === (state.project?.root ?? null)
     && context.branch === (state.git?.branch ?? null) && context.headSha === (state.git?.headSha ?? null);
-  if (!sameCheckout) return { ...session, requestId: null, context: null, stage: 'LISTENING', plan: null, draftPlan: null, streamText: '', error: null, requested: null, selection: null, characters: 0, measurement: null };
+  if (!sameCheckout) return { ...session, requestId: null, context: null, stage: 'LISTENING', plan: null, draftPlan: null, streamText: '', error: null, requested: null, selection: null, characters: 0, measurement: null, execution: null };
   return session;
 }
 
@@ -42,13 +53,40 @@ export function measuredGenerationCheck(check: VerificationCheck) {
   return true;
 }
 
-export function deriveGenerationLifecycle(state: Pick<BuildWorkspaceState, 'projectRef' | 'project' | 'git' | 'engineering' | 'verification'>, suppliedSession?: EngineeringSession): LifecycleStep[] {
+export function deriveGenerationLifecycle(state: Pick<BuildWorkspaceState, 'projectRef' | 'project' | 'git' | 'engineering' | 'verification' | 'adapter'>, suppliedSession?: EngineeringSession): LifecycleStep[] {
   const session = scopedEngineeringSession({ ...state, engineering: suppliedSession ?? state.engineering });
   let proposal = false;
   if (session.plan) { try { parseEngineeringPlan(JSON.stringify(session.plan)); proposal = true; } catch { /* Partial output is not a proposal. */ } }
   const planning = ['RESOLVING', 'ROUTING', 'GENERATING'].includes(session.stage);
   const checks = currentGenerationChecks(state);
   const measured = checks.filter((check) => check.id !== 'deployment' && measuredGenerationCheck(check));
+  const execution = session.execution;
+  const executionStep: LifecycleStep = execution ? {
+    name: 'Real file execution',
+    status: (() => {
+      const state = execution.state as string;
+      if (state === 'ready') return 'PREVIEW LIVE';
+      if (state === 'deployed') return 'DEPLOYED';
+      if (state === 'exported') return 'EXPORTED';
+      if (state === 'built') return 'BUILT';
+      if (state === 'validating') return 'WRITING';
+      if (state === 'stopped') return 'STOPPED';
+      if (state === 'failed') return 'FAILED';
+      return 'CANCELLED';
+    })(),
+    evidence: (() => {
+      const compiled = execution.compiled ?? { files: execution.files, bytes: execution.bytes, build: execution.build };
+      return `${compiled.files?.length ?? 0} reviewed static files · ${compiled.bytes ?? 0} bytes${compiled.build ? ` · build ${compiled.build.status} (${compiled.build.durationMs ?? '—'}ms)` : ''}${execution.bundle ? ` · bundle SHA-256 ${execution.bundle.sha256.slice(0, 16)}…` : ''}${execution.preview?.url ? ` · preview ${execution.preview.url}` : ''}${execution.deploy?.status ? ` · deploy ${execution.deploy.status}` : ''}${execution.preview?.blocker ? ` · ${execution.preview.blocker}` : ''}${execution.error ? ` · ${execution.error}` : ''}`;
+    })(),
+  } : session.plan?.generatedProject ? {
+    name: 'Real file execution',
+    status: 'AWAITING CONFIRMATION',
+    evidence: 'A bounded static artifact is ready. No files are written until an allowlisted operator reviews them and submits APPLY STATIC PROJECT.',
+  } : {
+    name: 'Real file execution',
+    status: 'UNCONNECTED',
+    evidence: 'No structured write executor for this proposal. Project write capability is not execution evidence.',
+  };
   const checkStep = (name: string, id: string): LifecycleStep => {
     const check = checks.find((check) => check.id === id);
     return { name, status: check && measuredGenerationCheck(check) ? check.status.toUpperCase() : check && ['blocked', 'unconfigured', 'not-applicable'].includes(check.status) ? check.status.toUpperCase().replaceAll('-', ' ') : 'NOT MEASURED', evidence: check ? `${check.label}: ${check.evidence}${check.exitCode !== null ? ` · exit ${check.exitCode}` : ''}` : 'No measured check for the current checkout SHA.' };
@@ -56,11 +94,21 @@ export function deriveGenerationLifecycle(state: Pick<BuildWorkspaceState, 'proj
   return [
     { name: 'Planning', status: session.stage === 'CANCELLED' ? 'CANCELLED' : proposal ? 'PROPOSAL RECEIVED' : planning ? 'IN PROGRESS' : session.error ? 'BLOCKED' : 'NOT STARTED', evidence: planning ? `${session.characters.toLocaleString()} provider characters received; not file execution.` : session.stage === 'CANCELLED' ? 'Request aborted. No further provider output or fallback accepted.' : 'Provider planning only; no project mutation.' },
     { name: 'Generated proposal', status: proposal ? 'READY FOR REVIEW' : 'NOT GENERATED', evidence: proposal ? `${PLAN_SECTIONS.length} validated sections; proposed files are not written files.` : 'A complete parsed engineering proposal is required.' },
-    { name: 'Real file execution', status: 'UNCONNECTED', evidence: 'No structured write executor. Project write capability is not execution evidence.' },
+    executionStep,
     checkStep('Build', 'build'),
     checkStep('Test', 'test'),
     { name: 'Verification', status: measured.length ? 'MEASURED OUTCOMES' : 'NOT MEASURED', evidence: measured.length ? measured.map((check) => `${check.label}: ${check.status.toUpperCase()}${check.exitCode !== null ? ` (exit ${check.exitCode})` : ''}`).join(' · ') : 'No measured outcomes bound to the current native checkout SHA.' },
-    { name: 'Deployment', status: 'UNCONNECTED', evidence: 'No deployment adapter. Environment and preview availability do not prove deployment.' },
+    { name: 'Deployment', status: (() => {
+      const deployCap = state.adapter.capabilities['deploy.trigger'];
+      const deployBlocker = state.adapter.blockers['deploy.trigger'];
+      if (deployCap === 'available') return 'AVAILABLE';
+      if (deployCap === 'blocked' || deployCap === 'unconfigured') return (deployBlocker ?? 'DEPLOYMENT BLOCKED').toUpperCase();
+      return 'UNCONNECTED';
+    })(), evidence: (() => {
+      const deployBlocker = state.adapter.blockers['deploy.trigger'];
+      if (deployBlocker) return `Deployment adapter: ${deployBlocker}.`;
+      return 'No deployment adapter. Environment and preview availability do not prove deployment.';
+    })() },
   ];
 }
 
@@ -157,6 +205,11 @@ export function GenerationMonitor({
         ) : streamText ? <pre tabIndex={0} aria-label="Unvalidated provider text">{streamText}</pre>
           : <p className={styles.outputEmpty}>{planning ? 'Waiting for provider output…' : 'Provider output will appear here during planning.'}</p>}
       </div>
+
+      {plan?.generatedProject ? <GeneratedProjectExecution
+        artifact={plan.generatedProject}
+        onReceipt={(execution) => { if (session.requestId) dispatch({ type: 'engineering/update', requestId: session.requestId, patch: { execution } }); }}
+      /> : null}
 
       {revisionPlan ? <section className={styles.followUp} aria-labelledby="revision-heading">
         <h3 id="revision-heading">Revise the proposal</h3>
