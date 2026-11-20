@@ -121,7 +121,7 @@
   --line-soft: #1c1d20;
   --line-strong: #3d3e43;
   /* Vivid signal palette (owner directive 2026-11-20): saturated, luminous,
-     never washed out. Every value still clears WCAG 4.5:1 on --bg:
+     never washed out. Every value still clears WCAG 4.5:1 on the background:
      #a78bfa ≈ 7.3:1, #d8b4fe ≈ 10.6:1, #86efac ≈ 13:1, #fbbf24 ≈ 10.9:1. */
   --violet: #a78bfa;
   --violet-dim: #a5a0c8;
