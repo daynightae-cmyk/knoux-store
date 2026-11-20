@@ -6,22 +6,22 @@
     "id": "custom",
     "label": "CUSTOM"
   },
-  "at": "2026-11-20T10:47:56.036Z",
+  "at": "2026-11-20T20:55:17.201Z",
   "branch": "feat/wordpress-studio-01-10",
-  "sha": "ea10b95c72f2cc9b6123339459d81dea468a65ad",
+  "sha": "6ffdff9525f4f4378da9cd0bd901516758456b43",
   "document": "same-origin loaded",
   "observations": [
     {
-      "id": 1795171664272,
+      "id": 1795208112090,
       "kind": "error",
       "message": "Preview observation token=[REDACTED]]",
-      "at": "2026-11-20T10:47:44.272Z"
+      "at": "2026-11-20T20:55:12.090Z"
     },
     {
-      "id": 1795171664532,
+      "id": 1795208112111,
       "kind": "resource",
       "message": "img failed to load: /not-a-real-preview-image.png",
-      "at": "2026-11-20T10:47:44.400Z"
+      "at": "2026-11-20T20:55:12.110Z"
     }
   ],
   "inspected": {
