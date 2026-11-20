@@ -129,10 +129,15 @@ async function generatedProjectScenario() {
     const preview = { url: 'about:blank', origin: 'http://127.0.0.1:4555', processId: 4242, httpStatus: 200, readinessMs: 5, expiresAt: '2026-11-19T00:15:00Z', blocker: null };
     const receipt = (state, patch = {}) => ({
       operationId, ownerId: 'fixture-owner', kind: 'static-web', planSha256: 'a'.repeat(64), state,
+      sourceSha256: 'd'.repeat(64),
+      source: { bytes: 226, sha256: 'd'.repeat(64), files: [{ path: 'index.html', bytes: 158, sha256: 'b'.repeat(64) }, { path: 'assets/app.js', bytes: 68, sha256: 'c'.repeat(64) }] },
+      compiled: { bytes: 226, sha256: 'f'.repeat(64), files: [{ path: 'index.html', bytes: 158, sha256: 'b'.repeat(64) }, { path: 'assets/app.js', bytes: 68, sha256: 'c'.repeat(64) }], build: { command: 'knoux-static-validate@1 · no shell', exitCode: 0, status: 'passed', evidence: 'Fixture only.', durationMs: null } },
       files: [{ path: 'index.html', bytes: 158, sha256: 'b'.repeat(64) }, { path: 'assets/app.js', bytes: 68, sha256: 'c'.repeat(64) }],
-      bytes: 226, sourceSha256: 'd'.repeat(64),
+      bytes: 226,
       build: { command: 'knoux-static-validate@1 · no shell', exitCode: 0, status: 'passed', evidence: 'Fixture only.', durationMs: null },
-      bundle: { path: 'artifacts/knoux-static-app.zip', bytes: 320, sha256: 'e'.repeat(64) },
+      export: { path: 'artifacts/knoux-static-app.zip', bytes: 320, sha256: 'e'.repeat(64), format: 'zip', durationMs: null },
+      bundle: { path: 'artifacts/knoux-static-app.zip', bytes: 320, sha256: 'e'.repeat(64), format: 'zip', durationMs: null },
+      deploy: { target: 'local', status: 'not-requested', confirmation: null, reference: null, blocker: null, error: null, appliedAt: null },
       preview, externalReference: `generated-static:${operationId}`,
       createdAt: '2026-11-19T00:00:00Z', updatedAt: '2026-11-19T00:00:01Z', error: null, ...patch,
     });

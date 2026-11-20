@@ -31,7 +31,7 @@ test('main Build prompt calls the canonical stream and renders a reviewable prop
   await page.getByRole('button', { name: 'Review plan', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Review before execution' })).toBeVisible();
   await page.getByRole('button', { name: 'Check execution availability' }).click();
-  await expect(page.getByText('This plan has no structured write executor.', { exact: false })).toBeVisible();
+  await expect(page.getByText('This proposal has no bounded write executor.', { exact: false })).toBeVisible();
   await expect(page.locator('.dev-living-mark canvas')).toHaveAttribute('data-state', 'EXECUTOR_NOT_CONNECTED');
   const menu = page.getByRole('button', { name: 'Open workspace navigation' });
   if (await menu.isVisible()) await menu.click();

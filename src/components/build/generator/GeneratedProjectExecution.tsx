@@ -182,8 +182,8 @@ export function GeneratedProjectExecution({ artifact, onReceipt, compact = false
     }
   }
 
-  const build = receipt?.compiled.build;
-  const exportReceipt = receipt?.export ?? receipt?.bundle;
+  const build = receipt?.compiled?.build ?? receipt?.build ?? null;
+  const exportReceipt = receipt?.export ?? receipt?.bundle ?? null;
   const deployReceipt = receipt?.deploy;
 
   return (
@@ -240,7 +240,7 @@ export function GeneratedProjectExecution({ artifact, onReceipt, compact = false
         {receipt ? (
           <div className={styles.executionReceipt} data-state={receipt.state}>
             <p><strong>{RECEIPT_LABELS[receipt.state]}</strong> · external reference <code>{receipt.externalReference}</code></p>
-            {receipt.compiled.files?.length ? <p>{receipt.compiled.files.length} verified files · {byteLabel(receipt.compiled.bytes)} written{receipt.bundle ? ` · bundle SHA-256 {receipt.bundle.sha256}` : ''}</p> : null}
+            {receipt.compiled?.files?.length ? <p>{receipt.compiled.files.length} verified files · {byteLabel(receipt.compiled.bytes)} written{receipt.bundle ? ` · bundle SHA-256 {receipt.bundle.sha256}` : ''}</p> : null}
 
             {build && (
               <details className={styles.executionStage} open>
