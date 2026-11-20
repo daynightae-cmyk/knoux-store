@@ -1,0 +1,117 @@
+/* NSIS 82227 / 82236 — One Platform constellation. Raised glass cards on
+   orbital positions around the canonical particle sphere. */
+.page { min-height: 100%; }
+.scene {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: clamp(620px, 78vh, 860px);
+  margin: 0 -32px -32px;
+  padding: 26px 32px 60px;
+  background:
+    radial-gradient(ellipse 42% 34% at 12% 8%, #7c3aed30, transparent 68%),
+    radial-gradient(ellipse 40% 32% at 90% 12%, #a855f726, transparent 70%),
+    radial-gradient(ellipse 70% 42% at 50% 116%, #6d28d955, transparent 62%),
+    #07050e;
+  text-align: center;
+}
+.brand { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0; color: #fff; font-size: 21px; font-weight: 600; letter-spacing: .01em; }
+.brand i { width: 8px; height: 8px; border-radius: 50%; background: #fff; box-shadow: 0 0 14px 4px #b57aff; }
+.brand span { font-size: 12px; font-weight: 400; letter-spacing: .3em; color: #d9c8f2; }
+.title { margin: 10px 0 0; color: #f7f2fd; font-size: clamp(40px, 5.4vw, 74px); font-weight: 450; letter-spacing: -.03em; line-height: 1.05; }
+.lede { margin: 8px 0 0; color: #d3c2ec; font-size: clamp(15px, 1.7vw, 22px); }
+.lede b { color: #b58ae6; padding: 0 10px; font-weight: 400; }
+.orbits { position: absolute; z-index: -1; left: 0; right: 0; top: 22%; width: 100%; height: 62%; pointer-events: none; filter: drop-shadow(0 0 3px #9d68e6); }
+.core {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 55%;
+  translate: -50% -50%;
+  width: clamp(200px, 24vw, 300px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 6px;
+  background: radial-gradient(circle at 50% 34%, #6d3bbd66, #170b2ee6 68%), radial-gradient(circle at 50% 100%, #a855f740, transparent 55%);
+  border: 1px solid #d8b4fe66;
+  box-shadow: inset 0 0 40px #a855f755, 0 0 60px #8b4fd966, 0 0 120px #6d28d93d;
+}
+.mark { width: 46%; filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 10px #b67cff); }
+.coreLabel { color: #fff; font-size: clamp(14px, 1.5vw, 19px); font-weight: 600; letter-spacing: .04em; }
+.coreLabel small { font-weight: 400; letter-spacing: .24em; color: #d9c8f2; }
+.cards { position: relative; z-index: 2; margin: 20px auto 0; max-width: 1240px; min-height: clamp(430px, 52vw, 560px); }
+.card {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: clamp(220px, 23vw, 300px);
+  padding: 14px 18px;
+  border: 1px solid #caa4f573;
+  border-radius: 16px;
+  background: linear-gradient(150deg, #33204fcc, #120b21eb 72%);
+  box-shadow: inset 0 1px 0 #f3e8ff2e, inset 0 0 20px #a855f722, 0 0 20px #8b4fd940, 0 14px 30px #02010880;
+  color: #f4edfc !important;
+  text-align: left;
+  text-decoration: none !important;
+  transition: border-color .25s, box-shadow .25s;
+}
+.card:hover, .card:focus-visible { border-color: #e6ccff; box-shadow: inset 0 1px 0 #f3e8ff40, inset 0 0 26px #b678f838, 0 0 30px #a465ed73, 0 14px 30px #02010880; }
+.tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid #c9a2ff59;
+  background: linear-gradient(150deg, #5b3a8f80, #241338e6);
+  box-shadow: inset 0 0 12px #b678f833;
+  color: #e9d5ff;
+}
+.tile svg { width: 24px; height: 24px; }
+.cardText { display: grid; gap: 3px; min-width: 0; }
+.cardText strong { font-size: 16px; font-weight: 600; }
+.cardText small { color: #cbb9e6; font-size: 12.5px; line-height: 1.45; }
+.apps { left: 50%; top: 0; translate: -50% 0; }
+.discovery { left: 6%; top: 17%; }
+.routing { right: 6%; top: 17%; }
+.providers { left: 0; top: 44%; }
+.docs { right: 0; top: 44%; }
+.services { left: 6%; top: 71%; }
+.deployments { right: 6%; top: 71%; }
+.control { left: 50%; top: 88%; translate: -50% 0; }
+.limb {
+  position: absolute;
+  z-index: 0;
+  left: -14%;
+  right: -14%;
+  bottom: -46%;
+  height: 58%;
+  border-radius: 50%;
+  border-top: 1px solid #c084fc59;
+  background: radial-gradient(ellipse at 50% 0%, #7c3aed3d, #0a0714 58%), #0a0714;
+  box-shadow: 0 -20px 80px #8b4fd94d;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .core { animation: oneCoreFloat 7s ease-in-out infinite; }
+  .orbits circle { animation: oneStarBreath 6s ease-in-out infinite; }
+}
+@keyframes oneCoreFloat { 0%, 100% { translate: -50% -50%; } 50% { translate: -50% calc(-50% - 6px); } }
+@keyframes oneStarBreath { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@media (max-width: 1024px) {
+  .scene { margin: 0 -28px -30px; padding-inline: 28px; }
+  .cards { min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }
+  .card { position: static; translate: none; width: auto; }
+  .core { position: relative; left: auto; top: auto; translate: none; margin: 26px auto 0; }
+  .orbits { top: 30%; height: 40%; }
+}
+@media (max-width: 600px) {
+  .scene { margin: 0 -20px -32px; padding-inline: 20px; min-height: 0; }
+  .cards { grid-template-columns: 1fr; }
+  .core { width: min(240px, 70vw); }
+}

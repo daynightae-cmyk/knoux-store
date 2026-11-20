@@ -66,31 +66,35 @@
 .system-blueprint__head,.system-blueprint__foot,.system-blueprint__systems{border:0}
 .system-blueprint__systems button{color:#b4acbd}
 .system-blueprint__systems button small{color:#b7a6c8}
-.system-blueprint__origin{border:0;border-radius:50%;background:radial-gradient(circle at 30% 24%,#74618855,#251d3488 48%,#0b0b1280 76%);box-shadow:0 20px 60px #a286ca18,inset 0 1px 18px #bda4db18}
+.system-blueprint__origin{border:0;border-radius:50%;background:radial-gradient(circle at 30% 24%,rgba(168,85,247,.33),rgba(58,28,105,.53) 48%,rgba(11,7,22,.5) 76%);box-shadow:0 20px 60px rgba(168,85,247,.16),inset 0 1px 18px rgba(216,180,254,.16)}
 .system-blueprint__node{border:0;background:transparent;font-size:12px;padding:8px 0;text-shadow:0 0 20px #a68aca66}
 .system-blueprint__head .mono,.system-blueprint__systems button small{font-size:12px}
 .system-blueprint__foot p{font-size:15px;line-height:1.75}
 .system-blueprint__diagram path{stroke-dasharray:none;opacity:.6}
-.mission-path__node{border:0;border-radius:50%;background:#645775}
+.mission-path__node{border:0;border-radius:50%;background:#a78bfa;box-shadow:0 0 16px rgba(167,139,250,.55)}
 .mission-path__station small,.mission-path__layers{font-size:12px}
 @media(max-width:768px){.mission-path__station{border:0;border-bottom:2px solid transparent;padding-inline:0;min-width:180px}.mission-path__station.is-active{border-bottom-color:var(--violet);transform:none}.mission-path__focus{border-top:0}}
 @media(max-width:768px){.system-blueprint__node{font-size:12px}}
 :is(.atelier-lab,.process-architecture,.ksu){scroll-margin-top:100px}
 .auth-panel::before,.auth-panel::after{border:0}
-:is(.product-card,.dossier-card,.related-card,.systems-panel,.spatial-surface,.origin-room__panel,.library-gateway,.auth-panel,.signature-field,.product-anatomy-panel){border:0;border-radius:0;box-shadow:none;background:transparent}
-.product-card,.dossier-card,.related-card{padding-block:32px;transition:transform .25s ease}
-:is(.product-card,.dossier-card,.related-card):hover{transform:translateY(-4px);background:transparent}
+/* Raised glass returns (owner directive 2026-11-20): the open composition
+   keeps its spacing, but record cards and panels ride the vivid glass tokens
+   instead of being flattened to transparent. Functional surfaces unchanged. */
+:is(.systems-panel,.spatial-surface,.origin-room__panel,.library-gateway,.auth-panel,.signature-field,.product-anatomy-panel){border:0;border-radius:0;box-shadow:none;background:transparent}
+:is(.product-card,.dossier-card,.related-card){border:1px solid var(--glass-line);border-radius:16px;background:var(--glass-bg);box-shadow:var(--glass-glow);backdrop-filter:blur(10px) saturate(1.25)}
+.product-card,.dossier-card,.related-card{padding-block:32px;transition:transform .25s ease,box-shadow .25s ease}
+:is(.product-card,.dossier-card,.related-card):hover{transform:translateY(-4px);box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 56px rgba(168,85,247,.32),inset 0 1px 0 rgba(243,232,255,.32),inset 0 0 44px rgba(168,85,247,.16)}
 .signature-field{background:radial-gradient(ellipse at 60% 42%,#afa0c617,transparent 65%);overflow:hidden}
 .signature-field::before{border:0}
 .engineering-dossier__relations a{border:0;background:transparent;padding:14px 0;font-size:14px}
 .mp-grid{border:0;gap:clamp(24px,4vw,56px);background:transparent}
 .mp-card__icon,.mp-card__tags li{border:0;background:transparent}
-.mp-card__shot{border:0;border-radius:16px 50px 16px 16px;box-shadow:0 24px 64px #0005}
-.orbit-node{border:0;border-radius:50%;background:radial-gradient(ellipse,#a18acb14,transparent 72%);box-shadow:none}
-.atelier-lab{border:0;background:transparent;gap:0 40px;align-items:center}
+.mp-card__shot{border:0;border-radius:16px 50px 16px 16px;box-shadow:0 24px 64px #0005,0 0 44px rgba(168,85,247,.18)}
+.orbit-node{border:1px solid rgba(167,139,250,.35);border-radius:50%;background:radial-gradient(ellipse,rgba(168,85,247,.16),transparent 72%);box-shadow:0 0 34px rgba(168,85,247,.2),inset 0 0 24px rgba(168,85,247,.12)}
+.atelier-lab{border:1px solid rgba(167,139,250,.22);background:linear-gradient(160deg,rgba(58,28,105,.35),rgba(13,8,24,.72));gap:0 40px;align-items:center;box-shadow:0 24px 70px rgba(0,0,0,.5),0 0 42px rgba(168,85,247,.14)}
 .atelier-lab__index{border:0;background:transparent;padding:18px 0 30px;gap:8px 20px}
 .atelier-lab__item,.atelier-lab__item.is-active{border:0;border-radius:0;background:transparent}
-.atelier-lab__item.is-active{color:#f2eaf7;text-decoration:underline;text-decoration-color:#bca5d9;text-underline-offset:8px}
+.atelier-lab__item.is-active{color:#f2eaf7;text-decoration:underline;text-decoration-color:#c084fc;text-underline-offset:8px}
 .atelier-lab__field{border:0;border-radius:42% 42% 8% 8% / 14% 14% 4% 4%;box-shadow:0 40px 100px #0005;background:transparent}
 .atelier-lab__spec{padding-inline:0;border:0}
 .process-architecture ol{display:flex;flex-wrap:wrap;gap:44px 36px;background:transparent;position:relative;padding:20px 0 0}
@@ -99,11 +103,11 @@
 .process-architecture li a{padding:0 10px 20px 0;min-height:190px;gap:18px;background:transparent}
 .process-architecture li a:hover{background:transparent}
 .process-architecture__index{display:flex;align-items:center;gap:14px}
-.process-architecture__index::before{content:'';width:9px;height:9px;flex:none;border-radius:50%;background:#bfa7df;box-shadow:0 0 24px #bfa7df50}
+.process-architecture__index::before{content:'';width:9px;height:9px;flex:none;border-radius:50%;background:#c084fc;box-shadow:0 0 24px rgba(192,132,252,.5)}
 .process-architecture li:not(:last-child)::after{content:'';position:absolute;left:35px;right:-18px;top:6px;height:40px;border-top:1px solid #bfa7df36;border-radius:50%;pointer-events:none}
 .process-architecture li:nth-child(even)::after{top:54px;transform:scaleY(-1)}
 .process-architecture__open{right:12px;top:0}
-.wp-operations-console{border:0;border-radius:24px;background:linear-gradient(115deg,#b8a4d00a,transparent 68%);padding-inline:clamp(0px,2vw,28px)}
+.wp-operations-console{border:1px solid rgba(167,139,250,.25);border-radius:24px;background:linear-gradient(115deg,rgba(168,85,247,.08),transparent 68%);padding-inline:clamp(0px,2vw,28px);box-shadow:inset 0 1px 0 rgba(233,213,255,.1),0 18px 50px -24px rgba(88,28,135,.55)}
 .wp-operation-review,.wp-operation-receipt{border:0;border-left:2px solid #b8a4d066;background:transparent}
 .dev-provider-detail{border:0;border-top:1px solid #c0afd724;border-radius:0;padding-inline:0}
 @media(max-width:1024px){.process-architecture li{flex-basis:calc(50% - 36px)}.atelier-lab{gap:0 28px}}

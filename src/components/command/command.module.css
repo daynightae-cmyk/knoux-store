@@ -43,7 +43,9 @@
   font-family: var(--cc-sans);
   font-size: 14px;
   line-height: 1.5;
-  background-image: radial-gradient(ellipse at 82% 8%, color-mix(in srgb, var(--cc-violet) 5%, transparent), transparent 55%);
+  /* Owner directive 2026-11-20: the deck keeps its matte machine grammar, but
+     the violet wash is present, not a whisper. State colours stay untouched. */
+  background-image: radial-gradient(ellipse at 82% 8%, color-mix(in srgb, var(--cc-violet) 13%, transparent), transparent 55%), radial-gradient(ellipse at 8% 92%, color-mix(in srgb, var(--cc-violet) 7%, transparent), transparent 60%);
 }
 
 /* Essential state must exist in DOM, not only on a canvas. */

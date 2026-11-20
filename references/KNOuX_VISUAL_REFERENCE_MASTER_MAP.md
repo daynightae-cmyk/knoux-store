@@ -106,6 +106,38 @@ Never turn it into:
 Already represented by reference **11** above.  
 **Scope:** Entry Gate mechanics only.
 
+### NSIS & Onboarding Pack (owner-confirmed definitive, 2026-11-20)
+`references/nsis/` — ten unmodified owner PNGs with `manifest.json` + `REFERENCE_INDEX.md`.
+
+| Original | Role | Primary scope |
+|---|---|---|
+| 82226 | Device Link — Windows / Android concept | Installer / device-link artwork |
+| 82231 | Welcome — orbital navigation | NSIS welcome / onboarding |
+| 82230 | Engineering Environment — wide banner | Engineering environment banner |
+| 82229 | Portrait brand / splash artwork | Splash / portrait brand |
+| 82228 | Universal Provider Engine — provider orbit | Provider hero (supersedes earlier provider compositions) |
+| 82227 | One Platform — 3:2 composition | One Platform / build home |
+| 82236 | One Platform — wide alternate composition | Same concept as 82227, alternate aspect |
+| 82234 | Local Engineering Runtime — terminal / bridge | Runtime / terminal surfaces |
+| 82235 | Uninstall / Manage — portrait artwork | Uninstall / manage artwork |
+| 82232 | Live Release Center — deployment stations | Release / deployment surfaces |
+
+Take: composition, violet-nebula atmosphere, raised-glass panels, orbit grammar, typography hierarchy.
+Never: functional QR pairing code (82226 artwork is illustrative), version numbers, commands, provider logos or status badges as real runtime values — visual references only. 82227 and 82236 are one concept, not two milestones. Originals stay byte-preserved; installer derivatives are generated separately.
+
+**Applied to the live UI (2026-11-20):**
+
+| Original | Live surface | Implementation |
+|---|---|---|
+| 82231 | `/build` landing | `DevWorkspaceHome` welcome composition — orbital glass pills around the living particle mark; composer contracts kept |
+| 82227 / 82236 | `/build/platform` (new route) | `OnePlatformPage` — constellation of real navigation cards around the canonical particle sphere |
+| 82232 | `/build/deployments` | `DeploymentsPage` Live Release Center — 4 stations + release pipeline card; badges read OBSERVED / UNVERIFIED from measured state |
+| 82234 | `/build/terminal` + `/build/powershell` | `RuntimeHero` — tilted glass window shows measured source/bridge/session lines, never simulated commands |
+| 82230 | `/build/engineering` banner | Text-free crop of the artwork (`public/creative/nsis-engineering-banner.webp`); real heading in the quiet left field |
+| 82235 + 82226 | `/build/settings` | Manage portrait art + Device Link concept panel; QR explicitly illustrative, pairing stays code-based |
+| 82229 | `/build` entry gate | Splash art behind the gate (`public/creative/nsis-splash.webp`), reading field kept legible |
+| 82228 | `/build/providers` | `ProviderHero` already matched; unchanged |
+
 ---
 
 ## 5. TASK ALLOWLISTS
