@@ -115,11 +115,23 @@ test('animated canonical mark has bounded particles, reuses its pool and pauses 
   expect(measured.particles).toBeLessThanOrEqual(3600); expect(measured.paints - before.paints).toBeGreaterThan(10); expect(Number(before.sampleMs)).toBe(measured.sampleMs);
   const handle = await canvas.elementHandle(); await page.locator('.dev-nav-link[href="/build/apps"]').click(); expect(await handle!.evaluate((element) => element.isConnected)).toBe(true); await expect(canvas).toHaveAttribute('data-sample-ms', before.sampleMs!);
   await page.locator('.dev-living-mark').evaluate((element) => { (element as HTMLElement).style.display = 'none'; });
-  await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
-  const paused = await canvas.getAttribute('data-paints');
+  // The loop stops on the IntersectionObserver callback, which is delivered
+  // asynchronously and can lag behind layout on a loaded host. Wait until the
+  // paint counter has genuinely settled before treating it as the paused
+  // baseline, rather than sampling a fixed two frames after hiding the box.
+  const settled = await canvas.evaluate((element) => new Promise<string>((resolve) => {
+    let previous = -1, stableFrames = 0;
+    const sample = () => {
+      const paints = Number((element as HTMLElement).dataset.paints);
+      stableFrames = paints === previous ? stableFrames + 1 : 0;
+      previous = paints;
+      if (stableFrames >= 3) resolve(String(paints)); else requestAnimationFrame(sample);
+    };
+    requestAnimationFrame(sample);
+  }));
   await page.evaluate(() => new Promise<void>((resolve) => { let frames = 0; const next = () => ++frames >= 20 ? resolve() : requestAnimationFrame(next); requestAnimationFrame(next); }));
-  expect(await canvas.getAttribute('data-paints')).toBe(paused);
+  expect(await canvas.getAttribute('data-paints')).toBe(settled);
   await page.locator('.dev-living-mark').evaluate((element) => { (element as HTMLElement).style.display = ''; });
-  await expect.poll(async () => Number(await canvas.getAttribute('data-paints'))).toBeGreaterThan(Number(paused));
+  await expect.poll(async () => Number(await canvas.getAttribute('data-paints'))).toBeGreaterThan(Number(settled));
   writeFileSync(join(evidence, 'particle-animation-measurement.json'), JSON.stringify({ measuredAt: new Date().toISOString(), source: 'Real browser animation; 60 browser frames, hidden box pause, persistent canvas across route navigation', ...measured }, null, 2));
 });
