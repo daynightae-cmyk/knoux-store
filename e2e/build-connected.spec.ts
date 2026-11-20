@@ -119,15 +119,25 @@ test('animated canonical mark has bounded particles, reuses its pool and pauses 
   // asynchronously and can lag behind layout on a loaded host. Wait until the
   // paint counter has genuinely settled before treating it as the paused
   // baseline, rather than sampling a fixed two frames after hiding the box.
+  // Some loaded CI hosts stop issuing compositor frames once the surface is
+  // hidden, so sample on a wall-clock interval alongside rAF: three equal
+  // samples (frames or 100ms ticks) still prove the loop paused.
   const settled = await canvas.evaluate((element) => new Promise<string>((resolve) => {
-    let previous = -1, stableFrames = 0;
-    const sample = () => {
-      const paints = Number((element as HTMLElement).dataset.paints);
-      stableFrames = paints === previous ? stableFrames + 1 : 0;
-      previous = paints;
-      if (stableFrames >= 3) resolve(String(paints)); else requestAnimationFrame(sample);
+    let previous = -1, stableSamples = 0, done = false, timer = 0;
+    const finish = (paints: number) => {
+      if (done) return;
+      done = true; clearInterval(timer); resolve(String(paints));
     };
-    requestAnimationFrame(sample);
+    const sample = () => {
+      if (done) return;
+      const paints = Number((element as HTMLElement).dataset.paints);
+      stableSamples = paints === previous ? stableSamples + 1 : 0;
+      previous = paints;
+      if (stableSamples >= 3) finish(paints);
+    };
+    const frame = () => { sample(); if (!done) requestAnimationFrame(frame); };
+    timer = window.setInterval(sample, 100);
+    requestAnimationFrame(frame);
   }));
   await page.evaluate(() => new Promise<void>((resolve) => { let frames = 0; const next = () => ++frames >= 20 ? resolve() : requestAnimationFrame(next); requestAnimationFrame(next); }));
   expect(await canvas.getAttribute('data-paints')).toBe(settled);

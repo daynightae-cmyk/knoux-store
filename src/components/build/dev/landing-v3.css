@@ -46,17 +46,62 @@
 .dev-shell--landing .dev-universe__orbit::before { top: 24%; left: 6%; }
 .dev-shell--landing .dev-universe__orbit::after { bottom: 20%; right: 7%; }
 
-.dev-cinematic.dev-shell--landing .dev-build-center { width: min(710px, 100%); }
-.dev-cinematic.dev-shell--landing .dev-build-center__eyebrow { margin: 0 0 6px; }
+/* NSIS 82231 — Welcome: centered brand, orbital navigation around the living
+   mark, raised-glass pills at the reference positions. The composer keeps its
+   centered usable plane below the orbit. */
+.dev-cinematic.dev-shell--landing .dev-build-center { width: min(760px, 100%); text-align: center; }
+.dev-cinematic.dev-shell--landing .dev-build-center__eyebrow { margin: 0 0 6px; padding: 0; font: 11px var(--font-mono, monospace); letter-spacing: .34em; color: #d9c8f2; }
 .dev-cinematic.dev-shell--landing .dev-build-center h1 {
-  max-width: 18ch;
-  margin-inline-start: 12%;
+  max-width: none;
+  margin: 0;
   color: #f5f0fc;
-  font-size: clamp(37px, 4vw, 55px);
-  line-height: 1;
+  font-size: clamp(34px, 4vw, 56px);
+  font-weight: 450;
+  letter-spacing: -.02em;
+  line-height: 1.05;
+  text-align: center;
 }
-
-.dev-shell--landing .dev-build-center__eyebrow { padding-inline-start: 12%; }
+.dev-welcome-lede { margin: 8px 0 0; color: #cbb9e6; font-size: clamp(15px, 1.5vw, 20px); letter-spacing: .02em; }
+.dev-welcome-orbit { position: relative; margin: 6px auto 0; width: 100%; height: clamp(240px, 26vw, 330px); }
+.dev-welcome-orbit__rings { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; filter: drop-shadow(0 0 3px #a06ae8); }
+.dev-welcome-pill {
+  position: absolute;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 10px 26px;
+  border: 1px solid #caa4f580;
+  border-radius: 16px;
+  background: linear-gradient(150deg, #2c1b45cc, #120b21e6 70%);
+  box-shadow: inset 0 1px 0 #f3e8ff30, inset 0 0 16px #a855f726, 0 0 18px #8b4fd94d, 0 10px 26px #02010880;
+  color: #f4edfc !important;
+  font-size: clamp(14px, 1.4vw, 18px);
+  text-decoration: none !important;
+  white-space: nowrap;
+  transition: box-shadow .25s, border-color .25s;
+}
+.dev-welcome-pill svg { width: 22px; height: 22px; flex: none; fill: none; stroke: #d9b8ff; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 4px #a465ed80); }
+.dev-welcome-pill:hover, .dev-welcome-pill:focus-visible { border-color: #e6ccff; box-shadow: inset 0 1px 0 #f3e8ff40, inset 0 0 20px #b678f840, 0 0 26px #a465ed80, 0 10px 26px #02010880; }
+.dev-welcome-pill--build { left: 50%; top: 0; translate: -50% 0; }
+.dev-welcome-pill--providers { left: 2%; top: 30%; }
+.dev-welcome-pill--models { right: 2%; top: 30%; }
+.dev-welcome-pill--terminal { left: 4%; bottom: 6%; }
+.dev-welcome-pill--deployments { right: 4%; bottom: 6%; }
+.dev-welcome-orbit .dev-engine { position: absolute; left: 50%; top: 52%; translate: -50% -50%; width: min(420px, 60%); height: 100%; margin: 0; }
+.dev-shell--landing .dev-welcome-orbit .dev-engine { height: 100%; margin: 0; }
+.dev-welcome-orbit .dev-engine::before, .dev-welcome-orbit .dev-engine::after { content: none; }
+.dev-welcome-orbit .dev-engine p { left: 50%; translate: -50% 0; width: min(340px, 46%); bottom: 6px; }
+.dev-shell--landing .dev-universe__orbit { display: none; }
+@media (max-width: 700px) {
+  .dev-welcome-orbit { height: auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding-top: 4px; }
+  .dev-welcome-orbit__rings { display: none; }
+  .dev-welcome-pill { position: static; translate: none; justify-content: center; padding: 10px 12px; white-space: normal; }
+  .dev-welcome-pill--build { grid-column: 1 / -1; }
+  .dev-welcome-orbit .dev-engine { position: relative; left: auto; top: auto; translate: none; grid-column: 1 / -1; width: 100%; height: 170px; order: -1; }
+  .dev-shell--landing .dev-welcome-orbit .dev-engine { height: 170px; }
+}
 .dev-shell--landing .dev-engine { height: clamp(124px, 9vw, 132px); margin: 0; }
 .dev-shell--landing .dev-engine::before {
   height: 61%;

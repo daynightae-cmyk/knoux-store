@@ -1,0 +1,114 @@
+/* NSIS 82234 — Local Engineering Runtime. A tilted glass terminal window over
+   orbital rings, with the three runtime doors below. The window shows the
+   measured bridge state, never a simulated session. */
+.scene {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin: -8px -32px 24px;
+  padding: 26px 32px 60px;
+  text-align: center;
+  background:
+    radial-gradient(ellipse 42% 34% at 10% 8%, #7c3aed2e, transparent 68%),
+    radial-gradient(ellipse 40% 30% at 92% 10%, #a855f724, transparent 70%),
+    radial-gradient(ellipse 72% 42% at 50% 118%, #6d28d950, transparent 62%),
+    #07050e;
+}
+.brand { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0; color: #fff; font-size: 19px; font-weight: 600; }
+.brand i { width: 7px; height: 7px; border-radius: 50%; background: #fff; box-shadow: 0 0 12px 4px #b57aff; }
+.brand span { font-size: 11px; letter-spacing: .22em; color: #e9d5ff; border: 1px solid #c9a2ff66; border-radius: 999px; padding: 3px 12px; }
+.title { margin: 10px 0 0; color: #f7f2fd; font-size: clamp(34px, 4.4vw, 60px); font-weight: 450; letter-spacing: -.03em; line-height: 1.05; }
+.lede { margin: 6px 0 0; color: #d3c2ec; font-size: clamp(14px, 1.5vw, 20px); letter-spacing: .05em; }
+.lede b { color: #b58ae6; padding: 0 9px; font-weight: 400; }
+.window {
+  position: relative;
+  z-index: 2;
+  max-width: 760px;
+  margin: 28px auto 0;
+  border: 1.5px solid #d8b4fe8c;
+  border-radius: 18px;
+  background: linear-gradient(160deg, #241536f2, #0e0818f7 70%);
+  box-shadow: inset 0 1px 0 #f3e8ff30, inset 0 0 34px #a855f726, 0 0 30px #8b4fd94d, 0 24px 60px #02010890;
+  transform: perspective(1200px) rotateX(4deg);
+  text-align: left;
+}
+.windowBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #c9a2ff33;
+  color: #f0e8fa;
+  font-size: 14px;
+  font-weight: 600;
+}
+.windowBar em { font-style: normal; color: #b58ae6; }
+.windowBar small { font-weight: 400; color: #cbb9e6; letter-spacing: .04em; }
+.windowDots { margin-left: auto; display: flex; gap: 6px; }
+.windowDots i { width: 8px; height: 8px; border-radius: 50%; background: #b9a8d2; opacity: .8; }
+.windowBody { display: grid; grid-template-columns: 58px 1fr; min-height: 190px; }
+.rail { display: grid; align-content: start; justify-items: center; gap: 10px; padding: 14px 0; border-right: 1px solid #c9a2ff26; }
+.rail a {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  color: #cbb9e6 !important;
+  text-decoration: none !important;
+  font-size: 16px;
+}
+.rail a[aria-current='page'] { border-color: #c9a2ff80; background: linear-gradient(150deg, #5b3a8f80, #241338e6); box-shadow: inset 0 0 10px #b678f833; color: #f0e8fa !important; }
+.code { padding: 16px 20px; font: 13px/2 var(--font-mono, monospace); color: #d9c8f2; overflow-wrap: anywhere; }
+.code ol { list-style: none; margin: 0; padding: 0; counter-reset: line; }
+.code li { counter-increment: line; display: flex; gap: 18px; }
+.code li::before { content: counter(line, decimal-leading-zero); color: #7d6f95; flex: none; }
+.code .comment { color: #a78bda; }
+.code .ok { color: #6ee7b7; }
+.code .warn { color: #e2c7ff; }
+.cursor { display: inline-block; width: 8px; height: 15px; background: #c084fc; vertical-align: -2px; box-shadow: 0 0 8px #a465ed; }
+.doors { position: relative; z-index: 3; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; max-width: 860px; margin: -26px auto 0; padding: 0 12px; }
+.door {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 20px 14px;
+  border: 1.5px solid #d8b4fe80;
+  border-radius: 18px;
+  background: linear-gradient(150deg, #3b2260cc, #130b23eb 70%);
+  box-shadow: inset 0 1px 0 #f3e8ff30, inset 0 0 22px #a855f72b, 0 0 22px #8b4fd94d, 0 16px 36px #02010890;
+  color: #f4edfc !important;
+  text-decoration: none !important;
+  font-size: clamp(15px, 1.6vw, 19px);
+  font-weight: 550;
+  transition: border-color .25s, box-shadow .25s;
+}
+.door:hover, .door:focus-visible { border-color: #e6ccff; box-shadow: inset 0 1px 0 #f3e8ff40, inset 0 0 28px #b678f83d, 0 0 30px #a465ed73, 0 16px 36px #02010890; }
+.door svg { width: 34px; height: 34px; color: #e9d5ff; filter: drop-shadow(0 0 6px #b678f8); }
+.door[aria-current='page'] { border-color: #e6ccff; }
+.rings { position: absolute; z-index: 0; left: 0; right: 0; bottom: 4%; width: 100%; height: 40%; pointer-events: none; filter: drop-shadow(0 0 3px #9d68e6); }
+.limb {
+  position: absolute;
+  z-index: 0;
+  left: -14%;
+  right: -14%;
+  bottom: -50%;
+  height: 60%;
+  border-radius: 50%;
+  border-top: 1px solid #c084fc59;
+  background: radial-gradient(ellipse at 50% 0%, #7c3aed3a, #0a0714 58%), #0a0714;
+  box-shadow: 0 -18px 70px #8b4fd94d;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cursor { animation: runtimeCursor 1.2s steps(2) infinite; }
+}
+@keyframes runtimeCursor { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+@media (max-width: 1024px) { .scene { margin-inline: -28px; padding-inline: 28px; } }
+@media (max-width: 600px) {
+  .scene { margin-inline: -20px; padding-inline: 20px; }
+  .doors { grid-template-columns: 1fr; margin-top: 18px; }
+  .window { transform: none; }
+  .windowBody { grid-template-columns: 46px 1fr; }
+}

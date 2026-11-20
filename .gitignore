@@ -18,6 +18,7 @@ qa-*.png
 !public/creative/material-study-v2.png
 # Preserve the supplied design originals; generated browser evidence stays local.
 !/references/build V3/*.png
+!/references/nsis/originals/*.png
 /references/build V3/qa/
 
 # Accidental nested checkout of this same repository. It carries its own .git,
