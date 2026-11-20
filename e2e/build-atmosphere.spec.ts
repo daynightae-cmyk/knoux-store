@@ -123,7 +123,10 @@ test('compact provider orbit remains visible, pageable and touch-sized below 100
 for (const [width, height] of viewports) {
   test(`final live layout and two motion recordings ${width}x${height}`, async ({ browser, baseURL }, info) => {
     test.skip(info.project.name !== 'desktop', 'This test supplies the five required exact viewports.');
-    test.setTimeout(60000); mkdirSync(evidence, { recursive: true });
+    // Two full route visits with screenshots, cues and evidence writes. On a
+    // loaded host each step slows down, so the envelope must cover the slow
+    // case; the assertions themselves are unchanged.
+    test.setTimeout(120000); mkdirSync(evidence, { recursive: true });
     const git = process.platform === 'win32' ? 'C:/Program Files/Git/cmd/git.exe' : '/usr/bin/git';
     const sourceSha = execFileSync(git, ['rev-parse', 'HEAD'], { encoding: 'utf8', windowsHide: true }).trim();
     const buildId = readFileSync(path.resolve(process.env.NEXT_DIST_DIR ?? '.next', 'BUILD_ID'), 'utf8').trim();

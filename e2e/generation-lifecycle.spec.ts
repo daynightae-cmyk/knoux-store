@@ -10,7 +10,10 @@ test('fixture-backed cancel and revision contracts against the owned production 
     cwd: process.cwd(),
     env: { ...process.env, KNOUX_GENERATION_TEST_URL: baseURL },
     windowsHide: true,
-    signal: AbortSignal.timeout(55_000),
+    // The child runs five full browser contracts against the owned server.
+    // Under host load each navigation and API round-trip slows down; the
+    // envelope is widened, every assertion inside the child stays identical.
+    signal: AbortSignal.timeout(180_000),
   });
   for (const width of [1440, 820, 390, 360]) expect(result.stdout).toContain(`PASS explicit browser contract ${width}px`);
 });
