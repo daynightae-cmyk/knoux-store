@@ -6,6 +6,8 @@ const execute = promisify(execFile);
 
 test('fixture-backed cancel and revision contracts against the owned production server', async ({ baseURL }, info) => {
   test.skip(info.project.name !== 'desktop', 'The contract measures its own four exact viewport widths.');
+  // The outer envelope must outlast the child's own abort budget below.
+  test.setTimeout(200_000);
   const result = await execute(process.execPath, ['--disable-warning=ExperimentalWarning', 'tests/generation-preview.browser.mjs'], {
     cwd: process.cwd(),
     env: { ...process.env, KNOUX_GENERATION_TEST_URL: baseURL },
