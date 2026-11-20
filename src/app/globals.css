@@ -4587,7 +4587,6 @@ body:has(.origin-room) .knoux-sentinel{display:none}
     radial-gradient(1.4px 1.4px at 88% 33%, #fff 98%, transparent),
     radial-gradient(1.1px 1.1px at 4% 62%, #f5d0fe 98%, transparent),
     radial-gradient(1.3px 1.3px at 98% 58%, #fff 98%, transparent),
-    radial-gradient(1.1px 1.1px at 24% 55%, #e9d5ff 98%, transparent),
     radial-gradient(1.3px 1.3px at 68% 6%, #fff 98%, transparent);
   animation: ecoTwinkle 5.2s ease-in-out infinite;
 }
