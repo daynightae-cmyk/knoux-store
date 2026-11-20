@@ -276,8 +276,14 @@ await check('the arrival gateway is a real composition and enters the real studi
   if (state.values.length !== 4 || state.values.some((href) => !href)) throw new Error(`value rail is not four real links: ${state.values.join(',')}`);
   if (state.forbiddenCounts) throw new Error('the reference\'s invented counts were reproduced');
   await page.locator('.eco-hero__enter-link').click();
-  await page.waitForTimeout(400);
-  const studioTop = await page.evaluate(() => Math.round(document.querySelector('#studio').getBoundingClientRect().top));
+  // Smooth scrolling is frame-driven: on a loaded host it can take longer
+  // than a fixed sleep. Poll until the studio actually arrives (same bound).
+  let studioTop = null;
+  for (let attempt = 0; attempt < 12; attempt++) {
+    await page.waitForTimeout(250);
+    studioTop = await page.evaluate(() => Math.round(document.querySelector('#studio').getBoundingClientRect().top));
+    if (Math.abs(studioTop) <= 160) break;
+  }
   if (Math.abs(studioTop) > 160) throw new Error(`Enter did not bring the studio into view: top=${studioTop}`);
   await page.screenshot({ path: `${OUT}-arrival-gateway.png` });
   return state;
