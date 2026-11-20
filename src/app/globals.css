@@ -4429,11 +4429,15 @@ html[data-chamber="armed"] .auth-panel.is-risen [data-stagger="foot"]{transition
 /* About / Origin Room */
 /* The room supplies About's living identity; pause the redundant global scene here. */
 body:has(.origin-room) .knoux-sentinel{display:none}
-.origin-room{position:relative;isolation:isolate;min-height:760px;height:100svh;max-height:1080px;overflow:hidden;background:#030405;color:#f2f0f3;border-bottom:1px solid #1d1f24}
+.origin-room{position:relative;isolation:isolate;min-height:760px;height:100svh;max-height:1080px;overflow:hidden;background:#0a0616;color:#f2f0f3;border-bottom:1px solid #1d1f24}
+/* Vivid institution sky (owner directive 2026-11-20): the chamber keeps its
+   dark stage, but the void is violet and the corners carry the same nebula
+   glow as the division heroes. The overlay never intercepts the lamp. */
+.origin-room::after{content:'';position:absolute;inset:0;z-index:3;pointer-events:none;background:radial-gradient(ellipse 42% 34% at 6% -4%,rgba(168,85,247,.2),transparent 70%),radial-gradient(ellipse 40% 30% at 96% 0%,rgba(217,70,239,.13),transparent 70%),radial-gradient(ellipse 52% 40% at 50% 108%,rgba(124,58,237,.16),transparent 72%)}
 .origin-room__scene{position:absolute;inset:0;z-index:0}
 .origin-room__scene canvas{display:block}
-.origin-room__scene::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(circle at 29% 48%,transparent 0 16%,rgba(3,4,5,.18) 42%,rgba(3,4,5,.58) 100%)}
-.origin-room__scene::after{content:"";position:absolute;inset:0;z-index:2;background:#030405;opacity:.08;pointer-events:none;transition:opacity 1.35s cubic-bezier(.2,.7,.2,1)}
+.origin-room__scene::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(circle at 29% 48%,transparent 0 16%,rgba(10,6,22,.18) 42%,rgba(10,6,22,.58) 100%)}
+.origin-room__scene::after{content:"";position:absolute;inset:0;z-index:2;background:#0a0616;opacity:.08;pointer-events:none;transition:opacity 1.35s cubic-bezier(.2,.7,.2,1)}
 .origin-room--closed .origin-room__scene::after{opacity:.62}
 .origin-room--waking .origin-room__scene::after{opacity:.2}
 .origin-room__fallback-mark{position:absolute;height:36%;width:auto;left:54%;top:49%;transform:translate(-50%,-50%);fill:none;stroke:#d8d4df;stroke-width:2.2;opacity:.72;filter:drop-shadow(0 0 22px #aaa1b533);transition:opacity .8s ease}
