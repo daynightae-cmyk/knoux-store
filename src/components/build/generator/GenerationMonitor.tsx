@@ -1,23 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, type FormEvent, type ReactNode, useEffect, useCallback } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { GENERATION_PROFILES, type GenerationProfile } from '@/lib/build/profile';
 import { PLAN_SECTIONS, parseEngineeringPlan, type EngineeringPlan, type EngineeringSession } from '@/lib/build/engineering-plan';
 import type { BuildWorkspaceState } from '@/lib/build/workspace-state';
 import type { VerificationCheck } from '@/lib/build/types';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { currentWorkspaceVerificationChecks } from '../dev/verification-results';
-import {
-  createWriteBatchClient,
-  computeWriteDiffsClient,
-  authorizeWriteBatchClient,
-  executeWriteBatchClient,
-  cancelWriteBatchClient,
-  planToWriteOperations,
-  summarizeDiffResult,
-  type DiffResult,
-} from '@/lib/build/write-executor-client';
 import { GeneratedProjectExecution } from './GeneratedProjectExecution';
 import styles from './preview-workspace.module.css';
 

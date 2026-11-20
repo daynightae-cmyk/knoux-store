@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   GENERATED_PROJECT_CONFIRMATION,
   GENERATED_PROJECT_DEPLOY_CONFIRMATION,

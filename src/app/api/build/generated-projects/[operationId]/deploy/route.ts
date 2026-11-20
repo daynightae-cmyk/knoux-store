@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { guardBuildApi, resolveBuildOwnerId } from '@/lib/build/api-guard';
 import {
-  GENERATED_PROJECT_DEPLOY_CONFIRMATION,
   generatedOperationId,
   generatedDeployTarget,
   generatedDeployConfirmation,
@@ -24,9 +23,9 @@ function getGeneratedProjectsRoot(): string {
 }
 
 /** Verify containment. */
-function verifyContainment(root: string, targetPath: string): { ok: boolean; reason?: string } {
+async function verifyContainment(root: string, targetPath: string): Promise<{ ok: boolean; reason?: string }> {
   try {
-    const { realpathSync } = require('node:fs');
+    const { realpathSync } = await import('node:fs');
     const resolvedRoot = realpathSync.native(root);
     const resolvedTarget = realpathSync.native(targetPath);
     const prefix = resolvedRoot.endsWith(path.sep) ? resolvedRoot : `${resolvedRoot}${path.sep}`;
@@ -115,7 +114,7 @@ export async function POST(
   const compiledDir = path.join(projectDir, 'dist');
   const deployDir = path.join(root, 'deploy', operationId);
 
-  const containment = verifyContainment(root, deployDir);
+  const containment = await verifyContainment(root, deployDir);
   if (!containment.ok) {
     return NextResponse.json(
       { error: 'path-rejected', message: containment.reason },

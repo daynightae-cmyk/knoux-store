@@ -2,7 +2,6 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { guardBuildApi, resolveBuildOwnerId } from '@/lib/build/api-guard';
 import { generatedOperationId, type GeneratedRuntimeReceipt } from '@/lib/build/generated-project-contract';
 import { promises as fs } from 'node:fs';
-import path from 'node:path';
 
 export const dynamic = 'force-dynamic';
 

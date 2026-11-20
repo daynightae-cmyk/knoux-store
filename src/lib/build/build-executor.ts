@@ -7,8 +7,8 @@
  */
 
 import path from 'node:path';
-import type { BuildCapability, CapabilityStatus, ProjectIdentity } from './types';
-import { getProjectWriteDir, verifyContainment } from './write-executor';
+import type { BuildCapability, CapabilityStatus } from './types';
+import { getProjectWriteDir } from './write-executor';
 
 /** Build task definition. */
 export interface BuildTask {
@@ -75,7 +75,7 @@ export async function executeBuildTask(
   request: BuildExecutionRequest,
   abortSignal?: AbortSignal
 ): Promise<BuildExecutionResult> {
-  const { projectId, taskId, ticket, bridgeUrl, cwd, env } = request;
+  const { projectId, taskId, ticket, bridgeUrl, cwd } = request;
 
   const task = GENERATED_PROJECT_TASKS.find(t => t.id === taskId);
   if (!task) {
@@ -143,7 +143,7 @@ export async function executeBuildTask(
         if (!line.startsWith('event:') && !line.startsWith('data:')) continue;
 
         if (line.startsWith('event:')) {
-          const event = line.slice(6).trim();
+          const _event = line.slice(6).trim();
           // We'll handle events when we see the data line
         } else if (line.startsWith('data:')) {
           try {

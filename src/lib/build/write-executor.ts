@@ -13,12 +13,11 @@
  * No arbitrary shell, no host credential leakage, no same-origin privilege escalation.
  */
 
-import { promises as fs, constants, realpathSync } from 'node:fs';
+import { promises as fs, realpathSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
 import type { BuildCapability, CapabilityStatus, ProjectIdentity } from './types';
-import { redactSecrets } from '../security/redact';
 
 /** Maximum bytes for a single written file. */
 export const MAX_WRITE_FILE_BYTES = 2 * 1024 * 1024; // 2 MB
@@ -392,7 +391,7 @@ async function runGit(cwd: string, args: string[]): Promise<string> {
 
 /** Capability status for the write executor. */
 export function getWriteExecutorCapabilities(): Record<BuildCapability, CapabilityStatus> {
-  const root = getWriteExecutorRoot();
+  getWriteExecutorRoot();
   const writeAvailable = process.env.KNOUX_WRITE_EXECUTOR_ENABLED === '1';
 
   return {

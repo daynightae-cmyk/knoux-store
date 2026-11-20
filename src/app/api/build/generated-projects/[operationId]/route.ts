@@ -1,47 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { guardBuildApi, resolveBuildOwnerId } from '@/lib/build/api-guard';
-import {
-  GENERATED_PROJECT_DEPLOY_CONFIRMATION,
-  generatedOperationId,
-  generatedDeployTarget,
-  generatedDeployConfirmation,
-  type GeneratedRuntimeReceipt,
-  type DeployReceipt,
-} from '@/lib/build/generated-project-contract';
-import { createHash } from 'node:crypto';
-import { promises as fs, realpathSync } from 'node:fs';
-import path from 'node:path';
+import { generatedOperationId, type GeneratedRuntimeReceipt } from '@/lib/build/generated-project-contract';
 
 export const dynamic = 'force-dynamic';
 
 /** In-memory operation store (shared with parent route). */
 const operationStore = new Map<string, GeneratedRuntimeReceipt>();
-
-/** Get generated projects root. */
-function getGeneratedProjectsRoot(): string {
-  const envRoot = process.env.KNOUX_GENERATED_PROJECTS_ROOT;
-  if (envRoot) return path.resolve(envRoot);
-  return path.resolve(process.cwd(), '..', 'knoux-generated-projects');
-}
-
-/** Verify containment. */
-function verifyContainment(root: string, targetPath: string): { ok: boolean; reason?: string } {
-  try {
-    const resolvedRoot = realpathSync.native(root);
-    const resolvedTarget = realpathSync.native(targetPath);
-    const prefix = resolvedRoot.endsWith(path.sep) ? resolvedRoot : `${resolvedRoot}${path.sep}`;
-    if (resolvedTarget === resolvedRoot || resolvedTarget.startsWith(prefix)) {
-      return { ok: true };
-    }
-    return { ok: false, reason: 'Target path escapes the generated projects root.' };
-  } catch {
-    return { ok: false, reason: 'Path resolution failed.' };
-  }
-}
-
-function sha256(content: string | Buffer): string {
-  return createHash('sha256').update(content).digest('hex');
-}
 
 /** GET /api/build/generated-projects/[operationId] — get operation status. */
 export async function GET(

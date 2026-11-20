@@ -5,7 +5,6 @@ import { loadBridgeConfig, bridgeClient } from '@/lib/build/bridge-config';
 import { mintTicket, scopesForAction } from '@/lib/build/bridge-tickets';
 import { parseEslint, parseTestRunner, parseTypeScript } from '@/lib/build/diagnostics';
 import { parseExecStream } from '@/lib/build/bridge-client';
-import type { BuildExecutionResult } from '@/lib/build/build-executor';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 600;

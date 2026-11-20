@@ -135,7 +135,7 @@ export default function UniversalProviderEngine() {
             <span className={styles.panelTitle}>Model Discovery</span>
           </div>
           <div className={styles.discoveryGrid} role="grid" aria-label="Discovered models">
-            {['Gemini 2.5 Pro', 'Claude 3.7 Sonnet', 'GPT-4o', 'Grok 3', 'DeepSeek V3', 'Qwen 2.5 Max'].map((model, i) => (
+            {['Gemini 2.5 Pro', 'Claude 3.7 Sonnet', 'GPT-4o', 'Grok 3', 'DeepSeek V3', 'Qwen 2.5 Max'].map((model) => (
               <div key={model} className={styles.discoveryCard} role="gridcell">
                 <span className={styles.dotBadge} aria-hidden="true"></span>
                 <span>{model}</span>

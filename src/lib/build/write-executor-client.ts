@@ -76,7 +76,7 @@ export async function authorizeWriteBatchClient(batchId: string): Promise<{ batc
 }
 
 /** Execute an authorized write batch. */
-export async function executeWriteBatchClient(batchId: string, abortSignal?: AbortSignal): Promise<ExecuteResult> {
+export async function executeWriteBatchClient(batchId: string, _abortSignal?: AbortSignal): Promise<ExecuteResult> {
   return post('execute', { batchId });
 }
 

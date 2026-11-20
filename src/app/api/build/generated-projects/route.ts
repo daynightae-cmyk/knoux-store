@@ -3,26 +3,16 @@ import { guardBuildApi, resolveBuildOwnerId } from '@/lib/build/api-guard';
 import {
   GENERATED_PROJECT_KIND,
   GENERATED_PROJECT_CONFIRMATION,
-  GENERATED_PROJECT_DEPLOY_CONFIRMATION,
-  GENERATED_PROJECT_MAX_FILES,
-  GENERATED_PROJECT_MAX_FILE_BYTES,
-  GENERATED_PROJECT_MAX_TOTAL_BYTES,
-  GENERATED_PROJECT_MAX_ARTIFACT_BYTES,
   parseGeneratedProject,
-  generatedProjectPath,
   generatedOperationId,
-  generatedDeployTarget,
-  generatedDeployConfirmation,
   type GeneratedProjectPlan,
   type GeneratedRuntimeReceipt,
   type GeneratedFileReceipt,
   type BuildReceipt,
   type ExportReceipt,
-  type DeployReceipt,
-  type PreviewReceipt,
 } from '@/lib/build/generated-project-contract';
-import { createHash, randomUUID } from 'node:crypto';
-import { promises as fs, constants, realpathSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { promises as fs, realpathSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { redactSecrets } from '@/lib/security/redact';
@@ -101,7 +91,7 @@ async function runCommand(
 }
 
 /** Create a minimal package.json for static build. */
-function createPackageJson(projectDir: string): string {
+function createPackageJson(): string {
   return JSON.stringify({
     name: 'knoux-generated-static',
     version: '0.0.0',
@@ -114,7 +104,7 @@ function createPackageJson(projectDir: string): string {
 }
 
 /** Create a static build script. */
-function createBuildScript(projectDir: string): string {
+function createBuildScript(): string {
   return `
 const fs = require('fs');
 const path = require('path');
@@ -335,8 +325,8 @@ export async function POST(request: NextRequest) {
     receipt.updatedAt = new Date().toISOString();
 
     // Create package.json and build script
-    await fs.writeFile(path.join(projectDir, 'package.json'), createPackageJson(projectDir), 'utf8');
-    await fs.writeFile(path.join(projectDir, 'build-static.js'), createBuildScript(projectDir), 'utf8');
+    await fs.writeFile(path.join(projectDir, 'package.json'), createPackageJson(), 'utf8');
+    await fs.writeFile(path.join(projectDir, 'build-static.js'), createBuildScript(), 'utf8');
 
     // Run build
     const buildResult = await runCommand(
