@@ -32,6 +32,28 @@ test.describe('KNOuX Store film', () => {
     await expect(player).toHaveAttribute('allowfullscreen', '');
   });
 
+  test('keeps the authentic still over the player until the embed loads', async ({ page }) => {
+    await page.route(`https://www.youtube-nocookie.com/embed/${FILM_ID}?*`, async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 750));
+      await route.fulfill({
+        contentType: 'text/html',
+        body: '<!doctype html><html lang="en"><title>Still fixture</title></html>',
+      });
+    });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+    await page.getByRole('button', { name: 'Play the film', exact: true }).click();
+
+    const still = page.locator('[data-film-still]');
+    await expect(still).toHaveAttribute('data-ready', 'false');
+    await expect(still).toHaveCSS('opacity', '1');
+    await expect(still).toHaveCSS('background-image', /knoux-store-film-NOhO02YeGg4\.jpg/);
+
+    await expect(still).toHaveAttribute('data-ready', 'true');
+    await expect(still).toHaveCSS('opacity', '0');
+    await expect(still).toHaveCSS('visibility', 'hidden');
+  });
+
   test('has no critical or serious automated accessibility violation', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 

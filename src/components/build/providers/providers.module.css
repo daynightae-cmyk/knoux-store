@@ -83,7 +83,6 @@
   box-shadow: inset 0 0 15px #b98af52b, 0 0 14px #6d439b42;
 }
 
-.providerOrbit { display: none; }
 .workspaceViews { display: none; }
 
 @media (max-width: 650px) {
@@ -103,81 +102,86 @@
   .standalone.center.center .tabs button { padding-inline: 8px; font-size: 11px; }
   .standalone.center.center .detailHeading .actions > :is(button,a) { min-height: 35px; padding-block: 6px; }
   .standalone.center.center .detail .form :is(input:not([type=checkbox]),select) { min-height: 36px; padding-block: 7px; }
-  .providerOrbit { display: block; position: absolute; inset: -49px 0 auto; height: 820px; pointer-events: none; }
+  .providerOrbit { display: block; position: absolute; inset: -60px 0 auto; height: 960px; pointer-events: none; z-index: 0; }
   .orbitTrack {
     position: absolute;
-    inset: 38px 5.5% 36px 27%;
+    inset: 40px 6% 40px 26%;
     border: 1px solid #ccabdd8a;
-    border-left-color: #a585c82b;
-    border-radius: 51% 49% 47% 53%;
-    transform: rotate(10deg);
-    box-shadow: 0 0 31px #9470da27;
+    border-left-color: #8e6bc833;
+    border-radius: 50%;
+    box-shadow: 0 0 40px #9470da22, inset 0 0 28px #a271e11a;
+    pointer-events: none;
+    isolation: isolate;
+  }
+  .orbitTrack::after {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    border: 1px dashed #b789f94d;
     pointer-events: none;
   }
 
   .center.center.center .providerOrbit button {
     position: absolute;
-    z-index: 2;
-    left: var(--orbit-left);
-    top: var(--orbit-top);
-    transform: translateX(-50%);
+    z-index: 3;
+    offset-path: circle(42% at 50% 50%);
+    offset-distance: var(--orbit-start);
+    offset-rotate: 0deg;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     min-width: 0;
-    min-height: 48px;
-    padding: 3px;
+    min-height: 72px;
+    padding: 8px 6px;
     border: 0;
-    border-radius: 8px;
+    border-radius: 10px;
     background: transparent;
     text-align: center;
     white-space: nowrap;
-    pointer-events: auto;
+    pointer-events: none;
+    backdrop-filter: blur(6px);
+    animation: provider-orbit-travel 52s linear infinite;
   }
 
   .providerOrbit .orbit {
-    width: 60px;
-    height: 60px;
-    border: 1px solid #ba95e680;
+    width: 64px;
+    height: 64px;
+    border: 1px solid #ba95e699;
     border-radius: 50%;
-    background: radial-gradient(ellipse at 36% 22%, #342446, #141022 78%);
-    box-shadow: inset 0 0 15px #be9be63b, 0 0 17px #a271e14f;
-    transition: transform 220ms ease, box-shadow 240ms ease;
+    background: radial-gradient(circle at 38% 28%, #4a327a, #141022 82%);
+    box-shadow: inset 0 0 20px #be9be64d, 0 0 30px #a271e138, 0 0 14px rgba(255,255,255,.06);
+    transition: transform 260ms ease, box-shadow 260ms ease;
   }
-  .providerOrbit .orbit img { width: 34px; height: 34px; }
-  .detailMark {
-    position: absolute;
-    top: 120px;
-    right: 22px;
-    display: grid;
-    place-items: center;
-    width: 150px;
-    height: 105px;
-    pointer-events: none;
-    isolation: isolate;
-    color: #e9ccff;
-  }
-  .detailMark::before {
-    content: '';
-    position: absolute;
-    inset: 20px 0 14px;
-    z-index: -1;
-    border: 1px solid #ba91ef80;
-    border-radius: 50%;
-    transform: rotate(-15deg);
-    background: radial-gradient(ellipse at center,#8b58d84d,transparent 67%);
-    box-shadow: 0 0 19px #a77add50;
-  }
-  .detailMark svg { width: 64px; height: 89px; transform: rotate(-12deg); fill: #bb8df132; stroke: currentColor; stroke-width: 2; stroke-dasharray: 3 6; filter: drop-shadow(0 0 5px #b882ff); }
+  .providerOrbit .orbit img { width: 36px; height: 36px; filter: drop-shadow(0 0 10px rgba(255,255,255,.35)); }
+  .providerOrbit button span { font-size: 11px; font-weight: 600; letter-spacing: .04em; color:#e8dfff; text-shadow: 0 2px 8px rgba(0,0,0,.55); white-space: nowrap; }
 
-  .providerOrbit button:is(:hover, :focus-visible, [aria-current='true']) .orbit { box-shadow: 0 0 20px #b886ef90; }
+  .providerOrbit button:is(:hover, :focus-visible, [aria-current='true']) .orbit {
+    box-shadow: 0 0 26px #c997ffcc, inset 0 0 26px #dbb7ff55;
+    transform: translateX(6px) scale(1.12);
+  }
+  .providerOrbit button:is(:hover, :focus-visible) span { color:#fff; }
+
   @media (prefers-reduced-motion: no-preference) {
-    .providerOrbit button:is(:hover, :focus-visible) .orbit { transform: translateX(4px) scale(1.08); }
-    .detailMark svg { animation: provider-mark-float 6s ease-in-out infinite; }
+    .providerOrbit button {
+      animation: provider-orbit-travel 52s linear infinite;
+    }
+    .orbitTrack {
+      animation: orbit-track-glow 6s ease-in-out infinite alternate;
+    }
+  }
+  @keyframes provider-orbit-travel {
+    from { offset-distance: var(--orbit-start); }
+    to { offset-distance: calc(var(--orbit-start) + 100%); }
+  }
+  @keyframes orbit-track-glow {
+    from { box-shadow: 0 0 35px #9470da22, inset 0 0 24px #a271e11a; }
+    to { box-shadow: 0 0 60px #c997ff33, inset 0 0 34px #b789f92b; }
   }
   @media (prefers-reduced-motion: reduce) {
     .providerOrbit .orbit { transition: none; }
+    .providerOrbit button, .orbitTrack { animation: none; }
   }
 }
 
@@ -192,7 +196,7 @@
   0%, 100% { transform: translateY(0) rotate(-12deg); }
   50% { transform: translateY(-5px) rotate(-9deg); }
 }
-.docsLink{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:10px 17px;background:rgba(184,170,204,.09);color:#ded8e7;font:inherit;font-size:12px;border:0;border-radius:24px;cursor:pointer;text-decoration:none;transition:background .2s,color .2s,box-shadow .2s}.docsLink:hover:not(:disabled){background:rgba(172,147,200,.18);color:#e2d6f2;box-shadow:0 0 24px rgba(196,180,218,.12)}.docsLink:focus-visible{outline:2px solid #dbc7f4;outline-offset:4px}
+.secretField{display:flex;align-items:center;gap:10px;width:100%;min-width:0}.secretField label{margin:0;font-size:12px;color:#d8d3dd;white-space:nowrap;flex-shrink:0}.secretField input{flex:1;min-width:0}.secretHint{font-size:11px;color:#aaa3b5;white-space:nowrap;flex-shrink:0;margin-left:8px}.docsLink{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:10px 17px;background:rgba(184,170,204,.09);color:#ded8e7;font:inherit;font-size:12px;border:0;border-radius:24px;cursor:pointer;text-decoration:none;transition:background .2s,color .2s,box-shadow .2s}.docsLink:hover:not(:disabled){background:rgba(172,147,200,.18);color:#e2d6f2;box-shadow:0 0 24px rgba(196,180,218,.12)}.docsLink:focus-visible{outline:2px solid #dbc7f4;outline-offset:4px}
 
 .compactOrbit { display: none; }
 
@@ -254,3 +258,16 @@
   }
 }
 @keyframes provider-orbit-travel { to { offset-distance: 100%; } }
+
+/* Provider reference is an independent first screen; management remains below. */
+.center.standalone{max-width:none;padding:0!important}
+.standalone .composition{padding:32px clamp(16px,4vw,70px);background:#0b0812;gap:32px}
+.standalone .workspaceViews{display:none}
+:global(.dev-cinematic):has(.standalone) :global(.dev-shell__content){padding:0!important}
+:global(.dev-cinematic):has(.standalone) :global(.dev-crumb){display:none}
+:global(.dev-cinematic):has(.standalone) :global(.dev-shell__stage){background:#07050e!important}
+@media(min-width:1025px){
+ :global(.dev-cinematic):has(.standalone) :global(.dev-shell__grid){display:block;max-width:none}
+ :global(.dev-cinematic):has(.standalone) :global(.dev-sidebar),:global(.dev-cinematic):has(.standalone) :global(.dev-shell__top){display:none}
+ :global(.dev-cinematic):has(.standalone){padding:0!important}
+}

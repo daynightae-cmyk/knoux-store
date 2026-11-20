@@ -6,22 +6,22 @@
     "id": "custom",
     "label": "CUSTOM"
   },
-  "at": "2026-10-02T22:46:11.367Z",
-  "branch": "feat/build-real-integrations-os",
-  "sha": "687778e7f294aa550474730200c6f3ecd41e72ed",
+  "at": "2026-11-19T10:22:41.963Z",
+  "branch": "codex/provider-reference-first-screen",
+  "sha": "2cb0274905303d3b9adba10d78f40b17890ff0c0",
   "document": "same-origin loaded",
   "observations": [
     {
-      "id": 1790981152664,
+      "id": 1795083750559,
       "kind": "error",
-      "message": "Preview observation token=[REDACTED]",
-      "at": "2026-10-02T22:45:52.664Z"
+      "message": "Preview observation token=[REDACTED]]",
+      "at": "2026-11-19T10:22:30.559Z"
     },
     {
-      "id": 1790981153113,
+      "id": 1795083750835,
       "kind": "resource",
       "message": "img failed to load: /not-a-real-preview-image.png",
-      "at": "2026-10-02T22:45:53.110Z"
+      "at": "2026-11-19T10:22:30.834Z"
     }
   ],
   "inspected": {
@@ -30,7 +30,7 @@
     "classes": "NONE",
     "role": "heading",
     "name": "The productuniverse.",
-    "box": "851×245 at 76, 300",
+    "box": "873×209 at 76, 315",
     "styles": [
       {
         "property": "color",
@@ -42,7 +42,7 @@
       },
       {
         "property": "font-size",
-        "value": "129.6px"
+        "value": "112.32px"
       },
       {
         "property": "display",
@@ -79,17 +79,22 @@
     {
       "tag": "header",
       "role": "banner",
-      "name": "KNOuXrSoftwareWordPressWebGrowthCreativeSolutionsBuildACCESSSEARCH⌘KMENU+"
+      "name": "KNOuXr KNOuX homeSignalSoftwareWordPressWebGrowthCreativeSolutionsBuildKAWAKENLanguageEnglishالعربيةاردوACCESSSEARCH⌘K Open searchMENU+ Open navigation"
     },
     {
       "tag": "a",
       "role": "link",
-      "name": "KNOuX home"
+      "name": "KNOuXr KNOuX home"
     },
     {
       "tag": "nav",
       "role": "navigation",
       "name": "Divisions"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Signal"
     },
     {
       "tag": "a",
@@ -127,6 +132,16 @@
       "name": "Build"
     },
     {
+      "tag": "button",
+      "role": "button",
+      "name": "Activate the KNOuX awakening — KAWAKEN"
+    },
+    {
+      "tag": "select",
+      "role": "combobox",
+      "name": "Language"
+    },
+    {
       "tag": "a",
       "role": "link",
       "name": "ACCESS"
@@ -134,12 +149,12 @@
     {
       "tag": "button",
       "role": "button",
-      "name": "Open search"
+      "name": "SEARCH⌘K Open search"
     },
     {
       "tag": "button",
       "role": "button",
-      "name": "Open navigation"
+      "name": "MENU — Open navigation"
     },
     {
       "tag": "main",
@@ -169,7 +184,7 @@
     {
       "tag": "a",
       "role": "link",
-      "name": "Ledger (section)"
+      "name": "LDGLedger (section)"
     },
     {
       "tag": "a",
@@ -180,6 +195,16 @@
       "tag": "a",
       "role": "link",
       "name": "CMPComposer"
+    },
+    {
+      "tag": "h2",
+      "role": "heading",
+      "name": "KX PRIVATE VPN™"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "EXPLORE KX ↗"
     },
     {
       "tag": "div",
@@ -439,6 +464,221 @@
     {
       "tag": "h2",
       "role": "heading",
+      "name": "KNOuX Systems Register"
+    },
+    {
+      "tag": "p",
+      "role": "status",
+      "name": ""
+    },
+    {
+      "tag": "div",
+      "role": "group",
+      "name": "Choose a verified system"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "SW-01ONE"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "SW-02Forge"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "SW-03Repair"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "SW-04Organizer"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "SW-05REC"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "SW-06Player X"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "SW-07Clipboard"
+    },
+    {
+      "tag": "h3",
+      "role": "heading",
+      "name": "KNOUX ONE"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Open dossier↗"
+    },
+    {
+      "tag": "h4",
+      "role": "heading",
+      "name": "KNOUX ONE"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "IN FIELD"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Open dossier↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Repository ↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Declared preview ↗"
+    },
+    {
+      "tag": "h4",
+      "role": "heading",
+      "name": "KNOuX Forge"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "SHOW"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Open dossier↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Repository ↗"
+    },
+    {
+      "tag": "h4",
+      "role": "heading",
+      "name": "KNOuX Repair"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "SHOW"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Open dossier↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Repository ↗"
+    },
+    {
+      "tag": "h4",
+      "role": "heading",
+      "name": "KNOuX SmartOrganizer"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "SHOW"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Open dossier↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Repository ↗"
+    },
+    {
+      "tag": "h4",
+      "role": "heading",
+      "name": "KNOuX REC"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "SHOW"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Open dossier↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Repository ↗"
+    },
+    {
+      "tag": "h4",
+      "role": "heading",
+      "name": "KNOuX Player X"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "SHOW"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Open dossier↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Repository ↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Declared preview ↗"
+    },
+    {
+      "tag": "h4",
+      "role": "heading",
+      "name": "KNOuX Clipboard AI"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "SHOW"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Open dossier↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Repository ↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Declared preview ↗"
+    },
+    {
+      "tag": "h2",
+      "role": "heading",
       "name": "One systemat a time."
     },
     {
@@ -559,7 +799,7 @@
     {
       "tag": "footer",
       "role": "contentinfo",
-      "name": "THE WORK CONTINUESLet's makewhat comes next.↗Divisions01 Software02 WordPress03 Web04 Growth05 Creative06 Solutions07 Labs08 InstitutionGrowth channelsGoogle Ad"
+      "name": "The work continuesLet's makewhat comes next.↗Divisions01 Software02 WordPress03 Web04 Growth05 Creative06 Solutions07 Labs08 InstitutionGrowth channelsGoogle Ad"
     },
     {
       "tag": "a",
@@ -580,166 +820,6 @@
       "tag": "a",
       "role": "link",
       "name": "03 Web"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "04 Growth"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "05 Creative"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "06 Solutions"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "07 Labs"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "08 Institution"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Google Advertising"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Meta Advertising"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Social Media"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Content Systems"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "SEO & Discoverability"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Growth overview"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Ecosystem overview"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Themes"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Plugins"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Blocks"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Starter Sites"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Solutions"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Signal"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Labs"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Work"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Engineering"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "About"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Contact"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "KNOuX®"
-    },
-    {
-      "tag": "nav",
-      "role": "navigation",
-      "name": "Footer navigation"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Software"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "WordPress"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Web"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Growth"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Creative"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Solutions"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Build"
     }
   ],
   "screenshot": "unavailable"

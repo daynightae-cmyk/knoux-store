@@ -1,2 +1,5 @@
-import { ProvidersPage } from '@/components/build/dev/ProvidersPage';
-export default function Page() { return <ProvidersPage />; }
+import { ProviderCenter } from '@/components/build/providers/ProviderCenter';
+
+export default function Page() {
+  return <ProviderCenter />;
+}
