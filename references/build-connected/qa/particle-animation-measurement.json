@@ -1,0 +1,8 @@
+{
+  "measuredAt": "2026-11-20T12:58:10.779Z",
+  "source": "Real browser animation; 60 browser frames, hidden box pause, persistent canvas across route navigation",
+  "particles": 1700,
+  "paints": 71,
+  "meanPaintMs": 2.71,
+  "sampleMs": 156.9
+}

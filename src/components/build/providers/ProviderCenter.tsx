@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { AGENT_PERMISSIONS, type ProviderWorkspaceSnapshot, type ProviderDefinition, type ProviderProfile, type AuthSource } from '@/lib/ai/provider-os/types';
@@ -8,6 +8,7 @@ import { providerConnectionLabel } from '@/lib/ai/provider-os/connection-label';
 import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import styles from './providers.module.css';
+import { ProviderHero } from './ProviderHero';
 import { PlatformFacts } from './PlatformFacts';
 import { CustomMetadata } from './CustomMetadata';
 import { providerMark } from './provider-marks';
@@ -21,18 +22,6 @@ const orbitSlots = [
     ['groq', 144], ['mistral', 180], ['deepseek', 216], ['qwen', 252],
     ['grok', 288], ['opencode-go', 324],
 ] as const;
-const ORBIT_CX = 50; // center X %
-const ORBIT_CY = 50; // center Y %
-const ORBIT_RX = 42; // orbit radius X %
-const ORBIT_RY = 42; // orbit radius Y %
-function orbitPoint(angleDeg: number) {
-    const rad = (angleDeg * Math.PI) / 180;
-    // 0 deg = top, clockwise; screen Y grows downward
-    const left = ORBIT_CX + ORBIT_RX * Math.sin(rad);
-    const top = ORBIT_CY - ORBIT_RY * Math.cos(rad);
-    const start = (angleDeg / 360) * 100; // offset-distance start %
-    return { left: `${left}%`, top: `${top}%`, start: `${start}%` };
-}
 const providerOrder = new Map<string, number>([consoleProvider, ...orbitSlots.map(([id]) => id)].map((id, rank) => [id, rank]));
 
 function ProviderMark({ definition }: { definition: ProviderDefinition }) {
@@ -45,7 +34,7 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     const { dispatch } = useBuildWorkspace();
     const [data, setData] = useState<ProviderWorkspaceSnapshot | null>(null), [message, setMessage] = useState(''), [busy, setBusy] = useState(false);
     const [search, setSearch] = useState(''), [category, setCategory] = useState('ALL'), [selected, setSelected] = useState(''), [tab, setTab] = useState('Overview');
-    const [orbitPage, setOrbitPage] = useState(0);
+
     const [wizard, setWizard] = useState(false), [profileName, setProfileName] = useState(''), [authMode, setAuthMode] = useState<AuthSource['mode']>('API_KEY'), [credentialId, setCredentialId] = useState(''), [reference, setReference] = useState('');
     const [editProfile, setEditProfile] = useState<{
         id: string;
@@ -102,15 +91,6 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     const writable = data?.persistence === 'AVAILABLE', vaultWritable = writable && data?.secretStore.writable;
     const filtered = definitions.filter(item => (category === 'ALL' || item.class === category) && `${item.name} ${item.id} ${item.transport}`.toLowerCase().includes(search.toLowerCase()));
     if (!embedded) filtered.sort((a, b) => (providerOrder.get(a.id) ?? Infinity) - (providerOrder.get(b.id) ?? Infinity));
-    const orbitProviders = orbitSlots.flatMap(([id, angle]) => {
-        const provider = filtered.find(item => item.id === id);
-        if (!provider) return [];
-        const point = orbitPoint(angle);
-        return [{ provider, ...point }];
-    });
-    const lastOrbitPage = Math.max(0, Math.ceil(orbitProviders.length / 3) - 1);
-    const visibleOrbitPage = Math.min(orbitPage, lastOrbitPage);
-    const compactOrbit = orbitProviders.slice(visibleOrbitPage * 3, visibleOrbitPage * 3 + 3);
     async function command(input: Record<string, unknown>, workspaceId?: string): Promise<boolean> {
         if (inFlight.current)
             return false;
@@ -204,13 +184,13 @@ export function ProviderCenter({ embedded = false }: Readonly<{
     }
     const models = (profile?.models ?? []).filter(model => (showAll || (model.modalities.text && model.lifecycle !== 'deprecated' && model.catalog?.buildEligible !== false)) && (!freeOnly || (model.pricing.inputPerMillion === 0 && model.pricing.outputPerMillion === 0)) && `${model.modelId} ${model.displayName}`.toLowerCase().includes(modelSearch.toLowerCase()));
     const heading = <header className={styles.heading}><span className={styles.eyebrow}>PROVIDERS / AI ECOSYSTEM</span>{embedded ? <h2>Providers</h2> : <h1>Providers</h1>}</header>;
-    const toolbar = <div className={styles.toolbar}><label className={styles.search}>Search providers<input type="search" value={search} onChange={event => { setSearch(event.target.value); setOrbitPage(0); if (providerBrowse.current) providerBrowse.current.open = true; }} placeholder="Provider, transport, agent…"/></label>{data?.workspaces?.length ? <label>Provider workspace<select disabled={busy} value={data.workspaceId ?? ''} onChange={event => void command({ action: 'WORKSPACE_SELECT' }, event.target.value)}>{data.workspaces.map(workspace => <option key={workspace.id} value={workspace.id}>{workspace.name}</option>)}</select></label> : null}<button type="button" disabled={busy} onClick={() => void load().catch(() => setMessage('Provider refresh failed.'))}>Refresh facts ↗</button>{writable ? <button type="button" disabled={busy} onClick={() => {
+    const toolbar = <div className={styles.toolbar}><label className={styles.search}>Search providers<input type="search" value={search} onChange={event => { setSearch(event.target.value); if (providerBrowse.current) providerBrowse.current.open = true; }} placeholder="Provider, transport, agent…"/></label>{data?.workspaces?.length ? <label>Provider workspace<select disabled={busy} value={data.workspaceId ?? ''} onChange={event => void command({ action: 'WORKSPACE_SELECT' }, event.target.value)}>{data.workspaces.map(workspace => <option key={workspace.id} value={workspace.id}>{workspace.name}</option>)}</select></label> : null}<button type="button" disabled={busy} onClick={() => void load().catch(() => setMessage('Provider refresh failed.'))}>Refresh facts ↗</button>{writable ? <button type="button" disabled={busy} onClick={() => {
                 const name = window.prompt('New provider workspace name');
                 if (name)
                     void command({ action: 'WORKSPACE_CREATE', name });
             }}>Add workspace +</button> : null}</div>
     const controls = <>
-    {heading}
+    {embedded ? heading : <h2>Providers</h2>}
     {message ? <p role="status" className={styles.notice}>{message}</p> : null}
     {data?.persistence !== 'AVAILABLE' ? <p className={styles.notice}>{data?.persistence === 'AUTH_REQUIRED' ? <><Link href="/login">Sign in</Link> to manage your provider profiles. Operator environment providers remain available through the canonical runtime.</> : data?.blocker ?? 'Reading the authenticated provider registry…'}</p> : null}
     <div className={styles.filters} role="group" aria-label="Provider class">{classes.map(([id, label]) => <button key={id} type="button" aria-pressed={category === id} onClick={() => { setCategory(id); setSelected(''); setTab('Overview'); if (providerBrowse.current)
@@ -222,43 +202,14 @@ export function ProviderCenter({ embedded = false }: Readonly<{
         <Link href="/build" key={surface} onClick={() => dispatch({ type: 'surface/active', surface })}>{label}</Link>
       ))}
     </nav> : null}
+    {!embedded && <ProviderHero definitions={definitions} selected={selected} onSelect={item => { choose(item); requestAnimationFrame(() => { detail.current?.scrollIntoView({ block: "start" }); detail.current?.focus({ preventScroll: true }); }); }} onBrowse={() => { if (providerBrowse.current) { providerBrowse.current.open = true; providerBrowse.current.scrollIntoView({ block: "start" }); } }} onGetApi={() => { if (inFlight.current) return; if (definition) { setTab("Credentials"); requestAnimationFrame(() => { detail.current?.scrollIntoView({ block: "start" }); detail.current?.focus({ preventScroll: true }); }); } else { providerBrowse.current?.scrollIntoView({ block: "start" }); } }} />}
     {embedded ? <>{controls}{toolbar}<PlatformFacts /></> : null}
-    <div className={`${styles.composition} ${!embedded && orbitProviders.length ? styles.withOrbit : ''}`}>
+    <div className={`${styles.composition} `}>
       <div className={styles.registryRail}>
       {embedded ? null : controls}
       <details ref={providerBrowse} className={styles.providerBrowse} open><summary>Browse providers &#8599;</summary><nav className={styles.providerList} aria-label="Provider registry">{filtered.map(item => { const own = data?.profiles.filter(profile => profile.providerId === item.id) ?? [], active = own.find(profile => profile.active); return <button key={item.id} type="button" aria-current={selected === item.id ? 'true' : undefined} onClick={() => choose(item)}><ProviderMark definition={item} /><span><strong>{item.name}</strong><small>{item.gateway ? 'GATEWAY · ' : ''}{item.class.replace('_', ' ')} · {active ? active.enabled ? 'PROFILE ACTIVE' : 'PROVIDER DISABLED' : own.length ? 'PROFILE INACTIVE' : 'UNCONFIGURED'}</small></span><span aria-hidden="true">↗</span></button>; })}{!filtered.length ? <p>{data ? 'No provider matches this search. Coding agents appear only from a paired trusted bridge.' : 'Provider registry is unavailable until its status has been read.'}</p> : null}</nav></details>
       {embedded ? null : <details className={styles.registryUtilities}><summary>Search &amp; workspace</summary>{toolbar}<PlatformFacts /></details>}
       </div>
-      {!embedded && orbitProviders.length > 0 ? (
-        <aside className={styles.providerOrbit} aria-label="Provider shortcuts">
-          <div className={styles.orbitTrack} aria-hidden="true" />
-          {orbitProviders.map(({ provider, left, top, start }) => (
-            <button className={styles.desktopOrbitNode} key={provider.id} type="button" style={{ '--orbit-left': left, '--orbit-top': top, '--orbit-start': start } as CSSProperties} aria-current={selected === provider.id ? 'true' : undefined} onClick={() => choose(provider)}>
-              <ProviderMark definition={provider} />
-              <span>{provider.name}</span>
-            </button>
-          ))}
-          <div className={styles.compactOrbit}>
-            <div className={styles.compactTrack} aria-hidden="true" />
-            <div className={styles.orbitCore}>
-              {definition && <ProviderMark definition={definition} />}
-              <span>{definition?.name ?? 'Provider orbit'}</span>
-            </div>
-            <div className={styles.orbitOptions}>
-              {compactOrbit.map(({ provider }) => (
-                <button key={provider.id} type="button" aria-current={selected === provider.id ? 'true' : undefined} onClick={() => choose(provider)}>
-                  <ProviderMark definition={provider} /><span>{provider.name}</span>
-                </button>
-              ))}
-            </div>
-            {lastOrbitPage > 0 && <div className={styles.orbitPaging}>
-              <button type="button" aria-label="Previous provider orbit page" disabled={visibleOrbitPage === 0} onClick={() => setOrbitPage(visibleOrbitPage - 1)}>‹</button>
-              <span aria-live="polite">{visibleOrbitPage + 1} / {lastOrbitPage + 1}</span>
-              <button type="button" aria-label="Next provider orbit page" disabled={visibleOrbitPage === lastOrbitPage} onClick={() => setOrbitPage(visibleOrbitPage + 1)}>›</button>
-            </div>}
-          </div>
-        </aside>
-      ) : null}
       <section ref={detail} tabIndex={-1} className={styles.detail} aria-label="Provider detail">{!definition ? <div className={styles.intro}><span aria-hidden="true" className={styles.constellation}>✦</span><h2>A connected constellation.</h2><p>Select a provider to configure its profiles and inspect measured capabilities. Keys stay on the server; unmeasured usage remains unknown.</p><p>{data?.blocker}</p></div> : <>
         {!embedded ? <div className={styles.detailMark} aria-hidden="true">
           <svg viewBox={`0 0 ${MARK_VIEW_BOX.width} ${MARK_VIEW_BOX.height}`}>{MARK_PATHS.map(({ id, d }) => <path key={id} d={d} />)}</svg>
@@ -282,7 +233,7 @@ export function ProviderCenter({ embedded = false }: Readonly<{
                     }}>Revoke {item.name}</button><button type="button" disabled={!writable || busy || item.referencedBy.length > 0} title={item.referencedBy.length ? 'Remove all profile bindings before deletion.' : undefined} onClick={() => {
                         if (window.confirm('Permanently delete this unreferenced credential?'))
                             void command({ action: 'CREDENTIAL_DELETE', id: item.id, version: item.revision });
-                    }}>Delete {item.name}</button></div></article>)}<form className={styles.form} onSubmit={event => void saveSecret(event)}><h4>{editCredential ? rotate ? 'Rotate credential' : 'Replace credential' : 'Add credential'}</h4>{!editCredential ? <label>Credential name<input required maxLength={80} value={credentialName} onChange={event => setCredentialName(event.target.value)}/></label> : <button type="button" onClick={() => { setEditCredential(''); setSecret(''); }}>Add a different credential</button>}<div className={styles.secretField}><label>Secret key</label><input type="password" autoComplete="new-password" required maxLength={8192} disabled={!vaultWritable} value={secret} onChange={event => setSecret(event.target.value)}/><span className={styles.secretHint}>Paste the full key — typing is not required</span></div><p>No reveal control. Replacement and rotation invalidate dependent connection facts. The field clears after a successful save. Failed saves preserve the unsaved value in this form only.</p><button type="submit" disabled={!vaultWritable || busy}>{editCredential ? 'Save replacement' : 'SAVE API KEY'}</button></form></> : null}
+                    }}>Delete {item.name}</button></div></article>)}<form className={styles.form} onSubmit={event => void saveSecret(event)}><h4>{editCredential ? rotate ? 'Rotate credential' : 'Replace credential' : 'Add credential'}</h4>{!editCredential ? <label>Credential name<input required maxLength={80} value={credentialName} onChange={event => setCredentialName(event.target.value)}/></label> : <button type="button" onClick={() => { setEditCredential(''); setSecret(''); }}>Add a different credential</button>}<div className={styles.secretField}><label htmlFor="provider-secret-key">Secret key</label><input id="provider-secret-key" type="password" autoComplete="new-password" required maxLength={8192} disabled={!vaultWritable} aria-describedby="provider-secret-key-hint" value={secret} onChange={event => setSecret(event.target.value)}/><span id="provider-secret-key-hint" className={styles.secretHint}>Paste the full key — typing is not required</span></div><p>No reveal control. Replacement and rotation invalidate dependent connection facts. The field clears after a successful save. Failed saves preserve the unsaved value in this form only.</p><button type="submit" disabled={!vaultWritable || busy}>{editCredential ? 'Save replacement' : 'SAVE API KEY'}</button></form></> : null}
         {tab === 'Endpoint' ? <><h3>Endpoint binding</h3><p>{profile && 'endpoint' in profile.auth ? profile.auth.endpoint : 'No endpoint bound.'}</p><p>{definition.class === 'LOCAL' ? 'Loopback only, through an authorized local server. A hosted deployment cannot execute a runtime on your computer.' : 'Public HTTPS only. The server operator must allow the hostname; DNS is checked and the socket is pinned. Redirects are refused.'}</p>{profile ? <form className={styles.form} onSubmit={event => {
                         event.preventDefault();
                         const endpoint = String(new FormData(event.currentTarget).get('endpoint'));
