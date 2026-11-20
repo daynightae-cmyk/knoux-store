@@ -6,22 +6,22 @@
     "id": "custom",
     "label": "CUSTOM"
   },
-  "at": "2026-10-20T04:23:50.777Z",
-  "branch": "codex/knoux-dev-completion",
-  "sha": "34b0280c5e06d479e02feb7934e1d4a613ddec3a",
+  "at": "2026-11-20T10:48:42.952Z",
+  "branch": "feat/wordpress-studio-01-10",
+  "sha": "ea10b95c72f2cc9b6123339459d81dea468a65ad",
   "document": "same-origin loaded",
   "observations": [
     {
-      "id": 1792470226982,
+      "id": 1795171713422,
       "kind": "error",
       "message": "Preview observation token=[REDACTED]]",
-      "at": "2026-10-20T04:23:46.981Z"
+      "at": "2026-11-20T10:48:33.422Z"
     },
     {
-      "id": 1792470227062,
+      "id": 1795171714816,
       "kind": "resource",
       "message": "img failed to load: /not-a-real-preview-image.png",
-      "at": "2026-10-20T04:23:47.051Z"
+      "at": "2026-11-20T10:48:34.781Z"
     }
   ],
   "inspected": {
@@ -79,12 +79,12 @@
     {
       "tag": "header",
       "role": "banner",
-      "name": "KNOuXrSignalSoftwareWordPressWebGrowthCreativeSolutionsBuildLanguageEnglishالعربيةاردوACCESSSEARCH⌘KMENU+"
+      "name": "KNOuXr KNOuX homeSignalSoftwareWordPressWebGrowthCreativeSolutionsBuildKAWAKENLanguageEnglishالعربيةاردوACCESSSEARCH⌘K Open searchMENU+ Open navigation"
     },
     {
       "tag": "a",
       "role": "link",
-      "name": "KNOuX home"
+      "name": "KNOuXr KNOuX home"
     },
     {
       "tag": "nav",
@@ -132,6 +132,11 @@
       "name": "Build"
     },
     {
+      "tag": "button",
+      "role": "button",
+      "name": "Activate the KNOuX awakening — KAWAKEN"
+    },
+    {
       "tag": "select",
       "role": "combobox",
       "name": "Language"
@@ -144,12 +149,12 @@
     {
       "tag": "button",
       "role": "button",
-      "name": "Open search"
+      "name": "SEARCH⌘K Open search"
     },
     {
       "tag": "button",
       "role": "button",
-      "name": "Open navigation"
+      "name": "MENU — Open navigation"
     },
     {
       "tag": "main",
@@ -179,7 +184,7 @@
     {
       "tag": "a",
       "role": "link",
-      "name": "Ledger (section)"
+      "name": "LDGLedger (section)"
     },
     {
       "tag": "a",
@@ -190,6 +195,16 @@
       "tag": "a",
       "role": "link",
       "name": "CMPComposer"
+    },
+    {
+      "tag": "h2",
+      "role": "heading",
+      "name": "KX PRIVATE VPN™"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "EXPLORE KX ↗"
     },
     {
       "tag": "div",
@@ -805,21 +820,6 @@
       "tag": "a",
       "role": "link",
       "name": "03 Web"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "04 Growth"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "05 Creative"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "06 Solutions"
     }
   ],
   "screenshot": "unavailable"

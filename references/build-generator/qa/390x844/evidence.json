@@ -1,0 +1,37 @@
+{
+  "kind": "EXPLICIT CONTRACT FIXTURE — not live provider proof",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "product": "ecommerce store",
+  "focus": {
+    "style": "solid",
+    "width": "2px",
+    "color": "rgb(218, 191, 237)",
+    "height": 44
+  },
+  "noHorizontalOverflow": true,
+  "productNodesDoNotOverlap": true,
+  "screenshots": [
+    "references/build-generator/qa/390x844/idle-auto.png",
+    "references/build-generator/qa/390x844/navigator-search.png",
+    "references/build-generator/qa/390x844/manual-fast.png",
+    "references/build-generator/qa/390x844/manual-balanced.png",
+    "references/build-generator/qa/390x844/manual-deep.png",
+    "references/build-generator/qa/390x844/manual-max.png",
+    "references/build-generator/qa/390x844/resolving.png",
+    "references/build-generator/qa/390x844/routing.png",
+    "references/build-generator/qa/390x844/generating-open.png",
+    "references/build-generator/qa/390x844/generating-draft.png",
+    "references/build-generator/qa/390x844/planned-sections.png",
+    "references/build-generator/qa/390x844/map-sections.png",
+    "references/build-generator/qa/390x844/planned-product.png",
+    "references/build-generator/qa/390x844/map-product.png",
+    "references/build-generator/qa/390x844/executor-not-connected.png",
+    "references/build-generator/qa/390x844/auth_required.png",
+    "references/build-generator/qa/390x844/config_required.png",
+    "references/build-generator/qa/390x844/provider_blocked.png",
+    "references/build-generator/qa/390x844/mobile-navigation.png"
+  ]
+}
