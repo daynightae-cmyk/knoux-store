@@ -6,22 +6,22 @@
     "id": "custom",
     "label": "CUSTOM"
   },
-  "at": "2026-11-20T12:33:45.573Z",
-  "branch": "fix/pr110-browser-gates",
-  "sha": "f1a3d5b56097fa55c3fc750f7dd3fe93fe854a12",
+  "at": "2026-11-20T13:57:19.229Z",
+  "branch": "fix/pr109-browser-gates",
+  "sha": "ec93e4feac19f0506641a12bdb91790466e0e5a8",
   "document": "same-origin loaded",
   "observations": [
     {
-      "id": 1795178019298,
+      "id": 1795183030133,
       "kind": "error",
       "message": "Preview observation token=[REDACTED]]",
-      "at": "2026-11-20T12:33:39.298Z"
+      "at": "2026-11-20T13:57:10.133Z"
     },
     {
-      "id": 1795178019338,
+      "id": 1795183030410,
       "kind": "resource",
       "message": "img failed to load: /not-a-real-preview-image.png",
-      "at": "2026-11-20T12:33:39.328Z"
+      "at": "2026-11-20T13:57:10.408Z"
     }
   ],
   "inspected": {
