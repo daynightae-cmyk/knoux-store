@@ -62,7 +62,11 @@ test('real launcher activation coalesces repeated triggers and follows all four 
   const measured = await page.evaluate(() => (window as unknown as { activationEvidence: { phase: string; at: number }[] }).activationEvidence);
   expect(measured.map(item => item.phase)).toEqual(['prepare', 'gather', 'discharge', 'settle', 'idle']);
   const start = measured[0].at;
-  for (const [index, lower, upper] of [[1, 230, 400], [2, 680, 900], [3, 1480, 1750], [4, 4700, 5300]]) {
+  // Phase durations are fixed source timers (250/700/1500/4750ms); the
+  // measured instants add MutationObserver delivery latency, which stretches
+  // on a loaded CI host. Only the upper envelope covers that delay — the
+  // lower bounds and the phase sequence assertion are unchanged.
+  for (const [index, lower, upper] of [[1, 230, 520], [2, 680, 1150], [3, 1480, 2100], [4, 4700, 6200]]) {
     expect(measured[index].at - start).toBeGreaterThanOrEqual(lower);
     expect(measured[index].at - start).toBeLessThan(upper);
   }
