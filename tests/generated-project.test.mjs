@@ -102,7 +102,10 @@ test('a reviewed static project writes, validates, bundles, previews on a differ
     const cancelled = await cancelGeneratedProject(root, ownerId, id);
     assert.equal(cancelled.state, 'cancelled');
     let unavailable = false;
-    for (let attempt = 0; attempt < 40; attempt += 1) {
+    // The child exits asynchronously after SIGTERM; on a loaded host the
+    // socket can take a moment to refuse connections. Poll up to ~30s rather
+    // than ~1.4s; the assertion itself is unchanged.
+    for (let attempt = 0; attempt < 120; attempt += 1) {
       try { await fetch(receipt.preview.url, { signal: AbortSignal.timeout(250) }); await pause(10); } catch { unavailable = true; break; }
     }
     assert.equal(unavailable, true, 'operator cancellation stops the owned preview process');
