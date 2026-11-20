@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { DevEmpty, DevPageHeading, DevPanel } from './DevUI';
+import { DevEmpty, DevPanel } from './DevUI';
+import { RuntimeHero } from './RuntimeHero';
 import {
   TerminalTransport,
   type TerminalExit,
@@ -394,12 +395,17 @@ export function PowerShellPage() {
 
   return (
     <div className="dev-route">
-      <DevPageHeading 
-        eyebrow="TOOLS / POWERSHELL" 
-        title="PowerShell" 
-        description="Windows PowerShell requires a trusted machine bridge. The web deployment has no access to your local shell." 
-        detail={bridgeStatus} 
+      <RuntimeHero
+        active="powershell"
+        sessionLive={live}
+        bridgeLine={
+          bridge.kind === 'checking' ? { text: 'measuring bridge…', tone: 'comment' }
+          : bridge.kind === 'ready' ? { text: 'bridge ready', tone: 'ok' }
+          : bridge.authRequired ? { text: 'sign in required — identified account needed', tone: 'warn' }
+          : { text: 'bridge unavailable — pair a trusted bridge', tone: 'warn' }
+        }
       />
+      <p className="dev-note">Windows PowerShell requires a trusted machine bridge. The web deployment has no access to your local shell. · {bridgeStatus}</p>
       
       <div className="dev-route__grid">
         <DevPanel title="PowerShell session">

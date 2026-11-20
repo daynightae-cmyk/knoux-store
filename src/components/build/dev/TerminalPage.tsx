@@ -22,7 +22,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { DevEmpty, DevPageHeading, DevPanel } from './DevUI';
+import { DevEmpty, DevPanel } from './DevUI';
+import { RuntimeHero } from './RuntimeHero';
 import {
   TerminalTransport,
   type TerminalExit,
@@ -340,12 +341,17 @@ export function TerminalPage() {
 
   return (
     <div className="dev-route">
-      <DevPageHeading
-        eyebrow="TOOLS / TERMINAL"
-        title="Terminal"
-        description="A real shell on the paired machine, or an honest statement that there is none. This page never presents a simulated shell."
-        detail={live && session ? `LIVE · PID ${session.pid}` : stage.toUpperCase()}
+      <RuntimeHero
+        active="terminal"
+        sessionLive={live}
+        bridgeLine={
+          bridge.kind === 'checking' ? { text: 'measuring bridge…', tone: 'comment' }
+          : bridge.kind === 'ready' ? { text: 'bridge ready', tone: 'ok' }
+          : bridge.authRequired ? { text: 'sign in required — identified account needed', tone: 'warn' }
+          : { text: 'bridge unavailable — pair a trusted bridge', tone: 'warn' }
+        }
       />
+      <p className="dev-note">A real shell on the paired machine, or an honest statement that there is none. This page never presents a simulated shell.{live && session ? ` LIVE · PID ${session.pid}` : ` · ${stage.toUpperCase()}`}</p>
       <div className="dev-route__grid">
         <DevPanel title="Session">
           <div className={`dev-console dev-console--terminal ${live ? '' : 'dev-console--blocked'}`}>
