@@ -99,23 +99,29 @@ test('native Web Audio requires trusted activation, suspends hidden audio and pe
   expect(await page.evaluate(() => localStorage.getItem('knoux-build-sound'))).toBe('off');
 });
 
-test('compact provider orbit remains visible, pageable and touch-sized below 1000 pixels', async ({ page }, info) => {
-  test.skip(info.project.name !== 'desktop', 'Explicit compact widths are measured here.');
-  for (const width of [999, 768, 390, 360]) {
-    await page.setViewportSize({ width, height: 1024 }); await page.goto('/build/providers');
-    const shortcuts = page.getByRole('complementary', { name: 'Provider shortcuts' });
-    await expect(shortcuts).toBeVisible();
-    const next = shortcuts.getByRole('button', { name: 'Next provider orbit page' });
-    await expect(next).toBeEnabled();
-    const first = await shortcuts.locator('[class*="orbitOptions"] button').allTextContents();
-    for (const button of await shortcuts.getByRole('button').all()) {
-      const box = await button.boundingBox(); if (!box) continue;
-      expect(box.width).toBeGreaterThanOrEqual(44); expect(box.height).toBeGreaterThanOrEqual(44);
+test('reference provider hero exposes every shortcut, touch targets and credential navigation', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'Explicit reference and compact widths are measured here.');
+  test.setTimeout(120000);
+  for (const [width,height] of [[1536,1024],[1366,768],[999,1024],[768,1024],[390,844],[360,800]]) {
+    await page.setViewportSize({ width, height });
+    await page.goto('/build/providers');
+    const hero = page.getByRole('region', { name: 'Universal Provider Engine' });
+    await expect(hero.getByRole('heading', { name: 'Universal Provider Engine' })).toBeVisible();
+    const shortcuts = hero.getByRole('button', { name: /^Select / });
+    await expect(shortcuts).toHaveCount(9);
+    for (const button of await shortcuts.all()) {
+      await expect(button).toBeEnabled();
+      const box = await button.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box!.width).toBeGreaterThanOrEqual(44);
+      expect(box!.height).toBeGreaterThanOrEqual(44);
     }
-    await next.click();
-    expect(await shortcuts.locator('[class*="orbitOptions"] button').allTextContents()).not.toEqual(first);
-    await shortcuts.getByRole('button', { name: 'Previous provider orbit page' }).click();
-    expect(await shortcuts.locator('[class*="orbitOptions"] button').allTextContents()).toEqual(first);
+    const openai = hero.getByRole('button', { name: 'Select OpenAI', exact: true });
+    await openai.click();
+    await expect(page.getByRole('region', { name: 'Provider detail' }).getByRole('heading', { name: 'OpenAI', exact: true })).toBeVisible();
+    await expect(openai).toHaveAttribute('aria-pressed', 'true');
+    await hero.getByRole('button', { name: 'Get API', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Write-only credentials' })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
   }
 });
