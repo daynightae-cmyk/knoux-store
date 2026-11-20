@@ -4547,26 +4547,33 @@ body:has(.origin-room) .knoux-sentinel{display:none}
   background: #0a0714;
   overflow: hidden;
 }
-/* Nebula wash and star points. Two star layers breathe out of phase so the
-   sky twinkles without a single JS frame. */
+/* Nebula wash and star points. The wash lives on the element, the two star
+   layers on its pseudo-elements, so each background stays a single kind of
+   layer; they breathe out of phase and the sky twinkles without a JS frame. */
 .eco-hero__sky {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(1.6px 1.6px at 12% 18%, #fff 98%, transparent),
-    radial-gradient(1.2px 1.2px at 28% 8%, #e9d5ff 98%, transparent),
-    radial-gradient(1.8px 1.8px at 44% 22%, #fff 98%, transparent),
-    radial-gradient(1.2px 1.2px at 63% 12%, #f0abfc 98%, transparent),
-    radial-gradient(1.6px 1.6px at 81% 20%, #e9d5ff 98%, transparent),
-    radial-gradient(1.2px 1.2px at 92% 9%, #fff 98%, transparent),
-    radial-gradient(1.2px 1.2px at 7% 44%, #f0abfc 98%, transparent),
-    radial-gradient(1.4px 1.4px at 96% 40%, #fff 98%, transparent),
     radial-gradient(ellipse 44% 32% at 6% 4%, rgba(168, 85, 247, 0.5), transparent 70%),
     radial-gradient(ellipse 42% 30% at 96% 6%, rgba(217, 70, 239, 0.4), transparent 70%),
     radial-gradient(ellipse 58% 44% at 50% 46%, rgba(124, 58, 237, 0.34), transparent 72%),
     radial-gradient(ellipse 30% 22% at 30% 70%, rgba(88, 28, 135, 0.4), transparent 70%),
     linear-gradient(180deg, #120826 0%, #1a0b33 46%, #0b0618 100%);
+}
+.eco-hero__sky::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(1.6px 1.6px at 12% 18%, #fff 98%, transparent),
+    radial-gradient(1.2px 1.2px at 28% 8%, #e9d5ff 98%, transparent),
+    radial-gradient(1.2px 1.2px at 44% 22%, #fff 98%, transparent),
+    radial-gradient(1.2px 1.2px at 63% 12%, #f0abfc 98%, transparent),
+    radial-gradient(1.6px 1.6px at 81% 20%, #e9d5ff 98%, transparent),
+    radial-gradient(1.2px 1.2px at 92% 9%, #fff 98%, transparent),
+    radial-gradient(1.2px 1.2px at 7% 44%, #f0abfc 98%, transparent),
+    radial-gradient(1.4px 1.4px at 96% 40%, #fff 98%, transparent);
 }
 .eco-hero__sky::after {
   content: '';

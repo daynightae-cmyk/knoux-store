@@ -37,12 +37,87 @@ const JOURNEYS = [
   { id: 'operations', code: '10', label: 'Operations Command Center' },
 ] as const;
 
+/** Copy for the journeys that share one honest shape: heading, intro, two
+ *  readout cards and a boundary note. Values stay registry truth — nothing
+ *  here invents a connection, a price or a status. */
+const READOUT_JOURNEYS: Partial<Record<(typeof JOURNEYS)[number]['id'], {
+  heading: string;
+  intro: string;
+  cards: Readonly<{ meter: string; meterAr?: string; value: string; valueAr?: string }>[];
+  note: string;
+}>> = {
+  domain: {
+    heading: 'The name comes first.',
+    intro: 'A registrar is the only authority on whether a domain can be registered. KNOuX shows exactly what it said.',
+    cards: [
+      { meter: 'Provider state', meterAr: 'حالة المزود', value: 'Not configured' },
+      { meter: 'Last check', meterAr: 'آخر فحص', value: 'Never', valueAr: 'أبداً' },
+    ],
+    note: 'Availability and pricing appear here once a registrar connection is configured.',
+  },
+  identity: {
+    heading: 'Site identity',
+    intro: 'The name, the mark and the words a site introduces itself with.',
+    cards: [
+      { meter: 'Site title', meterAr: 'عنوان الموقع', value: 'Not set', valueAr: 'غير مضبوط' },
+      { meter: 'Tagline', meterAr: 'الشعار الفرعي', value: 'Not set', valueAr: 'غير مضبوط' },
+    ],
+    note: 'Identity is agreed before launch. Nothing is published from this studio.',
+  },
+  plugins: {
+    heading: 'Plugin Intelligence',
+    intro: 'Extensions that add a capability to an install that already runs.',
+    cards: [
+      { meter: 'Directory', meterAr: 'الدليل', value: 'WordPress.org', valueAr: 'ووردبريس دوت أورغ' },
+      { meter: 'Scope', meterAr: 'النطاق', value: 'Metadata and compatibility', valueAr: 'بيانات التعريف والتوافق' },
+    ],
+    note: 'KNOuX installs and verifies plugins; it does not publish or endorse any specific item.',
+  },
+  composer: {
+    heading: 'Visual Composer',
+    intro: 'Drag, drop and design freely.',
+    cards: [
+      { meter: 'Blocks', meterAr: 'الكتل', value: 'Reusable', valueAr: 'قابلة لإعادة الاستخدام' },
+      { meter: 'Layout', meterAr: 'التخطيط', value: 'Modular', valueAr: 'وحدوي' },
+    ],
+    note: 'Composition is a request, not a checkout. KNOuX assembles layers after scope is agreed.',
+  },
+  hosting: {
+    heading: 'Hosting & Infrastructure',
+    intro: 'Where it runs, and who is answerable for it staying up.',
+    cards: [
+      { meter: 'Provider', meterAr: 'المزود', value: 'Not configured' },
+      { meter: 'Boundary', meterAr: 'الحد', value: 'KNOuX performs; provider supplies' },
+    ],
+    note: 'Infrastructure is a decision with a person attached to it, not a plan with a number attached to it.',
+  },
+  build: {
+    heading: 'Build & Deployment',
+    intro: 'The engineering that keeps it alive.',
+    cards: [
+      { meter: 'Stages', meterAr: 'المراحل', value: 'Build · Validate · Deploy · Release' },
+      { meter: 'Receipts', meterAr: 'الإيصالات', value: 'Bound to operation', valueAr: 'مرتبطة بالعملية' },
+    ],
+    note: 'No payment is taken here and nothing is registered automatically.',
+  },
+  operations: {
+    heading: 'Operations Command Center',
+    intro: 'Maintenance, performance, security, backup and recovery.',
+    cards: [
+      { meter: 'Services', meterAr: 'الخدمات', value: 'Seven operating services', valueAr: 'سبع خدمات تشغيلية' },
+      { meter: 'Incidents', meterAr: 'الحوادث', value: '0', valueAr: '٠' },
+    ],
+    note: 'Scope and sequence are agreed before work starts.',
+  },
+};
+
 export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }) {
   const t = useRouteCopy();
   const [active, setActive] = useState<string>(JOURNEYS[0].id);
   const [slug, setSlug] = useState<string>(themes[0]?.slug ?? '');
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const journey = JOURNEYS.find((entry) => entry.id === active) ?? JOURNEYS[0];
+  const readout = READOUT_JOURNEYS[journey.id];
   const theme = themes.find((item) => item.slug === slug);
   const requestParams = new URLSearchParams({
     requestType: 'wordpress',
@@ -103,22 +178,21 @@ export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }
           </section>
         )}
 
-        {/* 02 Domain Intelligence */}
-        {active === 'domain' && (
+        {/* 02 Domain · 04 Identity · 05 Plugins · 07 Composer · 08 Hosting ·
+            09 Build · 10 Operations — one shared readout shape, copy per journey. */}
+        {readout && (
           <section className={styles.section}>
-            <h3>{t('The name comes first.')}</h3>
-            <p>{t('A registrar is the only authority on whether a domain can be registered. KNOuX shows exactly what it said.')}</p>
+            <h3>{t(readout.heading)}</h3>
+            <p>{t(readout.intro)}</p>
             <div className={styles.cardGrid}>
-              <div className={styles.card}>
-                <span className={styles.meter}>{t('Provider state', 'حالة المزود')}</span>
-                <span className={styles.value}>{t('Not configured')}</span>
-              </div>
-              <div className={styles.card}>
-                <span className={styles.meter}>{t('Last check', 'آخر فحص')}</span>
-                <span className={styles.value}>{t('Never', 'أبداً')}</span>
-              </div>
+              {readout.cards.map((card) => (
+                <div key={card.meter} className={styles.card}>
+                  <span className={styles.meter}>{t(card.meter, card.meterAr)}</span>
+                  <span className={styles.value}>{t(card.value, card.valueAr)}</span>
+                </div>
+              ))}
             </div>
-            <p className={styles.note}>{t('Availability and pricing appear here once a registrar connection is configured.')}</p>
+            <p className={styles.note}>{t(readout.note)}</p>
           </section>
         )}
 
@@ -151,44 +225,6 @@ export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }
             ) : (
               <p className={styles.note}>{t('The official theme directory is unavailable.')}</p>
             )}
-          </section>
-        )}
-
-        {/* 04 Site Identity */}
-        {active === 'identity' && (
-          <section className={styles.section}>
-            <h3>{t('Site identity')}</h3>
-            <p>{t('The name, the mark and the words a site introduces itself with.')}</p>
-            <div className={styles.cardGrid}>
-              <div className={styles.card}>
-                <span className={styles.meter}>{t('Site title', 'عنوان الموقع')}</span>
-                <span className={styles.value}>{t('Not set', 'غير مضبوط')}</span>
-              </div>
-              <div className={styles.card}>
-                <span className={styles.meter}>{t('Tagline', 'الشعار الفرعي')}</span>
-                <span className={styles.value}>{t('Not set', 'غير مضبوط')}</span>
-              </div>
-            </div>
-            <p className={styles.note}>{t('Identity is agreed before launch. Nothing is published from this studio.')}</p>
-          </section>
-        )}
-
-        {/* 05 Plugin Intelligence */}
-        {active === 'plugins' && (
-          <section className={styles.section}>
-            <h3>{t('Plugin Intelligence')}</h3>
-            <p>{t('Extensions that add a capability to an install that already runs.')}</p>
-            <div className={styles.cardGrid}>
-              <div className={styles.card}>
-                <span className={styles.meter}>{t('Directory', 'الدليل')}</span>
-                <span className={styles.value}>{t('WordPress.org', 'ووردبريس دوت أورغ')}</span>
-              </div>
-              <div className={styles.card}>
-                <span className={styles.meter}>{t('Scope', 'النطاق')}</span>
-                <span className={styles.value}>{t('Metadata and compatibility', 'بيانات التعريف والتوافق')}</span>
-              </div>
-            </div>
-            <p className={styles.note}>{t('KNOuX installs and verifies plugins; it does not publish or endorse any specific item.')}</p>
           </section>
         )}
 
@@ -225,82 +261,6 @@ export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }
               </div>
             </div>
             <p className={styles.note}>{t('Official screenshot · resized for comparison, not a live responsive site.')}</p>
-          </section>
-        )}
-
-        {/* 07 Visual Composer */}
-        {active === 'composer' && (
-          <section className={styles.section}>
-            <h3>{t('Visual Composer')}</h3>
-            <p>{t('Drag, drop and design freely.')}</p>
-            <div className={styles.cardGrid}>
-              <div className={styles.card}>
-                <span className={styles.meter}>{t('Blocks', 'الكتل')}</span>
-                <span className={styles.value}>{t('Reusable', 'قابلة لإعادة الاستخدام')}</span>
-              </div>
-              <div className={styles.card}>
-                <span className={styles.meter}>{t('Layout', 'التخطيط')}</span>
-                <span className={styles.value}>{t('Modular', 'وحدوي')}</span>
-              </div>
-            </div>
-            <p className={styles.note}>{t('Composition is a request, not a checkout. KNOuX assembles layers after scope is agreed.')}</p>
-          </section>
-        )}
-
-        {/* 08 Hosting & Infrastructure */}
-        {active === 'hosting' && (
-          <section className={styles.section}>
-            <h3>{t('Hosting & Infrastructure')}</h3>
-            <p>{t('Where it runs, and who is answerable for it staying up.')}</p>
-            <div className={styles.cardGrid}>
-              <div className={styles.card}>
-                <span className={styles.meter}>{t('Provider', 'المزود')}</span>
-                <span className={styles.value}>{t('Not configured')}</span>
-              </div>
-              <div className={styles.card}>
-                <span className={styles.meter}>{t('Boundary', 'الحد')}</span>
-                <span className={styles.value}>{t('KNOuX performs; provider supplies')}</span>
-              </div>
-            </div>
-            <p className={styles.note}>{t('Infrastructure is a decision with a person attached to it, not a plan with a number attached to it.')}</p>
-          </section>
-        )}
-
-        {/* 09 Build & Deployment */}
-        {active === 'build' && (
-          <section className={styles.section}>
-            <h3>{t('Build & Deployment')}</h3>
-            <p>{t('The engineering that keeps it alive.')}</p>
-            <div className={styles.cardGrid}>
-              <div className={styles.card}>
-                <span className={styles.meter}>{t('Stages', 'المراحل')}</span>
-                <span className={styles.value}>{t('Build · Validate · Deploy · Release')}</span>
-              </div>
-              <div className={styles.card}>
-                <span className={styles.meter}>{t('Receipts', 'الإيصالات')}</span>
-                <span className={styles.value}>{t('Bound to operation', 'مرتبطة بالعملية')}</span>
-              </div>
-            </div>
-            <p className={styles.note}>{t('No payment is taken here and nothing is registered automatically.')}</p>
-          </section>
-        )}
-
-        {/* 10 Operations Command Center */}
-        {active === 'operations' && (
-          <section className={styles.section}>
-            <h3>{t('Operations Command Center')}</h3>
-            <p>{t('Maintenance, performance, security, backup and recovery.')}</p>
-            <div className={styles.cardGrid}>
-              <div className={styles.card}>
-                <span className={styles.meter}>{t('Services', 'الخدمات')}</span>
-                <span className={styles.value}>{t('Seven operating services', 'سبع خدمات تشغيلية')}</span>
-              </div>
-              <div className={styles.card}>
-                <span className={styles.meter}>{t('Incidents', 'الحوادث')}</span>
-                <span className={styles.value}>{t('0', '٠')}</span>
-              </div>
-            </div>
-            <p className={styles.note}>{t('Scope and sequence are agreed before work starts.')}</p>
           </section>
         )}
 
