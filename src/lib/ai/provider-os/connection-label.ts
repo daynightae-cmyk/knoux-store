@@ -16,3 +16,11 @@ export function providerConnectionLabel(profile?: ProviderProfile): string {
   if (connection.auth === 'AUTHENTICATED' || connection.configuration === 'CONFIGURED') return 'SAVED_UNTESTED';
   return 'NOT_CONFIGURED';
 }
+
+/** Celebrate only a fresh server-confirmed connection test, never a save or reload. */
+export function freshVerifiedConnection(previous: ProviderProfile | undefined, next: ProviderProfile | undefined): boolean {
+  if (!previous || !next || previous.id !== next.id || previous.providerId !== next.providerId) return false;
+  if (next.version <= previous.version || providerConnectionLabel(next) !== 'VERIFIED') return false;
+  const tested = next.connection.lastTestedAt;
+  return Boolean(tested && tested !== previous.connection.lastTestedAt && next.connection.lastSuccessAt === tested);
+}

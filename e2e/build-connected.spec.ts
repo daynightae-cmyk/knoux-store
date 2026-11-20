@@ -73,6 +73,10 @@ test('real local Preview studio observes DOM, console, resource failures, respon
   const server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '-H', '127.0.0.1', '-p', String(port)], { cwd: process.cwd(), env: { ...process.env, KNOUX_BUILD_ENVIRONMENT: 'local' }, stdio: 'ignore', windowsHide: true });
   try {
     await expect.poll(async () => { try { return (await request.get(`${origin}/build`)).status(); } catch { return 0; } }, { timeout: 30_000 }).toBe(200);
+    // The first project snapshot walks and measures the checkout's real files;
+    // on a cold filesystem cache this can exceed the default expect timeout.
+    // Warm the server-side snapshot through the same real API the page reads.
+    await expect.poll(async () => { try { return (await request.get(`${origin}/api/build/project`, { timeout: 120_000 })).status(); } catch { return 0; } }, { timeout: 120_000, intervals: [1_000] }).toBe(200);
     await page.goto(`${origin}/build`); await expect(page.locator('.dev-sidebar__facts')).toContainText('LOCAL');
     await page.getByRole('group', { name: 'Workspace view' }).getByRole('button', { name: 'PREVIEW' }).click();
     const iframe = page.locator('iframe[title^="Live preview"]'); await expect(iframe).toHaveCount(1); await expect(page.getByRole('button', { name: 'INSPECT', exact: true })).toBeEnabled();
@@ -111,11 +115,33 @@ test('animated canonical mark has bounded particles, reuses its pool and pauses 
   expect(measured.particles).toBeLessThanOrEqual(3600); expect(measured.paints - before.paints).toBeGreaterThan(10); expect(Number(before.sampleMs)).toBe(measured.sampleMs);
   const handle = await canvas.elementHandle(); await page.locator('.dev-nav-link[href="/build/apps"]').click(); expect(await handle!.evaluate((element) => element.isConnected)).toBe(true); await expect(canvas).toHaveAttribute('data-sample-ms', before.sampleMs!);
   await page.locator('.dev-living-mark').evaluate((element) => { (element as HTMLElement).style.display = 'none'; });
-  await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
-  const paused = await canvas.getAttribute('data-paints');
+  // The loop stops on the IntersectionObserver callback, which is delivered
+  // asynchronously and can lag behind layout on a loaded host. Wait until the
+  // paint counter has genuinely settled before treating it as the paused
+  // baseline, rather than sampling a fixed two frames after hiding the box.
+  // Some loaded CI hosts stop issuing compositor frames once the surface is
+  // hidden, so sample on a wall-clock interval alongside rAF: three equal
+  // samples (frames or 100ms ticks) still prove the loop paused.
+  const settled = await canvas.evaluate((element) => new Promise<string>((resolve) => {
+    let previous = -1, stableSamples = 0, done = false, timer = 0;
+    const finish = (paints: number) => {
+      if (done) return;
+      done = true; clearInterval(timer); resolve(String(paints));
+    };
+    const sample = () => {
+      if (done) return;
+      const paints = Number((element as HTMLElement).dataset.paints);
+      stableSamples = paints === previous ? stableSamples + 1 : 0;
+      previous = paints;
+      if (stableSamples >= 3) finish(paints);
+    };
+    const frame = () => { sample(); if (!done) requestAnimationFrame(frame); };
+    timer = window.setInterval(sample, 100);
+    requestAnimationFrame(frame);
+  }));
   await page.evaluate(() => new Promise<void>((resolve) => { let frames = 0; const next = () => ++frames >= 20 ? resolve() : requestAnimationFrame(next); requestAnimationFrame(next); }));
-  expect(await canvas.getAttribute('data-paints')).toBe(paused);
+  expect(await canvas.getAttribute('data-paints')).toBe(settled);
   await page.locator('.dev-living-mark').evaluate((element) => { (element as HTMLElement).style.display = ''; });
-  await expect.poll(async () => Number(await canvas.getAttribute('data-paints'))).toBeGreaterThan(Number(paused));
+  await expect.poll(async () => Number(await canvas.getAttribute('data-paints'))).toBeGreaterThan(Number(settled));
   writeFileSync(join(evidence, 'particle-animation-measurement.json'), JSON.stringify({ measuredAt: new Date().toISOString(), source: 'Real browser animation; 60 browser frames, hidden box pause, persistent canvas across route navigation', ...measured }, null, 2));
 });

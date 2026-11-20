@@ -1,0 +1,37 @@
+{
+  "kind": "EXPLICIT CONTRACT FIXTURE — not live provider proof",
+  "viewport": {
+    "width": 768,
+    "height": 1024
+  },
+  "product": "CRM workspace",
+  "focus": {
+    "style": "solid",
+    "width": "2px",
+    "color": "rgb(218, 191, 237)",
+    "height": 44
+  },
+  "noHorizontalOverflow": true,
+  "productNodesDoNotOverlap": true,
+  "screenshots": [
+    "references/build-generator/qa/768x1024/idle-auto.png",
+    "references/build-generator/qa/768x1024/navigator-search.png",
+    "references/build-generator/qa/768x1024/manual-fast.png",
+    "references/build-generator/qa/768x1024/manual-balanced.png",
+    "references/build-generator/qa/768x1024/manual-deep.png",
+    "references/build-generator/qa/768x1024/manual-max.png",
+    "references/build-generator/qa/768x1024/resolving.png",
+    "references/build-generator/qa/768x1024/routing.png",
+    "references/build-generator/qa/768x1024/generating-open.png",
+    "references/build-generator/qa/768x1024/generating-draft.png",
+    "references/build-generator/qa/768x1024/planned-sections.png",
+    "references/build-generator/qa/768x1024/map-sections.png",
+    "references/build-generator/qa/768x1024/planned-product.png",
+    "references/build-generator/qa/768x1024/map-product.png",
+    "references/build-generator/qa/768x1024/executor-not-connected.png",
+    "references/build-generator/qa/768x1024/auth_required.png",
+    "references/build-generator/qa/768x1024/config_required.png",
+    "references/build-generator/qa/768x1024/provider_blocked.png",
+    "references/build-generator/qa/768x1024/mobile-navigation.png"
+  ]
+}

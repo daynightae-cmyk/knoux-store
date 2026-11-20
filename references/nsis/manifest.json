@@ -1,0 +1,86 @@
+{
+  "purpose": "Original owner-supplied installer and onboarding visual references; not proof of operational features.",
+  "original_count": 10,
+  "files": [
+    {
+      "file": "82226.png",
+      "role": "Device Link — Windows / Android concept",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 235008,
+      "sha256": "0c73fbc106682d29e4584826e70d5c397e7269b92e4a5c0fa8818a4843c67f52"
+    },
+    {
+      "file": "82231.png",
+      "role": "Welcome — orbital navigation",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 207590,
+      "sha256": "b3f2df52736f09bedba0777d63fd8fc8ba74d2dcd661b3e11a0c957278678e21"
+    },
+    {
+      "file": "82230.png",
+      "role": "Engineering Environment — wide banner",
+      "width": 1536,
+      "height": 583,
+      "bytes": 82205,
+      "sha256": "fac946643d87ede492fffbefe5da9b2ddf626ab21160fa4011b4f690686edd88"
+    },
+    {
+      "file": "82229.png",
+      "role": "Portrait brand / splash artwork",
+      "width": 802,
+      "height": 1536,
+      "bytes": 133328,
+      "sha256": "fa311b0de585947cfd0c40d452bc7f04a8a96cc6bc96eb2224de68f060a7a1c8"
+    },
+    {
+      "file": "82228.png",
+      "role": "Universal Provider Engine — provider orbit",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 241967,
+      "sha256": "a898ac414f24af96258326a1f070bbf16e5bdbbaeb9e4c31ab26afaa5127b946"
+    },
+    {
+      "file": "82227.png",
+      "role": "One Platform — 3:2 composition",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 263079,
+      "sha256": "22d928d01c960389f0231ffe8d1584dfe7c9f69ac373a66c4b5c1215d925e585"
+    },
+    {
+      "file": "82234.png",
+      "role": "Local Engineering Runtime — terminal / bridge",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 267626,
+      "sha256": "6dd2600c4e45dc8123ed12b1ceac1981ac9bf9ec4d00cdcbc50b11e9a6ba4726"
+    },
+    {
+      "file": "82235.png",
+      "role": "Uninstall / Manage — portrait artwork",
+      "width": 802,
+      "height": 1536,
+      "bytes": 119914,
+      "sha256": "24b57752ce2abbe3c5aa7c903cd43f307d60899b0180ee31e9ec13671afe2140"
+    },
+    {
+      "file": "82236.png",
+      "role": "One Platform — wide alternate composition",
+      "width": 1536,
+      "height": 864,
+      "bytes": 203435,
+      "sha256": "899b12c1c26eb5af58324d7e218795c8f395c5164639103cb15c2c34cfa7b058"
+    },
+    {
+      "file": "82232.png",
+      "role": "Live Release Center — deployment stations",
+      "width": 1536,
+      "height": 768,
+      "bytes": 176145,
+      "sha256": "c0e0b3c60aa754525387e3fc52a30827bb0c4a8238dc4400c9a3ab02751aa6e7"
+    }
+  ]
+}

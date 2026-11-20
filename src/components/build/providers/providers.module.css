@@ -97,8 +97,8 @@
   .workspaceViews { position: absolute; top: -55px; right: 0; z-index: 2; display: flex; gap: 7px; }
   .workspaceViews a { padding: 8px 12px; color: #cfc1e0; text-decoration: none; font: 10px var(--font-mono,monospace); text-transform: uppercase; }
   .workspaceViews a:first-child { border: 1px solid #b692dd62; border-radius: 6px; background: #32224d79; color: white; }
-  .withOrbit { grid-template-columns: minmax(240px, 27fr) minmax(0, 52fr) minmax(110px, 17fr); gap: 26px; }
-  .withOrbit .detail { margin-top: 114px; }
+  /* The reference hero owns the desktop orbit; the compact shortcut aside is hidden here. */
+  .providerOrbit { display: none; }
   .standalone.center.center .tabs button { padding-inline: 8px; font-size: 11px; }
   .standalone.center.center .detailHeading .actions > :is(button,a) { min-height: 35px; padding-block: 6px; }
   .standalone.center.center .detail .form :is(input:not([type=checkbox]),select) { min-height: 36px; padding-block: 7px; }

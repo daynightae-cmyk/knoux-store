@@ -1,10 +1,12 @@
 'use client';
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { PREFERENCES_KEY, type WorkspacePreferences } from '@/lib/build/preferences';
 import { DevPageHeading, DevPanel } from './DevUI';
 import styles from './operational-v3.module.css';
+import art from './manage-art.module.css';
 
 /**
  * What a bridge check can honestly conclude.
@@ -77,7 +79,19 @@ export function SettingsPage() {
     try { const response = await fetch('/api/build/bridge/pair', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ url, code }) }); const result = await response.json(); if (!response.ok) throw new Error(result.message ?? 'Pairing failed.'); setCode(''); setMessage(`Bridge pairing recorded. Compare fingerprint ${result.fingerprint} with the trusted machine, then refresh status in the launcher.`); dispatch({ type: 'activity/record', message: 'Bridge pairing recorded' }); } catch (cause) { setMessage(cause instanceof Error ? cause.message : 'Pairing request failed.'); } finally { setBusy(false); }
   }
   const prefs = state.preferences;
-  return <div className={`dev-route ${styles.page} ${styles.settings}`} data-reduced={state.preferences.motion === "reduced" ? "" : undefined}><DevPageHeading eyebrow="WORKSPACE / SETTINGS" title="Settings" description="Non-secret display preferences in this browser, and authenticated bridge setup." detail="BROWSER-LOCAL PREFERENCES" /><div className="dev-route__grid"><DevPanel title="Workspace preferences"><div className="dev-settings-list">
+  return <div className={`dev-route ${styles.page} ${styles.settings}`} data-reduced={state.preferences.motion === "reduced" ? "" : undefined}><DevPageHeading eyebrow="WORKSPACE / SETTINGS" title="Settings" description="Non-secret display preferences in this browser, and authenticated bridge setup." detail="BROWSER-LOCAL PREFERENCES" />
+  <section className={art.art} aria-label="Device link concept">
+    <figure className={art.frame}>
+      <Image src="/creative/nsis-manage.webp" alt="KNOuX Store manage and device concept artwork — portrait reference art, not a live device record" fill sizes="(max-width: 900px) 100vw, 340px" />
+      <figcaption>MANAGE / DEVICE CONCEPT · REFERENCE ART</figcaption>
+    </figure>
+    <div className={art.deviceCopy}>
+      <h2>Link a trusted device</h2>
+      <p>Your machine stays yours. KNOuX Build inspects a paired bridge only after you sign in, start the bridge on the trusted machine, and complete the one-time pairing below. Nothing here scans, unlocks or controls a device by itself.</p>
+      <small>PAIRING IS ONE-TIME · LOOPBACK ORIGINS ONLY · FINGERPRINT COMPARED ON THE TRUSTED MACHINE</small>
+    </div>
+  </section>
+  <div className="dev-route__grid"><DevPanel title="Workspace preferences"><div className="dev-settings-list">
     <label><span><strong>Compact lists & rail</strong><small>Reduce navigation and list spacing.</small></span><input type="checkbox" checked={prefs.compact} onChange={(e) => update({ ...prefs, compact: e.target.checked })} /></label>
     <label><span><strong>Show evidence detail</strong><small>Show application provenance rows.</small></span><input type="checkbox" checked={prefs.showEvidence} onChange={(e) => update({ ...prefs, showEvidence: e.target.checked })} /></label>
     <label><span><strong>Motion level</strong><small>System reduced-motion is always respected.</small></span><select value={prefs.motion} onChange={(e) => update({ ...prefs, motion: e.target.value === 'reduced' ? 'reduced' : 'auto' })}><option value="auto">System preference</option><option value="reduced">Stable composed mark</option></select></label>
@@ -115,5 +129,6 @@ export function SettingsPage() {
       </button>
     </div>
     <p>Pair a running bridge using its one-time code. The server needs KNOUX_BRIDGE_SIGNING_KEY and KNOUX_BRIDGE_URL; pairing records use the existing owner-scoped Supabase store.</p><label className="dev-input-label">Configured bridge URL<input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="http://127.0.0.1:7331" /></label><label className="dev-input-label">One-time pairing code<input autoComplete="off" value={code} onChange={(e) => setCode(e.target.value)} /></label><button type="button" disabled={!state.integrations?.bridgePairAllowed || !url.trim() || !code.trim() || busy} title={state.integrations?.bridgePairBlocker ?? 'Sign in and configure the server bridge before pairing.'} onClick={() => void pair()}>{busy ? 'PAIRING…' : 'PAIR TRUSTED BRIDGE'}</button><p className="dev-note">{state.integrations?.bridgePairBlocker ?? 'Sign in and configure the server bridge before pairing.'} Hosted Vercel cannot reach your machine through its own localhost. The existing pairing schema accepts loopback origins only. A hosted tunnel/gateway adapter and reviewed schema are still required. Compare the returned bridge fingerprint on the trusted machine.</p></DevPanel>
+  <DevPanel title="Device Link — reference concept"><Image src="/creative/nsis-device-link.webp" alt="Device Link reference artwork: a phone beside a glass pairing panel. The QR pattern shown is illustrative artwork, not a functional pairing code." width={1536} height={1024} style={{ width: '100%', height: 'auto', borderRadius: 12, border: '1px solid #caa4f54d' }} sizes="(max-width: 900px) 100vw, 640px" /><p className="dev-note">The QR pattern in this artwork is illustrative only — it is not a pairing code and scanning it does nothing. Real pairing uses the one-time code field above, after sign-in, on a loopback origin.</p></DevPanel>
   <DevPanel title="Current project"><dl className="dev-kv"><dt>Adapter</dt><dd>{state.adapter.label}</dd><dt>Project</dt><dd>{state.project?.name ?? 'UNKNOWN / WITHHELD'}</dd><dt>Root</dt><dd>{state.project?.root ?? 'UNKNOWN / WITHHELD'}</dd><dt>Framework</dt><dd>{state.project?.framework ?? 'UNDETECTED'}</dd><dt>Branch / HEAD</dt><dd>{state.git?.branch ?? 'UNKNOWN'} / {state.git?.headSha ?? 'UNKNOWN'}</dd><dt>Dirty state</dt><dd>{state.git?.available ? state.git.dirty ? 'DIRTY' : 'CLEAN' : 'UNKNOWN'}</dd></dl></DevPanel></div>{message ? <p className="dev-note" role="status">{message}</p> : null}</div>;
 }

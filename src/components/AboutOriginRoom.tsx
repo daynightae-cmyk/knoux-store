@@ -554,7 +554,7 @@ export function AboutOriginRoom() {
               alpha: false,
               powerPreference: tier === 'low' ? 'low-power' : 'high-performance',
             }}
-            onCreated={({ gl }) => gl.setClearColor('#030405')}
+            onCreated={({ gl }) => gl.setClearColor('#0a0616')}
             onPointerMissed={() => setSelected(null)}
           >
             <Chamber

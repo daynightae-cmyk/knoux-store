@@ -1,0 +1,36 @@
+{
+  "kind": "EXPLICIT CONTRACT FIXTURE — not live provider proof",
+  "viewport": {
+    "width": 1904,
+    "height": 880
+  },
+  "product": "delivery platform",
+  "focus": {
+    "style": "solid",
+    "width": "2px",
+    "color": "rgb(218, 191, 237)",
+    "height": 44
+  },
+  "noHorizontalOverflow": true,
+  "productNodesDoNotOverlap": true,
+  "screenshots": [
+    "references/build-generator/qa/1904x880/idle-auto.png",
+    "references/build-generator/qa/1904x880/navigator-search.png",
+    "references/build-generator/qa/1904x880/manual-fast.png",
+    "references/build-generator/qa/1904x880/manual-balanced.png",
+    "references/build-generator/qa/1904x880/manual-deep.png",
+    "references/build-generator/qa/1904x880/manual-max.png",
+    "references/build-generator/qa/1904x880/resolving.png",
+    "references/build-generator/qa/1904x880/routing.png",
+    "references/build-generator/qa/1904x880/generating-open.png",
+    "references/build-generator/qa/1904x880/generating-draft.png",
+    "references/build-generator/qa/1904x880/planned-sections.png",
+    "references/build-generator/qa/1904x880/map-sections.png",
+    "references/build-generator/qa/1904x880/planned-product.png",
+    "references/build-generator/qa/1904x880/map-product.png",
+    "references/build-generator/qa/1904x880/executor-not-connected.png",
+    "references/build-generator/qa/1904x880/auth_required.png",
+    "references/build-generator/qa/1904x880/config_required.png",
+    "references/build-generator/qa/1904x880/provider_blocked.png"
+  ]
+}

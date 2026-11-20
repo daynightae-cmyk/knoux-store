@@ -1,5 +1,5 @@
 export type AtmosphereCue = 'wake' | 'ambient-storm' | 'activation-storm' | 'ready' | 'confirm' | 'settle'
-  | 'generation-start' | 'success' | 'error' | 'cancel';
+  | 'generation-start' | 'success' | 'error' | 'cancel' | 'provider-authenticated';
 
 const CUE_EVENT = 'knoux:atmosphere-cue';
 export const ACTIVATION_DURATION_MS = 4800;

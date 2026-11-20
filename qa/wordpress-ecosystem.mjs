@@ -44,8 +44,16 @@ for (const [width, height] of SIZES) {
   const page = await context.newPage();
 
   const consoleErrors = [];
+  // Same pattern as scripts/production-recovery-capture.mjs and the V4 gate:
+  // the operator-only operations endpoint deliberately answers 401 to the
+  // anonymous QA context. That one refusal is expected security behaviour,
+  // not a page defect; every other console error still fails the run.
+  const expectedAuthUrl = `${BASE}/api/wordpress/operations`;
   page.on('console', (message) => {
-    if (message.type() === 'error') consoleErrors.push(message.text());
+    if (message.type() !== 'error') return;
+    const location = message.location()?.url ?? '';
+    if (message.text().includes('401') && location.startsWith(expectedAuthUrl)) return;
+    consoleErrors.push(message.text());
   });
   page.on('pageerror', (error) => consoleErrors.push(`pageerror: ${error.message}`));
 
@@ -72,6 +80,13 @@ for (const [width, height] of SIZES) {
       h1Size: getComputedStyle(document.querySelector('.eco-hero__title')).fontSize,
       chapters: Array.from(document.querySelectorAll('main section[aria-labelledby]')).map((s) => s.getAttribute('aria-labelledby')),
       stackAboveFold: stack ? Math.round(Math.max(0, window.innerHeight - stack.getBoundingClientRect().top)) : 0,
+      // The arrival gateway must be a real composition, not a flattened image.
+      gatewayRings: document.querySelectorAll('.eco-hero__gate-ring').length,
+      gatewayMarkPaths: document.querySelectorAll('.eco-hero__mark path').length,
+      enterHref: document.querySelector('.eco-hero__enter-link')?.getAttribute('href') ?? null,
+      studioPresent: Boolean(document.querySelector('#studio [aria-label="WordPress Studio"]')),
+      statusPill: document.querySelector('.eco-hero__status-pill')?.textContent?.trim() ?? null,
+      valueLinks: Array.from(document.querySelectorAll('.eco-hero__values a')).map((a) => a.getAttribute('href')),
       // The finder must be usable without any script having run its search.
       finderHasLabel: Boolean(document.querySelector('.domain-finder__label')),
       finderInputType: document.querySelector('.domain-finder__field input')?.getAttribute('type') ?? null,
@@ -240,6 +255,37 @@ await check('reduced motion disables the ambient animation but keeps every state
   if (state.rackSlots !== 4) throw new Error(`the rack collapsed under reduced motion: ${state.rackSlots}`);
   await p.screenshot({ path: `${OUT}-reduced-motion.png` });
   await reduced.close();
+  return state;
+});
+
+await check('the arrival gateway is a real composition and enters the real studio', async () => {
+  await page.goto(ROUTE, { waitUntil: 'load' });
+  await page.waitForTimeout(400);
+  const state = await page.evaluate(() => ({
+    rings: document.querySelectorAll('.eco-hero__gate-ring').length,
+    markPaths: document.querySelectorAll('.eco-hero__mark path').length,
+    enterHref: document.querySelector('.eco-hero__enter-link')?.getAttribute('href') ?? null,
+    studio: Boolean(document.querySelector('#studio [aria-label="WordPress Studio"]')),
+    values: Array.from(document.querySelectorAll('.eco-hero__values a')).map((a) => a.getAttribute('href')),
+    forbiddenCounts: /200\+|15K\+|99\.9%/.test(document.querySelector('.eco-hero')?.textContent ?? ''),
+  }));
+  if (state.rings !== 2) throw new Error(`gateway rings missing: ${state.rings}`);
+  if (state.markPaths !== 4) throw new Error(`canonical mark paths missing: ${state.markPaths}`);
+  if (state.enterHref !== '#studio') throw new Error(`Enter CTA does not target the studio: ${state.enterHref}`);
+  if (!state.studio) throw new Error('the studio region is not present below the gateway');
+  if (state.values.length !== 4 || state.values.some((href) => !href)) throw new Error(`value rail is not four real links: ${state.values.join(',')}`);
+  if (state.forbiddenCounts) throw new Error('the reference\'s invented counts were reproduced');
+  await page.locator('.eco-hero__enter-link').click();
+  // Smooth scrolling is frame-driven: on a loaded host it can take longer
+  // than a fixed sleep. Poll until the studio actually arrives (same bound).
+  let studioTop = null;
+  for (let attempt = 0; attempt < 12; attempt++) {
+    await page.waitForTimeout(250);
+    studioTop = await page.evaluate(() => Math.round(document.querySelector('#studio').getBoundingClientRect().top));
+    if (Math.abs(studioTop) <= 160) break;
+  }
+  if (Math.abs(studioTop) > 160) throw new Error(`Enter did not bring the studio into view: top=${studioTop}`);
+  await page.screenshot({ path: `${OUT}-arrival-gateway.png` });
   return state;
 });
 
