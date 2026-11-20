@@ -44,12 +44,17 @@ export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const journey = JOURNEYS.find((entry) => entry.id === active) ?? JOURNEYS[0];
   const theme = themes.find((item) => item.slug === slug);
+  const requestParams = new URLSearchParams({
+    requestType: 'wordpress',
+    items: theme
+      ? `WordPress site; theme: ${theme.name}; source: ${theme.sourceUrl}; domain and hosting review; maintenance`
+      : 'WordPress site; theme selection; domain and hosting review; maintenance',
+  });
 
   return (
     <section className={styles.studio} aria-label="WordPress Studio">
       <header className={styles.header}>
         <span>WORDPRESS STUDIO</span>
-        <button type="button" aria-label={t('Close studio', 'أغلاق الاستوديو')} className={styles.closeButton}>&times;</button>
       </header>
 
       <nav className={styles.rail} role="navigation" aria-label={t('Studio journeys', 'رحلات الاستوديو')}>
@@ -82,8 +87,8 @@ export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }
             <p>{t('Official WordPress.org themes')}</p>
             {themes.length ? (
               <div className={styles.choice}>
-                <label className={styles.selectLabel}>{t('Choose a theme')}</label>
-                <select value={slug} onChange={(event) => setSlug(event.target.value)}>
+                <label className={styles.selectLabel} htmlFor="wp-theme-choice">{t('Choose a theme')}</label>
+                <select id="wp-theme-choice" value={slug} onChange={(event) => setSlug(event.target.value)}>
                   {themes.map((item) => (
                     <option key={item.slug} value={item.slug}>
                       {item.name}
@@ -92,7 +97,7 @@ export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }
                 </select>
               </div>
             ) : (
-              <p className={styles.note}>{t('The official theme directory is unavailable. Browse again or compose a request without a theme.')}</p>
+              <p className={styles.note} role="status">{t('The official theme directory is unavailable. Browse again or compose a request without a theme.')}</p>
             )}
             <p className={styles.note}>{t('Planning studio · nothing installed or published')}</p>
           </section>
@@ -106,7 +111,7 @@ export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }
             <div className={styles.cardGrid}>
               <div className={styles.card}>
                 <span className={styles.meter}>{t('Provider state', 'حالة المزود')}</span>
-                <span className={styles.value}>{t('Not configured', 'غير настроен')}</span>
+                <span className={styles.value}>{t('Not configured')}</span>
               </div>
               <div className={styles.card}>
                 <span className={styles.meter}>{t('Last check', 'آخر فحص')}</span>
@@ -250,7 +255,7 @@ export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }
             <div className={styles.cardGrid}>
               <div className={styles.card}>
                 <span className={styles.meter}>{t('Provider', 'المزود')}</span>
-                <span className={styles.value}>{t('Not configured', 'غير настроен')}</span>
+                <span className={styles.value}>{t('Not configured')}</span>
               </div>
               <div className={styles.card}>
                 <span className={styles.meter}>{t('Boundary', 'الحد')}</span>
@@ -299,7 +304,7 @@ export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }
           </section>
         )}
 
-        <a className={styles.request} href={`/contact?requestType=wordpress`}>{t('Compose a site request')} ↗</a>
+        <a className={styles.request} href={`/contact?${requestParams.toString()}`}>{t('Compose a site request')} ↗</a>
         <a className={styles.browse} href="/wordpress/themes">{t('Search the full catalogue')} →</a>
       </main>
     </section>

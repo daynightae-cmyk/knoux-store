@@ -19,7 +19,7 @@ test('a failed credential save keeps the unsaved value and synchronous duplicate
   await expect(page.locator('[data-provider-connection]')).toContainText('VERIFIED');
   await page.getByRole('navigation', { name: 'Groq sections' }).getByRole('button', { name: 'Credentials', exact: true }).click();
   await page.getByLabel('Credential name', { exact: true }).fill('CONTRACT FIXTURE only');
-  const secret = page.getByLabel('Secret (write only)', { exact: true });
+  const secret = page.getByLabel('Secret key', { exact: true });
   await secret.fill('TEST_ONLY_UNSAVED_CREDENTIAL');
   await secret.evaluate(element => {
     const form = element.closest('form')!;

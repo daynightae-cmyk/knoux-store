@@ -50,7 +50,7 @@ test('launcher, command palette and integration controls expose exact blockers w
   await page.getByRole('navigation',{name:'Provider registry'}).getByRole('button',{name:/^OpenAI\b/}).click();
   await page.getByRole('navigation',{name:'OpenAI sections'}).getByRole('button',{name:'Credentials',exact:true}).click();
   await expect(page.getByRole('button',{name:'SAVE API KEY'})).toBeDisabled();
-  await expect(page.getByLabel('Secret (write only)')).toBeDisabled();
+  await expect(page.getByLabel('Secret key')).toBeDisabled();
   await expect(page.getByRole('button',{name:'Add profile +'})).toBeDisabled();
   const audit = await new AxeBuilder({ page }).include('.dev-cinematic').analyze(); expect(audit.violations).toEqual([]);
 });
@@ -73,6 +73,10 @@ test('real local Preview studio observes DOM, console, resource failures, respon
   const server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '-H', '127.0.0.1', '-p', String(port)], { cwd: process.cwd(), env: { ...process.env, KNOUX_BUILD_ENVIRONMENT: 'local' }, stdio: 'ignore', windowsHide: true });
   try {
     await expect.poll(async () => { try { return (await request.get(`${origin}/build`)).status(); } catch { return 0; } }, { timeout: 30_000 }).toBe(200);
+    // The first project snapshot walks and measures the checkout's real files;
+    // on a cold filesystem cache this can exceed the default expect timeout.
+    // Warm the server-side snapshot through the same real API the page reads.
+    await expect.poll(async () => { try { return (await request.get(`${origin}/api/build/project`, { timeout: 120_000 })).status(); } catch { return 0; } }, { timeout: 120_000, intervals: [1_000] }).toBe(200);
     await page.goto(`${origin}/build`); await expect(page.locator('.dev-sidebar__facts')).toContainText('LOCAL');
     await page.getByRole('group', { name: 'Workspace view' }).getByRole('button', { name: 'PREVIEW' }).click();
     const iframe = page.locator('iframe[title^="Live preview"]'); await expect(iframe).toHaveCount(1); await expect(page.getByRole('button', { name: 'INSPECT', exact: true })).toBeEnabled();
