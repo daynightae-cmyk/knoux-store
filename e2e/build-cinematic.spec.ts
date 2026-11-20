@@ -24,7 +24,14 @@ for (const width of widths) {
       const response = await page.goto(route, { waitUntil: 'load' });
       expect(response?.status()).toBe(200);
       await expect(page.locator('#main-content h1')).toHaveCount(1);
-      await expect(page.locator(route === '/build' ? '.dev-stage-head' : '.dev-crumb')).toBeVisible();
+      if (route === '/build') {
+        await expect(page.locator('.dev-stage-head')).toBeVisible();
+      } else if (route === '/build/providers') {
+        // ProviderCenter adds .standalone which intentionally hides the crumb via CSS
+        await expect(page.locator('.dev-crumb')).toBeHidden();
+      } else {
+        await expect(page.locator('.dev-crumb')).toBeVisible();
+      }
       await expect(page.locator(`.dev-nav-link[href="${route}"]`)).toHaveAttribute('aria-current', 'page');
       expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
       expect(await page.locator('#main-content').evaluate((element) => element.scrollWidth - element.clientWidth)).toBeLessThanOrEqual(1);
