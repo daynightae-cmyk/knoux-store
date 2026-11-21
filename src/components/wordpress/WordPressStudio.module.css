@@ -58,7 +58,14 @@
     radial-gradient(1.2px 1.2px at 45% 21%, #fff 98%, transparent),
     radial-gradient(1.2px 1.2px at 64% 11%, #f0abfc 98%, transparent),
     radial-gradient(1.6px 1.6px at 82% 19%, #e9d5ff 98%, transparent),
-    radial-gradient(1.2px 1.2px at 93% 8%, #fff 98%, transparent),
+    radial-gradient(1.2px 1.2px at 93% 8%, #fff 98%, transparent);
+}
+
+.sceneStars::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
     radial-gradient(1.2px 1.2px at 6% 46%, #f0abfc 98%, transparent),
     radial-gradient(1.4px 1.4px at 97% 42%, #fff 98%, transparent),
     radial-gradient(1.3px 1.3px at 18% 66%, #fff 98%, transparent),
