@@ -274,6 +274,7 @@ export function WordPressStudio({
   const [active, setActive] = useState<JourneyId>('arrival');
   const [slug, setSlug] = useState<string>(themes[0]?.slug ?? '');
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [previewScale, setPreviewScale] = useState(100);
   const [themeQuery, setThemeQuery] = useState('');
   const [siteTitle, setSiteTitle] = useState('KNOUX Store');
   const [tagline, setTagline] = useState('Digital Headquarters');
@@ -669,64 +670,117 @@ export function WordPressStudio({
           ) : null}
 
           {active === 'canvas' ? (
-            <div className={styles.canvasLayout}>
-              <Panel title={t('Device preview', 'معاينة الأجهزة')}>
-                <div className={styles.deviceList}>
+            <div className={styles.canvasJourney}>
+              <div className={styles.canvasToolbar}>
+                <div className={styles.deviceTabs} role="group" aria-label={t('Device preview', 'معاينة الأجهزة')}>
                   {(['desktop', 'tablet', 'mobile'] as const).map((value) => (
                     <button
                       key={value}
                       type="button"
-                      className={device === value ? styles.deviceActive : ''}
                       aria-pressed={device === value}
-                      aria-label={t(value[0].toUpperCase() + value.slice(1))}
                       onClick={() => setDevice(value)}
                     >
                       <JourneyIcon path={value === 'desktop' ? 'M3 5h18v11H3Zm5 15h8M12 16v4' : value === 'tablet' ? 'M6 3h12v18H6Zm4 15h4' : 'M8 3h8v18H8Zm3 15h2'} />
-                      <span>{t(value[0].toUpperCase() + value.slice(1))}</span>
-                      <small>{value === 'desktop' ? '1440 × 900' : value === 'tablet' ? '820 × 1180' : '390 × 844'}</small>
+                      <span>{t(value[0].toUpperCase() + value.slice(1))}<small>{value === 'desktop' ? '1440 × 900' : value === 'tablet' ? '820 × 1180' : '390 × 844'}</small></span>
                     </button>
                   ))}
                 </div>
-                <div className={styles.toggleList}>
-                  <label className={styles.toggleRow}><span>{t('Sync all devices')}</span><input type="checkbox" defaultChecked /></label>
-                  <label className={styles.toggleRow}><span>{t('Auto refresh')}</span><input type="checkbox" defaultChecked /></label>
-                </div>
-                <p className={styles.note}>{t('Sizes are the site’s real verification widths, not marketing screenshots.')}</p>
-              </Panel>
-
-              <div className={styles.deviceStage} data-device={device}>
-                <div className={styles.deviceFrame} data-kind="desktop">
-                  <div className={styles.deviceChrome}><span /><span /><span /></div>
-                  {theme?.screenshotUrl ? <OfficialImage src={theme.screenshotUrl} alt={`${theme.name} desktop preview · WordPress.org`} /> : <div className={styles.deviceFallback} />}
-                </div>
-                <div className={styles.deviceFrame} data-kind="tablet">
-                  <div className={styles.deviceChrome}><span /><span /><span /></div>
-                  {theme?.screenshotUrl ? <OfficialImage src={theme.screenshotUrl} alt={`${theme.name} tablet preview · WordPress.org`} /> : <div className={styles.deviceFallback} />}
-                </div>
-                <div className={styles.deviceFrame} data-kind="mobile">
-                  <div className={styles.deviceChrome}><span /><span /><span /></div>
-                  {theme?.screenshotUrl ? <OfficialImage src={theme.screenshotUrl} alt={`${theme.name} mobile preview · WordPress.org`} /> : <div className={styles.deviceFallback} />}
+                <div className={styles.breakpointStrip} aria-label={t('Breakpoints', 'نقاط التجاوب')}>
+                  <JourneyIcon path="M4 12h3m10 0h3M8 8v8m8-8v8M10 12h4" />
+                  <span>{t('Breakpoints', 'نقاط التجاوب')}</span>
+                  <i><b className={styles.dotOk} />≥ 1100 px</i>
+                  <i><b className={styles.dotOk} />760 – 1099 px</i>
+                  <i><b className={styles.dotOk} />≤ 759 px</i>
                 </div>
               </div>
 
-              <Panel title={t('Scaling & canvas', 'المقياس واللوحة')}>
-                <div className={styles.inspectorGroup}>
-                  <span className={styles.fieldLabel}>{t('Scale', 'المقياس')}</span>
-                  <label className={styles.rangeRow}><span>100%</span><input type="range" min="50" max="150" defaultValue="100" aria-label={t('Preview scale')} /><output>100%</output></label>
+              <div className={styles.canvasLayout}>
+                <div className={styles.canvasSide}>
+                  <Panel title={t('Device preview', 'معاينة الأجهزة')}>
+                    <div className={styles.deviceRows}>
+                      {(['desktop', 'tablet', 'mobile'] as const).map((value) => (
+                        <button
+                          key={value}
+                          type="button"
+                          className={styles.deviceRow}
+                          aria-pressed={device === value}
+                          onClick={() => setDevice(value)}
+                        >
+                          <JourneyIcon path={value === 'desktop' ? 'M3 5h18v11H3Zm5 15h8M12 16v4' : value === 'tablet' ? 'M6 3h12v18H6Zm4 15h4' : 'M8 3h8v18H8Zm3 15h2'} />
+                          <span>{t(value[0].toUpperCase() + value.slice(1))}</span>
+                          <i className={styles.rowSwitch} data-on={device === value} aria-hidden="true" />
+                        </button>
+                      ))}
+                    </div>
+                    <p className={styles.note}>{t('The switch marks the focused device. Every device stays on the stage.')}</p>
+                  </Panel>
+                  <Panel title={t('Preview mode', 'وضع المعاينة')}>
+                    <div className={styles.modeList}>
+                      <span className={styles.modeActive}><i className={styles.dotOk} />{t('Static preview', 'معاينة ثابتة')}</span>
+                      <span className={styles.modeOff}>{t('Live preview', 'معاينة مباشرة')}<small>{t('Not connected', 'غير متصل')}</small></span>
+                      <span className={styles.modeOff}>{t('Sync all devices', 'مزامنة جميع الأجهزة')}<small>{t('Not connected', 'غير متصل')}</small></span>
+                      <span className={styles.modeOff}>{t('Auto refresh', 'تحديث تلقائي')}<small>{t('Not connected', 'غير متصل')}</small></span>
+                    </div>
+                  </Panel>
                 </div>
-                <div className={styles.inspectorGroup}>
-                  <span className={styles.fieldLabel}>{t('Breakpoints', 'نقاط التجاوب')}</span>
-                  <ul className={styles.breakpoints}>
-                    <li><span className={styles.dotOk} />Desktop <b>≥ 1100 px</b></li>
-                    <li><span className={styles.dotOk} />Tablet <b>760 – 1099 px</b></li>
-                    <li><span className={styles.dotOk} />Mobile <b>≤ 759 px</b></li>
-                  </ul>
+
+                <div className={styles.deviceStage} data-device={device} style={{ '--stage-scale': previewScale / 100 } as CSSProperties}>
+                  <div className={styles.stageFloor} aria-hidden="true"><i /><i /><i /></div>
+                  <div className={styles.pedestal} data-kind="desktop">
+                    <div className={styles.deviceFrame} data-kind="desktop">
+                      <div className={styles.deviceScreen}>
+                        {theme?.screenshotUrl ? <OfficialImage src={theme.screenshotUrl} alt={`${theme.name} desktop preview · WordPress.org`} /> : <div className={styles.deviceFallback} />}
+                      </div>
+                    </div>
+                    <i className={styles.monitorNeck} aria-hidden="true" />
+                    <i className={styles.monitorBase} aria-hidden="true" />
+                    <i className={styles.pedestalGlow} aria-hidden="true" />
+                  </div>
+                  <div className={styles.pedestal} data-kind="tablet">
+                    <div className={styles.deviceFrame} data-kind="tablet">
+                      <i className={styles.deviceNotch} aria-hidden="true" />
+                      <div className={styles.deviceScreen}>
+                        {theme?.screenshotUrl ? <OfficialImage src={theme.screenshotUrl} alt={`${theme.name} tablet preview · WordPress.org`} /> : <div className={styles.deviceFallback} />}
+                      </div>
+                    </div>
+                    <i className={styles.pedestalGlow} aria-hidden="true" />
+                  </div>
+                  <div className={styles.pedestal} data-kind="mobile">
+                    <div className={styles.deviceFrame} data-kind="mobile">
+                      <i className={styles.deviceNotch} aria-hidden="true" />
+                      <div className={styles.deviceScreen}>
+                        {theme?.screenshotUrl ? <OfficialImage src={theme.screenshotUrl} alt={`${theme.name} mobile preview · WordPress.org`} /> : <div className={styles.deviceFallback} />}
+                      </div>
+                    </div>
+                    <i className={styles.pedestalGlow} aria-hidden="true" />
+                  </div>
                 </div>
-                <div className={styles.responsiveStatus}>
-                  <StatusPill tone="warn">{t('Preview only', 'معاينة فقط')}</StatusPill>
-                  <p>{t('This is the official theme screenshot, resized for comparison. It is not a live responsive site.')}</p>
-                </div>
-              </Panel>
+
+                <Panel title={t('Scaling & canvas', 'المقياس واللوحة')}>
+                  <div className={styles.inspectorGroup}>
+                    <span className={styles.fieldLabel}>{t('Scale', 'المقياس')}</span>
+                    <label className={styles.rangeRow}><span>{previewScale}%</span><input type="range" min="50" max="150" step="25" value={previewScale} onChange={(event) => setPreviewScale(Number(event.target.value))} aria-label={t('Preview scale')} /><output>{previewScale}%</output></label>
+                    <div className={styles.scalePresets} role="group" aria-label={t('Preview scale')}>
+                      {[50, 75, 100, 125, 150].map((value) => (
+                        <button key={value} type="button" aria-pressed={previewScale === value} onClick={() => setPreviewScale(value)}>{value}%</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className={styles.inspectorGroup}>
+                    <span className={styles.fieldLabel}>{t('Breakpoints', 'نقاط التجاوب')}</span>
+                    <ul className={styles.breakpoints}>
+                      <li><span className={styles.dotOk} />{t('Desktop')} <b>≥ 1100 px</b><JourneyIcon path="M4 12l5 5L20 6" /></li>
+                      <li><span className={styles.dotOk} />{t('Tablet')} <b>760 – 1099 px</b><JourneyIcon path="M4 12l5 5L20 6" /></li>
+                      <li><span className={styles.dotOk} />{t('Mobile')} <b>≤ 759 px</b><JourneyIcon path="M4 12l5 5L20 6" /></li>
+                    </ul>
+                  </div>
+                  <div className={styles.responsiveStatus}>
+                    <span className={styles.fieldLabel}>{t('Responsive status', 'حالة التجاوب')}</span>
+                    <StatusPill tone="warn">{t('Preview only', 'معاينة فقط')}</StatusPill>
+                    <p>{t('This is the official theme screenshot, resized for comparison. It is not a live responsive site.')}</p>
+                  </div>
+                </Panel>
+              </div>
             </div>
           ) : null}
 
