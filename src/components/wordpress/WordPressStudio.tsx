@@ -265,22 +265,16 @@ function ratingLabel(item: ExternalItem): string {
 
 export function WordPressStudio({
   themes,
-  plugins,
   directoryState,
-  pluginState,
 }: {
   themes: Readonly<ExternalItem[]>;
-  plugins: Readonly<ExternalItem[]>;
   directoryState: ExternalQueryState;
-  pluginState: ExternalQueryState;
 }) {
   const t = useRouteCopy();
   const [active, setActive] = useState<JourneyId>('arrival');
   const [slug, setSlug] = useState<string>(themes[0]?.slug ?? '');
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [themeQuery, setThemeQuery] = useState('');
-  const [pluginQuery, setPluginQuery] = useState('');
-  const [selectedPlugins, setSelectedPlugins] = useState<string[]>([]);
   const [siteTitle, setSiteTitle] = useState('KNOUX Store');
   const [tagline, setTagline] = useState('Digital Headquarters');
   const [logoPlacement, setLogoPlacement] = useState('center');
@@ -300,7 +294,6 @@ export function WordPressStudio({
 
   const journey = JOURNEYS.find((entry) => entry.id === active) ?? JOURNEYS[0];
   const theme = themes.find((item) => item.slug === slug) ?? themes[0];
-  const plugin = plugins.find((item) => item.slug === (selectedPlugins[0] ?? plugins[0]?.slug)) ?? plugins[0];
 
   const filteredThemes = useMemo(() => {
     const query = themeQuery.trim().toLowerCase();
@@ -316,39 +309,12 @@ export function WordPressStudio({
     return Array.from(seen).slice(0, 5);
   }, [themes]);
 
-  const filteredPlugins = useMemo(() => {
-    const query = pluginQuery.trim().toLowerCase();
-    if (!query) return plugins;
-    return plugins.filter((item) =>
-      [item.name, item.author, item.shortDescription, ...item.tags].join(' ').toLowerCase().includes(query),
-    );
-  }, [pluginQuery, plugins]);
-
-  const pluginTags = useMemo(() => {
-    const seen = new Set<string>();
-    for (const item of plugins) for (const tag of item.tags) seen.add(tag);
-    return Array.from(seen).slice(0, 6);
-  }, [plugins]);
-
   const requestParams = new URLSearchParams({
     requestType: 'wordpress',
     items: theme
       ? `WordPress site; theme: ${theme.name}; source: ${theme.sourceUrl}; domain and hosting review; maintenance`
       : 'WordPress site; theme selection; domain and hosting review; maintenance',
   });
-
-  const pluginRequest = new URLSearchParams({
-    requestType: 'wordpress',
-    items: selectedPlugins.length
-      ? `Plugin installation review: ${selectedPlugins.join(', ')}; compatibility and maintenance`
-      : 'Plugin selection review; compatibility and maintenance',
-  });
-
-  function togglePlugin(pluginSlug: string) {
-    setSelectedPlugins((current) =>
-      current.includes(pluginSlug) ? current.filter((entry) => entry !== pluginSlug) : [...current, pluginSlug],
-    );
-  }
 
   return (
     <section className={styles.studio} aria-label="WordPress Studio">
@@ -674,120 +640,24 @@ export function WordPressStudio({
           ) : null}
 
           {active === 'plugins' ? (
-            <>
-              <div className={styles.pluginLayout}>
-                <Panel
-                  title={t('Plugin Library', 'مكتبة الإضافات')}
-                  meta={`${plugins.length} ${t('loaded', 'محمل')}`}
-                  className={styles.pluginLibrary}
-                >
-                  <div className={styles.searchRow}>
-                    <input
-                      type="search"
-                      value={pluginQuery}
-                      onChange={(event) => setPluginQuery(event.target.value)}
-                      placeholder={t('Search plugins, features or tags…')}
-                      aria-label={t('Search loaded plugins')}
-                    />
-                    <span className={styles.meta}>{pluginState === 'ok' ? t('Live directory') : t('Directory unavailable')}</span>
-                  </div>
-                  <div className={styles.chipRow}>
-                    <span className={styles.chipActive}>{t('All plugins', 'كل الإضافات')}</span>
-                    {pluginTags.map((tag) => <span key={tag} className={styles.chip}>{tag}</span>)}
-                  </div>
-                  {filteredPlugins.length ? (
-                    <div className={styles.pluginGrid}>
-                      {filteredPlugins.map((item) => (
-                        <article key={item.slug} className={`${styles.pluginCard} ${item.slug === plugin?.slug ? styles.pluginCardActive : ''}`}>
-                          <span className={styles.pluginIcon}>
-                            {item.iconUrl ? (
-                              <OfficialImage src={item.iconUrl} alt={`${item.name} icon · WordPress.org`} />
-                            ) : (
-                              <JourneyIcon path="M9 4h6v3a2 2 0 1 0 2 2h3v6h-3a2 2 0 1 1-2 2v3H9v-3a2 2 0 1 0-2-2H4V9h3a2 2 0 1 1 2-2Z" />
-                            )}
-                          </span>
-                          <div className={styles.pluginBody}>
-                            <strong>{item.name}</strong>
-                            <small>{item.author}</small>
-                            <p>{item.shortDescription}</p>
-                            <span className={styles.pluginFacts}>
-                              <span>★ {ratingLabel(item)}</span>
-                              {item.activeInstalls ? <span>{formatCount(item.activeInstalls)} {t('installs')}</span> : null}
-                            </span>
-                          </div>
-                          <button
-                            type="button"
-                            className={styles.miniAction}
-                            aria-pressed={selectedPlugins.includes(item.slug)}
-                            onClick={() => togglePlugin(item.slug)}
-                          >
-                            {selectedPlugins.includes(item.slug) ? t('Selected', 'مختار') : t('Add', 'أضف')}
-                          </button>
-                        </article>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className={styles.emptyState}>
-                      {pluginState === 'unavailable'
-                        ? t('The WordPress.org plugin directory could not be reached. The full directory remains one link away.')
-                        : t('No loaded plugin matches that search.')}
-                    </p>
-                  )}
-                </Panel>
-
-                <Panel title={plugin ? plugin.name : t('Plugin detail', 'تفاصيل الإضافة')} meta={<StatusPill tone="signal">WORDPRESS.ORG</StatusPill>}>
-                  {plugin ? (
-                    <>
-                      <div className={styles.pluginDetailHead}>
-                        <span className={styles.pluginIconLarge}>
-                          {plugin.iconUrl ? <OfficialImage src={plugin.iconUrl} alt={`${plugin.name} icon · WordPress.org`} /> : null}
-                        </span>
-                        <div>
-                          <strong>{plugin.name}</strong>
-                          <p>{t('by')} {plugin.author}</p>
-                        </div>
-                      </div>
-                      <p className={styles.pluginDescription}>{plugin.shortDescription}</p>
-                      <dl className={styles.factList}>
-                        <div><dt>{t('Rating')}</dt><dd>{ratingLabel(plugin)}{plugin.ratingCount ? ` · ${plugin.ratingCount}` : ''}</dd></div>
-                        <div><dt>{t('Active installs')}</dt><dd>{plugin.activeInstalls ? formatCount(plugin.activeInstalls) : t('Not published')}</dd></div>
-                        <div><dt>{t('Version')}</dt><dd>{plugin.version ?? t('Not published')}</dd></div>
-                        <div><dt>{t('Tested up to')}</dt><dd>{plugin.testedWp ? `WordPress ${plugin.testedWp}` : t('Not published')}</dd></div>
-                        <div><dt>{t('Requires PHP')}</dt><dd>{plugin.requiresPhp ?? t('Not published')}</dd></div>
-                        <div><dt>{t('Last updated')}</dt><dd>{formatOfficialDate(plugin.lastUpdated) ?? t('Not published')}</dd></div>
-                      </dl>
-                      {plugin.tags.length ? <p className={styles.tagLine}>{plugin.tags.slice(0, 8).join(' · ')}</p> : null}
-                      <div className={styles.panelActions}>
-                        <button type="button" className={styles.primaryAction} onClick={() => togglePlugin(plugin.slug)}>
-                          {selectedPlugins.includes(plugin.slug) ? t('Remove from selection', 'إزالة من الاختيار') : t('Add to selection', 'أضف إلى الاختيار')}
-                        </button>
-                        <a className={styles.ghostAction} href={plugin.sourceUrl} target="_blank" rel="noreferrer">
-                          {t('View on WordPress.org', 'عرض على ووردبريس.أورج')} ↗
-                        </a>
-                      </div>
-                      <p className={styles.note}>{t('KNOuX installs and verifies plugins; it does not publish or endorse any specific item.')}</p>
-                    </>
-                  ) : (
-                    <p className={styles.emptyState}>{t('The official plugin directory is unavailable.')}</p>
-                  )}
-                </Panel>
-              </div>
-
-              <div className={styles.selectionTray}>
-                <div>
-                  <span className={styles.trayLabel}>{t('Selection tray', 'سلة الاختيار')}</span>
-                  <p>{selectedPlugins.length ? selectedPlugins.join(' · ') : t('No plugins selected yet.')}</p>
-                </div>
-                <div className={styles.trayActions}>
-                  {selectedPlugins.length ? (
-                    <button type="button" className={styles.ghostAction} onClick={() => setSelectedPlugins([])}>{t('Clear', 'مسح')}</button>
-                  ) : null}
-                  <Link className={styles.primaryAction} href={`/contact?${pluginRequest.toString()}`}>
-                    {t('Request installation review', 'اطلب مراجعة التركيب')} ↗
+            <div className={styles.pluginLayout}>
+              <Panel title={t('Plugin Library', 'مكتبة الإضافات')} meta={<StatusPill tone="signal">WORDPRESS.ORG</StatusPill>}>
+                <p className={styles.panelLead}>
+                  {t('The official plugin directory is browsed on demand rather than preloaded into the studio. Nothing here is a ranking or a recommendation.')}
+                </p>
+                <div className={styles.panelActions}>
+                  <Link className={styles.primaryAction} href="/wordpress/plugins">
+                    {t('Browse the plugin directory', 'تصفح دليل الإضافات')} <span aria-hidden="true">→</span>
                   </Link>
                 </div>
-              </div>
-            </>
+              </Panel>
+
+              <Panel title={t('Selection and review', 'الاختيار والمراجعة')} meta={<StatusPill tone="signal">{t('By name only', 'بالاسم فقط')}</StatusPill>}>
+                <p className={styles.emptyState}>
+                  {t('No plugin list is preloaded, so a request names its plugins and the review covers compatibility and maintenance. KNOuX installs and verifies plugins; it does not publish or endorse any specific item.')}
+                </p>
+              </Panel>
+            </div>
           ) : null}
 
           {active === 'canvas' ? (
