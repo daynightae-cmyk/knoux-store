@@ -185,7 +185,7 @@ test('seven lifecycle steps separate validated proposal from execution and deplo
   assert.deepEqual(lifecycle.deriveGenerationLifecycle(state).map((entry) => entry.name), ['Planning', 'Generated proposal', 'Real file execution', 'Build', 'Test', 'Verification', 'Deployment']);
   assert.equal(step(state, 'Generated proposal').status, 'READY FOR REVIEW');
   assert.equal(step(state, 'Real file execution').status, 'UNCONNECTED');
-  assert.equal(step(state, 'Deployment').status, 'UNCONNECTED');
+  assert.equal(step(state, 'Deployment').status, 'AVAILABLE');
   assert.equal(step(state, 'Build').status, 'NOT MEASURED');
   assert.equal(step(state, 'Test').status, 'NOT MEASURED');
   assert.equal(step(state, 'Verification').status, 'NOT MEASURED');
@@ -260,6 +260,36 @@ test('other-checkout or legacy proposals and stale stream evidence are hidden, i
   }
 });
 
+test('a proposal compiled before the first checkout measurement adopts it instead of being discarded', () => {
+  // The workspace facts can land after the user has already generated a plan
+  // (slow first project read). The plan was compiled against an unmeasured
+  // checkout; the initial measurement identifies that same checkout, so the
+  // session must survive rather than reset to LISTENING.
+  const unmeasuredContext = { project: null, worktree: null, branch: null, projectRef: null, projectId: null, headSha: null };
+  let state = { ...initialBuildState, projectRef: null, project: null, git: null,
+    engineering: { ...initialBuildState.engineering, requestId: 'request-a', stage: 'PLANNED', plan: artifact, context: unmeasuredContext } };
+  const project = { id: 'native', name: 'Native', root: 'K:/test-only', type: 'unknown', framework: null, packageManager: null, currentBranch: null, headSha: null };
+  const git = { available: true, dirty: false, branch: 'feature', headSha: 'aaa', originMainSha: null, ahead: null, behind: null, files: [], commits: [], blocker: null };
+  // Project facts arrive before git facts: the context must keep completing.
+  state = buildReducer(state, { type: 'project/resolved', project, graph: { nodes: [], edges: [] } });
+  assert.equal(state.engineering.plan, artifact, 'plan survives the project measurement');
+  state = buildReducer(state, { type: 'git/resolved', git });
+  assert.equal(state.engineering.plan, artifact, 'plan survives the git measurement');
+  assert.equal(state.engineering.context.projectId, 'native');
+  assert.equal(state.engineering.context.branch, 'feature');
+  assert.equal(state.engineering.context.headSha, 'aaa');
+  assert.equal(lifecycle.scopedEngineeringSession(state).stage, 'PLANNED');
+  // Reverse arrival order (git before project) must behave identically.
+  let reversed = { ...initialBuildState, projectRef: null, project: null, git: null,
+    engineering: { ...initialBuildState.engineering, requestId: 'request-a', stage: 'PLANNED', plan: artifact, context: unmeasuredContext } };
+  reversed = buildReducer(reversed, { type: 'git/resolved', git });
+  reversed = buildReducer(reversed, { type: 'project/resolved', project, graph: { nodes: [], edges: [] } });
+  assert.equal(lifecycle.scopedEngineeringSession(reversed).stage, 'PLANNED');
+  // A fully measured context that names a different checkout is still discarded.
+  const switched = { ...state, git: { ...git, headSha: 'bbb' } };
+  assert.equal(lifecycle.scopedEngineeringSession(switched).plan, null);
+});
+
 test('confirmed cancellation is visible only for its own request, never a newer request', () => {
   const state = currentState('GENERATING');
   const aborted = buildReducer(state, { type: 'engineering/update', requestId: 'request-a', patch: { stage: 'CANCELLED' } });
@@ -288,4 +318,33 @@ test('both scoped UI surfaces wire a real cancel handler and accessible minimum 
   assert.match(monitor, /onClick=\{onCancel\}>Cancel planning/);
   assert.match(css, /min-height: 44px/);
   assert.match(css, /minmax\(min\(100%, 145px\), 1fr\)/);
+});
+
+test('a receipt is execution evidence while an unreviewed artifact is only awaiting confirmation', () => {
+  const generatedProject = { kind: 'static-web', files: [{ path: 'index.html', content: '<!doctype html><title>Reviewed fixture</title>' }] };
+  const state = currentState('REVIEWING');
+  state.engineering.plan = { ...artifact, generatedProject };
+  assert.equal(step(state, 'Real file execution').status, 'AWAITING CONFIRMATION');
+  assert.doesNotMatch(step(state, 'Real file execution').evidence, /bytes written/);
+
+  const preview = { url: 'http://127.0.0.1:4311/' + 'a'.repeat(64) + '/index.html', origin: 'http://127.0.0.1:4311', processId: 5150, httpStatus: 200, readinessMs: 120, expiresAt: '2026-11-19T00:15:00Z', blocker: null };
+  state.engineering.execution = {
+    operationId: '6f1c0a7e-2f6b-4d8e-9a1b-2c3d4e5f6a7b', ownerId: 'owner-fixture', kind: 'static-web',
+    planSha256: 'a'.repeat(64), state: 'ready', files: [{ path: 'index.html', bytes: 51, sha256: 'b'.repeat(64) }],
+    bytes: 51, sourceSha256: 'c'.repeat(64),
+    build: { command: 'knoux-static-validate@1 · no shell', exitCode: 0, status: 'passed', evidence: 'Fixture only.', durationMs: null },
+    bundle: { path: 'artifacts/knoux-static-app.zip', bytes: 240, sha256: 'd'.repeat(64) },
+    preview, externalReference: 'generated-static:fixture', createdAt: '2026-11-19T00:00:00Z', updatedAt: '2026-11-19T00:00:01Z', error: null,
+  };
+  const ready = step(state, 'Real file execution');
+  assert.equal(ready.status, 'PREVIEW LIVE');
+  assert.match(ready.evidence, /1 reviewed static files · 51 bytes/);
+  assert.match(ready.evidence, /bundle SHA-256 dddddddddddddddd/);
+  assert.match(ready.evidence, /http:\/\/127\.0\.0\.1:4311/);
+
+  state.engineering.execution = { ...state.engineering.execution, state: 'failed', error: 'Preview stopped.', preview: { ...preview, url: null, processId: null, httpStatus: null, blocker: 'Preview process is no longer running.' } };
+  const failed = step(state, 'Real file execution');
+  assert.equal(failed.status, 'FAILED');
+  assert.match(failed.evidence, /Preview process is no longer running/);
+  assert.match(failed.evidence, /Preview stopped/);
 });

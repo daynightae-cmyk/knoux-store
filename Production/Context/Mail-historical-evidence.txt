@@ -1,0 +1,84 @@
+بسم الله والصلاة والسلام علي رسول الله صلي الله عليه وسلم 🌹
+
+يا هندسة، **كده اتقفل بالدليل، مش بالتخمين** 🔥✅
+
+الرسالة الأصلية أثبتت:
+
+```text id="nb2qyt"
+SPF   = PASS
+DKIM  = PASS
+DMARC = PASS
+TLS   = TLS 1.3
+```
+
+والتفاصيل المهمة جدًا:
+
+```text id="fcrz2x"
+SPF:
+pass
+Sender IP: 198.54.127.64
+smtp.mailfrom = admin@knoux.store
+```
+
+```text id="usl17z"
+DKIM:
+pass
+d = knoux.store
+s = privateemail
+algorithm = rsa-sha256
+```
+
+```text id="8v167c"
+DMARC:
+pass
+header.from = knoux.store
+policy = p=NONE
+```
+
+يعني الـalignment نفسه سليم كمان:
+- الـFrom = `knoux.store`
+- الـSPF domain = `knoux.store`
+- الـDKIM domain = `knoux.store`
+
+وده بالظبط اللي DMARC محتاجه عشان يعدّي. Google نفسها بتوضح إن نجاح DMARC يعتمد على alignment بين عنوان `From:` وبين SPF أو DKIM. ([support.google.com](https://support.google.com/mail/answer/81126?hl=en&utm_source=chatgpt.com))
+
+### إحنا وصلنا لفين؟
+
+**Email Authentication بتاع `admin@knoux.store` شغال فعليًا.**
+
+مش مجرد DNS records موجودة، لأ:
+**رسالة حقيقية دخلت Gmail وGoogle نفسها حكمت عليها PASS في الثلاثة.**
+
+وده فرق كبير جدًا.
+
+الجزء الوحيد اللي لسه مش "توثيق العلامة" هو إن DMARC عندنا حاليًا:
+
+```text id="vldimt"
+p=none
+```
+
+وده Monitoring فقط. Google بتوصي بالتدرج من monitoring إلى `quarantine` ثم `reject` لما تتأكد إن كل مصادر الإرسال الشرعية بتعدّي المصادقة. ([support.google.com](https://support.google.com/mail/answer/2451690?hl=en-AE&utm_source=chatgpt.com))
+
+### الخطوة الجاية الصح
+
+لو **Namecheap Private Email هو الوحيد اللي بيبعت باسم `@knoux.store`**، أرفعك بعد كده إلى:
+
+```text id="2bn8bi"
+v=DMARC1; p=quarantine; rua=mailto:admin@knoux.store; pct=100
+```
+
+وبعد اختبار جديد، ننتقل لاحقًا إلى:
+
+```text id="57hmki"
+p=reject
+```
+
+وساعتها نبقى جاهزين فعليًا لمرحلة:
+
+**BIMI → لوجو KNOuX داخل البريد → CMC/VMC → علامة التحقق حسب نوع الشهادة والدعم.**
+
+فأهم جملة دلوقتي:
+
+> **`admin@knoux.store` authenticated بنجاح أمام Gmail: SPF PASS + DKIM PASS + DMARC PASS.** ✅
+
+أما "العلامة الزرقا" نفسها، دي لسه المرحلة اللي جاية، ومش هقولك اتوثق بالكامل قبل ما نقفل BIMI والشهادة. 😎📧
