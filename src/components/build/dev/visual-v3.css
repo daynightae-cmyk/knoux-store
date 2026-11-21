@@ -1,9 +1,9 @@
 /* Engineering space: open hierarchy, a stateful identity and one input plane. */
-.dev-cinematic{background:#08090b;padding:16px 20px 16px 0}
+.dev-cinematic{background:#07050e;padding:16px 20px 16px 0}
 .dev-cinematic .dev-shell__stage{border:0;border-radius:0;background:transparent;box-shadow:none}
 .dev-cinematic .dev-shell__content{--dev-content-pad:32px;padding:0 var(--dev-content-pad) 32px}
 .dev-cinematic .dev-nav-link{font-size:13px;min-height:44px;border:0;border-radius:0}
-.dev-cinematic .dev-nav-link--active{background:linear-gradient(90deg,#b9a8d218,transparent);box-shadow:inset 2px 0 #b9a8d2}
+.dev-cinematic .dev-nav-link--active{background:linear-gradient(90deg,rgba(168,85,247,.16),transparent);box-shadow:inset 2px 0 #c084fc}
 .dev-cinematic .dev-mini-label{font-size:11px;color:#bcb6c6}
 .dev-context-rail{position:relative;z-index:3;margin:4px 0 20px}
 .dev-context-rail>summary{display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px;cursor:pointer;list-style:none;font-size:12px;color:#beb9c6;padding:14px 0}
@@ -32,7 +32,7 @@
 .dev-cinematic .dev-compiler-note,.dev-cinematic .dev-intent-reading{font-size:12px;text-align:left;margin:14px 0}
 .dev-cinematic .dev-universe__caption{font-size:10px}
 .dev-cinematic .dev-access-note{font-size:13px;flex-wrap:wrap}
-.dev-cinematic .dev-status-rail{font-size:11px;border:0;background:#08090bed;gap:14px;padding:14px 20px}
+.dev-cinematic .dev-status-rail{font-size:11px;border:0;background:rgba(7,5,14,.93);gap:14px;padding:14px 20px}
 /* The Sentinel launcher floats over the bottom-right corner of every page. The
    status rail runs along that same edge, so the rail reserves the launcher's
    footprint on its right rather than letting a status value sit underneath it.
@@ -54,12 +54,12 @@
 .dev-shell--operational .dev-cosmic-field{opacity:.12}
 .dev-cinematic .dev-tabs{display:flex;gap:20px;flex-wrap:wrap;margin:24px 0}
 .dev-cinematic .dev-tab{border:0;background:none;padding:10px 0;font-size:14px;min-height:44px}
-.dev-cinematic .dev-tab--active{border-bottom:2px solid #b9a8d2}
+.dev-cinematic .dev-tab--active{border-bottom:2px solid #c084fc}
 .dev-cinematic .dev-route :is(input:not([type=checkbox]),textarea:not(.xterm-helper-textarea),select){background:#15141a;color:#f2edf6;border:0;border-bottom:1px solid #b9a8d250;border-radius:4px 4px 0 0;padding:12px;font-size:15px;min-height:44px;max-width:100%}
 .dev-cinematic .dev-route input::placeholder,.dev-cinematic .dev-route textarea::placeholder{color:#ada4b9}
 .dev-cinematic .dev-route :is(input,textarea,select):focus-visible{outline:2px solid #c7b4df;outline-offset:3px}
 .dev-cinematic .dev-dialog-tabs button{border:0;border-radius:0;background:transparent;min-height:44px;font-size:12px}
-.dev-cinematic .dev-dialog-tabs button[aria-pressed=true]{border-bottom:2px solid #b9a8d2}
+.dev-cinematic .dev-dialog-tabs button[aria-pressed=true]{border-bottom:2px solid #c084fc}
 .dev-cinematic .dev-empty{padding:28px 0;text-align:left}
 .dev-cinematic .dev-page-heading h1{font-size:clamp(38px,4vw,62px);letter-spacing:-.05em}
 .dev-cinematic .dev-page-heading p,.dev-cinematic .dev-note,.dev-cinematic .dev-kv{font-size:14px;line-height:1.7}
@@ -78,7 +78,7 @@
 .dev-cinematic :is(a,button,summary):focus-visible{outline:2px solid #dac5ef;outline-offset:4px}
 .dev-cinematic button:active:not(.dev-machine__node){transform:translateY(1px)}
 .dev-cinematic button:disabled{opacity:.55;cursor:not-allowed}
-@media(max-width:1024px){.dev-cinematic{padding:0}.dev-cinematic .dev-shell__content{--dev-content-pad:28px;padding:0 var(--dev-content-pad) 30px}.dev-context-rail>summary{gap:8px 12px}.dev-cinematic .dev-universe{min-height:600px}.dev-cinematic .dev-shell__top{background:#08090b}}
+@media(max-width:1024px){.dev-cinematic{padding:0}.dev-cinematic .dev-shell__content{--dev-content-pad:28px;padding:0 var(--dev-content-pad) 30px}.dev-context-rail>summary{gap:8px 12px}.dev-cinematic .dev-universe{min-height:600px}.dev-cinematic .dev-shell__top{background:#07050e}}
 @media(max-width:600px){.dev-cinematic .dev-shell__content{--dev-content-pad:20px;padding:0 var(--dev-content-pad) 32px}.dev-stage-head{gap:8px}.dev-stage-views button{padding:8px;font-size:10px}.dev-stage-head>.dev-mini-label{max-width:13ch}.dev-context-rail>summary{font-size:11px;gap:9px}.dev-context-rail>summary span:nth-child(2),.dev-context-rail>summary span:nth-child(3),.dev-context-rail>summary span:nth-child(4){display:none}.dev-context-rail>summary span+span:before{margin-right:9px}.dev-context-rail b{margin-left:0}.dev-context-rail .dev-home-context{grid-template-columns:1fr}.dev-cinematic .dev-universe{padding:12px 0 60px;min-height:0}.dev-cinematic .dev-build-center h1{font-size:42px;max-width:13ch;margin:0}.dev-engine{height:150px}.dev-cinematic .dev-floating-compose{padding:16px}.dev-cinematic .dev-floating-compose textarea{font-size:16px}.dev-cinematic .dev-status-rail{position:static;font-size:10px;gap:10px;flex-wrap:wrap}.dev-plan-sections summary{gap:12px}.dev-plan-sections ul{padding-left:24px}.dev-cinematic .dev-plan-context{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.dev-cinematic *, .dev-cinematic *::before,.dev-cinematic *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 .dev-cinematic .dev-console--blocked{min-height:0;border:0;background:none;border-radius:0;padding-bottom:24px}
@@ -226,6 +226,57 @@
 .dev-operational-sky[data-reduced] .dev-figure-energy { transition: none; }
 @keyframes dev-figure-travel { to { stroke-dashoffset: -332; } }
 @media (max-width: 760px) { .dev-figure-energy { inset-inline-end: 2%; opacity: .32; } }
+
+/* Engineering surfaces rejoin the operational glass system. The flat
+   documentary pass (engineering-os.css + the generic .dev-panel reset above)
+   stripped these panels; the reference reads them as luminous instruments
+   floating in the same violet universe as every other Build route. Scoped
+   here so the landing's own panels keep their documentary treatment. */
+.dev-cinematic .dev-engineering-console .dev-panel {
+  margin: 24px 0;
+  padding: 0;
+  border: 1px solid #ba9bd366;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #20152ddd, #0e0b17f5 68%);
+  box-shadow: 0 12px 35px #04030879, inset 0 0 18px #9f70c31d;
+}
+.dev-cinematic .dev-engineering-console .dev-panel__head {
+  padding: 13px 17px;
+  border: 0;
+  border-bottom: 1px solid #bea1db34;
+  border-radius: 14px 14px 0 0;
+  background: #2b1a3a9c;
+}
+.dev-cinematic .dev-engineering-console .dev-panel__body { padding: 16px; }
+.dev-cinematic .dev-engineering-plan {
+  border: 1px solid #ba9bd366;
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(28, 16, 52, .72), rgba(10, 6, 22, .88) 62%);
+  box-shadow: 0 24px 70px #04030880, 0 0 40px rgba(168, 85, 247, .14), inset 0 1px 0 rgba(243, 232, 255, .1);
+}
+.dev-cinematic .dev-engineering-plan h2 { color: #f3eafa; text-shadow: 0 0 22px rgba(192, 132, 252, .4); }
+.dev-cinematic .dev-plan-review {
+  border: 1px solid rgba(192, 132, 252, .3);
+  border-left: 2px solid #c084fc;
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(43, 26, 58, .5), rgba(14, 10, 24, .7));
+  box-shadow: inset 0 0 24px rgba(168, 85, 247, .08);
+}
+.dev-cinematic .dev-plan-error { border-color: #ff8d9866; background: #3a14208c; }
+.dev-cinematic .dev-worktree-list article,
+.dev-cinematic .dev-agent-profiles article {
+  padding: 20px;
+  border: 1px solid #ba9bd34d;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #1c1229cc, #0d0a16f0 70%);
+  box-shadow: inset 0 0 16px #9f70c314;
+}
+.dev-cinematic .dev-composer-routing select,
+.dev-cinematic .dev-composer-routing button {
+  border-color: #ba9bd355;
+  background: #170f26;
+  color: #ece4f7;
+}
 
 /* Action feedback stays within the control's existing geometry. */
 @media (prefers-reduced-motion: no-preference) {

@@ -145,6 +145,8 @@
   --glass-bg: linear-gradient(160deg, rgba(58, 28, 105, 0.66), rgba(17, 9, 34, 0.82));
   --glass-glow: 0 24px 70px rgba(0, 0, 0, 0.55), 0 0 42px rgba(168, 85, 247, 0.22), inset 0 1px 0 rgba(243, 232, 255, 0.28), inset 0 0 38px rgba(168, 85, 247, 0.12);
   --mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo, Consolas, monospace;
+  /* Alias consumed by the Build shell (var(--font-mono, monospace) call sites). */
+  --font-mono: var(--mono);
   --sans: Arial, Helvetica, sans-serif;
   --serif: Georgia, "Times New Roman", serif;
   --rail: 74px;
