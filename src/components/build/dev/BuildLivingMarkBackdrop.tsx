@@ -136,6 +136,7 @@ export function BuildLivingMarkBackdrop() {
       surface.dataset.paints = String(++paints);
       surface.dataset.meanPaintMs = (totalPaintMs / paints).toFixed(2);
       surface.dataset.motion = reduced() ? 'stable' : 'animated';
+      surface.dataset.loop = 'running';
     };
 
     const resize = () => {
@@ -150,6 +151,9 @@ export function BuildLivingMarkBackdrop() {
     const wake = () => {
       cancelAnimationFrame(frame);
       resize();
+      // Surface the loop state so verification can wait for a genuine pause
+      // instead of guessing from paint-counter samples on a loaded host.
+      surface.dataset.loop = document.hidden || !visible ? 'paused' : reduced() ? 'stable' : 'running';
       frame = requestAnimationFrame(draw);
     };
 

@@ -670,6 +670,7 @@ export function WordPressStudio({
                       type="button"
                       className={device === value ? styles.deviceActive : ''}
                       aria-pressed={device === value}
+                      aria-label={t(value[0].toUpperCase() + value.slice(1))}
                       onClick={() => setDevice(value)}
                     >
                       <JourneyIcon path={value === 'desktop' ? 'M3 5h18v11H3Zm5 15h8M12 16v4' : value === 'tablet' ? 'M6 3h12v18H6Zm4 15h4' : 'M8 3h8v18H8Zm3 15h2'} />
