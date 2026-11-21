@@ -48,5 +48,5 @@
 .bo-preview__frame,.bo-preview__scaled,.bo-preview iframe {transition:width .28s ease,height .28s ease;}
 .dev-shell--compact .dev-cinematic .dev-nav-link {min-height:29px;padding-top:4px;padding-bottom:4px;}
 .dev-status-rail {flex-shrink:0;}
-@media(max-width:600px){.dev-dialog{padding:18px;}.dev-dialog-tabs button{flex:1;font-size:8px;}.dev-responsive-sweep>div{max-width:100%;}.dev-cinematic .dev-shell__content{padding-left:14px;padding-right:14px;}.dev-settings-list label{gap:12px;flex-wrap:wrap;}.dev-integration-ledger .dev-kv{grid-template-columns:1fr;}.dev-input-label input{font-size:16px;}.dev-dialog h2{font-size:22px;}}
+@media(max-width:600px){.dev-dialog{padding:18px;}.dev-dialog-tabs button{flex:1;font-size:8px;}.dev-responsive-sweep>div{max-width:100%;}.dev-cinematic .dev-shell__content{--dev-content-pad:14px;padding-left:var(--dev-content-pad);padding-right:var(--dev-content-pad);}.dev-settings-list label{gap:12px;flex-wrap:wrap;}.dev-integration-ledger .dev-kv{grid-template-columns:1fr;}.dev-input-label input{font-size:16px;}.dev-dialog h2{font-size:22px;}}
 @media(prefers-reduced-motion:reduce){.bo-preview__frame,.bo-preview__scaled,.bo-preview iframe{transition:none;}}
