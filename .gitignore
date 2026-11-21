@@ -75,6 +75,9 @@ public/knoux-particles.bin
 /scripts/*
 !/scripts/css-integrity.mjs
 !/scripts/css-integrity-matrix.mjs
+# Trusted child-process scripts spawned by the generated-project executors.
+!/scripts/generated-static-builder.mjs
+!/scripts/generated-preview-process.mjs
 !/scripts/signal/
 !/scripts/signal/**
 !/scripts/signal/*.py
