@@ -1,4 +1,12 @@
-.experience { padding-top: clamp(110px, 12vw, 160px); padding-bottom: 48px; color: var(--text); }
+/* Vivid division sky (owner directive 2026-11-20): the growth introduction
+   arrives under the same living nebula as the home gateway. The wash sits on
+   the section; stars ride two independent layers of at most eight gradients
+   each so the CSS analyzer reads every layer. Content stays above via z-index. */
+.experience { padding-top: clamp(110px, 12vw, 160px); padding-bottom: 48px; color: var(--text); position: relative; background: radial-gradient(ellipse 46% 40% at 90% -4%, rgba(168, 85, 247, .22), transparent 70%), radial-gradient(ellipse 42% 34% at 4% 10%, rgba(124, 58, 237, .16), transparent 70%), linear-gradient(180deg, #110a22 0%, #0b0716 62%, transparent 100%); }
+.experience::before { content: ''; position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(1.3px 1.3px at 14% 22%, #e9d5ff 98%, transparent), radial-gradient(1.1px 1.1px at 32% 9%, #fff 98%, transparent), radial-gradient(1.2px 1.2px at 51% 18%, #f0abfc 98%, transparent), radial-gradient(1px 1px at 68% 11%, #fff 98%, transparent), radial-gradient(1.4px 1.4px at 84% 24%, #e9d5ff 98%, transparent), radial-gradient(1px 1px at 93% 8%, #fff 98%, transparent), radial-gradient(1.1px 1.1px at 7% 47%, #f0abfc 98%, transparent), radial-gradient(1.2px 1.2px at 96% 42%, #fff 98%, transparent); }
+.experience::after { content: ''; position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(1.2px 1.2px at 22% 34%, #fff 98%, transparent), radial-gradient(1px 1px at 41% 15%, #d8b4fe 98%, transparent), radial-gradient(1.3px 1.3px at 60% 30%, #fff 98%, transparent), radial-gradient(1px 1px at 77% 22%, #f0abfc 98%, transparent), radial-gradient(1.2px 1.2px at 90% 36%, #fff 98%, transparent), radial-gradient(1px 1px at 12% 60%, #e9d5ff 98%, transparent), radial-gradient(1.3px 1.3px at 48% 55%, #fff 98%, transparent), radial-gradient(1px 1px at 82% 58%, #d8b4fe 98%, transparent); animation: divisionTwinkle 6.4s ease-in-out infinite; }
+@keyframes divisionTwinkle { 50% { opacity: .3; } }
+.experience > * { position: relative; z-index: 1; }
 .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: clamp(32px, 5vw, 90px); align-items: start; }
 .editorial { padding-block: 24px; }
 /* The demo label is the second-level heading of the demo block: the preview

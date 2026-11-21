@@ -19,6 +19,7 @@ const Activity = dynamic(() => import('./WorkspaceUtilities').then((mod) => mod.
 
 export const DEV_DESTINATIONS = [
   { label: 'Getting Started', href: '/build', code: '01', icon: '◱' },
+  { label: 'One Platform', href: '/build/platform', code: '00', icon: '◍' },
   { label: 'Engineering', href: '/build/engineering', code: 'OS', icon: '◈' },
   { label: 'Build', href: '/build/pipeline', code: '02', icon: '⌁' },
   { label: 'Apps', href: '/build/apps', code: '03', icon: '⬡' },

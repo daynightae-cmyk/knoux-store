@@ -63,11 +63,13 @@ export default async function WordPressPage() {
     <main id="main-content" tabIndex={-1}>
       <TrackOnView event={{ type: 'division_opened', division: 'wordpress', route: '/wordpress' }} />
 
-      {/* 00 — Cinematic hero. This is the page's only <h1>; the breadcrumb and
-          the scroll cue that used to live in a second `PageIntro` immediately
-          below it are part of the hero now, so the page opens once rather than
-          twice and a screen reader meets a single top-level heading. */}
-      <EcosystemHero studio={<WordPressStudio themes={themes.items} />} />
+      {/* 01 — Arrival Experience (reference 83380.png). The page's only <h1>
+          lives in the gateway heading; the studio it enters is directly below. */}
+      <EcosystemHero directoryState={themes.state} themesLoaded={themes.items.length} />
+      {/* The studio the gateway enters: ten real journeys on live registry data. */}
+      <div className="shell eco-studio" id="studio">
+        <WordPressStudio themes={themes.items} />
+      </div>
       <div className="shell"><ProcessArchitecture kind="wordpress" /></div>
       <SignalRail division="wordpress" path="/wordpress" />
 

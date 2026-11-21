@@ -233,13 +233,28 @@ export function DevWorkspaceHome() {
       {view === 'build' ? <div className="dev-universe">
         <div className="dev-universe__orbit" aria-hidden="true" />
         <div className="dev-build-center">
-          <p className="dev-build-center__eyebrow">KNOuX BUILD</p>
-          <h1>What are we building today?</h1>
-          <div className="dev-engine" data-stage={stage} data-reduced={state.preferences.motion === 'reduced' ? '' : undefined}>
+          <p className="dev-build-center__eyebrow">KNOuX STORE</p>
+          <h1>Welcome to KNOUX STORE</h1>
+          <p className="dev-welcome-lede">A cinematic engineering platform.</p>
+          <div className="dev-welcome-orbit">
+            <svg className="dev-welcome-orbit__rings" viewBox="0 0 900 360" preserveAspectRatio="none" aria-hidden="true">
+              <g fill="none" stroke="#c9a2ff" strokeWidth="1.1">
+                <ellipse cx="450" cy="185" rx="430" ry="120" opacity=".5" />
+                <ellipse cx="450" cy="192" rx="300" ry="72" opacity=".38" transform="rotate(-5 450 192)" />
+              </g>
+              {[[120,120],[330,86],[590,86],[790,130],[168,268],[735,268],[450,300]].map(([x,y])=><g key={x}><circle cx={x} cy={y} r="4.5" fill="#c07cff" opacity=".8"/><circle cx={x} cy={y} r="2" fill="#fff"/></g>)}
+            </svg>
+            <Link href="/build/pipeline" className="dev-welcome-pill dev-welcome-pill--build"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5Z M3 13l9 5 9-5 M3 17l9 5 9-5" /></svg>Build</Link>
+            <Link href="/build/providers" className="dev-welcome-pill dev-welcome-pill--providers"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M7 8h10v3a5 5 0 0 1-10 0Z M12 16v5" /></svg>Providers</Link>
+            <Link href="/build/ai/models" className="dev-welcome-pill dev-welcome-pill--models"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5Z M3 13l9 5 9-5 M3 17l9 5 9-5" /></svg>Models</Link>
+            <Link href="/build/terminal" className="dev-welcome-pill dev-welcome-pill--terminal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6l5 6-5 6M12 18h8" /></svg>Terminal</Link>
+            <Link href="/build/deployments" className="dev-welcome-pill dev-welcome-pill--deployments"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c4 2 6 6 6 10l-3 3h-6l-3-3c0-4 2-8 6-10Z M9 15l-2 5M15 15l2 5M12 11v.01" /></svg>Deployments</Link>
+            <div className="dev-engine" data-stage={stage} data-reduced={state.preferences.motion === 'reduced' ? '' : undefined}>
             <svg className="dev-engine__glyph" viewBox={`0 0 ${MARK_VIEW_BOX.width} ${MARK_VIEW_BOX.height}`} aria-hidden="true">
               {MARK_PATHS.map(({ id, d }) => <path key={id} d={d} />)}
             </svg>
             <p><span role="status">ENGINE / {stage}</span><small aria-live="off">{planning ? `${characters.toLocaleString()} characters received` : stage === 'LISTENING' ? 'Describe a system. Resolve its architecture.' : stage === 'PLANNED' ? 'Proposal ready · review before execution' : stage === 'CANCELLED' ? 'Request aborted · no further output or fallback accepted' : stage === 'AUTH_REQUIRED' ? 'Provider access requires an authorized account' : stage === 'EXECUTOR_NOT_CONNECTED' ? 'Plan retained · trusted execution required' : 'Canonical engineering state'}</small></p>
+            </div>
           </div>
           <div className="dev-composer-routing">
             {modelPicker}

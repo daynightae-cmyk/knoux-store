@@ -306,7 +306,23 @@
 
 /* Entry gate markup and responsive layout. */
 .dev-entry { align-items: center; justify-content: center; padding: clamp(24px, 5vw, 64px); }
+/* NSIS 82229 — the supplied splash art hangs behind the gate, quiet on the
+   right, with the reading field kept dark and legible on the left. */
+.dev-entry__beat {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, #08090b 22%, #08090be0 48%, #08090b73 78%, #08090b40),
+    url('/creative/nsis-splash.webp') right center / auto 108% no-repeat,
+    #08090b;
+}
+@media (max-width: 900px) {
+  .dev-entry__beat { background: linear-gradient(180deg, #08090bf2 30%, #08090bc9), url('/creative/nsis-splash.webp') center 20% / cover no-repeat, #08090b; }
+}
 .dev-entry__centre { width: min(1100px, 100%); position: relative; z-index: 1; }
+.dev-entry__foot { z-index: 1; }
 .dev-entry[data-leaving="true"] { opacity: 0; pointer-events: none; transition: opacity .4s ease; }
 .dev-entry__eyebrow { margin: 0 0 24px; color: var(--violet); }
 .dev-entry :is(h1,h2) { max-width: 1050px; margin: 0; font-size: clamp(42px, 5vw, 76px); line-height: 1.03; letter-spacing: -.065em; }

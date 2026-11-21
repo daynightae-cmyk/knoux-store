@@ -29,6 +29,21 @@ const slug = (route: string) => route.replace(/^\//, '').replace(/\//g, '-') || 
  * genuinely never settles is measured rather than hanging the run.
  */
 async function settleLayout(page: import('@playwright/test').Page): Promise<void> {
+  // The linked stylesheets must be applied before any geometry is read. Under
+  // host load, `domcontentloaded` can fire while a stylesheet is still in
+  // flight; measuring then reads an unstyled document and reports overflow
+  // that no visitor ever sees. Bounded, so a genuinely missing stylesheet is
+  // still measured rather than hanging the run.
+  await page
+    .waitForFunction(
+      () => {
+        const links = Array.from(document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'));
+        return links.every((link) => link.sheet !== null);
+      },
+      undefined,
+      { timeout: 10_000, polling: 100 },
+    )
+    .catch(() => undefined);
   await page.evaluate(() => document.fonts?.ready).catch(() => undefined);
   await page
     .waitForFunction(

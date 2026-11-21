@@ -75,7 +75,8 @@ test('WordPress studio changes official selection, sizes the screenshot and carr
   const name = await select.locator('option:checked').textContent();
   const request = studio.getByRole('link', { name: 'Compose a site request' });
   expect(new URLSearchParams((await request.getAttribute('href'))!.split('?')[1]).get('items')).toContain(name);
-  await expect(page.getByRole('button', { name: 'Mobile', exact: true })).not.toBeDisabled();
+  await studio.getByRole('button', { name: /Live Responsive Canvas/ }).click();
+  await expect(studio.getByRole('button', { name: 'Mobile', exact: true })).not.toBeDisabled();
   // WordPress studio device press then Arabic switch on the site-wide picker.
   await studio.getByRole('button', { name: 'Mobile', exact: true }).click();
   await expect(studio.getByRole('button', { name: 'Mobile', exact: true })).toHaveAttribute('aria-pressed', 'true');

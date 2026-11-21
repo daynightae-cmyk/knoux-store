@@ -35,9 +35,9 @@ export const UNIVERSE_PALETTE = {
   graphite: '#17171a',
   line: '#292a2d',
   connector: '#51455b',
-  violet: '#a18acb',
-  violetSoft: '#c2b5d8',
-  violetDeep: '#8b8ea3',
+  violet: '#a78bfa',
+  violetSoft: '#d8b4fe',
+  violetDeep: '#a5a0c8',
 } as const;
 
 export type UniverseNodePalette = keyof typeof UNIVERSE_PALETTE;
@@ -95,7 +95,7 @@ export const UNIVERSE_NODE_INK: Record<'core' | 'product' | 'capability', NodeIn
 /** Dotted particles, matching the hero's neutral field. Violet is the minority. */
 export const UNIVERSE_DUST = {
   neutral: 'rgba(226,224,231,',
-  violet: 'rgba(190,168,224,',
+  violet: 'rgba(167,139,250,',
   /** Share of dust carrying the violet signal. Matches the hero's field. */
   violetShare: 0.05,
 } as const;

@@ -14,11 +14,19 @@
   font-size:9px;
 }
 
+/* Vivid division sky (owner directive 2026-11-20): the signal field sits under
+   the same living nebula as the home gateway. The wash sits on the section;
+   stars ride two independent layers of at most eight gradients each so the
+   CSS analyzer reads every layer. The globe and intro stay above via z-index. */
 .experience{
   position:relative;
   max-width:1480px;
   margin:0 auto;
+  background:radial-gradient(ellipse 46% 40% at 90% -4%,rgba(168,85,247,.2),transparent 70%),radial-gradient(ellipse 42% 34% at 4% 10%,rgba(124,58,237,.14),transparent 70%),linear-gradient(180deg,#110a22 0%,#0b0716 62%,transparent 100%);
 }
+.experience::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(1.3px 1.3px at 14% 22%,#e9d5ff 98%,transparent),radial-gradient(1.1px 1.1px at 32% 9%,#fff 98%,transparent),radial-gradient(1.2px 1.2px at 51% 18%,#f0abfc 98%,transparent),radial-gradient(1px 1px at 68% 11%,#fff 98%,transparent),radial-gradient(1.4px 1.4px at 84% 24%,#e9d5ff 98%,transparent),radial-gradient(1px 1px at 93% 8%,#fff 98%,transparent),radial-gradient(1.1px 1.1px at 7% 47%,#f0abfc 98%,transparent),radial-gradient(1.2px 1.2px at 96% 42%,#fff 98%,transparent)}
+.experience::after{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(1.2px 1.2px at 22% 34%,#fff 98%,transparent),radial-gradient(1px 1px at 41% 15%,#d8b4fe 98%,transparent),radial-gradient(1.3px 1.3px at 60% 30%,#fff 98%,transparent),radial-gradient(1px 1px at 77% 22%,#f0abfc 98%,transparent),radial-gradient(1.2px 1.2px at 90% 36%,#fff 98%,transparent),radial-gradient(1px 1px at 12% 60%,#e9d5ff 98%,transparent),radial-gradient(1.3px 1.3px at 48% 55%,#fff 98%,transparent),radial-gradient(1px 1px at 82% 58%,#d8b4fe 98%,transparent);animation:signalTwinkle 6.4s ease-in-out infinite}
+@keyframes signalTwinkle{50%{opacity:.3}}
 
 .experienceIntro{
   position:absolute;

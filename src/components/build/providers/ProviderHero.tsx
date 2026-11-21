@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
+import { ParticleMark } from '@/components/brand/ParticleMark';
 import type { ProviderDefinition } from '@/lib/ai/provider-os/types';
 import { providerMark } from './provider-marks';
 import s from './provider-hero.module.css';
@@ -56,12 +56,9 @@ export function ProviderHero({ definitions, selected, onSelect, onGetApi, onBrow
     <div className={s.rightPanel}><Link href="/build/ai/models"><span aria-hidden="true">◇</span> Model Discovery</Link><div aria-hidden="true" className={s.skeleton}>{Array.from({length:4},(_,i)=><i key={i}/>)}</div></div>
     <div className={s.lowerLeft} aria-hidden="true"><div className={s.skeleton}>{Array.from({length:5},(_,i)=><i key={i}/>)}</div></div>
     <div className={s.lowerRight} aria-hidden="true"><div className={s.skeleton}>{Array.from({length:5},(_,i)=><i key={i}/>)}</div></div>
-    {positions.map(([id,name,x,y], index)=>{const d=definitions.find(p=>p.id===id),mark=providerMark(id);return <button type="button" key={id} className={s.node} style={{'--x':x+'%','--y':y+'%','--phase':(([6,7,8,5,0,4,1,3,2][index] / 9)*100)+'%'} as CSSProperties} disabled={!d} aria-label={'Select '+name} aria-pressed={selected===id} onClick={()=>d&&onSelect(d)}><span className={s.sphere}>{mark?<Image src={'/providers/'+mark+'.svg'} alt="" width={48} height={48}/>:<b data-provider={id}>{id==='groq'?'groq':'𝕏'}</b>}</span><span>{name}</span></button>})}
+    {positions.map(([id,name,x,y], index)=>{const d=definitions.find(p=>p.id===id),mark=providerMark(id);return <button type="button" key={id} className={s.node} style={{'--x':x+'%','--y':y+'%','--phase':(([6,7,8,5,0,4,1,3,2][index] / 9)*100)+'%'} as CSSProperties} disabled={!d} aria-label={'Select '+name} aria-pressed={selected===id} onClick={()=>d&&onSelect(d)}><span className={s.sphere} aria-hidden="true">{mark?<Image src={'/providers/'+mark+'.svg'} alt="" width={48} height={48}/>:<b data-provider={id} />}</span><span>{name}</span></button>})}
     <div className={s.core}>
-      <svg className={s.mark} viewBox={'0 0 '+MARK_VIEW_BOX.width+' '+MARK_VIEW_BOX.height} aria-hidden="true">
-        <defs><pattern id="provider-mark-particles" width="12" height="13" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.6" fill="#fff"/><circle cx="9" cy="9" r="1" fill="#c6a4ff"/><circle cx="1" cy="10" r=".7" fill="#fff"/><circle cx="8" cy="2" r=".5" fill="#b486ff"/></pattern></defs>
-        {MARK_PATHS.map(({id,d})=><path key={id} d={d} fill="url(#provider-mark-particles)" stroke="#e5caff" strokeWidth="3.5" strokeDasharray="2 3"/>)}
-      </svg>
+      <ParticleMark patternId="provider-mark-particles" className={s.mark} />
       <div className={s.coreLight} aria-hidden="true"/>
       <div className={s.coreLinks}><button type="button" onClick={onBrowse} aria-label="Browse providers"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 4 21 11-21 11L3 15Z M3 24l21 11 21-11 M3 33l21 11 21-11"/></svg></button><Link href="/build/ai/models" aria-label="Discover models"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 3 20 11v22L24 47 4 36V14Z M4 14l20 11 20-11 M24 25v22"/></svg></Link></div>
     </div>
