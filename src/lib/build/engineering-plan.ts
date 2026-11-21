@@ -3,7 +3,7 @@ import { parseGeneratedProject, type GeneratedProjectPlan, type GeneratedRuntime
 
 export type EngineeringSession = {
   requestId: string | null;
-  context: { project: string | null; worktree: string | null; branch: string | null } | null;
+  context: { project: string | null; worktree: string | null; branch: string | null; projectRef?: string | null; projectId?: string | null; headSha?: string | null } | null;
   host: { name: string; os: string; kind: string } | null;
   stage: EngineeringStage; plan: EngineeringPlan | null; draftPlan: Partial<EngineeringPlan> | null;
   streamText: string; error: string | null;
