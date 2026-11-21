@@ -266,16 +266,22 @@ function ratingLabel(item: ExternalItem): string {
 export function WordPressStudio({
   themes,
   directoryState,
+  plugins = [],
+  pluginState = 'unavailable',
 }: {
   themes: Readonly<ExternalItem[]>;
   directoryState: ExternalQueryState;
+  plugins?: Readonly<ExternalItem[]>;
+  pluginState?: ExternalQueryState;
 }) {
   const t = useRouteCopy();
   const [active, setActive] = useState<JourneyId>('arrival');
+  const [selectedPlugins, setSelectedPlugins] = useState<string[]>([]);
   const [slug, setSlug] = useState<string>(themes[0]?.slug ?? '');
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [previewScale, setPreviewScale] = useState(100);
   const [themeQuery, setThemeQuery] = useState('');
+  const [pluginQuery, setPluginQuery] = useState('');
   const [siteTitle, setSiteTitle] = useState('KNOUX Store');
   const [tagline, setTagline] = useState('Digital Headquarters');
   const [logoPlacement, setLogoPlacement] = useState('center');
@@ -309,6 +315,21 @@ export function WordPressStudio({
     for (const item of themes) for (const tag of item.tags) seen.add(tag);
     return Array.from(seen).slice(0, 5);
   }, [themes]);
+
+  // Filtering happens over the entries the server actually received; it never
+  // adds a plugin and never invents a match.
+  const visiblePlugins = useMemo(() => {
+    const list = plugins ?? [];
+    const query = pluginQuery.trim().toLowerCase();
+    if (!query) return list;
+    return list.filter((item) =>
+      [item.name, item.author, item.shortDescription, ...item.tags].join(' ').toLowerCase().includes(query),
+    );
+  }, [plugins, pluginQuery]);
+
+  const focusedPlugin =
+    (plugins ?? []).find((item) => item.slug === selectedPlugins[selectedPlugins.length - 1]) ??
+    (plugins ?? [])[0];
 
   const requestParams = new URLSearchParams({
     requestType: 'wordpress',
@@ -649,23 +670,268 @@ export function WordPressStudio({
           ) : null}
 
           {active === 'plugins' ? (
-            <div className={styles.pluginLayout}>
-              <Panel title={t('Plugin Library', 'مكتبة الإضافات')} meta={<StatusPill tone="signal">WORDPRESS.ORG</StatusPill>}>
-                <p className={styles.panelLead}>
-                  {t('The official plugin directory is browsed on demand rather than preloaded into the studio. Nothing here is a ranking or a recommendation.')}
-                </p>
-                <div className={styles.panelActions}>
-                  <Link className={styles.primaryAction} href="/wordpress/plugins">
-                    {t('Browse the plugin directory', 'تصفح دليل الإضافات')} <span aria-hidden="true">→</span>
-                  </Link>
-                </div>
-              </Panel>
+            <div className={styles.pluginJourney}>
+              <div className={styles.pluginLayout}>
+                <Panel
+                  title={t('Plugin Library', 'مكتبة الإضافات')}
+                  meta={<StatusPill tone={pluginState === 'ok' ? 'ok' : 'warn'}>{pluginState === 'ok' ? 'WORDPRESS.ORG' : t('UNREACHED', 'غير متاح')}</StatusPill>}
+                  className={styles.pluginGridPanel}
+                >
+                  <p className={styles.panelLead}>
+                    {t('Popular plugins as published by the official WordPress.org directory, at page render. Nothing here is a ranking, a recommendation or an installed state.')}
+                  </p>
 
-              <Panel title={t('Selection and review', 'الاختيار والمراجعة')} meta={<StatusPill tone="signal">{t('By name only', 'بالاسم فقط')}</StatusPill>}>
-                <p className={styles.emptyState}>
-                  {t('No plugin list is preloaded, so a request names its plugins and the review covers compatibility and maintenance. KNOuX installs and verifies plugins; it does not publish or endorse any specific item.')}
-                </p>
-              </Panel>
+                  {pluginState === 'ok' && plugins.length ? (
+                    <div className={styles.searchRow}>
+                      <input
+                        type="search"
+                        value={pluginQuery}
+                        onChange={(event) => setPluginQuery(event.target.value)}
+                        placeholder={t('Filter the loaded plugins by name, author or description…')}
+                        aria-label={t('Filter loaded plugins')}
+                      />
+                      <span className={styles.meta}>
+                        {visiblePlugins.length} {t('of', 'من')} {plugins.length} {t('in view', 'في العرض')}
+                      </span>
+                    </div>
+                  ) : null}
+
+                  {visiblePlugins.length ? (
+                    <ul className={styles.pluginCards}>
+                      {visiblePlugins.map((plugin) => {
+                        const selected = selectedPlugins.includes(plugin.slug);
+                        return (
+                          <li key={plugin.slug} className={styles.pluginCard} data-selected={selected || undefined}>
+                            <div className={styles.pluginCardTop}>
+                              {plugin.iconUrl ? (
+                                /* The official WordPress asset proxy
+                                   (/api/wp-image) is origin-checked, so the
+                                   icon never needs a next/image remote
+                                   pattern. */
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  className={styles.pluginIcon}
+                                  src={`/api/wp-image?u=${encodeURIComponent(plugin.iconUrl)}`}
+                                  alt=""
+                                  width="44"
+                                  height="44"
+                                  loading="lazy"
+                                  decoding="async"
+                                  /* The official WordPress asset proxy is
+                                     origin-checked; next/image would need it
+                                     allow-listed as a remote pattern. */
+                                />
+                              ) : (
+                                <span className={styles.pluginIconFallback} aria-hidden="true">
+                                  {plugin.name.slice(0, 1).toUpperCase()}
+                                </span>
+                              )}
+                              <div className={styles.pluginCardTitle}>
+                                <h5>{plugin.name}</h5>
+                                <p>{plugin.author}</p>
+                              </div>
+                            </div>
+
+                            <p className={styles.pluginDescription}>{plugin.shortDescription}</p>
+
+                            <div className={styles.pluginMeta}>
+                              {typeof plugin.rating === 'number' && plugin.rating > 0 ? (
+                                <span className={styles.pluginRating}>
+                                  <b aria-hidden="true">★</b>
+                                  <span>{(plugin.rating / 20).toFixed(1)}</span>
+                                  <small>{formatCount(plugin.ratingCount ?? 0)}</small>
+                                </span>
+                              ) : (
+                                <span className={styles.pluginRatingOff}>{t('Not rated', 'بدون تقييم')}</span>
+                              )}
+                              {typeof plugin.activeInstalls === 'number' ? (
+                                <span className={styles.pluginInstalls}>
+                                  {formatCount(plugin.activeInstalls)} <small>{t('installs', 'تثبيت')}</small>
+                                </span>
+                              ) : null}
+                            </div>
+
+                            <div className={styles.pluginCompat}>
+                              <span>
+                                {t('Tested', 'مختبر')} <b>{plugin.testedWp ? `WP ${plugin.testedWp}` : '—'}</b>
+                              </span>
+                              <span>
+                                {t('Requires', 'يتطلب')} <b>{plugin.requiresWp ? `WP ${plugin.requiresWp}` : '—'}</b>
+                              </span>
+                            </div>
+
+                            <div className={styles.pluginCardFoot}>
+                              <button
+                                type="button"
+                                className={styles.pluginToggle}
+                                aria-pressed={selected}
+                                onClick={() =>
+                                  setSelectedPlugins((current) =>
+                                    current.includes(plugin.slug)
+                                      ? current.filter((value) => value !== plugin.slug)
+                                      : [...current, plugin.slug],
+                                  )
+                                }
+                              >
+                                {selected ? t('Selected', 'مختار') : t('Add', 'إضافة')}
+                              </button>
+                              <Link className={styles.pluginSource} href={plugin.sourceUrl} target="_blank" rel="noreferrer noopener">
+                                {t('Source', 'المصدر')} <span aria-hidden="true">↗</span>
+                              </Link>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <div className={styles.pluginUnavailable}>
+                      <span className={styles.pluginUnavailableMark} aria-hidden="true">!</span>
+                      <p>
+                        {pluginState === 'empty'
+                          ? t('The official plugin directory returned no entries right now.')
+                          : t('The official plugin directory could not be reached from this server. No plugin list is shown rather than a fabricated one.')}
+                      </p>
+                      <Link className={styles.secondaryAction} href="/wordpress/plugins">
+                        {t('Open the directory directly', 'افتح الدليل مباشرة')} <span aria-hidden="true">↗</span>
+                      </Link>
+                    </div>
+                  )}
+                </Panel>
+
+                <Panel
+                  title={t('Selection and review', 'الاختيار والمراجعة')}
+                  meta={<StatusPill tone="signal">{t('By name only', 'بالاسم فقط')}</StatusPill>}
+                >
+                  {focusedPlugin ? (
+                    <div className={styles.pluginInspector}>
+                      <div className={styles.inspectorIdentity}>
+                        {focusedPlugin.iconUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            className={styles.inspectorIcon}
+                            src={`/api/wp-image?u=${encodeURIComponent(focusedPlugin.iconUrl)}`}
+                            alt=""
+                            width="52"
+                            height="52"
+                            decoding="async"
+                          />
+                        ) : (
+                          <span className={styles.inspectorIconFallback} aria-hidden="true">
+                            {focusedPlugin.name.slice(0, 1).toUpperCase()}
+                          </span>
+                        )}
+                        <div>
+                          <h5>{focusedPlugin.name}</h5>
+                          <p>{focusedPlugin.author}</p>
+                        </div>
+                      </div>
+
+                      <div className={styles.inspectorGroup}>
+                        <span className={styles.fieldLabel}>{t('Verdict')}</span>
+                        <p className={styles.fieldValue}>
+                          {focusedPlugin.rating && focusedPlugin.rating > 0 ? (
+                            <>
+                              <b className={styles.inspectorStar} aria-hidden="true">★</b>{' '}
+                              {(focusedPlugin.rating / 20).toFixed(1)}
+                              <small> / 5 · {formatCount(focusedPlugin.ratingCount ?? 0)} {t('ratings', 'تقييم')}</small>
+                            </>
+                          ) : (
+                            t('Not rated yet', 'بدون تقييم بعد')
+                          )}
+                        </p>
+                      </div>
+
+                      <div className={styles.inspectorGroup}>
+                        <span className={styles.fieldLabel}>{t('Active installs')}</span>
+                        <p className={styles.fieldValue}>
+                          {typeof focusedPlugin.activeInstalls === 'number'
+                            ? formatCount(focusedPlugin.activeInstalls)
+                            : t('Not published', 'غير معلن')}
+                        </p>
+                      </div>
+
+                      <div className={styles.inspectorGroup}>
+                        <span className={styles.fieldLabel}>{t('Compatibility')}</span>
+                        <ul className={styles.inspectorList}>
+                          <li>
+                            <span>{t('Tested up to')}</span>
+                            <b>{focusedPlugin.testedWp ? `WP ${focusedPlugin.testedWp}` : '—'}</b>
+                          </li>
+                          <li>
+                            <span>{t('Requires')}</span>
+                            <b>{focusedPlugin.requiresWp ? `WP ${focusedPlugin.requiresWp}` : '—'}</b>
+                          </li>
+                          <li>
+                            <span>{t('PHP')}</span>
+                            <b>{focusedPlugin.requiresPhp ?? '—'}</b>
+                          </li>
+                          <li>
+                            <span>{t('Version')}</span>
+                            <b>{focusedPlugin.version ?? '—'}</b>
+                          </li>
+                          <li>
+                            <span>{t('Last updated')}</span>
+                            <b>{focusedPlugin.lastUpdated ? formatOfficialDate(focusedPlugin.lastUpdated) : '—'}</b>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className={styles.inspectorGroup}>
+                        <span className={styles.fieldLabel}>{t('Selection')}</span>
+                        <div className={styles.selectionTray}>
+                          <span className={styles.selectionTrayMark} aria-hidden="true">
+                            <JourneyIcon path="m12 3 9 5-9 5-9-5Zm-9 9 9 5 9-5" />
+                          </span>
+                          <div>
+                            <small>{t('Selection Tray', 'سلة الاختيار')}</small>
+                            <p>
+                              {selectedPlugins.length
+                                ? t(
+                                    `${selectedPlugins.length} selected`,
+                                    `${selectedPlugins.length} محددة`,
+                                  )
+                                : t('Nothing selected', 'لم يُحدَّد شيء')}
+                            </p>
+                          </div>
+                        </div>
+
+                        {selectedPlugins.length ? (
+                          <ul className={styles.selectionChips}>
+                            {plugins
+                              .filter((plugin) => selectedPlugins.includes(plugin.slug))
+                              .map((plugin) => (
+                                <li key={plugin.slug}>
+                                  <span>{plugin.name}</span>
+                                  <button
+                                    type="button"
+                                    aria-label={t(`Remove ${plugin.name}`, `إزالة ${plugin.name}`)}
+                                    onClick={() =>
+                                      setSelectedPlugins((current) => current.filter((value) => value !== plugin.slug))
+                                    }
+                                  >
+                                    ×
+                                  </button>
+                                </li>
+                              ))}
+                          </ul>
+                        ) : null}
+                      </div>
+
+                      <Link className={styles.secondaryAction} href={focusedPlugin.sourceUrl} target="_blank" rel="noreferrer noopener">
+                        {t('Open on WordPress.org', 'افتح على WordPress.org')} <span aria-hidden="true">↗</span>
+                      </Link>
+
+                      <p className={styles.note}>
+                        {t('A request names its plugins and the review covers compatibility and maintenance. KNOuX installs and verifies plugins; it does not publish or endorse any specific item.')}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className={styles.emptyState}>
+                      {t('A request names its plugins and the review covers compatibility and maintenance. KNOuX installs and verifies plugins; it does not publish or endorse any specific item.')}
+                    </p>
+                  )}
+                </Panel>
+              </div>
             </div>
           ) : null}
 

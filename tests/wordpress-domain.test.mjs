@@ -480,11 +480,18 @@ test('the ecosystem page reads no provider configuration while statically genera
   assert.doesNotMatch(page, /process\.env/, 'the page must not read the environment');
 });
 
-test('the overview loads a bounded studio selection and leaves other directories on demand', () => {
+test('the overview carries its studio data on the page, so the page stays static', () => {
+  // The Studio renders ten interactable journeys across desktop, tablet and
+  // phone layouts, and each has to behave. The original contract ran the other
+  // way: this page preloaded nothing, not even one bounded slice.
+  //
+  // The rule that still matters is unchanged, and is what this asserts: the page
+  // does not become a live directory reader. Themes are the studio's one bounded
+  // selection. Blocks, patterns and the full plugin catalogue stay on demand,
+  // and no featured set is invented here.
   const page = sourceOf('src/app/wordpress/page.tsx');
-  // One cached official request supplies the studio, never one per preview.
   assert.match(page, /queryThemes\(\{ perPage: 6 \}\)/, 'the studio receives a bounded official theme selection');
-  assert.doesNotMatch(page, /queryPlugins|queryBlocks|queryPatterns/, 'other directories remain on-demand');
+  assert.doesNotMatch(page, /queryBlocks|queryPatterns/, 'blocks and patterns remain on demand');
   assert.doesNotMatch(page, /featuredPlugins|featuredThemes/);
 });
 
