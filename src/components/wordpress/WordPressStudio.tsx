@@ -318,19 +318,36 @@ export function WordPressStudio({
 
   return (
     <section className={styles.studio} aria-label="WordPress Studio">
+      {/* The studio floats in the same universe as the arrival gateway: nebula
+          wash, star points, orbit rings and a planet limb, all drawn in CSS. */}
+      <div className={styles.scene} aria-hidden="true">
+        <span className={styles.sceneNebula} />
+        <span className={styles.sceneStars} />
+        <span className={styles.sceneRingA} />
+        <span className={styles.sceneRingB} />
+        <span className={styles.sceneLimb} />
+      </div>
       <div className={styles.topbar}>
         <nav className={styles.crumb} aria-label="Breadcrumb">
           <Link href="/">KNOuX</Link>
           <span aria-hidden="true">/</span>
           <span>WordPress Studio</span>
+          <span aria-hidden="true">/</span>
+          <span>{t(journey.label, journey.labelAr)}</span>
         </nav>
         <p className={styles.wordmark}>
           <b>KNOUX <span>STORE</span></b>
           <small>Digital Headquarters</small>
         </p>
-        <StatusPill tone={DIRECTORY_TONE[directoryState]}>
-          {t(DIRECTORY_LABEL[directoryState], 'الدليل متاح')}
-        </StatusPill>
+        <div className={styles.topbarRight}>
+          <StatusPill tone={DIRECTORY_TONE[directoryState]}>
+            {t(DIRECTORY_LABEL[directoryState], 'الدليل متاح')}
+          </StatusPill>
+          <span className={styles.sectionBadge}>
+            <small>{t('Section', 'القسم')}</small>
+            <b>{journey.code}</b>
+          </span>
+        </div>
       </div>
 
       <div className={styles.frame}>
@@ -356,15 +373,6 @@ export function WordPressStudio({
         </nav>
 
         <div className={styles.stage} key={journey.id}>
-          <header className={styles.journeyHead}>
-            <span className={styles.journeyCode}>{journey.code}</span>
-            <span className={styles.journeyRule} aria-hidden="true" />
-            <div className={styles.journeyTitles}>
-              <h3>{t(journey.label, journey.labelAr)}</h3>
-              <p lang="ar" dir="rtl">{journey.arabic}</p>
-            </div>
-          </header>
-
           {active === 'arrival' ? (
             <div className={styles.arrivalGrid}>
               <Panel title={t('Studio destinations', 'وجهات الاستوديو')} meta="04">
@@ -1036,6 +1044,16 @@ export function WordPressStudio({
           </footer>
         </div>
       </div>
+
+      {/* The reference screens name the journey beneath the console, with the
+          section code in a hex badge and the Arabic line under the title. */}
+      <header className={styles.journeyHead}>
+        <span className={styles.journeyHex} aria-hidden="true"><b>{journey.code}</b></span>
+        <div className={styles.journeyTitles}>
+          <h3>{t(journey.label, journey.labelAr)}</h3>
+          <p lang="ar" dir="rtl">{journey.arabic}</p>
+        </div>
+      </header>
     </section>
   );
 }

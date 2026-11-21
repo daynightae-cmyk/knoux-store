@@ -22,17 +22,116 @@
   position: relative;
   isolation: isolate;
   min-width: 0;
-  overflow: hidden;
-  padding: clamp(14px, 1.6vw, 22px);
-  border: 1px solid rgba(167, 139, 250, 0.22);
-  border-radius: 22px;
-  background:
-    radial-gradient(ellipse 42% 30% at 0% 0%, rgba(168, 85, 247, 0.16), transparent 70%),
-    radial-gradient(ellipse 36% 26% at 100% 2%, rgba(217, 70, 239, 0.1), transparent 70%),
-    radial-gradient(ellipse 50% 40% at 60% 100%, rgba(76, 29, 149, 0.14), transparent 72%),
-    linear-gradient(158deg, #0c0818, #07050e 58%, #0a0713);
+  padding: clamp(10px, 1.4vw, 20px) clamp(6px, 1vw, 14px) clamp(26px, 3vw, 44px);
   color: var(--wp-text);
-  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* The cosmic scene the console floats in. Same vocabulary as the arrival
+   gateway sky: nebula wash, two star layers, orbit ellipses, planet limb.
+   It bleeds past the shell padding so the universe is full-width and the
+   gateway above joins it without a vertical seam. */
+.scene {
+  position: absolute;
+  inset: 0 calc(-1 * max(5.3vw, 24px));
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sceneNebula {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 46% 30% at 4% 0%, rgba(168, 85, 247, 0.24), transparent 70%),
+    radial-gradient(ellipse 42% 28% at 97% 2%, rgba(217, 70, 239, 0.18), transparent 70%),
+    radial-gradient(ellipse 60% 42% at 50% 46%, rgba(124, 58, 237, 0.16), transparent 72%),
+    radial-gradient(ellipse 34% 24% at 24% 78%, rgba(88, 28, 135, 0.24), transparent 70%),
+    linear-gradient(180deg, #0d0619 0%, #130926 42%, #0a0616 100%);
+}
+
+.sceneStars {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(1.6px 1.6px at 11% 16%, #fff 98%, transparent),
+    radial-gradient(1.2px 1.2px at 27% 7%, #e9d5ff 98%, transparent),
+    radial-gradient(1.2px 1.2px at 45% 21%, #fff 98%, transparent),
+    radial-gradient(1.2px 1.2px at 64% 11%, #f0abfc 98%, transparent),
+    radial-gradient(1.6px 1.6px at 82% 19%, #e9d5ff 98%, transparent),
+    radial-gradient(1.2px 1.2px at 93% 8%, #fff 98%, transparent),
+    radial-gradient(1.2px 1.2px at 6% 46%, #f0abfc 98%, transparent),
+    radial-gradient(1.4px 1.4px at 97% 42%, #fff 98%, transparent),
+    radial-gradient(1.3px 1.3px at 18% 66%, #fff 98%, transparent),
+    radial-gradient(1.1px 1.1px at 72% 74%, #f5d0fe 98%, transparent),
+    radial-gradient(1.3px 1.3px at 90% 82%, #fff 98%, transparent),
+    radial-gradient(1.1px 1.1px at 34% 88%, #e9d5ff 98%, transparent);
+}
+
+.sceneStars::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(1.4px 1.4px at 16% 30%, #fff 98%, transparent),
+    radial-gradient(1.1px 1.1px at 38% 13%, #f5d0fe 98%, transparent),
+    radial-gradient(1.5px 1.5px at 56% 33%, #fff 98%, transparent),
+    radial-gradient(1.1px 1.1px at 73% 25%, #e9d5ff 98%, transparent),
+    radial-gradient(1.4px 1.4px at 88% 35%, #fff 98%, transparent),
+    radial-gradient(1.1px 1.1px at 3% 60%, #f5d0fe 98%, transparent),
+    radial-gradient(1.3px 1.3px at 98% 57%, #fff 98%, transparent),
+    radial-gradient(1.2px 1.2px at 52% 79%, #fff 98%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sceneStars::after {
+    animation: scene-twinkle 5.6s ease-in-out infinite;
+  }
+}
+
+@keyframes scene-twinkle {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.sceneRingA,
+.sceneRingB {
+  position: absolute;
+  left: 50%;
+  border: 1px solid rgba(192, 132, 252, 0.22);
+  border-radius: 50%;
+  box-shadow: 0 0 24px rgba(168, 85, 247, 0.12), inset 0 0 24px rgba(168, 85, 247, 0.08);
+}
+
+.sceneRingA {
+  top: -34%;
+  width: 124%;
+  height: 74%;
+  transform: translateX(-50%) rotate(-5deg);
+}
+
+.sceneRingB {
+  top: -22%;
+  width: 96%;
+  height: 58%;
+  transform: translateX(-50%) rotate(4deg);
+  border-color: rgba(192, 132, 252, 0.14);
+}
+
+.sceneLimb {
+  position: absolute;
+  left: -12%;
+  right: -12%;
+  bottom: -190px;
+  height: 250px;
+  border-radius: 50% 50% 0 0;
+  background:
+    radial-gradient(1.2px 1.2px at 22% 28%, rgba(240, 171, 252, 0.9) 98%, transparent),
+    radial-gradient(1px 1px at 36% 50%, rgba(255, 255, 255, 0.8) 98%, transparent),
+    radial-gradient(1.2px 1.2px at 58% 36%, rgba(240, 171, 252, 0.9) 98%, transparent),
+    radial-gradient(1px 1px at 76% 54%, rgba(255, 255, 255, 0.8) 98%, transparent),
+    radial-gradient(ellipse 60% 100% at 50% 0%, rgba(192, 132, 252, 0.5), rgba(124, 58, 237, 0.28) 46%, transparent 75%);
+  box-shadow: 0 -2px 44px rgba(192, 132, 252, 0.5), 0 -14px 90px rgba(168, 85, 247, 0.32);
 }
 
 .studio * {
@@ -69,7 +168,38 @@
   align-items: center;
   gap: 12px;
   padding: 0 4px 12px;
-  border-bottom: 1px solid rgba(167, 139, 250, 0.14);
+}
+
+.topbarRight {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.sectionBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font: 8.5px var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--wp-dim);
+}
+
+.sectionBadge b {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 22px;
+  padding: 0 6px;
+  border: 1px solid rgba(192, 132, 252, 0.55);
+  border-radius: 7px;
+  background: rgba(124, 58, 237, 0.22);
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.35), inset 0 0 8px rgba(192, 132, 252, 0.2);
+  font-size: 11px;
+  font-weight: 600;
+  color: #e9d5ff;
 }
 
 .crumb {
@@ -91,7 +221,7 @@
   color: var(--wp-text);
 }
 
-.crumb span:last-child {
+.crumb span {
   overflow: hidden;
   color: var(--wp-muted);
   text-overflow: ellipsis;
@@ -183,6 +313,16 @@
   align-items: start;
   gap: 16px;
   margin-top: 16px;
+  padding: clamp(12px, 1.4vw, 20px);
+  border: 1px solid rgba(192, 132, 252, 0.42);
+  border-radius: 22px;
+  background: linear-gradient(160deg, rgba(28, 16, 52, 0.66), rgba(10, 6, 22, 0.82) 62%);
+  box-shadow:
+    0 34px 90px rgba(0, 0, 0, 0.55),
+    0 0 46px rgba(168, 85, 247, 0.2),
+    inset 0 1px 0 rgba(243, 232, 255, 0.16),
+    inset 0 0 38px rgba(168, 85, 247, 0.08);
+  backdrop-filter: blur(10px);
 }
 
 .rail {
@@ -193,10 +333,9 @@
   gap: 4px;
   min-width: 0;
   padding: 8px;
-  border: 1px solid rgba(167, 139, 250, 0.14);
+  border: 1px solid rgba(167, 139, 250, 0.12);
   border-radius: 14px;
-  background: linear-gradient(180deg, rgba(20, 12, 38, 0.75), rgba(8, 6, 16, 0.75));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  background: rgba(10, 6, 20, 0.42);
 }
 
 .railItem {
@@ -204,7 +343,6 @@
   grid-template-columns: 26px minmax(0, 1fr);
   align-items: center;
   gap: 8px;
-  width: 100%;
   min-width: 0;
   min-height: 40px;
   padding: 7px 9px;
@@ -223,10 +361,10 @@
 }
 
 .railItemActive {
-  border-color: rgba(192, 132, 252, 0.45);
-  background: linear-gradient(90deg, rgba(168, 85, 247, 0.26), rgba(168, 85, 247, 0.05));
+  border-color: rgba(192, 132, 252, 0.5);
+  background: linear-gradient(90deg, rgba(168, 85, 247, 0.3), rgba(168, 85, 247, 0.06));
   color: #f6f0ff;
-  box-shadow: inset 3px 0 0 var(--wp-violet);
+  box-shadow: inset 3px 0 0 var(--wp-violet), 0 0 18px rgba(168, 85, 247, 0.32);
 }
 
 .railIcon {
@@ -275,11 +413,11 @@
 
 .stage {
   min-width: 0;
-  padding: clamp(14px, 1.5vw, 20px);
-  border: 1px solid rgba(167, 139, 250, 0.16);
+  padding: clamp(12px, 1.3vw, 18px);
+  border: 1px solid rgba(167, 139, 250, 0.14);
   border-radius: 16px;
-  background: linear-gradient(180deg, rgba(19, 12, 35, 0.88), rgba(8, 6, 16, 0.92));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  background: linear-gradient(180deg, rgba(17, 10, 32, 0.6), rgba(8, 5, 17, 0.66));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), inset 0 0 26px rgba(124, 58, 237, 0.07);
   animation: studio-in 0.28s ease both;
 }
 
@@ -294,43 +432,57 @@
   }
 }
 
+/* The journey is named beneath the console, as in the reference screens:
+   hex section badge, luminous letter-spaced title, Arabic line below. */
 .journeyHead {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 16px;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  margin-top: clamp(22px, 2.6vw, 36px);
+  text-align: center;
 }
 
-.journeyCode {
-  font: 400 clamp(26px, 2.6vw, 38px) / 1 var(--serif);
-  letter-spacing: -0.02em;
-  color: var(--wp-violet);
-  text-shadow: 0 0 24px rgba(192, 132, 252, 0.35);
+.journeyHex {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 58px;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  background: linear-gradient(180deg, rgba(192, 132, 252, 0.75), rgba(124, 58, 237, 0.55));
+  filter: drop-shadow(0 0 16px rgba(168, 85, 247, 0.55));
 }
 
-.journeyRule {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(192, 132, 252, 0.5), rgba(167, 139, 250, 0.05));
+.journeyHex b {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 54px;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  background: linear-gradient(180deg, #1c1033, #0d0719);
+  font: 600 17px var(--mono);
+  letter-spacing: 0.04em;
+  color: #e9d5ff;
+  text-shadow: 0 0 12px rgba(192, 132, 252, 0.8);
 }
 
 .journeyTitles {
   display: grid;
-  gap: 2px;
-  text-align: right;
+  gap: 5px;
 }
 
 .journeyTitles h3 {
-  font-size: clamp(17px, 1.7vw, 22px);
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  font-size: clamp(22px, 2.6vw, 34px);
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--wp-text);
+  text-shadow: 0 0 26px rgba(192, 132, 252, 0.5);
 }
 
 .journeyTitles p {
   direction: rtl;
-  font-size: 11px;
-  color: #a291c2;
+  font-size: clamp(12px, 1.2vw, 15px);
+  color: #b3a3d4;
 }
 
 /* --------------------------------------------------------------- panels */
@@ -2388,7 +2540,7 @@
 
   .railItem {
     flex: 0 0 auto;
-    grid-template-columns: 24px minmax(0, 1fr);
+    grid-template-columns: 24px auto;
     min-width: 150px;
   }
 
@@ -2445,16 +2597,15 @@
     grid-row: 1;
   }
 
-  .journeyHead {
-    flex-wrap: wrap;
+  .journeyHex {
+    width: 44px;
+    height: 48px;
   }
 
-  .journeyRule {
-    display: none;
-  }
-
-  .journeyTitles {
-    text-align: left;
+  .journeyHex b {
+    width: 40px;
+    height: 44px;
+    font-size: 14px;
   }
 
   .arrivalGrid {
