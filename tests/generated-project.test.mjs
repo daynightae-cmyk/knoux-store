@@ -50,6 +50,16 @@ test('deterministic bundle writer emits a valid ZIP signature and bounded entrie
   assert.equal(Buffer.from(zip).readUInt16LE(zip.length - 14), 1);
 });
 
+/**
+ * The preview URL is fetched back deliberately: the test proves the real
+ * process serves the written files on loopback. Validate the shape at the
+ * sink so only the bounded loopback form this suite created can be requested.
+ */
+const loopbackPreviewUrl = (candidate) => {
+  assert.match(candidate, /^http:\/\/127\.0\.0\.1:\d{1,5}\/[a-f0-9]{64}\/[A-Za-z0-9._/-]+$/);
+  return candidate;
+};
+
 test('a reviewed static project writes, validates, bundles, previews on a different origin, and stops', async () => {
   const root = await fs.mkdtemp(path.join(tmpdir(), 'knoux-generated-'));
   const ownerId = crypto.randomUUID();
@@ -67,7 +77,7 @@ test('a reviewed static project writes, validates, bundles, previews on a differ
     assert.ok(receipt.preview.readinessMs >= 0);
     assert.notEqual(new URL(receipt.preview.url).origin, 'http://127.0.0.1:3311');
     assert.match(receipt.preview.url, /^http:\/\/127\.0\.0\.1:\d+\/[a-f0-9]{64}\/index\.html$/);
-    const response = await fetch(receipt.preview.url);
+    const response = await fetch(loopbackPreviewUrl(receipt.preview.url));
     assert.equal(response.status, 200);
     assert.match(response.headers.get('content-security-policy'), /connect-src 'none'/);
     assert.match(response.headers.get('content-security-policy'), /frame-ancestors http:\/\/127\.0\.0\.1:3311/);
@@ -103,7 +113,7 @@ test('a reviewed static project writes, validates, bundles, previews on a differ
     assert.equal(cancelled.state, 'cancelled');
     let unavailable = false;
     for (let attempt = 0; attempt < 40; attempt += 1) {
-      try { await fetch(receipt.preview.url, { signal: AbortSignal.timeout(250) }); await pause(10); } catch { unavailable = true; break; }
+      try { await fetch(loopbackPreviewUrl(receipt.preview.url), { signal: AbortSignal.timeout(250) }); await pause(10); } catch { unavailable = true; break; }
     }
     assert.equal(unavailable, true, 'operator cancellation stops the owned preview process');
   } finally {
@@ -140,6 +150,33 @@ test('the workbench wires reviewed static execution into its shipped surfaces', 
   assert.match(component, /method: 'DELETE'/);
   assert.match(component, /sandbox="allow-scripts"/);
   assert.match(component, /No generated files have been written/);
+});
+
+test('the generated-project API routes delegate to the bounded executor, never a private store', async () => {
+  // The regression this guards: each route once kept its own in-memory
+  // operationStore that no other route populated, so status/bundle/deploy
+  // could never find an operation, and the POST route invented preview
+  // readiness (httpStatus 200, readinessMs 0) instead of probing a process.
+  const read = (relative) => fs.readFile(new URL(relative, import.meta.url), 'utf8');
+  const routes = await Promise.all([
+    read('../src/app/api/build/generated-projects/route.ts'),
+    read('../src/app/api/build/generated-projects/[operationId]/route.ts'),
+    read('../src/app/api/build/generated-projects/[operationId]/bundle/route.ts'),
+    read('../src/app/api/build/generated-projects/[operationId]/deploy/route.ts'),
+  ]);
+  for (const route of routes) {
+    assert.match(route, /generated-project-executor/);
+    assert.doesNotMatch(route, /new Map<string, GeneratedRuntimeReceipt>/);
+    assert.doesNotMatch(route, /httpStatus: 200/);
+    assert.doesNotMatch(route, /readinessMs: 0/);
+  }
+  assert.match(routes[0], /executeGeneratedProject/);
+  assert.match(routes[0], /KNOUX_WRITE_EXECUTOR_ENABLED/);
+  assert.match(routes[1], /readGeneratedReceipt/);
+  assert.match(routes[1], /cancelGeneratedProject/);
+  assert.match(routes[1], /cancelDeployGeneratedProject/);
+  assert.match(routes[2], /generatedBundlePath/);
+  assert.match(routes[3], /deployGeneratedProject/);
 });
 
 test('build produces separate source and compiled output with real measured hashes', async () => {

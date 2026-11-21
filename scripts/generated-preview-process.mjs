@@ -30,7 +30,20 @@ const mime = new Map([
 
 const probe = `<script>(()=>{const token=${jsLiteral(token)},parentOrigin=${jsLiteral(parentOrigin)},redact=value=>String(value).slice(0,500).replace(/((?:api[_-]?key|token|secret|password|bearer)\\s*[:=]\\s*)[^\\s,;]+/gi,'$1[redacted]'),send=(kind,facts={})=>{try{parent.postMessage({source:'knoux-generated-preview',token,kind,facts},parentOrigin)}catch{}};for(const level of ['error','warn']){const original=console[level].bind(console);console[level]=(...args)=>{send('console',{level,message:args.map(redact).join(' ').slice(0,1000)});original(...args)}}addEventListener('error',event=>{send(event.target&&event.target!==window?'resource':'error',{message:redact(event.message||event.target?.src||event.target?.href||'Resource failed')})},true);addEventListener('unhandledrejection',event=>send('error',{message:redact(event.reason||'Unhandled rejection')}));const inspect=()=>{const controls=[...document.querySelectorAll('button,a[href],input,select,textarea')],unnamed=controls.filter(element=>!(element.getAttribute('aria-label')||element.textContent?.trim()||element.labels?.length||element.getAttribute('title')||element.getAttribute('value'))).length,ids=[...document.querySelectorAll('[id]')].map(element=>element.id);return{title:document.title,lang:document.documentElement.lang||null,readyMs:Math.round(performance.now()),headings:document.querySelectorAll('h1,h2,h3,h4,h5,h6').length,mainCount:document.querySelectorAll('main').length,controls:controls.length,unnamedControls:unnamed,imagesMissingAlt:document.querySelectorAll('img:not([alt])').length,duplicateIds:ids.length-new Set(ids).size}};addEventListener('DOMContentLoaded',()=>{send('ready',inspect());setTimeout(()=>send('accessibility',inspect()),0)},{once:true});addEventListener('pagehide',()=>send('pagehide',{}),{once:true});})();</script>`;
 
+/**
+ * Reject anything that is not a plain sequence of safe path segments before
+ * it can reach a filesystem call. The request handler already refuses `%`,
+ * `\` and NUL; this repeats the bound at the sink so the check travels with
+ * the value.
+ */
+function plainRelative(candidate) {
+  return typeof candidate === 'string' && candidate.length > 0 && candidate.length <= 320
+    && !candidate.includes('%') && !candidate.includes('\\') && !candidate.includes('\0')
+    && candidate.split('/').every((segment) => /^[A-Za-z0-9][A-Za-z0-9_@().+-]{0,79}$/.test(segment) && segment !== '.' && segment !== '..');
+}
+
 async function readStatic(relative) {
+  if (!plainRelative(relative)) return null;
   const target = path.resolve(root, ...relative.split('/'));
   if (!safeRelative(target)) return null;
   const actual = await fs.realpath(target).catch(() => null);

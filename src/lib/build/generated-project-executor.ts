@@ -31,6 +31,16 @@ function sha256(value: string | Uint8Array): string {
   return createHash('sha256').update(value).digest('hex');
 }
 
+/**
+ * The generated-projects root the API routes execute under. Env-configured on
+ * a trusted host; otherwise a sibling of the checkout, never inside it.
+ */
+export function generatedProjectsRoot(): string {
+  const envRoot = process.env.KNOUX_GENERATED_PROJECTS_ROOT;
+  if (envRoot) return path.resolve(envRoot);
+  return path.resolve(process.cwd(), '..', 'knoux-generated-projects');
+}
+
 function canonicalFileBytes(file: GeneratedProjectFile): Uint8Array {
   return new TextEncoder().encode(file.content);
 }
@@ -41,10 +51,14 @@ function inside(root: string, candidate: string): boolean {
 }
 
 async function operationRoot(root: string, operationId: string): Promise<string> {
+  // Re-validate the identifier at the filesystem sink: only a canonical UUID
+  // may ever become a path segment, so no request-derived string can reach
+  // the filesystem through this function.
+  const id = generatedOperationId(operationId);
   if (!path.isAbsolute(root) || path.parse(root).root === path.resolve(root)) throw new Error('KNOUX_GENERATED_PROJECTS_ROOT must be an absolute non-filesystem-root directory.');
   await fs.mkdir(root, { recursive: true });
   const canonical = await fs.realpath(root);
-  const candidate = path.resolve(canonical, operationId);
+  const candidate = path.resolve(canonical, id);
   if (!inside(canonical, candidate)) throw new Error('Generated operation destination escaped its configured root.');
   return candidate;
 }
