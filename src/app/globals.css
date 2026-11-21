@@ -5008,8 +5008,15 @@ body:has(.origin-room) .knoux-sentinel{display:none}
   margin-top: clamp(24px, 3vh, 40px);
 }
 
-/* The studio the arrival gateway enters. */
-.eco-studio { padding-top: clamp(30px, 4vw, 54px); }
+/* The studio the arrival gateway enters. The scene continues the gateway's
+   universe without a seam: the hero's bottom colour (#0b0618) is the studio
+   sky's top colour, and the planet limb closes the composition before the
+   ecosystem chapters return to the store's own dark. */
+.eco-studio {
+  padding-top: clamp(20px, 2.6vw, 40px);
+  padding-bottom: clamp(36px, 4vw, 64px);
+  background: linear-gradient(180deg, #0b0618 0%, #100722 26%, #0a0616 100%);
+}
 
 /* --- 01 / Domain finder -----------------------------------------
    An instrument, not a form in a section. The input is the largest
