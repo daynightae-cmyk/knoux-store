@@ -1,5 +1,5 @@
 import { WordPressStudio } from '@/components/wordpress/WordPressStudio';
-import { queryThemes } from '@/lib/wordpress/wordpress-org';
+import { queryPlugins, queryThemes } from '@/lib/wordpress/wordpress-org';
 import Link from 'next/link';
 import { SignalRail } from '@/components/DivisionShell';
 import { DivisionBridge, NextLink, BlockHead } from '@/components/blocks';
@@ -56,7 +56,10 @@ export const metadata = pageMetadata(
  * reflected honestly.
  */
 export default async function WordPressPage() {
-  const themes = await queryThemes({ perPage: 6 });
+  const [themes, plugins] = await Promise.all([
+    queryThemes({ perPage: 6 }),
+    queryPlugins({ perPage: 6 }),
+  ]);
   const firstPartyCount = wordPressItems.length;
 
   return (
@@ -68,7 +71,12 @@ export default async function WordPressPage() {
       <EcosystemHero directoryState={themes.state} themesLoaded={themes.items.length} />
       {/* The studio the gateway enters: ten real journeys on live registry data. */}
       <div className="shell eco-studio" id="studio">
-        <WordPressStudio themes={themes.items} />
+        <WordPressStudio
+          themes={themes.items}
+          plugins={plugins.items}
+          directoryState={themes.state}
+          pluginState={plugins.state}
+        />
       </div>
       <div className="shell"><ProcessArchitecture kind="wordpress" /></div>
       <SignalRail division="wordpress" path="/wordpress" />
