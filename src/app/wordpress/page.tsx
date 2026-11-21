@@ -68,7 +68,7 @@ export default async function WordPressPage() {
       <EcosystemHero directoryState={themes.state} themesLoaded={themes.items.length} />
       {/* The studio the gateway enters: ten real journeys on live registry data. */}
       <div className="shell eco-studio" id="studio">
-        <WordPressStudio themes={themes.items} />
+        <WordPressStudio themes={themes.items} directoryState={themes.state} />
       </div>
       <div className="shell"><ProcessArchitecture kind="wordpress" /></div>
       <SignalRail division="wordpress" path="/wordpress" />

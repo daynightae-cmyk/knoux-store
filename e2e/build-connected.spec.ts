@@ -115,6 +115,11 @@ test('animated canonical mark has bounded particles, reuses its pool and pauses 
   expect(measured.particles).toBeLessThanOrEqual(3600); expect(measured.paints - before.paints).toBeGreaterThan(10); expect(Number(before.sampleMs)).toBe(measured.sampleMs);
   const handle = await canvas.elementHandle(); await page.locator('.dev-nav-link[href="/build/apps"]').click(); expect(await handle!.evaluate((element) => element.isConnected)).toBe(true); await expect(canvas).toHaveAttribute('data-sample-ms', before.sampleMs!);
   await page.locator('.dev-living-mark').evaluate((element) => { (element as HTMLElement).style.display = 'none'; });
+  // The loop reports its own state: the IntersectionObserver callback marks the
+  // surface paused before the next draw can run. Wait for that real signal
+  // instead of inferring a pause from paint-counter samples, which can settle
+  // early on a loaded host before the observer callback is delivered.
+  await expect(canvas).toHaveAttribute('data-loop', 'paused', { timeout: 10000 });
   // The loop stops on the IntersectionObserver callback, which is delivered
   // asynchronously and can lag behind layout on a loaded host. Wait until the
   // paint counter has genuinely settled before treating it as the paused
