@@ -67,7 +67,7 @@ export function BuildPipelinePage() {
   const currentChecks = currentWorkspaceVerificationChecks(state);
   const measuredChecks = !state.projectRef && state.git?.headSha && state.verification?.headSha === state.git.headSha ? state.verification.checks : [];
   const byId = new Map(currentChecks.map((check) => [check.id, check]));
-  return <div className={`dev-route ${styles.orchestration}`}><DevPageHeading eyebrow="BUILD / PIPELINE" title="Build pipeline" description="Source evidence and allowlisted verification for this checkout. Every stage reports only what this session has measured." detail={state.git?.headSha ? `HEAD ${state.git.headSha.slice(0, 12)}` : 'HEAD UNAVAILABLE'} />
+  return <div className={`dev-route ${styles.page} ${styles.orchestration}`}><DevPageHeading eyebrow="BUILD / PIPELINE" title="Build pipeline" description="Source evidence and allowlisted verification for this checkout. Every stage reports only what this session has measured." detail={state.git?.headSha ? `HEAD ${state.git.headSha.slice(0, 12)}` : 'HEAD UNAVAILABLE'} />
     <ol className={styles.pipelineStages} aria-label="Workspace verification stages">
       {stages.map((stage) => {
         const check = stage === 'Build' ? 'build' : stage === 'Tests' ? 'test' : null;

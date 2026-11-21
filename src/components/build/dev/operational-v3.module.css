@@ -106,17 +106,19 @@
   justify-items: start;
   gap: 6px;
   padding: 14px;
-  background: #100b19;
+  background: linear-gradient(150deg, #1d1229, #0d0817);
+  box-shadow: inset 0 0 16px rgba(159, 112, 195, .10);
 }
 .pipelineStages i {
   inline-size: 7px;
   block-size: 7px;
   border-radius: 100%;
-  background: #9685ae;
+  background: #a68fc7;
+  box-shadow: 0 0 8px rgba(166, 143, 199, .55);
 }
 .pipelineStages small { color: #d6c4eb; }
-.pipelineStages [data-status='pass'] i { background: #68dbad; }
-.pipelineStages [data-status='fail'] i { background: #ff8d98; }
+.pipelineStages [data-status='pass'] i { background: #68dbad; box-shadow: 0 0 9px rgba(104, 219, 173, .6); }
+.pipelineStages [data-status='fail'] i { background: #ff8d98; box-shadow: 0 0 9px rgba(255, 141, 152, .6); }
 .pipelineStages [data-status='running'] i {
   background: #d8a0ff;
   box-shadow: 0 0 10px #e4a3ff;
