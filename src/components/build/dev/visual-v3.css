@@ -227,6 +227,57 @@
 @keyframes dev-figure-travel { to { stroke-dashoffset: -332; } }
 @media (max-width: 760px) { .dev-figure-energy { inset-inline-end: 2%; opacity: .32; } }
 
+/* Engineering surfaces rejoin the operational glass system. The flat
+   documentary pass (engineering-os.css + the generic .dev-panel reset above)
+   stripped these panels; the reference reads them as luminous instruments
+   floating in the same violet universe as every other Build route. Scoped
+   here so the landing's own panels keep their documentary treatment. */
+.dev-cinematic .dev-engineering-console .dev-panel {
+  margin: 24px 0;
+  padding: 0;
+  border: 1px solid #ba9bd366;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #20152ddd, #0e0b17f5 68%);
+  box-shadow: 0 12px 35px #04030879, inset 0 0 18px #9f70c31d;
+}
+.dev-cinematic .dev-engineering-console .dev-panel__head {
+  padding: 13px 17px;
+  border: 0;
+  border-bottom: 1px solid #bea1db34;
+  border-radius: 14px 14px 0 0;
+  background: #2b1a3a9c;
+}
+.dev-cinematic .dev-engineering-console .dev-panel__body { padding: 16px; }
+.dev-cinematic .dev-engineering-plan {
+  border: 1px solid #ba9bd366;
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(28, 16, 52, .72), rgba(10, 6, 22, .88) 62%);
+  box-shadow: 0 24px 70px #04030880, 0 0 40px rgba(168, 85, 247, .14), inset 0 1px 0 rgba(243, 232, 255, .1);
+}
+.dev-cinematic .dev-engineering-plan h2 { color: #f3eafa; text-shadow: 0 0 22px rgba(192, 132, 252, .4); }
+.dev-cinematic .dev-plan-review {
+  border: 1px solid rgba(192, 132, 252, .3);
+  border-left: 2px solid #c084fc;
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(43, 26, 58, .5), rgba(14, 10, 24, .7));
+  box-shadow: inset 0 0 24px rgba(168, 85, 247, .08);
+}
+.dev-cinematic .dev-plan-error { border-color: #ff8d9866; background: #3a14208c; }
+.dev-cinematic .dev-worktree-list article,
+.dev-cinematic .dev-agent-profiles article {
+  padding: 20px;
+  border: 1px solid #ba9bd34d;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #1c1229cc, #0d0a16f0 70%);
+  box-shadow: inset 0 0 16px #9f70c314;
+}
+.dev-cinematic .dev-composer-routing select,
+.dev-cinematic .dev-composer-routing button {
+  border-color: #ba9bd355;
+  background: #170f26;
+  color: #ece4f7;
+}
+
 /* Action feedback stays within the control's existing geometry. */
 @media (prefers-reduced-motion: no-preference) {
   .dev-cinematic:not([data-cosmic-reduced]) :is(button:not(:disabled), a[href], summary) {

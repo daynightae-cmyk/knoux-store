@@ -67,3 +67,55 @@
 }
 @media (max-width: 1000px) { .network { display: none; } .title { min-height: 0; } }
 @media (max-width: 440px) { .manualFields { grid-template-columns: minmax(0,1fr); } }
+
+/* Raised-glass panels for the router's input, decision and candidate surfaces,
+   matching the operational glass system so the whole route reads as one
+   cosmic instrument rather than flat cards on a nebula. */
+.router { --operational-glow: #a572e665; }
+.router :global(.dev-panel) {
+  min-width: 0;
+  padding: 0;
+  border: 1px solid #ba9bd366;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #20152ddd, #0e0b17f5 68%);
+  box-shadow: 0 12px 35px #04030879, inset 0 0 18px #9f70c31d;
+}
+.router :global(.dev-panel__head) {
+  padding: 13px 17px;
+  border-radius: 14px 14px 0 0;
+  background: #2b1a3a9c;
+  border-bottom: 1px solid #bea1db34;
+}
+.router :global(.dev-panel__body) { padding: 16px; }
+.router :global(.dev-kv-table) { width: 100%; border-collapse: collapse; }
+.router :global(.dev-kv-table) th {
+  padding: 9px 12px;
+  text-align: left;
+  font: 600 10px var(--font-mono, monospace);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #cbb6e6;
+  border-bottom: 1px solid #bea1db34;
+  background: #241634a6;
+}
+.router :global(.dev-kv-table) td {
+  padding: 9px 12px;
+  border-bottom: 1px solid #9f70c31f;
+  color: #e9e0f5;
+  font-size: 12.5px;
+}
+.router :global(.dev-kv-table) tbody tr:hover { background: #67418b2b; }
+.router :global(.dev-tag) {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border: 1px solid #ba9bd355;
+  border-radius: 999px;
+  background: #2a1a3c8c;
+  font: 600 10px var(--font-mono, monospace);
+  letter-spacing: .05em;
+  color: #e3d4f7;
+}
+.router :global(.dev-tag)[data-tone='ok'] { border-color: #68dbad66; background: #1033268c; color: #9ff0cd; box-shadow: 0 0 10px #68dbad33; }
+.router :global(.dev-tag)[data-tone='bad'] { border-color: #ff8d9866; background: #3a14208c; color: #ffb3bc; box-shadow: 0 0 10px #ff8d9833; }
