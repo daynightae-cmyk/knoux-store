@@ -1,17 +1,19 @@
 /* NSIS 82230 — Engineering Environment wide banner. A text-free crop of the
    supplied artwork (planet limb + orbital glow) is the sky; the real heading
-   sits in its quiet left field like the reference. */
+   sits in its quiet left field like the reference. The band spans the full
+   stage width and its edges fade into the page sky — never a hard rectangle. */
 .hero {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
-  margin: -8px -32px 24px;
-  padding: clamp(30px, 5vw, 64px) 32px clamp(34px, 5vw, 66px);
+  margin: -32px calc(-1 * var(--dev-content-pad, 28px)) 24px;
+  padding: clamp(30px, 5vw, 64px) var(--dev-content-pad, 28px) clamp(34px, 5vw, 66px);
   min-height: clamp(200px, 24vw, 320px);
   display: grid;
   align-content: center;
   gap: 6px;
   background: linear-gradient(90deg, #07050ecc 0%, #07050e66 42%, #07050e1f 72%), url('/creative/nsis-engineering-banner.webp') center bottom / cover no-repeat, #07050e;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 20%, #000 68%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 20%, #000 68%, transparent 100%);
 }
 .brand { display: flex; align-items: center; gap: 10px; margin: 0; color: #fff; font-size: 19px; font-weight: 600; }
 .brand i { width: 7px; height: 7px; border-radius: 50%; background: #fff; box-shadow: 0 0 12px 4px #b57aff; }
@@ -19,7 +21,7 @@
 .hero h1 { margin: 6px 0 0; color: #f7f2fd; font-size: clamp(32px, 4vw, 56px); font-weight: 450; letter-spacing: -.03em; line-height: 1.05; }
 .lede { margin: 0; max-width: 56ch; color: #d3c2ec; font-size: clamp(13px, 1.4vw, 17px); line-height: 1.55; }
 .detail { color: #c4a6e6; font: 10px var(--font-mono, monospace); letter-spacing: .1em; margin-top: 6px; }
-@media (max-width: 1024px) { .hero { margin-inline: -28px; padding-inline: 28px; } }
+@media (max-width: 1024px) { .hero { margin-top: -8px; } }
 @media (max-width: 760px) {
-  .hero { margin-inline: -20px; padding-inline: 20px; background-image: linear-gradient(90deg, #07050ee6, #07050e99), url('/creative/nsis-engineering-banner.webp'); background-position: 70% center; }
+  .hero { background-image: linear-gradient(90deg, #07050ee6, #07050e99), url('/creative/nsis-engineering-banner.webp'); background-position: 70% center; }
 }

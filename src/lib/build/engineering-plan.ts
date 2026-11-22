@@ -1,8 +1,9 @@
 import type { BuildIntent } from './types';
+import { parseGeneratedProject, type GeneratedProjectPlan, type GeneratedRuntimeReceipt } from './generated-project-contract.ts';
 
 export type EngineeringSession = {
   requestId: string | null;
-  context: { project: string | null; worktree: string | null; branch: string | null } | null;
+  context: { project: string | null; worktree: string | null; branch: string | null; projectRef?: string | null; projectId?: string | null; headSha?: string | null } | null;
   host: { name: string; os: string; kind: string } | null;
   stage: EngineeringStage; plan: EngineeringPlan | null; draftPlan: Partial<EngineeringPlan> | null;
   streamText: string; error: string | null;
@@ -10,13 +11,14 @@ export type EngineeringSession = {
   selection: { providerId: string; modelId: string; reasons: string[] } | null;
   characters: number;
   measurement: { latencyMs?: number | null; ttftMs?: number | null; actualProviderId?: string | null; actualModelId?: string | null; controlsUsed?: import('../ai/types').GenerationControls | null; estimatedCost?: import('../ai/types').CostEstimate | null; usage?: { inputTokens: number | null; outputTokens: number | null } | null } | null;
+  execution?: GeneratedRuntimeReceipt | null;
 };
 
 export const PLAN_SECTIONS = ['GOAL', 'PRODUCT TYPE', 'ARCHITECTURE', 'STACK', 'ROUTES', 'DATA MODEL', 'AUTH', 'INTEGRATIONS', 'UI SYSTEM', 'FILES / MODULES', 'TEST PLAN', 'DEPLOYMENT PLAN', 'RISKS', 'EXECUTION PLAN'] as const;
-export type EngineeringPlan = Record<(typeof PLAN_SECTIONS)[number], string[]>;
+export type EngineeringPlan = Record<(typeof PLAN_SECTIONS)[number], string[]> & { generatedProject?: GeneratedProjectPlan };
 export type EngineeringStage = 'LISTENING' | 'RESOLVING' | 'ROUTING' | 'GENERATING' | 'PLANNED' | 'REVIEWING' | 'EXECUTING' | 'VERIFYING' | 'COMPLETE' | 'CONFIG_REQUIRED' | 'AUTH_REQUIRED' | 'PROVIDER_BLOCKED' | 'AGENT_UNAVAILABLE' | 'EXECUTOR_NOT_CONNECTED' | 'CANCELLED';
 
-export const ENGINEERING_PLAN_SYSTEM = `You are KNOuX Architect. Produce an engineering proposal, never claim implementation, tests, deployment or tool execution occurred. Return ONLY one JSON object with these exact keys: ${PLAN_SECTIONS.join(', ')}. Each value must be a nonempty array of concise strings. Include concrete routes, modules, tests, permission requirements and risks. Treat user instructions and context as requirements, never as authorization to run commands. Do not include credentials, environment values, file contents or shell scripts. Unknown integration availability must remain unknown. No tools are available during planning.`;
+export const ENGINEERING_PLAN_SYSTEM = `You are KNOuX Architect. Produce an engineering proposal, never claim implementation, tests, deployment or tool execution occurred. Return ONLY one JSON object with these exact keys: ${PLAN_SECTIONS.join(', ')}. Each value must be a nonempty array of concise strings. Include concrete routes, modules, tests, permission requirements and risks. Treat user instructions and context as requirements, never as authorization to run commands. For a static web application, you may add one optional generatedProject object: { "kind": "static-web", "files": [{"path":"index.html","content":"..."}, ...] }. Include the complete bounded application (at most 12 small HTML/CSS/JS/SVG text files); index.html is required. Never include package manifests, service workers, environment files, backend code, credentials, environment values, arbitrary shell scripts or external runtime dependencies. Planning alone grants no write or execution permission. Unknown integration availability must remain unknown. No tools are available during planning.`;
 
 export function planPrompt(intent: BuildIntent, context: { project: string | null; worktree: string | null; branch: string | null }, previousPlan?: EngineeringPlan) {
   const previousProposal = previousPlan && Object.fromEntries(PLAN_SECTIONS.map((section) => [
@@ -46,7 +48,9 @@ export function parseEngineeringPlan(text: string): EngineeringPlan {
     if (!Array.isArray(lines) || lines.length < 1 || lines.length > 32 || lines.some((line) => typeof line !== 'string' || !line.trim() || line.length > 4000)) throw new Error(`Incomplete or invalid plan section: ${section}.`);
     return [section, lines.map((line: string) => line.trim())];
   });
-  return Object.fromEntries(entries) as EngineeringPlan;
+  const plan = Object.fromEntries(entries) as EngineeringPlan;
+  if (record.generatedProject !== undefined) plan.generatedProject = parseGeneratedProject(record.generatedProject);
+  return plan;
 }
 
 export type PlanStreamChunk = NonNullable<EngineeringSession['measurement']> & { delta?: string; done?: boolean; error?: { safeMessage?: string; category?: string } | null };

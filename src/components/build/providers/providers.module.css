@@ -261,7 +261,9 @@
 
 /* Provider reference is an independent first screen; management remains below. */
 .center.standalone{max-width:none;padding:0!important}
-.standalone .composition{padding:32px clamp(16px,4vw,70px);background:#0b0812;gap:32px}
+.standalone .composition{padding:32px clamp(16px,4vw,70px);background:linear-gradient(180deg,#07050e,#0b0812 140px);gap:32px}
+/* The hero owns the first viewport; its lower edge dissolves into the page sky. */
+.standalone>:global(section){-webkit-mask-image:linear-gradient(180deg,#000 84%,transparent);mask-image:linear-gradient(180deg,#000 84%,transparent)}
 .standalone .workspaceViews{display:none}
 :global(.dev-cinematic):has(.standalone) :global(.dev-shell__content){padding:0!important}
 :global(.dev-cinematic):has(.standalone) :global(.dev-crumb){display:none}
@@ -270,4 +272,7 @@
  :global(.dev-cinematic):has(.standalone) :global(.dev-shell__grid){display:block;max-width:none}
  :global(.dev-cinematic):has(.standalone) :global(.dev-sidebar),:global(.dev-cinematic):has(.standalone) :global(.dev-shell__top){display:none}
  :global(.dev-cinematic):has(.standalone){padding:0!important}
+ /* The stage scrolls as one page so the hero is never clipped by an inner scroller. */
+ :global(.dev-cinematic):has(.standalone) :global(.dev-shell__stage){overflow-y:auto;scrollbar-width:thin;scrollbar-color:#343443 transparent}
+ :global(.dev-cinematic):has(.standalone) :global(.dev-shell__content){overflow:visible;flex:none}
 }
