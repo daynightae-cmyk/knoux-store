@@ -1,5 +1,56 @@
-.hero{position:relative;isolation:isolate;overflow:hidden;width:100%;aspect-ratio:3/2;min-height:0;background:#07050e url('/creative/build-v3-providers.webp') center center/100% 100% no-repeat;color:#fff;font-family:Arial,Helvetica,sans-serif;container-type:inline-size}
-.hero::after{content:'';position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 50% 57%,#a855f740,transparent 42%),radial-gradient(ellipse at 50% 89%,#c084fc59,transparent 24%),radial-gradient(ellipse 40% 30% at 6% 2%,#a855f733,transparent 70%),radial-gradient(ellipse 38% 28% at 96% 4%,#d946ef2e,transparent 70%);pointer-events:none}
+.hero{position:relative;isolation:isolate;overflow:hidden;width:100%;aspect-ratio:3/2;min-height:0;background:#07050e;color:#fff;font-family:Arial,Helvetica,sans-serif;container-type:inline-size}
+/* Reference 82228 sky, drawn entirely in code: a bright nebula bank across the
+   top-right and right edge, faint veils top-left, and a seeded star field.
+   No photograph is placed anywhere in this scene. */
+.sky{position:absolute;inset:0;z-index:-1;pointer-events:none;background:
+  radial-gradient(ellipse 30% 15% at 72% 8%,#c084fc73,transparent 68%),
+  radial-gradient(ellipse 17% 11% at 83% 4%,#e9d5ff52,transparent 70%),
+  radial-gradient(ellipse 24% 32% at 100% 44%,#9333ea66,transparent 68%),
+  radial-gradient(ellipse 16% 20% at 91% 63%,#a855f74d,transparent 70%),
+  radial-gradient(ellipse 38% 16% at 60% 19%,#7c3aed29,transparent 72%),
+  radial-gradient(ellipse 24% 14% at 12% 9%,#6d28d924,transparent 72%),
+  radial-gradient(ellipse 24% 18% at 76% 92%,#7c3aed2e,transparent 72%),
+  radial-gradient(ellipse 70% 24% at 50% 106%,#5830a85c,transparent 64%)}
+.sky::before,.sky::after{content:'';position:absolute;inset:0;background-repeat:repeat}
+/* Two tiled star layers of different cell sizes read as an irregular field. */
+.sky::before{background-image:
+  radial-gradient(1.2px 1.2px at 14% 16%,#fff,transparent),radial-gradient(1px 1px at 37% 7%,#e9d5ffe6,transparent),
+  radial-gradient(1.4px 1.4px at 62% 21%,#fff,transparent),radial-gradient(.9px .9px at 86% 12%,#d8b4ffcc,transparent),
+  radial-gradient(1px 1px at 24% 44%,#efe6ffcc,transparent),radial-gradient(1.3px 1.3px at 71% 39%,#fff,transparent),
+  radial-gradient(.9px .9px at 48% 58%,#e2d4ffb8,transparent),radial-gradient(1.1px 1.1px at 91% 63%,#fff,transparent),
+  radial-gradient(1px 1px at 8% 71%,#d9c8f2cc,transparent),radial-gradient(1.2px 1.2px at 55% 81%,#fff,transparent),
+  radial-gradient(.8px .8px at 79% 86%,#cdb6f0b8,transparent),radial-gradient(1px 1px at 32% 92%,#e6dcf7cc,transparent);
+  background-size:22% 26%;opacity:.85}
+.sky::after{background-image:
+  radial-gradient(.8px .8px at 5% 11%,#fff,transparent),radial-gradient(.7px .7px at 29% 27%,#e0cff5cc,transparent),
+  radial-gradient(.9px .9px at 53% 5%,#fff,transparent),radial-gradient(.7px .7px at 77% 31%,#d5c0f0c4,transparent),
+  radial-gradient(.8px .8px at 17% 61%,#fff,transparent),radial-gradient(.7px .7px at 64% 68%,#dccdf3c4,transparent),
+  radial-gradient(.9px .9px at 88% 47%,#fff,transparent),radial-gradient(.7px .7px at 41% 83%,#d3c0eecc,transparent);
+  background-size:13% 17%;opacity:.6}
+/* The planet limb: a bright rim over a dark body, with city speckle below. */
+.limb{position:absolute;z-index:-1;left:-18%;right:-18%;bottom:calc(-1*clamp(48px,6cqw,86px));height:clamp(180px,26cqw,300px);border-radius:50% 50% 0 0/100% 100% 0 0;
+  border-top:2.5px solid #f7f0ff;pointer-events:none;
+  background:radial-gradient(ellipse 46% 62% at 50% 0%,#c4a4f7b3,transparent 74%),radial-gradient(ellipse 100% 100% at 50% -14%,#3d1f7a70,#07050e 60%),#07050e;
+  box-shadow:0 -14px 48px #d9b8ffa6,0 -40px 130px #7c4dd08c,inset 0 22px 60px #a855f74d}
+.limb::after{content:'';position:absolute;left:-6%;right:-6%;bottom:50%;height:160%;border-radius:50%;pointer-events:none;
+  background:
+    radial-gradient(ellipse 9% 22% at 50% 100%,#f6eaffcc,transparent 74%),
+    radial-gradient(ellipse 58% 40% at 50% 100%,#8b4fd952,transparent 72%)}
+.limb::before{content:'';position:absolute;inset:0;border-radius:inherit;opacity:.75;background:
+  radial-gradient(circle 2px at 22% 30%,#ffbe8ccc,transparent),radial-gradient(circle 1.6px at 29% 48%,#ffaa78b8,transparent),
+  radial-gradient(circle 2.4px at 43% 22%,#ffc896d9,transparent),radial-gradient(circle 1.4px at 52% 40%,#ffb482b0,transparent),
+  radial-gradient(circle 2px at 63% 27%,#ffbe8cc4,transparent),radial-gradient(circle 1.6px at 72% 45%,#ffaa7899,transparent),
+  radial-gradient(circle 1.2px at 37% 56%,#ffc89699,transparent),radial-gradient(circle 1.4px at 58% 58%,#ffb4828c,transparent),
+  radial-gradient(circle 1px at 82% 36%,#ffc89680,transparent),radial-gradient(circle 1px at 12% 42%,#ffbe8c80,transparent)}
+/* Streaked nebula banks: elongated diagonal clouds up top and along the right
+   edge, the way reference 82228 reads — not soft corner blobs. */
+.hero::after{content:'';position:absolute;inset:-24%;z-index:-1;pointer-events:none;transform:rotate(-22deg);background:
+  radial-gradient(ellipse 42% 6% at 22% 26%,#a855f724,transparent 70%),
+  radial-gradient(ellipse 30% 4% at 16% 33%,#d8b4ff1a,transparent 72%),
+  radial-gradient(ellipse 36% 5% at 30% 20%,#7c3aed1f,transparent 70%),
+  radial-gradient(ellipse 40% 6% at 80% 40%,#9333ea1f,transparent 70%),
+  radial-gradient(ellipse 26% 4% at 86% 48%,#c084fc14,transparent 72%),
+  radial-gradient(ellipse 30% 4% at 74% 62%,#7e22ce14,transparent 70%)}
 .planet{position:absolute;z-index:-1;right:-8%;top:-34%;width:34%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 72% 20%,#0d091b 45%,#272042 78%,#9668d7 99%);box-shadow:-3px 4px 13px #a976f8,0 0 42px #7d4dc44d;opacity:.7}
 .brand{position:absolute;top:4.1%;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:1.1cqw;color:white!important;text-decoration:none!important;white-space:nowrap;font-size:2.6cqw;letter-spacing:.04em}
 .brand i{width:.9cqw;height:.9cqw;border-radius:50%;background:white;box-shadow:0 0 16px 5px #b57aff}.brand span{font-size:1.5cqw;letter-spacing:.3em}
@@ -31,16 +82,22 @@
 .hero .node .sphere img[src*="qwen"]{filter:invert(1) sepia(1) saturate(7) hue-rotate(225deg)}
 .hero .node .sphere img[src*="gemini"]{filter:none;opacity:0}
 .hero .node:has(img[src*="gemini"]) .sphere::after{content:'';position:absolute;width:3.2cqw;height:3.2cqw;background:conic-gradient(from 20deg,#ff946c,#f1d76e,#4aaef7,#657cf8,#ff946c);clip-path:polygon(50% 0,57% 25%,70% 40%,100% 50%,70% 60%,57% 75%,50% 100%,43% 75%,30% 60%,0 50%,30% 40%,43% 25%)}
-.hero .core{transform:perspective(900px) rotateX(-12deg) rotateY(5deg) rotateZ(2deg);box-shadow:inset 0 0 2.2cqw #be8cfca0,0 0 2cqw #b78afc77}
+.hero .core{transform:perspective(900px) rotateX(-15deg) rotateY(11deg) rotateZ(3deg);box-shadow:inset 0 0 2.2cqw #be8cfca0,0 0 2cqw #b78afc77}
 .hero .mark{filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 12px #b67cff)}
 .hero .planet{top:-42%;right:-7%;opacity:.55}
-.hero::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:url('/creative/build-v3-providers.webp') center/100% 100% no-repeat;transform:scaleX(-1);mask-image:radial-gradient(ellipse at 15% 7%,#000 0,transparent 36%);opacity:.85}
+/* A faint second veil deepens the upper-right nebula without any photograph.
+   Painted radial falloff, no mask: masks force an extra offscreen buffer per
+   paint and were part of the mobile CI timeout. */
+.hero::before{opacity:.6;z-index:-1;content:'';position:absolute;inset:0;pointer-events:none;background:
+  radial-gradient(ellipse 22% 11% at 80% 6%,#d8b4ff59,transparent 70%),
+  radial-gradient(ellipse 16% 22% at 97% 34%,#9333ea59,transparent 70%)}
+.hero::after{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 57%,#a855f740,transparent 42%),radial-gradient(ellipse at 50% 89%,#c084fc40,transparent 24%)}
 .hero .orbits{filter:drop-shadow(0 0 2px #ad81ef)}
 @media(min-width:651px) and (max-aspect-ratio:3/2){.hero{aspect-ratio:3/2}}
 @media(min-width:651px) and (min-aspect-ratio:3/2){.hero{aspect-ratio:auto;height:calc(100svh - 1px);min-height:480px}}
 @media(max-width:650px){.hero .title h1{font-size:clamp(25px,7cqw,44px)!important}.hero .node,.hero .getApi{translate:none}.hero .core{transform:none}.hero .node:has(img[src*="gemini"]) .sphere::after{width:22px;height:22px}}
 
-.hero::before{mask-image:radial-gradient(ellipse at 85% 9%,#000 0,transparent 35%);opacity:.8}
+.hero::before{opacity:.55}
 .hero .node{min-width:44px!important;min-height:44px!important}
 .hero .getApi{min-height:44px!important}
 .hero .mark{opacity:1;filter:drop-shadow(0 0 1px #fff) drop-shadow(0 0 6px #c997ff) drop-shadow(0 0 10px #9b59ff)}
@@ -51,15 +108,37 @@
 @media(max-width:650px){.hero .core{height:166px}.hero .coreLinks{height:44px}.hero .coreLinks button,.hero .coreLinks a{height:44px;min-width:44px!important}.hero .getApi{min-height:44px!important}}
 
 /* Choreography: one shared cycle, stable upright logos and a quiet optical pulse. */
-.hero .title h1{font-size:clamp(28px,3.25cqw,52px)!important;font-weight:450;letter-spacing:-.025em}
-.hero .title p{font-size:clamp(12px,1.35cqw,23px)!important;letter-spacing:.17em}
+.hero .title h1{font-size:clamp(28px,4.05cqw,66px)!important;font-weight:450;letter-spacing:-.025em}
+.hero .title p{font-size:clamp(12px,1.7cqw,27px)!important;letter-spacing:.17em}
 .hero .brand{font-size:2cqw}.hero .brand span{font-size:1.12cqw}
 .hero .motionControl{position:absolute;z-index:8;right:2%;top:3%;font-size:11px!important;color:#ddd0f3;border:1px solid #a88bd64d!important;background:#171124bb!important;min-height:44px!important}
 .hero .sphere{display:grid;place-items:center;position:relative;aspect-ratio:1;flex:none;width:5.1cqw;height:5.1cqw}
 .hero .node .sphere img{width:52%;height:52%;object-fit:contain}
 .hero .node span:last-child{line-height:1.15;font-size:1.05cqw!important}
-.hero .core{top:41%;height:30%;transform:perspective(900px) rotateX(-12deg) rotateY(5deg) rotateZ(2deg)}
-.hero .getApi{top:86%}
+.hero .core{top:41%;height:30%;transform:perspective(900px) rotateX(-15deg) rotateY(11deg) rotateZ(3deg);
+  border:1.5px solid #efe2ff;border-radius:2.6cqw;
+  background:
+    radial-gradient(circle 1.1px at 18% 22%,#ffffffcc,transparent),radial-gradient(circle .9px at 34% 12%,#e9d5ffb8,transparent),
+    radial-gradient(circle 1.2px at 62% 18%,#fff,transparent),radial-gradient(circle .8px at 80% 30%,#d8b4ffb0,transparent),
+    radial-gradient(circle 1px at 24% 52%,#efe6ffb0,transparent),radial-gradient(circle .9px at 70% 60%,#e2d4ff9e,transparent),
+    radial-gradient(circle 1.1px at 46% 76%,#fff,transparent),radial-gradient(circle .8px at 88% 78%,#cdb6f09e,transparent),
+    radial-gradient(circle .9px at 12% 84%,#d9c8f29e,transparent),radial-gradient(circle 1px at 58% 40%,#fff,transparent),
+    radial-gradient(ellipse 70% 52% at 50% 40%,#a855f72e,transparent 70%),
+    linear-gradient(150deg,#4b25856b,#120a2699 60%,#7c3aed47);
+  box-shadow:inset 0 1px 0 #f3e8ff66,inset 0 0 2.4cqw #c084fc59,0 0 2.4cqw #a855f78c,0 0 5cqw #7c3aed47}
+/* Internal orbital rings: the glass card carries its own miniature starfield. */
+.hero .core::before{content:'';position:absolute;inset:6% 4%;border-radius:inherit;pointer-events:none;
+  border:1px solid #c9a2ff2e;transform:rotate(-7deg);
+  background:radial-gradient(ellipse 60% 34% at 50% 52%,transparent 58%,#b98bf31f 60%,transparent 63%),
+    radial-gradient(ellipse 44% 26% at 50% 50%,transparent 62%,#c9a2ff26 64%,transparent 67%)}
+.hero .getApi{top:80%;padding:1cqw 4cqw!important;font-size:2cqw!important;border-radius:4cqw!important}
+/* Phone: the cqw sizing above must not shrink the pill text on a 390px container. */
+@media(max-width:650px){.hero .getApi{font-size:16px!important;padding:10px 32px!important;border-radius:26px!important;top:auto}}
+/* A shaft of light connects the glass core to the Get API pill and the horizon. */
+.hero .getApi::before{content:'';position:absolute;left:50%;bottom:100%;width:2px;height:9cqw;translate:-50% 0;pointer-events:none;
+  background:linear-gradient(180deg,#f6eaff00,#f6eaffb3 40%,#c084fc66);filter:drop-shadow(0 0 6px #b97bff)}
+.hero .motionControl{opacity:0;transition:opacity .25s;border-color:#a88bd62b!important;background:#17112466!important;color:#cbb9e6}
+.hero .motionControl:hover,.hero .motionControl:focus-visible{opacity:1}
 .hero .orbits g:first-of-type{opacity:.85}
 @keyframes providerJourney{from{offset-distance:var(--phase)}to{offset-distance:calc(var(--phase) + 100%)}}
 @keyframes providerBreath{0%,100%{opacity:.62}50%{opacity:1}}
@@ -72,17 +151,24 @@
  }
  .hero .core{animation:providerFloat 6s ease-in-out infinite}
  .hero .coreLight,.hero .mark,.hero .orbits circle,.hero .brand i{animation:providerBreath 6s ease-in-out infinite}
- .hero::before,.hero::after{animation:providerStars 6s ease-in-out infinite}
+ .hero .sky::before,.hero .sky::after{animation:providerStars 6s ease-in-out infinite}
  .hero[data-paused=true] *,.hero[data-motion-active=false] *,.hero[data-paused=true]::before,.hero[data-paused=true]::after,.hero[data-motion-active=false]::before,.hero[data-motion-active=false]::after{animation-play-state:paused!important}
  :global([data-cosmic-reduced]) .hero *,:global([data-cosmic-reduced]) .hero::before,:global([data-cosmic-reduced]) .hero::after{animation:none!important}
 }
 @media(max-width:650px){
  .hero .title h1{font-size:clamp(25px,7cqw,38px)!important}
  .hero .brand{font-size:21px}.hero .brand span{font-size:11px}
- .hero .core{top:auto;height:166px;transform:none}
- .hero .sphere{width:40px;height:40px}
+ .hero .core{top:auto;height:166px;transform:none} .hero .sphere{width:40px;height:40px}
  .hero .node span:last-child{font-size:11px!important}
  .hero .motionControl{display:none}
+ /* Narrow screens keep the same drawn sky: the limb rises closer to the edge
+    and the nebula bank compresses so nothing is cropped mid-cloud. */
+ .hero .limb{left:-32%;right:-32%;bottom:calc(-1*clamp(58px,14cqw,86px));height:clamp(120px,32cqw,170px)}
+ .hero .sky{background:
+  radial-gradient(ellipse 34% 12% at 74% 5%,#c084fc6b,transparent 70%),
+  radial-gradient(ellipse 26% 20% at 100% 34%,#9333ea5e,transparent 70%),
+  radial-gradient(ellipse 34% 14% at 12% 6%,#6d28d929,transparent 72%),
+  radial-gradient(ellipse 90% 22% at 50% 104%,#5830a85c,transparent 66%)}
 }
 .authFeedback{position:fixed;inset:0;z-index:1000;pointer-events:none;display:grid;place-items:center}
 .authFeedback>svg{position:absolute;inset:0;width:100%;height:100%;animation:authBolt 1.45s ease-out both}

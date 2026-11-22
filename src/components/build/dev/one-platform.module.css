@@ -11,60 +11,62 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: clamp(640px, calc(100dvh - 150px), 1000px);
+  min-height: 100dvh;
   margin-inline: calc(-1 * var(--dev-content-pad, 32px));
-  padding: 26px 24px 0;
+  /* The field ends above the horizon like the reference: the Control card
+     rests over the limb, never on the viewport edge. */
+  padding: 34px 24px clamp(110px, 13vh, 150px);
   text-align: center;
 }
-/* Layered nebula: two violet cloud banks up high, one magenta bloom low.
-   The seeded starfield canvas (dev-cosmic-field) paints the stars above it. */
+/* The reference sky is near-black between the cloud banks; the veil is the
+   FIRST layer of the same background so the corner banks survive. A painted
+   gradient is used instead of a mask: the mask forces an extra offscreen
+   buffer on every Build page and costs more than the veil. */
 .nebula {
   position: absolute;
   z-index: -3;
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 26% 22% at 6% 7%, rgba(124, 58, 237, .38), transparent 62%),
-    radial-gradient(ellipse 13% 11% at 13% 15%, rgba(216, 180, 254, .2), transparent 68%),
-    radial-gradient(ellipse 26% 24% at 95% 10%, rgba(147, 51, 234, .36), transparent 60%),
-    radial-gradient(ellipse 12% 10% at 90% 20%, rgba(196, 132, 252, .16), transparent 68%),
-    radial-gradient(ellipse 16% 20% at 97% 58%, rgba(126, 34, 206, .14), transparent 66%),
-    radial-gradient(ellipse 18% 18% at 2% 72%, rgba(109, 40, 217, .16), transparent 66%),
+    radial-gradient(ellipse 60% 50% at 50% 56%, rgba(7, 5, 14, .5), transparent 74%),
+    radial-gradient(ellipse 20% 16% at 2% 2%, rgba(139, 70, 245, .55), transparent 62%),
+    radial-gradient(ellipse 10% 8% at 12% 12%, rgba(216, 180, 254, .34), transparent 66%),
+    radial-gradient(ellipse 20% 18% at 99% 6%, rgba(158, 62, 240, .52), transparent 60%),
+    radial-gradient(ellipse 9% 8% at 89% 19%, rgba(196, 132, 252, .3), transparent 66%),
+    radial-gradient(ellipse 14% 20% at 101% 60%, rgba(134, 44, 216, .34), transparent 64%),
+    radial-gradient(ellipse 16% 18% at -1% 76%, rgba(120, 48, 226, .36), transparent 64%),
+    radial-gradient(ellipse 10% 9% at 7% 93%, rgba(180, 110, 250, .26), transparent 68%),
+    radial-gradient(ellipse 10% 9% at 93% 91%, rgba(170, 100, 248, .24), transparent 68%),
     radial-gradient(ellipse 78% 40% at 50% 112%, rgba(109, 40, 217, .5), transparent 62%);
 }
 /* The reference's nebula is streaked, not blobbed: two diagonal cloud banks
    (upper-left and right edge) drawn as elongated rotated gradients. */
 .nebula::before, .nebula::after { content: ''; position: absolute; inset: -22%; pointer-events: none; }
+/* Streaks brightened: the reference banks read as lit dust lanes, not haze. */
 .nebula::before {
   transform: rotate(-24deg);
   background:
-    radial-gradient(ellipse 46% 7% at 24% 30%, rgba(168, 85, 247, .14), transparent 70%),
-    radial-gradient(ellipse 30% 4% at 18% 36%, rgba(216, 180, 254, .1), transparent 72%),
-    radial-gradient(ellipse 40% 6% at 30% 24%, rgba(124, 58, 237, .12), transparent 70%);
+    radial-gradient(ellipse 46% 7% at 24% 30%, rgba(168, 85, 247, .24), transparent 70%),
+    radial-gradient(ellipse 30% 4% at 18% 36%, rgba(216, 180, 254, .18), transparent 72%),
+    radial-gradient(ellipse 40% 6% at 30% 24%, rgba(124, 58, 237, .2), transparent 70%);
 }
 .nebula::after {
   transform: rotate(28deg);
   background:
-    radial-gradient(ellipse 42% 7% at 78% 34%, rgba(147, 51, 234, .12), transparent 70%),
-    radial-gradient(ellipse 26% 4% at 84% 42%, rgba(196, 132, 252, .08), transparent 72%),
-    radial-gradient(ellipse 34% 5% at 72% 58%, rgba(126, 34, 206, .08), transparent 70%);
-}
-/* The reference sky is near-black between the cloud banks; this veil keeps
-   the violet concentrated at the corners instead of washing the middle. */
-.nebula {
-  -webkit-mask-image: radial-gradient(ellipse 120% 100% at 50% 55%, rgba(0,0,0,.55) 30%, #000 78%);
-  mask-image: radial-gradient(ellipse 120% 100% at 50% 55%, rgba(0,0,0,.55) 30%, #000 78%);
+    radial-gradient(ellipse 42% 7% at 78% 34%, rgba(147, 51, 234, .22), transparent 70%),
+    radial-gradient(ellipse 26% 4% at 84% 42%, rgba(196, 132, 252, .16), transparent 72%),
+    radial-gradient(ellipse 34% 5% at 72% 58%, rgba(126, 34, 206, .16), transparent 70%);
 }
 .brand { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 0; color: #fff; font-size: 22px; font-weight: 700; letter-spacing: -.01em; }
 .brand i { width: 9px; height: 9px; border-radius: 50%; background: #fff; box-shadow: 0 0 14px 4px #b57aff; }
 .brand span { font-size: 12px; font-weight: 400; letter-spacing: .38em; color: #cbb9e6; }
-.title { margin: 8px 0 0; color: #faf7ff; font-size: clamp(44px, 5.6vw, 84px); font-weight: 500; letter-spacing: -.025em; line-height: 1.04; text-shadow: 0 0 34px rgba(196, 132, 252, .35); }
-.lede { margin: 10px 0 0; color: #cfc0e8; font-size: clamp(16px, 1.8vw, 25px); letter-spacing: .01em; }
-.lede b { color: #a78bda; padding: 0 12px; font-weight: 400; }
+.title { margin: 10px 0 0; color: #faf7ff; font-size: clamp(48px, 6.4vw, 104px); font-weight: 500; letter-spacing: -.03em; line-height: 1.02; text-shadow: 0 0 40px rgba(196, 132, 252, .4); }
+.lede { margin: 14px 0 0; color: #cfc0e8; font-size: clamp(17px, 2vw, 30px); letter-spacing: .02em; }
+.lede b { color: #a78bda; padding: 0 16px; font-weight: 400; }
 
 /* The constellation occupies the remaining scene height; card coordinates
    below are percentages measured against reference 82227. */
-.field { position: relative; z-index: 1; width: min(1360px, 100%); flex: 1; min-height: 520px; margin-top: 10px; }
+.field { position: relative; z-index: 1; width: min(1360px, 100%); flex: 1; min-height: 520px; margin-top: 18px; }
 .orbits { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; pointer-events: none; filter: drop-shadow(0 0 3px rgba(157, 104, 230, .55)); }
 .core {
   position: absolute;
@@ -76,15 +78,24 @@
   aspect-ratio: 1;
   border-radius: 50%;
   background:
-    radial-gradient(circle at 50% 30%, rgba(109, 59, 189, .5), rgba(20, 10, 42, .94) 66%),
-    radial-gradient(circle at 50% 104%, rgba(168, 85, 247, .34), transparent 58%);
-  border: 1.5px solid rgba(233, 213, 255, .72);
+    radial-gradient(circle at 50% 34%, rgba(72, 40, 132, .3), rgba(10, 6, 24, .93) 62%),
+    radial-gradient(circle at 50% 104%, rgba(168, 85, 247, .36), transparent 52%);
+  border: 2px solid rgba(240, 224, 255, .92);
   box-shadow:
-    inset 0 0 44px rgba(168, 85, 247, .4),
-    inset 0 -18px 40px rgba(147, 51, 234, .3),
-    0 0 60px rgba(168, 85, 247, .5),
-    0 12px 90px rgba(139, 79, 217, .38),
-    0 0 120px rgba(109, 40, 217, .22);
+    inset 0 0 22px rgba(216, 180, 254, .42),
+    inset 0 0 52px rgba(120, 60, 200, .22),
+    inset 0 -18px 40px rgba(168, 85, 247, .3),
+    0 0 44px rgba(196, 132, 252, .6);
+}
+/* The wide bloom is a gradient, not a 120px shadow: gradients paint far
+   cheaper in software rendering and read the same on screen. */
+.core::after {
+  content: '';
+  position: absolute;
+  inset: -34%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 52%, rgba(139, 79, 217, .34), rgba(109, 40, 217, .16) 42%, transparent 68%);
 }
 .core::before {
   content: '';
@@ -96,7 +107,7 @@
 }
 .coreBtn { font: inherit; color: inherit; cursor: pointer; appearance: none; }
 .coreBtn:hover, .coreBtn:focus-visible { border-color: #ecd9ff; box-shadow: inset 0 0 50px rgba(168, 85, 247, .5), inset 0 -18px 40px rgba(147, 51, 234, .34), 0 0 70px rgba(139, 79, 217, .7), 0 0 150px rgba(109, 40, 217, .42); }
-.mark { position: absolute; top: 40%; left: 50%; translate: -50% -50%; width: 46%; filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 10px #b67cff) drop-shadow(0 0 26px rgba(182, 124, 255, .65)); }
+.mark { position: absolute; top: 40%; left: 50%; translate: -50% -50%; width: 48%; filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 8px #d8b4fe) drop-shadow(0 0 22px rgba(200, 150, 255, .85)); }
 .coreLabel { position: absolute; bottom: 16%; left: 0; right: 0; text-align: center; color: #fff; font-size: clamp(14px, 1.4vw, 19px); font-weight: 700; letter-spacing: .06em; }
 .coreLabel small { font-weight: 400; letter-spacing: .26em; color: #d9c8f2; }
 
@@ -155,17 +166,20 @@
 .cardText { display: grid; gap: 4px; min-width: 0; }
 .cardText strong { font-size: 16px; font-weight: 700; letter-spacing: .01em; }
 .cardText small { color: #c9b7e5; font-size: 12.5px; line-height: 1.5; }
-/* Reference positions, measured on 82227 (fractions of the constellation). */
-.apps { left: 50%; top: 1%; translate: -50% 0; }
-.discovery { left: 9.5%; top: 15%; }
-.routing { right: 9.5%; top: 15%; }
-.providers { left: 2%; top: 41%; }
-.docs { right: 2%; top: 41%; }
-.services { left: 9%; top: 66%; }
-.deployments { right: 9%; top: 66%; }
-.control { left: 50%; top: 82%; translate: -50% 0; }
+/* Reference positions, measured on 01_One_Platform.png (fractions of the
+   constellation field, core centred like the orbit ellipses). */
+.apps { left: 50%; top: 0; translate: -50% 0; }
+.discovery { left: 9.5%; top: 12%; }
+.routing { right: 9.5%; top: 12%; }
+.providers { left: 2%; top: 38%; }
+.docs { right: 2%; top: 38%; }
+.services { left: 9%; top: 62%; }
+.deployments { right: 9%; top: 62%; }
+.control { left: 50%; top: 80%; translate: -50% 0; }
 
-/* Earth horizon: the reference's planet limb, drawn as layered gradients. */
+/* Earth horizon: the reference's planet limb, drawn as layered gradients.
+   The bright atmospheric rim hugs the arc; the surface below is near-black
+   with city lights, exactly like the reference's night-side Earth. */
 .limb {
   position: absolute;
   z-index: 0;
@@ -174,12 +188,26 @@
   bottom: calc(-1 * clamp(110px, 12vw, 170px));
   height: clamp(230px, 24vw, 330px);
   border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-  border-top: 2px solid rgba(240, 224, 255, .85);
+  border-top: 2px solid rgba(248, 236, 255, .95);
   background:
-    radial-gradient(ellipse 30% 30% at 50% 0%, rgba(226, 196, 255, .6), transparent 72%),
-    radial-gradient(ellipse 90% 90% at 50% -6%, rgba(96, 54, 182, .6), rgba(8, 5, 18, .98) 60%),
-    #08050f;
-  box-shadow: 0 -16px 50px rgba(206, 148, 255, .6), 0 -50px 140px rgba(139, 79, 217, .45), inset 0 30px 70px rgba(168, 85, 247, .26);
+    radial-gradient(ellipse 22% 14% at 50% 0%, rgba(240, 218, 255, .9), transparent 78%),
+    radial-gradient(ellipse 58% 20% at 50% -2%, rgba(168, 85, 247, .4), transparent 80%),
+    radial-gradient(ellipse 96% 96% at 50% -10%, rgba(44, 24, 88, .4), rgba(5, 3, 12, .99) 42%),
+    #05030c;
+  box-shadow: 0 -8px 28px rgba(226, 196, 255, .65), inset 0 12px 30px rgba(196, 132, 252, .22);
+  pointer-events: none;
+}
+/* The tall atmospheric bloom is painted, not blurred: a radial gradient over
+   the limb replaces the 140px shadow that dominated software paint time. */
+.limb::after {
+  content: '';
+  position: absolute;
+  left: -6%;
+  right: -6%;
+  bottom: 55%;
+  height: 150%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse 56% 34% at 50% 100%, rgba(168, 85, 247, .42), transparent 74%);
   pointer-events: none;
 }
 .limb::before {
@@ -234,13 +262,14 @@
   .deployments { right: 4%; }
 }
 /* Phone and small tablet: one column, core first — the same scene
-   re-composed, still one card. */
+   re-composed, still one card. The bottom pad keeps the horizon visible
+   under the last cards instead of pushing it off-screen. */
 @media (max-width: 760px) {
-  .scene { min-height: 0; padding: 22px 16px 0; margin-inline: calc(-1 * var(--dev-content-pad, 20px)); }
+  .scene { min-height: 0; padding: 22px 16px clamp(120px, 26vw, 170px); margin-inline: calc(-1 * var(--dev-content-pad, 20px)); }
   .title { font-size: clamp(38px, 11vw, 52px); }
   .lede { font-size: 15px; }
   .lede b { padding: 0 7px; }
-  .field { display: flex; flex-direction: column; align-items: center; min-height: 0; margin-top: 18px; padding-bottom: clamp(96px, 24vw, 150px); }
+  .field { display: flex; flex-direction: column; align-items: center; min-height: 0; margin-top: 18px; padding-bottom: 0; }
   .orbits { display: none; }
   .core { position: relative; left: auto; top: auto; translate: none; width: min(230px, 66vw); order: -1; }
   .cards { position: static; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; margin-top: 22px; }

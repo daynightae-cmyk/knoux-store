@@ -101,6 +101,8 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
         <dl className="dev-sidebar__facts"><dt>ADAPTER STATUS</dt><dd>{facts.adapter}</dd><dt>PROJECT STATUS</dt><dd>{facts.project}</dd><dt>ENVIRONMENT</dt><dd>{facts.environment}</dd></dl>
       </aside>
       <div className="dev-shell__stage" inert={navOpen}>
+        <div className="dev-drawn-sky" aria-hidden="true" />
+        <div className="dev-drawn-limb" aria-hidden="true" />
         <BuildAtmosphere reduced={state.preferences.motion === 'reduced'} />
         <LivingMark />
         {pathname === '/build/engineering' && <EngineeringSky reducedMotion={state.preferences.motion === 'reduced'} />}

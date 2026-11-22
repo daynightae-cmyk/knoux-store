@@ -1,6 +1,5 @@
 :global(.dev-shell__stage):has(.router) {
-  background: linear-gradient(90deg, #090811b8, #0b081942 65%, #09071160),
-    url('/creative/build-v3-engineering.webp') center bottom / cover no-repeat;
+  background: linear-gradient(90deg, #090811b8, #0b081942 65%, #09071160);
 }
 .router { min-width: 0; }
 .router :global(.dev-page-heading) > p { max-width: 68ch; }

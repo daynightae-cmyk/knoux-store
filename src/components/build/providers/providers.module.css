@@ -32,7 +32,7 @@
 .standalone .notice { padding: 0; border: 0; margin: 0 0 8px; font-size: 12px; line-height: 1.5; }
 .standalone.center.center .filters > button { padding-inline: 8px; }
 :global(.dev-shell__stage):has(.standalone) {
-  background: linear-gradient(90deg, #0908109c, #0b081212 48%, #0b08122b), url('/creative/build-v3-providers.webp') center bottom / cover no-repeat;
+  background: linear-gradient(90deg, #0908109c, #0b081212 48%, #0b08122b);
 }
 
 .center .detail {
@@ -87,7 +87,7 @@
 
 @media (max-width: 650px) {
   :global(.dev-shell__stage):has(.standalone) {
-    background-image: linear-gradient(#090810b8, #090810a8), url('/creative/build-v3-providers.webp');
+    background-image: linear-gradient(#090810b8, #090810a8);
   }
 }
 
@@ -275,4 +275,14 @@
  /* The stage scrolls as one page so the hero is never clipped by an inner scroller. */
  :global(.dev-cinematic):has(.standalone) :global(.dev-shell__stage){overflow-y:auto;scrollbar-width:thin;scrollbar-color:#343443 transparent}
  :global(.dev-cinematic):has(.standalone) :global(.dev-shell__content){overflow:visible;flex:none}
+ /* The reference is one full-bleed card: no status rail, no second particle mark.
+    Management below the hero keeps its own headings and controls. */
+ :global(.dev-cinematic):has(.standalone) :global(.dev-status-rail),
+ :global(.dev-cinematic):has(.standalone) :global(.dev-living-mark){display:none}
+}
+/* Phone keeps the slim top bar as the only way back, but the status rail and
+   the second particle mark never belong to the reference card. */
+@media(max-width:1024px){
+ :global(.dev-cinematic):has(.standalone) :global(.dev-status-rail),
+ :global(.dev-cinematic):has(.standalone) :global(.dev-living-mark){display:none}
 }

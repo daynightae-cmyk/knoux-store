@@ -1,6 +1,5 @@
 :global(.dev-shell__stage):has(.discovery) {
-  background: linear-gradient(100deg, #080811b0, #0b081738 65%, #100b1a72),
-    url('/creative/build-v3-providers.webp') center bottom / cover no-repeat;
+  background: linear-gradient(100deg, #080811b0, #0b081738 65%, #100b1a72);
 }
 
 :global(.dev-cinematic) .discovery:global(.dev-route) {

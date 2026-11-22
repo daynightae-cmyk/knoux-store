@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { ACTIVATION_DURATION_MS, activationPhase, cueAtmosphere, lightningBranches, listenAtmosphere, seededRandom, type ActivationPhase, type LightningPoint } from './living-atmosphere';
 
 type Star = { x: number; y: number; depth: number; phase: number; cadence: number };
+type Planet = { x: number; y: number; depth: number; radius: number; tone: [number, number, number]; ring: boolean; drift: number; phase: number };
 type Sky = {
   width: number; height: number; time: number; storm: number; nextStorm: number;
   pendingWake: boolean; cloudX: number; cloudY: number; branches: LightningPoint[][];
@@ -41,6 +42,38 @@ function starfield(ctx: CanvasRenderingContext2D, sky: Sky, stars: Star[], energ
     const [endX, endY] = starPosition(other, sky, still);
     ctx.strokeStyle = `rgba(185,147,251,${twinkle * (.13 + energy * .3)})`;
     ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(endX, endY); ctx.stroke();
+  }
+}
+
+function planets(ctx: CanvasRenderingContext2D, sky: Sky, planets: Planet[], still: boolean) {
+  // Small drifting worlds: a lit sphere, a night-side falloff and — for one —
+  // a thin ring. Three gradient fills per frame; cheap enough for phones.
+  const count = sky.width < 700 ? 2 : planets.length;
+  for (let index = 0; index < count; index++) {
+    const planet = planets[index];
+    const drift = still ? 0 : sky.time * planet.drift;
+    const bob = still ? 0 : Math.sin(sky.time * .11 + planet.phase) * 6;
+    const x = ((planet.x + drift * .001) % 1.1) * sky.width - sky.width * .05 + (still ? 0 : sky.offsetX * planet.depth * 1.6);
+    const y = planet.y * sky.height + bob + (still ? 0 : sky.offsetY * planet.depth * 1.6);
+    const radius = planet.radius * Math.min(1, sky.width / 1100 + .45);
+    const [r, g, b] = planet.tone;
+    const body = ctx.createRadialGradient(x - radius * .4, y - radius * .45, radius * .1, x, y, radius);
+    body.addColorStop(0, `rgba(${r + 70},${g + 60},${b + 40},.85)`);
+    body.addColorStop(.55, `rgba(${r},${g},${b},.6)`);
+    body.addColorStop(1, `rgba(${Math.max(0, r - 60)},${Math.max(0, g - 60)},${Math.max(0, b - 40)},.28)`);
+    ctx.fillStyle = body;
+    ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.fill();
+    const glow = ctx.createRadialGradient(x, y, radius * .8, x, y, radius * 2.4);
+    glow.addColorStop(0, `rgba(${r},${g},${b},.12)`);
+    glow.addColorStop(1, `rgba(${r},${g},${b},0)`);
+    ctx.fillStyle = glow;
+    ctx.beginPath(); ctx.arc(x, y, radius * 2.4, 0, Math.PI * 2); ctx.fill();
+    if (planet.ring) {
+      ctx.save(); ctx.translate(x, y); ctx.rotate(-.35);
+      ctx.strokeStyle = `rgba(${r + 40},${g + 30},${b + 60},.34)`; ctx.lineWidth = 1.1;
+      ctx.beginPath(); ctx.ellipse(0, 0, radius * 1.9, radius * .55, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+    }
   }
 }
 
@@ -106,6 +139,11 @@ export function BuildAtmosphere({ reduced }: Readonly<{ reduced: boolean }>) {
     if (!surface || !stage || !ctx) return;
     const motion = matchMedia('(prefers-reduced-motion: reduce)'), random = seededRandom();
     const stars = Array.from({ length: 120 }, () => ({ x: random(), y: random(), depth: .2 + random() * .8, phase: random() * Math.PI * 2, cadence: .34 + random() * .48 }));
+    const worlds: Planet[] = [
+      { x: .13, y: .18, depth: .85, radius: 9, tone: [150, 96, 220], ring: true, drift: .55, phase: random() * 6 },
+      { x: .86, y: .12, depth: .6, radius: 6, tone: [96, 120, 220], ring: false, drift: .8, phase: random() * 6 },
+      { x: .68, y: .52, depth: .4, radius: 4.5, tone: [190, 120, 180], ring: false, drift: 1.1, phase: random() * 6 },
+    ];
     const sky: Sky = { width: 0, height: 0, time: 0, storm: -100, nextStorm: 12 + random() * 8,
       pendingWake: false, cloudX: .83, cloudY: .22, branches: [], trail: -100, nextTrail: 6 + random() * 5,
       trailX: .7, trailY: .13, offsetX: 0, offsetY: 0 };
@@ -149,11 +187,12 @@ export function BuildAtmosphere({ reduced }: Readonly<{ reduced: boolean }>) {
       const energy = phase ? Math.pow(1 - wakeElapsed / ACTIVATION_DURATION_MS, 1.5) : 0;
       const renderStarted = performance.now();
       ctx!.clearRect(0, 0, sky.width, sky.height);
-      nebula(ctx!, sky, energy); starfield(ctx!, sky, stars, energy, still);
+      nebula(ctx!, sky, energy); starfield(ctx!, sky, stars, energy, still); planets(ctx!, sky, worlds, still);
       if (!still) { shootingStar(ctx!, sky); lightning(ctx!, sky, visibleSeconds); activation(ctx!, sky, phase, energy); }
       paintTotal += performance.now() - renderStarted; paints++;
       surface!.dataset.motion = still ? 'stable' : 'animated';
       surface!.dataset.stars = String(sky.width < 700 ? 48 : stars.length);
+      surface!.dataset.planets = String(sky.width < 700 ? 2 : worlds.length);
       surface!.dataset.paints = String(paints);
       surface!.dataset.meanPaintMs = (paintTotal / paints).toFixed(3);
     }
@@ -194,6 +233,6 @@ export function BuildAtmosphere({ reduced }: Readonly<{ reduced: boolean }>) {
       stage.removeEventListener('pointermove', follow); stage.removeEventListener('pointerleave', settle);
     };
   }, [reduced]);
-  // Seven visual layers share one bounded canvas: two star depths, links, nebula, trails, bolts and activation energy.
+  // Eight visual layers share one bounded canvas: two star depths, links, nebula, drifting planets, trails, bolts and activation energy.
   return <canvas ref={canvas} className="dev-cosmic-field" aria-hidden="true" />;
 }

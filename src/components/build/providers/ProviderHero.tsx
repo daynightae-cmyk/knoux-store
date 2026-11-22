@@ -37,6 +37,10 @@ export function ProviderHero({ definitions, selected, onSelect, onGetApi, onBrow
   }, []);
   return <section ref={hero} className={s.hero} data-paused={paused} aria-label="Universal Provider Engine">
     <button type="button" className={s.motionControl} aria-pressed={paused} onClick={()=>setPaused(value=>!value)}>{paused?'Resume orbit':'Pause orbit'}</button>
+    {/* The reference sky is drawn, never photographed: nebula banks, a seeded
+        star field and the planet limb are code layers inside this scene. */}
+    <div className={s.sky} aria-hidden="true" />
+    <div className={s.limb} aria-hidden="true" />
     <div className={s.planet} aria-hidden="true" />
     <Link href="/build" className={s.brand}><i aria-hidden="true" /> <b>KNOuX</b> <span>STORE</span></Link>
     <header className={s.title}><h1>Universal Provider Engine</h1><p>Connect. Discover. Route.</p></header>
@@ -51,6 +55,16 @@ export function ProviderHero({ definitions, selected, onSelect, onGetApi, onBrow
         <ellipse cx="768" cy="813" rx="300" ry="24" opacity=".25"/>
       </g>
       {[[433,389], [649,332], [885,332], [1101,399], [510,519], [1055,534], [531,716], [1009,716], [156,599], [1374,540], [665,614], [916,550]].map(([x,y])=><g key={x}><circle cx={x} cy={y} r="6" fill="#bd76ff" filter="url(#provider-orbit-glow)"/><circle cx={x} cy={y} r="3" fill="#fff"/></g>)}
+      {/* Four-point flares: the reference's brightest sky stars. */}
+      <g stroke="#f4ebff" fill="none">
+        {[[1428, 54, 22], [1497, 561, 15], [1471, 899, 12], [742, 866, 26], [235, 128, 9]].map(([x, y, r]) => (
+          <g key={`flare-${x}`} data-flare="" opacity=".8">
+            <path d={`M${x - r} ${y}h${r * 2}M${x} ${y - r}v${r * 2}`} strokeWidth="1.2" />
+            <path d={`M${x - r * .45} ${y - r * .45}l${r * .9} ${r * .9}M${x + r * .45} ${y - r * .45}l${-r * .9} ${r * .9}`} strokeWidth=".8" opacity=".6" />
+            <circle cx={x} cy={y} r={r * .22} fill="#fff" stroke="none" />
+          </g>
+        ))}
+      </g>
     </svg>
     <div className={s.leftPanel}><button type="button" onClick={onBrowse}><span aria-hidden="true">▱</span> Providers</button>{positions.slice(0,3).map(([id,name])=>{const d=definitions.find(p=>p.id===id); const mark=providerMark(id);return <button key={id} type="button" disabled={!d} onClick={()=>d&&onSelect(d)}>{mark&&<Image src={'/providers/'+mark+'.svg'} alt="" width={23} height={23}/>}<span>{name}</span><span aria-hidden="true">→</span></button>})}</div>
     <div className={s.rightPanel}><Link href="/build/ai/models"><span aria-hidden="true">◇</span> Model Discovery</Link><div aria-hidden="true" className={s.skeleton}>{Array.from({length:4},(_,i)=><i key={i}/>)}</div></div>

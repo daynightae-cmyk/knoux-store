@@ -1,6 +1,5 @@
 :global(.dev-shell__stage):has(.page) {
-  background: linear-gradient(100deg, #090812cc, #0a09148a 62%, #0a061840),
-    url('/creative/build-v3-providers.webp') center bottom / cover no-repeat;
+  background: linear-gradient(100deg, #090812cc, #0a09148a 62%, #0a061840);
 }
 
 .page:global(.dev-route) { --operational-glow: #a572e665; min-width: 0; }

@@ -6,16 +6,31 @@
   background-position: center;
 }
 
-/* The One Platform constellation draws its own nebula, orbits and horizon as
-   code. While it is the entry, the backdrop photo and the second particle
-   mark rest so the scene is exactly the reference — one full-page card. */
+/* While the constellation is the entry, the page is one full-bleed reference
+   card: no workspace sidebar, no top bar, no status rail, no second particle
+   mark. The scene draws its own nebula, orbits and horizon as code. */
 html[data-build-constellation] .dev-cinematic.dev-shell--landing .dev-shell__stage {
   background-image:
     radial-gradient(ellipse 60% 44% at 50% 116%, rgba(76, 52, 168, .28), transparent 64%);
 }
 html[data-build-constellation] .dev-shell--landing .dev-living-mark { display: none; }
+/* The status rail is workspace chrome; the entry card never carries it, phone included. */
+html[data-build-constellation] .dev-shell--landing .dev-status-rail { display: none; }
+/* The constellation draws its own sky and limb inside the scene. */
+html[data-build-constellation] .dev-drawn-sky, html[data-build-constellation] .dev-drawn-limb { display: none; }
 html[data-build-constellation] .dev-cinematic .dev-cosmic-field { opacity: .95; }
-html[data-build-constellation] .dev-cinematic .dev-shell__content { padding-bottom: 0; }
+html[data-build-constellation] .dev-cinematic .dev-shell__content { padding: 0; --dev-content-pad: 0px; }
+/* The reference carries no floating companion; it rests while the constellation
+   is the entry and returns the moment the engineering workspace opens. */
+html[data-build-constellation] .knoux-sentinel[data-knoux-sentinel] { display: none !important; }
+@media (min-width: 1025px) {
+  html[data-build-constellation] .dev-cinematic.dev-shell--landing { padding: 0; }
+  html[data-build-constellation] .dev-cinematic.dev-shell--landing .dev-shell__grid { display: block; max-width: none; }
+  html[data-build-constellation] .dev-cinematic.dev-shell--landing .dev-sidebar,
+  html[data-build-constellation] .dev-cinematic.dev-shell--landing .dev-shell__top,
+  html[data-build-constellation] .dev-cinematic.dev-shell--landing .dev-status-rail { display: none; }
+  html[data-build-constellation] .dev-cinematic.dev-shell--landing .dev-shell__stage { border: 0; border-radius: 0; box-shadow: none; }
+}
 
 .dev-cinematic.dev-shell--landing .dev-stage-head { min-height: 44px; }
 .dev-shell--landing .dev-context-rail { margin: 0 0 8px; }
