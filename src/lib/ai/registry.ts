@@ -15,6 +15,7 @@ import { OpenCodeConsoleV2Adapter } from "./adapters/opencode-console-v2";
 import { OllamaAdapter } from "./adapters/ollama";
 import { LMStudioAdapter } from "./adapters/lm-studio";
 import { CustomOpenAIAdapter } from "./adapters/custom-openai";
+import { VENDOR_CONFIGS, VendorAdapter } from "./adapters/vendors";
 
 import type {
   ProviderHealth,
@@ -54,6 +55,11 @@ export function getRegisteredAdapters(): ProviderAdapter[] {
     new OllamaAdapter(),
     new LMStudioAdapter(),
     new CustomOpenAIAdapter(),
+    // NVIDIA NIM joins the SAME canonical registry — one adapter identity,
+    // Connect-backed credentials on Vercel, env fallback for local dev. The
+    // remaining vendor configs stay defined but unregistered until each one
+    // is individually integrated and verified.
+    new VendorAdapter(VENDOR_CONFIGS.find((config) => config.id === 'nvidia')!),
   ];
   return _adapters;
 }

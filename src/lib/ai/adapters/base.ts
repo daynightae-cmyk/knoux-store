@@ -76,6 +76,13 @@ export type OpenAICompatibleConfig = {
    * NVIDIA_NIM_API_KEY).
    */
   envMode?: 'all' | 'any';
+  /**
+   * Ask OpenAI-dialect streams for a final usage chunk
+   * (`stream_options.include_usage`). Opt-in per vendor: NVIDIA NIM supports
+   * it and without it the terminal measurement is honestly UNKNOWN, while
+   * other vendors may reject the field.
+   */
+  streamUsage?: boolean;
 };
 
 export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
@@ -107,10 +114,15 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
   }
 
   isConfigured(env: Record<string, string | undefined>): boolean {
-    return this.config.requiredEnv.every((name) => {
+    const present = (name: string) => {
       const value = env[name];
       return typeof value === "string" && value.trim().length > 0;
-    });
+    };
+    // `any` treats the declared names as accepted aliases for one credential
+    // (NVIDIA_API_KEY / NVIDIA_NIM_API_KEY); `all` requires every name.
+    return this.config.envMode === "any"
+      ? this.config.requiredEnv.some(present)
+      : this.config.requiredEnv.every(present);
   }
 
   /** Published model identities for vendors without a usable listing endpoint.
@@ -215,6 +227,11 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
         latencyMs: 0,
       };
     }
+    // Vendors whose /models is public prove the credential with one bounded
+    // real completion instead; a 200 listing there authenticates any token.
+    if (this.config.probeStrategy === "completion" && this.config.probeCompletionModel) {
+      return this.probeWithCompletion(env, apiKey, start);
+    }
     try {
       const response = await this.transportFetch(`${this.baseUrl(env)}${this.probePath}`, {
         headers: this.buildHeaders(apiKey),
@@ -248,6 +265,83 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
         authenticated: false,
         detail: "Endpoint unreachable.",
         error: networkError(message),
+        latencyMs,
+      };
+    }
+  }
+
+  /** One real low-token completion as the authentication probe. The listing
+   * endpoint of these vendors answers 200 to any bearer token, so only an
+   * actual inference call separates a valid credential from a fabricated one.
+   * A 404/410 answers "model retired", not "key invalid": the credential was
+   * accepted far enough to route the request, and the failure is reported as
+   * MODEL_NOT_FOUND with the probe model named, never as AUTHENTICATION. */
+  protected async probeWithCompletion(
+    env: Record<string, string | undefined>,
+    apiKey: string,
+    start: number,
+  ): Promise<ProbeResult> {
+    const model = this.config.probeCompletionModel!;
+    try {
+      const response = await this.transportFetch(`${this.baseUrl(env)}/chat/completions`, {
+        method: "POST",
+        headers: this.buildHeaders(apiKey),
+        body: JSON.stringify({
+          model,
+          messages: [{ role: "user", content: "Reply with the single word: ok" }],
+          max_tokens: 8,
+          temperature: 0,
+          stream: false,
+        }),
+        redirect: "error",
+        signal: AbortSignal.timeout(20000),
+        cache: "no-store",
+      });
+      const latencyMs = Date.now() - start;
+      if (response.ok) {
+        // Drain the small body so the connection can be reused; content is
+        // never surfaced from a probe.
+        await response.text().catch(() => null);
+        return {
+          providerId: this.id,
+          authenticated: true,
+          detail: `Authenticated; one-token completion on ${model} answered HTTP ${response.status}.`,
+          error: null,
+          latencyMs,
+        };
+      }
+      const bodyText = await response.text().catch(() => null);
+      if (response.status === 404 || response.status === 410) {
+        return {
+          providerId: this.id,
+          authenticated: false,
+          detail: `Probe model ${model} is unavailable (HTTP ${response.status}); this does not prove the credential invalid.`,
+          error: {
+            category: "MODEL_NOT_FOUND",
+            message: "The probe model is missing or retired.",
+            safeMessage: `Probe model ${model} returned HTTP ${response.status}. Update the probe model; the credential itself was not rejected.`,
+            httpStatus: response.status,
+            providerErrorId: null,
+            retryable: false,
+          },
+          latencyMs,
+        };
+      }
+      return {
+        providerId: this.id,
+        authenticated: false,
+        detail: `Completion probe failed (HTTP ${response.status}).`,
+        error: normalizeError(response.status, bodyText),
+        latencyMs,
+      };
+    } catch (cause) {
+      const latencyMs = Date.now() - start;
+      const message = cause instanceof Error ? cause.message : "Network error";
+      return {
+        providerId: this.id,
+        authenticated: false,
+        detail: "Endpoint unreachable.",
+        error: cause instanceof Error && cause.name === "TimeoutError" ? timeoutError() : networkError(message),
         latencyMs,
       };
     }
@@ -575,6 +669,8 @@ export abstract class OpenAICompatibleAdapter implements ProviderAdapter {
       messages,
       stream,
     };
+    if (stream && this.config.streamUsage)
+      body.stream_options = { include_usage: true };
     if (request.controls?.temperature !== undefined)
       body.temperature = request.controls.temperature;
     if (request.controls?.topP !== undefined)

@@ -13,6 +13,7 @@ import type { ProviderProfile } from './types';
 import { validIdentifier } from './policy';
 import { checkRequestOrigin, publicRequestOrigin } from '../../contact/intake-guard';
 import { persistRuntimeEvidence } from './runtime-evidence';
+import { hydrateNvidiaEnvironment } from './nvidia-connect';
 export function environmentContext(env: Record<string, string | undefined> = process.env): ProviderRuntimeContext {
     return { namespace: 'legacy-environment', env: { ...env }, disabled: new Set(), manualOnly: new Set(), modelAllowlists: new Map(), seedModels: new Map(), seedHealth: new Map(), profileIds: new Map(), profileRevisions: new Map() };
 }
@@ -120,6 +121,10 @@ export async function providerRequest(request: NextRequest, scope: string, handl
         }
     }
     context.authorizedRequest = request;
+    // NVIDIA NIM: fill the request-scoped credential from Vercel Connect on
+    // deployments, or the server environment locally. A scoped vault/ENV
+    // profile credential is preserved; global process.env is never mutated.
+    if (!context.disabled.has('nvidia')) await hydrateNvidiaEnvironment(context.env, process.env);
     return withProviderRuntime(context, async () => {
         const response = await handler(request);
         if (response.body && response.headers.get('content-type')?.includes('text/event-stream')) {

@@ -37,6 +37,35 @@
 .dev-cinematic .dev-floating-compose textarea{font-size:16px;min-height:100px}
 .dev-cinematic .dev-quick-intents button,.dev-cinematic .dev-stage-views button,.dev-cinematic .dev-compose-modes :is(span,button,a){font-size:11px}
 .dev-cinematic .dev-intent-reading,.dev-cinematic .dev-access-note{font-size:13px}
+/* KNOUX product modes — PRO first, Standard second. Glassy selector cards in
+   the existing violet observatory palette; pressed state is luminous, never
+   a fabricated availability claim. */
+.dev-knoux-modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 16px;text-align:left}
+.dev-knoux-mode{display:grid;gap:6px;align-content:start;padding:14px 16px;min-height:44px;border:1px solid #c9a2ff2e;border-radius:12px;background:linear-gradient(150deg,#1a142680,#0e0f1866);backdrop-filter:blur(10px);color:#d9d2e6;cursor:pointer;transition:border-color .25s ease,box-shadow .25s ease,transform .25s ease;text-align:left}
+.dev-knoux-mode:hover:not(:disabled){border-color:#c9a2ff66;transform:translateY(-1px)}
+.dev-knoux-mode:disabled{opacity:.55;cursor:default}
+.dev-knoux-mode[aria-pressed=true]{border-color:#c9a2ff99;box-shadow:0 0 0 1px #c9a2ff33,0 8px 32px -12px #a678e055,inset 0 1px 0 #ffffff14;background:linear-gradient(150deg,#2a1d3f99,#131022b3)}
+.dev-knoux-mode__name{font-size:14px;font-weight:600;letter-spacing:.06em;color:#f1e7ff}
+.dev-knoux-mode[aria-pressed=true] .dev-knoux-mode__name{color:#e9d5ff;text-shadow:0 0 18px #c07cff66}
+.dev-knoux-mode__desc{font-size:11px;line-height:1.5;color:#b4a4ca}
+.dev-knoux-mode__roles{font:9px var(--font-mono,monospace);letter-spacing:.08em;color:#9d8bbd;overflow-wrap:anywhere}
+@media(max-width:600px){.dev-knoux-modes{grid-template-columns:1fr}}
+/* PRO role ledger — only real terminal measurements are rendered. */
+.dev-pro-ledger{margin:14px 0;padding:16px 18px;border:1px solid #c9a2ff26;border-radius:12px;background:#120f1cd9;backdrop-filter:blur(8px);text-align:left}
+.dev-pro-ledger ol{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+.dev-pro-ledger li{display:grid;grid-template-columns:minmax(90px,auto) auto 1fr;gap:4px 14px;align-items:baseline;padding:8px 10px;border:1px solid #ffffff12;border-radius:8px;background:#ffffff05;font-size:12px}
+.dev-pro-ledger li[data-status=COMPLETE]{border-color:#8fd6a440}
+.dev-pro-ledger li[data-status=FAILED]{border-color:#e08f9c55}
+.dev-pro-ledger li[data-status=CANCELLED]{opacity:.7}
+.dev-pro-ledger__role{font-weight:600;color:#ece8f1}
+.dev-pro-ledger__state{font:9px var(--font-mono,monospace);letter-spacing:.12em;color:#b4a4ca}
+.dev-pro-ledger li[data-status=COMPLETE] .dev-pro-ledger__state{color:#9fdcae}
+.dev-pro-ledger li[data-status=FAILED] .dev-pro-ledger__state{color:#eba3ae}
+.dev-pro-ledger__runtime{color:#c9c0d5;overflow-wrap:anywhere}
+.dev-pro-ledger__measure{grid-column:1/-1;font:10px var(--font-mono,monospace);color:#9d8bbd}
+.dev-pro-ledger__error{grid-column:1/-1;color:#eba3ae;font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+@media(max-width:600px){.dev-pro-ledger li{grid-template-columns:1fr auto}.dev-pro-ledger__runtime{grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){.dev-knoux-mode{transition:none}.dev-knoux-mode:hover:not(:disabled){transform:none}}
 .dev-composer-routing{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:16px;text-align:left}
 .dev-composer-routing label{display:grid;gap:6px;color:#c9c0d5;font-size:11px;flex:1;min-width:140px}
 .dev-composer-routing select,.dev-composer-routing button{padding:10px;border:1px solid #ffffff25;background:#11131c;color:#e9e3f0;border-radius:6px;font-size:12px;max-width:100%}
