@@ -14,6 +14,14 @@ for (const [width,height] of widths) test(`generator visual contract ${width}x${
   const shots: string[] = [];
   const capture = async (state: string) => { const file = path.join(directory, `${state}.png`); await page.screenshot({path:file}); shots.push(path.relative(process.cwd(),file).replaceAll('\\','/')); expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true); };
   await page.goto('/build'); await expect(page.locator('.dev-engine')).toHaveAttribute('data-stage','LISTENING'); await capture('idle-auto');
+  // Product invariant: KNOUX PRO is the default and renders first. This
+  // contract measures the single-pass lifecycle, so it selects Standard
+  // explicitly; the five-pass PRO chain is covered by the unit harness.
+  const modes = page.getByRole('group', { name: 'KNOUX build mode' });
+  await expect(modes.locator('button').first()).toHaveAttribute('data-mode', 'PRO');
+  await expect(modes.locator('[data-mode="PRO"]')).toHaveAttribute('aria-pressed', 'true');
+  await modes.locator('[data-mode="STANDARD"]').click();
+  await expect(modes.locator('[data-mode="STANDARD"]')).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('button',{name:/^Choose model/}).click(); const search=page.getByRole('combobox',{name:'Search model or provider'}); await search.fill('gemini'); if(width<=640){const popupWidth=await search.locator('..').evaluate(element=>element.getBoundingClientRect().width);expect(popupWidth).toBeGreaterThan(width*.8);} await capture('navigator-search'); await search.press('ArrowDown'); await search.press('Enter');
   await expect(page.getByRole('button',{name:/^Choose model/})).toHaveAccessibleName(/gemini \/ Thinking/);
   for (const profile of ['FAST','BALANCED','DEEP','MAX']) { const radio=page.getByRole('radio',{name:profile,exact:true}); await radio.check(); const target=await radio.locator('..').evaluate(element=>{const r=element.getBoundingClientRect();return {width:r.width,height:r.height};}); expect(target.width).toBeGreaterThanOrEqual(44);expect(target.height).toBeGreaterThanOrEqual(44); await capture(`manual-${profile.toLowerCase()}`); }
