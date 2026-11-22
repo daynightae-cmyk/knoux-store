@@ -182,7 +182,9 @@ export function GeneratedProjectExecution({ artifact, onReceipt, compact = false
     }
   }
 
-  const build = receipt?.compiled.build;
+  // Receipts arrive from the trusted host, but a malformed or legacy record
+  // must degrade to "unknown", never crash the review surface.
+  const build = receipt?.compiled?.build ?? receipt?.build ?? null;
   const exportReceipt = receipt?.export ?? receipt?.bundle;
   const deployReceipt = receipt?.deploy;
 
@@ -240,7 +242,7 @@ export function GeneratedProjectExecution({ artifact, onReceipt, compact = false
         {receipt ? (
           <div className={styles.executionReceipt} data-state={receipt.state}>
             <p><strong>{RECEIPT_LABELS[receipt.state]}</strong> · external reference <code>{receipt.externalReference}</code></p>
-            {receipt.compiled.files?.length ? <p>{receipt.compiled.files.length} verified files · {byteLabel(receipt.compiled.bytes)} written{receipt.bundle ? ` · bundle SHA-256 {receipt.bundle.sha256}` : ''}</p> : null}
+            {receipt.compiled?.files?.length ? <p>{receipt.compiled.files.length} verified files · {byteLabel(receipt.compiled.bytes)} written{receipt.bundle ? ` · bundle SHA-256 {receipt.bundle.sha256}` : ''}</p> : null}
 
             {build && (
               <details className={styles.executionStage} open>
@@ -291,7 +293,7 @@ export function GeneratedProjectExecution({ artifact, onReceipt, compact = false
             {receipt.preview?.url ? <p><a href={receipt.preview.url} target="_blank" rel="noreferrer">Open live preview in a new tab ↗</a></p> : null}
             {live && canEmbed && receipt.preview?.url ? <iframe className={styles.executionPreviewFrame} src={receipt.preview.url} title="Generated application live preview" sandbox="allow-scripts" /> : null}
             {!live && receipt.state !== 'validating' && receipt.state !== 'built' && receipt.state !== 'exported' ? <p className={styles.executionMeta}>No preview process is claimed while this receipt is {receipt.state}.</p> : null}
-            {!receipt.compiled.files?.length && receipt.state === 'failed' ? <p className={styles.executionMeta}>No files were confirmed as written by this receipt.</p> : null}
+            {!receipt.compiled?.files?.length && receipt.state === 'failed' ? <p className={styles.executionMeta}>No files were confirmed as written by this receipt.</p> : null}
           </div>
         ) : <p className={styles.executionMeta}>No generated files have been written for this proposal.</p>}
       </div>

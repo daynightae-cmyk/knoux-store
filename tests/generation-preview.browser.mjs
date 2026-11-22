@@ -27,6 +27,14 @@ try {
     await page.goto(`${baseURL}/build`);
     await expect(page.getByText('Reading canonical model metadata…', { exact: true })).toHaveCount(0);
     await expect(page.locator('.dev-engine')).toHaveAttribute('data-stage', 'LISTENING');
+    // Product invariant: KNOUX PRO is the default and renders first; this
+    // contract measures the single-pass lifecycle, so it selects Standard
+    // explicitly. The five-pass PRO chain is covered by the unit harness.
+    const modes = page.getByRole('group', { name: 'KNOUX build mode' });
+    await expect(modes.locator('button').first()).toHaveAttribute('data-mode', 'PRO');
+    await expect(modes.locator('[data-mode="PRO"]')).toHaveAttribute('aria-pressed', 'true');
+    await modes.locator('[data-mode="STANDARD"]').click();
+    await expect(modes.locator('[data-mode="STANDARD"]')).toHaveAttribute('aria-pressed', 'true');
     await page.getByLabel('Describe what you want to build', { exact: true }).fill('Explicit test-only lifecycle requirement');
     await page.getByRole('button', { name: 'Generate engineering plan', exact: true }).click();
     await prepareEntered;
@@ -127,12 +135,18 @@ async function generatedProjectScenario() {
     let appliedBody = null;
     let operationId = null;
     const preview = { url: 'about:blank', origin: 'http://127.0.0.1:4555', processId: 4242, httpStatus: 200, readinessMs: 5, expiresAt: '2026-11-19T00:15:00Z', blocker: null };
+    // The current GeneratedRuntimeReceipt contract: nested source/compiled
+    // receipts plus the legacy top-level aliases the surfaces still read.
+    const compiledFiles = [{ path: 'index.html', bytes: 158, sha256: 'b'.repeat(64) }, { path: 'assets/app.js', bytes: 68, sha256: 'c'.repeat(64) }];
+    const buildReceipt = { command: 'knoux-static-validate@1 · no shell', exitCode: 0, status: 'passed', evidence: 'Fixture only.', durationMs: null };
+    const exportReceipt = { path: 'artifacts/knoux-static-app.zip', bytes: 320, sha256: 'e'.repeat(64), format: 'zip', durationMs: null };
     const receipt = (state, patch = {}) => ({
       operationId, ownerId: 'fixture-owner', kind: 'static-web', planSha256: 'a'.repeat(64), state,
-      files: [{ path: 'index.html', bytes: 158, sha256: 'b'.repeat(64) }, { path: 'assets/app.js', bytes: 68, sha256: 'c'.repeat(64) }],
-      bytes: 226, sourceSha256: 'd'.repeat(64),
-      build: { command: 'knoux-static-validate@1 · no shell', exitCode: 0, status: 'passed', evidence: 'Fixture only.', durationMs: null },
-      bundle: { path: 'artifacts/knoux-static-app.zip', bytes: 320, sha256: 'e'.repeat(64) },
+      sourceSha256: 'd'.repeat(64),
+      source: { bytes: 226, sha256: 'd'.repeat(64), files: compiledFiles },
+      compiled: { bytes: 226, sha256: 'f'.repeat(64), files: compiledFiles, build: buildReceipt },
+      files: compiledFiles, bytes: 226, build: buildReceipt,
+      export: exportReceipt, bundle: exportReceipt, deploy: null,
       preview, externalReference: `generated-static:${operationId}`,
       createdAt: '2026-11-19T00:00:00Z', updatedAt: '2026-11-19T00:00:01Z', error: null, ...patch,
     });
@@ -147,6 +161,9 @@ async function generatedProjectScenario() {
       return route.fulfill({ json: { receipt: receipt('cancelled', { preview: { ...preview, processId: null, blocker: 'Preview stopped by the operator.' } }) } });
     });
     await page.goto(`${baseURL}/build`);
+    // This scenario measures the review/apply receipt contract, not the PRO
+    // chain; select the single-pass mode so the fixture answers one stream.
+    await page.getByRole('group', { name: 'KNOUX build mode' }).locator('[data-mode="STANDARD"]').click();
     await page.getByLabel('Describe what you want to build', { exact: true }).fill('Explicit generated-project browser contract');
     await page.getByRole('button', { name: 'Generate engineering plan', exact: true }).click();
     await page.getByRole('button', { name: 'Review plan', exact: true }).click();
