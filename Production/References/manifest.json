@@ -1,0 +1,162 @@
+[
+  {
+    "path": "References/WordPress/83380.png",
+    "purpose": "01 Arrival",
+    "bytes": 308534,
+    "width": 1536,
+    "height": 864,
+    "sha256": "14a4c253aab2d345b67eebc52678b14724b892df847f3251ee261b29bb47aa8b"
+  },
+  {
+    "path": "References/WordPress/83378.png",
+    "purpose": "02 Domain Intelligence",
+    "bytes": 250171,
+    "width": 1536,
+    "height": 864,
+    "sha256": "5bef2fdd2d08b35f16ebc6f2ab509790cd7d71c3b29ab0ea45cb75266b6228a2"
+  },
+  {
+    "path": "References/WordPress/83377.png",
+    "purpose": "03 Theme Explorer",
+    "bytes": 256022,
+    "width": 1536,
+    "height": 864,
+    "sha256": "7ae8e088676744afa6f290252390d98b7e209c06729f032f4aaf06387409d3ff"
+  },
+  {
+    "path": "References/WordPress/83382.png",
+    "purpose": "04 Site Identity",
+    "bytes": 259818,
+    "width": 1536,
+    "height": 864,
+    "sha256": "fb6a946449cbefa6ba8d8adb90312362d262c9fda90c5c243d07ed4d23b18a4b"
+  },
+  {
+    "path": "References/WordPress/83374.png",
+    "purpose": "05 Plugin Intelligence",
+    "bytes": 299684,
+    "width": 1536,
+    "height": 864,
+    "sha256": "5018599527274524a17a87af15dc9535f20537c7a99374baf35ef4c41d83ab28"
+  },
+  {
+    "path": "References/WordPress/83381.png",
+    "purpose": "06 Live Responsive Canvas",
+    "bytes": 238668,
+    "width": 1536,
+    "height": 864,
+    "sha256": "7354948e55062ba4326bfead51e5e156fffdf7847484f4697423c7969266d2f8"
+  },
+  {
+    "path": "References/WordPress/83375.png",
+    "purpose": "07 Visual Composer",
+    "bytes": 251930,
+    "width": 1536,
+    "height": 864,
+    "sha256": "2822b08513361b542a2e73ff18a931d083b3dd2a8cbe1f4e29afd5c69e413302"
+  },
+  {
+    "path": "References/WordPress/83379.png",
+    "purpose": "08 Hosting & Infrastructure",
+    "bytes": 285378,
+    "width": 1536,
+    "height": 864,
+    "sha256": "e43eb3d0d5cd7f85eec6c9ca4ed3cb8320c213f2d5ff6324d31e8069aae9c924"
+  },
+  {
+    "path": "References/WordPress/83376.png",
+    "purpose": "09 Build & Deployment",
+    "bytes": 283920,
+    "width": 1536,
+    "height": 864,
+    "sha256": "9d671257fa25d8d8d2c4dac0b96848401a4a3429a5149f57db462ffcd4479b75"
+  },
+  {
+    "path": "References/WordPress/83383.png",
+    "purpose": "10 Operations Command Center",
+    "bytes": 335579,
+    "width": 1536,
+    "height": 864,
+    "sha256": "01a91dfeb53215fb5bdb21528642d3006574eb904ad86c25d429b39339868c19"
+  },
+  {
+    "path": "References/NSIS/82226.png",
+    "purpose": "Device Link",
+    "bytes": 235008,
+    "width": 1536,
+    "height": 1024,
+    "sha256": "0c73fbc106682d29e4584826e70d5c397e7269b92e4a5c0fa8818a4843c67f52"
+  },
+  {
+    "path": "References/NSIS/82227.png",
+    "purpose": "One Platform",
+    "bytes": 263079,
+    "width": 1536,
+    "height": 1024,
+    "sha256": "22d928d01c960389f0231ffe8d1584dfe7c9f69ac373a66c4b5c1215d925e585"
+  },
+  {
+    "path": "References/NSIS/82228.png",
+    "purpose": "Provider Engine",
+    "bytes": 241967,
+    "width": 1536,
+    "height": 1024,
+    "sha256": "a898ac414f24af96258326a1f070bbf16e5bdbbaeb9e4c31ab26afaa5127b946"
+  },
+  {
+    "path": "References/NSIS/82229.png",
+    "purpose": "Splash",
+    "bytes": 133328,
+    "width": 802,
+    "height": 1536,
+    "sha256": "fa311b0de585947cfd0c40d452bc7f04a8a96cc6bc96eb2224de68f060a7a1c8"
+  },
+  {
+    "path": "References/NSIS/82230.png",
+    "purpose": "Engineering Banner",
+    "bytes": 82205,
+    "width": 1536,
+    "height": 583,
+    "sha256": "fac946643d87ede492fffbefe5da9b2ddf626ab21160fa4011b4f690686edd88"
+  },
+  {
+    "path": "References/NSIS/82231.png",
+    "purpose": "Welcome",
+    "bytes": 207590,
+    "width": 1536,
+    "height": 1024,
+    "sha256": "b3f2df52736f09bedba0777d63fd8fc8ba74d2dcd661b3e11a0c957278678e21"
+  },
+  {
+    "path": "References/NSIS/82232.png",
+    "purpose": "Release Center",
+    "bytes": 176145,
+    "width": 1536,
+    "height": 768,
+    "sha256": "c0e0b3c60aa754525387e3fc52a30827bb0c4a8238dc4400c9a3ab02751aa6e7"
+  },
+  {
+    "path": "References/NSIS/82234.png",
+    "purpose": "Local Runtime",
+    "bytes": 267626,
+    "width": 1536,
+    "height": 1024,
+    "sha256": "6dd2600c4e45dc8123ed12b1ceac1981ac9bf9ec4d00cdcbc50b11e9a6ba4726"
+  },
+  {
+    "path": "References/NSIS/82235.png",
+    "purpose": "Uninstall",
+    "bytes": 119914,
+    "width": 802,
+    "height": 1536,
+    "sha256": "24b57752ce2abbe3c5aa7c903cd43f307d60899b0180ee31e9ec13671afe2140"
+  },
+  {
+    "path": "References/NSIS/82236.png",
+    "purpose": "One Platform Wide",
+    "bytes": 203435,
+    "width": 1536,
+    "height": 864,
+    "sha256": "899b12c1c26eb5af58324d7e218795c8f395c5164639103cb15c2c34cfa7b058"
+  }
+]
