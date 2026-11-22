@@ -6,6 +6,7 @@ import { loadTypeScript } from './load.mjs';
 
 const plans = await loadTypeScript('../src/lib/build/engineering-plan.ts');
 const profiles = await loadTypeScript('../src/lib/build/profile.ts');
+const knouxModes = await loadTypeScript('../src/lib/build/knoux-modes.ts');
 const { currentWorkspaceVerificationChecks } = await loadTypeScript('../src/components/build/dev/verification-results.ts');
 const { initialBuildState, buildReducer } = await loadTypeScript('../src/lib/build/workspace-state.ts');
 
@@ -19,12 +20,21 @@ async function exportedHelpers(path, names, dependencies) {
   const compiled = ts.transpileModule(selected.map((node) => node.getText(tree)).join('\n'), {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS },
   }).outputText;
-  const exports = {};
-  new Function('exports', ...Object.keys(dependencies), compiled)(exports, ...Object.values(dependencies));
+  // The caller may pass one object as both export target and dependency scope;
+  // honour that identity instead of allocating a second export bag. The
+  // `exports` key names the target, not an injected dependency.
+  const exports = dependencies.exports ?? {};
+  const injected = Object.keys(dependencies).filter((name) => name !== 'exports');
+  new Function('exports', ...injected, compiled)(exports, ...injected.map((name) => dependencies[name]));
   return exports;
 }
 
-const runtime = await exportedHelpers('../src/components/build/dev/DevWorkspaceHome.tsx', ['createGenerationRequestLock', 'generateEngineeringProposal'], { ...plans, profileToControls: profiles.profileToControls });
+// The compiled helpers reference each other by bare name inside the harness
+// scope. One shared object is both the export target and a dependency, so the
+// shipped functions resolve each other exactly as the module bundler does.
+const runtime = { ...plans, ...knouxModes, profileToControls: profiles.profileToControls };
+runtime.exports = runtime;
+await exportedHelpers('../src/components/build/dev/DevWorkspaceHome.tsx', ['createGenerationRequestLock', 'resolvePlanRuntime', 'executePlanPass', 'generateEngineeringProposal', 'generateProProposal'], runtime);
 const lifecycle = await exportedHelpers('../src/components/build/generator/GenerationMonitor.tsx', ['generationCheckoutScope', 'scopedEngineeringSession', 'currentGenerationChecks', 'measuredGenerationCheck', 'deriveGenerationLifecycle'], { ...plans, currentWorkspaceVerificationChecks });
 const artifact = Object.fromEntries(plans.PLAN_SECTIONS.map((section) => [section, ['Explicit test-only proposal, not executed.']]));
 const routing = { decision: { selected: { providerId: 'deepseek', modelId: 'requested' }, reasons: ['Test-only routing'], fallbackChain: [{ providerId: 'groq', modelId: 'alternate' }] } };
@@ -164,6 +174,88 @@ test('exact MANUAL never falls back', async (t) => {
   await h.run();
   assert.equal(h.calls.length, 2);
   assert.equal(h.updates.at(-1).stage, 'PROVIDER_BLOCKED');
+  noCompletion(h);
+});
+
+function proHarness(t, transport) {
+  const original = globalThis.fetch;
+  const calls = [], updates = [], activities = [];
+  const lock = runtime.createGenerationRequestLock();
+  const request = lock.start('checkout-a');
+  globalThis.fetch = async (url, options) => { calls.push({ url, body: JSON.parse(options.body) }); return transport(url, options, calls.length); };
+  t.after(() => { lock.cancel(); globalThis.fetch = original; });
+  const isCurrent = () => lock.isCurrent(request, 'checkout-a');
+  const intent = { rawInput: 'Test-only PRO requirement', productKind: 'web', requestedStack: [], requestedCapabilities: [], requestedIntegrations: [], deploymentTarget: null };
+  // The component's engineering/update dispatch is requestId-scoped, not
+  // lock-gated: a terminal CANCELLED patch lands after cancellation. Mirror
+  // that contract here; intermediate patches stay guarded by isCurrent.
+  const run = () => runtime.generateProProposal({ request, requirement: 'Test-only PRO requirement', intent, context: { project: null, worktree: null, branch: null }, mode: 'auto', profile: 'BALANCED', manualSelection: { providerId: null, modelId: null }, models: [], isCurrent, update: (patch) => { if (isCurrent() || patch.stage === 'CANCELLED') updates.push(patch); }, record: (message) => { if (isCurrent()) activities.push(message); } });
+  return { lock, calls, updates, activities, run };
+}
+
+const proTerminal = (providerId = 'gemini') => ({ delta: '', done: true, actualProviderId: providerId, actualModelId: 'contract-model', latencyMs: 10, usage: { inputTokens: 12, outputTokens: 40 } });
+const proStream = (plan, terminal = proTerminal()) => new Response(new ReadableStream({ start(controller) { controller.enqueue(frame({ delta: JSON.stringify(plan), done: false })); controller.enqueue(frame(terminal)); controller.close(); } }));
+
+test('KNOUX PRO runs five measured role passes through the same engine and aggregates only real totals', async (t) => {
+  const h = proHarness(t, async (url) => url.endsWith('/prepare') ? Response.json(routing) : proStream(artifact));
+  await h.run();
+  assert.equal(h.calls.length, 10, 'five prepare + five stream requests, no extra engine');
+  const systems = h.calls.filter((call) => call.url.endsWith('/stream')).map((call) => call.body.system);
+  assert.deepEqual(systems.map((system) => knouxModes.PRO_ROLES.find((role) => system.includes(`KNOuX PRO ${role},`) || system.startsWith(`You are the KNOuX PRO ${role}`))), knouxModes.PRO_ROLES);
+  const final = h.updates.at(-1);
+  assert.equal(final.stage, 'PLANNED');
+  assert.deepEqual(final.plan, artifact);
+  assert.equal(final.measurement.latencyMs, 50);
+  assert.deepEqual(final.measurement.usage, { inputTokens: 60, outputTokens: 200 });
+  const ledger = h.updates.filter((patch) => patch.proRuns).at(-1).proRuns;
+  assert.equal(ledger.length, 5);
+  assert.ok(ledger.every((run) => run.status === 'COMPLETE' && run.latencyMs === 10));
+  assert.equal(h.activities.length, 11, 'pass + role record per role, plus the chain summary');
+});
+
+test('a failed PRO role halts the chain, retains the last complete proposal and never fabricates later passes', async (t) => {
+  let streams = 0;
+  const h = proHarness(t, async (url) => {
+    if (url.endsWith('/prepare')) return Response.json(routing);
+    streams++;
+    if (streams === 3) return new Response(new ReadableStream({ start(controller) { controller.enqueue(frame({ error: { category: 'RATE_LIMIT', safeMessage: 'Test-only role failure' }, done: true })); controller.close(); } }));
+    return proStream(artifact);
+  });
+  await h.run();
+  // AUTO mode grants the failed role its one canonical fallback attempt;
+  // when that also fails the chain halts. MANUAL would stop at three.
+  assert.equal(streams, 4, 'one bounded fallback for the failed role, then no further passes');
+  assert.equal(h.calls.filter((call) => call.url.endsWith('/prepare')).length, 3, 'no fourth or fifth role resolution');
+  const final = h.updates.at(-1);
+  assert.equal(final.stage, 'PROVIDER_BLOCKED');
+  assert.match(final.error, /UI Designer pass failed/);
+  assert.match(final.error, /last complete proposal is retained/);
+  const retained = h.updates.filter((patch) => patch.plan).at(-1);
+  assert.deepEqual(retained.plan, artifact);
+  const ledger = h.updates.filter((patch) => patch.proRuns).at(-1).proRuns;
+  assert.deepEqual(ledger.map((run) => run.status), ['COMPLETE', 'COMPLETE', 'FAILED', 'PENDING', 'PENDING']);
+});
+
+test('PRO cancellation marks the active role CANCELLED and opens no further passes', async (t) => {
+  const reading = deferred();
+  let streams = 0;
+  const h = proHarness(t, async (url, { signal }) => {
+    if (url.endsWith('/prepare')) return Response.json(routing);
+    streams++;
+    if (streams > 1) return proStream(artifact);
+    return new Response(new ReadableStream({
+      start(controller) { signal.addEventListener('abort', () => controller.error(new DOMException('Aborted', 'AbortError')), { once: true }); },
+      pull() { reading.resolve(); },
+    }));
+  });
+  const work = h.run();
+  await reading.promise;
+  h.lock.cancel();
+  await work;
+  assert.equal(streams, 1);
+  assert.equal(h.updates.at(-1).stage, 'CANCELLED');
+  const ledger = h.updates.filter((patch) => patch.proRuns).at(-1).proRuns;
+  assert.equal(ledger[0].status, 'CANCELLED');
   noCompletion(h);
 });
 

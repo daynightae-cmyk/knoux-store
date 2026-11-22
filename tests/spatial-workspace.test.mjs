@@ -30,7 +30,8 @@ function load(relativePath, dependencies = {}) {
 const types = load('src/lib/build/types.ts');
 const stages = load('src/lib/build/stages.ts');
 const spatial = load('src/lib/build/spatial.ts', { './types': types });
-const state = load('src/lib/build/workspace-state.ts', { './types': types, './spatial': spatial, './preferences': load('src/lib/build/preferences.ts'), './generator-state': load('src/lib/build/generator-state.ts'), './engineering-plan': load('src/lib/build/engineering-plan.ts', { './generated-project-contract.ts': load('src/lib/build/generated-project-contract.ts') }) });
+const engineeringPlan = load('src/lib/build/engineering-plan.ts', { './generated-project-contract.ts': load('src/lib/build/generated-project-contract.ts') });
+const state = load('src/lib/build/workspace-state.ts', { './types': types, './spatial': spatial, './preferences': load('src/lib/build/preferences.ts'), './generator-state': load('src/lib/build/generator-state.ts'), './engineering-plan': engineeringPlan, './knoux-modes': load('src/lib/build/knoux-modes.ts', { './engineering-plan': engineeringPlan }) });
 
 /* ------------------------------------------------------------- stage model */
 

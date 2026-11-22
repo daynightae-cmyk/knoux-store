@@ -13,6 +13,14 @@
 .dev-plan-review a{display:inline-block;margin:18px;color:#d3c2f1;text-decoration:underline}
 .dev-plan-error{padding:18px 24px;border:1px solid #c3acc54d;border-radius:10px;background:#281b2980;font-size:14px;line-height:1.6;overflow-wrap:anywhere}
 .dev-plan-error a{color:#ddccef;text-decoration:underline}
+/* Reference 02 — the page opens as the environment itself: eyebrow, the
+   active area as a large quiet heading, one line of scope, the measurement
+   stamp. The particle figure lives in the shell sky behind the right field;
+   no artwork banner is stacked on top of it. */
+.dev-engineering-head{max-width:970px;margin:26px 0 8px;position:relative;z-index:2}
+.dev-engineering-head h1{margin:10px 0 12px;color:#f7f2fd;font-size:clamp(40px,4.6vw,64px);font-weight:450;letter-spacing:-.035em;line-height:1.02}
+.dev-engineering-head p{margin:0;max-width:62ch;color:#d3c2ec;font-size:clamp(13px,1.3vw,16px);line-height:1.6}
+.dev-engineering-head__detail{display:inline-block;margin-top:12px;color:#c4a6e6;font:10px var(--font-mono,monospace);letter-spacing:.14em}
 .dev-engineering-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 24px}
 .dev-home-context{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;padding:20px 0;margin:0;border-top:1px solid #ffffff12;border-bottom:1px solid #ffffff12;position:relative;z-index:2}
 .dev-home-context dt{font:10px var(--mono,monospace);color:#b4a4ca;margin-bottom:7px}

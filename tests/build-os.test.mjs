@@ -62,9 +62,11 @@ const { tokenize, clampLine } = load('src/lib/build/tokenizer.ts');
 // The workspace store imports the spatial helpers for stage-progress clamping.
 const spatial = load('src/lib/build/spatial.ts');
 const generatedContract = load('src/lib/build/generated-project-contract.ts');
+const engineeringPlan = load('src/lib/build/engineering-plan.ts', { './generated-project-contract.ts': generatedContract });
+const knouxModes = load('src/lib/build/knoux-modes.ts', { './engineering-plan': engineeringPlan });
 const { buildReducer, initialBuildState, capabilityResolutions, dirtyFiles } = load(
   'src/lib/build/workspace-state.ts',
-  { './spatial': spatial, './preferences': load('src/lib/build/preferences.ts'), './generator-state': load('src/lib/build/generator-state.ts'), './engineering-plan': load('src/lib/build/engineering-plan.ts', { './generated-project-contract.ts': generatedContract }) },
+  { './spatial': spatial, './preferences': load('src/lib/build/preferences.ts'), './generator-state': load('src/lib/build/generator-state.ts'), './engineering-plan': engineeringPlan, './knoux-modes': knouxModes },
 );
 
 /* ------------------------------------------------------------------- intent */

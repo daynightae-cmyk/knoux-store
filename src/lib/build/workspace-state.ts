@@ -19,6 +19,7 @@
 import { clamp01 } from './spatial';
 import { parseEngineeringPlan, type EngineeringSession } from './engineering-plan';
 import { canTransitionPlan } from './generator-state';
+import { isKnouxBuildMode } from './knoux-modes';
 import { DEFAULT_PREFERENCES, type WorkspacePreferences } from './preferences';
 import type { IntegrationSnapshot } from './integration-types';
 import type {
@@ -104,6 +105,7 @@ export type BuildWorkspaceState = {
   preview: PreviewState;
   ai: {
     generationProfile: import('./profile').GenerationProfile;
+    buildMode: import('./knoux-modes').KnouxBuildMode;
     mode: SenshialMode;
     routingMode: RoutingMode;
     task: TaskClass;
@@ -212,6 +214,7 @@ export const initialBuildState: BuildWorkspaceState = {
   preview: { url: null, viewport: DEFAULT_PREVIEW_VIEWPORT, refreshKey: 0, consoleState: 'idle' },
   ai: {
     generationProfile: 'BALANCED',
+    buildMode: 'PRO',
     mode: 'ask',
     routingMode: 'auto',
     task: 'general',
@@ -267,6 +270,7 @@ export type BuildAction =
   | { type: 'diagnostic/select'; id: string | null }
   | { type: 'engineering/begin'; requestId: string; context: NonNullable<EngineeringSession['context']>; requested?: EngineeringSession['requested'] }
   | { type: 'ai/profile'; profile: import('./profile').GenerationProfile }
+  | { type: 'ai/build-mode'; buildMode: import('./knoux-modes').KnouxBuildMode }
   | { type: 'engineering/update'; patch: Partial<EngineeringSession>; requestId?: string | null }
   | { type: 'ai/mode'; mode: SenshialMode }
   | { type: 'ai/routing-mode'; mode: RoutingMode }
@@ -316,6 +320,7 @@ export function buildReducer(state: BuildWorkspaceState, action: BuildAction): B
   switch (action.type) {
     case 'engineering/begin': return { ...state, engineering: { ...initialBuildState.engineering, host: state.engineering.host, requestId: action.requestId, context: action.context, requested: action.requested ?? null, stage: 'RESOLVING' } };
     case 'ai/profile': return { ...state, ai: { ...state.ai, generationProfile: action.profile } };
+    case 'ai/build-mode': return isKnouxBuildMode(action.buildMode) ? { ...state, ai: { ...state.ai, buildMode: action.buildMode } } : state;
     case 'engineering/update': {
       if (action.requestId && action.requestId !== state.engineering.requestId) return state;
       if (action.patch.stage && !canTransitionPlan(state.engineering.stage, action.patch.stage)) return state;
