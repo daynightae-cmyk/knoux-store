@@ -225,6 +225,9 @@ test.describe('composition', () => {
     await page.addInitScript(() => sessionStorage.setItem('knoux-dev-entry-intent', 'Build a web app'));
     await page.goto('/build', { waitUntil: 'load' });
     await expect(page.locator('.dev-entry')).toHaveCount(0);
+    // A stored intent opens the workspace; wait for its composer to mount
+    // before measuring instead of racing the surface swap after load.
+    await expect(page.locator('.dev-floating-compose')).toBeVisible();
     const geometry = await page.evaluate(() => {
       const stage = document.querySelector('.dev-shell__stage')!.getBoundingClientRect();
       const composer = document.querySelector('.dev-floating-compose')!.getBoundingClientRect();
