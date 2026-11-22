@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { buildMarkSamples } from '@/lib/knouxMark';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
@@ -12,6 +12,14 @@ export function BuildLivingMarkBackdrop() {
   const { state } = useBuildWorkspace();
   const stage = useRef(state.engineering.stage);
   const landing = useRef(pathname === '/build');
+  // The entry can swap between the constellation and the workspace without a
+  // route change; the aperture placement must follow that swap.
+  const [surfaceKey, setSurfaceKey] = useState(0);
+  useEffect(() => {
+    const bump = () => setSurfaceKey((key) => key + 1);
+    window.addEventListener('knoux:build-surface', bump);
+    return () => window.removeEventListener('knoux:build-surface', bump);
+  }, []);
 
   useEffect(() => { stage.current = state.engineering.stage; landing.current = pathname === '/build'; transition.current = performance.now(); window.dispatchEvent(new Event('knoux:engineering-visual-state')); }, [pathname, state.engineering.stage]);
 
@@ -50,7 +58,7 @@ export function BuildLivingMarkBackdrop() {
     let live = true;
     document.fonts?.ready.then(() => { if (live) place(); }, () => {});
     return () => { live = false; observer.disconnect(); content?.removeEventListener('scroll', place); content?.removeEventListener('toggle', place, true); };
-  }, [pathname, state.workspace.activeSurface]);
+  }, [pathname, state.workspace.activeSurface, surfaceKey]);
 
   useEffect(() => {
     const surface = canvas.current;

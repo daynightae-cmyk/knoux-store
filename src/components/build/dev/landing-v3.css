@@ -6,6 +6,17 @@
   background-position: center;
 }
 
+/* The One Platform constellation draws its own nebula, orbits and horizon as
+   code. While it is the entry, the backdrop photo and the second particle
+   mark rest so the scene is exactly the reference — one full-page card. */
+html[data-build-constellation] .dev-cinematic.dev-shell--landing .dev-shell__stage {
+  background-image:
+    radial-gradient(ellipse 60% 44% at 50% 116%, rgba(76, 52, 168, .28), transparent 64%);
+}
+html[data-build-constellation] .dev-shell--landing .dev-living-mark { display: none; }
+html[data-build-constellation] .dev-cinematic .dev-cosmic-field { opacity: .95; }
+html[data-build-constellation] .dev-cinematic .dev-shell__content { padding-bottom: 0; }
+
 .dev-cinematic.dev-shell--landing .dev-stage-head { min-height: 44px; }
 .dev-shell--landing .dev-context-rail { margin: 0 0 8px; }
 .dev-cinematic.dev-shell--landing .dev-context-rail > summary { padding-block: 7px; }

@@ -6,22 +6,22 @@
     "id": "custom",
     "label": "CUSTOM"
   },
-  "at": "2026-11-22T03:52:26.109Z",
+  "at": "2026-11-22T08:46:39.740Z",
   "branch": "feat/build-cosmic-fidelity",
-  "sha": "78586f713e494b48f91a3ddfff07fea2cef9ed7a",
+  "sha": "7c50077afb6a2bca8bc23871bd055e8dd86c3019",
   "document": "same-origin loaded",
   "observations": [
     {
-      "id": 1795319539523,
+      "id": 1795337189091,
       "kind": "error",
       "message": "Preview observation token=[REDACTED]]",
-      "at": "2026-11-22T03:52:19.523Z"
+      "at": "2026-11-22T08:46:29.091Z"
     },
     {
-      "id": 1795319539558,
+      "id": 1795337189313,
       "kind": "resource",
       "message": "img failed to load: /not-a-real-preview-image.png",
-      "at": "2026-11-22T03:52:19.557Z"
+      "at": "2026-11-22T08:46:29.283Z"
     }
   ],
   "inspected": {

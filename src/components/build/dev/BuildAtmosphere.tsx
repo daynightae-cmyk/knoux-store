@@ -137,8 +137,15 @@ export function BuildAtmosphere({ reduced }: Readonly<{ reduced: boolean }>) {
       previous = now;
       sky.offsetX += (pointerX - sky.offsetX) * .1; sky.offsetY += (pointerY - sky.offsetY) * .1;
       const phase = still ? null : activationPhase(wakeElapsed);
-      if (phase) stage!.dataset.cosmicPhase = phase;
-      else delete stage!.dataset.cosmicPhase;
+      // A frame gap longer than a phase window must not silently skip that
+      // phase: emit every boundary crossed since the last painted phase so
+      // observers see the full sequence even on a loaded host.
+      if (phase) {
+        const order: ActivationPhase[] = ['prepare', 'gather', 'discharge', 'settle'];
+        const last = stage!.dataset.cosmicPhase as ActivationPhase | undefined;
+        const from = last && order.includes(last) ? order.indexOf(last) + 1 : order.indexOf(phase);
+        for (let i = from; i <= order.indexOf(phase); i++) stage!.dataset.cosmicPhase = order[i];
+      } else delete stage!.dataset.cosmicPhase;
       const energy = phase ? Math.pow(1 - wakeElapsed / ACTIVATION_DURATION_MS, 1.5) : 0;
       const renderStarted = performance.now();
       ctx!.clearRect(0, 0, sky.width, sky.height);

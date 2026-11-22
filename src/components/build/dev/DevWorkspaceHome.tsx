@@ -8,7 +8,6 @@ import type { BuildIntent } from '@/lib/build/types';
 import type { EngineeringSession } from '@/lib/build/engineering-plan';
 import { compileBuildIntent, summariseIntent } from '@/lib/build/intent';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
-import { BuildEntryGate } from './BuildEntryGate';
 import { workspaceFacts } from './workspace-facts';
 import { useCanonicalModels } from '../generator/useCanonicalModels';
 import { ComposerModelPicker } from '../generator/ComposerModelPicker';
@@ -357,7 +356,6 @@ export function DevWorkspaceHome() {
   }
 
   return <>
-    <BuildEntryGate />
     <section className={`dev-observatory dev-observatory--${view}`} aria-label="Build workspace">
       <header className="dev-stage-head">
         <span className="dev-mini-label">KNOuX / ENGINEERING ENVIRONMENT</span>
