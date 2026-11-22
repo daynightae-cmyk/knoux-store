@@ -71,7 +71,10 @@ export function BuildLivingMarkBackdrop() {
     const reduced = () => motion.matches || state.preferences.motion === 'reduced';
 
     const draw = (now: number) => {
-      if (document.hidden || !visible) {
+      // The IntersectionObserver callback is asynchronous; a frame queued
+      // before it lands must not paint into a surface that is already hidden.
+      // offsetParent is null for display:none, so the pause is synchronous.
+      if (document.hidden || !visible || surface.offsetParent === null) {
         frame = 0;
         return;
       }
@@ -155,6 +158,9 @@ export function BuildLivingMarkBackdrop() {
 
     const observer = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
+      // While paused, never re-arm the loop on resize or state events; only a
+      // fresh visibility callback may restart painting.
+      if (!visible) { cancelAnimationFrame(frame); frame = 0; return; }
       wake();
     });
 
