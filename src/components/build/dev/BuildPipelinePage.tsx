@@ -110,17 +110,19 @@ export function BuildPipelinePage() {
 
   return (
     <div className={`dev-route ${operational.page} ${styles.page}`} data-reduced={reduced ? '' : undefined}>
-      <dl className={styles.contextStrip}>
-        <div className={styles.contextItem}><dt>PROJECT</dt><dd><Icon d="M3 7h6l2 2h10v10H3Z" />{facts.project}</dd></div>
-        <div className={styles.contextItem}><dt>BRANCH</dt><dd><Icon d="M6 3v12m0 0a3 3 0 1 0 3 3m-3-3a3 3 0 0 1 3 3m6-15a3 3 0 1 0 0 .01M18 6v3a6 6 0 0 1-6 6H9" />{state.git?.branch ?? 'UNAVAILABLE'}</dd></div>
-        <div className={styles.contextItem}><dt>ENVIRONMENT</dt><dd><Icon d="m12 3 9 5-9 5-9-5Zm-9 9 9 5 9-5" />{facts.environment}</dd></div>
-        <div className={styles.contextItem}><dt>MODEL</dt><dd><Icon d="m12 3 8 4.5v9L12 21l-8-4.5v-9Z" />{engineering.selection ? `${engineering.selection.providerId} / ${engineering.selection.modelId}` : state.ai.routingMode.toUpperCase()}</dd></div>
-        <div className={styles.contextItem}><dt>AGENT</dt><dd><Icon d="M8 10h.01M16 10h.01M5 5h14v12H5Zm7 12v4m-4 0h8" />KNOuX Architect</dd></div>
-        <div className={styles.session} data-live={Boolean(running) || engineering.stage === 'GENERATING' || undefined}>
+      <div className={styles.contextStrip}>
+        <dl className={styles.contextFacts}>
+          <div className={styles.contextItem}><dt>PROJECT</dt><dd><Icon d="M3 7h6l2 2h10v10H3Z" />{facts.project}</dd></div>
+          <div className={styles.contextItem}><dt>BRANCH</dt><dd><Icon d="M6 3v12m0 0a3 3 0 1 0 3 3m-3-3a3 3 0 0 1 3 3m6-15a3 3 0 1 0 0 .01M18 6v3a6 6 0 0 1-6 6H9" />{state.git?.branch ?? 'UNAVAILABLE'}</dd></div>
+          <div className={styles.contextItem}><dt>ENVIRONMENT</dt><dd><Icon d="m12 3 9 5-9 5-9-5Zm-9 9 9 5 9-5" />{facts.environment}</dd></div>
+          <div className={styles.contextItem}><dt>MODEL</dt><dd><Icon d="m12 3 8 4.5v9L12 21l-8-4.5v-9Z" />{engineering.selection ? `${engineering.selection.providerId} / ${engineering.selection.modelId}` : state.ai.routingMode.toUpperCase()}</dd></div>
+          <div className={styles.contextItem}><dt>AGENT</dt><dd><Icon d="M8 10h.01M16 10h.01M5 5h14v12H5Zm7 12v4m-4 0h8" />KNOuX Architect</dd></div>
+        </dl>
+        <div className={styles.session} data-live={Boolean(running) || engineering.stage === 'GENERATING' || undefined} role="status">
           <strong><i aria-hidden="true" />Build Session</strong>
           <small>{running ? `RUNNING · ${running}` : engineering.stage === 'LISTENING' ? 'IDLE · NO ACTIVE REQUEST' : engineering.stage}</small>
         </div>
-      </dl>
+      </div>
 
       <header className={styles.masthead}>
         <span className="dev-mini-label">BUILD / ORCHESTRATION</span>
