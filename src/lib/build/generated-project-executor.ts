@@ -24,7 +24,12 @@ const BUNDLE = 'knoux-static-app.zip';
 const PREVIEW_TTL_MS = 15 * 60 * 1000;
 const PREVIEW_READY_TIMEOUT_MS = 10_000;
 const activeOperations = new Map<string, Promise<GeneratedRuntimeReceipt>>();
-const runtimes = new Map<string, { child: ChildProcess; timer: NodeJS.Timeout }>();
+const runtimes = new Map<string, {
+  child: ChildProcess;
+  timer: NodeJS.Timeout;
+  closed: Promise<void>;
+  stopRequested: boolean;
+}>();
 const abortControllers = new Map<string, AbortController>();
 
 function sha256(value: string | Uint8Array): string {
@@ -304,7 +309,13 @@ async function startPreview(root: string, receipt: GeneratedRuntimeReceipt, pare
   });
   const timer = setTimeout(() => child.kill(), PREVIEW_TTL_MS);
   timer.unref();
-  runtimes.set(key, { child, timer });
+  const runtime = {
+    child,
+    timer,
+    closed: new Promise<void>((resolve) => child.once('close', () => resolve())),
+    stopRequested: false,
+  };
+  runtimes.set(key, runtime);
   let output = '';
   child.stdout.on('data', (chunk: Buffer) => { if (output.length < 4096) output += chunk.toString(); });
   child.stderr.on('data', () => undefined);
@@ -339,16 +350,16 @@ async function startPreview(root: string, receipt: GeneratedRuntimeReceipt, pare
     receipt.state = 'ready';
     receipt.error = null;
     await save(root, receipt);
-    const operation = receipt.operationId;
-    child.once('exit', () => {
+    runtime.closed = runtime.closed.then(async () => {
+      if (runtime.stopRequested) return;
+      const current = await readGeneratedReceipt(root, receipt.ownerId, receipt.operationId);
+      if (runtime.stopRequested || !current || current.state !== 'ready') return;
+      current.state = 'stopped';
+      current.preview = current.preview ? { ...current.preview, processId: null, blocker: 'Preview process is no longer running.' } : null;
+      await save(root, current);
+    }).catch(() => undefined).finally(() => {
       clearTimeout(timer);
-      runtimes.delete(key);
-      void readGeneratedReceipt(root, receipt.ownerId, operation).then(async (current) => {
-        if (!current || current.state !== 'ready') return;
-        current.state = 'stopped';
-        current.preview = current.preview ? { ...current.preview, processId: null, blocker: 'Preview process is no longer running.' } : null;
-        await save(root, current).catch(() => undefined);
-      }).catch(() => undefined);
+      if (runtimes.get(key) === runtime) runtimes.delete(key);
     });
     return receipt;
   } catch (error) {
@@ -446,10 +457,20 @@ export async function cancelGeneratedProject(root: string, ownerId: string, oper
   abortControllers.get(key)?.abort();
   const runtime = runtimes.get(key);
   if (runtime) {
+    // Exit handling and explicit cancellation update the same receipt. Join
+    // the exit handler before saving the terminal operator decision.
+    runtime.stopRequested = true;
     clearTimeout(runtime.timer);
     runtime.child.kill();
-    runtimes.delete(key);
+    const forceStop = setTimeout(() => runtime.child.kill('SIGKILL'), 1500);
+    forceStop.unref();
+    try {
+      await runtime.closed;
+    } finally {
+      clearTimeout(forceStop);
+    }
   }
+  await activeOperations.get(key)?.catch(() => undefined);
   const current = await readGeneratedReceipt(root, ownerId, id);
   if (!current) throw new Error('Generated operation was not found for this operator.');
   if (current.state !== 'failed') current.state = 'cancelled';

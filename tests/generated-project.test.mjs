@@ -219,6 +219,7 @@ test('export emits a deterministic ZIP whose hash matches the bundle', async () 
   const root = await fs.mkdtemp(path.join(tmpdir(), 'knoux-generated-export-'));
   const ownerId = crypto.randomUUID();
   const id = operationId();
+  const id2 = operationId();
   const plan = artifact();
   try {
     const receipt = await executeGeneratedProject({ root, ownerId, operationId: id, artifact: plan, parentOrigin: 'http://127.0.0.1:3313' });
@@ -234,11 +235,14 @@ test('export emits a deterministic ZIP whose hash matches the bundle', async () 
     const bundle = await fs.readFile(await generatedBundlePath(root, ownerId, id));
     assert.equal(receipt.bundle.sha256, createHash('sha256').update(bundle).digest('hex'));
     // Determinism: same plan produces same bundle hash.
-    const id2 = operationId();
     const receipt2 = await executeGeneratedProject({ root, ownerId, operationId: id2, artifact: plan, parentOrigin: 'http://127.0.0.1:3313' });
     assert.equal(receipt2.export.sha256, receipt.export.sha256);
-    await cancelGeneratedProject(root, ownerId, id2).catch(() => null);
+    await cancelGeneratedProject(root, ownerId, id2);
+    await assert.rejects(fetch(loopbackPreviewUrl(receipt2.preview.url), { signal: AbortSignal.timeout(1000) }), {
+      name: 'TypeError',
+    });
   } finally {
+    await cancelGeneratedProject(root, ownerId, id2).catch(() => null);
     await cancelGeneratedProject(root, ownerId, id).catch(() => null);
     await fs.rm(root, { recursive: true, force: true });
   }
