@@ -3,9 +3,9 @@ import { SignalRail } from '@/components/DivisionShell';
 import { DivisionBridge, NextLink, SystemIndex, IndexRow, BlockHead } from '@/components/blocks';
 import { ExternalMarketplace, readMarketplaceQuery } from '@/components/wordpress/ExternalMarketplace';
 import { WordPressCosmicMark } from '@/components/wordpress/WordPressCosmicMark';
+import { StudioLayoutLibrary } from '@/components/wordpress/StudioLayoutLibrary';
 import { FirstPartyRail } from '@/components/wordpress/FirstPartyRail';
 import {
-  starterSiteVerticals,
   wordpressCategories,
   wordPressGoals,
   wordPressItems,
@@ -70,6 +70,7 @@ export async function WordPressCategoryPage({
 
   const count = wordPressItems.filter((item) => item.type === meta.type).length;
   const source = EXTERNAL_SOURCE[category];
+  const libraryMode = category === 'starter-sites' || category === 'blocks' ? category : null;
   const query = readMarketplaceQuery(searchParams ?? {});
   const firstParty = <FirstPartyRail type={meta.type} label={singularLabel(meta.type)} />;
 
@@ -83,11 +84,11 @@ export async function WordPressCategoryPage({
 
   return (
     <main id="main-content" tabIndex={-1}>
-      {source === 'theme' ? (
-        <section className="shell wp-theme-intro">
+      {source === 'theme' || libraryMode ? (
+        <section className="shell wp-catalogue-intro">
           <WordPressCosmicMark label="" />
-          <h1>Theme Explorer</h1>
-          <p>{meta.intent}</p>
+          <h1>{source === 'theme' ? 'Theme Explorer' : meta.label}</h1>
+          <p>{libraryMode === 'starter-sites' ? 'Preview a starting layout and add its sections to your Studio draft.' : meta.intent}</p>
         </section>
       ) : <PageIntro
         index={meta.index}
@@ -98,6 +99,11 @@ export async function WordPressCategoryPage({
       />}
       <SignalRail division="wordpress" path={`/wordpress/${category}`} />
 
+      {libraryMode && (
+        <div className="shell wp-layout-library">
+          <StudioLayoutLibrary key={libraryMode} mode={libraryMode} />
+        </div>
+      )}
       {source !== 'theme' && firstParty}
 
       {external ? (
@@ -116,7 +122,6 @@ export async function WordPressCategoryPage({
 
       {source === 'theme' && firstParty}
 
-      {category === 'starter-sites' ? <StarterSiteFilters /> : null}
       {category === 'solutions' ? <BundleSurface /> : null}
 
       {category === 'starter-sites' ? (
@@ -159,29 +164,6 @@ function FirstPartyOnlyNotice({ title, body }: { title: string; body: string }) 
       <h3 className="mp-state__title">{title}</h3>
       <p className="mp-state__body">{body}</p>
     </div>
-  );
-}
-
-function StarterSiteFilters() {
-  return (
-    <section className="shell" style={{ paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
-      <BlockHead
-        code="VERTICALS"
-        title="Vertical filters, ready"
-        aside="The filter set is fixed ahead of the catalogue so that publishing a starter site is a data change. These are the verticals KNOuX intends to publish into."
-      />
-      <div className="finder-chips" style={{ marginTop: 26 }}>
-        {starterSiteVerticals.map((vertical) => (
-          <span key={vertical.id} className="tag">
-            {vertical.label}
-          </span>
-        ))}
-      </div>
-      <p className="meta-row" style={{ marginTop: 24 }}>
-        <span>0 of {starterSiteVerticals.length} verticals populated</span>
-        <span>Filters render regardless of catalogue size</span>
-      </p>
-    </section>
   );
 }
 

@@ -1,0 +1,86 @@
+[
+  {
+    "width": 1920,
+    "height": 1080,
+    "starters": "references/store-20261123/qa/screen-04/after-starter-sites-1920x1080.png",
+    "blocks": "references/store-20261123/qa/screen-04/after-blocks-1920x1080.png",
+    "geometry": {
+      "width": 1920,
+      "content": 1920
+    },
+    "starterInserted": true,
+    "blockAppended": true,
+    "composerReload": true,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "starters": "references/store-20261123/qa/screen-04/after-starter-sites-1440x900.png",
+    "blocks": "references/store-20261123/qa/screen-04/after-blocks-1440x900.png",
+    "geometry": {
+      "width": 1440,
+      "content": 1440
+    },
+    "starterInserted": true,
+    "blockAppended": true,
+    "composerReload": true,
+    "errors": []
+  },
+  {
+    "width": 1024,
+    "height": 768,
+    "starters": "references/store-20261123/qa/screen-04/after-starter-sites-1024x768.png",
+    "blocks": "references/store-20261123/qa/screen-04/after-blocks-1024x768.png",
+    "geometry": {
+      "width": 1024,
+      "content": 1024
+    },
+    "starterInserted": true,
+    "blockAppended": true,
+    "composerReload": true,
+    "errors": []
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "starters": "references/store-20261123/qa/screen-04/after-starter-sites-768x1024.png",
+    "blocks": "references/store-20261123/qa/screen-04/after-blocks-768x1024.png",
+    "geometry": {
+      "width": 768,
+      "content": 768
+    },
+    "starterInserted": true,
+    "blockAppended": true,
+    "composerReload": true,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "starters": "references/store-20261123/qa/screen-04/after-starter-sites-390x844.png",
+    "blocks": "references/store-20261123/qa/screen-04/after-blocks-390x844.png",
+    "geometry": {
+      "width": 390,
+      "content": 390
+    },
+    "starterInserted": true,
+    "blockAppended": true,
+    "composerReload": true,
+    "errors": []
+  },
+  {
+    "width": 360,
+    "height": 800,
+    "starters": "references/store-20261123/qa/screen-04/after-starter-sites-360x800.png",
+    "blocks": "references/store-20261123/qa/screen-04/after-blocks-360x800.png",
+    "geometry": {
+      "width": 360,
+      "content": 360
+    },
+    "starterInserted": true,
+    "blockAppended": true,
+    "composerReload": true,
+    "errors": []
+  }
+]

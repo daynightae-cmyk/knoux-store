@@ -19,7 +19,7 @@ export const BLOCK_TYPES = [
 export type BlockType = (typeof BLOCK_TYPES)[number]['id'];
 export type Block = { key: number; type: BlockType; align: 'start' | 'center' | 'end'; gap: number };
 
-export const STORAGE_KEY = 'knoux-wp-composer-draft';
+const STORAGE_KEY = 'knoux-wp-composer-draft';
 
 export const STARTING_LAYOUT: readonly Block[] = [
   { key: 1, type: 'hero', align: 'start', gap: 24 },
@@ -33,17 +33,26 @@ export const DEFAULT_BLOCKS: Block[] = [
   { key: 3, type: 'cta', align: 'center', gap: 16 },
 ];
 
-export function readComposerBlocks(): Block[] {
+export function readComposerBlocks(fallback: Block[] = DEFAULT_BLOCKS): Block[] {
   try {
     const raw = window.sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_BLOCKS;
+    if (!raw) return fallback;
     const parsed = JSON.parse(raw) as Block[];
-    if (!Array.isArray(parsed)) return DEFAULT_BLOCKS;
+    if (!Array.isArray(parsed)) return fallback;
     if (!parsed.length) return [];
     const valid = parsed.filter((block) => block && BLOCK_TYPES.some((type) => type.id === block.type));
-    return valid.length ? valid : DEFAULT_BLOCKS;
+    return valid.length ? valid : fallback;
   } catch {
-    return DEFAULT_BLOCKS;
+    return fallback;
+  }
+}
+
+export function saveComposerBlocks(blocks: readonly Block[]): boolean {
+  try {
+    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(blocks));
+    return true;
+  } catch {
+    return false;
   }
 }
 

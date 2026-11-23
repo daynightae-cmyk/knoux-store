@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react';
 import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
 import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
-import { BLOCK_TYPES, DEFAULT_BLOCKS, STORAGE_KEY, ComposerDocument, readComposerBlocks, label, type Block, type BlockType } from './ComposerDocument';
+import { BLOCK_TYPES, DEFAULT_BLOCKS, ComposerDocument, readComposerBlocks, saveComposerBlocks, label, type Block, type BlockType } from './ComposerDocument';
 import s from './journeys.module.css';
 
 let blockKey = 100;
@@ -40,7 +40,7 @@ export function VisualComposer() {
   function commit(next: Block[], cue: 'settle' | 'confirm' | 'success' = 'settle') {
     cueAtmosphere(cue);
     setBlocks(next);
-    try { window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* memory-only draft */ }
+    saveComposerBlocks(next);
   }
 
   function addBlock(type: BlockType) {

@@ -339,7 +339,7 @@ export function ExternalMarketplace({
           Every item above is third-party work published on WordPress.org. KNOuX performs WordPress engineering —
           installation, configuration, migration, performance, security and maintenance — and can scope that work
           around a plugin or theme you have chosen. See the{' '}
-          <Link href="/wordpress#operate">operating services</Link> or the{' '}
+          <a href="/wordpress#operate">operating services</a> or the{' '}
           <Link href={kindRoute}>KNOuX {kindLabel.toLowerCase()} registry</Link>.
         </p>
       </div>

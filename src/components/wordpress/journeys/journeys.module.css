@@ -1101,3 +1101,41 @@
 @media (prefers-reduced-motion: reduce) {
   .card, .frame, .podiumItem, .switch::after, .ghostAction, .primaryAction, .filter, .deviceChip, .domainRow { transition: none !important; }
 }
+
+.studioLibrary {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  gap: 14px;
+  padding: clamp(14px, 2.5vw, 32px);
+  border: 1px solid #b184e0;
+  border-radius: 22px;
+  background: linear-gradient(150deg, #271442, #120a22 68%);
+  box-shadow: 0 16px 50px #10071e, 0 2px 34px #8043cd70;
+}
+.studioLibrary::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: auto 4% -22px;
+  height: 62px;
+  pointer-events: none;
+  border-radius: 50%;
+  border: 1px solid #9c75ec;
+  box-shadow: 0 0 26px #713eab99;
+}
+.studioLibraryPreview {
+  min-width: 0;
+  max-height: 58svh;
+  overflow: auto;
+  background: #110a20;
+  border: 1px solid #a37bd9;
+  border-radius: 16px;
+  overscroll-behavior: contain;
+}
+.studioLibrary :is(.deviceChip[aria-current], .paletteItem[aria-pressed='true']) {
+  color: #211031;
+  background: #e9d4ff;
+  border-color: #f1e0fc;
+}
+.studioLibrary .actions p { margin: 0; }

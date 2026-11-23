@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
-import { ComposerDocument, DEFAULT_BLOCKS, readComposerBlocks, STARTING_LAYOUT, STORAGE_KEY, type Block } from './journeys/ComposerDocument';
+import { ComposerDocument, DEFAULT_BLOCKS, readComposerBlocks, saveComposerBlocks, STARTING_LAYOUT, type Block } from './journeys/ComposerDocument';
 import s from './WordPressStudio.module.css';
 
 export function WordPressPreviewOrbit({ onCustomize, onSwitch, primary, t }: Readonly<{
@@ -48,11 +48,7 @@ export function WordPressPreviewOrbit({ onCustomize, onSwitch, primary, t }: Rea
     if (!draftHero) return;
     const next = draft.map((block) => block.key === draftHero.key ? { ...block, align: value } : block);
     setDraft(next);
-    try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {
-      // The editable preview continues in memory if storage is unavailable.
-    }
+    saveComposerBlocks(next);
     cueAtmosphere('settle');
   }
 
