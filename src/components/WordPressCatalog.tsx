@@ -123,7 +123,12 @@ export async function WordPressCategoryPage({
 
       {studioTitle && firstParty}
 
-      {category === 'solutions' ? <BundleSurface /> : null}
+      {category === 'solutions' && (
+        <>
+          <BundleSurface />
+          <WordPressGoalIndex />
+        </>
+      )}
 
       {category === 'starter-sites' ? (
         <section className="shell" style={{ paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
@@ -191,7 +196,7 @@ function BundleSurface() {
   );
 }
 
-export function WordPressGoalIndex() {
+function WordPressGoalIndex() {
   return (
     <SystemIndex
       eyebrow="START WITH A GOAL"

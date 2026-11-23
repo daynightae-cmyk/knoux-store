@@ -7,6 +7,7 @@ import { useSiteLanguage } from '@/lib/i18n/use-language';
 import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
 import { SiteLanguagePicker } from '@/components/i18n/SiteLanguage';
 import { WordPressPreviewOrbit } from './WordPressPreviewOrbit';
+import { WordPressLibraryGateway } from './WordPressLibraryGateway';
 import { DeviceFrame } from './journeys/DeviceFrame';
 import { ThemeExplorer } from './journeys/ThemeExplorer';
 import { LiveCanvas } from './journeys/LiveCanvas';
@@ -50,35 +51,29 @@ const JOURNEYS = [
   { id: 'operations', code: '10', label: 'Operations Command Center' },
 ] as const;
 
+export type StudioJourney = (typeof JOURNEYS)[number]['id'];
+
 export function WordPressStudio({
   themes,
   plugins,
-  requestedJourney,
+  active,
+  onJourneyChange,
   onBack,
 }: {
   themes: Readonly<ExternalItem[]>;
   plugins: Readonly<ExternalItem[]>;
-  requestedJourney?: string;
+  active: StudioJourney;
+  onJourneyChange: (journey: StudioJourney) => void;
   onBack: () => void;
 }) {
   const t = useRouteCopy();
   const journeys = useRef<HTMLDialogElement>(null);
   const themePicker = useRef<HTMLDialogElement>(null);
+  const library = useRef<HTMLDialogElement>(null);
   const journeyHeading = useRef<HTMLHeadingElement>(null);
   const journeyTrigger = useRef<HTMLButtonElement>(null);
-  const [active, setActive] = useState<string>(JOURNEYS[0].id);
   const [primary, setPrimary] = useState<'draft' | 'starter'>('draft');
   const [slug, setSlug] = useState<string>(themes[0]?.slug ?? '');
-  // A hash/deep link asks for a journey. Adjust during render (the supported
-  // "state derived from props" pattern) instead of cascading an effect, while
-  // leaving later in-Studio selections untouched.
-  const [seenRequest, setSeenRequest] = useState<string | undefined>(undefined);
-  if (requestedJourney !== seenRequest) {
-    setSeenRequest(requestedJourney);
-    if (requestedJourney && JOURNEYS.some((entry) => entry.id === requestedJourney)) {
-      setActive(requestedJourney);
-    }
-  }
   // The arrival composer hands its words here — same tab via the event,
   // a return visit via session storage. The stored sentence is read through
   // an external-store subscription so server and client renders agree.
@@ -93,7 +88,6 @@ export function WordPressStudio({
       const words = (event as CustomEvent<string>).detail;
       if (typeof words === 'string' && words.trim()) {
         setIntent(words.trim());
-        setActive('arrival');
         cueAtmosphere('ready');
       }
     };
@@ -106,10 +100,10 @@ export function WordPressStudio({
     };
   }, []);
   const journey = JOURNEYS.find((entry) => entry.id === active) ?? JOURNEYS[0];
-  function changeJourney(next: string) {
+  function changeJourney(next: StudioJourney) {
     if (next === active) return;
     cueAtmosphere('confirm');
-    setActive(next);
+    onJourneyChange(next);
     window.requestAnimationFrame(() => {
       if (next === 'arrival') journeyTrigger.current?.focus();
       else journeyHeading.current?.focus();
@@ -128,7 +122,7 @@ export function WordPressStudio({
   });
 
   return (
-    <section className={styles.studio} aria-label="WordPress Studio">
+    <section className={styles.studio} aria-label="WordPress Studio" data-preview-home={active === 'arrival'}>
       <header className={styles.header}>
         <button id="wordpress-studio-back" type="button" className={styles.back} onClick={onBack}>
           <span aria-hidden="true">←</span> {t('Exit to arrival', 'العودة إلى بوابة الدخول')}
@@ -136,10 +130,12 @@ export function WordPressStudio({
         <SiteLanguagePicker />
       </header>
 
+      {active === 'arrival' && <p className={styles.wordmark}>KNOuX <span>STORE</span></p>}
       <h1 id="wordpress-studio-title" className={styles.studioTitle}>WordPress Studio</h1>
       <div className={styles.toolbar}>
         <button ref={journeyTrigger} type="button" onClick={() => journeys.current?.showModal()}>{t('Studio journeys', 'رحلات الاستوديو')}</button>
         {active === 'arrival' && <button type="button" onClick={() => themePicker.current?.showModal()}>{t('Themes', 'القوالب')}</button>}
+        {active === 'arrival' && <button type="button" onClick={() => library.current?.showModal()}>{t('WordPress library')}</button>}
         {active !== 'arrival' && <button type="button" onClick={() => changeJourney('arrival')}>{t('Preview orbit', 'مدار المعاينة')}</button>}
       </div>
 
@@ -160,6 +156,14 @@ export function WordPressStudio({
           ))}
         </nav>
       </dialog>
+
+      {active === 'arrival' && <dialog ref={library} className={`${styles.contextPanel} ${styles.libraryPanel}`} aria-labelledby="wordpress-library-panel">
+        <header>
+          <h3 id="wordpress-library-panel">{t('WordPress library')}</h3>
+          <button type="button" onClick={() => library.current?.close()}>{t('Close', 'إغلاق')}</button>
+        </header>
+        <WordPressLibraryGateway />
+      </dialog>}
 
       {active === 'arrival' && <dialog ref={themePicker} className={styles.contextPanel} aria-labelledby="wordpress-theme-panel">
         <header>

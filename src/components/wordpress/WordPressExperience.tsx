@@ -3,23 +3,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ExternalItem } from '@/lib/wordpress/external';
 import { WordPressWelcome } from './WordPressWelcome';
-import { WordPressStudio } from './WordPressStudio';
+import { WordPressStudio, type StudioJourney } from './WordPressStudio';
 
-type StudioJourney = 'arrival' | 'domain' | 'theme' | 'identity' | 'plugins' | 'canvas' | 'composer' | 'hosting' | 'build' | 'operations';
-
+// Canonical addresses precede the aliases accepted by older links.
 const HASH_JOURNEYS: Record<string, StudioJourney> = {
   '#studio': 'arrival',
-  '#system': 'arrival',
   '#domain': 'domain',
-  '#library': 'theme',
-  '#infrastructure': 'hosting',
-  '#operate': 'operations',
-  '#launch': 'composer',
-  '#build': 'build',
-  '#identity': 'identity',
   '#themes': 'theme',
+  '#identity': 'identity',
   '#plugins': 'plugins',
   '#canvas': 'canvas',
+  '#launch': 'composer',
+  '#infrastructure': 'hosting',
+  '#build': 'build',
+  '#operate': 'operations',
+  '#system': 'arrival',
+  '#library': 'theme',
 };
 
 function journeyFromHash(hash: string): StudioJourney | null {
@@ -107,6 +106,13 @@ export function WordPressExperience({
     }
   }, []);
 
+  function changeJourney(next: StudioJourney) {
+    setJourney(next);
+    const { pathname, search } = window.location;
+    const hash = Object.keys(HASH_JOURNEYS).find((key) => HASH_JOURNEYS[key] === next) ?? '#studio';
+    window.history.replaceState(window.history.state, '', `${pathname}${search}${hash}`);
+  }
+
   return (
     <div className="wp-experience" data-wordpress-experience data-phase={entered ? 'studio' : 'arrival'}>
       <div ref={returnFocus} className="wp-experience__arrival" hidden={entered}>
@@ -118,7 +124,7 @@ export function WordPressExperience({
           event.preventDefault();
           closeStudio();
         }}>
-        <WordPressStudio themes={themes} plugins={plugins} requestedJourney={journey} onBack={closeStudio} />
+        <WordPressStudio themes={themes} plugins={plugins} active={journey} onJourneyChange={changeJourney} onBack={closeStudio} />
       </dialog>
     </div>
   );

@@ -238,6 +238,7 @@ export const ROUTE_COPY: Record<string, readonly [string, string]> = {
   "Restore drill recorded": ["توثيق تجربة الاستعادة", "بحالی کی مشق کا ریکارڈ"],
   "Operating agreement attached": ["إرفاق اتفاقية التشغيل", "آپریشنل معاہدے کی دستاویز"],
   "Trusted operations": ["عمليات التشغيل الموثوقة", "قابل اعتماد آپریشنز"],
+  "WordPress library": ["مكتبة ووردبريس", "ورڈپریس لائبریری"],
   "Open trusted operations": ["افتح عمليات التشغيل الموثوقة", "قابل اعتماد آپریشنز کھولیں"],
   "Layout draft saved in this tab.": ["تم حفظ مسودة التخطيط في هذا التبويب.", "لے آؤٹ کا مسودہ اس ٹیب میں محفوظ ہو گیا۔"],
   "Open composer": ["فتح محرر الموقع","سائٹ ایڈیٹر کھولیں"],
