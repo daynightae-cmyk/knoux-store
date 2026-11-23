@@ -1,0 +1,98 @@
+[
+  {
+    "width": 1920,
+    "height": 1080,
+    "initial": "references/store-20261123/qa/screen-06/after-1920x1080.png",
+    "result": "references/store-20261123/qa/screen-06/unconfigured-1920x1080.png",
+    "geometry": {
+      "width": 1920,
+      "content": 1920
+    },
+    "configuration": "unconfigured",
+    "responseHttpStatus": 200,
+    "actualResponseState": "unconfigured",
+    "assistedRequest": true,
+    "inputResetsPreviousResult": true,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "initial": "references/store-20261123/qa/screen-06/after-1440x900.png",
+    "result": "references/store-20261123/qa/screen-06/unconfigured-1440x900.png",
+    "geometry": {
+      "width": 1440,
+      "content": 1440
+    },
+    "configuration": "unconfigured",
+    "responseHttpStatus": 200,
+    "actualResponseState": "unconfigured",
+    "assistedRequest": true,
+    "inputResetsPreviousResult": true,
+    "errors": []
+  },
+  {
+    "width": 1024,
+    "height": 768,
+    "initial": "references/store-20261123/qa/screen-06/after-1024x768.png",
+    "result": "references/store-20261123/qa/screen-06/unconfigured-1024x768.png",
+    "geometry": {
+      "width": 1024,
+      "content": 1024
+    },
+    "configuration": "unconfigured",
+    "responseHttpStatus": 200,
+    "actualResponseState": "unconfigured",
+    "assistedRequest": true,
+    "inputResetsPreviousResult": true,
+    "errors": []
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "initial": "references/store-20261123/qa/screen-06/after-768x1024.png",
+    "result": "references/store-20261123/qa/screen-06/unconfigured-768x1024.png",
+    "geometry": {
+      "width": 768,
+      "content": 768
+    },
+    "configuration": "unconfigured",
+    "responseHttpStatus": 200,
+    "actualResponseState": "unconfigured",
+    "assistedRequest": true,
+    "inputResetsPreviousResult": true,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "initial": "references/store-20261123/qa/screen-06/after-390x844.png",
+    "result": "references/store-20261123/qa/screen-06/unconfigured-390x844.png",
+    "geometry": {
+      "width": 390,
+      "content": 390
+    },
+    "configuration": "unconfigured",
+    "responseHttpStatus": 200,
+    "actualResponseState": "unconfigured",
+    "assistedRequest": true,
+    "inputResetsPreviousResult": true,
+    "errors": []
+  },
+  {
+    "width": 360,
+    "height": 800,
+    "initial": "references/store-20261123/qa/screen-06/after-360x800.png",
+    "result": "references/store-20261123/qa/screen-06/unconfigured-360x800.png",
+    "geometry": {
+      "width": 360,
+      "content": 360
+    },
+    "configuration": "unconfigured",
+    "responseHttpStatus": 200,
+    "actualResponseState": "unconfigured",
+    "assistedRequest": true,
+    "inputResetsPreviousResult": true,
+    "errors": []
+  }
+]

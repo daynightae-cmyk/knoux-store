@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { wordPressItems, type WordPressItemType } from '@/data/wordpress';
 
 /**

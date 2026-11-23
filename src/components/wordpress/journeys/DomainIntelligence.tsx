@@ -13,11 +13,12 @@
  * name itself (length, character makeup) and says so; it never fabricates a
  * match score, a discount or a trending badge.
  */
-import { useCallback, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { formatMoney, TLD_SHORTCUTS, type DomainAvailability } from '@/lib/domain/shared';
 import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
 import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
+import { DomainProvenance } from '../DomainProvenance';
 import s from './journeys.module.css';
 
 type Phase =
@@ -26,7 +27,7 @@ type Phase =
   | { kind: 'unconfigured' }
   | { kind: 'error' }
   | { kind: 'invalid'; message: string }
-  | { kind: 'results'; results: DomainAvailability[]; provider: string | null; checkedAt: string; elapsedMs: number };
+  | { kind: 'results'; results: DomainAvailability[]; provider: string | null; elapsedMs: number };
 
 const STATE_TONE: Record<DomainAvailability['state'], { en: string; ar: string; tone: 'ok' | 'signal' | 'off' | 'warn' }> = {
   available: { en: 'Available', ar: 'متاح', tone: 'ok' },
@@ -59,14 +60,36 @@ export function DomainIntelligence() {
   const [selected, setSelected] = useState<string | null>(null);
   const [review, setReview] = useState<{ state: string; message: string; externalReference: string | null } | null>(null);
   const [reviewBusy, setReviewBusy] = useState(false);
-  const requestRef = useRef(0);
+  const searchRef = useRef<AbortController | null>(null);
+  const reviewRef = useRef<AbortController | null>(null);
+
+  useEffect(() => () => {
+    searchRef.current?.abort();
+    reviewRef.current?.abort();
+  }, []);
+
+  const clearReview = useCallback(() => {
+    reviewRef.current?.abort();
+    reviewRef.current = null;
+    setReview(null);
+    setReviewBusy(false);
+  }, []);
+
+  const clearResults = useCallback(() => {
+    searchRef.current?.abort();
+    searchRef.current = null;
+    setPhase({ kind: 'idle' });
+    setSelected(null);
+    clearReview();
+  }, [clearReview]);
 
   const toggleTld = useCallback((tld: string) => {
+    clearResults();
     cueAtmosphere('settle');
     setTlds((current) =>
       current.includes(tld) ? (current.length === 1 ? current : current.filter((entry) => entry !== tld)) : [...current, tld],
     );
-  }, []);
+  }, [clearResults]);
 
   const submit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -75,58 +98,70 @@ export function DomainIntelligence() {
       setPhase({ kind: 'invalid', message: 'Enter a name to search for.' });
       return;
     }
-    const ticket = requestRef.current + 1;
-    requestRef.current = ticket;
+    searchRef.current?.abort();
+    const controller = new AbortController();
+    searchRef.current = controller;
     setPhase({ kind: 'checking' });
     setSelected(null);
-    setReview(null);
+    clearReview();
     cueAtmosphere('ready');
     const startedAt = performance.now();
     const params = new URLSearchParams({ q: trimmed });
     for (const tld of tlds) params.append('tld', tld);
     try {
-      const response = await fetch(`/api/domain/search?${params.toString()}`, { headers: { accept: 'application/json' } });
+      const response = await fetch(`/api/domain/search?${params.toString()}`, {
+        headers: { accept: 'application/json' },
+        signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]),
+      });
       const body = (await response.json()) as {
-        state?: string; message?: string; provider?: string | null; checkedAt?: string; results?: DomainAvailability[];
+        state?: string; message?: string; provider?: string | null; results?: DomainAvailability[];
       };
-      if (requestRef.current !== ticket) return;
+      if (controller.signal.aborted || searchRef.current !== controller) return;
       if (body.state === 'unconfigured') {
         setPhase({ kind: 'unconfigured' });
-      } else if (body.state === 'error') {
-        setPhase({ kind: 'error' });
-        cueAtmosphere('error');
       } else if (body.state === 'invalid' || body.state === 'rate-limited') {
         setPhase({ kind: 'invalid', message: body.message ?? 'That search could not be run.' });
-      } else {
-        const results = body.results ?? [];
+      } else if (response.ok && body.state === 'checked' && Array.isArray(body.results)) {
+        const results = body.results;
         setPhase({
           kind: 'results', results,
           provider: body.provider ?? null,
-          checkedAt: body.checkedAt ?? new Date().toISOString(),
           elapsedMs: Math.round(performance.now() - startedAt),
         });
         setSelected(results.find((entry) => entry.state === 'available')?.domain ?? results[0]?.domain ?? null);
         cueAtmosphere('success');
+      } else {
+        setPhase({ kind: 'error' });
+        cueAtmosphere('error');
       }
     } catch {
-      if (requestRef.current !== ticket) return;
+      if (controller.signal.aborted || searchRef.current !== controller) return;
       setPhase({ kind: 'error' });
       cueAtmosphere('error');
     }
-  }, [query, tlds]);
+  }, [clearReview, query, tlds]);
 
   async function reviewRegistration(domain: string) {
+    clearReview();
+    const controller = new AbortController();
+    reviewRef.current = controller;
     setReviewBusy(true);
     try {
       const response = await fetch('/api/domain/registration', {
         method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ domain }),
+        signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]),
       });
       const value = await response.json();
+      if (controller.signal.aborted || reviewRef.current !== controller) return;
       setReview(value.state ? value : { state: 'REGISTRATION_REQUIRES_OPERATOR', message: 'Registration capability could not be verified.', externalReference: null });
     } catch {
+      if (controller.signal.aborted || reviewRef.current !== controller) return;
       setReview({ state: 'REGISTRATION_REQUIRES_OPERATOR', message: 'Registration capability could not be verified. No purchase was requested.', externalReference: null });
     } finally {
-      setReviewBusy(false);
+      if (reviewRef.current === controller) {
+        reviewRef.current = null;
+        setReviewBusy(false);
+      }
     }
   }
 
@@ -135,11 +170,12 @@ export function DomainIntelligence() {
   const chosen = results.find((entry) => entry.domain === selected) ?? null;
   const setupHref = `/contact?${new URLSearchParams({
     requestType: 'wordpress',
-    items: `Assisted domain review: ${query.trim() || 'name to be agreed'} · extensions: ${tlds.join(', ')} · availability not verified`,
+    items: `Assisted domain review: ${chosen?.domain || query.trim() || 'name to be agreed'} · extensions: ${tlds.join(', ')} · confirm current availability`,
   }).toString()}`;
 
   return (
     <section className={s.domainJourney} aria-label={t('Domain Intelligence')}>
+      <DomainProvenance />
       <form className={s.domainSearchRow} onSubmit={submit} role="search" noValidate>
         <label className={s.domainSearch}>
           <span className={s.visuallyHidden}>{t('Find your domain', 'ابحث عن نطاقك')}</span>
@@ -147,12 +183,13 @@ export function DomainIntelligence() {
           <input
             type="text"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => { setQuery(event.target.value); clearResults(); }}
             placeholder={t('yourbrand', 'اسم-علامتك')}
             autoComplete="off"
             autoCapitalize="none"
             spellCheck={false}
-            maxLength={63}
+            maxLength={253}
+            inputMode="url"
           />
         </label>
         <button type="submit" className={s.primaryAction} disabled={busy}>
@@ -163,7 +200,7 @@ export function DomainIntelligence() {
       <div className={s.domainChips} role="group" aria-label={t('Extensions to check', 'الامتدادات المطلوب فحصها')}>
         <span className={s.chipsLabel}>{t('TLD quick add', 'إضافة امتداد')}</span>
         {TLD_SHORTCUTS.map((tld) => (
-          <button key={tld} type="button" className={s.filter} aria-pressed={tlds.includes(tld)} onClick={() => toggleTld(tld)}>
+          <button key={tld} type="button" className={s.filter} aria-pressed={tlds.includes(tld)} disabled={tlds.length === 1 && tlds.includes(tld)} onClick={() => toggleTld(tld)}>
             .{tld}
           </button>
         ))}
@@ -225,7 +262,7 @@ export function DomainIntelligence() {
                       className={s.domainRow}
                       data-tone={tone.tone}
                       aria-pressed={isSelected}
-                      onClick={() => { if (!isSelected) { cueAtmosphere('confirm'); setReview(null); } setSelected(entry.domain); }}
+                      onClick={() => { if (!isSelected) { cueAtmosphere('confirm'); clearReview(); } setSelected(entry.domain); }}
                     >
                       <span className={s.domainName}>{entry.domain}</span>
                       <span className={s.domainProvider}>{entry.provider}</span>
@@ -260,7 +297,7 @@ export function DomainIntelligence() {
                 <div><dt>{t('Renewal', 'التجديد')}</dt><dd>{formatMoney(chosen.renewal) ?? t('Not published', 'غير منشور')}</dd></div>
                 <div>
                   <dt>{t('Checked', 'وقت الفحص')}</dt>
-                  <dd><time dateTime={chosen.checkedAt}>{new Date(chosen.checkedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</time></dd>
+                  <dd>{Number.isFinite(Date.parse(chosen.checkedAt)) ? <time dateTime={chosen.checkedAt}>{new Date(chosen.checkedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</time> : '—'}</dd>
                 </div>
               </dl>
               {chosen.reason ? <p className={s.empty}>{chosen.reason}</p> : null}

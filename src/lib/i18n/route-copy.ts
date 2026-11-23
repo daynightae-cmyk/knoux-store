@@ -211,6 +211,8 @@ export const ROUTE_COPY: Record<string, readonly [string, string]> = {
   "Studio journeys": ["رحلات الاستوديو", "اسٹوڈیو کے سفر"],
   "The name comes first.": ["الاسم يأتي أولاً.", "نام سب سے پہلے آتا ہے۔"],
   "A registrar is the only authority on whether a domain can be registered. KNOuX shows exactly what it said.": ["سجل النطاقات هو المرجع الوحيد لما إذا كان يمكن تسجيل النطاق. يعرض KNOuX ما قاله بالضبط.", "ڈومین رجسٹرار ہی اس بات کا واحد مستند ہے کہ ڈومین رجسٹر ہو سکتا ہے یا نہیں۔ KNOuX بالکل وہی دکھاتا ہے جو اس نے کہا۔"],
+  "Partially configured": ["إعداد غير مكتمل", "جزوی طور پر ترتیب شدہ"],
+  "Registrar status unavailable": ["حالة جهة التسجيل غير متاحة", "رجسٹرار کی حالت دستیاب نہیں"],
   "Provider state": ["حالة المزود", "فراہم کنندہ کی حالت"],
   "Not configured": ["غير مُهيأ", "ترتیب نہیں دی گئی"],
   "Last check": ["آخر فحص", "آخری جانچ"],

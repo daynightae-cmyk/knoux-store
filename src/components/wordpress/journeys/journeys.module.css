@@ -1144,3 +1144,18 @@
 
 .selectionTray { display: grid; gap: 12px; margin-top: 14px; }
 .pluginsJourney > button { align-self: flex-start; margin-top: 14px; }
+
+.domainConnection {
+  background: #1c112d;
+  border: 1px solid #9e73c296;
+  border-radius: 12px;
+  padding-inline: 14px;
+}
+.domainConnection summary {
+  min-height: 44px;
+  padding-block: 12px;
+  color: #f2e7fb;
+  cursor: pointer;
+}
+.domainConnection summary strong { margin-inline-start: 12px; color: #ddbbfa; }
+.domainConnection p { margin: 0 0 12px; }
