@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { formatMoney, TLD_SHORTCUTS, type DomainAvailability } from '@/lib/domain/shared';
+import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
 
 /**
  * Domain Finder.
@@ -171,6 +172,7 @@ export function DomainFinder() {
           setState({ phase: 'unconfigured' });
         } else if (body.state === 'error') {
           setState({ phase: 'error' });
+          cueAtmosphere('error');
         } else if (body.state === 'invalid' || body.state === 'rate-limited') {
           setState({ phase: 'invalid', message: body.message ?? 'That search could not be run.' });
         } else {
@@ -180,12 +182,15 @@ export function DomainFinder() {
             provider: body.provider ?? null,
             checkedAt: body.checkedAt ?? new Date().toISOString(),
           });
+          // A registrar answered: the sky acknowledges the real result.
+          cueAtmosphere('success');
         }
       } catch {
         if (requestRef.current !== ticket) return;
         // A network failure is reported as a failure. It is never rendered as
         // an availability answer.
         setState({ phase: 'error' });
+        cueAtmosphere('error');
       }
     },
     [query, selected],

@@ -1,0 +1,378 @@
+/* WordPress arrival — reference 83374. One full-viewport card: painted
+   nebula banks, two orbital rings, the canonical particle mark inside a
+   luminous gateway, four glass destinations and the intent composer on the
+   light floor. Stars, worlds, storms and the real-clock sky come from the
+   shared cosmic canvas behind the division. */
+
+.scene {
+  --px: 0;
+  --py: 0;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100svh;
+  /* The division keeps the global fixed header (78px, 68px on phones); the
+     card starts below it so nothing collides with the site navigation. */
+  padding: clamp(92px, 12vh, 128px) clamp(18px, 4vw, 64px) clamp(96px, 18vh, 200px);
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------- sky ---- */
+.nebula {
+  position: absolute;
+  z-index: -3;
+  inset: -4%;
+  pointer-events: none;
+  translate: calc(var(--px) * -10px) calc(var(--py) * -7px);
+  background:
+    radial-gradient(ellipse 26% 20% at 10% 14%, rgba(147, 51, 234, .34), transparent 70%),
+    radial-gradient(ellipse 22% 17% at 92% 18%, rgba(192, 84, 252, .26), transparent 70%),
+    radial-gradient(ellipse 18% 16% at 99% 82%, rgba(126, 34, 206, .3), transparent 70%),
+    radial-gradient(ellipse 15% 13% at 1% 70%, rgba(109, 40, 217, .26), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 50% 55%, rgba(46, 22, 86, .3), transparent 74%);
+}
+.nebula::before, .nebula::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.nebula::before {
+  transform: rotate(-30deg);
+  background:
+    radial-gradient(ellipse 22% 1.7% at 15% 32%, rgba(233, 213, 255, .34), transparent 70%),
+    radial-gradient(ellipse 26% 3.2% at 11% 35%, rgba(126, 34, 206, .4), transparent 70%),
+    radial-gradient(ellipse 9% .8% at 17% 30%, rgba(255, 255, 255, .32), transparent 74%);
+  animation: wpWelcomeDust 28s ease-in-out infinite alternate;
+}
+.nebula::after {
+  transform: rotate(26deg);
+  background:
+    radial-gradient(ellipse 18% 1.6% at 85% 26%, rgba(196, 132, 252, .32), transparent 72%),
+    radial-gradient(ellipse 22% 2.8% at 89% 22%, rgba(107, 33, 168, .4), transparent 72%),
+    radial-gradient(ellipse 8% .8% at 87% 25%, rgba(255, 255, 255, .28), transparent 74%);
+  animation: wpWelcomeDust 34s ease-in-out infinite alternate-reverse;
+}
+@keyframes wpWelcomeDust {
+  from { opacity: .72; scale: 1; }
+  to { opacity: 1; scale: 1.05; }
+}
+
+.dust {
+  position: absolute;
+  z-index: -3;
+  inset: -6%;
+  width: 112%;
+  height: 112%;
+  pointer-events: none;
+  opacity: .55;
+  mix-blend-mode: screen;
+  translate: calc(var(--px) * -12px) calc(var(--py) * -8px);
+  -webkit-mask-image:
+    radial-gradient(ellipse 24% 20% at 11% 16%, #000 0 30%, transparent 70%),
+    radial-gradient(ellipse 22% 18% at 93% 20%, #000 0 28%, transparent 70%),
+    radial-gradient(ellipse 16% 15% at 98% 84%, #000 0 24%, transparent 70%),
+    radial-gradient(ellipse 14% 12% at 2% 70%, #000 0 20%, transparent 70%);
+  mask-image:
+    radial-gradient(ellipse 24% 20% at 11% 16%, #000 0 30%, transparent 70%),
+    radial-gradient(ellipse 22% 18% at 93% 20%, #000 0 28%, transparent 70%),
+    radial-gradient(ellipse 16% 15% at 98% 84%, #000 0 24%, transparent 70%),
+    radial-gradient(ellipse 14% 12% at 2% 70%, #000 0 20%, transparent 70%);
+}
+
+/* ------------------------------------------------------------- header ---- */
+.header { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
+.title {
+  margin: 0;
+  font: 300 clamp(34px, 4.6vw, 66px)/1.08 'Segoe UI Light', 'Segoe UI', Arial, sans-serif;
+  letter-spacing: -.02em;
+  color: #faf6ff;
+  text-shadow: 0 0 34px rgba(168, 85, 247, .35);
+}
+.lede {
+  margin: clamp(6px, 1.4vh, 14px) 0 0;
+  font: 400 clamp(14px, 1.35vw, 19px)/1.5 'Segoe UI', Arial, sans-serif;
+  color: #d9cbe9;
+}
+
+/* -------------------------------------------------------------- field ---- */
+.field {
+  position: relative;
+  z-index: 1;
+  width: min(1200px, 100%);
+  flex: 1;
+  min-height: clamp(320px, 46vh, 560px);
+  margin-top: clamp(12px, 2.6vh, 30px);
+}
+.rings { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.travelA { animation: wpWelcomeTravel 26s linear infinite; }
+.travelB { animation: wpWelcomeTravel 19s linear infinite reverse; }
+@keyframes wpWelcomeTravel { to { stroke-dashoffset: -1000; } }
+
+.nodeField { position: absolute; inset: 0; pointer-events: none; }
+.orbitNode {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px;
+  border-radius: 50%;
+  background: #fdf9ff;
+  box-shadow: 0 0 10px 2px rgba(216, 180, 254, .8);
+  animation: wpWelcomeNode 5.4s ease-in-out infinite;
+}
+.orbitNodeSm { width: 4px; height: 4px; margin: -2px; opacity: .75; }
+@keyframes wpWelcomeNode { 50% { opacity: .35; scale: .8; } }
+
+/* --------------------------------------------------------------- core ---- */
+.core {
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  translate: -50% -50%;
+  width: clamp(190px, 24vw, 320px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.core:focus-visible { outline: 2px solid #e5ccff; outline-offset: 8px; }
+.coreHalo {
+  position: absolute;
+  inset: -18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(168, 85, 247, .3), rgba(124, 58, 237, .12) 52%, transparent 72%);
+  animation: wpWelcomeHalo 7s ease-in-out infinite;
+}
+@keyframes wpWelcomeHalo { 50% { opacity: .7; scale: 1.05; } }
+.coreRing {
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
+  border: 1px solid rgba(226, 196, 255, .5);
+  box-shadow: inset 0 0 30px rgba(168, 85, 247, .3), 0 0 24px rgba(168, 85, 247, .24);
+  background: radial-gradient(circle at 38% 30%, rgba(88, 44, 150, .34), rgba(16, 8, 32, .5) 68%);
+}
+.mark {
+  position: relative;
+  width: 58%;
+  height: auto;
+  filter: drop-shadow(0 0 22px rgba(168, 85, 247, .55));
+  transition: scale 420ms cubic-bezier(.2, .72, .24, 1);
+}
+.core:hover .mark, .core:focus-visible .mark { scale: 1.05; }
+
+/* -------------------------------------------------------------- pills ---- */
+.nodes { position: absolute; inset: 0; }
+.node {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(9px, .9vw, 14px);
+  min-height: clamp(48px, 5.4vh, 62px);
+  padding: 8px clamp(18px, 1.8vw, 30px);
+  border-radius: 999px;
+  border: 1px solid rgba(216, 180, 254, .38);
+  background: linear-gradient(150deg, rgba(88, 48, 150, .4), rgba(20, 10, 38, .68));
+  backdrop-filter: blur(9px) saturate(1.3);
+  -webkit-backdrop-filter: blur(9px) saturate(1.3);
+  box-shadow: inset 0 1px 0 rgba(245, 235, 255, .22), 0 10px 32px rgba(4, 2, 10, .5), 0 0 22px rgba(147, 51, 234, .14);
+  color: #f3eafa;
+  font: 400 clamp(15px, 1.3vw, 19px)/1 Verdana, Arial, sans-serif;
+  transition: border-color 220ms ease, box-shadow 220ms ease, translate 220ms ease;
+}
+.node:hover, .node:focus-visible {
+  border-color: rgba(233, 213, 255, .7);
+  box-shadow: inset 0 1px 0 rgba(250, 242, 255, .3), 0 12px 38px rgba(4, 2, 10, .55), 0 0 34px rgba(168, 85, 247, .32);
+  translate: 0 -2px;
+}
+.node:focus-visible { outline: 2px solid #e5ccff; outline-offset: 4px; }
+.nodeIcon { display: grid; place-items: center; flex: none; width: clamp(28px, 2.2vw, 40px); aspect-ratio: 1; color: #efe0ff; }
+.nodeIcon svg { width: 78%; height: 78%; filter: drop-shadow(0 0 6px rgba(192, 132, 252, .6)); }
+.pin {
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: #e9d5ff;
+  box-shadow: 0 0 9px 2px rgba(216, 180, 254, .75);
+}
+.pin::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 1px;
+  height: 10px;
+  background: linear-gradient(180deg, transparent, rgba(216, 180, 254, .6));
+}
+
+@media (min-width: 901px) {
+  .store { left: 6%; top: 16%; }
+  .themes { right: 6%; top: 16%; }
+  .plugins { left: 9%; bottom: 12%; }
+  .studio { right: 9%; bottom: 12%; }
+}
+
+/* ------------------------------------------------------------ compose ---- */
+.compose {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: min(680px, 100%);
+  margin-top: clamp(10px, 2vh, 22px);
+}
+.compose input {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(216, 180, 254, .34);
+  background: rgba(14, 8, 26, .6);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+  color: #f6f0ff;
+  font: 400 15px/1.4 Verdana, Arial, sans-serif;
+  text-align: center;
+}
+.compose input::placeholder { color: #a895c2; }
+.compose input:focus-visible { outline: 2px solid #dcb7ff; outline-offset: 3px; }
+.enter {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 12px clamp(24px, 3vw, 44px);
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(140deg, #f4eaff, #d9bdf7);
+  color: #241238;
+  font: 600 clamp(14px, 1.2vw, 17px)/1 Verdana, Arial, sans-serif;
+  box-shadow: 0 0 34px rgba(216, 180, 254, .4), inset 0 1px 0 #fff;
+  transition: box-shadow 220ms ease, translate 220ms ease;
+}
+.enter:hover, .enter:focus-visible { translate: 0 -2px; box-shadow: 0 0 48px rgba(216, 180, 254, .6), inset 0 1px 0 #fff; }
+.enter:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+.enter span { transition: translate 220ms ease; }
+.enter:hover span { translate: 4px 0; }
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.chips button {
+  min-height: 36px;
+  padding: 6px 15px;
+  border-radius: 999px;
+  border: 1px solid rgba(196, 164, 255, .28);
+  background: rgba(30, 16, 54, .45);
+  color: #d8c8ec;
+  font: 400 12px/1 Verdana, Arial, sans-serif;
+  transition: border-color 180ms ease, color 180ms ease;
+}
+.chips button:hover, .chips button:focus-visible { border-color: rgba(226, 196, 255, .6); color: #f3eafa; }
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0 0;
+  color: #b9a8cf;
+  font: 400 11px/1.4 var(--mono, monospace);
+  letter-spacing: .06em;
+}
+.status i { width: 6px; height: 6px; border-radius: 50%; background: #8b8798; }
+.status i[data-online='true'] { background: #7fe0b0; box-shadow: 0 0 8px rgba(127, 224, 176, .8); }
+
+/* --------------------------------------------------------------- limb ---- */
+.limb {
+  position: absolute;
+  z-index: -1;
+  left: -16%;
+  right: -16%;
+  bottom: -4%;
+  height: 20%;
+  min-height: 130px;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  border-top: 2.5px solid rgba(245, 236, 255, .85);
+  background:
+    radial-gradient(ellipse 46% 62% at 50% 0%, rgba(196, 164, 247, .5), transparent 74%),
+    radial-gradient(ellipse 100% 100% at 50% -14%, rgba(61, 31, 122, .55), rgba(7, 5, 14, .95) 60%);
+  box-shadow: 0 -14px 48px rgba(217, 184, 255, .4), inset 0 20px 56px rgba(168, 85, 247, .18);
+  pointer-events: none;
+}
+.limb::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: .8;
+  background:
+    radial-gradient(ellipse 5% 2.2% at 30% 12%, rgba(255, 190, 140, .16), transparent 72%),
+    radial-gradient(ellipse 6% 2.4% at 52% 10%, rgba(255, 200, 150, .18), transparent 72%),
+    radial-gradient(circle 2.1px at 22% 14%, rgba(255, 208, 168, .9), transparent),
+    radial-gradient(circle 1.6px at 34% 30%, rgba(255, 170, 120, .8), transparent),
+    radial-gradient(circle 2.3px at 47% 12%, rgba(255, 200, 150, .9), transparent),
+    radial-gradient(circle 1.4px at 58% 26%, rgba(255, 180, 130, .8), transparent),
+    radial-gradient(circle 2px at 69% 15%, rgba(255, 190, 140, .85), transparent),
+    radial-gradient(circle 1.6px at 79% 32%, rgba(255, 170, 120, .7), transparent);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ compact ---- */
+@media (max-width: 900px), (max-width: 1100px) and (orientation: portrait) {
+  .scene { padding-top: 84px; padding-bottom: clamp(90px, 16vh, 150px); }
+  .title { font-size: clamp(30px, 7.6vw, 44px); }
+  .field { min-height: clamp(360px, 52vh, 480px); }
+  .rings, .nodeField { display: none; }
+  .core { top: 34%; width: clamp(180px, 46vw, 250px); }
+  .nodes {
+    inset: auto 0 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding: 0 clamp(2px, 1vw, 12px);
+  }
+  .node { position: static; justify-content: center; min-height: 52px; font-size: 15px; }
+  .pin { display: none; }
+  .compose { margin-top: 18px; }
+}
+
+@media (max-width: 480px) {
+  .scene { padding-inline: 14px; }
+  .lede { font-size: 13.5px; }
+  .node { padding: 8px 12px; gap: 8px; font-size: 14px; }
+  .nodeIcon { width: 26px; }
+  .enter { width: 100%; justify-content: center; }
+  .chips button { font-size: 11px; min-height: 34px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nebula, .dust { translate: none !important; }
+  .nebula::before, .nebula::after, .travelA, .travelB, .orbitNode, .coreHalo { animation: none !important; }
+  .mark, .enter, .node { transition: none !important; }
+}

@@ -16,6 +16,8 @@ npm-debug.log*
 qa-*.png
 *.png
 !public/creative/material-study-v2.png
+# Preserve the 13 owner-approved KNOUX Store references for Git integration.
+!/references/approved/store-20261123/*.png
 # Preserve the supplied design originals; generated browser evidence stays local.
 !/references/build V3/*.png
 !/references/nsis/originals/*.png

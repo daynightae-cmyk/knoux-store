@@ -35,7 +35,9 @@ body:has(.dev-cinematic) { overflow: hidden; }
    right and right edge, faint veils upper-left, a tiled star field and the
    planet limb. Every Build surface shares these two layers, so no page places
    a reference screenshot behind its content. */
-.dev-drawn-sky { position:absolute; inset:0; z-index:-2; pointer-events:none; background:
+/* --cosmic-glow is written by the shared sky from the visitor's real clock:
+   1 at deep night, ~.55 at midday. The painted banks dim with it. */
+.dev-drawn-sky { position:absolute; inset:0; z-index:-2; pointer-events:none; opacity:calc(.55 + .45 * var(--cosmic-glow, 1)); transition:opacity 2s ease; background:
   radial-gradient(ellipse 30% 17% at 74% 7%,#c084fc6b,transparent 68%),
   radial-gradient(ellipse 16% 11% at 85% 3%,#e9d5ff4a,transparent 70%),
   radial-gradient(ellipse 24% 34% at 100% 42%,#9333ea5e,transparent 68%),

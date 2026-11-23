@@ -1,4 +1,12 @@
-import { permanentRedirect } from 'next/navigation';
+import { BuildPlatformEntry } from '@/components/build/dev/BuildPlatformEntry';
+import { pageMetadata } from '@/lib/metadata';
 
-/** The One Platform constellation is the Build entry itself now. */
-export default function Page() { permanentRedirect('/build'); }
+export const metadata = pageMetadata(
+  'One Platform',
+  'The KNOuX Build constellation: services, apps, intelligence and control on one platform.',
+  '/build/platform'
+);
+
+export default function Page() {
+  return <BuildPlatformEntry />;
+}

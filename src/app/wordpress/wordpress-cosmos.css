@@ -1,0 +1,92 @@
+/* The WordPress universe: one fixed cosmic field behind every page of the
+   division. The canvas paints sky tone, stars, worlds, storms and pulses;
+   these layers add the painted nebula banks and the planet limb in the same
+   code-only vocabulary as the Build shell. All of it is click-through. */
+
+.wp-cosmos { position: relative; isolation: isolate; }
+/* WordPress has its own bilingual Store masthead, shared by all ten screens. */
+body:has(.wp-cosmos) .site-header { display: none; }
+.wp-cosmos main > .shell:first-of-type { padding-top: 110px; }
+
+.wp-cosmos__field {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  /* The canvas paints nebula, stars and worlds; this base tone follows the
+     same real-clock phase through --cosmic-glow (1 at night, ~.55 at day). */
+  background: linear-gradient(180deg, #0d0a1c 0%, #0a0716 55%, #070510 100%);
+}
+.wp-cosmos__field::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(30, 34, 66, .5), rgba(18, 20, 42, .34) 60%, rgba(10, 10, 24, .2));
+  opacity: calc(1 - var(--cosmic-glow, 1));
+  transition: opacity 2s ease;
+}
+
+.wp-cosmos__canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .9; }
+
+/* Nebula banks: violet filaments upper-left and upper-right, a magenta veil
+   on the right edge, deep haze at the lower horizon. The canvas stars drift
+   through them. */
+.wp-cosmos__banks {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 30% 18% at 8% 6%, rgba(168, 85, 247, .22), transparent 68%),
+    radial-gradient(ellipse 26% 16% at 92% 8%, rgba(217, 70, 239, .16), transparent 70%),
+    radial-gradient(ellipse 22% 30% at 100% 44%, rgba(147, 51, 234, .14), transparent 68%),
+    radial-gradient(ellipse 30% 18% at 2% 64%, rgba(109, 40, 217, .12), transparent 70%),
+    radial-gradient(ellipse 70% 24% at 50% 108%, rgba(88, 48, 168, .2), transparent 64%);
+}
+
+/* The planet limb along the bottom edge — same geometry language as the
+   Build shell's drawn limb, tuned quieter so long-form content stays calm. */
+.wp-cosmos__limb {
+  position: absolute;
+  left: -14%;
+  right: -14%;
+  bottom: -3%;
+  height: 18%;
+  min-height: 120px;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  border-top: 2px solid rgba(245, 236, 255, .5);
+  background:
+    radial-gradient(ellipse 46% 62% at 50% 0%, rgba(196, 164, 247, .32), transparent 74%),
+    radial-gradient(ellipse 100% 100% at 50% -14%, rgba(61, 31, 122, .42), rgba(7, 5, 14, .9) 60%);
+  box-shadow: 0 -12px 44px rgba(217, 184, 255, .28), inset 0 18px 50px rgba(168, 85, 247, .12);
+}
+.wp-cosmos__limb::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: .65;
+  background:
+    radial-gradient(circle 2px at 24% 34%, rgba(255, 190, 140, .7), transparent),
+    radial-gradient(circle 1.6px at 36% 52%, rgba(255, 170, 120, .6), transparent),
+    radial-gradient(circle 2.2px at 48% 26%, rgba(255, 200, 150, .75), transparent),
+    radial-gradient(circle 1.4px at 58% 44%, rgba(255, 180, 130, .6), transparent),
+    radial-gradient(circle 2px at 68% 30%, rgba(255, 190, 140, .65), transparent),
+    radial-gradient(circle 1.6px at 78% 48%, rgba(255, 170, 120, .55), transparent);
+}
+
+/* Existing WordPress surfaces painted an opaque page background; on the
+   cosmos they become translucent glass so the living sky reads through.
+   Content, contrast and layout are untouched. */
+.wp-cosmos .eco-hero { background: rgba(10, 7, 20, .55); }
+.wp-cosmos .eco-hero__sky { opacity: .5; }
+.wp-cosmos .eco-hero__horizon { opacity: .85; }
+.wp-cosmos .page-intro {
+  background:
+    radial-gradient(ellipse 44% 36% at 10% -6%, rgba(168, 85, 247, .18), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 94% 2%, rgba(217, 70, 239, .1), transparent 70%),
+    linear-gradient(180deg, rgba(17, 10, 34, .72) 0%, rgba(11, 7, 22, .5) 58%, transparent 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wp-cosmos__banks, .wp-cosmos__limb { animation: none; }
+}

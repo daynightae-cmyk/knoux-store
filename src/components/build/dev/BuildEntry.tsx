@@ -3,17 +3,18 @@
 /**
  * The Build entry.
  *
- * /build opens on the One Platform constellation (NSIS 82227) — the whole
- * page is the reference, rendered as code. The engineering workspace opens
- * when an intent exists (a stored sentence, the entry gate, the launcher)
- * or when the visitor steps through the central sphere. The gate is mounted
- * here so ?intro=1 reaches it from either surface.
+ * /build opens on the Welcome composition (NSIS 82231) - the whole page is
+ * the reference, rendered as code. The engineering workspace opens when an
+ * intent exists (a stored sentence, the entry gate, the launcher) or when the
+ * visitor steps through the central particle mark. The One Platform
+ * constellation (NSIS 82227) is preserved at /build/platform. The gate is
+ * mounted here so ?intro=1 reaches it from either surface.
  */
 import { useEffect, useState } from 'react';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { BuildEntryGate } from './BuildEntryGate';
+import { BuildWelcomePage } from './BuildWelcomePage';
 import { DevWorkspaceHome } from './DevWorkspaceHome';
-import { OnePlatformPage } from './OnePlatformPage';
 import { cueAtmosphere } from './living-atmosphere';
 
 export function BuildEntry() {
@@ -32,6 +33,6 @@ export function BuildEntry() {
   const workspace = entered || Boolean(state.intent);
   return <>
     <BuildEntryGate />
-    {workspace ? <DevWorkspaceHome /> : <OnePlatformPage onEnter={() => { cueAtmosphere('wake'); setEntered(true); }} />}
+    {workspace ? <DevWorkspaceHome /> : <BuildWelcomePage onEnter={() => { cueAtmosphere('wake'); setEntered(true); }} />}
   </>;
 }

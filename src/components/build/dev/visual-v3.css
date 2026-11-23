@@ -51,7 +51,9 @@
 .dev-cinematic .dev-card__body{padding:16px 0}
 .dev-cinematic .dev-shell--operational .dev-living-mark{opacity:.15}
 .dev-shell--operational .dev-living-mark{opacity:.12;mask-image:radial-gradient(ellipse at 85% 15%,#000,transparent 65%)}
-.dev-shell--operational .dev-cosmic-field{opacity:.12}
+/* The universe stays present on operational surfaces: the sky is the product
+   background everywhere, dimmed only enough to keep dense panels legible. */
+.dev-shell--operational .dev-cosmic-field{opacity:.5}
 .dev-cinematic .dev-tabs{display:flex;gap:20px;flex-wrap:wrap;margin:24px 0}
 .dev-cinematic .dev-tab{border:0;background:none;padding:10px 0;font-size:14px;min-height:44px}
 .dev-cinematic .dev-tab--active{border-bottom:2px solid #c084fc}

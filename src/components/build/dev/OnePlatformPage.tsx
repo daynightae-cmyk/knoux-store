@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * One Platform — NSIS reference 82227, the Build entry itself.
+ * One Platform — NSIS reference 82227, preserved at /build/platform.
  *
  * The whole page is the reference composition, rendered as code: nebula
  * gradients, seeded starfield (the shell's dev-cosmic-field canvas), SVG
@@ -78,7 +78,9 @@ export function OnePlatformPage({ onEnter }: Readonly<{ onEnter?: () => void }> 
               {core}
             </button>
           ) : (
-            <div className={s.core}>{core}</div>
+            <Link href="/build" className={s.core} aria-label="KNOuX STORE - open the Build welcome page">
+              {core}
+            </Link>
           )}
           <ul className={s.cards} aria-label="One Platform destinations">
             {CARDS.map((card) => (

@@ -1,9 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ExternalItem } from '@/lib/wordpress/external';
 import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
+import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
+import { ThemeExplorer } from './journeys/ThemeExplorer';
+import { LiveCanvas } from './journeys/LiveCanvas';
+import { DomainIntelligence } from './journeys/DomainIntelligence';
+import { SiteIdentity } from './journeys/SiteIdentity';
+import { InfrastructureMap } from './journeys/InfrastructureMap';
+import { OperationsCenter } from './journeys/OperationsCenter';
+import { VisualComposer } from './journeys/VisualComposer';
+import { BuildPipeline } from './journeys/BuildPipeline';
+import { PluginIntelligence } from './journeys/PluginIntelligence';
 import styles from './WordPressStudio.module.css';
 
 /**
@@ -37,98 +47,70 @@ const JOURNEYS = [
   { id: 'operations', code: '10', label: 'Operations Command Center' },
 ] as const;
 
-/** Copy for the journeys that share one honest shape: heading, intro, two
- *  readout cards and a boundary note. Values stay registry truth — nothing
- *  here invents a connection, a price or a status. */
-const READOUT_JOURNEYS: Partial<Record<(typeof JOURNEYS)[number]['id'], {
-  heading: string;
-  intro: string;
-  cards: Readonly<{ meter: string; meterAr?: string; value: string; valueAr?: string }>[];
-  note: string;
-}>> = {
-  domain: {
-    heading: 'The name comes first.',
-    intro: 'A registrar is the only authority on whether a domain can be registered. KNOuX shows exactly what it said.',
-    cards: [
-      { meter: 'Provider state', meterAr: 'حالة المزود', value: 'Not configured' },
-      { meter: 'Last check', meterAr: 'آخر فحص', value: 'Never', valueAr: 'أبداً' },
-    ],
-    note: 'Availability and pricing appear here once a registrar connection is configured.',
-  },
-  identity: {
-    heading: 'Site identity',
-    intro: 'The name, the mark and the words a site introduces itself with.',
-    cards: [
-      { meter: 'Site title', meterAr: 'عنوان الموقع', value: 'Not set', valueAr: 'غير مضبوط' },
-      { meter: 'Tagline', meterAr: 'الشعار الفرعي', value: 'Not set', valueAr: 'غير مضبوط' },
-    ],
-    note: 'Identity is agreed before launch. Nothing is published from this studio.',
-  },
-  plugins: {
-    heading: 'Plugin Intelligence',
-    intro: 'Extensions that add a capability to an install that already runs.',
-    cards: [
-      { meter: 'Directory', meterAr: 'الدليل', value: 'WordPress.org', valueAr: 'ووردبريس دوت أورغ' },
-      { meter: 'Scope', meterAr: 'النطاق', value: 'Metadata and compatibility', valueAr: 'بيانات التعريف والتوافق' },
-    ],
-    note: 'KNOuX installs and verifies plugins; it does not publish or endorse any specific item.',
-  },
-  composer: {
-    heading: 'Visual Composer',
-    intro: 'Drag, drop and design freely.',
-    cards: [
-      { meter: 'Blocks', meterAr: 'الكتل', value: 'Reusable', valueAr: 'قابلة لإعادة الاستخدام' },
-      { meter: 'Layout', meterAr: 'التخطيط', value: 'Modular', valueAr: 'وحدوي' },
-    ],
-    note: 'Composition is a request, not a checkout. KNOuX assembles layers after scope is agreed.',
-  },
-  hosting: {
-    heading: 'Hosting & Infrastructure',
-    intro: 'Where it runs, and who is answerable for it staying up.',
-    cards: [
-      { meter: 'Provider', meterAr: 'المزود', value: 'Not configured' },
-      { meter: 'Boundary', meterAr: 'الحد', value: 'KNOuX performs; provider supplies' },
-    ],
-    note: 'Infrastructure is a decision with a person attached to it, not a plan with a number attached to it.',
-  },
-  build: {
-    heading: 'Build & Deployment',
-    intro: 'The engineering that keeps it alive.',
-    cards: [
-      { meter: 'Stages', meterAr: 'المراحل', value: 'Build · Validate · Deploy · Release' },
-      { meter: 'Receipts', meterAr: 'الإيصالات', value: 'Bound to operation', valueAr: 'مرتبطة بالعملية' },
-    ],
-    note: 'No payment is taken here and nothing is registered automatically.',
-  },
-  operations: {
-    heading: 'Operations Command Center',
-    intro: 'Maintenance, performance, security, backup and recovery.',
-    cards: [
-      { meter: 'Services', meterAr: 'الخدمات', value: 'Seven operating services', valueAr: 'سبع خدمات تشغيلية' },
-      { meter: 'Incidents', meterAr: 'الحوادث', value: '0', valueAr: '٠' },
-    ],
-    note: 'Scope and sequence are agreed before work starts.',
-  },
-};
-
-export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }) {
+export function WordPressStudio({
+  themes,
+  plugins,
+  requestedJourney,
+  onBack,
+}: {
+  themes: Readonly<ExternalItem[]>;
+  plugins: Readonly<ExternalItem[]>;
+  requestedJourney?: string;
+  onBack: () => void;
+}) {
   const t = useRouteCopy();
   const [active, setActive] = useState<string>(JOURNEYS[0].id);
   const [slug, setSlug] = useState<string>(themes[0]?.slug ?? '');
-  const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+
+  useEffect(() => {
+    if (requestedJourney && JOURNEYS.some((entry) => entry.id === requestedJourney)) {
+      setActive(requestedJourney);
+    }
+  }, [requestedJourney]);
+  // The arrival composer hands its words here — same tab via the event,
+  // a return visit via session storage. The stored sentence is read through
+  // an external-store subscription so server and client renders agree.
+  const [intent, setIntent] = useState<string>('');
+
+  useEffect(() => {
+    const readStored = () => {
+      try { return window.sessionStorage.getItem('knoux-wp-studio-intent') ?? ''; } catch { return ''; }
+    };
+    const sync = () => setIntent(readStored());
+    const receive = (event: Event) => {
+      const words = (event as CustomEvent<string>).detail;
+      if (typeof words === 'string' && words.trim()) {
+        setIntent(words.trim());
+        setActive('arrival');
+        cueAtmosphere('ready');
+      }
+    };
+    sync();
+    window.addEventListener('knoux:wp-studio-intent', receive);
+    window.addEventListener('storage', sync);
+    return () => {
+      window.removeEventListener('knoux:wp-studio-intent', receive);
+      window.removeEventListener('storage', sync);
+    };
+  }, []);
   const journey = JOURNEYS.find((entry) => entry.id === active) ?? JOURNEYS[0];
-  const readout = READOUT_JOURNEYS[journey.id];
   const theme = themes.find((item) => item.slug === slug);
   const requestParams = new URLSearchParams({
     requestType: 'wordpress',
-    items: theme
-      ? `WordPress site; theme: ${theme.name}; source: ${theme.sourceUrl}; domain and hosting review; maintenance`
-      : 'WordPress site; theme selection; domain and hosting review; maintenance',
+    items: [
+      intent ? `WordPress site: ${intent}` : 'WordPress site',
+      theme ? `theme: ${theme.name}; source: ${theme.sourceUrl}` : 'theme selection',
+      'domain and hosting review',
+      'maintenance',
+    ].join('; '),
   });
 
   return (
     <section className={styles.studio} aria-label="WordPress Studio">
       <header className={styles.header}>
+        <button id="wordpress-studio-back" type="button" className={styles.back} onClick={onBack}>
+          <span aria-hidden="true">←</span> {t('Arrival', 'الوصول')}
+        </button>
         <span>WORDPRESS STUDIO</span>
       </header>
 
@@ -141,7 +123,7 @@ export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }
               type="button"
               className={`${styles.journey} ${isActive ? styles.active : ''}`}
               aria-pressed={isActive}
-              onClick={() => setActive(entry.id)}
+              onClick={() => { if (!isActive) cueAtmosphere('confirm'); setActive(entry.id); }}
             >
               <span className={styles.code}>{entry.code}</span>
               <span className={styles.label}>{entry.label}</span>
@@ -150,7 +132,7 @@ export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }
         })}
       </nav>
 
-      <main className={styles.body}>
+      <div className={styles.body}>
         <h2 className={styles.heading}>
           {journey.code} / {journey.label} <span className={styles.stepDot} />
         </h2>
@@ -159,11 +141,16 @@ export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }
         {active === 'arrival' && (
           <section className={styles.section}>
             <h3>{t('Your next website, in view.')}</h3>
+            {intent ? (
+              <p className={styles.intent} role="status">
+                <span>{t('Your words', 'وصفك')}</span> “{intent}”
+              </p>
+            ) : null}
             <p>{t('Official WordPress.org themes')}</p>
             {themes.length ? (
               <div className={styles.choice}>
                 <label className={styles.selectLabel} htmlFor="wp-theme-choice">{t('Choose a theme')}</label>
-                <select id="wp-theme-choice" value={slug} onChange={(event) => setSlug(event.target.value)}>
+                <select id="wp-theme-choice" value={slug} onChange={(event) => { cueAtmosphere('confirm'); setSlug(event.target.value); }}>
                   {themes.map((item) => (
                     <option key={item.slug} value={item.slug}>
                       {item.name}
@@ -178,97 +165,49 @@ export function WordPressStudio({ themes }: { themes: Readonly<ExternalItem[]> }
           </section>
         )}
 
-        {/* 02 Domain · 04 Identity · 05 Plugins · 07 Composer · 08 Hosting ·
-            09 Build · 10 Operations — one shared readout shape, copy per journey. */}
-        {readout && (
-          <section className={styles.section}>
-            <h3>{t(readout.heading)}</h3>
-            <p>{t(readout.intro)}</p>
-            <div className={styles.cardGrid}>
-              {readout.cards.map((card) => (
-                <div key={card.meter} className={styles.card}>
-                  <span className={styles.meter}>{t(card.meter, card.meterAr)}</span>
-                  <span className={styles.value}>{t(card.value, card.valueAr)}</span>
-                </div>
-              ))}
-            </div>
-            <p className={styles.note}>{t(readout.note)}</p>
-          </section>
-        )}
+        {/* 02 Domain Intelligence — reference 83378: real search instrument on
+            the live registrar boundary, honest states, selected-domain panel. */}
+        {active === 'domain' && <DomainIntelligence />}
 
-        {/* 03 Theme Explorer */}
+        {/* 04 Site Identity — reference 83382: live brand design tool with the
+            canonical mark, honest draft state, request composition. */}
+        {active === 'identity' && <SiteIdentity />}
+
+        {/* 08 Hosting & Infrastructure — reference 83379: orbital map with the
+            canonical mark, honest provider states and the seven real services. */}
+        {active === 'hosting' && <InfrastructureMap />}
+
+        {/* 10 Operations Command Center — reference 83383: real service
+            capabilities, honest readouts and a true session feed. */}
+        {active === 'operations' && <OperationsCenter />}
+
+        {/* 07 Visual Website Composer — reference 83375: a working block
+            composer with palette, layers, live preview and inspector. */}
+        {active === 'composer' && <VisualComposer />}
+
+        {/* 09 Build & Deployment — reference 83376: the real pipeline stages,
+            honest checkpoints, no fabricated telemetry. */}
+        {active === 'build' && <BuildPipeline />}
+
+        {/* 05 Plugin Intelligence — capability search on live registry data
+            with a compatibility readout built only from returned fields. */}
+        {active === 'plugins' && <PluginIntelligence plugins={plugins} />}
+
+        {/* 03 Theme Explorer — reference 83377: searchable library + selected
+            theme stage with real registry facts and device-framed preview. */}
         {active === 'theme' && (
-          <section className={styles.section}>
-            <h3>{t('Full presentation systems.')}</h3>
-            <p>{t('Official themes, presented as the screenshots their authors publish.')}</p>
-            {themes.length ? (
-              <div className={styles.themeGrid}>
-                {themes.slice(0, 6).map((item) => (
-                  <article key={item.slug} className={styles.themeCard} aria-label={item.name}>
-                    <div className={styles.themeThumb}>
-                      {item.screenshotUrl ? (
-                        <>
-                          {/* eslint-disable-next-line @next/next/no-img-element -- unmodified official image through the existing allowlisted proxy */}
-                          <img src={`/api/wp-image?u=${encodeURIComponent(item.screenshotUrl)}`} alt={`${item.name} · WordPress.org`} loading="lazy" />
-                        </>
-                      ) : (
-                        <div className={styles.themePlaceholder}>{t('No screenshot')}</div>
-                      )}
-                    </div>
-                    <div className={styles.themeBody}>
-                      <span className={styles.themeName}>{item.name}</span>
-                      <span className={styles.themeBy}>{t('by')} {item.author ?? t('WordPress.org')}</span>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <p className={styles.note}>{t('The official theme directory is unavailable.')}</p>
-            )}
-          </section>
+          <ThemeExplorer themes={themes} selectedSlug={slug} onSelect={setSlug} />
         )}
 
-        {/* 06 Live Responsive Canvas */}
+        {/* 06 Live Responsive Canvas — reference 83381: device toggles, scale
+            control, breakpoints and three framed viewports on one podium. */}
         {active === 'canvas' && (
-          <section className={styles.section}>
-            <h3>{t('Live Responsive Canvas')}</h3>
-            <p>{t('Desktop · Mobile · Tablet')}</p>
-            <fieldset className={styles.deviceRail} aria-label={t('Screenshot width')}>
-              <legend className={styles.visuallyHidden}>{t('Screenshot width')}</legend>
-              {(['desktop', 'tablet', 'mobile'] as const).map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  className={`${styles.deviceButton} ${device === value ? styles.active : ''}`}
-                  aria-pressed={device === value}
-                  onClick={() => setDevice(value)}
-                >
-                  {t(deviceLabel[value])}
-                </button>
-              ))}
-            </fieldset>
-            <div className={styles.canvasWrapper} data-device={device}>
-              <div className={styles.previewFrame}>
-                <div className={styles.chrome}>{theme?.name ?? 'WordPress'}</div>
-                {theme?.screenshotUrl ? (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element -- unmodified official image through the existing allowlisted proxy */}
-                    <img src={`/api/wp-image?u=${encodeURIComponent(theme.screenshotUrl)}`} alt={`${theme.name} · WordPress.org`} width={1200} height={900} loading="lazy" />
-                  </>
-                ) : (
-                  <p className={styles.note}>{t('This theme has no official screenshot.')}</p>
-                )}
-              </div>
-            </div>
-            <p className={styles.note}>{t('Official screenshot · resized for comparison, not a live responsive site.')}</p>
-          </section>
+          <LiveCanvas themes={themes} selectedSlug={slug} onSelect={setSlug} />
         )}
 
         <a className={styles.request} href={`/contact?${requestParams.toString()}`}>{t('Compose a site request')} ↗</a>
         <a className={styles.browse} href="/wordpress/themes">{t('Search the full catalogue')} →</a>
-      </main>
+      </div>
     </section>
   );
 }
-
-const deviceLabel = { desktop: 'Desktop', tablet: 'Tablet', mobile: 'Mobile' } as const;

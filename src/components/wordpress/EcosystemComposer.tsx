@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
 
 /**
  * Ecosystem Composer.
@@ -62,6 +63,7 @@ export function EcosystemComposer() {
   const [selected, setSelected] = useState<LayerId[]>(['domain', 'wordpress', 'operations']);
 
   const toggle = (id: LayerId) => {
+    cueAtmosphere('confirm');
     setSelected((current) => (current.includes(id) ? current.filter((entry) => entry !== id) : [...current, id]));
   };
 
