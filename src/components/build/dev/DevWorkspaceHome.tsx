@@ -356,7 +356,7 @@ export function DevWorkspaceHome() {
   }
 
   return <>
-    <section className={`dev-observatory dev-observatory--${view}`} aria-label="Build workspace">
+    <section id="build-workspace" tabIndex={-1} className={`dev-observatory dev-observatory--${view}`} aria-label="Build workspace">
       <header className="dev-stage-head">
         <span className="dev-mini-label">KNOuX / ENGINEERING ENVIRONMENT</span>
         <div className="dev-stage-views" role="group" aria-label="Workspace view">

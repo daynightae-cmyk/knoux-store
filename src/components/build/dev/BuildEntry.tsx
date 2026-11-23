@@ -10,7 +10,7 @@
  * constellation (NSIS 82227) is preserved at /build/platform. The gate is
  * mounted here so ?intro=1 reaches it from either surface.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { BuildEntryGate } from './BuildEntryGate';
 import { BuildWelcomePage } from './BuildWelcomePage';
@@ -20,6 +20,25 @@ import { cueAtmosphere } from './living-atmosphere';
 export function BuildEntry() {
   const { state } = useBuildWorkspace();
   const [entered, setEntered] = useState(false);
+  const focusWorkspace = useRef(false);
+
+  useEffect(() => {
+    const sync = () => setEntered(window.location.hash === '#workspace');
+    sync();
+    window.addEventListener('hashchange', sync);
+    window.addEventListener('popstate', sync);
+    return () => {
+      window.removeEventListener('hashchange', sync);
+      window.removeEventListener('popstate', sync);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (entered && focusWorkspace.current) {
+      document.getElementById('build-workspace')?.focus();
+      focusWorkspace.current = false;
+    }
+  }, [entered]);
 
   // The persistent particle pool lives beside the landing engine aperture.
   // On the constellation it would paint a second mark over the sphere, so it
@@ -31,8 +50,16 @@ export function BuildEntry() {
   }, [entered, state.intent]);
 
   const workspace = entered || Boolean(state.intent);
+  function enterWorkspace() {
+    cueAtmosphere('wake');
+    const { pathname, search } = window.location;
+    window.history.pushState(window.history.state, '', `${pathname}${search}#workspace`);
+    focusWorkspace.current = true;
+    setEntered(true);
+  }
+
   return <>
     <BuildEntryGate />
-    {workspace ? <DevWorkspaceHome /> : <BuildWelcomePage onEnter={() => { cueAtmosphere('wake'); setEntered(true); }} />}
+    {workspace ? <DevWorkspaceHome /> : <BuildWelcomePage onEnter={enterWorkspace} />}
   </>;
 }

@@ -242,7 +242,10 @@ export function BuildWelcomePage({ onEnter }: Readonly<{ onEnter?: () => void }>
             <i aria-hidden="true" />KNOuX <span>STORE</span>
           </Link>
           <h1 id="build-welcome-title" className={s.title}>Welcome to KNOUX STORE</h1>
-          <p className={s.lede}>A cinematic engineering platform.</p>
+          <nav className={s.platformLinks} aria-label="Build platform">
+            <Link href="/build/platform">One Platform</Link>
+            <Link href="/build/pipeline">Verification pipeline</Link>
+          </nav>
         </header>
 
         <div className={s.field}>
@@ -283,7 +286,7 @@ export function BuildWelcomePage({ onEnter }: Readonly<{ onEnter?: () => void }>
           </div>
 
           {onEnter ? (
-            <button type="button" className={s.core} onClick={onEnter} aria-label="KNOuX STORE - enter the engineering workspace">
+            <button type="button" className={s.core} onClick={onEnter} aria-label="KNOuX STORE — enter the engineering workspace">
               <span className={s.coreHalo} aria-hidden="true" />
               <Mark uid={uid} />
             </button>
