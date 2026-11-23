@@ -2,6 +2,7 @@ import { PageIntro } from '@/components/PageIntro';
 import { SignalRail } from '@/components/DivisionShell';
 import { DivisionBridge, NextLink, SystemIndex, IndexRow, BlockHead } from '@/components/blocks';
 import { ExternalMarketplace, readMarketplaceQuery } from '@/components/wordpress/ExternalMarketplace';
+import { WordPressCosmicMark } from '@/components/wordpress/WordPressCosmicMark';
 import { FirstPartyRail } from '@/components/wordpress/FirstPartyRail';
 import {
   starterSiteVerticals,
@@ -70,6 +71,7 @@ export async function WordPressCategoryPage({
   const count = wordPressItems.filter((item) => item.type === meta.type).length;
   const source = EXTERNAL_SOURCE[category];
   const query = readMarketplaceQuery(searchParams ?? {});
+  const firstParty = <FirstPartyRail type={meta.type} label={singularLabel(meta.type)} />;
 
   const external = source
     ? source === 'plugin'
@@ -81,16 +83,22 @@ export async function WordPressCategoryPage({
 
   return (
     <main id="main-content" tabIndex={-1}>
-      <PageIntro
+      {source === 'theme' ? (
+        <section className="shell wp-theme-intro">
+          <WordPressCosmicMark label="" />
+          <h1>Theme Explorer</h1>
+          <p>{meta.intent}</p>
+        </section>
+      ) : <PageIntro
         index={meta.index}
         label="WordPress"
         title={meta.label}
         italic="catalogue."
         description={meta.intent}
-      />
+      />}
       <SignalRail division="wordpress" path={`/wordpress/${category}`} />
 
-      <FirstPartyRail type={meta.type} label={singularLabel(meta.type)} />
+      {source !== 'theme' && firstParty}
 
       {external ? (
         <section className="shell" style={{ paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
@@ -105,6 +113,8 @@ export async function WordPressCategoryPage({
           />
         </section>
       ) : null}
+
+      {source === 'theme' && firstParty}
 
       {category === 'starter-sites' ? <StarterSiteFilters /> : null}
       {category === 'solutions' ? <BundleSurface /> : null}

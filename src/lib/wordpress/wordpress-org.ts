@@ -21,6 +21,7 @@ import {
   decodeEntities,
   toExcerpt,
   toOfficialAssetUrl,
+  toOfficialThemePreviewUrl,
   toRenderableAssetUrl,
   toPlainText,
   type ExternalItem,
@@ -216,6 +217,7 @@ export async function queryPlugins(options: {
 
 const THEME_FIELDS = [
   'screenshot_url',
+  'preview_url',
   'rating',
   'downloaded',
   'last_updated',
@@ -261,6 +263,7 @@ function normaliseTheme(raw: unknown): ExternalItem | null {
     // abbreviated rather than filling the card with the vendor's full blurb.
     shortDescription: toExcerpt(record.description) ?? 'No description published.',
     screenshotUrl: toOfficialAssetUrl(record.screenshot_url),
+    previewUrl: toOfficialThemePreviewUrl(record.preview_url),
     rating: typeof rating === 'number' && rating > 0 ? rating : undefined,
     ratingCount: toNumber(record.num_ratings),
     downloaded: toNumber(record.downloaded),

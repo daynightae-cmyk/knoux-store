@@ -19,6 +19,9 @@
 .language label::before{content:'◎';font-size:19px;color:#eee6f8;margin-right:8px}
 .language select{height:34px;max-width:91px;border:0;outline:0;background:transparent;color:#eee7f8;font-size:11px;cursor:pointer}
 .language option{background:#160d27;color:#fff}
+@media (1250px < width <= 1500px) {
+  .nav { margin-left: 24px; gap: 24px; padding-inline: 20px; }
+}
 @media(max-width:1250px){.masthead{grid-template-columns:auto 1fr auto auto;padding-inline:24px}.nav{margin-left:24px;gap:20px;padding-inline:12px}.nav a span{display:none}.storeIdentity{min-width:300px;padding-inline:35px}.storeIdentity strong{font-size:25px}.storeIdentity small{font-size:10px;letter-spacing:4px}.actions{gap:14px;margin-left:18px}}
 @media(max-width:900px){.masthead{height:78px;grid-template-columns:auto 1fr auto;align-items:center;padding-top:10px}.nav{display:none}.storeIdentity{justify-self:center;min-width:260px;padding:4px 26px 10px}.storeIdentity strong{font-size:22px}.storeIdentity small{font-size:9px;letter-spacing:3px;margin-top:6px}.brand{font-size:24px}.brand i{width:14px;height:14px}.actions{margin-left:0}.actions>a:first-of-type{display:none}.language{padding-inline:8px}.language label::before{display:none}.language select{max-width:66px}}
 @media(max-width:560px){.masthead{grid-template-columns:auto 1fr auto;padding-inline:14px}.brand{font-size:0;gap:0}.brand i{width:15px;height:15px}.storeIdentity{min-width:0;padding:4px 18px 10px}.storeIdentity strong{font-size:18px;letter-spacing:3px}.storeIdentity small{font-size:7px;letter-spacing:2.2px}.actions{gap:8px}.actions>button{width:22px}.actions>a{display:none}.language{margin:0;padding-inline:5px}.language select{max-width:55px;font-size:10px}}

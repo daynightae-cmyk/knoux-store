@@ -139,3 +139,38 @@ html:has(.wp-experience__studio[open]) { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .wp-cosmos__banks, .wp-cosmos__limb { animation: none; }
 }
+
+.wp-theme-intro {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding-bottom: clamp(18px, 3vh, 38px);
+  text-align: center;
+}
+.wp-theme-intro > svg {
+  width: clamp(42px, 6vw, 82px);
+  max-height: 86px;
+  filter: drop-shadow(0 0 24px #b476ff86);
+}
+.wp-theme-intro h1 {
+  margin: 0;
+  font-size: clamp(32px, 4.6vw, 68px);
+  line-height: 1.05;
+  text-shadow: 0 0 28px #a86ae873;
+}
+.wp-theme-intro p { max-width: 62ch; margin: 0; color: #dfd6ed; }
+
+.mp--themes .mp__split {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 24px;
+  align-items: baseline;
+  padding-block: 10px;
+}
+.mp--themes .mp__summary {
+  margin: 0;
+  max-width: 90ch;
+}
+.mp--themes .mp-controls { margin-top: 12px; }
+.mp--themes .command-bar { border-color: #9d70cf88; background: #1c102f; border-radius: 12px; }
+.mp--themes aside { scroll-margin-top: calc(var(--wp-masthead) + 12px); }

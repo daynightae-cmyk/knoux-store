@@ -1,0 +1,89 @@
+[
+  {
+    "width": 1920,
+    "height": 1080,
+    "screen": "references/store-20261123/qa/screen-03/after-1920x1080.png",
+    "geometry": {
+      "width": 1920,
+      "content": 1920
+    },
+    "selectedTheme": "Kestrelora Studio",
+    "officialPreview": "https://wp-themes.com/kestrelora-studio/",
+    "restoredAfterReload": true,
+    "errors": [],
+    "mastheadClearance": 150
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "screen": "references/store-20261123/qa/screen-03/after-1440x900.png",
+    "geometry": {
+      "width": 1440,
+      "content": 1440
+    },
+    "selectedTheme": "Kestrelora Studio",
+    "officialPreview": "https://wp-themes.com/kestrelora-studio/",
+    "restoredAfterReload": true,
+    "errors": [],
+    "mastheadClearance": 14
+  },
+  {
+    "width": 1024,
+    "height": 768,
+    "screen": "references/store-20261123/qa/screen-03/after-1024x768.png",
+    "geometry": {
+      "width": 1024,
+      "content": 1024
+    },
+    "selectedTheme": "Kestrelora Studio",
+    "officialPreview": "https://wp-themes.com/kestrelora-studio/",
+    "restoredAfterReload": true,
+    "errors": [],
+    "mastheadClearance": 36
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "screen": "references/store-20261123/qa/screen-03/after-768x1024.png",
+    "geometry": {
+      "width": 768,
+      "content": 768
+    },
+    "selectedTheme": "Kestrelora Studio",
+    "officialPreview": "https://wp-themes.com/kestrelora-studio/",
+    "restoredAfterReload": true,
+    "errors": [],
+    "mobilePreviewTop": 90,
+    "mastheadClearance": null
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "screen": "references/store-20261123/qa/screen-03/after-390x844.png",
+    "geometry": {
+      "width": 390,
+      "content": 390
+    },
+    "selectedTheme": "Kestrelora Studio",
+    "officialPreview": "https://wp-themes.com/kestrelora-studio/",
+    "restoredAfterReload": true,
+    "errors": [],
+    "mobilePreviewTop": 90,
+    "mastheadClearance": null
+  },
+  {
+    "width": 360,
+    "height": 800,
+    "screen": "references/store-20261123/qa/screen-03/after-360x800.png",
+    "geometry": {
+      "width": 360,
+      "content": 360
+    },
+    "selectedTheme": "Kestrelora Studio",
+    "officialPreview": "https://wp-themes.com/kestrelora-studio/",
+    "restoredAfterReload": true,
+    "errors": [],
+    "mobilePreviewTop": 90,
+    "mastheadClearance": null
+  }
+]

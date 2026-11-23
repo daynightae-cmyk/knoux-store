@@ -191,6 +191,7 @@ export const ROUTE_COPY: Record<string, readonly [string, string]> = {
   "Layout draft": ["مسودة التخطيط","لے آؤٹ کا مسودہ"],
   "Starting layout": ["التخطيط الأساسي","ابتدائی لے آؤٹ"],
   "Preview controls": ["أدوات المعاينة","پیش نظارے کے کنٹرول"],
+  "Open live preview": ["افتح المعاينة الحية", "لائیو پیش نظارہ کھولیں"],
   "Switch preview": ["تبديل المعاينة","پیش نظارہ بدلیں"],
   "Open composer": ["فتح محرر الموقع","سائٹ ایڈیٹر کھولیں"],
   "Show": ["عرض","دکھائیں"],
