@@ -1,18 +1,8 @@
 'use client';
 
-/**
- * 08 · Hosting & Infrastructure — reference 83379, rendered as an honest map.
- *
- * The reference's orbital composition: the canonical mark on a luminous
- * podium, infrastructure cards in orbit around it, and a readout row beneath.
- * The reference's numbers (99.98% uptime, CPU/memory gauges, regional latency)
- * are fabrications no source in this deployment can substantiate, so every
- * gauge slot renders its true state instead: the registrar connection read at
- * request time, the commerce provider's honest absence, and the seven real
- * KNOuX operating services. A map that reports what is known is the product;
- * a map that invents telemetry is a lie a customer could plan around.
- */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { HostingRack } from '../HostingRack';
+import studioStyles from '../WordPressStudio.module.css';
 import { wordPressServices } from '@/data/wordpress';
 import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
 import { resolveRouteCopy } from '@/lib/i18n/route-copy';
@@ -20,7 +10,14 @@ import { useSiteLanguage } from '@/lib/i18n/use-language';
 import { WordPressCosmicMark } from '../WordPressCosmicMark';
 import s from './journeys.module.css';
 
-type ConnectionState = 'reading' | 'configured' | 'unconfigured';
+type ConnectionState = 'reading' | 'configured' | 'unconfigured' | 'unavailable';
+type HealthState = 'reading' | 'ready' | 'limited' | 'unavailable';
+
+async function readStatus(path: string, signal: AbortSignal): Promise<unknown> {
+  const response = await fetch(path, { headers: { accept: 'application/json' }, signal });
+  if (!response.ok) throw new Error('Status request failed');
+  return response.json();
+}
 
 /* Small line glyphs, drawn as code — one per orbital card, echoing the
  * reference's icon tiles without importing any raster asset. */
@@ -83,36 +80,52 @@ export function InfrastructureMap() {
   const t = (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
   const [registrar, setRegistrar] = useState<ConnectionState>('reading');
   const [focused, setFocused] = useState<string>('services');
-  const [host, setHost] = useState<string | null>(null);
+  const [location, setLocation] = useState<{ host: string; https: boolean } | null>(null);
+  const [health, setHealth] = useState<HealthState>('reading');
+  const rack = useRef<HTMLDialogElement>(null);
 
   // The chip shows this deployment's real hostname — never an invented domain.
   useEffect(() => {
-    const id = setTimeout(() => setHost(window.location.host), 0);
+    const id = setTimeout(() => setLocation({ host: window.location.host, https: window.location.protocol === 'https:' }), 0);
     return () => clearTimeout(id);
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    fetch('/api/domain/status', { headers: { accept: 'application/json' } })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((body: { status?: string } | null) => {
-        if (!cancelled) setRegistrar(body?.status === 'configured' ? 'configured' : 'unconfigured');
-      })
-      .catch(() => { if (!cancelled) setRegistrar('unconfigured'); });
-    return () => { cancelled = true; };
+    const lifecycle = new AbortController();
+    const signal = AbortSignal.any([lifecycle.signal, AbortSignal.timeout(6000)]);
+    void readStatus('/api/domain/status', signal).then((body) => {
+      if (lifecycle.signal.aborted) return;
+      const status = (body as { status?: string } | null)?.status;
+      setRegistrar(status === 'configured' || status === 'unconfigured' ? status : 'unavailable');
+    }).catch(() => { if (!lifecycle.signal.aborted) setRegistrar('unavailable'); });
+    void readStatus('/api/health', signal).then((body) => {
+      if (lifecycle.signal.aborted) return;
+      const payload = body as { status?: string; ready?: unknown } | null;
+      setHealth(payload?.status === 'ok' && typeof payload.ready === 'boolean'
+        ? payload.ready ? 'ready' : 'limited'
+        : 'unavailable');
+    }).catch(() => { if (!lifecycle.signal.aborted) setHealth('unavailable'); });
+    return () => lifecycle.abort();
   }, []);
 
-  const registrarLabel = registrar === 'reading'
-    ? t('Reading…', 'جارٍ القراءة…')
-    : registrar === 'configured'
-      ? t('Connected', 'مربوط')
-      : t('Not configured', 'غير مضبوط');
+  const registrarLabels: Record<ConnectionState, string> = {
+    reading: t('Reading…', 'جارٍ القراءة…'),
+    configured: t('Configured'),
+    unconfigured: t('Not configured', 'غير مضبوط'),
+    unavailable: t('Status unavailable', 'الحالة غير متاحة'),
+  };
+  const healthLabels: Record<HealthState, string> = {
+    reading: t('Reading…', 'جارٍ القراءة…'),
+    ready: t('Deployment reports ready', 'النشر يفيد بأنه جاهز'),
+    limited: t('Deployment reports limited readiness', 'النشر يفيد بجاهزية محدودة'),
+    unavailable: t('Status unavailable', 'الحالة غير متاحة'),
+  };
 
   const ORBIT_CARDS = [
     {
       id: 'domain', title: t('Domain Connection', 'ربط النطاق'),
       meta: t('Registrar verdicts, attributed', 'أحكام جهة التسجيل، منسوبة إليها'),
-      state: registrarLabel, tone: registrar === 'configured' ? 'ok' : 'off',
+      state: registrarLabels[registrar], tone: registrar === 'configured' ? 'ok' : 'off',
     },
     {
       id: 'hosting', title: t('Hosting Nodes', 'عقد الاستضافة'),
@@ -122,7 +135,7 @@ export function InfrastructureMap() {
     {
       id: 'ssl', title: t('SSL / Security', 'التشفير والأمان'),
       meta: t('Hardening is a KNOuX service', 'التصليب خدمة تنفذها KNOuX'),
-      state: t('Performed per site', 'يُنفَّذ لكل موقع'), tone: 'signal',
+      state: location?.https ? t('This page uses HTTPS', 'هذه الصفحة تستخدم HTTPS') : location ? t('This page uses HTTP', 'هذه الصفحة تستخدم HTTP') : t('Reading…', 'جارٍ القراءة…'), tone: location?.https ? 'ok' : 'signal',
     },
     {
       id: 'bridges', title: t('Service Bridges', 'جسور الخدمات'),
@@ -162,13 +175,13 @@ export function InfrastructureMap() {
                   <span className={s.orbitCardMeta}>{card.meta}</span>
                 </span>
               </span>
-              <span className={s.domainState} data-tone={card.tone}><i aria-hidden="true" />{card.state}</span>
-              {card.id === 'domain' && host ? (
+              <span className={s.domainState} data-registrar-state={card.id === "domain" ? registrar : undefined} data-tone={card.tone}><i aria-hidden="true" />{card.state}</span>
+              {card.id === 'domain' && location ? (
                 <span className={s.orbitChip}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
                     <path d="M9.5 14.5l5-5M8 12l-2.2 2.2a3.4 3.4 0 004.8 4.8L13 16.8M16 12l2.2-2.2a3.4 3.4 0 00-4.8-4.8L11 7.2" />
                   </svg>
-                  {host}
+                  {location.host}
                 </span>
               ) : null}
             </button>
@@ -184,12 +197,19 @@ export function InfrastructureMap() {
       </div>
 
       <div className={s.infraReadout}>
+        <div className={s.panel}>
+          <h3 className={s.panelTitle}>{t("Deployment health", "صحة النشر")}</h3>
+          <span className={s.domainState} role="status" data-deployment-health={health} data-tone={health === "ready" ? "ok" : "signal"}>
+            <i aria-hidden="true" />{healthLabels[health]}
+          </span>
+          <p className={s.boundary}>{t('Hosting resource telemetry is unavailable.')}</p>
+        </div>
         <div className={s.panel} aria-live="polite">
           <h3 className={s.panelTitle}>{activeCard.title}</h3>
           <p className={s.empty}>{activeCard.meta}</p>
           <span className={s.domainState} data-tone={activeCard.tone}><i aria-hidden="true" />{activeCard.state}</span>
           {activeCard.id === 'domain' ? (
-            <p className={s.boundary}>{t('The registrar state is read from this deployment at request time. Search real availability in journey 02.', 'تُقرأ حالة جهة التسجيل من هذا النشر لحظة الطلب. افحص التوفر الحقيقي في الرحلة 02.')}</p>
+            <p className={s.boundary}><a href="#domain">{t('Search availability in Domain Intelligence.')}</a></p>
           ) : null}
           {activeCard.id === 'hosting' || activeCard.id === 'storage' ? (
             <p className={s.boundary}>{t('Plans, resource limits, prices and live gauges appear only when a provider supplies them. None are invented here.', 'الخطط وحدود الموارد والأسعار والعدادات الحية تظهر فقط عندما يوفرها مزود. لا نختلق أياً منها هنا.')}</p>
@@ -223,12 +243,20 @@ export function InfrastructureMap() {
             </div>
           </dl>
           <div className={s.actions}>
+            <button type="button" className={s.ghostAction} onClick={() => rack.current?.showModal()}>{t("Explore infrastructure services", "استكشف خدمات البنية التحتية")}</button>
             <a className={s.primaryAction} href="/contact?intent=infrastructure" onClick={() => cueAtmosphere('success')}>
               {t('Discuss infrastructure', 'ناقش البنية التحتية')} →
             </a>
           </div>
         </div>
       </div>
+      <dialog ref={rack} className={studioStyles.contextPanel} aria-labelledby="wp-infrastructure-rack">
+        <header>
+          <h3 id="wp-infrastructure-rack">{t("Infrastructure services", "خدمات البنية التحتية")}</h3>
+          <button type="button" onClick={() => rack.current?.close()}>{t("Close", "إغلاق")}</button>
+        </header>
+        <HostingRack />
+      </dialog>
     </section>
   );
 }

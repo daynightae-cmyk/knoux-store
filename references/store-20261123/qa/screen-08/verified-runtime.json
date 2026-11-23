@@ -1,0 +1,68 @@
+[
+  {
+    "width": 1920,
+    "height": 1080,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-08/after-1920x1080.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "health": "limited",
+    "registrar": "unconfigured",
+    "infrastructureServiceSelection": "Business"
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-08/after-1440x900.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "health": "limited",
+    "registrar": "unconfigured",
+    "infrastructureServiceSelection": "Business"
+  },
+  {
+    "width": 1024,
+    "height": 768,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-08/after-1024x768.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "health": "limited",
+    "registrar": "unconfigured",
+    "infrastructureServiceSelection": "Business"
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-08/after-768x1024.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "health": "limited",
+    "registrar": "unconfigured",
+    "infrastructureServiceSelection": "Business"
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-08/after-390x844.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "health": "limited",
+    "registrar": "unconfigured",
+    "infrastructureServiceSelection": "Business"
+  },
+  {
+    "width": 360,
+    "height": 800,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-08/after-360x800.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "health": "limited",
+    "registrar": "unconfigured",
+    "infrastructureServiceSelection": "Business"
+  }
+]
