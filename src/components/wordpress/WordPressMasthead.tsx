@@ -24,7 +24,7 @@ export function WordPressMasthead() {
       <Link href="/" className={s.brand} aria-label="KNOuX home"><i aria-hidden="true" />KNOuX</Link>
       <nav className={s.nav} aria-label={ar ? 'أقسام المتجر' : 'Store divisions'}>
         <Link href="/products" aria-current="page">Store <span lang="ar">متجر</span></Link>
-        <Link href="/wordpress#studio">Studio <span lang="ar">الاستوديو</span></Link>
+        <a href="/wordpress#studio">Studio <span lang="ar">الاستوديو</span></a>
         <Link href="/wordpress/patterns">Resources <span lang="ar">الموارد</span></Link>
         <Link href="/contact">Support <span lang="ar">الدعم</span></Link>
       </nav>

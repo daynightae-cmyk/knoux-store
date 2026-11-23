@@ -480,11 +480,12 @@ test('the ecosystem page reads no provider configuration while statically genera
   assert.doesNotMatch(page, /process\.env/, 'the page must not read the environment');
 });
 
-test('the overview loads a bounded studio selection and leaves other directories on demand', () => {
+test('the overview loads bounded official studio selections and leaves full catalogues on demand', () => {
   const page = sourceOf('src/app/wordpress/page.tsx');
-  // One cached official request supplies the studio, never one per preview.
+  // Each directory gets one bounded request. Full catalogues are separate routes.
   assert.match(page, /queryThemes\(\{ perPage: 6 \}\)/, 'the studio receives a bounded official theme selection');
-  assert.doesNotMatch(page, /queryPlugins|queryBlocks|queryPatterns/, 'other directories remain on-demand');
+  assert.match(page, /queryPlugins\(\{ perPage: 6 \}\)/, 'the studio receives a bounded official plugin selection');
+  assert.doesNotMatch(page, /queryBlocks|queryPatterns/, 'blocks and patterns remain on demand');
   assert.doesNotMatch(page, /featuredPlugins|featuredThemes/);
 });
 
@@ -497,22 +498,18 @@ test('the gateway is a router and a report, and reads the real registry', () => 
   assert.match(gateway, /Source: WordPress\.org/);
 });
 
-test('the six chapters are present and in the order the work happens', () => {
+test('legacy WordPress deep links select existing journeys in the same immersive shell', () => {
   const page = sourceOf('src/app/wordpress/page.tsx');
-  const order = ['id="domain"', 'id="infrastructure"', 'id="library"', 'id="operate"', 'id="launch"'];
-  let cursor = -1;
-  for (const anchor of order) {
-    const at = page.indexOf(anchor);
-    assert.ok(at > cursor, `chapter ${anchor} must appear after the previous one`);
-    cursor = at;
+  const experience = sourceOf('src/components/wordpress/WordPressExperience.tsx');
+  const studio = sourceOf('src/components/wordpress/WordPressStudio.tsx');
+  assert.equal((page.match(/<WordPressExperience\b/g) ?? []).length, 1);
+  for (const [hash, journey] of Object.entries({
+    studio: 'arrival', system: 'arrival', domain: 'domain', infrastructure: 'hosting',
+    library: 'theme', operate: 'operations', launch: 'composer',
+  })) {
+    assert.ok(experience.includes(`'#${hash}': '${journey}'`), `#${hash} must still open ${journey}`);
+    assert.ok(studio.includes(`id: '${journey}'`), `${journey} must exist in the studio`);
   }
-  // Each chapter is a real section with an id, and the stylesheet reserves
-  // room for the fixed header so an anchor does not land underneath it.
-  for (const anchor of order) {
-    assert.match(page, new RegExp(`<section[^>]*${anchor}`), `${anchor} must be a real section landmark`);
-  }
-  const css = readFileSync(join(root, 'src/app/globals.css'), 'utf8');
-  assert.match(css, /\.eco-section\s*\{[^}]*scroll-margin-top/, 'and the stylesheet offsets them from the header');
 });
 
 test('globals.css has one line-ending convention, or the build silently drops it', () => {

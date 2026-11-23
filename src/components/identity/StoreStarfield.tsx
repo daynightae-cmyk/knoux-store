@@ -14,7 +14,7 @@ export function StoreStarfield({ phase }: { phase?: StoreStarfieldPhase } = {}) 
   useEffect(() => {
     current.current = { ...visual, phase: activePhase };
     // Static light may reflect a real state change, but never animates between events.
-    if (!document.hidden && matchMedia('(prefers-reduced-motion: reduce)').matches) paint.current?.();
+    if (!document.hidden && canvas.current?.clientWidth && canvas.current.clientHeight && matchMedia('(prefers-reduced-motion: reduce)').matches) paint.current?.();
   }, [visual, activePhase]);
 
   useEffect(() => {
@@ -115,7 +115,7 @@ export function StoreStarfield({ phase }: { phase?: StoreStarfieldPhase } = {}) 
       cancelAnimationFrame(animation);
       lastFrame = 0;
       lastPaint = 0;
-      if (document.hidden) { element.dataset.motion = 'paused'; return; }
+      if (document.hidden || !width || !height) { element.dataset.motion = 'paused'; return; }
       draw();
       element.dataset.motion = motion.matches ? 'static' : 'animated';
       if (!motion.matches) animation = requestAnimationFrame(tick);

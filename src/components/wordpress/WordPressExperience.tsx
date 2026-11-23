@@ -15,6 +15,10 @@ const HASH_JOURNEYS: Record<string, StudioJourney> = {
   '#infrastructure': 'hosting',
   '#operate': 'operations',
   '#launch': 'composer',
+  '#identity': 'identity',
+  '#themes': 'theme',
+  '#plugins': 'plugins',
+  '#canvas': 'canvas',
 };
 
 function journeyFromHash(hash: string): StudioJourney | null {
@@ -41,10 +45,14 @@ export function WordPressExperience({
   const [entered, setEntered] = useState(false);
   const [journey, setJourney] = useState<StudioJourney>('arrival');
   const returnFocus = useRef<HTMLDivElement>(null);
+  const studioDialog = useRef<HTMLDialogElement>(null);
+  const trigger = useRef<HTMLElement | null>(null);
+  const closing = useRef(false);
 
   useEffect(() => {
     const syncFromLocation = () => {
       const requested = journeyFromHash(window.location.hash);
+      closing.current = false;
       setEntered(requested !== null);
       if (requested) setJourney(requested);
     };
@@ -57,7 +65,26 @@ export function WordPressExperience({
     };
   }, []);
 
+  useEffect(() => {
+    const dialog = studioDialog.current;
+    if (!dialog) return;
+    if (entered && !dialog.open) {
+      dialog.scrollTop = 0;
+      dialog.showModal();
+      dialog.querySelector<HTMLButtonElement>('#wordpress-studio-back')?.focus();
+    } else if (!entered && dialog.open) {
+      dialog.close();
+      const target = trigger.current?.isConnected
+        ? trigger.current
+        : returnFocus.current?.querySelector<HTMLElement>('[data-enter-studio]');
+      target?.focus({ preventScroll: true });
+      trigger.current = null;
+    }
+  }, [entered]);
+
   const openStudio = useCallback(() => {
+    const focused = document.activeElement;
+    trigger.current = focused instanceof HTMLElement && returnFocus.current?.contains(focused) ? focused : null;
     setJourney('arrival');
     setEntered(true);
     if (window.location.hash !== '#studio') {
@@ -65,27 +92,32 @@ export function WordPressExperience({
     } else {
       window.history.replaceState({ knouxWordPressStudio: true }, '', window.location.href);
     }
-    window.requestAnimationFrame(() => document.getElementById('wordpress-studio-back')?.focus());
   }, []);
 
   const closeStudio = useCallback(() => {
+    if (closing.current) return;
     if (window.history.state?.knouxWordPressStudio) {
+      closing.current = true;
       window.history.back();
     } else {
-      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
       setEntered(false);
+      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
     }
-    window.requestAnimationFrame(() => returnFocus.current?.querySelector<HTMLAnchorElement>('[data-enter-studio]')?.focus());
   }, []);
 
   return (
     <div className="wp-experience" data-wordpress-experience data-phase={entered ? 'studio' : 'arrival'}>
       <div ref={returnFocus} className="wp-experience__arrival" hidden={entered}>
-        <WordPressWelcome themesLoaded={themes.length} directoryOnline={directoryOnline} onEnter={openStudio} />
+        <WordPressWelcome active={!entered} themesLoaded={themes.length} directoryOnline={directoryOnline} onEnter={openStudio} />
       </div>
-      <div className="wp-experience__studio" id="studio" hidden={!entered}>
+      <dialog ref={studioDialog} className="wp-experience__studio" id="studio" aria-labelledby="wordpress-studio-title"
+        onCancel={(event) => {
+          if (event.target !== event.currentTarget) return;
+          event.preventDefault();
+          closeStudio();
+        }}>
         <WordPressStudio themes={themes} plugins={plugins} requestedJourney={journey} onBack={closeStudio} />
-      </div>
+      </dialog>
     </div>
   );
 }

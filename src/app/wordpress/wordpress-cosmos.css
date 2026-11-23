@@ -3,10 +3,59 @@
    these layers add the painted nebula banks and the planet limb in the same
    code-only vocabulary as the Build shell. All of it is click-through. */
 
-.wp-cosmos { position: relative; isolation: isolate; }
+.wp-cosmos { --wp-masthead: 88px; position: relative; isolation: isolate; }
 /* WordPress has its own bilingual Store masthead, shared by all ten screens. */
+body:has(.wp-cosmos) .store-starfield,
 body:has(.wp-cosmos) .site-header { display: none; }
+/* The arrival/studio experience is one application, not a landing page: the
+   institutional footer would turn it into a document. Every other WordPress
+   route keeps the footer. */
+body:has(.wp-experience) .site-footer { display: none; }
+/* The immersive Store shell owns its own guidance and actions; the floating
+   institutional mascot would sit on top of the gateway. */
+body:has(.wp-experience) .knoux-sentinel { display: none; }
 .wp-cosmos main > .shell:first-of-type { padding-top: 110px; }
+
+/* One shell for all thirteen reference states. Arrival and Studio stay mounted
+   so selections, drafts and canvas state survive Back/Close; `hidden` only
+   removes the inactive state from layout and the accessibility tree. */
+.wp-experience {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+  padding-top: var(--wp-masthead);
+  box-sizing: border-box;
+}
+.wp-experience__arrival {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100svh - var(--wp-masthead));
+}
+.wp-experience__arrival > .scene { flex: 1 1 auto; }
+.wp-experience__studio {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: transparent;
+  color: inherit;
+}
+.wp-experience__studio::backdrop { background: rgba(8, 4, 20, .28); }
+.wp-cosmos:has(.wp-experience__studio[open]) > header,
+body:has(.wp-experience__studio[open]) .skip-link { visibility: hidden; }
+html:has(.wp-experience__studio[open]) { overflow: hidden; }
+.wp-experience [hidden] { display: none !important; }
+
+@media (max-width: 900px) {
+  .wp-cosmos { --wp-masthead: 78px; }
+}
 
 .wp-cosmos__field {
   position: fixed;

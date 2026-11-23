@@ -87,6 +87,10 @@ export function SentinelGuideLauncher() {
   const ask=()=>{const page=entryForPage(catalog,pathname);if(!page){unavailable();return;}setDismissed('');send(context??{route:pathname,target:page.id},question);};
   const visible=!menuOpen && !open && dismissed!==key && (composing || (!buildWorkspace && reply.state!=='idle'));
   const phase=preferences.quiet?'quiet':open?(speechActive?'speaking':'expanded'):reply.state==='thinking'?'thinking':reply.state==='streaming'?'speaking':visible?'guiding':'idle';
+  // The Store's arrival ↔ studio shell is deliberately immersive: the floating
+  // institutional companion would cover the gateway, the entry control and the
+  // Studio toolbar. Other WordPress routes keep the guide.
+  if (pathname === '/wordpress') return null;
   const character=<KnouxSentinel expanded={open} docked={composing||visible||menuOpen} menuPaused={menuOpen} phase={phase} language={language} onActivate={activate}>
     {visible && <KnouxThoughtBubble language={language} reply={reply} question={question} setQuestion={text=>setQuestionValue({key,text})} onAsk={ask} onStop={stop} onDismiss={dismiss} onSources={()=>{stop();setOpen(true);}} onClear={()=>{stop();setQuestionValue({key,text:''});}} catalog={catalog} composing={composing} />}
   </KnouxSentinel>;

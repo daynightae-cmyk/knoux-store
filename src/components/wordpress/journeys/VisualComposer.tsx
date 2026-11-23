@@ -14,49 +14,10 @@ import { useEffect, useState } from 'react';
 import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
 import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
-import { WordPressCosmicMark } from '../WordPressCosmicMark';
+import { BLOCK_TYPES, DEFAULT_BLOCKS, STORAGE_KEY, ComposerDocument, readComposerBlocks, label, type Block, type BlockType } from './ComposerDocument';
 import s from './journeys.module.css';
 
-const BLOCK_TYPES = [
-  { id: 'hero', en: 'Hero', ar: 'واجهة' },
-  { id: 'features', en: 'Features', ar: 'مزايا' },
-  { id: 'gallery', en: 'Gallery', ar: 'معرض' },
-  { id: 'text', en: 'Text', ar: 'نص' },
-  { id: 'testimonials', en: 'Testimonials', ar: 'آراء' },
-  { id: 'cta', en: 'Call to action', ar: 'دعوة لإجراء' },
-  { id: 'contact', en: 'Contact', ar: 'تواصل' },
-] as const;
-
-type BlockType = (typeof BLOCK_TYPES)[number]['id'];
-type Block = { key: number; type: BlockType; align: 'start' | 'center' | 'end'; gap: number };
-
-const STORAGE_KEY = 'knoux-wp-composer-draft';
 let blockKey = 100;
-
-const DEFAULT_BLOCKS: Block[] = [
-  { key: 1, type: 'hero', align: 'center', gap: 16 },
-  { key: 2, type: 'features', align: 'center', gap: 16 },
-  { key: 3, type: 'cta', align: 'center', gap: 16 },
-];
-
-function readBlocks(): Block[] {
-  try {
-    const raw = window.sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_BLOCKS;
-    const parsed = JSON.parse(raw) as Block[];
-    if (!Array.isArray(parsed) || !parsed.length) return DEFAULT_BLOCKS;
-    const valid = parsed.filter((block) => BLOCK_TYPES.some((type) => type.id === block.type));
-    if (valid.length) blockKey = Math.max(blockKey, ...valid.map((block) => block.key)) + 1;
-    return valid.length ? valid : DEFAULT_BLOCKS;
-  } catch {
-    return DEFAULT_BLOCKS;
-  }
-}
-
-function label(type: BlockType, t: (en: string, ar?: string) => string) {
-  const entry = BLOCK_TYPES.find((candidate) => candidate.id === type);
-  return entry ? t(entry.en, entry.ar) : type;
-}
 
 export function VisualComposer() {
   const language = useSiteLanguage();
@@ -68,7 +29,8 @@ export function VisualComposer() {
     let cancelled = false;
     const timer = window.setTimeout(() => {
       if (cancelled) return;
-      const restored = readBlocks();
+      const restored = readComposerBlocks();
+      blockKey = Math.max(blockKey, ...restored.map((block) => block.key)) + 1;
       setBlocks(restored);
       setSelectedKey(restored[0]?.key ?? 0);
     }, 0);
@@ -152,37 +114,10 @@ export function VisualComposer() {
 
       <div className={s.composerCanvas} aria-label={t('Composed preview')} aria-live="polite">
         <div className={s.frameChrome} aria-hidden="true"><i /><i /><i /><span>{t('Layout draft', 'مسودة التخطيط')} · {blocks.length} {t('sections', 'أقسام')}</span></div>
-        <div className={s.composerPreview}>
-          {blocks.length ? blocks.map((block) => (
-            <button
-              key={block.key}
-              type="button"
-              className={s.composedBlock}
-              data-type={block.type}
-              data-selected={selectedKey === block.key}
-              style={{
-                alignItems: block.align === 'center' ? 'center' : block.align === 'end' ? 'flex-end' : 'flex-start',
-                gap: `${block.gap}px`,
-              }}
-              onClick={() => { if (selectedKey !== block.key) cueAtmosphere('settle'); setSelectedKey(block.key); }}
-            >
-              <span className={s.composedTag}>{label(block.type, t)}</span>
-              {block.type === 'hero' ? (
-                <>
-                  <WordPressCosmicMark className={s.composedMark} label="" />
-                  <span className={s.composedTitle}>{t('Your website, composed.', 'موقعك، مُركَّباً.')}</span>
-                </>
-              ) : null}
-              {block.type === 'features' || block.type === 'gallery' || block.type === 'testimonials' ? (
-                <span className={s.composedCards} aria-hidden="true"><i /><i /><i /></span>
-              ) : null}
-              {block.type === 'text' ? <span className={s.composedLines} aria-hidden="true"><i /><i /><i /></span> : null}
-              {block.type === 'cta' || block.type === 'contact' ? <span className={s.composedButton} aria-hidden="true">{block.type === 'cta' ? t('Get started', 'ابدأ الآن') : t('Contact', 'تواصل')}</span> : null}
-            </button>
-          )) : (
-            <p className={s.empty}>{t('Add sections to see the page take shape.', 'أضف أقساماً لترى الصفحة تتشكل.')}</p>
-          )}
-        </div>
+        <ComposerDocument blocks={blocks} selectedKey={selectedKey} onSelect={(key) => {
+          if (selectedKey !== key) cueAtmosphere('settle');
+          setSelectedKey(key);
+        }} />
       </div>
 
       <aside className={`${s.panel} ${s.composerInspector}`} aria-label={t('Section inspector')}>

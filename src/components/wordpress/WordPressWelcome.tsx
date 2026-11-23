@@ -40,7 +40,7 @@ const FEATURES = [
 ];
 const BARS = [7, 12, 18, 10, 25, 16, 31, 22, 14, 36, 25, 17, 28, 40, 23, 34, 19, 30, 15, 24, 12, 20, 9, 15, 7, 11, 6];
 
-export function WordPressWelcome({ themesLoaded, directoryOnline, onEnter }: Readonly<{ themesLoaded: number; directoryOnline: boolean; onEnter: () => void }>) {
+export function WordPressWelcome({ active, themesLoaded, directoryOnline, onEnter }: Readonly<{ active: boolean; themesLoaded: number; directoryOnline: boolean; onEnter: () => void }>) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const scene = useRef<HTMLElement>(null);
   const language = useSiteLanguage();
@@ -49,10 +49,11 @@ export function WordPressWelcome({ themesLoaded, directoryOnline, onEnter }: Rea
 
   useEffect(() => {
     const element = scene.current;
-    if (!element || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!element || !active) return;
+    const motion = matchMedia('(prefers-reduced-motion: reduce)');
     let frame = 0;
     const move = (event: PointerEvent) => {
-      if (frame) return;
+      if (frame || document.hidden || motion.matches) return;
       frame = requestAnimationFrame(() => {
         frame = 0;
         element.style.setProperty('--px', ((event.clientX / innerWidth - .5) * 2).toFixed(3));
@@ -61,10 +62,11 @@ export function WordPressWelcome({ themesLoaded, directoryOnline, onEnter }: Rea
     };
     window.addEventListener('pointermove', move, { passive: true });
     return () => { window.removeEventListener('pointermove', move); if (frame) cancelAnimationFrame(frame); };
-  }, []);
+  }, [active]);
 
-  function enterStudio(event?: MouseEvent<HTMLAnchorElement>) {
-    event?.preventDefault();
+  function enterStudio(event: MouseEvent<HTMLAnchorElement>) {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    event.preventDefault();
     cueAtmosphere('wake');
     onEnter();
   }
@@ -77,6 +79,8 @@ export function WordPressWelcome({ themesLoaded, directoryOnline, onEnter }: Rea
         <rect width="1200" height="800" filter={`url(#${dustId})`} />
       </svg>
       <div className={s.planet} aria-hidden="true" /><div className={s.moon} aria-hidden="true" />
+      <div className={s.vignette} aria-hidden="true" />
+      <div className={s.stars} aria-hidden="true" />
 
       <header className={s.header}>
         <h1 id="wp-welcome-title" className={s.title}><b>01</b><i aria-hidden="true" />ARRIVAL EXPERIENCE</h1>
@@ -96,7 +100,8 @@ export function WordPressWelcome({ themesLoaded, directoryOnline, onEnter }: Rea
 
         <div className={s.gateway} aria-hidden="true">
           <div className={s.orbit} /><div className={`${s.orbit} ${s.orbitInner}`} />
-          <div className={s.gateBody}><div className={s.gateInner} /><div className={s.gateTicks} /><div className={s.gateGlass} /><WordPressCosmicMark className={s.mark} /></div>
+          <div className={s.crown} />
+          <div className={s.gateBody}><div className={s.gateInner} /><div className={s.gateTicks} /><div className={s.gateGlass} /><WordPressCosmicMark className={s.mark} tone="starlight" /></div>
           <div className={`${s.pylon} ${s.pylonLeft}`} /><div className={`${s.pylon} ${s.pylonRight}`} />
           <div className={s.stairs} />
           <span className={`${s.flare} ${s.flareTop}`} /><span className={`${s.flare} ${s.flareLeft}`} /><span className={`${s.flare} ${s.flareRight}`} />
@@ -106,14 +111,14 @@ export function WordPressWelcome({ themesLoaded, directoryOnline, onEnter }: Rea
 
         <aside className={`${s.glassCard} ${s.monitor}`} aria-label={ar ? 'حالة الاستوديو' : 'Studio status'}>
           <div className={s.cardShine} aria-hidden="true" />
-          <div className={s.monitorHead}><div><h2>STUDIO STATUS</h2><p lang="ar">حالة الاستوديو</p></div><span className={s.online} data-online={directoryOnline}><i />{directoryOnline ? 'Online' : 'Offline'}<small lang="ar">{directoryOnline ? 'متصل الآن' : 'غير متصل'}</small></span></div>
+          <div className={s.monitorHead}><div><h2>STUDIO STATUS</h2><p lang="ar">حالة الاستوديو</p></div><span className={s.online} data-online={directoryOnline} aria-label={directoryOnline ? "WordPress.org theme directory online" : "WordPress.org theme directory unavailable"}><i />{directoryOnline ? 'Online' : 'Offline'}<small lang="ar">{directoryOnline ? 'متصل الآن' : 'غير متصل'}</small></span></div>
           <div className={s.world} aria-hidden="true">
             <svg viewBox="0 0 320 135"><defs><pattern id={`map-${uid}`} width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1" fill="#a66cff" /></pattern></defs><g fill={`url(#map-${uid})`}><path d="M20 38 36 19 64 12 89 20 111 19 124 34 111 44 105 59 84 57 74 72 61 64 49 46 28 49Z" /><path d="m101 68 21 9 12 19-6 28-14-12-7-24-12-9Z" /><path d="m154 26 25-12 27 6 14-3 42 14 26 23-12 16-24-5-16 11-13-9-14 6-10 29-19 23-13-11 3-27-13-17-18-6-8-17 14-12Z" /><path d="m259 92 18-8 21 12-4 18-23 4-15-11Z" /></g><ellipse cx="160" cy="78" rx="147" ry="35" fill="none" stroke="#b575ff" strokeWidth="1.2" transform="rotate(-8 160 78)" /></svg>
           </div>
           <div className={s.stats}>
-            <div><WpIcon name="cube" /><strong>{themesLoaded}</strong><span>Themes loaded</span><small lang="ar">قوالب هذا العرض</small></div>
-            <div><WpIcon name="people" /><strong>10</strong><span>Studio journeys</span><small lang="ar">مسارات الاستوديو</small></div>
-            <div><WpIcon name="infinity" /><strong>WP.org</strong><span>Live directory</span><small lang="ar">المصدر الرسمي</small></div>
+            <div><WpIcon name="cube" /><strong>{themesLoaded}</strong><span>Themes</span><small lang="ar">قوالب هذا العرض</small></div>
+            <div><WpIcon name="people" /><strong>10</strong><span>Journeys</span><small lang="ar">مسارات الاستوديو</small></div>
+            <div><WpIcon name="infinity" /><strong>WP.org</strong><span>Directory</span><small lang="ar">المصدر الرسمي</small></div>
           </div>
           <div className={s.equalizer} aria-hidden="true">{BARS.map((height, i) => <i key={i} style={{ '--bar': `${height}px`, '--delay': `${i * -80}ms` } as CSSProperties} />)}</div>
         </aside>

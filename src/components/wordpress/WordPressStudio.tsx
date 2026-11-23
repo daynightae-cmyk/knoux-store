@@ -1,10 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ExternalItem } from '@/lib/wordpress/external';
 import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
 import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
+import { SiteLanguagePicker } from '@/components/i18n/SiteLanguage';
+import { WordPressPreviewOrbit } from './WordPressPreviewOrbit';
+import { DeviceFrame } from './journeys/DeviceFrame';
 import { ThemeExplorer } from './journeys/ThemeExplorer';
 import { LiveCanvas } from './journeys/LiveCanvas';
 import { DomainIntelligence } from './journeys/DomainIntelligence';
@@ -59,14 +62,23 @@ export function WordPressStudio({
   onBack: () => void;
 }) {
   const t = useRouteCopy();
+  const journeys = useRef<HTMLDialogElement>(null);
+  const themePicker = useRef<HTMLDialogElement>(null);
+  const journeyHeading = useRef<HTMLHeadingElement>(null);
+  const journeyTrigger = useRef<HTMLButtonElement>(null);
   const [active, setActive] = useState<string>(JOURNEYS[0].id);
+  const [primary, setPrimary] = useState<'draft' | 'starter'>('draft');
   const [slug, setSlug] = useState<string>(themes[0]?.slug ?? '');
-
-  useEffect(() => {
+  // A hash/deep link asks for a journey. Adjust during render (the supported
+  // "state derived from props" pattern) instead of cascading an effect, while
+  // leaving later in-Studio selections untouched.
+  const [seenRequest, setSeenRequest] = useState<string | undefined>(undefined);
+  if (requestedJourney !== seenRequest) {
+    setSeenRequest(requestedJourney);
     if (requestedJourney && JOURNEYS.some((entry) => entry.id === requestedJourney)) {
       setActive(requestedJourney);
     }
-  }, [requestedJourney]);
+  }
   // The arrival composer hands its words here — same tab via the event,
   // a return visit via session storage. The stored sentence is read through
   // an external-store subscription so server and client renders agree.
@@ -94,6 +106,16 @@ export function WordPressStudio({
     };
   }, []);
   const journey = JOURNEYS.find((entry) => entry.id === active) ?? JOURNEYS[0];
+  function changeJourney(next: string) {
+    if (next === active) return;
+    cueAtmosphere('confirm');
+    setActive(next);
+    window.requestAnimationFrame(() => {
+      if (next === 'arrival') journeyTrigger.current?.focus();
+      else journeyHeading.current?.focus();
+    });
+  }
+
   const theme = themes.find((item) => item.slug === slug);
   const requestParams = new URLSearchParams({
     requestType: 'wordpress',
@@ -109,59 +131,73 @@ export function WordPressStudio({
     <section className={styles.studio} aria-label="WordPress Studio">
       <header className={styles.header}>
         <button id="wordpress-studio-back" type="button" className={styles.back} onClick={onBack}>
-          <span aria-hidden="true">←</span> {t('Arrival', 'الوصول')}
+          <span aria-hidden="true">←</span> {t('Exit to arrival', 'العودة إلى بوابة الدخول')}
         </button>
-        <span>WORDPRESS STUDIO</span>
+        <SiteLanguagePicker />
       </header>
 
-      <nav className={styles.rail} role="navigation" aria-label={t('Studio journeys', 'رحلات الاستوديو')}>
-        {JOURNEYS.map((entry) => {
-          const isActive = entry.id === active;
-          return (
-            <button
-              key={entry.id}
-              type="button"
-              className={`${styles.journey} ${isActive ? styles.active : ''}`}
-              aria-pressed={isActive}
-              onClick={() => { if (!isActive) cueAtmosphere('confirm'); setActive(entry.id); }}
-            >
-              <span className={styles.code}>{entry.code}</span>
-              <span className={styles.label}>{entry.label}</span>
+      <h1 id="wordpress-studio-title" className={styles.studioTitle}>WordPress Studio</h1>
+      <div className={styles.toolbar}>
+        <button ref={journeyTrigger} type="button" onClick={() => journeys.current?.showModal()}>{t('Studio journeys', 'رحلات الاستوديو')}</button>
+        {active === 'arrival' && <button type="button" onClick={() => themePicker.current?.showModal()}>{t('Themes', 'القوالب')}</button>}
+        {active !== 'arrival' && <button type="button" onClick={() => changeJourney('arrival')}>{t('Preview orbit', 'مدار المعاينة')}</button>}
+      </div>
+
+      <dialog ref={journeys} className={styles.contextPanel} aria-labelledby="wordpress-journey-title">
+        <header>
+          <h3 id="wordpress-journey-title">{t('Studio journeys', 'رحلات الاستوديو')}</h3>
+          <button type="button" onClick={() => journeys.current?.close()}>{t('Close', 'إغلاق')}</button>
+        </header>
+        <nav className={styles.rail} aria-label={t('Studio journeys', 'رحلات الاستوديو')}>
+          {JOURNEYS.map((entry) => (
+            <button key={entry.id} type="button" className={styles.journey} aria-pressed={entry.id === active}
+              onClick={() => {
+                journeys.current?.close();
+                changeJourney(entry.id);
+              }}>
+              {entry.label}
             </button>
-          );
-        })}
-      </nav>
+          ))}
+        </nav>
+      </dialog>
+
+      {active === 'arrival' && <dialog ref={themePicker} className={styles.contextPanel} aria-labelledby="wordpress-theme-panel">
+        <header>
+          <h3 id="wordpress-theme-panel">{t('Themes', 'القوالب')}</h3>
+          <button type="button" onClick={() => themePicker.current?.close()}>{t('Close', 'إغلاق')}</button>
+        </header>
+        {themes.length ? (
+          <div className={styles.choice}>
+            <label className={styles.selectLabel} htmlFor="wp-theme-choice">{t('Choose a theme', 'اختيار قالب')}</label>
+            <select id="wp-theme-choice" value={slug} onChange={(event) => {
+              cueAtmosphere('confirm');
+              setSlug(event.target.value);
+            }}>
+              {themes.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
+            </select>
+            {theme && (
+              <>
+                <p>{t('Official theme screenshot', 'صورة القالب الرسمية')}</p>
+                <DeviceFrame device="desktop" theme={theme} />
+                <a className={styles.browse} href={theme.sourceUrl} target="_blank" rel="noopener noreferrer">
+                  {t('Official theme page', 'الصفحة الرسمية للقالب')} ↗
+                </a>
+              </>
+            )}
+          </div>
+        ) : <p role="status">{t('The official theme directory is unavailable.', 'دليل القوالب الرسمي غير متاح.')}</p>}
+        <button type="button" onClick={() => {
+          themePicker.current?.close();
+          changeJourney('theme');
+        }}>{t('Theme Explorer', 'مستكشف القوالب')}</button>
+      </dialog>}
 
       <div className={styles.body}>
-        <h2 className={styles.heading}>
-          {journey.code} / {journey.label} <span className={styles.stepDot} />
-        </h2>
-
-        {/* 01 Arrival */}
+        {active !== 'arrival' && <h2 ref={journeyHeading} tabIndex={-1} className={styles.heading}>{journey.label}</h2>}
         {active === 'arrival' && (
-          <section className={styles.section}>
-            <h3>{t('Your next website, in view.')}</h3>
-            {intent ? (
-              <p className={styles.intent} role="status">
-                <span>{t('Your words', 'وصفك')}</span> “{intent}”
-              </p>
-            ) : null}
-            <p>{t('Official WordPress.org themes')}</p>
-            {themes.length ? (
-              <div className={styles.choice}>
-                <label className={styles.selectLabel} htmlFor="wp-theme-choice">{t('Choose a theme')}</label>
-                <select id="wp-theme-choice" value={slug} onChange={(event) => { cueAtmosphere('confirm'); setSlug(event.target.value); }}>
-                  {themes.map((item) => (
-                    <option key={item.slug} value={item.slug}>
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ) : (
-              <p className={styles.note} role="status">{t('The official theme directory is unavailable. Browse again or compose a request without a theme.')}</p>
-            )}
-            <p className={styles.note}>{t('Planning studio · nothing installed or published')}</p>
+          <section className={styles.section} aria-label={t('Document previews', 'معاينات المستند')}>
+            {intent && <p className={styles.intent} role="status"><span>{t('Your words', 'وصفك')}</span> “{intent}”</p>}
+            <WordPressPreviewOrbit t={t} primary={primary} onSwitch={setPrimary} onCustomize={() => changeJourney('composer')} />
           </section>
         )}
 

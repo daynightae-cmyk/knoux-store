@@ -8,6 +8,7 @@ import { expect, test } from '@playwright/test';
  */
 async function chooseLanguage(page: import('@playwright/test').Page, value: 'en' | 'ar' | 'ur') {
   const candidates = [
+    page.getByRole('dialog', { name: 'WordPress Studio' }).getByRole('combobox', { name: /Language/ }),
     page.locator('.site-header select'),
     page.locator('header[class*="commandBar"] select'),
   ];
@@ -62,24 +63,35 @@ test('Signal is a primary destination and translates the usable search surface',
 
 test('WordPress studio changes official selection, sizes the screenshot and carries the request', async ({ page }) => {
   await page.goto('/wordpress');
-  const studio = page.getByRole('region', { name: 'WordPress Studio' });
-  const select = studio.getByRole('combobox');
+  await page.locator('[data-enter-studio]').click();
+  const studio = page.getByRole('dialog', { name: 'WordPress Studio' });
+  await studio.getByRole('button', { name: 'Themes', exact: true }).click();
+  const themePanel = page.getByRole('dialog', { name: 'Themes' });
+  const select = themePanel.getByRole('combobox');
   // A live upstream failure is a legitimate state, not a fixture substitute.
   if (await select.count() === 0) {
-    await expect(studio.getByRole('status')).toContainText('unavailable');
+    await expect(themePanel.getByRole('status')).toContainText('unavailable');
     return;
   }
   const options = await select.locator('option').count();
   expect(options).toBeGreaterThan(0);
   if (options > 1) await select.selectOption({ index: 1 });
   const name = await select.locator('option:checked').textContent();
+  await themePanel.getByRole('button', { name: 'Close' }).click();
   const request = studio.getByRole('link', { name: 'Compose a site request' });
   expect(new URLSearchParams((await request.getAttribute('href'))!.split('?')[1]).get('items')).toContain(name);
-  await studio.getByRole('button', { name: /Live Responsive Canvas/ }).click();
-  await expect(studio.getByRole('button', { name: 'Mobile', exact: true })).not.toBeDisabled();
-  // WordPress studio device press then Arabic switch on the site-wide picker.
-  await studio.getByRole('button', { name: 'Mobile', exact: true }).click();
-  await expect(studio.getByRole('button', { name: 'Mobile', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await studio.getByRole('button', { name: 'Studio journeys' }).click();
+  await page.getByRole('dialog', { name: 'Studio journeys' }).getByRole('button', { name: 'Live Responsive Canvas' }).click();
+  const mobile = studio.getByRole('switch', { name: 'Mobile', exact: true });
+  const frame = studio.locator('[data-device=mobile]');
+  await expect(mobile).toBeChecked();
+  await expect(frame).toBeVisible();
+  await mobile.click();
+  await expect(mobile).not.toBeChecked();
+  await expect(frame).toHaveCount(0);
+  await mobile.click();
+  await expect(mobile).toBeChecked();
+  await expect(frame).toBeVisible();
   await chooseLanguage(page, 'ar');
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   await expect(studio.getByRole('link', { name: /تكوين طلب موقع/ })).toBeVisible();

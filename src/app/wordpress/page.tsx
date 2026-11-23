@@ -20,8 +20,8 @@ export const metadata = pageMetadata(
  */
 export default async function WordPressPage() {
   const [themes, plugins] = await Promise.all([
-    queryThemes({ perPage: 12 }),
-    queryPlugins({ perPage: 12 }),
+    queryThemes({ perPage: 6 }),
+    queryPlugins({ perPage: 6 }),
   ]);
 
   return (
