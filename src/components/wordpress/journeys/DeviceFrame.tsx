@@ -8,6 +8,7 @@
  * resized for comparison, honestly labelled, never presented as a live site.
  */
 import type { ExternalItem } from '@/lib/wordpress/external';
+import type { ReactNode } from 'react';
 import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
 import s from './journeys.module.css';
@@ -39,22 +40,24 @@ function Screen({ theme }: Readonly<{ theme: ExternalItem }>) {
   );
 }
 
-export function DeviceFrame({ device, theme, chrome = true }: Readonly<{
+type FrameContent = { theme: ExternalItem; children?: never; title?: never }
+  | { theme?: never; children: ReactNode; title: string };
+
+export function DeviceFrame({ device, theme, children, title, chrome = true }: Readonly<{
   device: PreviewDevice;
-  theme: ExternalItem;
   chrome?: boolean;
-}>) {
+}> & FrameContent) {
   return (
     <div className={s.frameStage} data-device={device}>
       <div className={`${s.frame} ${s[`frame_${device}`]}`}>
         {chrome ? (
           <div className={s.frameChrome} aria-hidden="true">
             <i /><i /><i />
-            <span>{theme.name}</span>
+            <span>{theme?.name ?? title}</span>
           </div>
         ) : null}
-        <div className={s.screen}>
-          <Screen theme={theme} />
+        <div className={theme ? s.screen : s.draftScreen}>
+          {theme ? <Screen theme={theme} /> : children}
         </div>
         {device === 'mobile' ? <span className={s.notch} aria-hidden="true" /> : null}
         {device === 'desktop' ? <span className={s.stand} aria-hidden="true" /> : null}

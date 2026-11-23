@@ -89,7 +89,7 @@ export function ComposerDocument({ blocks, selectedKey, onSelect, alignment }: R
               </>
             )}
             {['features', 'gallery', 'testimonials'].includes(block.type) && (
-              <span className={s.composedCards} aria-hidden="true"><i /><i /><i /></span>
+              <span className={s.composedCards} data-section-cards aria-hidden="true"><i /><i /><i /></span>
             )}
             {block.type === 'text' && <span className={s.composedLines} aria-hidden="true"><i /><i /><i /></span>}
             {(block.type === 'cta' || block.type === 'contact') && (

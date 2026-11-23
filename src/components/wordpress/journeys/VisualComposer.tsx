@@ -23,7 +23,7 @@ let blockKey = 100;
 type Pane = 'components' | 'layers' | 'inspector' | 'scope';
 type DraftHistory = { previous: Block[][]; current: Block[]; next: Block[][] };
 
-export function VisualComposer() {
+export function VisualComposer({ onPreview }: Readonly<{ onPreview: () => void }>) {
   const language = useSiteLanguage();
   const t = (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
   const [history, setHistory] = useState<DraftHistory>({ previous: [], current: DEFAULT_BLOCKS, next: [] });
@@ -119,6 +119,7 @@ export function VisualComposer() {
           ))}
           <button className={s.ghostAction} type="button" disabled={!history.previous.length} onClick={undo}>{t('Undo', 'تراجع')}</button>
           <button className={s.ghostAction} type="button" disabled={!history.next.length} onClick={redo}>{t('Redo', 'أعد الإجراء')}</button>
+          <button className={s.ghostAction} type="button" onClick={onPreview}>{t('Preview on devices')}</button>
         </div>
         <button className={s.primaryAction} type="button" onClick={() => openPane('scope')}>{t('Request this layout', 'اطلب هذا التخطيط')}</button>
         {saved === true && <span role="status">{t('Layout draft saved in this tab.', 'تم حفظ مسودة التخطيط في هذا التبويب.')}</span>}

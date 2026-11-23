@@ -223,7 +223,7 @@ export function WordPressStudio({
 
         {/* 07 Visual Website Composer — reference 83375: a working block
             composer with palette, layers, live preview and inspector. */}
-        {active === 'composer' && <VisualComposer />}
+        {active === 'composer' && <VisualComposer onPreview={() => changeJourney('canvas')} />}
 
         {/* 09 Build & Deployment — reference 83376: the real pipeline stages,
             honest checkpoints, no fabricated telemetry. */}
@@ -242,7 +242,7 @@ export function WordPressStudio({
         {/* 06 Live Responsive Canvas — reference 83381: device toggles, scale
             control, breakpoints and three framed viewports on one podium. */}
         {active === 'canvas' && (
-          <LiveCanvas themes={themes} selectedSlug={slug} onSelect={setSlug} />
+          <LiveCanvas themes={themes} selectedSlug={slug} onSelect={setSlug} onEdit={() => changeJourney('composer')} />
         )}
 
         <a className={styles.request} href={`/contact?${requestParams.toString()}`}>{t('Compose a site request')} ↗</a>
