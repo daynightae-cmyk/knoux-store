@@ -73,6 +73,7 @@ export function WordPressExperience({
       dialog.showModal();
       dialog.querySelector<HTMLButtonElement>('#wordpress-studio-back')?.focus();
     } else if (!entered && dialog.open) {
+      for (const panel of dialog.querySelectorAll<HTMLDialogElement>('dialog[open]')) panel.close();
       dialog.close();
       const target = trigger.current?.isConnected
         ? trigger.current

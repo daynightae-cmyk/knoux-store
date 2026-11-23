@@ -8,11 +8,12 @@
  * required PHP, version, rating). Selection composes a real request; nothing
  * is installed from the studio.
  */
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { ExternalItem } from '@/lib/wordpress/external';
 import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
 import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
+import studioStyles from '../WordPressStudio.module.css';
 import s from './journeys.module.css';
 
 function formatInstalls(value: number) {
@@ -21,7 +22,7 @@ function formatInstalls(value: number) {
   return String(value);
 }
 
-export function PluginIntelligence({ plugins }: Readonly<{ plugins: Readonly<ExternalItem[]> }>) {
+export function PluginIntelligence({ plugins, directory = false }: Readonly<{ plugins: Readonly<ExternalItem[]>; directory?: boolean }>) {
   const language = useSiteLanguage();
   const t = (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
   const [query, setQuery] = useState('');
@@ -29,6 +30,8 @@ export function PluginIntelligence({ plugins }: Readonly<{ plugins: Readonly<Ext
   // Selection tray: a real curated set (this session only), inspired by the
   // reference's tray — no installs happen here, the set composes one request.
   const [tray, setTray] = useState<string[]>([]);
+  const trayPanel = useRef<HTMLDialogElement>(null);
+  const detailPanel = useRef<HTMLElement>(null);
 
   function toggleTray(target: string) {
     cueAtmosphere(tray.includes(target) ? 'settle' : 'confirm');
@@ -45,7 +48,18 @@ export function PluginIntelligence({ plugins }: Readonly<{ plugins: Readonly<Ext
       || item.tags.some((tag) => tag.toLowerCase().includes(needle)));
   }, [plugins, query]);
 
-  const plugin = plugins.find((item) => item.slug === slug) ?? filtered[0] ?? plugins[0];
+  const plugin = filtered.find((item) => item.slug === slug) ?? filtered[0];
+
+  function selectPlugin(target: string) {
+    if (plugin?.slug !== target) cueAtmosphere('confirm');
+    setSlug(target);
+    if (directory && matchMedia('(max-width: 980px)').matches) {
+      window.requestAnimationFrame(() => {
+        detailPanel.current?.scrollIntoView({ block: 'start' });
+        detailPanel.current?.focus({ preventScroll: true });
+      });
+    }
+  }
 
   if (!plugins.length) {
     return (
@@ -76,11 +90,11 @@ export function PluginIntelligence({ plugins }: Readonly<{ plugins: Readonly<Ext
           <h3 className={s.panelTitle}>{t('Plugin Directory', 'دليل الإضافات')}</h3>
           <span className={s.count}>{plugins.length} {t('plugins loaded', 'إضافة محمّلة')}</span>
         </header>
-        <label className={s.search}>
+        {!directory && <label className={s.search}>
           <span className={s.visuallyHidden}>{t('Search plugins')}</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.8-3.8" strokeLinecap="round" /></svg>
           <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('Search capabilities — SEO, forms, cache…', 'ابحث عن قدرات — SEO، نماذج، كاش…')} />
-        </label>
+        </label>}
         {filtered.length ? (
           <ul className={s.pluginList} aria-label={t('Plugins')}>
             {filtered.map((item) => {
@@ -88,7 +102,7 @@ export function PluginIntelligence({ plugins }: Readonly<{ plugins: Readonly<Ext
               return (
                 <li key={item.slug} className={s.pluginRowWrap}>
                   <button type="button" className={s.domainRow} aria-pressed={isSelected}
-                    onClick={() => { if (!isSelected) cueAtmosphere('confirm'); setSlug(item.slug); }}>
+                    onClick={() => selectPlugin(item.slug)}>
                     <span className={s.pluginIdentity}>
                       {item.iconUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element -- official icon through the existing allowlisted proxy
@@ -118,7 +132,7 @@ export function PluginIntelligence({ plugins }: Readonly<{ plugins: Readonly<Ext
       </div>
 
       {plugin ? (
-        <aside className={s.stagePanel} aria-label={t('Selected plugin')}>
+        <aside ref={detailPanel} tabIndex={-1} className={s.stagePanel} aria-label={t('Selected plugin')}>
           <header className={s.detailHead}>
             <h4>{plugin.name}</h4>
             {typeof plugin.rating === 'number' && plugin.rating > 0 ? (
@@ -144,31 +158,40 @@ export function PluginIntelligence({ plugins }: Readonly<{ plugins: Readonly<Ext
           ) : null}
           <div className={s.actions}>
             <a className={s.ghostAction} href={plugin.sourceUrl} target="_blank" rel="noreferrer noopener">{t('Official page', 'الصفحة الرسمية')} ↗</a>
-            <a className={s.primaryAction} href={requestHref} onClick={() => cueAtmosphere('success')}>{t('Request this plugin', 'اطلب هذه الإضافة')} →</a>
+            <a className={s.primaryAction} href={requestHref} onClick={() => cueAtmosphere('confirm')}>{t('Request this plugin', 'اطلب هذه الإضافة')} →</a>
           </div>
           <p className={s.boundary}>{t('Official registry facts, verbatim. KNOuX installs, configures and verifies compatibility on the real install — nothing runs from this preview.', 'بيانات رسمية حرفية. تثبّت KNOuX وتضبط وتتحقق من التوافق على التثبيت الحقيقي — لا شيء يعمل من هذه المعاينة.')}</p>
         </aside>
       ) : null}
     </div>
 
-    {trayPlugins.length ? (
-      <div className={s.tray} role="group" aria-label={t('Selection tray')}>
-        <span className={s.trayLabel}>
-          <b>{trayPlugins.length}</b> {t('selected', 'مختارة')}
-        </span>
-        <ul className={s.trayChips} aria-label={t('Selected plugins')}>
-          {trayPlugins.map((item) => (
-            <li key={item.slug}>
-              <span>{item.name}{item.version ? <em> v{item.version}</em> : null}</span>
-              <button type="button" aria-label={t(`Remove ${item.name}`, `أزل ${item.name}`)} onClick={() => toggleTray(item.slug)}>×</button>
-            </li>
-          ))}
-        </ul>
-        <a className={s.primaryAction} href={trayHref} onClick={() => cueAtmosphere('success')}>
-          {t(`Request this set (${trayPlugins.length})`, `اطلب هذه المجموعة (${trayPlugins.length})`)} →
-        </a>
-      </div>
-    ) : null}
+    <button className={s.ghostAction} type="button" onClick={() => trayPanel.current?.showModal()}>
+      {t('Review selected plugins', 'راجع الإضافات المحددة')} ({trayPlugins.length})
+    </button>
+    <dialog ref={trayPanel} className={studioStyles.contextPanel} aria-labelledby="wp-plugin-selection">
+      <header>
+        <h3 id="wp-plugin-selection">{t('Selection tray')}</h3>
+        <button type="button" onClick={() => trayPanel.current?.close()}>{t('Close', 'إغلاق')}</button>
+      </header>
+      {trayPlugins.length ? (
+        <div className={s.selectionTray} role="group" aria-label={t('Selection tray')}>
+          <span className={s.trayLabel}>
+            <b>{trayPlugins.length}</b> {t('selected', 'مختارة')}
+          </span>
+          <ul className={s.trayChips} aria-label={t('Selected plugins')}>
+            {trayPlugins.map((item) => (
+              <li key={item.slug}>
+                <span>{item.name}{item.version ? <em> v{item.version}</em> : null}</span>
+                <button type="button" aria-label={t(`Remove ${item.name}`, `أزل ${item.name}`)} onClick={() => toggleTray(item.slug)}>×</button>
+              </li>
+            ))}
+          </ul>
+          <a className={s.primaryAction} href={trayHref} onClick={() => cueAtmosphere('confirm')}>
+            {t(`Request this set (${trayPlugins.length})`, `اطلب هذه المجموعة (${trayPlugins.length})`)} →
+          </a>
+        </div>
+      ) : <p role="status">{t('Select plugins from the directory to review them here.', 'اختر إضافات من الدليل لمراجعتها هنا.')}</p>}
+    </dialog>
     </section>
   );
 }

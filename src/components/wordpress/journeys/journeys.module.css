@@ -1139,3 +1139,8 @@
   border-color: #f1e0fc;
 }
 .studioLibrary .actions p { margin: 0; }
+
+.studioLibrary .deviceChip { display: flex; min-height: 44px; align-items: center; justify-content: center; }
+
+.selectionTray { display: grid; gap: 12px; margin-top: 14px; }
+.pluginsJourney > button { align-self: flex-start; margin-top: 14px; }

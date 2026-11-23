@@ -160,19 +160,19 @@ html:has(.wp-experience__studio[open]) { overflow: hidden; }
 }
 .wp-catalogue-intro p { max-width: 62ch; margin: 0; color: #dfd6ed; }
 
-.mp--themes .mp__split {
+.mp--studio-catalogue .mp__split {
   display: flex;
   flex-wrap: wrap;
   gap: 6px 24px;
   align-items: baseline;
   padding-block: 10px;
 }
-.mp--themes .mp__summary {
+.mp--studio-catalogue .mp__summary {
   margin: 0;
   max-width: 90ch;
 }
-.mp--themes .mp-controls { margin-top: 12px; }
-.mp--themes .command-bar { border-color: #9d70cf88; background: #1c102f; border-radius: 12px; }
-.mp--themes aside { scroll-margin-top: calc(var(--wp-masthead) + 12px); }
+.mp--studio-catalogue .mp-controls { margin-top: 12px; }
+.mp--studio-catalogue .command-bar { border-color: #9d70cf88; background: #1c102f; border-radius: 12px; }
+.mp--studio-catalogue aside { scroll-margin-top: calc(var(--wp-masthead) + 12px); }
 
-.wp-layout-library { margin-block: 24px 40px; }
+.wp-cosmos main > .wp-layout-library { padding-top: 0; margin-block: 24px 40px; }

@@ -72,6 +72,7 @@ export async function WordPressCategoryPage({
   const source = EXTERNAL_SOURCE[category];
   const libraryMode = category === 'starter-sites' || category === 'blocks' ? category : null;
   const query = readMarketplaceQuery(searchParams ?? {});
+  const studioTitle = source === 'theme' ? 'Theme Explorer' : source === 'plugin' ? 'Plugin Intelligence' : null;
   const firstParty = <FirstPartyRail type={meta.type} label={singularLabel(meta.type)} />;
 
   const external = source
@@ -84,10 +85,10 @@ export async function WordPressCategoryPage({
 
   return (
     <main id="main-content" tabIndex={-1}>
-      {source === 'theme' || libraryMode ? (
+      {studioTitle || libraryMode ? (
         <section className="shell wp-catalogue-intro">
           <WordPressCosmicMark label="" />
-          <h1>{source === 'theme' ? 'Theme Explorer' : meta.label}</h1>
+          <h1>{studioTitle ?? meta.label}</h1>
           <p>{libraryMode === 'starter-sites' ? 'Preview a starting layout and add its sections to your Studio draft.' : meta.intent}</p>
         </section>
       ) : <PageIntro
@@ -104,7 +105,7 @@ export async function WordPressCategoryPage({
           <StudioLayoutLibrary key={libraryMode} mode={libraryMode} />
         </div>
       )}
-      {source !== 'theme' && firstParty}
+      {!studioTitle && firstParty}
 
       {external ? (
         <section className="shell" style={{ paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
@@ -120,7 +121,7 @@ export async function WordPressCategoryPage({
         </section>
       ) : null}
 
-      {source === 'theme' && firstParty}
+      {studioTitle && firstParty}
 
       {category === 'solutions' ? <BundleSurface /> : null}
 

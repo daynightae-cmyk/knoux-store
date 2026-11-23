@@ -43,7 +43,11 @@ test('WordPress arrival swaps rendered documents and restores focus after the in
   await page.goForward();
   await expect(studio).toBeVisible();
   await expect(draft.locator('[data-type=hero]')).toHaveCSS('align-items', 'flex-end');
+  await trigger.click();
+  await expect(inspector).toBeVisible();
   await page.goBack();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(entry).toBeVisible();
   await expect(entry).toBeFocused();
   expect(errors).toEqual([]);
 });

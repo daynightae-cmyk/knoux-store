@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ExternalItemCard } from './ExternalItemCard';
+import { PluginIntelligence } from './journeys/PluginIntelligence';
 import { ThemeExplorer } from './journeys/ThemeExplorer';
 import { officialDateValue } from '@/lib/wordpress/external';
 import type { ExternalItem, ExternalQueryResult } from '@/lib/wordpress/external';
@@ -205,16 +206,18 @@ export function ExternalMarketplace({
 }) {
   const items = sortItems(result.items, query.sort);
   const isThemeDirectory = kindNoun === 'theme';
+  const isPluginDirectory = kindNoun === 'plugin';
+  const isStudioCatalogue = isThemeDirectory || isPluginDirectory;
   const isUnavailable = result.state === 'unavailable';
   // A DOM id derived from the route, without slashes or brackets.
   const fieldId = `mp-search-${basePath.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '')}`;
 
   return (
-    <section className={isThemeDirectory ? 'mp mp--themes' : 'mp'} aria-label={`${kindLabel} from the WordPress.org directory`}>
+    <section className={isStudioCatalogue ? 'mp mp--studio-catalogue' : 'mp'} aria-label={`${kindLabel} from the WordPress.org directory`}>
       <div className="mp__split">
         <div>
           <span className="label label--signal">WORDPRESS.ORG DISCOVERY</span>
-          <h2 className={isThemeDirectory ? 'sr-only' : 'mp__title'}>Explore the {kindLabel.toLowerCase()} directory.</h2>
+          <h2 className={isStudioCatalogue ? 'sr-only' : 'mp__title'}>Explore the {kindLabel.toLowerCase()} directory.</h2>
         </div>
         <p className="mp__summary">
           Live results read from the official WordPress.org API. These items are published by their own authors.
@@ -321,6 +324,8 @@ export function ExternalMarketplace({
         <>
           {isThemeDirectory ? (
             <ThemeExplorer themes={items} directory />
+          ) : isPluginDirectory ? (
+            <PluginIntelligence plugins={items} directory />
           ) : (
             <ul className="mp-grid">
               {items.map((item, index) => (

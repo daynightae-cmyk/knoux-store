@@ -198,6 +198,8 @@ export const ROUTE_COPY: Record<string, readonly [string, string]> = {
   "Layout preview": ["معاينة التخطيط", "لے آؤٹ کا پیش نظارہ"],
   "Add to draft": ["أضف إلى المسودة", "مسودے میں شامل کریں"],
   "Added to your composer draft.": ["أُضيف إلى مسودة محرر الموقع.", "ویب ایڈیٹر کے مسودے میں شامل ہو گیا۔"],
+  "Review selected plugins": ["راجع الإضافات المحددة", "منتخب پلگ انز کا جائزہ لیں"],
+  "Select plugins from the directory to review them here.": ["اختر إضافات من الدليل لمراجعتها هنا.", "یہاں جائزہ لینے کے لیے ڈائریکٹری سے پلگ انز منتخب کریں۔"],
   "Open live preview": ["افتح المعاينة الحية", "لائیو پیش نظارہ کھولیں"],
   "Switch preview": ["تبديل المعاينة","پیش نظارہ بدلیں"],
   "Open composer": ["فتح محرر الموقع","سائٹ ایڈیٹر کھولیں"],

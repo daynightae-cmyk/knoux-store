@@ -1,0 +1,86 @@
+[
+  {
+    "width": 1920,
+    "height": 1080,
+    "name": "Yoast SEO – Advanced SEO with real-time guidance and built-in AI",
+    "screenshot": "references/store-20261123/qa/screen-05/after-1920x1080.png",
+    "geometry": {
+      "width": 1920,
+      "content": 1920
+    },
+    "trayClosedBeforeReview": true,
+    "requestScoped": true,
+    "focusRestored": true,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "name": "Yoast SEO – Advanced SEO with real-time guidance and built-in AI",
+    "screenshot": "references/store-20261123/qa/screen-05/after-1440x900.png",
+    "geometry": {
+      "width": 1440,
+      "content": 1440
+    },
+    "trayClosedBeforeReview": true,
+    "requestScoped": true,
+    "focusRestored": true,
+    "errors": []
+  },
+  {
+    "width": 1024,
+    "height": 768,
+    "name": "Yoast SEO – Advanced SEO with real-time guidance and built-in AI",
+    "screenshot": "references/store-20261123/qa/screen-05/after-1024x768.png",
+    "geometry": {
+      "width": 1024,
+      "content": 1024
+    },
+    "trayClosedBeforeReview": true,
+    "requestScoped": true,
+    "focusRestored": true,
+    "errors": []
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "name": "Yoast SEO – Advanced SEO with real-time guidance and built-in AI",
+    "screenshot": "references/store-20261123/qa/screen-05/after-768x1024.png",
+    "geometry": {
+      "width": 768,
+      "content": 768
+    },
+    "trayClosedBeforeReview": true,
+    "requestScoped": true,
+    "focusRestored": true,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "name": "Yoast SEO – Advanced SEO with real-time guidance and built-in AI",
+    "screenshot": "references/store-20261123/qa/screen-05/after-390x844.png",
+    "geometry": {
+      "width": 390,
+      "content": 390
+    },
+    "trayClosedBeforeReview": true,
+    "requestScoped": true,
+    "focusRestored": true,
+    "errors": []
+  },
+  {
+    "width": 360,
+    "height": 800,
+    "name": "Yoast SEO – Advanced SEO with real-time guidance and built-in AI",
+    "screenshot": "references/store-20261123/qa/screen-05/after-360x800.png",
+    "geometry": {
+      "width": 360,
+      "content": 360
+    },
+    "trayClosedBeforeReview": true,
+    "requestScoped": true,
+    "focusRestored": true,
+    "errors": []
+  }
+]
