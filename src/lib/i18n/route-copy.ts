@@ -237,6 +237,8 @@ export const ROUTE_COPY: Record<string, readonly [string, string]> = {
   "Change log written": ["كتابة سجل التغييرات", "تبدیلیوں کی دستاویز"],
   "Restore drill recorded": ["توثيق تجربة الاستعادة", "بحالی کی مشق کا ریکارڈ"],
   "Operating agreement attached": ["إرفاق اتفاقية التشغيل", "آپریشنل معاہدے کی دستاویز"],
+  "Trusted operations": ["عمليات التشغيل الموثوقة", "قابل اعتماد آپریشنز"],
+  "Open trusted operations": ["افتح عمليات التشغيل الموثوقة", "قابل اعتماد آپریشنز کھولیں"],
   "Layout draft saved in this tab.": ["تم حفظ مسودة التخطيط في هذا التبويب.", "لے آؤٹ کا مسودہ اس ٹیب میں محفوظ ہو گیا۔"],
   "Open composer": ["فتح محرر الموقع","سائٹ ایڈیٹر کھولیں"],
   "Show": ["عرض","دکھائیں"],

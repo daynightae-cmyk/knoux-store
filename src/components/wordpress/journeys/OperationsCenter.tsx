@@ -11,12 +11,14 @@
  * activities, a feed of what this studio session genuinely did (kept in this
  * tab), and readouts that state absence instead of inventing telemetry.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { wordPressServices } from '@/data/wordpress';
 import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
 import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
 import { WordPressCosmicMark } from '../WordPressCosmicMark';
+import { BuildAndOperate } from '../BuildAndOperate';
+import studioStyles from '../WordPressStudio.module.css';
 import s from './journeys.module.css';
 
 const EVENT_KEY = 'knoux-wp-studio-feed';
@@ -58,6 +60,8 @@ export function OperationsCenter() {
   const t = (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
   const [feed, setFeed] = useState<FeedEntry[]>([]);
   const [focusedService, setFocusedService] = useState<string>(wordPressServices[0]?.id ?? '');
+  const [consoleOpened, setConsoleOpened] = useState(false);
+  const consolePanel = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -100,6 +104,10 @@ export function OperationsCenter() {
                 <li key={activity}><i aria-hidden="true">✓</i>{activity}</li>
               ))}
             </ul>
+            <button type="button" className={s.ghostAction} onClick={() => {
+              setConsoleOpened(true);
+              consolePanel.current?.showModal();
+            }}>{t('Open trusted operations')}</button>
           </div>
         </div>
 
@@ -170,6 +178,13 @@ export function OperationsCenter() {
           </div>
         </div>
       </div>
+      <dialog ref={consolePanel} className={studioStyles.contextPanel} aria-labelledby="wp-operation-panel">
+        <header>
+          <h3 id="wp-operation-panel">{t('Trusted operations')}</h3>
+          <button type="button" onClick={() => consolePanel.current?.close()}>{t('Close')}</button>
+        </header>
+        {consoleOpened && <BuildAndOperate />}
+      </dialog>
     </section>
   );
 }

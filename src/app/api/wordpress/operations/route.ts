@@ -18,7 +18,7 @@ async function authorized(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const guard = await authorized(request); if (guard.denied) return guard.denied;
   const config = wordpressExecutorConfig(process.env);
-  return NextResponse.json({ state: config.state, siteIds: config.siteIds, source: 'Server configuration · executor not yet probed', message: config.configured ? 'Select a site and probe it to measure readiness.' : 'Trusted executor configuration is required.' }, { headers: { 'cache-control': 'no-store' } });
+  return NextResponse.json({ state: config.state, configured: config.configured, siteIds: config.siteIds, source: 'Server configuration · executor not yet probed', message: config.configured ? 'Select a site and probe it to measure readiness.' : 'Trusted executor configuration is required.' }, { headers: { 'cache-control': 'no-store' } });
 }
 
 export async function POST(request: NextRequest) {
