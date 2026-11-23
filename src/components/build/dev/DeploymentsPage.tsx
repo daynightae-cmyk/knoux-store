@@ -16,6 +16,7 @@
  */
 import Link from 'next/link';
 import { useState } from 'react';
+import { checksById } from '@/lib/build/verification';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { DevEmpty, DevPanel } from './DevUI';
 import styles from './operational-v3.module.css';
@@ -63,14 +64,23 @@ export function DeploymentsPage() {
     target === 'local'
       ? state.adapter.environment === 'local' && Boolean(state.runtime.url)
       : reportedEnvironment === target && Boolean(facts?.deploymentId);
-  const verificationRun = Boolean(state.verification);
-  const verificationPassed = verificationRun && state.verification!.checks.every((check) => check.status === 'pass');
   const releaseId = facts?.deploymentId ?? null;
   const commits = state.git?.commits ?? [];
   const headSha = state.git?.headSha ?? null;
+  const snapshot = state.verification;
+  const checks = checksById(snapshot);
+  const verificationCount = snapshot?.checks.length ?? 0;
+  const currentCleanSource = snapshot?.sourceState === 'clean' && Boolean(headSha)
+    && snapshot.headSha === headSha && state.git?.dirty === false;
+  const buildReceipt = checks.get('build');
+  const buildPassed = buildReceipt?.status === 'pass' && buildReceipt.exitCode === 0 && Boolean(buildReceipt.ranAt);
+  const verificationPassed = ['lint', 'typecheck', 'test'].every((id) => {
+    const check = checks.get(id);
+    return check?.status === 'pass' && check.exitCode === 0 && Boolean(check.ranAt);
+  });
   const steps = [
-    { label: 'Build', detail: headSha ? `SOURCE ${headSha.slice(0, 7)}` : 'UNKNOWN', state: headSha ? 'done' : 'unknown', icon: 'm12 3 8 4.5v9L12 21l-8-4.5v-9Z M12 12l8-4.5M12 12v9M12 12 4 7.5' },
-    { label: 'Verify', detail: verificationRun ? `${state.verification!.checks.length} CHECKS` : 'NOT RUN', state: verificationPassed ? 'done' : verificationRun ? 'partial' : 'unknown', icon: 'M4 12l5 5L20 6' },
+    { label: 'Build', detail: buildReceipt ? buildReceipt.status.toUpperCase() : 'NOT RUN', state: buildPassed && currentCleanSource ? 'done' : buildReceipt?.ranAt ? 'partial' : 'unknown', icon: 'm12 3 8 4.5v9L12 21l-8-4.5v-9Z M12 12l8-4.5M12 12v9M12 12 4 7.5' },
+    { label: 'Verify', detail: verificationCount ? `${verificationCount} RECORDED CHECKS` : 'NOT RUN', state: verificationPassed && currentCleanSource ? 'done' : verificationCount ? 'partial' : 'unknown', icon: 'M4 12l5 5L20 6' },
     { label: 'Deploy', detail: releaseId ? releaseId.slice(0, 12) : 'UNVERIFIED', state: releaseId ? 'done' : 'unknown', icon: 'M12 2c4 2 6 6 6 10l-3 3h-6l-3-3c0-4 2-8 6-10Z M9 15l-2 5M15 15l2 5' },
     { label: 'Update', detail: 'NOT MEASURED', state: 'unknown', icon: 'M20 12a8 8 0 1 1-2.3-5.6M20 3v4h-4' },
   ] as const;
@@ -164,7 +174,8 @@ export function DeploymentsPage() {
                 <dl className={s.facts}>
                   <div><dt>Commit</dt><dd>{headSha?.slice(0, 12) ?? 'UNAVAILABLE'}</dd></div>
                   <div><dt>Branch</dt><dd>{state.git?.branch ?? 'UNAVAILABLE'}</dd></div>
-                  <div><dt>Verification</dt><dd>{verificationRun ? `${state.verification!.checks.length} CHECKS` : 'NOT RUN'}</dd></div>
+                  <div><dt>Verification</dt><dd>{verificationCount ? `${verificationCount} RECORDED CHECKS` : 'NOT RUN'}</dd></div>
+                  {snapshot && <div><dt>Verification source</dt><dd>{currentCleanSource ? 'CURRENT CLEAN REVISION' : 'SNAPSHOT ONLY'}</dd></div>}
                   <div><dt>Source</dt><dd>{facts?.source ?? 'WITHHELD'}</dd></div>
                   <div><dt>Environment</dt><dd>{facts?.environment ?? 'UNAVAILABLE'}</dd></div>
                   <div><dt>History</dt><dd>UNCONNECTED</dd></div>

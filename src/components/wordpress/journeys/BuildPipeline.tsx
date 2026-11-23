@@ -63,6 +63,11 @@ export function BuildPipeline() {
   const [stageId, setStageId] = useState<string>('validate');
   const [pathId, setPathId] = useState<string>('production');
   const stage = STAGES.find((entry) => entry.id === stageId) ?? STAGES[0];
+  const target = PATHS.find((entry) => entry.id === pathId) ?? PATHS[0];
+  const request = new URLSearchParams({
+    requestType: 'wordpress',
+    items: `Build engagement: WordPress build and deployment; target: ${target.en}; review stage: ${stage.en}`,
+  });
 
   return (
     <section className={s.pipelineJourney} aria-label={t('Build and Deployment Experience')}>
@@ -97,7 +102,7 @@ export function BuildPipeline() {
             <h3 className={s.panelTitle}>{t('Validation Checkpoints', 'نقاط التحقق')}</h3>
             <ul className={s.opsChecklist}>
               {stage.checks.map((check) => (
-                <li key={check}><i aria-hidden="true">◇</i>{check}</li>
+                <li key={check}><i aria-hidden="true">◇</i>{t(check)}</li>
               ))}
             </ul>
             <p className={s.boundary}>{t('What this stage verifies in a real build — not results of a run. No check is marked passed here.', 'ما تتحقق منه هذه المرحلة في بناء حقيقي — وليست نتائج تشغيل. لا تُوسم أي نقطة هنا بالنجاح.')}</p>
@@ -120,7 +125,7 @@ export function BuildPipeline() {
         {STAGES.map((entry) => (
           <li key={entry.id} data-active={stageId === entry.id}>
             <button type="button" onClick={() => { if (stageId !== entry.id) cueAtmosphere('settle'); setStageId(entry.id); }}>
-              <b>{t(entry.en, entry.ar)}</b>
+                  <b>{t(entry.en, entry.ar)}</b>
               <span>{t('Stage', 'مرحلة')} {STAGES.indexOf(entry) + 1}</span>
             </button>
           </li>
@@ -130,13 +135,15 @@ export function BuildPipeline() {
       <div className={s.pipelineStatus}>
         <div className={s.panel}>
           <h3 className={s.panelTitle}>{t('Release Status', 'حالة الإصدار')}</h3>
-          <p className={s.empty} role="status">
-            {t('No pipeline is running from this studio. Builds execute in the Build division, where every operation carries a real receipt.', 'لا يعمل أي خط بناء من هذا الاستوديو. تُنفَّذ Builds في قسم البناء، حيث تحمل كل عملية إيصالاً حقيقياً.')}
-          </p>
+          <dl className={s.boundaryList} aria-live="polite">
+            <div><dt>{t('Target environment')}</dt><dd>{t(target.en, target.ar)}</dd></div>
+            <div><dt>{t('Selected checkpoint')}</dt><dd>{t(stage.en, stage.ar)}</dd></div>
+            <div><dt>{t('Execution')}</dt><dd>{t('No execution requested from this studio.')}</dd></div>
+          </dl>
           <div className={s.actions}>
             <a className={s.ghostAction} href="/build/deployments">{t('Real deployment receipts', 'إيصالات النشر الحقيقية')} ↗</a>
             <a className={s.primaryAction} onClick={() => cueAtmosphere('success')}
-              href={`/contact?${new URLSearchParams({ requestType: 'wordpress', items: `Build engagement: WordPress build and deployment; target path: ${pathId}; scope to be agreed` }).toString()}`}>
+              href={`/contact?${request}`}>
               {t('Request a build', 'اطلب بناءً')} →
             </a>
           </div>

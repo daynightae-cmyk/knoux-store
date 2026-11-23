@@ -15,6 +15,7 @@ const HASH_JOURNEYS: Record<string, StudioJourney> = {
   '#infrastructure': 'hosting',
   '#operate': 'operations',
   '#launch': 'composer',
+  '#build': 'build',
   '#identity': 'identity',
   '#themes': 'theme',
   '#plugins': 'plugins',
