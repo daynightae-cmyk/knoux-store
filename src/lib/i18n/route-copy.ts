@@ -579,6 +579,12 @@ export const ROUTE_COPY: Record<string, readonly [string, string]> = {
   "Select a section to inspect it.": ["اختر قسماً لفحصه.","جانچ کے لیے سیکشن منتخب کریں۔"],
   "Request this layout": ["اطلب هذا التخطيط","اس لے آؤٹ کی درخواست کریں"],
   "A real draft of the page structure. Publishing happens in the build, after scope is agreed — nothing goes live from here.": ["مسودة فعلية لبنية الصفحة. يتم النشر أثناء التنفيذ بعد الاتفاق على النطاق.","صفحے کی ساخت کا حقیقی مسودہ۔ دائرہ کار طے ہونے کے بعد اشاعت اصل بلڈ میں ہوتی ہے۔"],
+  "Identity controls": ["أدوات الهوية","شناخت کے کنٹرول"],
+  "Preview pages": ["صفحات المعاينة","پیش نظارے کے صفحات"],
+  "Save draft": ["احفظ المسودة","مسودہ محفوظ کریں"],
+  "Identity draft saved in this tab.": ["تم حفظ مسودة الهوية في هذا التبويب.","شناخت کا مسودہ اس ٹیب میں محفوظ ہو گیا۔"],
+  "Enter a brand name to save the draft.": ["اكتب اسم العلامة لحفظ المسودة.","مسودہ محفوظ کرنے کے لیے برانڈ کا نام درج کریں۔"],
+  "Browser storage is unavailable. Your changes are still in this preview.": ["تخزين المتصفح غير متاح. التعديلات ما زالت ظاهرة في المعاينة.","براؤزر اسٹوریج دستیاب نہیں۔ تبدیلیاں اب بھی پیش نظارے میں موجود ہیں۔"],
 };
 
 /**

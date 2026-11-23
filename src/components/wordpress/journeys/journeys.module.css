@@ -500,9 +500,57 @@
 .selectedFlagStatic { padding: 3px 12px; border-radius: 999px; background: linear-gradient(140deg, #f1e4ff, #c9a2ff); color: #22103a; font: 600 10.5px/1.6 var(--mono, monospace); letter-spacing: .06em; }
 
 /* ------------------------------------------------------- site identity ---- */
-.identityJourney { display: grid; grid-template-columns: minmax(210px, 250px) minmax(0, 1fr) minmax(190px, 230px); gap: 16px; align-items: start; }
+.identityJourney {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(100%, 1120px);
+  margin-inline: auto;
+}
+.identityToolbar, .identityToolbar > div, .identityPageNav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.identityToolbar { justify-content: space-between; }
+.identityToolbar button, .identityPageNav button {
+  min-height: 44px;
+  padding-inline: 12px;
+  color: #efdefe;
+  background: #281741;
+  border: 1px solid #9869cf;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.identityToolbar button:hover, .identityPageNav button:hover { background: #492873; }
+.identityPageNav { padding: 8px 12px; background: #211435; }
+.identityPageNav [aria-current='page'] { color: #160a25; background: #e7cffc; }
+.identityModulePreview {
+  margin: 0;
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  border-top: 1px solid #5e3b82;
+}
+.identityModulePreview li { padding: 6px 12px; background: #281741; border: 1px solid #9869cf; border-radius: 8px; }
 .identityControls { display: flex; flex-direction: column; gap: 12px; }
-.identityStage { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.identityStage { position: relative; isolation: isolate; min-width: 0; margin-bottom: 30px; }
+.identityStage::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  z-index: -1;
+  inset: auto 3% -24px;
+  height: 70px;
+  border-radius: 50%;
+  border: 1px solid #a983ed;
+  box-shadow: 0 0 28px #8140ba9d, inset 0 0 22px #6c2ba088;
+}
+.identityStage .identityPreview { box-shadow: 0 14px 38px #0008, 0 0 24px #a06bea50; }
 .identityBottom { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
 .inspector { position: sticky; top: 90px; }
 
@@ -1005,7 +1053,6 @@
 
 /* ------------------------------------------------------------ compact ----- */
 @media (max-width: 1280px) {
-  .identityJourney { grid-template-columns: minmax(200px, 240px) minmax(0, 1fr); }
   .inspector { grid-column: 1 / -1; position: static; }
   .composerJourney { grid-template-columns: minmax(200px, 240px) minmax(0, 1fr); }
   .composerInspector { grid-column: 1 / -1; position: static; }
@@ -1015,7 +1062,6 @@
   .canvasJourney { grid-template-columns: 1fr; }
   .canvasSide { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
   .domainColumns { grid-template-columns: 1fr; }
-  .identityJourney { grid-template-columns: 1fr; }
   .identityControls { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
   .infraMap { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
   .infraOrbitCards { display: contents; }

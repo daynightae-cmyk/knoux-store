@@ -1,0 +1,92 @@
+[
+  {
+    "width": 1920,
+    "height": 1080,
+    "mainScreenshot": "references/store-20261123/qa/screen-02/after-1920x1080.png",
+    "geometry": {
+      "clientWidth": 1920,
+      "scrollWidth": 1920
+    },
+    "defaultPanelsClosed": true,
+    "validation": true,
+    "previewUpdates": true,
+    "focusRestored": true,
+    "reloadPersistence": true,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "mainScreenshot": "references/store-20261123/qa/screen-02/after-1440x900.png",
+    "geometry": {
+      "clientWidth": 1440,
+      "scrollWidth": 1440
+    },
+    "defaultPanelsClosed": true,
+    "validation": true,
+    "previewUpdates": true,
+    "focusRestored": true,
+    "reloadPersistence": true,
+    "errors": []
+  },
+  {
+    "width": 1024,
+    "height": 768,
+    "mainScreenshot": "references/store-20261123/qa/screen-02/after-1024x768.png",
+    "geometry": {
+      "clientWidth": 1024,
+      "scrollWidth": 1024
+    },
+    "defaultPanelsClosed": true,
+    "validation": true,
+    "previewUpdates": true,
+    "focusRestored": true,
+    "reloadPersistence": true,
+    "errors": []
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "mainScreenshot": "references/store-20261123/qa/screen-02/after-768x1024.png",
+    "geometry": {
+      "clientWidth": 768,
+      "scrollWidth": 768
+    },
+    "defaultPanelsClosed": true,
+    "validation": true,
+    "previewUpdates": true,
+    "focusRestored": true,
+    "reloadPersistence": true,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "mainScreenshot": "references/store-20261123/qa/screen-02/after-390x844.png",
+    "geometry": {
+      "clientWidth": 390,
+      "scrollWidth": 390
+    },
+    "defaultPanelsClosed": true,
+    "validation": true,
+    "previewUpdates": true,
+    "focusRestored": true,
+    "reloadPersistence": true,
+    "errors": []
+  },
+  {
+    "width": 360,
+    "height": 800,
+    "mainScreenshot": "references/store-20261123/qa/screen-02/after-360x800.png",
+    "geometry": {
+      "clientWidth": 360,
+      "scrollWidth": 360
+    },
+    "defaultPanelsClosed": true,
+    "validation": true,
+    "previewUpdates": true,
+    "focusRestored": true,
+    "reloadPersistence": true,
+    "errors": []
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "width": 1920,
+    "height": 1080,
+    "screenshot": "references/store-20261123/qa/screen-02/before-1920x1080.png",
+    "clientWidth": 1920,
+    "scrollWidth": 1920
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "screenshot": "references/store-20261123/qa/screen-02/before-1440x900.png",
+    "clientWidth": 1440,
+    "scrollWidth": 1440
+  },
+  {
+    "width": 1024,
+    "height": 768,
+    "screenshot": "references/store-20261123/qa/screen-02/before-1024x768.png",
+    "clientWidth": 1024,
+    "scrollWidth": 1024
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "screenshot": "references/store-20261123/qa/screen-02/before-768x1024.png",
+    "clientWidth": 768,
+    "scrollWidth": 768
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "screenshot": "references/store-20261123/qa/screen-02/before-390x844.png",
+    "clientWidth": 390,
+    "scrollWidth": 390
+  },
+  {
+    "width": 360,
+    "height": 800,
+    "screenshot": "references/store-20261123/qa/screen-02/before-360x800.png",
+    "clientWidth": 360,
+    "scrollWidth": 360
+  }
+]
