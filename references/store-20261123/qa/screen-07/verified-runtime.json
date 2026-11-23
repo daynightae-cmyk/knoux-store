@@ -1,0 +1,68 @@
+[
+  {
+    "width": 1920,
+    "height": 1080,
+    "status": 200,
+    "after": "references/store-20261123/qa/screen-07/after-1920x1080.png",
+    "overlay": "references/store-20261123/qa/screen-07/components-1920x1080.png",
+    "initialDialogs": 0,
+    "galleryUndoRedo": true,
+    "horizontalOverflow": false,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "status": 200,
+    "after": "references/store-20261123/qa/screen-07/after-1440x900.png",
+    "overlay": "references/store-20261123/qa/screen-07/components-1440x900.png",
+    "initialDialogs": 0,
+    "galleryUndoRedo": true,
+    "horizontalOverflow": false,
+    "errors": []
+  },
+  {
+    "width": 1024,
+    "height": 768,
+    "status": 200,
+    "after": "references/store-20261123/qa/screen-07/after-1024x768.png",
+    "overlay": "references/store-20261123/qa/screen-07/components-1024x768.png",
+    "initialDialogs": 0,
+    "galleryUndoRedo": true,
+    "horizontalOverflow": false,
+    "errors": []
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "status": 200,
+    "after": "references/store-20261123/qa/screen-07/after-768x1024.png",
+    "overlay": "references/store-20261123/qa/screen-07/components-768x1024.png",
+    "initialDialogs": 0,
+    "galleryUndoRedo": true,
+    "horizontalOverflow": false,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "status": 200,
+    "after": "references/store-20261123/qa/screen-07/after-390x844.png",
+    "overlay": "references/store-20261123/qa/screen-07/components-390x844.png",
+    "initialDialogs": 0,
+    "galleryUndoRedo": true,
+    "horizontalOverflow": false,
+    "errors": []
+  },
+  {
+    "width": 360,
+    "height": 800,
+    "status": 200,
+    "after": "references/store-20261123/qa/screen-07/after-360x800.png",
+    "overlay": "references/store-20261123/qa/screen-07/components-360x800.png",
+    "initialDialogs": 0,
+    "galleryUndoRedo": true,
+    "horizontalOverflow": false,
+    "errors": []
+  }
+]

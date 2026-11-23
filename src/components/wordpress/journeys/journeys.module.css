@@ -861,7 +861,17 @@
 .feedList i { width: 6px; height: 6px; flex: none; border-radius: 50%; background: #c9a2ff; box-shadow: 0 0 8px rgba(196, 164, 255, .7); translate: 0 -1px; }
 
 /* ---------------------------------------------------- visual composer ----- */
-.composerJourney { display: grid; grid-template-columns: minmax(200px, 240px) minmax(0, 1fr) minmax(190px, 230px); gap: 16px; align-items: start; }
+.composerJourney { display: grid; gap: 16px; width: min(100%, 1120px); margin-inline: auto; }
+.composerToolbar, .composerToolbar > div { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.composerToolbar { justify-content: space-between; }
+.composerToolbar button:disabled { opacity: .5; cursor: default; }
+.composerToolbar [role='status'] { flex-basis: 100%; }
+.composerJourney dialog > .panel { margin-top: 12px; }
+.composerJourney .composer--studio-scope { grid-template-columns: 1fr; margin-top: 12px; gap: 12px; }
+.composerJourney .composer--studio-scope :is(.composer__stack, .composer__brief) { padding: 12px; }
+.composerJourney .composer--studio-scope .composer__layer { grid-template-columns: auto minmax(0, 1fr); }
+.composerJourney .composer--studio-scope .composer__layer-state { grid-column: 2; }
+.composerJourney .layerList li[draggable='true'] { cursor: grab; }
 .composerPalette { display: flex; flex-direction: column; gap: 12px; }
 .paletteGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; }
 .paletteItem {
@@ -1054,7 +1064,6 @@
 /* ------------------------------------------------------------ compact ----- */
 @media (max-width: 1280px) {
   .inspector { grid-column: 1 / -1; position: static; }
-  .composerJourney { grid-template-columns: minmax(200px, 240px) minmax(0, 1fr); }
   .composerInspector { grid-column: 1 / -1; position: static; }
 }
 @media (max-width: 1024px) {
@@ -1069,7 +1078,6 @@
   .infraCore { grid-column: 1 / -1; grid-row: auto; min-height: 240px; order: -1; }
   .opsGrid { grid-template-columns: 1fr; }
   .opsCore { position: static; order: -1; }
-  .composerJourney { grid-template-columns: 1fr; }
   .composerPalette { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
   .pipelineTop { grid-template-columns: 1fr; }
   .pipelineTop .opsCore { order: -1; }

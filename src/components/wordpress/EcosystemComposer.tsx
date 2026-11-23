@@ -59,7 +59,7 @@ const LAYERS = [
 
 type LayerId = (typeof LAYERS)[number]['id'];
 
-export function EcosystemComposer() {
+export function EcosystemComposer({ layoutDescription }: Readonly<{ layoutDescription?: string }> = {}) {
   const [selected, setSelected] = useState<LayerId[]>(['domain', 'wordpress', 'operations']);
 
   const toggle = (id: LayerId) => {
@@ -72,16 +72,16 @@ export function EcosystemComposer() {
   // The existing request form reads `requestType` and `items` from the URL, so
   // the composition arrives pre-selected instead of being retyped.
   const requestHref = (() => {
-    if (composition.length === 0) return '/contact?requestType=wordpress';
+    if (composition.length === 0 && !layoutDescription) return '/contact?requestType=wordpress';
     const params = new URLSearchParams({
       requestType: 'wordpress',
-      items: composition.map((layer) => layer.label).join(', '),
+      items: [layoutDescription, ...composition.map((layer) => layer.label)].filter(Boolean).join('; '),
     });
     return `/contact?${params.toString()}`;
   })();
 
   return (
-    <div className="composer">
+    <div className={layoutDescription ? 'composer composer--studio-scope' : 'composer'}>
       <div className="composer__stack">
         <span className="composer__stack-label">REQUEST / COMPOSE THE BUILD</span>
         <ol className="composer__layers">
