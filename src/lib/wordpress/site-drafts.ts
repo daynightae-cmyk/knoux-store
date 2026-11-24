@@ -27,12 +27,18 @@ export type WordPressDraftBlock = {
   gap: number;
 };
 
+export type WordPressDraftSelection = {
+  kind: 'site' | 'theme' | 'plugin';
+  pluginSlug: string | null;
+};
+
 export type WordPressDraftDocument = {
   schema: 1;
   identity: WordPressDraftIdentity | null;
   blocks: WordPressDraftBlock[];
   themeSlug: string | null;
   pluginSlugs: string[];
+  selection?: WordPressDraftSelection;
 };
 
 export type WordPressDraftSummary = {
@@ -90,13 +96,20 @@ function isBlock(value: unknown): value is WordPressDraftBlock {
 }
 
 export function isWordPressDraftDocument(value: unknown): value is WordPressDraftDocument {
-  if (!isRecord(value) || Object.keys(value).length !== 5) return false;
-  const { schema, identity, blocks, themeSlug, pluginSlugs } = value;
+  if (!isRecord(value)) return false;
+  const hasSelection = Object.hasOwn(value, 'selection');
+  if (Object.keys(value).length !== (hasSelection ? 6 : 5)) return false;
+  const { schema, identity, blocks, themeSlug, pluginSlugs, selection } = value;
   return schema === 1 && (identity === null || isIdentity(identity))
     && Array.isArray(blocks) && blocks.length <= 100 && blocks.every(isBlock)
     && new Set(blocks.map(({ key }) => key)).size === blocks.length
     && (themeSlug === null || (typeof themeSlug === 'string' && SLUG.test(themeSlug)))
-    && isTextList(pluginSlugs, 50, 80) && pluginSlugs.every((slug) => SLUG.test(slug));
+    && isTextList(pluginSlugs, 50, 80) && pluginSlugs.every((slug) => SLUG.test(slug))
+    && (!hasSelection || (isRecord(selection) && Object.keys(selection).length === 2
+      && isChoice(selection.kind, ['site', 'theme', 'plugin'] as const)
+      && (selection.pluginSlug === null || (typeof selection.pluginSlug === 'string' && pluginSlugs.includes(selection.pluginSlug)))
+      && (selection.kind !== 'plugin' || selection.pluginSlug !== null)
+      && (selection.kind !== 'theme' || themeSlug !== null)));
 }
 
 export function parseWordPressDraftCreate(value: unknown): WordPressDraftCreate | null {

@@ -177,6 +177,58 @@ test('selected project editor saves bytes over HTTP and rejects stale, missing a
 // Authentication
 // ---------------------------------------------------------------------------
 
+test('an inspected project can be saved, verified and served over a measured local preview', async (t) => {
+  const task = [
+    process.execPath, '-e',
+    'import("./src/site.js").then(({heading}) => { if (heading !== "Integrated preview") process.exitCode = 1; console.log(heading); })',
+  ];
+  const h = await harness({ config: { allowlistedTasks: { verify: task } } });
+  try {
+    mkdirSync(join(h.root, 'studio', 'src'), { recursive: true });
+    writeFileSync(join(h.root, 'studio', 'src', 'site.js'), 'export const heading = "Original preview";');
+    const inspect = await get(h, '/v1/project/inspect?project=studio', mint(h, ['fs:read']));
+    assert.equal(inspect.status, 200);
+    assert.ok((await inspect.json()).files.some(file => file.path === 'src/site.js'));
+    const file = await get(h, '/v1/project/file?project=studio&path=src%2Fsite.js', mint(h, ['fs:read']));
+    assert.equal(file.status, 200);
+    const { hash } = await file.json();
+    const saved = await fetch(h.url + '/v1/project/file/save?project=studio', {
+      method: 'PUT',
+      headers: { authorization: 'Bearer ' + mint(h, ['fs:write']), 'content-type': 'application/json' },
+      body: JSON.stringify({ path: 'src/site.js', content: 'export const heading = "Integrated preview";', expectedHash: hash }),
+    });
+    assert.equal(saved.status, 200);
+
+    const verification = await post(h, '/v1/exec/run', { task: 'verify', cwd: 'studio' }, mint(h, ['run:allowlisted']));
+    assert.equal(verification.status, 200);
+    const output = await verification.text();
+    assert.match(output, /Integrated preview/);
+    assert.match(output, /"code":0/);
+
+    h.processes.register('preview', { cmd: process.execPath, args: ['-e',
+      'Promise.all([import("node:http"), import("./studio/src/site.js")]).then(([{createServer}, {heading}]) => { const server = createServer((_req, res) => res.end(heading)); server.listen(0, "127.0.0.1", () => console.log("PORT=" + server.address().port)); });',
+    ] });
+    const runtime = await post(h, '/v1/proc/start', { name: 'preview' }, mint(h, ['proc:manage']));
+    assert.equal(runtime.status, 200);
+    const { pid } = await runtime.json();
+    assert.ok(pid > 0);
+    let port;
+    const deadline = Date.now() + 8000;
+    while (Date.now() < deadline) {
+      port = h.processes.logs('preview').map(line => /^PORT=(\d+)$/.exec(line.data.trim())?.[1]).find(Boolean);
+      if (port) break;
+      await new Promise(resolve => setTimeout(resolve, 30));
+    }
+    assert.ok(port, 'preview child must bind a measured loopback port');
+    const page = await fetch('http://127.0.0.1:' + port, { signal: AbortSignal.timeout(3000) });
+    assert.equal(page.status, 200);
+    assert.equal(await page.text(), 'Integrated preview');
+    t.diagnostic('Bridge verification exit=0; preview pid=' + pid + '; HTTP=200; served saved project bytes');
+  } finally {
+    await h.close();
+  }
+});
+
 test('health needs no ticket and reports only that this process is running', async () => {
   const h = await harness();
   try {
