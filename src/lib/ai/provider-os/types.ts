@@ -128,6 +128,16 @@ export type ProviderProfile = {
     providerUsage?: UsageSnapshot;
     providerLimits?: LimitSnapshot[];
 };
+export type CredentialValidationRequest = { providerId: 'openai'; secret: string };
+
+export type CredentialValidationResult = {
+    providerId: CredentialValidationRequest['providerId'];
+    status: 'authenticated' | 'refused' | 'unreachable' | 'cancelled';
+    httpStatus: number | null;
+    detail: string;
+    at: string;
+};
+
 /** Safe metadata only. No suffix, ciphertext or credential value is part of a projection. */
 export type CredentialReference = {
     id: string;
