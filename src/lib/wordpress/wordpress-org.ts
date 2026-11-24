@@ -21,11 +21,13 @@ import {
   decodeEntities,
   toExcerpt,
   toOfficialAssetUrl,
+  toOfficialThemePreviewUrl,
   toRenderableAssetUrl,
   toPlainText,
   type ExternalItem,
   type ExternalItemKind,
   type ExternalQueryResult,
+  type WordPressCatalogRequest,
 } from './external';
 
 export const PLUGIN_ENDPOINT = 'https://api.wordpress.org/plugins/info/1.2/';
@@ -56,10 +58,13 @@ function cleanSearch(value: string | undefined): string {
 }
 
 /** Fetches JSON with a timeout, a cache window and total failure containment. */
-async function fetchJson(url: string): Promise<unknown | null> {
+async function fetchJson(url: string, callerSignal?: AbortSignal): Promise<unknown | null> {
   try {
+    callerSignal?.throwIfAborted();
+    const timeout = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
     const response = await fetch(url, {
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      signal: callerSignal ? AbortSignal.any([callerSignal, timeout]) : timeout,
+      redirect: 'error',
       headers: { Accept: 'application/json' },
       next: { revalidate: REVALIDATE_SECONDS },
     });
@@ -100,6 +105,17 @@ function toTags(input: unknown): string[] {
     .slice(0, 12);
 }
 
+type CatalogQueryOptions = Omit<WordPressCatalogRequest, 'kind'> & { signal?: AbortSignal };
+
+function directoryQueryOptions(options: CatalogQueryOptions) {
+  return {
+    search: cleanSearch(options.search),
+    tag: options.tag && /^[a-z0-9][a-z0-9-]{0,79}$/.test(options.tag) ? options.tag : undefined,
+    page: clampPage(options.page),
+    perPage: clampPerPage(options.perPage),
+  };
+}
+
 /* ------------------------------------------------------------------ plugins */
 
 const PLUGIN_FIELDS = [
@@ -119,11 +135,12 @@ const PLUGIN_FIELDS = [
   'tags',
 ] as const;
 
-function pluginUrl(options: { search: string; page: number; perPage: number }): string {
+function pluginUrl(options: ReturnType<typeof directoryQueryOptions>): string {
   const params = new URLSearchParams({ action: 'query_plugins' });
   params.set('request[page]', String(options.page));
   params.set('request[per_page]', String(options.perPage));
   for (const field of PLUGIN_FIELDS) params.set(`request[fields][${field}]`, '1');
+  if (options.tag) params.set('request[tag]', options.tag);
   const search = cleanSearch(options.search);
   if (search) params.set('request[search]', search);
   return `${PLUGIN_ENDPOINT}?${params.toString()}`;
@@ -169,15 +186,10 @@ function normalisePlugin(raw: unknown): ExternalItem | null {
   };
 }
 
-export async function queryPlugins(options: {
-  search?: string;
-  page?: number;
-  perPage?: number;
-}): Promise<ExternalQueryResult> {
-  const page = clampPage(options.page);
-  const perPage = clampPerPage(options.perPage);
-  const search = cleanSearch(options.search);
-  const payload = await fetchJson(pluginUrl({ search, page, perPage }));
+export async function queryPlugins(options: CatalogQueryOptions): Promise<ExternalQueryResult> {
+  const filters = directoryQueryOptions(options);
+  const { search, page, perPage } = filters;
+  const payload = await fetchJson(pluginUrl(filters), options.signal);
   if (payload === null) {
     return unavailable('plugin', 'The WordPress.org plugin directory could not be reached.');
   }
@@ -186,8 +198,10 @@ export async function queryPlugins(options: {
   }
   const root = payload as Json;
   const info = (root.info ?? {}) as Json;
-  const list = Array.isArray(root.plugins) ? root.plugins : [];
-  const items = list
+  if (!Array.isArray(root.plugins)) {
+    return unavailable('plugin', 'The WordPress.org plugin directory returned an unexpected payload.');
+  }
+  const items = root.plugins.slice(0, perPage)
     .map(normalisePlugin)
     .filter((item): item is ExternalItem => item !== null);
   const reported = toNumber(info.results);
@@ -215,7 +229,10 @@ export async function queryPlugins(options: {
 /* ------------------------------------------------------------------- themes */
 
 const THEME_FIELDS = [
+  'description',
+  'requires',
   'screenshot_url',
+  'preview_url',
   'rating',
   'downloaded',
   'last_updated',
@@ -226,11 +243,12 @@ const THEME_FIELDS = [
   'author',
 ] as const;
 
-function themeUrl(options: { search: string; page: number; perPage: number }): string {
+function themeUrl(options: ReturnType<typeof directoryQueryOptions>): string {
   const params = new URLSearchParams({ action: 'query_themes' });
   params.set('request[page]', String(options.page));
   params.set('request[per_page]', String(options.perPage));
   for (const field of THEME_FIELDS) params.set(`request[fields][${field}]`, '1');
+  if (options.tag) params.set('request[tag]', options.tag);
   const search = cleanSearch(options.search);
   if (search) params.set('request[search]', search);
   return `${THEME_ENDPOINT}?${params.toString()}`;
@@ -261,6 +279,8 @@ function normaliseTheme(raw: unknown): ExternalItem | null {
     // abbreviated rather than filling the card with the vendor's full blurb.
     shortDescription: toExcerpt(record.description) ?? 'No description published.',
     screenshotUrl: toOfficialAssetUrl(record.screenshot_url),
+    previewUrl: toOfficialThemePreviewUrl(record.preview_url),
+    requiresWp: toText(record.requires),
     rating: typeof rating === 'number' && rating > 0 ? rating : undefined,
     ratingCount: toNumber(record.num_ratings),
     downloaded: toNumber(record.downloaded),
@@ -273,15 +293,10 @@ function normaliseTheme(raw: unknown): ExternalItem | null {
   };
 }
 
-export async function queryThemes(options: {
-  search?: string;
-  page?: number;
-  perPage?: number;
-}): Promise<ExternalQueryResult> {
-  const page = clampPage(options.page);
-  const perPage = clampPerPage(options.perPage);
-  const search = cleanSearch(options.search);
-  const payload = await fetchJson(themeUrl({ search, page, perPage }));
+export async function queryThemes(options: CatalogQueryOptions): Promise<ExternalQueryResult> {
+  const filters = directoryQueryOptions(options);
+  const { search, page, perPage } = filters;
+  const payload = await fetchJson(themeUrl(filters), options.signal);
   if (payload === null) {
     return unavailable('theme', 'The WordPress.org theme directory could not be reached.');
   }
@@ -290,8 +305,10 @@ export async function queryThemes(options: {
   }
   const root = payload as Json;
   const info = (root.info ?? {}) as Json;
-  const list = Array.isArray(root.themes) ? root.themes : [];
-  const items = list
+  if (!Array.isArray(root.themes)) {
+    return unavailable('theme', 'The WordPress.org theme directory returned an unexpected payload.');
+  }
+  const items = root.themes.slice(0, perPage)
     .map(normaliseTheme)
     .filter((item): item is ExternalItem => item !== null);
   const reported = toNumber(info.results);
