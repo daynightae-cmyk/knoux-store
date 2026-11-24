@@ -79,6 +79,7 @@ export interface BridgeCapabilities {
 
 export interface Handshake {
   projectImport?: boolean;
+  projectFileSave?: boolean;
   bridgeId: string;
   version: string;
   hostname: string;

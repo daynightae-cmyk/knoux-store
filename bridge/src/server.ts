@@ -15,7 +15,7 @@
 import { createServer, type Server as HttpServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import type { Duplex } from 'node:stream';
 import { randomUUID, createHash, createPublicKey, timingSafeEqual } from 'node:crypto';
-import { dirname, resolve } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
 import { readdirSync, statSync, readFileSync, writeFileSync, renameSync, existsSync, mkdirSync, unlinkSync, rmSync, openSync, fstatSync, readSync, closeSync } from 'node:fs';
 import { hostname } from 'node:os';
 import { spawn, execFileSync, type ChildProcess } from 'node:child_process';
@@ -122,6 +122,7 @@ function buildHandshake(options: BridgeServerOptions): Handshake {
   return {
     bridgeId: options.bridgeId,
     projectImport: config.allowProjectImport && probeGit(),
+    projectFileSave: true,
     version: BRIDGE_VERSION,
     hostname: hostname(),
     platform: process.platform,
@@ -413,6 +414,17 @@ export class BridgeServer {
       case 'GET /v1/project/file':
         this.handleFsRead(res, url, await projectRoot(root, url.searchParams.get('project') ?? '.'));
         return;
+      case 'PUT /v1/project/file/save': {
+        const project = url.searchParams.get('project') ?? '';
+        const canonicalRoot = realpathInside(root, root);
+        const selectedRoot = await projectRoot(canonicalRoot, project);
+        if (!project || project === '.' || resolve(canonicalRoot, project) !== selectedRoot || relative(canonicalRoot, selectedRoot).split(/[\\/]/).some((part) => part.startsWith('.'))) {
+          error(res, 403, 'project-rejected', 'Select a named project inside the bridge root.');
+          return;
+        }
+        await this.handleFsWrite(req, res, selectedRoot, claims.sub, { project });
+        return;
+      }
       case 'POST /v1/project/import': {
         const body = await readJson<{ repository?: string; destination?: string }>(req, 8192);
         if (!body || typeof body.repository !== 'string' || typeof body.destination !== 'string') { error(res, 400, 'invalid-body', 'Repository and destination required.'); return; }
@@ -523,6 +535,7 @@ export class BridgeServer {
   }
 
   private scopeForPath(path: string): BridgeScope | null {
+    if (path === '/v1/project/file/save') return 'fs:write';
     if (path === '/v1/project/inspect' || path === '/v1/project/file') return 'fs:read';
     if (path === '/v1/project/git') return 'git:read';
     if (path === '/v1/project/import') return 'project:import';
@@ -780,14 +793,27 @@ export class BridgeServer {
     }
   }
 
-  private async handleFsWrite(req: IncomingMessage, res: ServerResponse, root: string, actor: string): Promise<void> {
-    const writeReq = await readJson<{ path?: string; content?: string; expectedHash?: string | null }>(req);
+  private async handleFsWrite(req: IncomingMessage, res: ServerResponse, root: string, actor: string, editor?: { project: string }): Promise<void> {
+    const writeReq = await readJson<{ path?: string; content?: string; expectedHash?: string | null }>(req, editor ? 4 * 1024 * 1024 : undefined);
     if (!writeReq || typeof writeReq.path !== 'string' || typeof writeReq.content !== 'string') {
       error(res, 400, 'invalid-body', 'Expected a JSON body with path and content.');
       return;
     }
 
-    const allowEnvWrite = this.options.config.allowEnvWrite;
+    if (editor && (
+      typeof writeReq.expectedHash !== 'string' || !/^[a-f0-9]{64}$/.test(writeReq.expectedHash)
+      || !/\.(?:tsx?|jsx?|mjs|json|css|md)$/.test(writeReq.path)
+      || writeReq.path.split(/[\\/]/).some((part) => !part || part.startsWith('.') || part === 'node_modules')
+    )) {
+      error(res, 400, 'invalid-save', 'Save requires a supported project file and the hash returned when it was opened.');
+      return;
+    }
+    if (editor && Buffer.byteLength(writeReq.content, 'utf8') > MAX_READ_BYTES) {
+      error(res, 413, 'file-too-large', 'The editor file exceeds the 512 KB limit.');
+      return;
+    }
+
+    const allowEnvWrite = !editor && this.options.config.allowEnvWrite;
     const resolved = resolveInsideRoot(root, writeReq.path, { allowEnvWrite });
     if (!resolved.ok) {
       this.auditFsFailure(actor, 'fs.write', resolved.relative ?? writeReq.path, resolved.reason ?? 'rejected');
@@ -797,8 +823,29 @@ export class BridgeServer {
 
     const absolute = resolved.absolute!;
 
-    // Refuse to write over a symlink that escapes the root.
-    if (existsSync(absolute)) {
+    let originalMode: number | undefined;
+    if (editor) {
+      try {
+        if (realpathInside(root, absolute) !== absolute) {
+          error(res, 403, 'path-rejected', 'Editor saves require a direct project file path.');
+          return;
+        }
+        const stat = statSync(absolute);
+        if (!stat.isFile() || stat.size > MAX_READ_BYTES) {
+          error(res, 409, 'conflict', 'The original file is no longer editable. Reload before saving.');
+          return;
+        }
+        originalMode = stat.mode & 0o777;
+      } catch (cause) {
+        if (cause instanceof PathEscapeError) {
+          error(res, 403, 'path-rejected', 'The file resolves outside the selected project.');
+          return;
+        }
+        error(res, 409, 'conflict', 'The original file is unavailable. Reload before saving.');
+        return;
+      }
+    } else if (existsSync(absolute)) {
+      // Refuse to write over a symlink that escapes the root.
       let stat;
       try { stat = statSync(absolute); } catch { stat = null; }
       if (stat && !stat.isFile()) {
@@ -823,10 +870,15 @@ export class BridgeServer {
     }
 
     // Optimistic concurrency: refuse if the file changed since it was read.
-    if (typeof writeReq.expectedHash === 'string' && existsSync(absolute)) {
-      let current: string;
-      try { current = readFileSync(absolute, 'utf8'); } catch { current = ''; }
-      const currentHash = sha256(current);
+    if (typeof writeReq.expectedHash === 'string' && (editor || existsSync(absolute))) {
+      let currentHash: string | null = null;
+      try {
+        currentHash = editor
+          ? createHash('sha256').update(readEditorFile(absolute)).digest('hex')
+          : sha256(readFileSync(absolute, 'utf8'));
+      } catch {
+        if (!editor) currentHash = sha256('');
+      }
       if (currentHash !== writeReq.expectedHash) {
         json(res, 409, {
           error: 'conflict',
@@ -839,12 +891,12 @@ export class BridgeServer {
 
     const content = writeReq.content;
     try {
-      mkdirSync(dirname(absolute), { recursive: true });
+      if (!editor) mkdirSync(dirname(absolute), { recursive: true });
       // Write to a sibling temp file, then rename. rename is atomic within a
       // volume, so a reader never observes a half-written file.
       const tmp = resolve(dirname(absolute), `.knx-${randomUUID()}.tmp`);
       try {
-        writeFileSync(tmp, content, 'utf8');
+        writeFileSync(tmp, content, { encoding: 'utf8', flag: 'wx', mode: originalMode });
         renameSync(tmp, absolute);
       } catch (err) {
         try { if (existsSync(tmp)) unlinkSync(tmp); } catch { /* ignore */ }
@@ -860,7 +912,7 @@ export class BridgeServer {
     this.options.audit.append({
       action: 'fs.write',
       actor,
-      target: resolved.relative!,
+      target: editor ? joinRelative(editor.project, resolved.relative!) : resolved.relative!,
       outcome: 'success',
       detail: `${Buffer.byteLength(content, 'utf8')} bytes written`,
       approvalId: null,
@@ -1247,7 +1299,7 @@ export class BridgeServer {
       error(res, 400, 'invalid-body', 'Expected a JSON body with a process name.');
       return;
     }
-    const result = this.options.processes.restart(name);
+    const result = await this.options.processes.restart(name);
     if (!result.ok) {
       error(res, 409, 'proc-failed', result.reason ?? 'The process could not be restarted.');
       return;
@@ -1553,6 +1605,28 @@ function bearerToken(req: IncomingMessage): string {
   const header = req.headers['authorization'];
   const value = Array.isArray(header) ? header[0] ?? '' : header ?? '';
   return value.startsWith('Bearer ') ? value.slice(7).trim() : '';
+}
+
+function readEditorFile(absolute: string): Buffer {
+  const fd = openSync(absolute, 'r');
+  try {
+    const stat = fstatSync(fd);
+    if (!stat.isFile() || stat.size > MAX_READ_BYTES) throw new Error('File is no longer editable.');
+    const buffer = Buffer.alloc(stat.size + 1);
+    let length = 0;
+    while (length < buffer.length) {
+      const bytes = readSync(fd, buffer, length, buffer.length - length, null);
+      if (bytes === 0) break;
+      length += bytes;
+    }
+    const after = fstatSync(fd);
+    if (length !== stat.size || after.size !== stat.size || after.mtimeMs !== stat.mtimeMs) {
+      throw new Error('File changed while reading.');
+    }
+    return buffer.subarray(0, length);
+  } finally {
+    closeSync(fd);
+  }
 }
 
 function sha256(content: string): string {

@@ -200,6 +200,20 @@ is never written to the database. The bridge keeps its identity and trust store
 under `~/.knoux/bridge`, and its audit log under `~/.knoux/bridge/audit`. The
 database stores fingerprints and timestamps only.
 
+## Runtime controls
+
+The server-side BridgeClient exposes procList, procStart, procStop, procRestart
+and logs with the existing ProcessInfo and ProcessLogLine contracts. Start, stop
+and restart accept a configured profile name and a fresh proc:manage ticket.
+Use proc:list for state and logs:read for captured output.
+
+A stop response acknowledges the request. Poll the process state for exit
+confirmation. Restart waits for the old process to close and then returns the
+replacement PID. A competing restart, stop or shutdown can prevent a restart
+from starting a replacement. After a timeout, read the current state before
+retrying. Process status measures the child lifecycle. HTTP preview readiness
+requires the preview service's separate readiness check.
+
 ## Tests
 
 ```
