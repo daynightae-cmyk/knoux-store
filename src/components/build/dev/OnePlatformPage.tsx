@@ -3,13 +3,16 @@
 /**
  * One Platform — NSIS reference 82227 / 82236.
  *
- * The reference constellation, rendered as real navigation: every glass card
- * is a link to the live workspace surface it names. The central sphere carries
- * the canonical particle mark; no counts, statuses or release values are
- * invented here.
+ * The reference constellation, rendered as real navigation with measured
+ * capability readings: every glass card is a link to the live workspace
+ * surface and displays its actual capability state from the canonical
+ * workspace state. No counts, statuses or release values are invented.
  */
 import Link from 'next/link';
+import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
+import { platformRuntime } from '@/lib/build/platform-runtime';
 import { ParticleMark } from '@/components/brand/ParticleMark';
+import { DevStatus } from './DevUI';
 import s from './one-platform.module.css';
 
 const CARDS = [
@@ -24,6 +27,10 @@ const CARDS = [
 ] as const;
 
 export function OnePlatformPage() {
+  const { state } = useBuildWorkspace();
+  const services = platformRuntime(state);
+  const serviceMap = new Map(services.map((svc) => [svc.door, svc]));
+
   return (
     <div className={s.page}>
       <div className={s.scene}>
@@ -48,14 +55,25 @@ export function OnePlatformPage() {
           <span className={s.coreLabel}>KNOuX <small>STORE</small></span>
         </div>
         <nav className={s.cards} aria-label="One Platform destinations">
-          {CARDS.map((card) => (
-            <Link key={card.id} href={card.href} className={`${s.card} ${s[card.id]}`}>
-              <span className={s.tile} aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={card.icon} /></svg>
-              </span>
-              <span className={s.cardText}><strong>{card.title}</strong><small>{card.body}</small></span>
-            </Link>
-          ))}
+          {CARDS.map((card) => {
+            const svc = serviceMap.get(card.id as typeof services[number]['door']);
+            const reading = svc?.reading ?? 'unmeasured';
+            const value = svc?.value;
+            const detail = svc?.detail ?? 'The workspace reading has not arrived in this session yet.';
+            return (
+              <Link key={card.id} href={card.href} className={`${s.card} ${s[card.id]}`}>
+                <span className={s.tile} aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={card.icon} /></svg>
+                </span>
+                <span className={s.cardText}>
+                  <strong>{card.title}</strong>
+                  <small>{card.body}</small>
+                  {value && <DevStatus label={value} tone={reading === 'measured' ? 'ok' : reading === 'unmeasured' ? 'none' : 'warn'} />}
+                </span>
+                {detail && <span className={s.cardDetail} title={detail}>{detail.slice(0, 160)}{detail.length > 160 ? '…' : ''}</span>}
+              </Link>
+            );
+          })}
         </nav>
         <div className={s.limb} aria-hidden="true" />
       </div>
