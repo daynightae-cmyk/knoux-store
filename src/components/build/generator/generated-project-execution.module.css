@@ -1,0 +1,35 @@
+/* Reviewed static execution: planning files stay evidence until an operator applies them. */
+.execution { margin: 14px 0; overflow: hidden; border: 1px solid #b395d364; border-radius: 11px; background: #0d0916; text-align: start; }
+.executionHead { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; padding: 11px 13px; background: #20152f; }
+.executionHead h3 { margin: 0; color: #f2e4ff; font-size: 14px; font-weight: 550; }
+.executionHead span { color: #d5b7ee; font: 10px/1.5 var(--font-mono, monospace); }
+.executionBody { display: grid; gap: 10px; padding: 12px 13px; color: #d8c8e6; font-size: 12px; min-width: 0; }
+.executionBody p { margin: 0; line-height: 1.55; overflow-wrap: anywhere; }
+.executionBody a { color: #e4c5ff; text-underline-offset: 3px; }
+.executionMeta { color: #c9b8d9; font: 10px/1.6 var(--font-mono, monospace); }
+.executionFiles { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.executionFiles details { border: 1px solid #a782c34d; border-radius: 8px; background: #170f24; }
+.executionFiles summary { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; padding: 8px 10px; cursor: pointer; }
+.executionFiles code { color: #f2e4ff; overflow-wrap: anywhere; }
+.executionFiles small { color: #cbb6dd; font: 10px var(--font-mono, monospace); }
+.executionFiles pre { max-height: 220px; margin: 0; padding: 9px 10px; overflow: auto; border-top: 1px solid #a782c33d; color: #e4d2f4; font: 11px/1.55 var(--font-mono, monospace); white-space: pre-wrap; overflow-wrap: anywhere; }
+.executionControls { display: grid; gap: 8px; }
+.executionControls > label { display: flex; gap: 8px; align-items: start; line-height: 1.45; }
+.executionControls input[type='checkbox'] { margin-top: 2px; accent-color: #bc8eed; }
+.executionConfirm { display: grid; gap: 5px; }
+.executionConfirm input { min-height: 40px; padding: 8px 10px; color: #f4eafa; background: #0e0a16; border: 1px solid #b890d76e; border-radius: 8px; font: 12px var(--font-mono, monospace); }
+.executionConfirm input:focus-visible { outline: 2px solid #d8b3ff; outline-offset: 2px; }
+.executionActions { display: flex; flex-wrap: wrap; gap: 8px; }
+.executionActions button, .executionActions a {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 8px 12px;
+  border: 1px solid #c6ade452; border-radius: 8px; color: #f3e7ff;
+  background: linear-gradient(130deg, #51327a, #2d194b); font: 11px/1.3 var(--font-mono, monospace);
+  text-decoration: none; cursor: pointer;
+}
+.executionActions button:disabled { opacity: .5; cursor: not-allowed; }
+.executionActions .executionStop { background: linear-gradient(135deg, #51345f, #2b183e); }
+.executionError { color: #ffd0df; }
+.executionReceipt { display: grid; gap: 7px; padding: 10px; border: 1px solid #7fbf9f5c; border-radius: 9px; background: #102019; overflow-wrap: anywhere; }
+.executionReceipt[data-state='failed'], .executionReceipt[data-state='cancelled'] { border-color: #e2a7c65c; background: #231019; }
+.executionReceipt code { color: #c9f2dc; font: 10px/1.5 var(--font-mono, monospace); }
+.execution[data-compact='true'] { margin: 14px 0 0; }

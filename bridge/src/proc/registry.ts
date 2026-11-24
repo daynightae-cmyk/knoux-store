@@ -13,7 +13,7 @@
  */
 
 import { spawn, execFile, type ChildProcess } from 'node:child_process';
-import { EventEmitter } from 'node:events';
+import { EventEmitter, once } from 'node:events';
 import type { ProcessInfo } from '../protocol.js';
 
 export interface ProcessProfile {
@@ -57,9 +57,11 @@ export interface ProcessRegistryOptions {
 
 const DEFAULT_MAX_LOG_BYTES = 256 * 1024;
 const DEFAULT_MAX_RESTARTS = 3;
+const RESTART_CLOSE_TIMEOUT_MS = 8000;
 
 export class ProcessRegistry extends EventEmitter {
   private processes = new Map<string, ManagedProcess>();
+  private pendingRestarts = new Map<string, AbortController>();
   private cwd: string;
   private maxLogBytes: number;
   private maxRestarts: number;
@@ -129,8 +131,11 @@ export class ProcessRegistry extends EventEmitter {
   start(name: string): { ok: true; info: ProcessInfo } | { ok: false; reason: string } {
     const p = this.processes.get(name);
     if (!p) return { ok: false, reason: `No process profile named "${name}".` };
-    if (p.status === 'running' && p.pid !== null) {
-      return { ok: false, reason: `"${name}" is already running (pid ${p.pid}).` };
+    if (this.pendingRestarts.has(name)) {
+      return { ok: false, reason: `"${name}" already has a restart in progress.` };
+    }
+    if (p.child) {
+      return { ok: false, reason: `"${name}" already has a process (pid ${p.pid ?? 'pending'}).` };
     }
 
     let child: ChildProcess;
@@ -138,6 +143,7 @@ export class ProcessRegistry extends EventEmitter {
       child = spawn(p.profile.cmd, p.profile.args, {
         cwd: p.cwd,
         shell: false,
+        detached: process.platform !== 'win32',
         stdio: ['ignore', 'pipe', 'pipe'],
         windowsHide: true,
       });
@@ -154,7 +160,7 @@ export class ProcessRegistry extends EventEmitter {
     p.stoppedAt = null;
     p.exitCode = null;
     p.signal = null;
-    p.status = 'running';
+    p.status = p.pid === null ? 'failed' : 'running';
     p.stopping = false;
 
     child.stdout?.on('data', (chunk: Buffer) => this.appendLog(p, 'stdout', chunk));
@@ -162,15 +168,11 @@ export class ProcessRegistry extends EventEmitter {
 
     child.on('error', (err) => {
       this.appendLog(p, 'stderr', Buffer.from(`${err.message}\n`));
-      p.status = 'failed';
-      p.stoppedAt = Date.now();
-      p.child = null;
-      p.pid = null;
-      this.onAudit?.('proc.start', name, 'failure', err.message);
-      this.emit('changed', name);
+      this.onAudit?.('proc.error', name, 'failure', err.message);
     });
 
     child.on('close', (code, signal) => {
+      const pid = p.pid;
       const wasStopping = p.stopping;
       p.child = null;
       p.pid = null;
@@ -183,7 +185,7 @@ export class ProcessRegistry extends EventEmitter {
         'proc.exit',
         name,
         wasStopping || code === 0 ? 'success' : 'failure',
-        `pid ${p.pid ?? 'unknown'} exited code=${String(code)} signal=${String(signal)}`,
+        `pid ${pid ?? 'unknown'} exited code=${String(code)} signal=${String(signal)}`,
       );
       this.emit('exit', name, code, signal);
 
@@ -197,7 +199,8 @@ export class ProcessRegistry extends EventEmitter {
       this.emit('changed', name);
     });
 
-    this.onAudit?.('proc.start', name, 'success', `started pid ${String(p.pid)} (${p.profile.cmd})`);
+    if (p.pid === null) return { ok: false, reason: `The process "${name}" could not be started.` };
+    this.onAudit?.('proc.start', name, 'success', `started pid ${p.pid} (${p.profile.cmd})`);
     this.emit('changed', name);
     return { ok: true, info: this.info(name)! };
   }
@@ -207,13 +210,18 @@ export class ProcessRegistry extends EventEmitter {
    * Reports whether a real process was signalled.
    */
   stop(name: string, graceMs = 5000): { ok: boolean; reason?: string } {
+    this.pendingRestarts.get(name)?.abort();
+    return this.signalStop(name, graceMs);
+  }
+
+  private signalStop(name: string, graceMs: number): { ok: boolean; reason?: string } {
     const p = this.processes.get(name);
     if (!p) return { ok: false, reason: `No process profile named "${name}".` };
     if (!p.child || p.pid === null) {
       return { ok: false, reason: `"${name}" is not running.` };
     }
 
-    const pid = p.pid;
+    const { child, pid } = p;
     p.stopping = true;
 
     try {
@@ -224,11 +232,11 @@ export class ProcessRegistry extends EventEmitter {
         process.kill(-pid, 'SIGTERM');
       }
     } catch {
-      try { p.child.kill('SIGTERM'); } catch { /* already gone */ }
+      try { child.kill('SIGTERM'); } catch { /* already gone */ }
     }
 
     const timer = setTimeout(() => {
-      if (!p.child) return;
+      if (p.child !== child) return;
       try {
         if (process.platform === 'win32') {
           fireAndForget('taskkill', ['/F', '/T', '/PID', String(pid)]);
@@ -237,21 +245,42 @@ export class ProcessRegistry extends EventEmitter {
         }
       } catch { /* already gone */ }
     }, graceMs);
+    child.once('close', () => clearTimeout(timer));
     timer.unref?.();
 
     this.onAudit?.('proc.stop', name, 'success', `signalled pid ${pid}`);
     return { ok: true };
   }
 
-  /** Explicit restart. Counts toward `restarts`. */
-  restart(name: string): { ok: true; info: ProcessInfo } | { ok: false; reason: string } {
+  /** Explicit restart waits for the previous child to close before launching its replacement. */
+  async restart(name: string): Promise<{ ok: true; info: ProcessInfo } | { ok: false; reason: string }> {
     const p = this.processes.get(name);
     if (!p) return { ok: false, reason: `No process profile named "${name}".` };
-    if (p.status === 'running') {
-      this.stop(name, 0);
+    if (this.pendingRestarts.has(name)) {
+      return { ok: false, reason: `"${name}" already has a restart in progress.` };
     }
+
+    if (p.child) {
+      const cancellation = new AbortController();
+      this.pendingRestarts.set(name, cancellation);
+      try {
+        const signal = AbortSignal.any([cancellation.signal, AbortSignal.timeout(RESTART_CLOSE_TIMEOUT_MS)]);
+        const closed = once(p.child, 'close', { signal }).then(() => true, () => false);
+        const stop = this.signalStop(name, 5000);
+        if (!stop.ok) cancellation.abort();
+        if (!await closed || cancellation.signal.aborted) {
+          return { ok: false, reason: stop.reason ?? 'Restart cancelled or the previous process did not confirm exit.' };
+        }
+      } finally {
+        this.pendingRestarts.delete(name);
+      }
+    }
+
+    const result = this.start(name);
+    if (!result.ok) return result;
     p.restarts += 1;
-    return this.start(name);
+    this.onAudit?.('proc.restart', name, 'success', `replacement pid ${result.info.pid}`);
+    return { ok: true, info: this.info(name)! };
   }
 
   /** Real captured output for one process. */

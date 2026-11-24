@@ -26,6 +26,8 @@ export type ExternalItem = {
   /** Official asset URL as returned by the source. Never recoloured, never replaced. */
   iconUrl?: string;
   screenshotUrl?: string;
+  /** HTTPS destination published by the official theme directory. */
+  previewUrl?: string;
   bannerUrl?: string;
   /** Official 0-100 rating, verbatim. */
   rating?: number;
@@ -52,6 +54,14 @@ export type ExternalItem = {
  * must still render and must say the upstream source could not be reached.
  */
 export type ExternalQueryState = 'ok' | 'empty' | 'unavailable';
+
+export type WordPressCatalogRequest = {
+  kind: 'theme' | 'plugin';
+  search?: string;
+  tag?: string;
+  page?: number;
+  perPage?: number;
+};
 
 export type ExternalQueryResult = {
   items: ExternalItem[];
@@ -186,6 +196,16 @@ export function toOfficialAssetUrl(input: unknown): string | undefined {
   if (parsed.username || parsed.password) return undefined;
   if (!isOfficialAssetHost(parsed.hostname)) return undefined;
   return parsed.toString();
+}
+
+/** A browser navigation destination. The image proxy never uses this allowlist. */
+export function toOfficialThemePreviewUrl(input: unknown): string | undefined {
+  if (typeof input !== 'string') return undefined;
+  const parsed = URL.parse(input);
+  if (!parsed || parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.port) return undefined;
+  const host = parsed.hostname;
+  if (host !== 'wp-themes.com' && !host.endsWith('.wordpress.net')) return undefined;
+  return parsed.href;
 }
 
 /** True when the host is an official WordPress asset host we are allowed to load from. */

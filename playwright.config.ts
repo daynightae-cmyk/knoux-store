@@ -28,7 +28,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 
 const PORT = Number(process.env.KNOUX_E2E_PORT ?? 3311);
-const BASE_URL = `http://127.0.0.1:${PORT}`;
+const BASE_URL = `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: './e2e',
@@ -68,7 +68,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: `npx next start -p ${PORT} -H 127.0.0.1`,
+    command: `npx next start -p ${PORT} -H localhost`,
     url: BASE_URL,
     // A server from another checkout can serve stale HTML against new assets.
     // Occupied ports must fail instead of silently reusing an unknown process.

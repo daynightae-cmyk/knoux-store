@@ -641,13 +641,34 @@ export type ProjectSnapshot = {
  * must never be presented in the UI as an available control, and no method
  * may be invoked for a capability it reports as false.
  */
+type ProjectFileContent = { content: string; language: string; bytes: number; lines: number; hash?: string };
+
+export type ProjectFileDocument = ProjectFileContent & {
+  path: string;
+  readOnly: boolean;
+  readOnlyReason: string | null;
+};
+
+export type ProjectFileSaveRequest = {
+  path: string;
+  content: string;
+  expectedHash: string;
+};
+
+export type ProjectFileSaveReceipt = { ok: true; hash: string; bytes: number };
+
+export type ProjectFileSaveResult =
+  | { receipt: ProjectFileSaveReceipt }
+  | { status: number; message: string };
+
 export type ProjectAdapter = {
   id: string;
   label: string;
   environment: EnvironmentName;
   capabilities(): Record<BuildCapability, CapabilityStatus>;
   snapshot(): Promise<ProjectSnapshot>;
-  readFile(path: string): Promise<{ content: string; language: string; bytes: number; lines: number } | null>;
+  readFile(path: string): Promise<ProjectFileContent | null>;
+  saveFile?(input: ProjectFileSaveRequest): Promise<ProjectFileSaveResult>;
   gitSnapshot(): Promise<GitSnapshot>;
   /** Only ever runs commands on an explicit allowlist. Never arbitrary argv. */
   runVerification?(task: string): Promise<VerificationSnapshot>;

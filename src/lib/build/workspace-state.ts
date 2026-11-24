@@ -57,6 +57,7 @@ export type OpenFile = SourceFileEntry & {
   /** Unsaved editor buffer, when the user has typed. Null means clean. */
   draft: string | null;
   readOnly: boolean;
+  hash?: string;
   cursorLine: number;
   cursorColumn: number;
 };
@@ -257,7 +258,8 @@ export type BuildAction =
   | { type: 'surface/active'; surface: WorkspaceSurface }
   | { type: 'surface/secondary'; surface: WorkspaceSurface | null }
   | { type: 'split/set'; mode: SplitMode }
-  | { type: 'file/open'; file: OpenFile }
+  | { type: 'file/open'; file: OpenFile; keepDraft?: boolean }
+  | { type: 'file/saved'; projectRef: string; path: string; expectedHash: string; content: string; hash: string; bytes: number }
   | { type: 'file/close'; path: string }
   | { type: 'file/draft'; path: string; draft: string | null; line?: number; column?: number }
   | { type: 'route/select'; route: string | null }
@@ -376,12 +378,33 @@ export function buildReducer(state: BuildWorkspaceState, action: BuildAction): B
 
     case 'file/open': {
       const existing = state.workspace.openFiles.find((file) => file.path === action.file.path);
+      const incoming = action.keepDraft && existing?.draft != null ? { ...action.file, draft: existing.draft === action.file.content ? null : existing.draft } : action.file;
       const openFiles = existing
-        ? state.workspace.openFiles.map((file) => (file.path === action.file.path ? action.file : file))
+        ? state.workspace.openFiles.map((file) => (file.path === incoming.path ? incoming : file))
         : [...state.workspace.openFiles, action.file];
       return {
         ...state,
         workspace: { ...state.workspace, openFiles, selectedFilePath: action.file.path },
+      };
+    }
+    case 'file/saved': {
+      if (state.projectRef !== action.projectRef) return state;
+      return {
+        ...state,
+        workspace: {
+          ...state.workspace,
+          openFiles: state.workspace.openFiles.map((file) => {
+            if (file.path !== action.path || file.hash !== action.expectedHash) return file;
+            return {
+              ...file,
+              content: action.content,
+              draft: file.draft === action.content ? null : file.draft,
+              hash: action.hash,
+              bytes: action.bytes,
+              lines: action.content ? action.content.split('\n').length : 0,
+            };
+          }),
+        },
       };
     }
     case 'file/close':

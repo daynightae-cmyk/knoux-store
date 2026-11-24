@@ -128,6 +128,32 @@ export type ProviderProfile = {
     providerUsage?: UsageSnapshot;
     providerLimits?: LimitSnapshot[];
 };
+export type CredentialValidationProviderId =
+    | 'openai'
+    | 'anthropic'
+    | 'gemini'
+    | 'openrouter'
+    | 'groq'
+    | 'deepseek'
+    | 'moonshot'
+    | 'cloudflare'
+    | 'opencode-console-v2';
+
+export type CredentialValidationRequest = {
+    providerId: CredentialValidationProviderId;
+    secret: string;
+    /** Cloudflare Workers AI only: the account ID, strictly distinct from the API token. */
+    accountId?: string;
+};
+
+export type CredentialValidationResult = {
+    providerId: CredentialValidationProviderId;
+    status: 'authenticated' | 'refused' | 'unreachable' | 'cancelled';
+    httpStatus: number | null;
+    detail: string;
+    at: string;
+};
+
 /** Safe metadata only. No suffix, ciphertext or credential value is part of a projection. */
 export type CredentialReference = {
     id: string;
