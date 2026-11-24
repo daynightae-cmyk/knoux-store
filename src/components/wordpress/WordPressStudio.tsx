@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
+import { Fragment, useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { ParticleMark } from '@/components/brand/ParticleMark';
 import type { ExternalItem, ExternalQueryState } from '@/lib/wordpress/external';
 import { formatCount, formatOfficialDate } from '@/lib/wordpress/external';
@@ -12,6 +12,10 @@ import { DomainFinder } from './DomainFinder';
 import { DomainConnectionSummary, DomainProvenance } from './DomainProvenance';
 import { HostingRack } from './HostingRack';
 import { BuildAndOperate } from './BuildAndOperate';
+import { StudioCatalogPaging, useStudioCatalog } from './StudioCatalogData';
+import { StudioDraftControls } from './StudioDraftControls';
+import { readStudioCatalog, restoreStudioSelection } from '@/lib/wordpress/studio-client';
+import type { WordPressDraft, WordPressDraftDocument } from '@/lib/wordpress/site-drafts';
 import { EcosystemComposer } from './EcosystemComposer';
 import styles from './WordPressStudio.module.css';
 
@@ -280,8 +284,10 @@ export function WordPressStudio({
   const [slug, setSlug] = useState<string>(themes[0]?.slug ?? '');
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [previewScale, setPreviewScale] = useState(100);
-  const [themeQuery, setThemeQuery] = useState('');
-  const [pluginQuery, setPluginQuery] = useState('');
+  const themeCatalog = useStudioCatalog('theme', themes, directoryState, active === 'theme');
+  const pluginCatalog = useStudioCatalog('plugin', plugins, pluginState, active === 'plugins');
+  const [selectedTheme, setSelectedTheme] = useState<ExternalItem | undefined>(themes[0]);
+  const [selectedPluginRecords, setSelectedPluginRecords] = useState<ExternalItem[]>([]);
   const [siteTitle, setSiteTitle] = useState('KNOUX Store');
   const [tagline, setTagline] = useState('Digital Headquarters');
   const [logoPlacement, setLogoPlacement] = useState('center');
@@ -300,36 +306,72 @@ export function WordPressStudio({
   }, []);
 
   const journey = JOURNEYS.find((entry) => entry.id === active) ?? JOURNEYS[0];
-  const theme = themes.find((item) => item.slug === slug) ?? themes[0];
+  const selectTheme = (item: ExternalItem) => { setSlug(item.slug); setSelectedTheme(item); };
+  const theme = themeCatalog.items.find((item) => item.slug === slug) ?? selectedTheme;
+  const filteredThemes = themeCatalog.items;
+  const visiblePlugins = pluginCatalog.items;
+  const pluginSlug = selectedPlugins.at(-1);
+  const focusedPlugin = pluginSlug
+    ? selectedPluginRecords.find((item) => item.slug === pluginSlug) ?? visiblePlugins.find((item) => item.slug === pluginSlug)
+    : visiblePlugins[0];
+  useEffect(() => {
+    if (!slug || theme?.slug === slug) return;
+    const controller = new AbortController();
+    void readStudioCatalog({ kind: 'theme', search: slug }, controller.signal).then(({ items }) => {
+      const item = items.find((entry) => entry.slug === slug);
+      if (item && !controller.signal.aborted) setSelectedTheme(item);
+    }).catch(() => { /* The saved slug remains selected when catalog metadata is unavailable. */ });
+    return () => controller.abort();
+  }, [slug, theme?.slug]);
 
-  const filteredThemes = useMemo(() => {
-    const query = themeQuery.trim().toLowerCase();
-    if (!query) return themes;
-    return themes.filter((item) =>
-      [item.name, item.author, item.shortDescription, ...item.tags].join(' ').toLowerCase().includes(query),
-    );
-  }, [themeQuery, themes]);
+  useEffect(() => {
+    if (!pluginSlug || focusedPlugin?.slug === pluginSlug) return;
+    const controller = new AbortController();
+    void readStudioCatalog({ kind: 'plugin', search: pluginSlug }, controller.signal).then(({ items }) => {
+      const item = items.find((entry) => entry.slug === pluginSlug);
+      if (item && !controller.signal.aborted) setSelectedPluginRecords((previous) => [...previous, item]);
+    }).catch(() => { /* The saved slug remains selected when catalog metadata is unavailable. */ });
+    return () => controller.abort();
+  }, [pluginSlug, focusedPlugin?.slug]);
+  const togglePlugin = (item: ExternalItem, selected: boolean) => {
+    setSelectedPlugins((current) => selected ? current.filter((slug) => slug !== item.slug) : [...current, item.slug]);
+    setSelectedPluginRecords((current) => selected ? current.filter(({ slug }) => slug !== item.slug) : [...current, item]);
+  };
 
-  const themeTags = useMemo(() => {
-    const seen = new Set<string>();
-    for (const item of themes) for (const tag of item.tags) seen.add(tag);
-    return Array.from(seen).slice(0, 5);
-  }, [themes]);
+  function captureDraft(previous: WordPressDraftDocument | undefined): WordPressDraftDocument {
+    const pluginSlug = selectedPlugins.at(-1) ?? null;
+    return {
+      schema: 1,
+      identity: {
+        style: 'modern', headingFont: 'sans', bodyFont: 'sans',
+        primary: '#a855f7', secondary: '#d8b4fe', backdrop: '#0b0716',
+        pages: [...COMPOSER_PAGES], modules: [],
+        ...previous?.identity,
+        name: siteTitle.slice(0, 40), tagline: tagline.slice(0, 60),
+        placement: logoPlacement === 'start' || logoPlacement === 'end' ? logoPlacement : 'center',
+        activePage: selectedPage,
+      },
+      blocks: previous?.blocks ?? [],
+      themeSlug: slug || null,
+      pluginSlugs: selectedPlugins,
+      selection: { kind: active === 'plugins' && pluginSlug ? 'plugin' : active === 'theme' && slug ? 'theme' : 'site', pluginSlug },
+    };
+  }
 
-  // Filtering happens over the entries the server actually received; it never
-  // adds a plugin and never invents a match.
-  const visiblePlugins = useMemo(() => {
-    const list = plugins ?? [];
-    const query = pluginQuery.trim().toLowerCase();
-    if (!query) return list;
-    return list.filter((item) =>
-      [item.name, item.author, item.shortDescription, ...item.tags].join(' ').toLowerCase().includes(query),
-    );
-  }, [plugins, pluginQuery]);
-
-  const focusedPlugin =
-    (plugins ?? []).find((item) => item.slug === selectedPlugins[selectedPlugins.length - 1]) ??
-    (plugins ?? [])[0];
+  const applyDraft = useCallback((draft: WordPressDraft) => {
+    const selection = restoreStudioSelection(draft);
+    setSlug(selection.themeSlug ?? '');
+    setSelectedTheme(undefined);
+    setSelectedPlugins(selection.pluginSlug ? [...draft.document.pluginSlugs.filter((id) => id !== selection.pluginSlug), selection.pluginSlug] : draft.document.pluginSlugs);
+    setSelectedPluginRecords([]);
+    if (draft.document.identity) {
+      setSiteTitle(draft.document.identity.name);
+      setTagline(draft.document.identity.tagline);
+      setLogoPlacement(draft.document.identity.placement);
+      setSelectedPage(draft.document.identity.activePage);
+    }
+    setActive(selection.kind === 'plugin' ? 'plugins' : selection.kind === 'theme' ? 'theme' : 'identity');
+  }, []);
 
   const requestParams = new URLSearchParams({
     requestType: 'wordpress',
@@ -394,7 +436,14 @@ export function WordPressStudio({
           })}
         </nav>
 
-        <div className={styles.stage} key={journey.id}>
+        <div className={styles.stage}>
+          <StudioDraftControls
+            visible={active === 'identity' || active === 'composer'}
+            title={siteTitle.trim().slice(0, 80) || 'WordPress site'}
+            snapshot={captureDraft}
+            onRestore={applyDraft}
+          />
+          <Fragment key={journey.id}>
           {active === 'arrival' ? (
             <div className={styles.arrivalGrid}>
               <Panel title={t('Studio destinations', 'وجهات الاستوديو')} meta="04">
@@ -423,7 +472,7 @@ export function WordPressStudio({
                 {themes.length ? (
                   <div className={styles.field}>
                     <label htmlFor="wp-theme-choice">{t('Choose a theme', 'اختر قالباً')}</label>
-                    <select id="wp-theme-choice" value={theme?.slug ?? ''} onChange={(event) => setSlug(event.target.value)}>
+                    <select id="wp-theme-choice" value={theme?.slug ?? ''} onChange={(event) => { const choice = themes.find((item) => item.slug === event.target.value); if (choice) selectTheme(choice); }}>
                       {themes.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
                     </select>
                   </div>
@@ -495,26 +544,23 @@ export function WordPressStudio({
                 <div className={styles.searchRow}>
                   <input
                     type="search"
-                    value={themeQuery}
-                    onChange={(event) => setThemeQuery(event.target.value)}
+                    value={themeCatalog.search}
+                    onChange={(event) => themeCatalog.setSearch(event.target.value)}
                     placeholder={t('Search themes, authors or styles…')}
-                    aria-label={t('Search loaded themes')}
+                    aria-label={t('Search WordPress themes')}
                   />
                   <span className={styles.meta}>{filteredThemes.length} {t('results in view', 'نتيجة في العرض')}</span>
                 </div>
-                <div className={styles.chipRow} aria-label={t('Theme tags', 'وسوم القوالب')}>
-                  <span className={styles.chipActive}>{t('All themes', 'كل القوالب')}</span>
-                  {themeTags.map((tag) => <span key={tag} className={styles.chip}>{tag}</span>)}
-                </div>
+                <StudioCatalogPaging catalog={themeCatalog} label={t('Theme catalog pages')} />
                 {filteredThemes.length ? (
                   <div className={styles.themeGrid}>
-                    {filteredThemes.slice(0, 9).map((item) => (
+                    {filteredThemes.map((item) => (
                       <button
                         key={item.slug}
                         type="button"
                         className={`${styles.themeCard} ${item.slug === theme?.slug ? styles.themeCardActive : ''}`}
                         aria-pressed={item.slug === theme?.slug}
-                        onClick={() => setSlug(item.slug)}
+                        onClick={() => selectTheme(item)}
                       >
                         <span className={styles.themeShot}>
                           {item.screenshotUrl ? (
@@ -535,7 +581,7 @@ export function WordPressStudio({
                     ))}
                   </div>
                 ) : (
-                  <p className={styles.emptyState}>{t('No loaded theme matches that search. The full directory remains one link away.')}</p>
+                  <p className={styles.emptyState}>{t('No themes to display for the current catalog query.')}</p>
                 )}
               </Panel>
 
@@ -674,27 +720,26 @@ export function WordPressStudio({
               <div className={styles.pluginLayout}>
                 <Panel
                   title={t('Plugin Library', 'مكتبة الإضافات')}
-                  meta={<StatusPill tone={pluginState === 'ok' ? 'ok' : 'warn'}>{pluginState === 'ok' ? 'WORDPRESS.ORG' : t('UNREACHED', 'غير متاح')}</StatusPill>}
+                  meta={<StatusPill tone={pluginCatalog.state === 'ok' ? 'ok' : 'warn'}>{pluginCatalog.state === 'ok' ? 'WORDPRESS.ORG' : t('UNREACHED', 'غير متاح')}</StatusPill>}
                   className={styles.pluginGridPanel}
                 >
                   <p className={styles.panelLead}>
                     {t('Popular plugins as published by the official WordPress.org directory, at page render. Nothing here is a ranking, a recommendation or an installed state.')}
                   </p>
 
-                  {pluginState === 'ok' && plugins.length ? (
-                    <div className={styles.searchRow}>
+                  <div className={styles.searchRow}>
                       <input
                         type="search"
-                        value={pluginQuery}
-                        onChange={(event) => setPluginQuery(event.target.value)}
+                        value={pluginCatalog.search}
+                        onChange={(event) => pluginCatalog.setSearch(event.target.value)}
                         placeholder={t('Filter the loaded plugins by name, author or description…')}
-                        aria-label={t('Filter loaded plugins')}
+                        aria-label={t('Search WordPress plugins')}
                       />
                       <span className={styles.meta}>
                         {visiblePlugins.length} {t('of', 'من')} {plugins.length} {t('in view', 'في العرض')}
                       </span>
                     </div>
-                  ) : null}
+                  <StudioCatalogPaging catalog={pluginCatalog} label={t('Plugin catalog pages')} />
 
                   {visiblePlugins.length ? (
                     <ul className={styles.pluginCards}>
@@ -765,13 +810,7 @@ export function WordPressStudio({
                                 type="button"
                                 className={styles.pluginToggle}
                                 aria-pressed={selected}
-                                onClick={() =>
-                                  setSelectedPlugins((current) =>
-                                    current.includes(plugin.slug)
-                                      ? current.filter((value) => value !== plugin.slug)
-                                      : [...current, plugin.slug],
-                                  )
-                                }
+                                onClick={() => togglePlugin(plugin, selected)}
                               >
                                 {selected ? t('Selected', 'مختار') : t('Add', 'إضافة')}
                               </button>
@@ -787,7 +826,7 @@ export function WordPressStudio({
                     <div className={styles.pluginUnavailable}>
                       <span className={styles.pluginUnavailableMark} aria-hidden="true">!</span>
                       <p>
-                        {pluginState === 'empty'
+                        {pluginCatalog.state === 'empty'
                           ? t('The official plugin directory returned no entries right now.')
                           : t('The official plugin directory could not be reached from this server. No plugin list is shown rather than a fabricated one.')}
                       </p>
@@ -897,8 +936,7 @@ export function WordPressStudio({
 
                         {selectedPlugins.length ? (
                           <ul className={styles.selectionChips}>
-                            {plugins
-                              .filter((plugin) => selectedPlugins.includes(plugin.slug))
+                            {selectedPluginRecords
                               .map((plugin) => (
                                 <li key={plugin.slug}>
                                   <span>{plugin.name}</span>
@@ -1362,6 +1400,7 @@ export function WordPressStudio({
               </Link>
             </div>
           </footer>
+          </Fragment>
         </div>
       </div>
 
