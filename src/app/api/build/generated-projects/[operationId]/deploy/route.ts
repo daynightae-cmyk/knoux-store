@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { guardBuildApi, resolveBuildOwnerId } from '@/lib/build/api-guard';
 import { generatedOperationId } from '@/lib/build/generated-project-contract';
-import { deployGeneratedProject, generatedProjectsRoot } from '@/lib/build/generated-project-executor';
+import { cancelDeployGeneratedProject, deployGeneratedProject, generatedProjectsRoot } from '@/lib/build/generated-project-executor';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,6 +55,40 @@ export async function POST(
     return NextResponse.json(
       { error: notFound ? 'not-found' : invalid ? 'deploy-refused' : 'deploy-failed', message },
       { status: notFound ? 404 : invalid ? 400 : 500 },
+    );
+  }
+}
+
+/** PATCH /api/build/generated-projects/[operationId]/deploy — cancel a pending deployment. */
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ operationId: string }> }
+) {
+  const denied = await guardBuildApi(request, { scope: 'write' });
+  if (denied) return denied;
+
+  const ownerId = await resolveBuildOwnerId();
+  if (!ownerId) {
+    return NextResponse.json(
+      { error: 'unauthorized', message: 'Sign in to cancel deployments.' },
+      { status: 401 },
+    );
+  }
+
+  const { operationId: rawId } = await params;
+  try {
+    const receipt = await cancelDeployGeneratedProject(
+      generatedProjectsRoot(),
+      ownerId,
+      generatedOperationId(rawId),
+    );
+    return NextResponse.json({ receipt });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'The deployment could not be cancelled.';
+    const notFound = /not found/i.test(message);
+    return NextResponse.json(
+      { error: notFound ? 'not-found' : 'cancel-failed', message },
+      { status: notFound ? 404 : 400 },
     );
   }
 }

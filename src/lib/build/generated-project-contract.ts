@@ -75,7 +75,7 @@ export type GeneratedRuntimeReceipt = {
   export: ExportReceipt | null;
   /** Legacy alias kept for surfaces that still read bundle directly. */
   bundle: ExportReceipt | null;
-  /** Local publish deployment, null until explicitly confirmed and applied. */
+  /** Local publish deployment, null until explicitly requested by the operator. */
   deploy: DeployReceipt | null;
   preview: PreviewReceipt | null;
   externalReference: string;

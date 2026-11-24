@@ -546,7 +546,8 @@ export async function deployGeneratedProject(root: string, ownerId: string, oper
   currentDeploy.blocker = null;
   currentDeploy.error = null;
   current.deploy = currentDeploy;
-  current.state = 'deployed';
+  // A request is not deployment evidence. Preserve the actual preview/export
+  // state until the compiled output has been copied and an applied receipt saved.
   await save(root, current);
 
   try {

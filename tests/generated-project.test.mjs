@@ -148,6 +148,7 @@ test('the workbench wires reviewed static execution into its shipped surfaces', 
   assert.match(component, /GENERATED_PROJECT_CONFIRMATION/);
   assert.match(component, /\/api\/build\/generated-projects/);
   assert.match(component, /method: 'DELETE'/);
+  assert.match(component, /generated-projects\/\$\{receipt\.operationId\}\/deploy`, \{ method: 'PATCH' \}/);
   assert.match(component, /sandbox="allow-scripts"/);
   assert.match(component, /No generated files have been written/);
 });
@@ -177,6 +178,8 @@ test('the generated-project API routes delegate to the bounded executor, never a
   assert.match(routes[1], /cancelDeployGeneratedProject/);
   assert.match(routes[2], /generatedBundlePath/);
   assert.match(routes[3], /deployGeneratedProject/);
+  assert.match(routes[3], /export async function PATCH/);
+  assert.match(routes[3], /cancelDeployGeneratedProject/);
 });
 
 test('build produces separate source and compiled output with real measured hashes', async () => {
