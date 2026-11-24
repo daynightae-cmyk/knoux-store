@@ -17,3 +17,19 @@ Keep a loading state while requests are pending. Treat `401` as a sign-in requir
 ## Phase 3 ownership checkpoint
 
 In #129 the committed Studio uses the live service through the separate StudioCatalogData and StudioDraftControls adapters. In Base, WordPressStudio and WordPressCockpit remain under Kimi's presentation ownership. Integrate the adapter imports and event bindings into the current Cockpit; keep the existing layout, interaction and CSS. Use the Catalog button events as controlled search/tag/page values and keep the selected record independent from the returned page. Pass the actual composer blocks into snapshot and restore them in onRestore. The older committed Studio preserves previously saved blocks because its layer selection is a preview rather than an editable block document.
+
+### Phase 3 Build executor
+
+The existing engineering result can include `generatedProject: GeneratedProjectPlan`. Its review surface uses the generated-project API for bounded static artifacts. It never writes through the paired workspace file endpoint or runs a package command. The file editor keeps its existing paired Bridge contract above.
+
+| Operation | Contract |
+| --- | --- |
+| `GET /api/build/generated-projects` | Host availability, `{ enabled, message }` on success. |
+| `POST /api/build/generated-projects` | `{ operationId: UUID, artifact: GeneratedProjectPlan, confirmation: "APPLY STATIC PROJECT" }` → `{ receipt: GeneratedRuntimeReceipt }`. The same owner, UUID and artifact can be retried. A different artifact for that UUID returns 409. |
+| `GET /api/build/generated-projects/{operationId}` | Reads the owner-scoped durable receipt. |
+| `DELETE /api/build/generated-projects/{operationId}` | Cancels in-flight execution or stops the owned preview, then returns the receipt. |
+| `GET /api/build/generated-projects/{operationId}/bundle` | Returns the verified ZIP when exported. |
+
+Access requires a valid session and an operator listed in `KNOUX_BUILD_OPERATOR_IDS`. Mutations require the application origin. Starting execution also requires `KNOUX_WRITE_EXECUTOR_ENABLED=1` on the trusted host. Treat 401 as a sign-in state, 403 as refused access or approval, 404 as an unavailable owner-scoped receipt, 409 as an operation conflict, 429 as a retry-after state, and 503 as host disabled. Use the receipt's measured build exit code and HTTP readiness for success. Preview URLs are loopback URLs for the browser on that trusted host and open in a separate tab under the existing workspace CSP.
+
+The review binding is in the committed `DevWorkspaceHome.tsx` on this integration branch. It leaves the current CodeSurface and PreviewSurface bindings in place. The static executor keeps durable receipts; restoring the overall workspace or resuming arbitrary paired-Bridge tasks is a separate integration.
