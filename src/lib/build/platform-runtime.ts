@@ -254,12 +254,3 @@ export function platformRuntime(state: BuildWorkspaceState): readonly PlatformSe
   });
 }
 
-/** Labels are the operator's words, not the adapter's enum. */
-export function platformReadingLabel(reading: PlatformReading): string {
-  return reading === 'not-run' ? 'NOT RUN' : reading.toUpperCase();
-}
-
-/** True only when every door was measured and every dependency is available. */
-export function platformFullyMeasured(services: readonly PlatformService[]): boolean {
-  return services.every((service) => service.reading === 'measured');
-}
