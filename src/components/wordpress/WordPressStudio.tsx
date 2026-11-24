@@ -6,9 +6,8 @@ import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
 import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
 import { SiteLanguagePicker } from '@/components/i18n/SiteLanguage';
-import { WordPressPreviewOrbit } from './WordPressPreviewOrbit';
+import { WordPressCockpit, type WordPressPreviewKind } from './WordPressCockpit';
 import { WordPressLibraryGateway } from './WordPressLibraryGateway';
-import { DeviceFrame } from './journeys/DeviceFrame';
 import { ThemeExplorer } from './journeys/ThemeExplorer';
 import { LiveCanvas } from './journeys/LiveCanvas';
 import { DomainIntelligence } from './journeys/DomainIntelligence';
@@ -52,6 +51,7 @@ const JOURNEYS = [
 ] as const;
 
 export type StudioJourney = (typeof JOURNEYS)[number]['id'];
+export const STUDIO_JOURNEY_COUNT = JOURNEYS.length;
 
 export function WordPressStudio({
   themes,
@@ -68,12 +68,13 @@ export function WordPressStudio({
 }) {
   const t = useRouteCopy();
   const journeys = useRef<HTMLDialogElement>(null);
-  const themePicker = useRef<HTMLDialogElement>(null);
   const library = useRef<HTMLDialogElement>(null);
   const journeyHeading = useRef<HTMLHeadingElement>(null);
   const journeyTrigger = useRef<HTMLButtonElement>(null);
   const [primary, setPrimary] = useState<'draft' | 'starter'>('draft');
   const [slug, setSlug] = useState<string>(themes[0]?.slug ?? '');
+  const [pluginSlug, setPluginSlug] = useState<string>(plugins[0]?.slug ?? '');
+  const [previewKind, setPreviewKind] = useState<WordPressPreviewKind>(themes.length ? 'theme' : 'site');
   // The arrival composer hands its words here — same tab via the event,
   // a return visit via session storage. The stored sentence is read through
   // an external-store subscription so server and client renders agree.
@@ -110,6 +111,16 @@ export function WordPressStudio({
     });
   }
 
+  function selectTheme(next: string) {
+    setSlug(next);
+    setPreviewKind('theme');
+  }
+
+  function selectPlugin(next: string) {
+    setPluginSlug(next);
+    setPreviewKind('plugin');
+  }
+
   const theme = themes.find((item) => item.slug === slug);
   const requestParams = new URLSearchParams({
     requestType: 'wordpress',
@@ -134,7 +145,6 @@ export function WordPressStudio({
       <h1 id="wordpress-studio-title" className={styles.studioTitle}>WordPress Studio</h1>
       <div className={styles.toolbar}>
         <button ref={journeyTrigger} type="button" onClick={() => journeys.current?.showModal()}>{t('Studio journeys', 'رحلات الاستوديو')}</button>
-        {active === 'arrival' && <button type="button" onClick={() => themePicker.current?.showModal()}>{t('Themes', 'القوالب')}</button>}
         {active === 'arrival' && <button type="button" onClick={() => library.current?.showModal()}>{t('WordPress library')}</button>}
         {active !== 'arrival' && <button type="button" onClick={() => changeJourney('arrival')}>{t('Preview orbit', 'مدار المعاينة')}</button>}
       </div>
@@ -165,43 +175,25 @@ export function WordPressStudio({
         <WordPressLibraryGateway />
       </dialog>}
 
-      {active === 'arrival' && <dialog ref={themePicker} className={styles.contextPanel} aria-labelledby="wordpress-theme-panel">
-        <header>
-          <h3 id="wordpress-theme-panel">{t('Themes', 'القوالب')}</h3>
-          <button type="button" onClick={() => themePicker.current?.close()}>{t('Close', 'إغلاق')}</button>
-        </header>
-        {themes.length ? (
-          <div className={styles.choice}>
-            <label className={styles.selectLabel} htmlFor="wp-theme-choice">{t('Choose a theme', 'اختيار قالب')}</label>
-            <select id="wp-theme-choice" value={slug} onChange={(event) => {
-              cueAtmosphere('confirm');
-              setSlug(event.target.value);
-            }}>
-              {themes.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
-            </select>
-            {theme && (
-              <>
-                <p>{t('Official theme screenshot', 'صورة القالب الرسمية')}</p>
-                <DeviceFrame device="desktop" theme={theme} />
-                <a className={styles.browse} href={theme.sourceUrl} target="_blank" rel="noopener noreferrer">
-                  {t('Official theme page', 'الصفحة الرسمية للقالب')} ↗
-                </a>
-              </>
-            )}
-          </div>
-        ) : <p role="status">{t('The official theme directory is unavailable.', 'دليل القوالب الرسمي غير متاح.')}</p>}
-        <button type="button" onClick={() => {
-          themePicker.current?.close();
-          changeJourney('theme');
-        }}>{t('Theme Explorer', 'مستكشف القوالب')}</button>
-      </dialog>}
-
       <div className={styles.body}>
         {active !== 'arrival' && <h2 ref={journeyHeading} tabIndex={-1} className={styles.heading}>{journey.label}</h2>}
         {active === 'arrival' && (
           <section className={styles.section} aria-label={t('Document previews', 'معاينات المستند')}>
             {intent && <p className={styles.intent} role="status"><span>{t('Your words', 'وصفك')}</span> “{intent}”</p>}
-            <WordPressPreviewOrbit t={t} primary={primary} onSwitch={setPrimary} onCustomize={() => changeJourney('composer')} />
+            <WordPressCockpit
+              themes={themes}
+              plugins={plugins}
+              selectedSlug={slug}
+              pluginSlug={pluginSlug}
+              kind={previewKind}
+              onKindChange={setPreviewKind}
+              onSelectTheme={selectTheme}
+              onSelectPlugin={selectPlugin}
+              t={t}
+              primary={primary}
+              onSwitch={setPrimary}
+              onCustomize={() => changeJourney('composer')}
+            />
           </section>
         )}
 
@@ -231,18 +223,18 @@ export function WordPressStudio({
 
         {/* 05 Plugin Intelligence — capability search on live registry data
             with a compatibility readout built only from returned fields. */}
-        {active === 'plugins' && <PluginIntelligence plugins={plugins} />}
+        {active === 'plugins' && <PluginIntelligence plugins={plugins} selectedSlug={pluginSlug} onSelect={selectPlugin} />}
 
         {/* 03 Theme Explorer — reference 83377: searchable library + selected
             theme stage with real registry facts and device-framed preview. */}
         {active === 'theme' && (
-          <ThemeExplorer themes={themes} selectedSlug={slug} onSelect={setSlug} />
+          <ThemeExplorer themes={themes} selectedSlug={slug} onSelect={selectTheme} />
         )}
 
         {/* 06 Live Responsive Canvas — reference 83381: device toggles, scale
             control, breakpoints and three framed viewports on one podium. */}
         {active === 'canvas' && (
-          <LiveCanvas themes={themes} selectedSlug={slug} onSelect={setSlug} onEdit={() => changeJourney('composer')} />
+          <LiveCanvas themes={themes} selectedSlug={slug} onSelect={selectTheme} onEdit={() => changeJourney('composer')} />
         )}
 
         <a className={styles.request} href={`/contact?${requestParams.toString()}`}>{t('Compose a site request')} ↗</a>

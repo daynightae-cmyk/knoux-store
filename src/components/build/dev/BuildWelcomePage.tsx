@@ -15,7 +15,7 @@
  * invented here.
  */
 import Link from 'next/link';
-import { useEffect, useId, useRef, type CSSProperties } from 'react';
+import { useEffect, useId, useRef, type CSSProperties, type MouseEvent } from 'react';
 import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
 import s from './build-welcome.module.css';
 
@@ -198,18 +198,18 @@ export function BuildWelcomePage({ onEnter }: Readonly<{ onEnter?: () => void }>
     };
   }, []);
 
-  const build = onEnter ? (
-    <button type="button" className={`${s.node} ${s.build}`} onClick={onEnter}>
+  function enter(event: MouseEvent<HTMLAnchorElement>) {
+    if (!onEnter || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    onEnter();
+  }
+
+  const build = (
+    <a href={onEnter ? '#workspace' : '/build/pipeline'} className={`${s.node} ${s.build}`} onClick={enter}>
       <span className={s.nodeIcon} aria-hidden="true"><NodeIcon id="build" /></span>
       <span>Build</span>
       <span className={s.pin} aria-hidden="true" />
-    </button>
-  ) : (
-    <Link href="/build/pipeline" className={`${s.node} ${s.build}`}>
-      <span className={s.nodeIcon} aria-hidden="true"><NodeIcon id="build" /></span>
-      <span>Build</span>
-      <span className={s.pin} aria-hidden="true" />
-    </Link>
+    </a>
   );
 
   return (
@@ -286,10 +286,10 @@ export function BuildWelcomePage({ onEnter }: Readonly<{ onEnter?: () => void }>
           </div>
 
           {onEnter ? (
-            <button type="button" className={s.core} onClick={onEnter} aria-label="KNOuX STORE — enter the engineering workspace">
+            <a href="#workspace" className={s.core} onClick={enter} aria-label="KNOuX STORE — enter the engineering workspace">
               <span className={s.coreHalo} aria-hidden="true" />
               <Mark uid={uid} />
-            </button>
+            </a>
           ) : (
             <Link href="/build" className={s.core} aria-label="KNOuX STORE - open the Build welcome page">
               <span className={s.coreHalo} aria-hidden="true" />

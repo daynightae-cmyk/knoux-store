@@ -4,7 +4,7 @@ test('Studio preserves the selected journey through reload and browser navigatio
   await page.goto('/wordpress');
   await page.getByRole('link', { name: /Enter WordPress Studio/ }).click();
   const studio = page.getByRole('dialog', { name: 'WordPress Studio', exact: true });
-  await expect(studio.locator('[data-orbit-preview]')).toHaveCount(2);
+  await expect(studio.locator('[data-wordpress-cockpit]')).toBeVisible();
   const library = studio.getByRole('button', { name: 'WordPress library' });
   await library.click();
   const catalogue = studio.getByRole('dialog', { name: 'WordPress library' });
@@ -24,5 +24,5 @@ test('Studio preserves the selected journey through reload and browser navigatio
   await expect(studio.getByRole('heading', { name: 'Site Identity', exact: true })).toBeVisible();
   await studio.getByRole('button', { name: 'Preview orbit' }).click();
   await expect(page).toHaveURL(/#studio$/);
-  await expect(studio.locator('[data-orbit-preview]')).toHaveCount(2);
+  await expect(studio.locator('[data-wordpress-cockpit]')).toBeVisible();
 });

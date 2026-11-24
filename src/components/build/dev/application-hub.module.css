@@ -178,3 +178,18 @@
 .registryLayout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 14px; align-items: start; margin-bottom: 16px; }
 @media (max-width: 900px) { .registryLayout { grid-template-columns: minmax(0, 1fr); } }
 .registryList { display: grid; gap: 8px; min-width: 0; }
+.toolsDrawer {
+  margin-block: 0 18px;
+  padding: 0 12px;
+  border: 1px solid #aa7ade66;
+  border-radius: 12px;
+  background: linear-gradient(105deg, #271443c9, #100a1e);
+}
+.toolsDrawer summary {
+  min-height: 44px;
+  padding-block: 11px;
+  color: #ecd8ff;
+  cursor: pointer;
+}
+.toolsDrawer summary:focus-visible { outline: 2px solid #d898ff; outline-offset: 3px; }
+.registryLayout > * { min-width: 0; }

@@ -1,14 +1,7 @@
 'use client';
 
 /**
- * Apps — Build V3 reference 08, composed as the Application Hub.
- *
- * The masthead and family tabs filter the real published registry; the
- * orbital stage places the eight real workspace tools around the particle
- * core on luminous connectors, each opening its actual route. Below, the
- * product registry runs as inspectable cards (grid or list) with the honest
- * dossier inspector and same-origin preview. No tool, product or runtime
- * state is invented here.
+ * Applications management for the published registry and paired local projects.
  */
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -101,9 +94,8 @@ export function AppsPage() {
   return (
     <div className={`dev-route ${operational.page} ${styles.page}`} data-reduced={reduced ? '' : undefined}>
       <header className={styles.masthead}>
-        <span className="dev-mini-label">APPS / APPLICATION HUB</span>
-        <h1>Application Hub</h1>
-        <p>Discover, launch, and manage KNOuX applications. Build, analyze, and operate across your engineering environment — every destination below is a real workspace route.</p>
+        <h1>Applications</h1>
+        <p>Inspect published products, open your local projects, and review workspace activity.</p>
       </header>
 
       <div className={styles.toolbar}>
@@ -132,6 +124,8 @@ export function AppsPage() {
         </div>
       </div>
 
+      <details className={styles.toolsDrawer}>
+      <summary>Workspace tools</summary>
       <nav className={styles.orbitStage} aria-label="Workspace tools">
         <svg className={styles.connectors} viewBox="0 0 1000 600" preserveAspectRatio="none" fill="none" aria-hidden="true">
           <ellipse cx="500" cy="312" rx="330" ry="128" stroke="#bb8ef2" strokeOpacity=".28" strokeWidth="1" strokeDasharray="3 5" transform="rotate(-7 500 312)" />
@@ -167,14 +161,15 @@ export function AppsPage() {
           </Link>
         ))}
       </nav>
+      </details>
 
       <div className={styles.registryHead}>
         <h2>Product registry</h2>
         <span>{visible.length} OF {softwareProducts.length} REGISTRY ENTRIES · RUNTIME STATE NOT MEASURED</span>
       </div>
 
+      <div className={styles.registryLayout}>
       {layout === 'grid' ? (
-        <>
           <div className={styles.productGrid} role="group" aria-label="Published products">
             {visible.length ? visible.map((product) => (
               <button type="button" key={product.id} className={styles.productCard} aria-pressed={selected.id === product.id} onClick={() => { setSelectedId(product.id); setTab('overview'); }}>
@@ -184,10 +179,7 @@ export function AppsPage() {
               </button>
             )) : <DevEmpty title="NO MATCHING PRODUCTS" body="Try another name, capability or family from the verified registry." />}
           </div>
-          {inspector}
-        </>
       ) : (
-        <div className={styles.registryLayout}>
           <DevPanel title="Published products">
             <div className={`dev-list dev-list--select ${styles.registryList}`}>
               {visible.length ? visible.map((product) => (
@@ -198,9 +190,9 @@ export function AppsPage() {
               )) : <DevEmpty title="NO MATCHING PRODUCTS" body="Try another name, capability or family from the verified registry." />}
             </div>
           </DevPanel>
-          {inspector}
-        </div>
       )}
+      {inspector}
+      </div>
 
       <DevPanel title="Local workspace projects">
         <p className="dev-note">Separate from the published KNOuX product registry. Local projects require their paired bridge.</p>
@@ -209,6 +201,7 @@ export function AppsPage() {
             <button type="button" key={project.path} onClick={() => dispatch({ type: 'project/activate', path: project.path, name: project.name })}>{project.name} · {project.path}</button>
           )) : <p>No local projects imported in this session.</p>}
         </div>
+        <div className="dev-actions"><Link href="/build/pipeline">Inspect build activity ↗</Link><Link href="/build/deployments">Inspect deployments ↗</Link></div>
       </DevPanel>
     </div>
   );

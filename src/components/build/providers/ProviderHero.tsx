@@ -15,9 +15,10 @@ const positions = [
   ['grok', 'Grok', 71.9, 67.3],
 ] as const;
 
-export function ProviderHero({ definitions, selected, onSelect, onGetApi, onBrowse }: {
+export function ProviderHero({ definitions, selected, connection, onSelect, onGetApi, onBrowse }: {
   definitions: readonly ProviderDefinition[];
   selected: string;
+  connection: string | null;
   onSelect: (definition: ProviderDefinition) => void;
   onGetApi: () => void;
   onBrowse: () => void;
@@ -35,6 +36,7 @@ export function ProviderHero({ definitions, selected, onSelect, onGetApi, onBrow
     sync();
     return () => { observer.disconnect(); document.removeEventListener('visibilitychange', sync); };
   }, []);
+  const current = definitions.find(definition => definition.id === selected);
   return <section ref={hero} className={s.hero} data-paused={paused} aria-label="Universal Provider Engine">
     <button type="button" className={s.motionControl} aria-pressed={paused} onClick={()=>setPaused(value=>!value)}>{paused?'Resume orbit':'Pause orbit'}</button>
     {/* The reference sky is drawn, never photographed: nebula banks, a seeded
@@ -76,6 +78,7 @@ export function ProviderHero({ definitions, selected, onSelect, onGetApi, onBrow
       <div className={s.coreLight} aria-hidden="true"/>
       <div className={s.coreLinks}><button type="button" onClick={onBrowse} aria-label="Browse providers"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 4 21 11-21 11L3 15Z M3 24l21 11 21-11 M3 33l21 11 21-11"/></svg></button><Link href="/build/ai/models" aria-label="Discover models"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 3 20 11v22L24 47 4 36V14Z M4 14l20 11 20-11 M24 25v22"/></svg></Link></div>
     </div>
+    {current ? <div className={s.selection} aria-live="polite"><strong>{current.name}</strong><span>{connection}</span></div> : null}
     <button type="button" className={s.getApi} onClick={onGetApi}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 14 4-4m-6 7-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m2-1 2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0" transform="translate(1 0)"/></svg>Get API</button>
   </section>;
 }

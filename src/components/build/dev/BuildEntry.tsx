@@ -18,12 +18,19 @@ import { DevWorkspaceHome } from './DevWorkspaceHome';
 import { cueAtmosphere } from './living-atmosphere';
 
 export function BuildEntry() {
-  const { state } = useBuildWorkspace();
+  const { state, dispatch } = useBuildWorkspace();
   const [entered, setEntered] = useState(false);
   const focusWorkspace = useRef(false);
 
   useEffect(() => {
-    const sync = () => setEntered(window.location.hash === '#workspace');
+    const sync = () => {
+      const atWorkspace = window.location.hash === '#workspace';
+      setEntered(atWorkspace);
+      if (atWorkspace) {
+        focusWorkspace.current = true;
+        dispatch({ type: 'surface/active', surface: 'preview' });
+      }
+    };
     sync();
     window.addEventListener('hashchange', sync);
     window.addEventListener('popstate', sync);
@@ -31,7 +38,7 @@ export function BuildEntry() {
       window.removeEventListener('hashchange', sync);
       window.removeEventListener('popstate', sync);
     };
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (entered && focusWorkspace.current) {
@@ -55,6 +62,7 @@ export function BuildEntry() {
     const { pathname, search } = window.location;
     window.history.pushState(window.history.state, '', `${pathname}${search}#workspace`);
     focusWorkspace.current = true;
+    dispatch({ type: 'surface/active', surface: 'preview' });
     setEntered(true);
   }
 

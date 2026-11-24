@@ -138,7 +138,7 @@ test('Real local preview loads, resizes, refreshes and inspects DOM facts', asyn
     await expect(page.locator('.dev-sidebar__facts')).toContainText('LOCAL');
     // The entry opens on the One Platform constellation; the studio lives in
     // the workspace behind the central sphere.
-    const entry = page.getByRole('button', { name: 'KNOuX STORE — enter the engineering workspace' });
+    const entry = page.getByRole('link', { name: 'KNOuX STORE — enter the engineering workspace' });
     if (await entry.isVisible()) await entry.click();
     await page.getByRole('group', { name: 'Workspace view' }).getByRole('button', { name: 'PREVIEW' }).click();
     const iframe = page.locator('iframe[title^="Live preview"]');

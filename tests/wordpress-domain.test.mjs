@@ -289,22 +289,24 @@ test('an implausible price is refused at the boundary', () => {
 
 test('the finder cannot render a verdict it was not given', () => {
   const finder = sourceOf('src/components/wordpress/DomainFinder.tsx');
+  const journey = sourceOf('src/components/wordpress/journeys/DomainIntelligence.tsx');
   // Every non-positive state is rendered from the provider's own vocabulary,
   // through one declared table. A verdict assembled ad hoc in JSX is a verdict
   // the browser produced rather than received, which is the failure this layer
   // exists to prevent.
-  assert.match(finder, /STATE_COPY/, 'result states must come from one declared table');
+  assert.match(finder, /STATE_TONE/, 'result states must come from one declared table');
+  assert.match(journey, /STATE_TONE\[entry\.state\]/, 'the rendered table uses the returned state');
   assert.match(
     finder,
     /Record<DomainAvailability\['state'\]/,
     'the table must be keyed by the provider state union, so a new state cannot render unlabelled',
   );
   // And the failure branches must be visibly distinct from a negative result.
-  assert.match(finder, /phase: 'unconfigured'/, 'unconfigured is a state of its own');
-  assert.match(finder, /phase: 'error'/, 'an upstream failure is a state of its own');
+  assert.match(journey, /kind: 'unconfigured'/, 'unconfigured is a state of its own');
+  assert.match(journey, /kind: 'error'/, 'an upstream failure is a state of its own');
   // A missing price says so in words, rather than leaving a blank a reader
   // would be free to fill in with a guess.
-  assert.match(finder, /Not published/, 'an absent price is stated, not left blank');
+  assert.match(journey, /Not published/, 'an absent price is stated, not left blank');
 });
 
 test('the API route never answers "unavailable" for a failed check', () => {

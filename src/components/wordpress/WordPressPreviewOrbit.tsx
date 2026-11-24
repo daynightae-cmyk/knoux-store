@@ -1,26 +1,22 @@
 'use client';
 
-import { useEffect, useRef, useState, type PointerEvent } from 'react';
+import { useRef, type PointerEvent } from 'react';
 import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
-import { ComposerDocument, DEFAULT_BLOCKS, readComposerBlocks, saveComposerBlocks, STARTING_LAYOUT, type Block } from './journeys/ComposerDocument';
+import { ComposerDocument, STARTING_LAYOUT, type Block } from './journeys/ComposerDocument';
 import s from './WordPressStudio.module.css';
 
-export function WordPressPreviewOrbit({ onCustomize, onSwitch, primary, t }: Readonly<{
+export function WordPressPreviewOrbit({ draft, onDraftChange, onCustomize, onSwitch, primary, t }: Readonly<{
+  draft: Block[];
+  onDraftChange: (blocks: Block[]) => void;
   onCustomize: () => void;
   onSwitch: (preview: 'draft' | 'starter') => void;
   primary: 'draft' | 'starter';
   t: (english: string, arabic?: string) => string;
 }>) {
-  const [draft, setDraft] = useState<Block[]>(DEFAULT_BLOCKS);
   const inspector = useRef<HTMLDialogElement>(null);
   const switchButton = useRef<HTMLButtonElement>(null);
   const gesture = useRef<{ id: number; x: number; y: number } | null>(null);
   const swipeHandled = useRef(false);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setDraft(readComposerBlocks()), 0);
-    return () => window.clearTimeout(timer);
-  }, []);
 
   const previews = [
     { id: 'draft', label: t('Layout draft', 'مسودة التخطيط'), blocks: draft },
@@ -47,8 +43,7 @@ export function WordPressPreviewOrbit({ onCustomize, onSwitch, primary, t }: Rea
   function updateAlignment(value: Block['align']) {
     if (!draftHero) return;
     const next = draft.map((block) => block.key === draftHero.key ? { ...block, align: value } : block);
-    setDraft(next);
-    saveComposerBlocks(next);
+    onDraftChange(next);
     cueAtmosphere('settle');
   }
 

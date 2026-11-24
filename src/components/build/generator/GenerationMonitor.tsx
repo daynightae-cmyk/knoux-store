@@ -178,8 +178,6 @@ export function GenerationMonitor({
           </li>
         ))}
       </ol>
-      <GenerationLifecycleRail state={state} session={session} heading="h3" />
-
       {error ? <p className={styles.monitorError} role="alert">{error} <Link href="/build/providers">Inspect providers</Link></p> : null}
       <div className={styles.output}>
         <div className={styles.outputHeader}>

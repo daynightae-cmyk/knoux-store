@@ -11,6 +11,17 @@
 .theatre button[aria-selected=true], .theatre button[aria-pressed=true] { color: #e1d3ff; background: #25232d; border-bottom-color: #cbb9ee; }
 .theatre :focus-visible { outline: 2px solid #d9c4ff; outline-offset: 3px; }
 .body { display: grid; grid-template-columns: 165px minmax(0, 1fr) 270px; }
+[data-campaign-theatre] .theatre { container-type: inline-size; margin: 0; border: 0; }
+[data-campaign-theatre] .body { grid-template-columns: minmax(0, 1fr); }
+[data-campaign-theatre] .studioNav { display: flex; flex-wrap: wrap; gap: 4px; border-inline-end: 0; }
+[data-campaign-theatre] .studioNav > button { width: auto; }
+[data-campaign-theatre] .library { width: 100%; }
+[data-campaign-theatre] .inspector { display: grid; grid-template-columns: minmax(0, 1fr); border-inline-start: 0; }
+@container (max-width: 500px) {
+  [data-campaign-theatre] .toolbar { padding: 14px; flex-wrap: wrap; }
+  [data-campaign-theatre] .canvas { min-height: 360px; padding: 18px 10px; }
+  [data-campaign-theatre] .comparison { grid-template-columns: minmax(0, 1fr); }
+}
 .studioNav { border-inline-end: 1px solid #35363e; padding: 12px 8px; min-width: 0; }
 .studioNav > button { width: 100%; display: flex; align-items: center; gap: 12px; text-align: start; }
 .library { margin-top: 24px; border-top: 1px solid #35363e; padding-top: 16px; }

@@ -19,6 +19,7 @@ import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
 import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
 import { DomainProvenance } from '../DomainProvenance';
+import { readRegistrationReview, STATE_TONE, type RegistrationReview } from '../DomainFinder';
 import s from './journeys.module.css';
 
 type Phase =
@@ -28,16 +29,6 @@ type Phase =
   | { kind: 'error' }
   | { kind: 'invalid'; message: string }
   | { kind: 'results'; results: DomainAvailability[]; provider: string | null; elapsedMs: number };
-
-const STATE_TONE: Record<DomainAvailability['state'], { en: string; ar: string; tone: 'ok' | 'signal' | 'off' | 'warn' }> = {
-  available: { en: 'Available', ar: 'متاح', tone: 'ok' },
-  premium: { en: 'Premium', ar: 'مميز', tone: 'signal' },
-  unavailable: { en: 'Unavailable', ar: 'غير متاح', tone: 'off' },
-  unsupported: { en: 'Unsupported TLD', ar: 'امتداد غير مدعوم', tone: 'off' },
-  unknown: { en: 'Not determined', ar: 'لم يتحدد', tone: 'off' },
-  unconfigured: { en: 'Provider not configured', ar: 'المزود غير مضبوط', tone: 'off' },
-  error: { en: 'Check failed', ar: 'فشل الفحص', tone: 'warn' },
-};
 
 /** Facts computed from the typed label — arithmetic, not a registrar verdict. */
 function nameFacts(domain: string): { label: string; value: string }[] {
@@ -58,7 +49,7 @@ export function DomainIntelligence() {
   const [tlds, setTlds] = useState<string[]>(['com']);
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
   const [selected, setSelected] = useState<string | null>(null);
-  const [review, setReview] = useState<{ state: string; message: string; externalReference: string | null } | null>(null);
+  const [review, setReview] = useState<RegistrationReview | null>(null);
   const [reviewBusy, setReviewBusy] = useState(false);
   const searchRef = useRef<AbortController | null>(null);
   const reviewRef = useRef<AbortController | null>(null);
@@ -147,13 +138,9 @@ export function DomainIntelligence() {
     reviewRef.current = controller;
     setReviewBusy(true);
     try {
-      const response = await fetch('/api/domain/registration', {
-        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ domain }),
-        signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]),
-      });
-      const value = await response.json();
+      const value = await readRegistrationReview(domain, AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]));
       if (controller.signal.aborted || reviewRef.current !== controller) return;
-      setReview(value.state ? value : { state: 'REGISTRATION_REQUIRES_OPERATOR', message: 'Registration capability could not be verified.', externalReference: null });
+      setReview(value);
     } catch {
       if (controller.signal.aborted || reviewRef.current !== controller) return;
       setReview({ state: 'REGISTRATION_REQUIRES_OPERATOR', message: 'Registration capability could not be verified. No purchase was requested.', externalReference: null });
@@ -324,6 +311,8 @@ export function DomainIntelligence() {
                 <p className={s.domainNotice} role="status">
                   <span className={s.noticeLabel}>{review.state}</span>
                   {review.message} {t('Receipt:', 'الإيصال:')} {review.externalReference ?? t('None', 'لا يوجد')}
+                  {review.dns && <span> · DNS {review.dns}</span>}
+                  {review.siteConnection && <span> · {t('Site connection')} {review.siteConnection}</span>}
                 </p>
               ) : null}
             </>

@@ -3,6 +3,7 @@ import { SignalRail } from '@/components/DivisionShell';
 import { DivisionBridge, NextLink, SystemIndex, IndexRow, BlockHead } from '@/components/blocks';
 import { ExternalMarketplace, readMarketplaceQuery } from '@/components/wordpress/ExternalMarketplace';
 import { WordPressCosmicMark } from '@/components/wordpress/WordPressCosmicMark';
+import { ProcessArchitecture } from '@/components/ProcessArchitecture';
 import { StudioLayoutLibrary } from '@/components/wordpress/StudioLayoutLibrary';
 import { FirstPartyRail } from '@/components/wordpress/FirstPartyRail';
 import {
@@ -127,6 +128,7 @@ export async function WordPressCategoryPage({
         <>
           <BundleSurface />
           <WordPressGoalIndex />
+          <div className="shell"><ProcessArchitecture kind="wordpress" /></div>
         </>
       )}
 

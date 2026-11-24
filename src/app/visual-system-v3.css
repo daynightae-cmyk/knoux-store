@@ -88,6 +88,7 @@ button:disabled{cursor:not-allowed}
 /* Transparent light, above opaque page backdrops and below navigation/dialogs.
    Tiny low-luminance points never intercept input or introduce a framed surface. */
 .store-starfield{position:fixed;inset:0;width:100%;height:100%;z-index:20;pointer-events:none;mix-blend-mode:screen;contain:strict}
+body:has(.dev-cosmic-field) > .store-starfield[data-starfield-phase='ambient'] { display: none; }
 
 /* ── Home refinements (visual-singularity pass) ───────────────────────────── */
 

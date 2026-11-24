@@ -30,7 +30,7 @@ export default async function WordPressPage() {
       <WordPressExperience
         themes={themes.items}
         plugins={plugins.items}
-        directoryOnline={themes.state === 'ok'}
+        directoryState={themes.state}
       />
     </main>
   );

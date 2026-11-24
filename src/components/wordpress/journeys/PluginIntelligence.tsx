@@ -22,11 +22,17 @@ function formatInstalls(value: number) {
   return String(value);
 }
 
-export function PluginIntelligence({ plugins, directory = false }: Readonly<{ plugins: Readonly<ExternalItem[]>; directory?: boolean }>) {
+export function PluginIntelligence({ plugins, directory = false, selectedSlug, onSelect }: Readonly<{
+  plugins: Readonly<ExternalItem[]>;
+  directory?: boolean;
+  selectedSlug?: string;
+  onSelect?: (slug: string) => void;
+}>) {
   const language = useSiteLanguage();
   const t = (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
   const [query, setQuery] = useState('');
-  const [slug, setSlug] = useState<string>(plugins[0]?.slug ?? '');
+  const [internalSlug, setInternalSlug] = useState<string>(plugins[0]?.slug ?? '');
+  const slug = selectedSlug ?? internalSlug;
   // Selection tray: a real curated set (this session only), inspired by the
   // reference's tray — no installs happen here, the set composes one request.
   const [tray, setTray] = useState<string[]>([]);
@@ -52,7 +58,8 @@ export function PluginIntelligence({ plugins, directory = false }: Readonly<{ pl
 
   function selectPlugin(target: string) {
     if (plugin?.slug !== target) cueAtmosphere('confirm');
-    setSlug(target);
+    setInternalSlug(target);
+    onSelect?.(target);
     if (directory && matchMedia('(max-width: 980px)').matches) {
       window.requestAnimationFrame(() => {
         detailPanel.current?.scrollIntoView({ block: 'start' });

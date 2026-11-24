@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useStarfieldVisual } from './StoreStarfieldProvider';
 import type { StoreStarfieldPhase } from '@/lib/build/generator-state';
+import { paintPlanet } from '@/components/cosmic/planet';
 
 /** One continuous night sky across routes; independent, slow stellar scintillation. */
 export function StoreStarfield({ phase }: { phase?: StoreStarfieldPhase } = {}) {
@@ -49,6 +50,15 @@ export function StoreStarfield({ phase }: { phase?: StoreStarfieldPhase } = {}) 
     const draw = () => {
       context.clearRect(0, 0, width, height);
       const semantic = current.current;
+      if (semantic.phase === 'ambient') {
+        const radius = Math.min(28, width * .035);
+        const drift = motion.matches ? 0 : Math.sin(elapsed * .075) * 4;
+        context.save();
+        context.globalAlpha = .32;
+        paintPlanet(context, width - radius * .65, height * .23 + drift, radius, [110, 116, 238], .82, true);
+        if (width >= 700) paintPlanet(context, radius * .34, height * .76 - drift, radius * .66, [195, 76, 186], .72, false);
+        context.restore();
+      }
       const positions = new Map<string, { x: number; y: number }>();
       for (let index = 0; index < count; index++) {
         const star = stars[index];
@@ -72,7 +82,7 @@ export function StoreStarfield({ phase }: { phase?: StoreStarfieldPhase } = {}) 
             y += (height / 2 - y) * 0.08;
           } else if (semantic.phase === 'routing' && index < 4) positions.set(String(index), { x, y });
         }
-        const colour = star.warm ? '244, 228, 205' : '218, 224, 246';
+        const colour = star.warm ? '251, 204, 226' : star.depth > .7 ? '190, 224, 255' : '222, 210, 252';
         if (star.radius > 1) {
           const halo = context.createRadialGradient(x, y, 0, x, y, star.radius * 4);
           halo.addColorStop(0, `rgba(${colour}, ${alpha * 0.28})`);

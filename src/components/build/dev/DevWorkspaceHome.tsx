@@ -297,8 +297,9 @@ export function DevWorkspaceHome() {
   const planning = ['RESOLVING', 'ROUTING', 'GENERATING'].includes(stage);
   const [showSplitView, setShowSplitView] = useState(false);
   const [expandedPreview, setExpandedPreview] = useState(false);
-  const [previewWidth, setPreviewWidth] = useState(44);
+  const [previewWidth, setPreviewWidth] = useState(45);
   const [compactPanel, setCompactPanel] = useState<'preview' | 'generation'>('preview');
+  const [workspaceTool, setWorkspaceTool] = useState<'generation' | 'source'>('generation');
 
   const modelPicker = (
     <ComposerModelPicker
@@ -419,7 +420,7 @@ export function DevWorkspaceHome() {
       </div> : view === 'preview' ? (
         <div className={previewStyles.workspace} data-reduced={state.preferences.motion === 'reduced' ? '' : undefined}>
           <header className={previewStyles.workspaceHeading}>
-            <div><span>BUILD / GENERATION</span><h1>Project preview</h1><p>Inspect the runtime while you plan and review changes.</p></div>
+            <div><span>KNOuX BUILD</span><h1>Project preview</h1></div>
             <div className={previewStyles.desktopControls}>
               {!expandedPreview && <label className={previewStyles.resizeControl}>
                 <span>Preview width <output>{previewWidth}%</output></span>
@@ -432,12 +433,22 @@ export function DevWorkspaceHome() {
           </header>
           <div className={previewStyles.compactControls} role="group" aria-label="Compact workspace panel">
             <button type="button" className="bo-chip" aria-pressed={compactPanel === 'preview'} onClick={() => setCompactPanel('preview')}>Preview</button>
-            <button type="button" className="bo-chip" aria-pressed={compactPanel === 'generation'} onClick={() => setCompactPanel('generation')}>Generation</button>
+            <button type="button" className="bo-chip" aria-pressed={compactPanel === 'generation'} onClick={() => setCompactPanel('generation')}>Workbench</button>
           </div>
           <div className={previewStyles.layout} data-expanded={expandedPreview} data-compact-panel={compactPanel} style={{ '--preview-share': `${previewWidth}fr`, '--generation-share': `${100 - previewWidth}fr` } as CSSProperties}>
             <section className={previewStyles.preview} aria-label="Preview workspace"><Preview cinematic workspace /></section>
-            <GenerationMonitor modelPicker={modelPicker} draft={draft} onDraft={setDraftOverride} onCompile={(event) => void compile(event)} planning={planning} engineering={engineering} onCancel={cancelPlanning} onReview={reviewFromPreview} onFollowUp={(event, text, previousPlan) => void compile(event, { text, previousPlan })} />
+            <div className={previewStyles.workbench}>
+              <div className={previewStyles.workbenchControls} role="group" aria-label="Workbench panel">
+                <button type="button" className="bo-chip" aria-pressed={workspaceTool === 'generation'} onClick={() => setWorkspaceTool('generation')}>Generation</button>
+                <button type="button" className="bo-chip" aria-pressed={workspaceTool === 'source'} onClick={() => setWorkspaceTool('source')}>Source files</button>
+              </div>
+              <div hidden={workspaceTool !== 'generation'}>
+                <GenerationMonitor modelPicker={modelPicker} draft={draft} onDraft={setDraftOverride} onCompile={(event) => void compile(event)} planning={planning} engineering={engineering} onCancel={cancelPlanning} onReview={reviewFromPreview} onFollowUp={(event, text, previousPlan) => void compile(event, { text, previousPlan })} />
+              </div>
+              {workspaceTool === 'source' ? <Code /> : null}
+            </div>
           </div>
+          <GenerationLifecycleRail state={state} session={engineering} />
         </div>
       ) : view === 'code' ? <div className={previewStyles.workspace}><header className={previewStyles.workspaceHeading}><div><span>BUILD / CHECKOUT</span><h1>Code Constellation</h1><p>Inspect the real source and file metadata for this checkout.</p></div></header><Code /></div>
         : <div className="dev-stage-surface"><h1 className="dev-surface-title">Product constellation</h1><Registry /></div>}

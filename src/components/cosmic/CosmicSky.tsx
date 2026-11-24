@@ -20,12 +20,13 @@
  *     attributes so tests measure the real renderer, not a claim.
  */
 import { useEffect, useRef } from 'react';
+import { mixColor, paintPlanet, rgba } from './planet';
 import {
   ACTIVATION_DURATION_MS, activationPhase, cueAtmosphere, lightningBranches, listenAtmosphere,
   seededRandom, type ActivationPhase, type AtmosphereCue, type LightningPoint,
 } from '@/components/build/dev/living-atmosphere';
 
-type Star = { x: number; y: number; depth: number; phase: number; cadence: number };
+type Star = { x: number; y: number; depth: number; phase: number; cadence: number; spectrum: number };
 type Planet = { x: number; y: number; depth: number; radius: number; tone: [number, number, number]; ring: boolean; drift: number; phase: number };
 type Pulse = { at: number; kind: 'success' | 'error' | 'confirm'; x: number; y: number };
 type PhaseTone = { sky: [number, number, number]; nebula: [number, number, number]; star: [number, number, number]; glow: number };
@@ -41,7 +42,7 @@ export function dayFraction(date = new Date()): number {
   return (date.getHours() + date.getMinutes() / 60) / 24;
 }
 
-const NIGHT: PhaseTone = { sky: [7, 5, 14], nebula: [138, 77, 210], star: [223, 203, 255], glow: 1 };
+const NIGHT: PhaseTone = { sky: [7, 5, 14], nebula: [138, 62, 236], star: [233, 215, 255], glow: 1 };
 const DAWN: PhaseTone = { sky: [12, 12, 26], nebula: [116, 96, 220], star: [206, 214, 255], glow: .78 };
 const DAY: PhaseTone = { sky: [15, 18, 36], nebula: [92, 116, 214], star: [198, 216, 255], glow: .55 };
 const DUSK: PhaseTone = { sky: [16, 8, 24], nebula: [186, 84, 190], star: [236, 208, 244], glow: .85 };
@@ -74,24 +75,20 @@ export function dayLabel(fraction: number): 'night' | 'dawn' | 'day' | 'dusk' {
   return 'night';
 }
 
-function rgba(tone: [number, number, number], alpha: number) {
-  return `rgba(${Math.round(tone[0])},${Math.round(tone[1])},${Math.round(tone[2])},${alpha})`;
-}
-
 function nebula(ctx: CanvasRenderingContext2D, sky: Sky, energy: number) {
   const { width, height, time, phase } = sky;
-  // Two banks drifting out of phase; the second keeps the left horizon alive.
-  const banks: [number, number, number][] = [
-    [width * (.77 + Math.sin(time * .09) * .055), height * (.32 + Math.cos(time * .077) * .075), Math.min(width * .47, 530)],
-    [width * (.16 + Math.cos(time * .062) * .045), height * (.68 + Math.sin(time * .084) * .06), Math.min(width * .34, 380)],
+  const banks = [
+    { x: width * (.82 + Math.sin(time * .09) * .055), y: height * (.23 + Math.cos(time * .077) * .075), radius: Math.min(width * .47, 550), tone: phase.nebula, density: .21 },
+    { x: width * (.14 + Math.cos(time * .062) * .045), y: height * (.75 + Math.sin(time * .084) * .06), radius: Math.min(width * .34, 420), tone: mixColor(phase.nebula, [238, 66, 168], .55), density: .17 },
+    { x: width * (.63 + Math.cos(time * .051) * .04), y: height * (.91 + Math.sin(time * .065) * .055), radius: Math.min(width * .38, 430), tone: mixColor(phase.nebula, [38, 195, 250], .7), density: .14 },
   ];
-  for (const [x, y, radius] of banks) {
+  for (const { x, y, radius, tone, density } of banks) {
     const haze = ctx.createRadialGradient(x, y, 0, x, y, Math.max(1, radius));
-    haze.addColorStop(0, rgba(phase.nebula, (.07 + energy * .075 + Math.sin(time * .19) * .025) * phase.glow));
-    haze.addColorStop(.48, rgba(phase.nebula, .08 * phase.glow));
-    haze.addColorStop(1, rgba(phase.nebula, 0));
+    haze.addColorStop(0, rgba(tone, (density + energy * .08) * phase.glow));
+    haze.addColorStop(.36, rgba(tone, density * .54 * phase.glow));
+    haze.addColorStop(1, rgba(tone, 0));
     ctx.fillStyle = haze;
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
   }
 }
 
@@ -102,12 +99,21 @@ function starPosition(star: Star, sky: Sky, still: boolean): LightningPoint {
 
 function starfield(ctx: CanvasRenderingContext2D, sky: Sky, stars: Star[], energy: number, still: boolean) {
   const count = sky.width < 700 ? 48 : stars.length;
+  const blue = mixColor(sky.phase.star, [145, 229, 255], .55);
+  const rose = mixColor(sky.phase.star, [255, 168, 206], .48);
   for (let index = 0; index < count; index++) {
     const star = stars[index];
     const [x, y] = starPosition(star, sky, still);
     const twinkle = (.52 + Math.sin(sky.time * star.cadence + star.phase) * .25 + Math.sin(sky.time * 1.63 + star.phase * 2) * .13) * star.depth * sky.phase.glow;
-    const size = star.depth > .8 ? 1.7 : 1;
-    ctx.fillStyle = rgba(sky.phase.star, Math.min(.93, twinkle + energy * .28));
+    const size = .65 + star.depth * 1.28;
+    const tone = star.spectrum > .72 ? blue : star.spectrum < .23 ? rose : sky.phase.star;
+    if (star.depth > .86) {
+      const shine = Math.min(.9, twinkle + energy * .3);
+      ctx.fillStyle = rgba(tone, shine * .18);
+      ctx.fillRect(x - size * 1.1, y + size * .37, size * 3.2, size * .26);
+      ctx.fillRect(x + size * .37, y - size * 1.1, size * .26, size * 3.2);
+    }
+    ctx.fillStyle = rgba(tone, Math.min(.97, twinkle + energy * .28));
     ctx.fillRect(x, y, size, size);
     const other = stars[index + 1];
     if (index % 5 !== 0 || !other || Math.hypot(other.x - star.x, other.y - star.y) >= .22) continue;
@@ -118,8 +124,6 @@ function starfield(ctx: CanvasRenderingContext2D, sky: Sky, stars: Star[], energ
 }
 
 function planets(ctx: CanvasRenderingContext2D, sky: Sky, planets: Planet[], still: boolean) {
-  // Small drifting worlds: a lit sphere, a night-side falloff and — for one —
-  // a thin ring. Three gradient fills per frame; cheap enough for phones.
   const count = sky.width < 700 ? 2 : planets.length;
   for (let index = 0; index < count; index++) {
     const planet = planets[index];
@@ -128,24 +132,7 @@ function planets(ctx: CanvasRenderingContext2D, sky: Sky, planets: Planet[], sti
     const x = ((planet.x + drift * .001) % 1.1) * sky.width - sky.width * .05 + (still ? 0 : sky.offsetX * planet.depth * 1.6);
     const y = planet.y * sky.height + bob + (still ? 0 : sky.offsetY * planet.depth * 1.6);
     const radius = planet.radius * Math.min(1, sky.width / 1100 + .45);
-    const [r, g, b] = planet.tone;
-    const body = ctx.createRadialGradient(x - radius * .4, y - radius * .45, radius * .1, x, y, radius);
-    body.addColorStop(0, `rgba(${r + 70},${g + 60},${b + 40},.85)`);
-    body.addColorStop(.55, `rgba(${r},${g},${b},.6)`);
-    body.addColorStop(1, `rgba(${Math.max(0, r - 60)},${Math.max(0, g - 60)},${Math.max(0, b - 40)},.28)`);
-    ctx.fillStyle = body;
-    ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.fill();
-    const glow = ctx.createRadialGradient(x, y, radius * .8, x, y, radius * 2.4);
-    glow.addColorStop(0, `rgba(${r},${g},${b},.12)`);
-    glow.addColorStop(1, `rgba(${r},${g},${b},0)`);
-    ctx.fillStyle = glow;
-    ctx.beginPath(); ctx.arc(x, y, radius * 2.4, 0, Math.PI * 2); ctx.fill();
-    if (planet.ring) {
-      ctx.save(); ctx.translate(x, y); ctx.rotate(-.35);
-      ctx.strokeStyle = `rgba(${r + 40},${g + 30},${b + 60},.34)`; ctx.lineWidth = 1.1;
-      ctx.beginPath(); ctx.ellipse(0, 0, radius * 1.9, radius * .55, 0, 0, Math.PI * 2); ctx.stroke();
-      ctx.restore();
-    }
+    paintPlanet(ctx, x, y, radius, planet.tone, sky.phase.glow, planet.ring);
   }
 }
 
@@ -244,16 +231,17 @@ export function CosmicSky({ reduced = false, className }: Readonly<{ reduced?: b
     const surface = canvas.current, stage = surface?.parentElement, ctx = surface?.getContext('2d');
     if (!surface || !stage || !ctx) return;
     const motion = matchMedia('(prefers-reduced-motion: reduce)'), random = seededRandom();
-    const stars = Array.from({ length: 120 }, () => ({ x: random(), y: random(), depth: .2 + random() * .8, phase: random() * Math.PI * 2, cadence: .34 + random() * .48 }));
+    const stars = Array.from({ length: 120 }, () => ({ x: random(), y: random(), depth: .2 + random() * .8, phase: random() * Math.PI * 2, cadence: .35 + random() * 1.05, spectrum: random() }));
     const worlds: Planet[] = [
-      { x: .13, y: .18, depth: .85, radius: 9, tone: [150, 96, 220], ring: true, drift: .55, phase: random() * 6 },
-      { x: .86, y: .12, depth: .6, radius: 6, tone: [96, 120, 220], ring: false, drift: .8, phase: random() * 6 },
-      { x: .68, y: .52, depth: .4, radius: 4.5, tone: [190, 120, 180], ring: false, drift: 1.1, phase: random() * 6 },
+      { x: .12, y: .26, depth: .85, radius: 21, tone: [157, 86, 235], ring: true, drift: .44, phase: random() * 6 },
+      { x: .96, y: .13, depth: .6, radius: 32, tone: [89, 128, 244], ring: false, drift: .53, phase: random() * 6 },
+      { x: .74, y: .64, depth: .4, radius: 8, tone: [224, 91, 162], ring: false, drift: .74, phase: random() * 6 },
     ];
     const sky: Sky = { width: 0, height: 0, time: 0, storm: -100, nextStorm: 12 + random() * 8,
       pendingWake: false, cloudX: .83, cloudY: .22, branches: [], trail: -100, nextTrail: 6 + random() * 5,
       trailX: .7, trailY: .13, offsetX: 0, offsetY: 0, pulses: [], phase: NIGHT, phaseAt: 0 };
     let frame = 0, previous = 0, pointerX = 0, pointerY = 0, decay: number | undefined;
+    let pulseOrigin: LightningPoint | null = null;
     let wakeStarted = -Infinity, paints = 0, paintTotal = 0;
     let accumulatedVisibleMs = 0, visibleSince: number | null = null;
     let bounds = stage.getBoundingClientRect();
@@ -327,17 +315,25 @@ export function CosmicSky({ reduced = false, className }: Readonly<{ reduced?: b
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0); updatePhase(); refresh();
     }
     function follow(event: PointerEvent) {
-      if (event.pointerType !== 'mouse') return;
-      pointerX = ((event.clientX - bounds.left) / Math.max(1, sky.width) - .5) * 14;
-      pointerY = ((event.clientY - bounds.top) / Math.max(1, sky.height) - .5) * 10;
+      if (event.pointerType !== 'mouse' || reduced || motion.matches) return;
+      const x = (event.clientX - bounds.left) / Math.max(1, sky.width);
+      const y = (event.clientY - bounds.top) / Math.max(1, sky.height);
+      if (x < 0 || x > 1 || y < 0 || y > 1) {
+        settle();
+        return;
+      }
+      pulseOrigin = [x, y];
+      pointerX = (x - .5) * 14;
+      pointerY = (y - .5) * 10;
     }
-    const settle = () => { pointerX = 0; pointerY = 0; };
+    const settle = () => { pointerX = 0; pointerY = 0; pulseOrigin = null; };
     const unsubscribe = listenAtmosphere((cue) => {
       if (reduced || motion.matches || document.hidden) return;
       const pulseKind = PULSE_CUES[cue];
       if (pulseKind) {
         // Bounded queue: a burst of results never stacks more than four rings.
-        sky.pulses.push({ at: sky.time, kind: pulseKind, x: .3 + random() * .4, y: .2 + random() * .3 });
+        const [x, y] = pulseOrigin ?? [.5, .42];
+        sky.pulses.push({ at: sky.time, kind: pulseKind, x: Math.min(.93, Math.max(.07, x)), y: Math.min(.9, Math.max(.1, y)) });
         if (sky.pulses.length > 4) sky.pulses.shift();
       }
       if (cue !== 'wake') return;
@@ -349,14 +345,16 @@ export function CosmicSky({ reduced = false, className }: Readonly<{ reduced?: b
     const clock = window.setInterval(() => { updatePhase(); if (reduced || motion.matches) refresh(); }, 60_000);
     const observer = new ResizeObserver(resize); observer.observe(stage);
     motion.addEventListener('change', refresh); document.addEventListener('visibilitychange', refresh);
-    stage.addEventListener('pointermove', follow, { passive: true }); stage.addEventListener('pointerleave', settle); resize();
+    window.addEventListener('pointermove', follow, { passive: true });
+    document.documentElement.addEventListener('pointerleave', settle);
+    resize();
     return () => {
       cancelAnimationFrame(frame); clearActivation(); unsubscribe(); observer.disconnect(); window.clearInterval(clock);
       motion.removeEventListener('change', refresh); document.removeEventListener('visibilitychange', refresh);
-      stage.removeEventListener('pointermove', follow); stage.removeEventListener('pointerleave', settle);
+      window.removeEventListener('pointermove', follow);
+      document.documentElement.removeEventListener('pointerleave', settle);
     };
   }, [reduced]);
-  // Nine visual layers share one bounded canvas: sky tone, two nebula banks,
-  // two star depths, links, drifting planets, trails, bolts, pulses and energy.
+  // Nebulae, stars, planets and interaction pulses share one bounded canvas.
   return <canvas ref={canvas} className={className ?? 'dev-cosmic-field'} aria-hidden="true" />;
 }

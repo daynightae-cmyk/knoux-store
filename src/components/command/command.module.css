@@ -1327,3 +1327,26 @@
 @media(max-width:1080px){.commandRail{display:none}.commandNavigationToggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:54px;padding:16px 20px;background:#16141a;color:var(--cc-ink);border:0}}
 
 .navigationDialog { padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); overscroll-behavior: contain; }
+
+.campaignDeck {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  margin: 16px clamp(12px, 2vw, 24px);
+}
+.campaignDeck > div {
+  min-width: 0;
+  border: 1px solid #c094ec63;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #201231c9, #100b1c);
+}
+.campaignTheatre { box-shadow: inset 0 1px #ecbdff42, 0 0 25px #a048ee38; }
+.campaignRegistry button[aria-pressed='true'] { color: #f2c6ff; text-decoration: underline; }
+@media (max-width: 1250px) {
+  .campaignDeck { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); }
+  .campaignApproval { grid-column: 1 / -1; }
+}
+@media (max-width: 760px) {
+  .campaignDeck { grid-template-columns: minmax(0, 1fr); }
+}

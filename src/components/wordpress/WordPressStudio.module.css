@@ -3,6 +3,7 @@
   min-height: 100svh;
   margin-inline: auto;
   padding: clamp(14px, 2.5vw, 40px);
+  overflow-x: clip;
   color: #eeeaf2;
 }
 .header, .toolbar, .orbitActions, .contextPanel > header {
@@ -213,4 +214,874 @@
 @media (prefers-reduced-motion: reduce) {
   .contextPanel[open], .orbitTrack::after, .orbitCard[data-orbit-active] { animation: none; }
   .orbitCard[data-orbit-active=false] { transform: translate3d(var(--orbit-peek-x), -6%, -160px) rotateY(-19deg) scale(.76); }
+}
+
+/* ==========================================================================
+   WORDPRESS ORBITAL COCKPIT
+   Themes (left), one live focal preview (center), plugins (right). The panels
+   are real React surfaces around the existing DeviceFrame; no screenshot is
+   used as application UI and no second preview engine is introduced.
+   ========================================================================== */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.studio[data-preview-home='true'] {
+  padding-block: 10px 24px;
+}
+.studio[data-preview-home='true'] .header { min-height: 40px; }
+.studio[data-preview-home='true'] .wordmark {
+  margin-top: 2px;
+  font-size: clamp(11px, 1.2vw, 14px);
+}
+.studio[data-preview-home='true'] .wordmark span {
+  padding-block: .12em;
+  font-size: .62em;
+}
+.studio[data-preview-home='true'] .studioTitle {
+  margin: 2px 0 5px;
+  font-size: clamp(30px, 3.25vw, 48px);
+  line-height: 1;
+}
+.studio[data-preview-home='true'] .toolbar { margin-top: 8px; }
+.studio[data-preview-home='true'] .toolbar > button {
+  min-height: 38px;
+  padding: 6px 14px;
+  font-size: 12px;
+}
+.studio[data-preview-home='true'] .section { position: relative; }
+
+.cockpit {
+  --cockpit-violet: #a855f7;
+  --cockpit-magenta: #e879f9;
+  --cockpit-cyan: #22d3ee;
+  --cockpit-orbit-rgb: 212, 113, 255;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(205px, .74fr) minmax(470px, 2.25fr) minmax(205px, .74fr);
+  gap: clamp(12px, 1.4vw, 22px);
+  width: 100%;
+  height: clamp(590px, calc(100dvh - 208px), 760px);
+  min-height: 590px;
+  margin-top: 14px;
+  padding: 14px 12px 54px;
+  perspective: 1600px;
+}
+.cockpit[data-preview-kind='plugin'] { --cockpit-orbit-rgb: 61, 227, 252; }
+.cockpit[data-preview-kind='site'] { --cockpit-orbit-rgb: 148, 156, 255; }
+.cockpit::before {
+  position: absolute;
+  z-index: -2;
+  inset: 4% -5% -3%;
+  border: 1px solid rgba(var(--cockpit-orbit-rgb), .48);
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 50% 76%, rgba(91, 33, 182, .2), transparent 55%),
+    radial-gradient(ellipse at 50% 68%, rgba(34, 211, 238, .08), transparent 58%);
+  box-shadow: 0 0 22px rgba(168, 85, 247, .29), inset 0 0 30px rgba(168, 85, 247, .16);
+  content: '';
+  pointer-events: none;
+}
+.cockpit::after {
+  position: absolute;
+  z-index: -3;
+  inset: -80px -80px -120px;
+  background:
+    radial-gradient(ellipse 35% 42% at 50% 55%, rgba(168, 85, 247, .13), transparent 72%),
+    radial-gradient(ellipse 30% 35% at 15% 60%, rgba(34, 211, 238, .07), transparent 72%);
+  content: '';
+  pointer-events: none;
+}
+.cockpitHorizon {
+  position: absolute;
+  z-index: -1;
+  inset: auto -4% -54px;
+  height: 155px;
+  border: 1px solid rgba(var(--cockpit-orbit-rgb), .76);
+  border-bottom: 0;
+  border-radius: 50% 50% 0 0 / 86% 86% 0 0;
+  background:
+    radial-gradient(ellipse 54% 50% at 50% 0%, rgba(var(--cockpit-orbit-rgb), .46), transparent 74%),
+    linear-gradient(180deg, rgba(12, 8, 29, .12), rgba(6, 4, 16, .78));
+  box-shadow: 0 -2px 14px rgba(196, 116, 255, .53), 0 -16px 50px rgba(124, 58, 237, .28), inset 0 12px 38px rgba(80, 152, 255, .16);
+  pointer-events: none;
+}
+.cockpitHorizon::before {
+  position: absolute;
+  inset: 17px -7% -22px;
+  border: 1px solid rgba(232, 121, 249, .34);
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(168, 85, 247, .28);
+  content: '';
+}
+.cockpitHorizon::after {
+  position: absolute;
+  top: 31px;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f5e8ff;
+  box-shadow: 0 0 15px 4px rgba(var(--cockpit-orbit-rgb), .9), 0 0 34px 10px rgba(34, 211, 238, .34);
+  offset-path: ellipse(47% 50% at 50% 50%);
+  animation: cockpitOrbit 14s linear infinite;
+  content: '';
+}
+
+.cockpitPanel {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(205, 157, 255, .38);
+  border-radius: clamp(19px, 2vw, 28px);
+  background:
+    linear-gradient(145deg, rgba(38, 19, 70, .78), rgba(11, 7, 25, .87) 62%, rgba(22, 9, 43, .82)),
+    radial-gradient(circle at 18% 0%, rgba(192, 132, 252, .18), transparent 46%);
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, .5),
+    0 0 36px rgba(124, 58, 237, .16),
+    inset 0 1px 0 rgba(255, 255, 255, .08),
+    inset 0 -22px 50px rgba(76, 29, 149, .09);
+  backdrop-filter: blur(18px) saturate(1.25);
+}
+.cockpitPanel::before {
+  position: absolute;
+  z-index: 3;
+  inset: 0 8% auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245, 225, 255, .82), transparent);
+  box-shadow: 0 0 13px rgba(216, 180, 254, .72);
+  content: '';
+  pointer-events: none;
+}
+.themesPanel {
+  transform: rotateY(9deg) translateZ(-38px);
+  transform-origin: right center;
+}
+.pluginsPanel {
+  transform: rotateY(-9deg) translateZ(-38px);
+  transform-origin: left center;
+}
+.previewPanel {
+  transform: translateZ(24px);
+  border-color: rgba(230, 169, 255, .68);
+  background:
+    linear-gradient(150deg, rgba(34, 15, 65, .86), rgba(8, 6, 22, .93) 58%, rgba(22, 8, 45, .88)),
+    radial-gradient(circle at 50% 0%, rgba(168, 85, 247, .2), transparent 48%);
+  box-shadow:
+    0 34px 90px rgba(0, 0, 0, .64),
+    0 0 18px rgba(168, 85, 247, .36),
+    0 0 100px rgba(34, 211, 238, .06),
+    inset 0 1px 0 rgba(255, 255, 255, .11);
+}
+.cockpit[data-preview-kind='plugin'] .previewPanel {
+  border-color: rgba(34, 211, 238, .52);
+  box-shadow:
+    0 34px 90px rgba(0, 0, 0, .64),
+    0 0 52px rgba(34, 211, 238, .18),
+    inset 0 1px 0 rgba(255, 255, 255, .11);
+}
+
+.cockpitPanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 70px;
+  padding: 13px 14px 11px;
+  border-bottom: 1px solid rgba(196, 158, 245, .16);
+  background: linear-gradient(180deg, rgba(78, 35, 126, .28), transparent);
+}
+.cockpitPanelHeader > div { min-width: 0; }
+.cockpitPanelHeader span {
+  display: block;
+  overflow: hidden;
+  color: #bda1e7;
+  font: 8.5px/1.3 var(--mono, monospace);
+  letter-spacing: .17em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cockpitPanelHeader h2 {
+  margin: 4px 0 0;
+  font-size: clamp(18px, 1.65vw, 23px);
+  line-height: 1;
+}
+.cockpitPanelHeader b {
+  flex: none;
+  min-width: 31px;
+  padding: 5px 7px;
+  border: 1px solid rgba(232, 121, 249, .34);
+  border-radius: 999px;
+  background: rgba(168, 85, 247, .12);
+  color: #f2dfff;
+  font: 10px/1 var(--mono, monospace);
+  text-align: center;
+}
+
+.selectorContent {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  gap: 10px;
+  padding: 11px 11px 8px;
+}
+.cockpitSearch {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  min-height: 40px;
+}
+.cockpitSearch svg {
+  position: absolute;
+  z-index: 1;
+  inset-inline-start: 12px;
+  top: 50%;
+  width: 17px;
+  height: 17px;
+  translate: 0 -50%;
+  color: #c4a6eb;
+  pointer-events: none;
+}
+.cockpitSearch input {
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  padding-inline-start: 37px;
+  border: 1px solid rgba(196, 158, 245, .25);
+  border-radius: 12px;
+  outline: 0;
+  background: rgba(8, 5, 19, .64);
+  color: #f7efff;
+  font-size: 12px;
+}
+.cockpitSearch input::placeholder { color: #8e7aa8; }
+.cockpitSearch:focus-within {
+  border-color: rgba(232, 121, 249, .75);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, .12), 0 0 22px rgba(168, 85, 247, .18);
+}
+
+.themeChoices, .pluginChoices {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  align-content: start;
+  gap: 8px;
+  margin: 0;
+  padding: 2px 5px 8px 1px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  scrollbar-color: rgba(196, 158, 245, .42) transparent;
+  scrollbar-width: thin;
+}
+.themeChoices button, .pluginChoices button {
+  width: 100%;
+  border: 1px solid rgba(196, 158, 245, .2);
+  border-radius: 14px;
+  outline: 0;
+  background: linear-gradient(145deg, rgba(44, 24, 75, .6), rgba(13, 8, 27, .76));
+  color: #f5edff;
+  cursor: pointer;
+  transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease, translate 180ms ease;
+}
+.themeChoices button {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 7px 9px;
+  padding: 7px;
+  text-align: start;
+}
+.pluginChoices button {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  min-height: 62px;
+  padding: 8px;
+  text-align: start;
+}
+.themeChoices button:hover, .pluginChoices button:hover {
+  border-color: rgba(232, 121, 249, .55);
+  background: linear-gradient(145deg, rgba(65, 31, 104, .75), rgba(18, 9, 36, .86));
+  box-shadow: 0 0 22px rgba(168, 85, 247, .14);
+  translate: 0 -1px;
+}
+.themeChoices button[aria-pressed='true'], .pluginChoices button[aria-pressed='true'] {
+  border-color: rgba(232, 121, 249, .88);
+  background:
+    linear-gradient(145deg, rgba(104, 40, 161, .76), rgba(29, 11, 53, .92)),
+    radial-gradient(circle at 80% 0%, rgba(34, 211, 238, .14), transparent 48%);
+  box-shadow: 0 0 0 1px rgba(232, 121, 249, .18), 0 0 25px rgba(168, 85, 247, .26);
+}
+.themeChoiceImage {
+  display: grid;
+  grid-column: 1 / -1;
+  height: 72px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(216, 180, 254, .17);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(168, 85, 247, .2), transparent 60%),
+    #0a0715;
+  color: #9b86b7;
+  font-size: 9px;
+}
+.themeChoiceImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+.pluginChoices button > img, .pluginFallback {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(216, 180, 254, .24);
+  border-radius: 11px;
+  background: linear-gradient(145deg, rgba(168, 85, 247, .24), rgba(34, 211, 238, .08));
+  color: #e9d5ff;
+  font-size: 18px;
+}
+.pluginChoices button > img { object-fit: cover; }
+.choiceCopy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+.choiceCopy strong, .choiceCopy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.choiceCopy strong { font-size: 11.5px; font-weight: 650; }
+.choiceCopy small { color: #a995c1; font-size: 9.5px; }
+.choiceArrow {
+  align-self: center;
+  color: #c084fc;
+  font-size: 14px;
+}
+.panelCatalogLink {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 42px;
+  margin: 0 11px 11px;
+  padding: 8px 11px;
+  border: 1px solid rgba(196, 158, 245, .2);
+  border-radius: 12px;
+  background: rgba(12, 7, 24, .58);
+  color: #d8c4f0;
+  font-size: 10.5px;
+  transition: border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+.panelCatalogLink:hover {
+  border-color: rgba(232, 121, 249, .58);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(168, 85, 247, .15);
+}
+.cockpitEmpty {
+  margin: 0;
+  padding: 18px 14px;
+  color: #c7b5dd;
+  font-size: 12px;
+  line-height: 1.65;
+  text-align: center;
+}
+
+.previewHeader {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 9px 11px;
+  border-bottom: 1px solid rgba(196, 158, 245, .16);
+  background: linear-gradient(180deg, rgba(69, 27, 114, .3), transparent);
+}
+.previewScope, .deviceSwitch {
+  display: flex;
+  flex: none;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid rgba(196, 158, 245, .22);
+  border-radius: 999px;
+  background: rgba(8, 5, 18, .62);
+}
+.previewScope button, .deviceSwitch button {
+  min-height: 31px;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #a995c1;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+.previewScope button[aria-pressed='true'] {
+  background: linear-gradient(135deg, #c026d3, #7e22ce);
+  color: white;
+  box-shadow: 0 0 18px rgba(192, 38, 211, .42);
+}
+.deviceSwitch { margin-inline-start: auto; }
+.deviceSwitch button {
+  width: 31px;
+  padding: 0;
+  color: #cbb9e3;
+  font-size: 15px;
+}
+.deviceSwitch button[aria-pressed='true'] {
+  background: rgba(34, 211, 238, .16);
+  color: #9ff5ff;
+  box-shadow: inset 0 0 0 1px rgba(34, 211, 238, .36);
+}
+
+.previewScroll {
+  flex: 1;
+  min-height: 0;
+  padding: 13px 15px 18px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: rgba(196, 158, 245, .38) transparent;
+  scrollbar-width: thin;
+}
+.previewSwap {
+  min-height: 100%;
+  animation: cockpitSwap 420ms cubic-bezier(.2, .78, .2, 1) both;
+}
+.previewIdentity {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  max-width: 650px;
+  margin: 0 auto 11px;
+}
+.previewIdentity > div { min-width: 0; }
+.previewIdentity span {
+  color: #bda1e7;
+  font: 8.5px/1.4 var(--mono, monospace);
+  letter-spacing: .16em;
+}
+.previewIdentity h2 {
+  margin: 3px 0 2px;
+  overflow-wrap: anywhere;
+  font-size: clamp(19px, 2.15vw, 30px);
+  line-height: 1.08;
+  text-shadow: 0 0 22px rgba(216, 180, 254, .24);
+}
+.previewIdentity p {
+  margin: 0;
+  color: #a995c1;
+  font-size: 11px;
+}
+.previewStatus {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 5px 8px;
+  border: 1px solid rgba(34, 211, 238, .25);
+  border-radius: 999px;
+  background: rgba(34, 211, 238, .08);
+  color: #b6f7ff !important;
+  font-size: 8px !important;
+  letter-spacing: .08em !important;
+}
+.previewStatus i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22d3ee;
+  box-shadow: 0 0 10px rgba(34, 211, 238, .9);
+}
+
+.previewVisual {
+  width: min(100%, 650px);
+  margin-inline: auto;
+  filter: drop-shadow(0 18px 25px rgba(0, 0, 0, .46));
+}
+.previewVisual > div { width: 100%; }
+.sitePreview { filter: drop-shadow(0 14px 30px rgba(91, 33, 182, .28)); }
+.previewDetails {
+  max-width: 650px;
+  margin: 12px auto 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(196, 158, 245, .18);
+  border-radius: 16px;
+  background: rgba(10, 6, 22, .54);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+.previewDetails > p {
+  margin: 0 0 10px;
+  color: #c9b8dd;
+  font-size: 11.5px;
+  line-height: 1.65;
+}
+.cockpitFacts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin: 0;
+}
+.cockpitFacts > div {
+  min-width: 0;
+  padding: 8px 9px;
+  border: 1px solid rgba(196, 158, 245, .13);
+  border-radius: 10px;
+  background: rgba(26, 14, 48, .45);
+}
+.cockpitFacts dt {
+  overflow: hidden;
+  color: #8f7da8;
+  font: 8px/1.4 var(--mono, monospace);
+  letter-spacing: .08em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.cockpitFacts dd {
+  margin: 3px 0 0;
+  overflow: hidden;
+  color: #eee6f7;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cockpitTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.cockpitTags li {
+  padding: 4px 8px;
+  border: 1px solid rgba(34, 211, 238, .2);
+  border-radius: 999px;
+  background: rgba(34, 211, 238, .07);
+  color: #bcecf3;
+  font-size: 9px;
+}
+.pluginPreviewHero {
+  display: flex;
+  align-items: center;
+  gap: 19px;
+  width: min(100%, 650px);
+  min-height: 218px;
+  margin-inline: auto;
+  padding: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(34, 211, 238, .28);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 16% 28%, rgba(34, 211, 238, .16), transparent 36%),
+    radial-gradient(circle at 88% 76%, rgba(168, 85, 247, .2), transparent 42%),
+    linear-gradient(145deg, rgba(24, 13, 52, .92), rgba(8, 7, 23, .96));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 0 42px rgba(34, 211, 238, .08);
+}
+.pluginPreviewIcon {
+  display: grid;
+  flex: none;
+  width: 92px;
+  height: 92px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(232, 121, 249, .42);
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(168, 85, 247, .3), rgba(34, 211, 238, .1));
+  box-shadow: 0 0 32px rgba(168, 85, 247, .24);
+  color: #f2dfff;
+  font-size: 34px;
+}
+.pluginPreviewIcon img { width: 100%; height: 100%; object-fit: cover; }
+.pluginPreviewHero > div:last-child { min-width: 0; }
+.pluginPreviewHero > div:last-child > span {
+  color: #9cebf4;
+  font: 8.5px/1.4 var(--mono, monospace);
+  letter-spacing: .16em;
+}
+.pluginPreviewHero strong {
+  display: block;
+  margin: 6px 0;
+  overflow-wrap: anywhere;
+  font-size: clamp(19px, 2.4vw, 31px);
+  line-height: 1.08;
+}
+.pluginPreviewHero small {
+  display: block;
+  color: #a995c1;
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+.draftChoice {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 12px;
+}
+.draftChoice button {
+  min-height: 38px;
+  padding: 7px 14px;
+  border: 1px solid rgba(196, 158, 245, .25);
+  border-radius: 999px;
+  background: rgba(20, 10, 39, .65);
+  color: #cbb9e3;
+  font-size: 10.5px;
+  cursor: pointer;
+}
+.draftChoice button[aria-pressed='true'] {
+  border-color: rgba(232, 121, 249, .65);
+  background: rgba(168, 85, 247, .2);
+  color: #fff;
+}
+
+.previewActions {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  min-height: 62px;
+  padding: 10px 12px;
+  flex-wrap: wrap;
+  border-top: 1px solid rgba(196, 158, 245, .16);
+  background: linear-gradient(0deg, rgba(25, 10, 48, .72), rgba(10, 6, 23, .5));
+}
+.previewActions button, .previewActions a {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 39px;
+  padding: 8px 13px;
+  border: 1px solid rgba(196, 158, 245, .3);
+  border-radius: 11px;
+  background: rgba(26, 13, 48, .7);
+  color: #e9dcf6;
+  font-size: 10.5px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 170ms ease, box-shadow 170ms ease, background 170ms ease, translate 170ms ease;
+}
+.previewActions button:hover, .previewActions a:hover {
+  border-color: rgba(232, 121, 249, .65);
+  background: rgba(74, 27, 119, .68);
+  box-shadow: 0 0 20px rgba(168, 85, 247, .16);
+  translate: 0 -1px;
+}
+.previewActions .primaryCockpitAction {
+  border-color: rgba(245, 208, 255, .75);
+  background: linear-gradient(135deg, #d946ef, #7e22ce);
+  color: #fff;
+  box-shadow: 0 0 23px rgba(192, 38, 211, .3);
+}
+.previewActions button:disabled {
+  border-color: rgba(124, 104, 148, .2);
+  background: rgba(18, 12, 29, .58);
+  color: #756984;
+  cursor: not-allowed;
+  opacity: .72;
+}
+.previewActions button:disabled small { font-size: 8px; }
+.shareStatus {
+  flex-basis: 100%;
+  padding: 8px 11px;
+  border: 1px solid rgba(34, 211, 238, .36);
+  border-radius: 10px;
+  background: rgba(7, 16, 25, .96);
+  box-shadow: 0 0 24px rgba(34, 211, 238, .14);
+  color: #c5f7ff;
+  font-size: 10px;
+}
+
+.mobileCockpitDock { display: none; }
+.cockpitSheet {
+  inset: auto max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) auto;
+  width: min(520px, calc(100% - 28px));
+  max-height: min(680px, 78dvh);
+}
+.cockpitSheet .selectorContent { min-height: min(470px, 54dvh); }
+.cockpitSheet > header, .draftPanel > header {
+  margin-bottom: 12px;
+}
+.cockpitSheet > header > div, .draftPanel > header > div { min-width: 0; }
+.cockpitSheet > header span, .draftPanel > header span {
+  color: #9cebf4;
+  font: 8px/1.4 var(--mono, monospace);
+  letter-spacing: .15em;
+}
+.cockpitSheet > header h3, .draftPanel > header h3 { margin-top: 3px; }
+.cockpitSheet > header button, .draftPanel > header button {
+  display: grid;
+  width: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  padding: 0;
+  place-items: center;
+  border-radius: 50%;
+}
+.draftPanel {
+  inset: auto max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) auto;
+  width: min(1060px, calc(100% - 28px));
+  max-height: min(860px, 90dvh);
+}
+
+@keyframes cockpitSwap {
+  from { opacity: 0; transform: translateY(12px) scale(.985); filter: blur(4px); }
+  60% { filter: blur(0); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes cockpitOrbit {
+  to { offset-distance: 100%; }
+}
+
+:global([dir='rtl']) .themesPanel {
+  transform: rotateY(-9deg) translateZ(-38px);
+  transform-origin: left center;
+}
+:global([dir='rtl']) .pluginsPanel {
+  transform: rotateY(9deg) translateZ(-38px);
+  transform-origin: right center;
+}
+:global([dir='rtl']) .choiceArrow { transform: scaleX(-1); }
+
+@media (max-width: 1100px) {
+  .studio[data-preview-home='true'] .studioTitle { font-size: clamp(29px, 4vw, 42px); }
+  .cockpit {
+    display: block;
+    height: auto;
+    min-height: 0;
+    padding: 0 4px 86px;
+  }
+  .themesPanel, .pluginsPanel { display: none; }
+  .previewPanel {
+    width: 100%;
+    height: clamp(520px, calc(100dvh - 260px), 760px);
+    min-height: 520px;
+    max-height: 760px;
+    transform: none;
+  }
+  .cockpitHorizon { inset-inline: 0; bottom: 10px; }
+  .mobileCockpitDock {
+    position: fixed;
+    z-index: 80;
+    inset: auto auto max(10px, env(safe-area-inset-bottom)) 50%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: min(430px, calc(100% - 24px));
+    padding: 6px;
+    border: 1px solid rgba(232, 121, 249, .38);
+    border-radius: 19px;
+    background: rgba(10, 6, 22, .9);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, .56), 0 0 28px rgba(168, 85, 247, .18);
+    backdrop-filter: blur(20px) saturate(1.2);
+    transform: translateX(-50%);
+  }
+  .mobileCockpitDock button {
+    display: grid;
+    grid-template-columns: auto auto;
+    min-height: 50px;
+    place-content: center;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid transparent;
+    border-radius: 13px;
+    background: transparent;
+    color: #cab9e1;
+    font-size: 10.5px;
+    cursor: pointer;
+  }
+  .mobileCockpitDock button[aria-pressed='true'] {
+    border-color: rgba(232, 121, 249, .52);
+    background: linear-gradient(145deg, rgba(168, 85, 247, .28), rgba(34, 211, 238, .08));
+    color: #fff;
+    box-shadow: 0 0 18px rgba(168, 85, 247, .16);
+  }
+  .mobileCockpitDock button span { color: #e879f9; font-size: 15px; }
+  .mobileCockpitDock button small { color: #9d88b7; font-size: 8px; }
+}
+
+@media (max-width: 600px) {
+  .studio[data-preview-home='true'] { padding: 8px 10px 18px; }
+  .studio[data-preview-home='true'] .header { min-height: 36px; }
+  .studio[data-preview-home='true'] .wordmark { display: none; }
+  .studio[data-preview-home='true'] .studioTitle {
+    margin-block: 3px 6px;
+    font-size: clamp(25px, 7.3vw, 32px);
+  }
+  .studio[data-preview-home='true'] .toolbar { margin-top: 6px; gap: 6px; }
+  .studio[data-preview-home='true'] .toolbar > button {
+    min-height: 34px;
+    padding: 5px 10px;
+    font-size: 10px;
+  }
+  .cockpit { margin-top: 9px; padding: 0 0 80px; }
+  .previewPanel {
+    height: clamp(430px, calc(100dvh - 245px), 680px);
+    min-height: 430px;
+    border-radius: 22px;
+  }
+  .previewHeader { gap: 5px; min-height: 49px; padding: 7px 7px; }
+  .previewScope button { min-height: 29px; padding: 4px 8px; font-size: 9.5px; }
+  .deviceSwitch { gap: 1px; padding: 2px; }
+  .deviceSwitch button { width: 28px; min-height: 29px; font-size: 13px; }
+  .previewScroll { padding: 10px 10px 15px; }
+  .previewIdentity { gap: 7px; margin-bottom: 8px; }
+  .previewIdentity h2 { font-size: clamp(17px, 5vw, 22px); }
+  .previewIdentity p { font-size: 9.5px; }
+  .previewStatus { display: none; }
+  .previewDetails { margin-top: 9px; padding: 10px; }
+  .cockpitFacts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pluginPreviewHero {
+    min-height: 178px;
+    gap: 13px;
+    padding: 16px;
+    border-radius: 18px;
+  }
+  .pluginPreviewIcon { width: 68px; height: 68px; border-radius: 18px; }
+  .pluginPreviewHero strong { font-size: clamp(17px, 5vw, 23px); }
+  .pluginPreviewHero small { font-size: 9.5px; }
+  .previewActions { min-height: 55px; padding: 8px; gap: 6px; }
+  .previewActions button, .previewActions a { flex: 1 1 auto; min-height: 44px; padding: 7px 9px; font-size: 11px; }
+  .cockpitSheet, .draftPanel {
+    inset: auto 8px max(8px, env(safe-area-inset-bottom)) 8px;
+    width: auto;
+    max-height: 82dvh;
+    padding: 14px;
+    border-radius: 24px 24px 12px 12px;
+  }
+  .cockpitSheet .selectorContent { min-height: min(430px, 58dvh); }
+  .themeChoiceImage { height: 92px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .previewSwap { animation: none; }
+  .cockpitHorizon::after { animation: none; }
+  .themeChoices button, .pluginChoices button, .panelCatalogLink,
+  .previewActions button, .previewActions a { transition: none; }
 }

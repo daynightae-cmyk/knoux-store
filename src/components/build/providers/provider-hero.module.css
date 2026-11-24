@@ -179,3 +179,24 @@
 @keyframes authReceiptIn{from{opacity:0;translate:-50% 8px}to{opacity:1;translate:-50% 0}}
 @media(prefers-reduced-motion:reduce){.authFeedback>svg{display:none}.authReceipt{animation:none}}
 :global([data-cosmic-reduced]) .authFeedback>svg{display:none}:global([data-cosmic-reduced]) .authReceipt{animation:none}
+
+.selection {
+  position: absolute;
+  z-index: 5;
+  inset: auto auto 8% 50%;
+  display: grid;
+  min-inline-size: min(26%, 14rem);
+  gap: 3px;
+  padding: 7px 13px;
+  transform: translateX(-50%);
+  border: 1px solid #cb9bffab;
+  border-radius: 12px;
+  background: #170d2e;
+  box-shadow: 0 0 16px #9c44ef75;
+  color: #fff;
+  text-align: center;
+}
+.selection span { color: #ddd0f2; font-size: 11px; }
+@media (max-width: 650px) {
+  .selection { position: static; grid-column: 1 / -1; order: 4; transform: none; }
+}

@@ -85,6 +85,8 @@ function Campaigns() {
         </DemoNotice>
       </div>}
 
+      <div className={styles.campaignDeck}>
+      <div className={styles.campaignRegistry}>
       <Section title="Campaigns" note="Select a campaign to inspect its approval state.">
         {campaigns.length === 0 ? (
           <EmptyState title="No campaigns">
@@ -110,6 +112,7 @@ function Campaigns() {
                     <td>
                       <button
                         type="button"
+                        aria-pressed={selected?.id === campaign.id}
                         className={styles.ccButton ?? ''}
                         style={{ border: 0, padding: 0, textTransform: 'none', letterSpacing: 0, fontSize: 12.5 }}
                         onClick={() => {
@@ -158,8 +161,10 @@ function Campaigns() {
           </div>
         )}
       </Section>
-
-      {selected && <><CampaignReview campaign={selected} /><AdPreviewTheatre campaignId={selected.id} /></>}
+      </div>
+      {selected && <div className={styles.campaignTheatre} data-campaign-theatre><AdPreviewTheatre campaignId={selected.id} /></div>}
+      {selected && <div className={styles.campaignApproval}><CampaignReview campaign={selected} /></div>}
+      </div>
       {selected ? (
         <Section title="Campaign detail" note={CAMPAIGN_STATUS_MEANING[selected.status]}>
           <div className={styles.commandGrid2 ?? ''}>

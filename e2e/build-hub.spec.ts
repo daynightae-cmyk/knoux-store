@@ -14,11 +14,12 @@ test('Build hub links to the real platform and preserves workspace entry in brow
   await expect(page).toHaveURL(/\/build\/platform$/);
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await page.goBack();
-  await hub.getByRole('button', { name: /enter the engineering workspace/ }).click();
+  await hub.getByRole('link', { name: /enter the engineering workspace/ }).click();
   await expect(page).toHaveURL(/\/build#workspace$/);
   const workspace = page.getByRole('region', { name: 'Build workspace' });
   await expect(workspace).toBeFocused();
-  await page.reload();
+  await expect(workspace.getByRole('region', { name: 'Preview workspace' })).toBeVisible();
+  await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(workspace.getByRole('group', { name: 'Workspace view' })).toBeVisible();
   await page.goBack();
   await expect(hub).toBeVisible();

@@ -13,24 +13,25 @@ test('WordPress arrival swaps rendered documents and restores focus after the in
   await expect(entry).toBeHidden();
   await expect(studio.getByRole('button', { name: 'Exit to arrival' })).toBeFocused();
 
-  const draft = studio.getByRole('article', { name: 'Layout draft' });
-  const starter = studio.getByRole('article', { name: 'Starting layout' });
-  const activePreview = studio.locator('[data-orbit-active=true]');
+  await studio.getByRole('group', { name: 'Preview source' }).getByRole('button', { name: 'Site', exact: true }).click();
+  const openPreviews = studio.getByRole('button', { name: 'Preview & inspector' });
+  await openPreviews.click();
+  const comparison = page.getByRole('dialog', { name: 'Layout previews & inspector' });
+  const draft = comparison.getByRole('article', { name: 'Layout draft' });
+  const starter = comparison.getByRole('article', { name: 'Starting layout' });
+  const activePreview = comparison.locator('[data-orbit-active=true]');
   await expect(activePreview).toHaveAttribute('data-orbit-preview', 'draft');
   await expect(draft.locator('[data-type=features]')).toBeVisible();
-  await expect(starter.locator('[data-type=contact]')).toBeVisible();
-  await expect(page.getByRole('dialog')).toHaveCount(1);
 
-  await studio.getByRole('button', { name: 'Show Starting layout' }).click();
+  await comparison.getByRole('button', { name: 'Show Starting layout' }).click();
   await expect(activePreview).toHaveAttribute('data-orbit-preview', 'starter');
-  await starter.getByRole('button', { name: 'About this preview' }).click();
-  await expect(starter.getByRole('button', { name: 'About this preview' })).toHaveAttribute('aria-expanded', 'true');
-  await studio.getByRole('button', { name: 'Switch preview' }).press('ArrowLeft');
+  await expect(starter.locator('[data-type=contact]')).toBeVisible();
+  await comparison.getByRole('button', { name: 'Switch preview' }).press('ArrowLeft');
   await expect(activePreview).toHaveAttribute('data-orbit-preview', 'draft');
 
-  const trigger = studio.getByRole('button', { name: 'Inspector', exact: true });
+  const trigger = comparison.getByRole('button', { name: 'Inspector', exact: true });
   await trigger.click();
-  const inspector = page.getByRole('dialog', { name: 'Inspector' });
+  const inspector = page.getByRole('dialog', { name: 'Inspector', exact: true });
   await inspector.getByLabel('Hero alignment').selectOption('end');
   await page.keyboard.press('Escape');
   await expect(inspector).toBeHidden();
@@ -38,11 +39,17 @@ test('WordPress arrival swaps rendered documents and restores focus after the in
   await expect(draft.locator('[data-type=hero]')).toHaveCSS('align-items', 'flex-end');
 
   await page.keyboard.press('Escape');
+  await expect(comparison).toBeHidden();
+  await expect(openPreviews).toBeFocused();
+  const focalHero = studio.locator('[data-wordpress-cockpit] [data-type=hero]');
+  await expect(focalHero).toHaveCSS('align-items', 'flex-end');
+  await page.keyboard.press('Escape');
   await expect(studio).toBeHidden();
   await expect(entry).toBeFocused();
   await page.goForward();
   await expect(studio).toBeVisible();
-  await expect(draft.locator('[data-type=hero]')).toHaveCSS('align-items', 'flex-end');
+  await expect(focalHero).toHaveCSS('align-items', 'flex-end');
+  await openPreviews.click();
   await trigger.click();
   await expect(inspector).toBeVisible();
   await page.goBack();
@@ -65,6 +72,8 @@ test('a touch swipe swaps the WordPress previews', async ({ page, browserName, h
   test.skip(browserName !== 'chromium' || !hasTouch, 'Requires the Chromium touch device profile.');
   await page.goto('/wordpress');
   await page.locator('[data-enter-studio]').tap();
+  await page.getByRole('group', { name: 'Preview source' }).getByRole('button', { name: 'Site', exact: true }).tap();
+  await page.getByRole('button', { name: 'Preview & inspector' }).tap();
   const orbit = page.locator('[data-preview-orbit]');
   const box = await orbit.boundingBox();
   expect(box).not.toBeNull();

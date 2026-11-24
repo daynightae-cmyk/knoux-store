@@ -1,9 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { ExternalItem } from '@/lib/wordpress/external';
+import type { ExternalItem, ExternalQueryState } from '@/lib/wordpress/external';
 import { WordPressWelcome } from './WordPressWelcome';
-import { WordPressStudio, type StudioJourney } from './WordPressStudio';
+import { WordPressStudio, STUDIO_JOURNEY_COUNT, type StudioJourney } from './WordPressStudio';
 
 // Canonical addresses precede the aliases accepted by older links.
 const HASH_JOURNEYS: Record<string, StudioJourney> = {
@@ -19,6 +19,11 @@ const HASH_JOURNEYS: Record<string, StudioJourney> = {
   '#operate': 'operations',
   '#system': 'arrival',
   '#library': 'theme',
+  '#arrival': 'arrival',
+  '#theme': 'theme',
+  '#composer': 'composer',
+  '#hosting': 'hosting',
+  '#operations': 'operations',
 };
 
 function journeyFromHash(hash: string): StudioJourney | null {
@@ -36,11 +41,11 @@ function journeyFromHash(hash: string): StudioJourney | null {
 export function WordPressExperience({
   themes,
   plugins,
-  directoryOnline,
+  directoryState,
 }: Readonly<{
   themes: Readonly<ExternalItem[]>;
   plugins: Readonly<ExternalItem[]>;
-  directoryOnline: boolean;
+  directoryState: ExternalQueryState;
 }>) {
   const [entered, setEntered] = useState(false);
   const [journey, setJourney] = useState<StudioJourney>('arrival');
@@ -116,7 +121,7 @@ export function WordPressExperience({
   return (
     <div className="wp-experience" data-wordpress-experience data-phase={entered ? 'studio' : 'arrival'}>
       <div ref={returnFocus} className="wp-experience__arrival" hidden={entered}>
-        <WordPressWelcome active={!entered} themesLoaded={themes.length} directoryOnline={directoryOnline} onEnter={openStudio} />
+        <WordPressWelcome active={!entered} themesLoaded={themes.length} directoryState={directoryState} journeyCount={STUDIO_JOURNEY_COUNT} onEnter={openStudio} />
       </div>
       <dialog ref={studioDialog} className="wp-experience__studio" id="studio" aria-labelledby="wordpress-studio-title"
         onCancel={(event) => {
