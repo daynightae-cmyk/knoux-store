@@ -561,6 +561,53 @@ test('logs:read returns what the process actually printed', async () => {
   } finally { await h.close(); }
 });
 
+test('restart replaces an owned process only after its previous PID has exited', async () => {
+  const h = await harness();
+  try {
+    h.processes.register('runtime', {
+      cmd: process.execPath,
+      args: ['-e', 'console.log(process.pid); setInterval(() => {}, 1000);'],
+    });
+    const started = await post(h, '/v1/proc/start', { name: 'runtime' }, mint(h, ['proc:manage']));
+    assert.equal(started.status, 200);
+    const initial = await started.json();
+    assert.ok(initial.pid > 0);
+    const restarted = await post(h, '/v1/proc/restart', { name: 'runtime' }, mint(h, ['proc:manage']));
+    assert.equal(restarted.status, 200);
+    const replacement = await restarted.json();
+    assert.ok(replacement.pid > 0);
+    assert.notEqual(replacement.pid, initial.pid);
+    assert.throws(() => process.kill(initial.pid, 0), { code: 'ESRCH' });
+    assert.equal(replacement.restarts, 1);
+    const deadline = Date.now() + 5000;
+    while (!h.processes.logs('runtime').some((line) => line.data.trim() === String(replacement.pid)) && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 30));
+    }
+    assert.ok(h.processes.logs('runtime').some((line) => line.data.trim() === String(replacement.pid)));
+  } finally { await h.close(); }
+});
+
+test('shutdown cancels a pending restart and refuses a competing restart', async () => {
+  const h = await harness();
+  try {
+    h.processes.register('runtime', { cmd: process.execPath, args: ['-e', 'setInterval(() => {}, 1000);'] });
+    const started = h.processes.start('runtime');
+    assert.ok(started.ok);
+    const pending = h.processes.restart('runtime');
+    const competing = await h.processes.restart('runtime');
+    assert.equal(competing.ok, false);
+    assert.match(competing.reason, /restart in progress/);
+    h.processes.stopAll();
+    assert.equal((await pending).ok, false);
+    const deadline = Date.now() + 8000;
+    while (h.processes.info('runtime').pid && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 30));
+    }
+    assert.equal(h.processes.info('runtime').pid, null);
+    assert.equal(h.processes.info('runtime').restarts, 0);
+  } finally { await h.close(); }
+});
+
 test('a process that exits non-zero is reported as failed, not stopped', async () => {
   const h = await harness();
   try {

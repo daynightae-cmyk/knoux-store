@@ -1247,7 +1247,7 @@ export class BridgeServer {
       error(res, 400, 'invalid-body', 'Expected a JSON body with a process name.');
       return;
     }
-    const result = this.options.processes.restart(name);
+    const result = await this.options.processes.restart(name);
     if (!result.ok) {
       error(res, 409, 'proc-failed', result.reason ?? 'The process could not be restarted.');
       return;
