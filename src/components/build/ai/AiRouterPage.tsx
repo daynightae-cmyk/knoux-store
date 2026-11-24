@@ -117,249 +117,252 @@ export function AiRouterPage() {
         </header>
       }
     >
-      <DevPanel title="Router Input" className={styles.prompt}>
-        <textarea
-          className="dev-field"
-          style={{
-            width: "100%",
-            minHeight: 60,
-            padding: 12,
-            fontFamily: "inherit",
-          }}
-          placeholder="Enter a prompt to route…"
-          aria-label="Routing prompt"
-          maxLength={16000}
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-        />
-
-        <div
-          style={{ display: "flex", gap: 12, marginTop: 8, flexWrap: "wrap" }}
-        >
-          <select
-            value={taskClass}
-            onChange={(e) => setTaskClass(e.target.value)}
+      <div className={styles.routingStage}>
+        <DevPanel title="Router Input" className={styles.prompt}>
+          <textarea
             className="dev-field"
-            style={{ padding: 8 }}
-            aria-label="Task class"
+            style={{
+              width: "100%",
+              minHeight: 60,
+              padding: 12,
+              fontFamily: "inherit",
+            }}
+            placeholder="Enter a prompt to route…"
+            aria-label="Routing prompt"
+            maxLength={16000}
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+          />
+
+          <div
+            style={{ display: "flex", gap: 12, marginTop: 8, flexWrap: "wrap" }}
           >
-            {TASK_CLASSES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-
-          <div className="dev-tabs" role="tablist" aria-label="Routing mode">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={mode === "auto"}
-              className={`dev-tab ${mode === "auto" ? "dev-tab--active" : ""}`}
-              onClick={() => setMode("auto")}
-            >
-              AUTO
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={mode === "manual"}
-              className={`dev-tab ${mode === "manual" ? "dev-tab--active" : ""}`}
-              onClick={() => setMode("manual")}
-            >
-              MANUAL
-            </button>
-          </div>
-        </div>
-
-        {mode === "manual" ? (
-          <div className={styles.manualFields}>
-            <input
+            <select
+              value={taskClass}
+              onChange={(e) => setTaskClass(e.target.value)}
               className="dev-field"
-              style={{ flex: 1, padding: 8 }}
-              placeholder="Provider ID"
-              aria-label="Provider ID"
-              value={manualProvider}
-              onChange={(e) => setManualProvider(e.target.value)}
-            />
-            <input
-              className="dev-field"
-              style={{ flex: 1, padding: 8 }}
-              placeholder="Model ID"
-              aria-label="Model ID"
-              value={manualModel}
-              onChange={(e) => setManualModel(e.target.value)}
-            />
-          </div>
-        ) : null}
+              style={{ padding: 8 }}
+              aria-label="Task class"
+            >
+              {TASK_CLASSES.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
 
-        <div
-          style={{ display: "flex", gap: 12, marginTop: 8, flexWrap: "wrap" }}
-        >
-          <label className="dev-check">
-            <input
-              type="checkbox"
-              checked={visionReq}
-              onChange={(e) => setVisionReq(e.target.checked)}
-            />
-            Vision required
-          </label>
-          <label className="dev-check">
-            <input
-              type="checkbox"
-              checked={toolsReq}
-              onChange={(e) => setToolsReq(e.target.checked)}
-            />
-            Tools required
-          </label>
-          <label className="dev-check">
-            <input
-              type="checkbox"
-              checked={structuredReq}
-              onChange={(e) => setStructuredReq(e.target.checked)}
-            />
-            Structured output
-          </label>
-          <label className="dev-check">
-            <input
-              type="checkbox"
-              checked={noFallback}
-              onChange={(e) => setNoFallback(e.target.checked)}
-            />
-            No fallback
-          </label>
-        </div>
-
-        <div className="dev-actions" style={{ marginTop: 8 }}>
-          <button
-            type="button"
-            className="bo-action bo-action--primary"
-            disabled={loading || (mode === "manual" && (!manualProvider.trim() || !manualModel.trim()))}
-            onClick={() => void runRouter()}
-          >
-            {loading ? "ROUTING…" : "ROUTE"}
-          </button>
-        </div>
-      </DevPanel>
-
-      <div style={{ height: 16 }} />
-
-      {error ? (
-        <p
-          role="status"
-          className="dev-note"
-          style={{ color: "var(--dev-bad)" }}
-        >
-          {error}
-        </p>
-      ) : null}
-
-      {decision ? (
-        <>
-          <DevPanel title="Routing Decision">
-            {decision.status === "resolved" && decision.selected ? (
-              <>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 8,
-                    flexWrap: "wrap",
-                    marginBottom: 12,
-                  }}
-                >
-                  <span className="dev-tag" data-tone="ok">
-                    SELECTED
-                  </span>
-                  <span className="dev-tag">
-                    {decision.selected.providerId} / {decision.selected.modelId}
-                  </span>
-                  <span className="dev-tag">
-                    Context: {decision.contextFit}
-                  </span>
-                </div>
-                <div style={{ marginBottom: 12 }}>
-                  <strong>WHY</strong>
-                  <ul style={{ marginTop: 6, paddingLeft: 20 }}>
-                    {decision.reasons.map((r, i) => (
-                      <li key={i} className="dev-note">
-                        {r}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                {decision.fallbackChain.length > 0 ? (
-                  <div>
-                    <strong>FALLBACK</strong>
-                    <div style={{ marginTop: 6 }}>
-                      {decision.fallbackChain.map((f, i) => (
-                        <span
-                          key={i}
-                          className="dev-tag"
-                          style={{ marginRight: 6 }}
-                        >
-                          {f.providerId} / {f.modelId}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-              </>
-            ) : (
-              <div
-                style={{
-                  padding: 12,
-                  border: "1px solid var(--dev-bad)",
-                  borderRadius: 4,
-                }}
+            <div className="dev-tabs" role="tablist" aria-label="Routing mode">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={mode === "auto"}
+                className={`dev-tab ${mode === "auto" ? "dev-tab--active" : ""}`}
+                onClick={() => setMode("auto")}
               >
-                <strong style={{ color: "var(--dev-bad)" }}>UNAVAILABLE</strong>
-                <p className="dev-note" style={{ marginTop: 6 }}>
-                  {decision.blocker}
-                </p>
-              </div>
-            )}
-          </DevPanel>
+                AUTO
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={mode === "manual"}
+                className={`dev-tab ${mode === "manual" ? "dev-tab--active" : ""}`}
+                onClick={() => setMode("manual")}
+              >
+                MANUAL
+              </button>
+            </div>
+          </div>
 
-          {decision.candidates.length > 0 ? (
+          {mode === "manual" ? (
+            <div className={styles.manualFields}>
+              <input
+                className="dev-field"
+                style={{ flex: 1, padding: 8 }}
+                placeholder="Provider ID"
+                aria-label="Provider ID"
+                value={manualProvider}
+                onChange={(e) => setManualProvider(e.target.value)}
+              />
+              <input
+                className="dev-field"
+                style={{ flex: 1, padding: 8 }}
+                placeholder="Model ID"
+                aria-label="Model ID"
+                value={manualModel}
+                onChange={(e) => setManualModel(e.target.value)}
+              />
+            </div>
+          ) : null}
+
+          <div
+            style={{ display: "flex", gap: 12, marginTop: 8, flexWrap: "wrap" }}
+          >
+            <label className="dev-check">
+              <input
+                type="checkbox"
+                checked={visionReq}
+                onChange={(e) => setVisionReq(e.target.checked)}
+              />
+              Vision required
+            </label>
+            <label className="dev-check">
+              <input
+                type="checkbox"
+                checked={toolsReq}
+                onChange={(e) => setToolsReq(e.target.checked)}
+              />
+              Tools required
+            </label>
+            <label className="dev-check">
+              <input
+                type="checkbox"
+                checked={structuredReq}
+                onChange={(e) => setStructuredReq(e.target.checked)}
+              />
+              Structured output
+            </label>
+            <label className="dev-check">
+              <input
+                type="checkbox"
+                checked={noFallback}
+                onChange={(e) => setNoFallback(e.target.checked)}
+              />
+              No fallback
+            </label>
+          </div>
+
+          <div className="dev-actions" style={{ marginTop: 8 }}>
+            <button
+              type="button"
+              className="bo-action bo-action--primary"
+              disabled={loading || (mode === "manual" && (!manualProvider.trim() || !manualModel.trim()))}
+              onClick={() => void runRouter()}
+            >
+              {loading ? "ROUTING…" : "ROUTE"}
+            </button>
+          </div>
+        </DevPanel>
+        <section className={styles.outcome} aria-label="Route outcome" aria-busy={loading}>
+          {!decision && !error && (
+            <DevPanel title="Routing Decision">
+              <p role="status" className="dev-note">{loading ? "Evaluating the request…" : "Run the router to view the selected model, routing reasons, and fallback order."}</p>
+            </DevPanel>
+          )}
+          {error ? (
+            <p
+              role="status"
+              className="dev-note"
+              style={{ color: "var(--dev-bad)" }}
+            >
+              {error}
+            </p>
+          ) : null}
+
+          {decision ? (
             <>
-              <div style={{ height: 16 }} />
-              <DevPanel title={`Candidates (${decision.candidates.length})`}>
-                <div className={styles.tableScroll} tabIndex={0} role="region" aria-label="Routing candidates">
-                <table className="dev-kv-table" style={{ width: "100%" }}>
-                  <thead>
-                    <tr>
-                      <th>Provider</th>
-                      <th>Model</th>
-                      <th>Score</th>
-                      <th>Accepted</th>
-                      <th>Reason</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {decision.candidates.map((c, i) => (
-                      <tr key={i}>
-                        <td>{c.providerId}</td>
-                        <td>{c.modelId}</td>
-                        <td>{c.score.toFixed(1)}</td>
-                        <td>
-                          <span
-                            className="dev-tag"
-                            data-tone={c.accepted ? "ok" : "bad"}
-                          >
-                            {c.accepted ? "YES" : "NO"}
-                          </span>
-                        </td>
-                        <td>{c.rejectionReason ?? "—"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                </div>
+              <DevPanel title="Routing Decision">
+                {decision.status === "resolved" && decision.selected ? (
+                  <>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 8,
+                        flexWrap: "wrap",
+                        marginBottom: 12,
+                      }}
+                    >
+                      <span className="dev-tag" data-tone="ok">
+                        SELECTED
+                      </span>
+                      <span className="dev-tag">
+                        {decision.selected.providerId} / {decision.selected.modelId}
+                      </span>
+                      <span className="dev-tag">
+                        Context: {decision.contextFit}
+                      </span>
+                    </div>
+                    <div style={{ marginBottom: 12 }}>
+                      <strong>WHY</strong>
+                      <ul style={{ marginTop: 6, paddingLeft: 20 }}>
+                        {decision.reasons.map((r, i) => (
+                          <li key={i} className="dev-note">
+                            {r}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    {decision.fallbackChain.length > 0 ? (
+                      <div>
+                        <strong>FALLBACK</strong>
+                        <div style={{ marginTop: 6 }}>
+                          {decision.fallbackChain.map((f, i) => (
+                            <span
+                              key={i}
+                              className="dev-tag"
+                              style={{ marginRight: 6 }}
+                            >
+                              {f.providerId} / {f.modelId}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </>
+                ) : (
+                  <div
+                    style={{
+                      padding: 12,
+                      border: "1px solid var(--dev-bad)",
+                      borderRadius: 4,
+                    }}
+                  >
+                    <strong style={{ color: "var(--dev-bad)" }}>UNAVAILABLE</strong>
+                    <p className="dev-note" style={{ marginTop: 6 }}>
+                      {decision.blocker}
+                    </p>
+                  </div>
+                )}
               </DevPanel>
             </>
           ) : null}
-        </>
-      ) : null}
+        </section>
+      </div>
+
+      {decision && decision.candidates.length > 0 && (
+        <DevPanel title={`Candidates (${decision.candidates.length})`}>
+          <div className={styles.tableScroll} tabIndex={0} role="region" aria-label="Routing candidates">
+          <table className="dev-kv-table" style={{ width: "100%" }}>
+            <thead>
+              <tr>
+                <th>Provider</th>
+                <th>Model</th>
+                <th>Score</th>
+                <th>Accepted</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              {decision.candidates.map((c, i) => (
+                <tr key={i}>
+                  <td>{c.providerId}</td>
+                  <td>{c.modelId}</td>
+                  <td>{c.score.toFixed(1)}</td>
+                  <td>
+                    <span
+                      className="dev-tag"
+                      data-tone={c.accepted ? "ok" : "bad"}
+                    >
+                      {c.accepted ? "YES" : "NO"}
+                    </span>
+                  </td>
+                  <td>{c.rejectionReason ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          </div>
+        </DevPanel>
+      )}
     </AiCenterPage>
     </div>
   );

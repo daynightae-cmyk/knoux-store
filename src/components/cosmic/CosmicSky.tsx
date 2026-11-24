@@ -42,10 +42,10 @@ export function dayFraction(date = new Date()): number {
   return (date.getHours() + date.getMinutes() / 60) / 24;
 }
 
-const NIGHT: PhaseTone = { sky: [7, 5, 14], nebula: [138, 62, 236], star: [233, 215, 255], glow: 1 };
+const NIGHT: PhaseTone = { sky: [7, 5, 14], nebula: [143, 51, 255], star: [233, 215, 255], glow: 1 };
 const DAWN: PhaseTone = { sky: [12, 12, 26], nebula: [116, 96, 220], star: [206, 214, 255], glow: .78 };
 const DAY: PhaseTone = { sky: [15, 18, 36], nebula: [92, 116, 214], star: [198, 216, 255], glow: .55 };
-const DUSK: PhaseTone = { sky: [16, 8, 24], nebula: [186, 84, 190], star: [236, 208, 244], glow: .85 };
+const DUSK: PhaseTone = { sky: [16, 8, 24], nebula: [205, 64, 230], star: [236, 208, 244], glow: .85 };
 
 function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
 function mixTone(a: PhaseTone, b: PhaseTone, t: number): PhaseTone {
@@ -78,14 +78,15 @@ export function dayLabel(fraction: number): 'night' | 'dawn' | 'day' | 'dusk' {
 function nebula(ctx: CanvasRenderingContext2D, sky: Sky, energy: number) {
   const { width, height, time, phase } = sky;
   const banks = [
-    { x: width * (.82 + Math.sin(time * .09) * .055), y: height * (.23 + Math.cos(time * .077) * .075), radius: Math.min(width * .47, 550), tone: phase.nebula, density: .21 },
-    { x: width * (.14 + Math.cos(time * .062) * .045), y: height * (.75 + Math.sin(time * .084) * .06), radius: Math.min(width * .34, 420), tone: mixColor(phase.nebula, [238, 66, 168], .55), density: .17 },
-    { x: width * (.63 + Math.cos(time * .051) * .04), y: height * (.91 + Math.sin(time * .065) * .055), radius: Math.min(width * .38, 430), tone: mixColor(phase.nebula, [38, 195, 250], .7), density: .14 },
+    { x: width * (.82 + Math.sin(time * .09) * .055), y: height * (.23 + Math.cos(time * .077) * .075), radius: Math.min(width * .47, 550), tone: phase.nebula, density: .31 },
+    { x: width * (.14 + Math.cos(time * .062) * .045), y: height * (.75 + Math.sin(time * .084) * .06), radius: Math.min(width * .34, 420), tone: mixColor(phase.nebula, [252, 48, 182], .64), density: .24 },
+    { x: width * (.63 + Math.cos(time * .051) * .04), y: height * (.91 + Math.sin(time * .065) * .055), radius: Math.min(width * .38, 430), tone: mixColor(phase.nebula, [40, 210, 255], .76), density: .19 },
   ];
   for (const { x, y, radius, tone, density } of banks) {
     const haze = ctx.createRadialGradient(x, y, 0, x, y, Math.max(1, radius));
     haze.addColorStop(0, rgba(tone, (density + energy * .08) * phase.glow));
-    haze.addColorStop(.36, rgba(tone, density * .54 * phase.glow));
+    haze.addColorStop(.24, rgba(tone, density * .73 * phase.glow));
+    haze.addColorStop(.59, rgba(tone, density * .27 * phase.glow));
     haze.addColorStop(1, rgba(tone, 0));
     ctx.fillStyle = haze;
     ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);

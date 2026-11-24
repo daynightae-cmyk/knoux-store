@@ -81,6 +81,8 @@ export const ROUTE_COPY: Record<string, readonly [string, string]> = {
   "Search the full catalogue": ["البحث في الكتالوج الكامل", "مکمل کیٹلاگ میں تلاش کریں"],
   "The official theme directory is unavailable. Browse again or compose a request without a theme.": ["دليل القوالب الرسمي غير متاح حاليًا. تصفح مجددًا أو أنشئ طلبًا دون قالب.", "سرکاری تھیم ڈائریکٹری دستیاب نہیں۔ دوبارہ دیکھیں یا بغیر تھیم کے درخواست تیار کریں۔"],
   "This theme has no official screenshot.": ["لا توجد صورة رسمية لهذا القالب.", "اس تھیم کی سرکاری اسکرین شاٹ موجود نہیں۔"],
+  "Loading official screenshot…": ["جارٍ تحميل الصورة الرسمية…", "سرکاری اسکرین شاٹ لوڈ ہو رہا ہے…"],
+  "Official screenshot unavailable.": ["الصورة الرسمية غير متاحة.", "سرکاری اسکرین شاٹ دستیاب نہیں۔"],
   "Open official theme & live preview": ["فتح القالب والمعاينة الرسمية", "سرکاری تھیم اور لائیو پیش گاؤ کھولیں"],
   "Planning studio · nothing installed or published": ["استوديو تخطيط · لم يتم تثبيت أو نشر أي شيء", "تیاری کا اسٹوڈیو · کچھ بھی انسٹال یا شائع نہیں کیا گیا"],
   "Published by": ["نشر بواسطة", "شائع کنندہ"],

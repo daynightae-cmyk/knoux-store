@@ -1,0 +1,53 @@
+[
+  {
+    "name": "campaigns",
+    "w": 1024,
+    "h": 768,
+    "errors": [],
+    "failure": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('list', { name: 'Campaigns', exact: true }).getByRole('button').nth(1)\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" aria-pressed=\"false\" aria-labelledby=\"campaign-cmp_swim_whatsapp-name\" aria-describedby=\"campaign-cmp_swim_whatsapp-details campaign-cmp_swim_whatsapp-status\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n"
+  },
+  {
+    "name": "build",
+    "w": 1672,
+    "h": 941,
+    "errors": [],
+    "failure": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('group', { name: 'Workspace view' }).getByRole('button', { name: 'PREVIEW', exact: true })\u001b[22m\n"
+  },
+  {
+    "name": "providers",
+    "w": 1672,
+    "h": 941,
+    "errors": [],
+    "failure": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('region', { name: 'Universal Provider Engine' }).getByRole('button', { name: /OpenAI/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" class=\"hSdGkG_node\" aria-pressed=\"false\" aria-label=\"Select OpenAI\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not stable\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n"
+  },
+  {
+    "name": "providers",
+    "w": 390,
+    "h": 844,
+    "errors": [],
+    "failure": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('region', { name: 'Universal Provider Engine' }).getByRole('button', { name: /OpenAI/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" class=\"hSdGkG_node\" aria-pressed=\"false\" aria-label=\"Select OpenAI\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n"
+  },
+  {
+    "name": "router",
+    "w": 1672,
+    "h": 941,
+    "errors": [],
+    "failure": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tablist', { name: 'Routing mode' }).getByRole('tab', { name: 'MANUAL' })\u001b[22m\n"
+  },
+  {
+    "name": "router",
+    "w": 390,
+    "h": 844,
+    "errors": [],
+    "failure": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tablist', { name: 'Routing mode' }).getByRole('tab', { name: 'MANUAL' })\u001b[22m\n\u001b[2m    - locator resolved to <button role=\"tab\" type=\"button\" class=\"dev-tab \" aria-selected=\"false\">MANUAL</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n"
+  },
+  {
+    "name": "apps",
+    "w": 1672,
+    "h": 941,
+    "errors": [],
+    "baseline": true,
+    "documentWidth": 1672,
+    "ok": true
+  }
+]

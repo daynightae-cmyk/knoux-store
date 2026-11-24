@@ -74,7 +74,7 @@ export function WordPressStudio({
   const [primary, setPrimary] = useState<'draft' | 'starter'>('draft');
   const [slug, setSlug] = useState<string>(themes[0]?.slug ?? '');
   const [pluginSlug, setPluginSlug] = useState<string>(plugins[0]?.slug ?? '');
-  const [previewKind, setPreviewKind] = useState<WordPressPreviewKind>(themes.length ? 'theme' : 'site');
+  const [previewKind, setPreviewKind] = useState<WordPressPreviewKind>('site');
   // The arrival composer hands its words here — same tab via the event,
   // a return visit via session storage. The stored sentence is read through
   // an external-store subscription so server and client renders agree.

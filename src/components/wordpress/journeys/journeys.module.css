@@ -253,10 +253,11 @@
 }
 .frameChrome i { width: 5px; height: 5px; border-radius: 50%; background: #8d7aa6; }
 .frameChrome span { margin-inline-start: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.screen { position: relative; aspect-ratio: 4 / 3; background: #f3f0f7; overflow: hidden; }
+.screen { position: relative; aspect-ratio: 4 / 3; background: radial-gradient(ellipse at 50% 78%, #311754, #100820 72%); overflow: hidden; }
 .frame_mobile .screen { aspect-ratio: 9 / 16; }
 .screenImg { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
-.screenEmpty { display: grid; place-items: center; height: 100%; margin: 0; padding: 16px; color: #7d6f92; font-size: 12px; text-align: center; }
+.screenImg[data-pending] { position: absolute; inset: 0; opacity: 0; }
+.screenEmpty { display: grid; place-items: center; height: 100%; margin: 0; padding: 16px; color: #dec7f4; font-size: 13px; text-align: center; }
 .notch {
   position: absolute;
   top: 30px;

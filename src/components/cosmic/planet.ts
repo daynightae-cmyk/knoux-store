@@ -16,7 +16,7 @@ export function paintPlanet(ctx: CanvasRenderingContext2D, x: number, y: number,
   const lit = mixColor(tone, [243, 229, 255], .68);
   const shade = mixColor(tone, [7, 4, 22], .88);
   const glow = ctx.createRadialGradient(x, y, radius * .8, x, y, radius * 2.4);
-  glow.addColorStop(0, rgba(tone, .24 * illumination));
+  glow.addColorStop(0, rgba(tone, .34 * illumination));
   glow.addColorStop(1, rgba(tone, 0));
   ctx.fillStyle = glow;
   ctx.fillRect(x - radius * 2.4, y - radius * 2.4, radius * 4.8, radius * 4.8);
@@ -31,10 +31,15 @@ export function paintPlanet(ctx: CanvasRenderingContext2D, x: number, y: number,
   ctx.beginPath();
   ctx.arc(x, y, radius, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = rgba(lit, .56 * illumination);
-  ctx.lineWidth = 1;
+  const horizon = ctx.createLinearGradient(x - radius, y - radius, x + radius, y + radius);
+  horizon.addColorStop(0, rgba(lit, .95 * illumination));
+  horizon.addColorStop(.42, rgba(lit, .52 * illumination));
+  horizon.addColorStop(.74, rgba(tone, .12 * illumination));
+  horizon.addColorStop(1, rgba(tone, 0));
+  ctx.strokeStyle = horizon;
+  ctx.lineWidth = Math.max(1, radius * .038);
   ctx.beginPath();
-  ctx.arc(x, y, radius - .5, Math.PI * 1.03, Math.PI * 1.68);
+  ctx.arc(x, y, radius - ctx.lineWidth / 2, 0, Math.PI * 2);
   ctx.stroke();
   if (ring) paintRings(ctx, x, y, radius, lit, true);
 }

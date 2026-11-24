@@ -256,7 +256,21 @@ export function ProviderCenter({ embedded = false, initialDefinitions = [] }: Re
       <button type="button" aria-pressed={!isConstellation} onClick={() => setMode('catalog')}>Intelligence catalog</button>
     </div> : null}
     <ProviderAuthFeedback celebration={celebration} />
-    {isConstellation && <ProviderHero definitions={definitions} selected={selected} connection={definition ? providerConnectionLabel(profile) : null} onSelect={choose} onBrowse={() => setMode('catalog')} onGetApi={() => { if (inFlight.current) return; if (definition) { setTab("Credentials"); requestAnimationFrame(() => { detail.current?.scrollIntoView({ block: "start" }); detail.current?.focus({ preventScroll: true }); }); } else { setMode('catalog'); } }} />}
+    {isConstellation && <ProviderHero
+      definitions={definitions}
+      selected={selected}
+      connection={definition ? providerConnectionLabel(profile) : null}
+      discoveredModels={profile?.discoveredAt ? profile.models.length : null}
+      onSelect={choose}
+      onBrowse={() => setMode('catalog')}
+      onInspect={() => { detail.current?.scrollIntoView({ block: 'start' }); detail.current?.focus({ preventScroll: true }); }}
+      onGetApi={() => {
+        if (inFlight.current) return;
+        if (!definition) { setMode('catalog'); return; }
+        setTab('Credentials');
+        requestAnimationFrame(() => { detail.current?.scrollIntoView({ block: 'start' }); detail.current?.focus({ preventScroll: true }); });
+      }}
+    />}
     {embedded ? <>{controls}{toolbar}<PlatformFacts /></> : null}
     <div className={`${styles.composition} ${isConstellation && orbitProviders.length ? styles.withOrbit : ''}`}>
       <div className={styles.registryRail}>

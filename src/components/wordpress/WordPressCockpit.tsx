@@ -262,11 +262,6 @@ export function WordPressCockpit({ themes, plugins, selectedSlug, pluginSlug, ki
             <button type="button" aria-pressed={kind === 'theme'} disabled={!theme} onClick={() => theme && chooseTheme(theme.slug)}>{t('Theme', 'القالب')}</button>
             <button type="button" aria-pressed={kind === 'plugin'} disabled={!plugin} onClick={() => plugin && choosePlugin(plugin.slug)}>{t('Plugin', 'الإضافة')}</button>
           </div>
-          {(kind === 'theme' || kind === 'site') && <div className={s.deviceSwitch} role="group" aria-label={t('Preview device', 'جهاز المعاينة')}>
-            {devices.map(({ value, label, icon }) => <button key={value} type="button" aria-pressed={device === value} onClick={() => setDevice(value)} aria-label={label}>
-              {icon}
-            </button>)}
-          </div>}
         </header>
 
         <div className={s.previewScroll}>
@@ -281,7 +276,7 @@ export function WordPressCockpit({ themes, plugins, selectedSlug, pluginSlug, ki
             </div>
 
             {kind === 'theme' && theme ? <>
-              <div className={s.previewVisual}><DeviceFrame device={device} theme={theme} /></div>
+              <div className={s.previewVisual}><DeviceFrame device={device} theme={theme} eager /></div>
               <div className={s.previewDetails}>
                 {theme.shortDescription ? <p>{theme.shortDescription}</p> : null}
                 <RegistryFacts item={theme} t={t} />
@@ -341,6 +336,14 @@ export function WordPressCockpit({ themes, plugins, selectedSlug, pluginSlug, ki
         <PluginSelector plugins={plugins} selectedSlug={pluginSlug} active={kind === 'plugin'} onSelect={choosePlugin} query={pluginQuery} onQuery={setPluginQuery} t={t} />
         <a className={s.panelCatalogLink} href="/wordpress/plugins">{t('Full plugin catalogue', 'فهرس الإضافات الكامل')} <span aria-hidden="true">↗</span></a>
       </aside>
+      {(kind === 'theme' || kind === 'site') && <div className={`${s.deviceSwitch} ${s.orbitalDeviceDock}`} role="group" aria-label={t('Preview device', 'جهاز المعاينة')}>
+        {devices.map(({ value, label, icon }) => <button key={value} type="button" aria-pressed={device === value} onClick={() => {
+          if (value !== device) cueAtmosphere('confirm');
+          setDevice(value);
+        }} aria-label={label}>
+          <span aria-hidden="true">{icon}</span><span>{label}</span>
+        </button>)}
+      </div>}
     </div>
 
     <nav className={s.mobileCockpitDock} aria-label={t('Studio libraries', 'مكتبات الاستوديو')}>

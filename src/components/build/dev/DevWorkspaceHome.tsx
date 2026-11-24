@@ -418,7 +418,7 @@ export function DevWorkspaceHome() {
         </div>
         <div className="dev-universe__caption"><span>PROJECT CONSTELLATION</span><button type="button" onClick={() => setView('registry')}>EXPLORE {facts.registryCount} PRODUCTS ↗</button></div>
       </div> : view === 'preview' ? (
-        <div className={previewStyles.workspace} data-reduced={state.preferences.motion === 'reduced' ? '' : undefined}>
+        <div className={previewStyles.workspace} data-engineering-workspace data-reduced={state.preferences.motion === 'reduced' ? '' : undefined}>
           <header className={previewStyles.workspaceHeading}>
             <div><span>KNOuX BUILD</span><h1>Project preview</h1></div>
             <div className={previewStyles.desktopControls}>

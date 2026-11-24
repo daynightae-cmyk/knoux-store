@@ -200,3 +200,58 @@
 @media (max-width: 650px) {
   .selection { position: static; grid-column: 1 / -1; order: 4; transform: none; }
 }
+
+.dossier {
+  position: absolute; inset: 40% auto auto 50%; z-index: 5; width: min(40%, 630px); transform: translateX(-50%);
+  border: 1px solid #d8a1ff; border-radius: 23px; color: #f8edff;
+  background: radial-gradient(ellipse 70% 65% at 50% 0%,#702bc39e, transparent 80%), linear-gradient(145deg,#2b1249f7,#100822f5 67%);
+  box-shadow: inset 0 1px #e6bdff, inset 0 0 27px #b24fff69, 0 0 25px #ba5effa6, 0 26px 49px #020007d9;
+}
+.dossierSeal {
+  position: absolute; width: 58px; height: 58px; inset: -37px auto auto 50%; translate: -50% 0;
+  padding: 8px; border: 1px solid #ecc3ff; border-radius: 50%;
+  background: #30114f; box-shadow: inset 0 0 13px #bb51fab0, 0 0 17px #e481ff;
+}
+.dossierContent { padding: clamp(15px,2cqw,27px) clamp(12px,2cqw,26px) 8px; }
+.dossierContent header { display: flex; flex-wrap: wrap; align-items: center; gap: 9px 13px; }
+.dossierContent header > div { flex: 1; min-width: 115px; }
+.dossierContent header img { filter: brightness(0) invert(1) drop-shadow(0 0 9px #d794ff); }
+.dossierContent header span { color: #dcc0ff; font-size: 10px; letter-spacing: .1em; }
+.dossierContent h2 { font-size: clamp(20px, 2.35cqw, 36px); line-height: 1.06; margin: 2px 0 0; overflow-wrap: anywhere; }
+.dossierContent header strong {
+  padding: 6px 9px; border: 1px solid #9777d698; border-radius: 999px;
+  background: #211c44; color: #cfedff; font-size: 10px; font-weight: 600;
+}
+.dossierContent dl { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin: 13px 0 3px; }
+.dossierContent dl div { padding: 8px 10px; border: 1px solid #ba80fc52; border-radius: 11px; background: #140b2b; }
+.dossierContent dt { color: #d5b8ec; font-size: 10px; }
+.dossierContent dd { margin: 4px 0 0; color: #fff0ff; font-size: 12px; overflow-wrap: anywhere; }
+.dossierActions { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; padding: 8px 11px 13px; }
+.hero .dossierActions :is(button,a) {
+  display: inline-grid; align-items: center; min-height: 40px; padding: 5px 11px;
+  border: 1px solid #b78aea90; border-radius: 10px; background: #3a205a; color: #f3e4ff;
+  text-decoration: none; font-size: 12px;
+}
+.hero .dossierActions button:first-child { border-color: #86dffa; background: #193454; color: #c9f3ff; }
+.hero .orbits { filter: drop-shadow(0 0 5px #ae54fc); }
+.hero .node[aria-pressed=true] .sphere { outline: 1px solid #c6f6ff; outline-offset: 4px; }
+.hero .getApi::before { display: none; }
+@media (min-width: 651px) {
+  .hero { aspect-ratio: 2.02; }
+  .hero .getApi { top: 88%; }
+  .hero .node { min-width: 44px; }
+}
+@media (min-width: 651px) and (prefers-reduced-motion:no-preference) {
+  @supports (offset-path: ellipse(39% 30% at 50% 53%)) {
+    .hero .node { offset-path: ellipse(39% 30% at 50% 53%); }
+    .hero:focus-within .node, .hero:has(.dossier:hover) .node { animation-play-state: paused; }
+  }
+  .dossierContent { animation: dossier-arrive .3s ease-out both; }
+}
+@keyframes dossier-arrive { from { opacity: .25; translate: 0 5px; } to { opacity: 1; translate: none; } }
+@media (max-width: 650px) {
+  .hero { aspect-ratio: auto; }
+  .dossier { position: relative; inset: auto; grid-column: 1 / -1; grid-row: 3; width: min(100%, 400px); margin: 28px 0 8px; transform: none; }
+  .dossierSeal { width: 46px; height: 46px; inset-block-start: -26px; }
+  .dossierContent { padding-top: 24px; }
+}

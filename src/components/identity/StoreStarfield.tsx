@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useStarfieldVisual } from './StoreStarfieldProvider';
 import type { StoreStarfieldPhase } from '@/lib/build/generator-state';
 import { paintPlanet } from '@/components/cosmic/planet';
+import { listenAtmosphere } from '@/components/build/dev/living-atmosphere';
 
 /** One continuous night sky across routes; independent, slow stellar scintillation. */
 export function StoreStarfield({ phase }: { phase?: StoreStarfieldPhase } = {}) {
@@ -46,10 +47,26 @@ export function StoreStarfield({ phase }: { phase?: StoreStarfieldPhase } = {}) 
     let elapsed = 0;
     let lastFrame = 0;
     let lastPaint = 0;
+    let pulse: { time: number; x: number; y: number } | null = null;
+    let interaction: { time: number; x: number; y: number } | null = null;
+
+    const rememberPointer = (event: PointerEvent) => {
+      interaction = { time: performance.now(), x: event.clientX, y: event.clientY };
+    };
+    const stopListening = listenAtmosphere((cue) => {
+      if (cue !== 'confirm' || motion.matches || document.hidden || !width || !height) return;
+      const now = performance.now();
+      const point = interaction && now - interaction.time < 750 ? interaction : { x: width / 2, y: height * .4 };
+      pulse = { time: elapsed, x: point.x, y: point.y };
+    });
+    document.addEventListener('pointerdown', rememberPointer, { capture: true, passive: true });
 
     const draw = () => {
       context.clearRect(0, 0, width, height);
       const semantic = current.current;
+      const age = pulse ? elapsed - pulse.time : Infinity;
+      const burst = !motion.matches && age < 1.35 ? (1 - age / 1.35) ** 2 : 0;
+      const reach = Math.min(width, 1000) * (.12 + Math.min(age, 1.35) * .17);
       if (semantic.phase === 'ambient') {
         const radius = Math.min(28, width * .035);
         const drift = motion.matches ? 0 : Math.sin(elapsed * .075) * 4;
@@ -82,7 +99,9 @@ export function StoreStarfield({ phase }: { phase?: StoreStarfieldPhase } = {}) 
             y += (height / 2 - y) * 0.08;
           } else if (semantic.phase === 'routing' && index < 4) positions.set(String(index), { x, y });
         }
-        const colour = star.warm ? '251, 204, 226' : star.depth > .7 ? '190, 224, 255' : '222, 210, 252';
+        const lift = pulse && burst ? Math.max(0, 1 - Math.hypot(x - pulse.x, y - pulse.y) / reach) * burst : 0;
+        alpha = Math.min(.87, alpha + lift * .56);
+        const colour = lift > .12 ? '207, 161, 255' : star.warm ? '251, 204, 226' : star.depth > .7 ? '190, 224, 255' : '222, 210, 252';
         if (star.radius > 1) {
           const halo = context.createRadialGradient(x, y, 0, x, y, star.radius * 4);
           halo.addColorStop(0, `rgba(${colour}, ${alpha * 0.28})`);
@@ -153,6 +172,8 @@ export function StoreStarfield({ phase }: { phase?: StoreStarfieldPhase } = {}) 
       observer.disconnect();
       motion.removeEventListener('change', sync);
       document.removeEventListener('visibilitychange', sync);
+      document.removeEventListener('pointerdown', rememberPointer, true);
+      stopListening();
     };
   }, []);
 

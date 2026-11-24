@@ -8,7 +8,7 @@
  * resized for comparison, honestly labelled, never presented as a live site.
  */
 import type { ExternalItem } from '@/lib/wordpress/external';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
 import s from './journeys.module.css';
@@ -21,21 +21,31 @@ export const DEVICE_SPECS: Record<PreviewDevice, { width: number; height: number
   mobile: { width: 390, height: 844 },
 };
 
-function Screen({ theme }: Readonly<{ theme: ExternalItem }>) {
+function Screen({ theme, eager }: Readonly<{ theme: ExternalItem; eager: boolean }>) {
   const language = useSiteLanguage();
+  const [status, setStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading');
   const t = (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
   if (!theme.screenshotUrl) {
     return <p className={s.screenEmpty}>{t('This theme has no official screenshot.')}</p>;
   }
   return (
     <>
-      {/* eslint-disable-next-line @next/next/no-img-element -- unmodified official image through the existing allowlisted proxy */}
+      {status !== 'ready' && <p role="status" className={s.screenEmpty}>
+        {status === 'loading' ? t('Loading official screenshot…') : t('Official screenshot unavailable.')}
+      </p>}
+      {status !== 'unavailable' && (
+      // eslint-disable-next-line @next/next/no-img-element -- unmodified official image through the existing allowlisted proxy
       <img
         className={s.screenImg}
         src={`/api/wp-image?u=${encodeURIComponent(theme.screenshotUrl)}`}
         alt={`${theme.name} · WordPress.org`}
-        loading="lazy"
+        loading={eager ? 'eager' : 'lazy'}
+        data-pending={status === 'loading' || undefined}
+        aria-hidden={status === 'loading' || undefined}
+        onLoad={() => setStatus('ready')}
+        onError={() => setStatus('unavailable')}
       />
+      )}
     </>
   );
 }
@@ -43,9 +53,10 @@ function Screen({ theme }: Readonly<{ theme: ExternalItem }>) {
 type FrameContent = { theme: ExternalItem; children?: never; title?: never }
   | { theme?: never; children: ReactNode; title: string };
 
-export function DeviceFrame({ device, theme, children, title, chrome = true }: Readonly<{
+export function DeviceFrame({ device, theme, children, title, chrome = true, eager = false }: Readonly<{
   device: PreviewDevice;
   chrome?: boolean;
+  eager?: boolean;
 }> & FrameContent) {
   return (
     <div className={s.frameStage} data-device={device}>
@@ -57,7 +68,7 @@ export function DeviceFrame({ device, theme, children, title, chrome = true }: R
           </div>
         ) : null}
         <div className={theme ? s.screen : s.draftScreen}>
-          {theme ? <Screen theme={theme} /> : children}
+          {theme ? <Screen key={theme.screenshotUrl ?? theme.slug} theme={theme} eager={eager} /> : children}
         </div>
         {device === 'mobile' ? <span className={s.notch} aria-hidden="true" /> : null}
         {device === 'desktop' ? <span className={s.stand} aria-hidden="true" /> : null}
