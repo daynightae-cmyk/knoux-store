@@ -42,6 +42,16 @@ test.describe('workspace boundary over HTTP', () => {
     });
   }
 
+  test('a same-origin editor save still requires an authenticated owner', async ({ request, baseURL }) => {
+    const response = await request.put('/api/build/file?project=studio', {
+      headers: { origin: new URL(baseURL!).origin },
+      data: { path: 'src/index.ts', content: 'edited', expectedHash: 'a'.repeat(64) },
+    });
+    expect(response.status()).toBe(401);
+    expect(response.headers()['cache-control']).toBe('no-store');
+    expect(await response.json()).toMatchObject({ authenticated: false, scope: 'file-save' });
+  });
+
   test('the verification runner is refused before it is even considered', async ({ request }) => {
     const response = await request.post('/api/build/verify', {
       data: { task: 'build' },
