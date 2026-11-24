@@ -12,7 +12,9 @@
 .theatre :focus-visible { outline: 2px solid #d9c4ff; outline-offset: 3px; }
 .body { display: grid; grid-template-columns: 165px minmax(0, 1fr) 270px; }
 [data-campaign-theatre] .theatre { container-type: inline-size; margin: 0; border: 0; }
-[data-campaign-theatre] .body { grid-template-columns: minmax(0, 1fr); }
+[data-campaign-theatre] .toolbar h2 { font-size: clamp(19px, 2vw, 26px); line-height: 1.17; }
+[data-campaign-theatre] .body { display: grid; grid-template-columns: minmax(0, 1fr); }
+[data-campaign-theatre] .canvasColumn { grid-row: 1; }
 [data-campaign-theatre] .studioNav { display: flex; flex-wrap: wrap; gap: 4px; border-inline-end: 0; }
 [data-campaign-theatre] .studioNav > button { width: auto; }
 [data-campaign-theatre] .library { width: 100%; }

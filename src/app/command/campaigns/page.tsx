@@ -86,84 +86,49 @@ function Campaigns() {
       </div>}
 
       <div className={styles.campaignDeck}>
-      <div className={styles.campaignRegistry}>
-      <Section title="Campaigns" note="Select a campaign to inspect its approval state.">
-        {campaigns.length === 0 ? (
-          <EmptyState title="No campaigns">
-            A campaign starts as a draft and becomes spendable only through a recorded approval.
-          </EmptyState>
-        ) : (
-          <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
-            <table className={styles.ccTable ?? ''}>
-              <thead>
-                <tr>
-                  <th scope="col">Campaign</th>
-                  <th scope="col">Objective</th>
-                  <th scope="col">Platforms</th>
-                  <th scope="col" className={styles.ccTableNum ?? ''}>Budget</th>
-                  <th scope="col" className={styles.ccTableNum ?? ''}>Days</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Origin</th>
-                </tr>
-              </thead>
-              <tbody>
+        <div className={styles.campaignRegistry}>
+          <Section title="Campaigns">
+            {campaigns.length === 0 ? (
+              <EmptyState title="No campaigns">
+                A campaign starts as a draft and becomes spendable only through a recorded approval.
+              </EmptyState>
+            ) : (
+              <ul className={styles.campaignChoices} aria-label="Campaigns">
                 {campaigns.map((campaign) => (
-                  <tr key={campaign.id}>
-                    <td>
-                      <button
-                        type="button"
-                        aria-pressed={selected?.id === campaign.id}
-                        className={styles.ccButton ?? ''}
-                        style={{ border: 0, padding: 0, textTransform: 'none', letterSpacing: 0, fontSize: 12.5 }}
-                        onClick={() => {
-                          setSelectedId(campaign.id);
-                          const creative = records.creatives.find((draft) => draft.campaignId === campaign.id || campaign.creativeSetIds.includes(draft.id));
-                          if (creative) selectCreative(creative.id);
-                        }}
-                      >
-                        {campaign.name}
-                      </button>
-                    </td>
-                    <td>{campaign.objective}</td>
-                    <td>
-                      <span style={{ display: 'inline-flex', gap: 8, flexWrap: 'wrap' }}>
+                  <li key={campaign.id}>
+                    <button
+                      type="button"
+                      aria-pressed={selected?.id === campaign.id}
+                      aria-labelledby={`campaign-${campaign.id}-name`}
+                      aria-describedby={`campaign-${campaign.id}-details campaign-${campaign.id}-status`}
+                      onClick={() => {
+                        setSelectedId(campaign.id);
+                        const creative = records.creatives.find((draft) => draft.campaignId === campaign.id || campaign.creativeSetIds.includes(draft.id));
+                        if (creative) selectCreative(creative.id);
+                      }}
+                    >
+                      <strong id={`campaign-${campaign.id}-name`}>{campaign.name}</strong>
+                      <span id={`campaign-${campaign.id}-details`} className={styles.campaignMeta}>{campaign.objective} · {formatBudget(campaign.budgetMinor, campaign.currency)} · {daysInclusive(campaign.startDate, campaign.endDate)} days</span>
+                      <span className={styles.campaignMeta}>
                         {campaign.platforms.map((platform) => (
                           <PlatformName key={platform} platform={platform} label={platform.replace('_', ' ')} />
                         ))}
                       </span>
-                    </td>
-                    <td className={styles.ccTableNum ?? ''}>{formatBudget(campaign.budgetMinor, campaign.currency)}</td>
-                    <td className={styles.ccTableNum ?? ''}>{daysInclusive(campaign.startDate, campaign.endDate)}</td>
-                    <td>
-                      <CodeBadge
-                        tone={
-                          campaign.status === 'LIVE'
-                            ? 'live'
-                            : campaign.status === 'APPROVED'
-                              ? 'info'
-                              : campaign.status === 'READY_FOR_REVIEW'
-                                ? 'warn'
-                                : campaign.status === 'FAILED'
-                                  ? 'bad'
-                                  : 'neutral'
-                        }
-                      >
-                        {campaign.status.replace(/_/g, ' ')}
-                      </CodeBadge>
-                    </td>
-                    <td>
-                      <OriginLabel origin={campaign.origin} />
-                    </td>
-                  </tr>
+                      <span id={`campaign-${campaign.id}-status`} className={styles.campaignMeta}>
+                        <CodeBadge tone={campaign.status === 'LIVE' ? 'live' : campaign.status === 'APPROVED' ? 'info' : campaign.status === 'READY_FOR_REVIEW' ? 'warn' : campaign.status === 'FAILED' ? 'bad' : 'neutral'}>
+                          {campaign.status.replace(/_/g, ' ')}
+                        </CodeBadge>
+                        <OriginLabel origin={campaign.origin} />
+                      </span>
+                    </button>
+                  </li>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Section>
-      </div>
-      {selected && <div className={styles.campaignTheatre} data-campaign-theatre><AdPreviewTheatre campaignId={selected.id} /></div>}
-      {selected && <div className={styles.campaignApproval}><CampaignReview campaign={selected} /></div>}
+              </ul>
+            )}
+          </Section>
+        </div>
+        {selected && <div className={styles.campaignTheatre} data-campaign-theatre><AdPreviewTheatre campaignId={selected.id} /></div>}
+        {selected && <div className={styles.campaignApproval}><CampaignReview campaign={selected} /></div>}
       </div>
       {selected ? (
         <Section title="Campaign detail" note={CAMPAIGN_STATUS_MEANING[selected.status]}>
