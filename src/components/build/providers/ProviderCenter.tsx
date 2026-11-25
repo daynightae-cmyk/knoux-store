@@ -251,7 +251,7 @@ export function ProviderCenter({ embedded = false, initialDefinitions = [] }: Re
         <Link href="/build" key={surface} onClick={() => dispatch({ type: 'surface/active', surface })}>{label}</Link>
       ))}
     </nav> : null}
-    {!embedded ? <div className={styles.modeSwitch} role="group" aria-label="Provider workspace view">
+    {!embedded ? <div className={styles.modeSwitch} role="group" aria-label="Provider view mode">
       <button type="button" aria-pressed={isConstellation} onClick={() => setMode('constellation')}>Constellation</button>
       <button type="button" aria-pressed={!isConstellation} onClick={() => setMode('catalog')}>Intelligence catalog</button>
     </div> : null}
