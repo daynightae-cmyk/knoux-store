@@ -65,17 +65,19 @@ test('WordPress studio changes official selection, sizes the screenshot and carr
   await page.goto('/wordpress');
   await page.locator('[data-enter-studio]').click();
   const studio = page.getByRole('dialog', { name: 'WordPress Studio' });
-  // On tablet the cockpit's theme panel collapses below 1101px and the mobile
-  // dock carries the "Themes" entry, which opens the theme sheet. The old test
-  // targeted a "Themes" dialog and a combobox that the current cockpit no
-  // longer renders; the sheet is named "Choose a theme" and lists theme
-  // buttons instead.
-  await studio.getByRole('button', { name: /^Themes/ }).click();
-  const themePanel = page.getByRole('dialog', { name: 'Choose a theme' });
-  const choices = themePanel.locator('button[data-cockpit-theme]');
+  // The cockpit themes panel is expanded on desktop; on tablet/mobile it
+  // collapses into the mobile dock's "Themes" entry, which opens the theme
+  // sheet. The old test targeted a "Themes" dialog and a combobox that the
+  // current cockpit no longer renders; the sheet is named "Choose a theme"
+  // and lists theme buttons instead.
+  let choices = studio.locator('button[data-cockpit-theme]');
+  if ((await choices.count()) === 0) {
+    await studio.getByRole('button', { name: /^Themes/ }).click();
+    choices = page.getByRole('dialog', { name: 'Choose a theme' }).locator('button[data-cockpit-theme]');
+  }
   // A live upstream failure is a legitimate state, not a fixture substitute.
   if ((await choices.count()) === 0) {
-    await expect(themePanel.getByRole('status')).toContainText('unavailable');
+    await expect(page.getByRole('dialog', { name: 'Choose a theme' }).locator('status')).toContainText('unavailable');
     return;
   }
   const first = choices.first();
