@@ -65,21 +65,24 @@ test('WordPress studio changes official selection, sizes the screenshot and carr
   await page.goto('/wordpress');
   await page.locator('[data-enter-studio]').click();
   const studio = page.getByRole('dialog', { name: 'WordPress Studio' });
-  await studio.getByRole('button', { name: 'Themes', exact: true }).click();
-  const themePanel = page.getByRole('dialog', { name: 'Themes' });
-  const select = themePanel.getByRole('combobox');
+  // On tablet the cockpit's theme panel collapses below 1101px and the mobile
+  // dock carries the "Themes" entry, which opens the theme sheet. The old test
+  // targeted a "Themes" dialog and a combobox that the current cockpit no
+  // longer renders; the sheet is named "Choose a theme" and lists theme
+  // buttons instead.
+  await studio.getByRole('button', { name: /^Themes/ }).click();
+  const themePanel = page.getByRole('dialog', { name: 'Choose a theme' });
+  const choices = themePanel.locator('button[data-cockpit-theme]');
   // A live upstream failure is a legitimate state, not a fixture substitute.
-  if (await select.count() === 0) {
+  if ((await choices.count()) === 0) {
     await expect(themePanel.getByRole('status')).toContainText('unavailable');
     return;
   }
-  const options = await select.locator('option').count();
-  expect(options).toBeGreaterThan(0);
-  if (options > 1) await select.selectOption({ index: 1 });
-  const name = await select.locator('option:checked').textContent();
-  await themePanel.getByRole('button', { name: 'Close' }).click();
+  const first = choices.first();
+  const name = await first.locator('strong').textContent();
+  await first.click();
   const request = studio.getByRole('link', { name: 'Compose a site request' });
-  expect(new URLSearchParams((await request.getAttribute('href'))!.split('?')[1]).get('items')).toContain(name);
+  expect(new URLSearchParams((await request.getAttribute('href'))!.split('?')[1]).get('items')).toContain(name!);
   await studio.getByRole('button', { name: 'Studio journeys' }).click();
   await page.getByRole('dialog', { name: 'Studio journeys' }).getByRole('button', { name: 'Live Responsive Canvas' }).click();
   const mobile = studio.getByRole('switch', { name: 'Mobile', exact: true });

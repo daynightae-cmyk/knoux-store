@@ -101,8 +101,8 @@ export function WordPressWelcome({ active, themesLoaded, directoryState, journey
       <a href="#studio" className={s.enter} onClick={enterStudio} data-enter-studio><span><b>Enter WordPress Studio</b><small lang="ar">دخول إلى استوديو ووردبريس</small></span><i aria-hidden="true">→</i></a>
       <nav className={s.features} aria-label={ar ? 'اختصارات الاستوديو' : 'Studio shortcuts'}>
         {FEATURES.map((item) => item.href.startsWith('#')
-          ? <a href={item.href} key={item.title} onClick={enterStudio} aria-label={ar ? item.ar : `${item.title} — ${item.subtitle}`}><WpIcon name={item.icon} /><span><b>{item.title}</b><small>{item.subtitle}</small></span></a>
-          : <Link href={item.href} key={item.title} aria-label={ar ? item.ar : `${item.title} — ${item.subtitle}`}><WpIcon name={item.icon} /><span><b>{item.title}</b><small>{item.subtitle}</small></span></Link>)}
+          ? <a href={item.href} key={item.title} onClick={enterStudio}><WpIcon name={item.icon} /><span><b>{item.title}</b><small>{item.subtitle}</small></span></a>
+          : <Link href={item.href} key={item.title}><WpIcon name={item.icon} /><span><b>{item.title}</b><small>{item.subtitle}</small></span></Link>)}
       </nav>
       <div className={s.limb} aria-hidden="true" />
     </section>

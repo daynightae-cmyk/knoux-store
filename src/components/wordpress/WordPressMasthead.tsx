@@ -28,7 +28,7 @@ export function WordPressMasthead() {
         <Link href="/wordpress/patterns">Resources <span lang="ar">الموارد</span></Link>
         <Link href="/contact">Support <span lang="ar">الدعم</span></Link>
       </nav>
-      <Link href="/wordpress" className={s.storeIdentity} aria-label="KNOUX Store — Digital Headquarters">
+      <Link href="/wordpress" className={s.storeIdentity}>
         <strong>KNOuX <span>STORE</span></strong>
         <small>Digital Headquarters</small>
       </Link>

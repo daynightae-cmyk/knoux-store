@@ -207,7 +207,10 @@ export function WordPressStudio({
       </header>
 
       {active === 'arrival' && <p className={styles.wordmark}>KNOuX <span>STORE</span></p>}
-      <h1 id="wordpress-studio-title" className={styles.studioTitle}>WordPress Studio</h1>
+      {/* The arrival gateway owns the page's only <h1>. The Studio is a modal
+          region on top of it, so its title is an accessible level-one heading
+          without becoming a second document heading. */}
+      <p id="wordpress-studio-title" role="heading" aria-level={1} className={styles.studioTitle}>WordPress Studio</p>
       <div className={styles.toolbar}>
         <button ref={journeyTrigger} type="button" onClick={() => journeys.current?.showModal()}>{t('Studio journeys', 'رحلات الاستوديو')}</button>
         <button type="button" onClick={() => accountDrafts.current?.showModal()}>{t('Account drafts', 'مسودات الحساب')}</button>

@@ -217,7 +217,7 @@
 .dossierContent header > div { flex: 1; min-width: 115px; }
 .dossierContent header img { filter: brightness(0) invert(1) drop-shadow(0 0 9px #d794ff); }
 .dossierContent header span { color: #dcc0ff; font-size: 10px; letter-spacing: .1em; }
-.dossierContent h2 { font-size: clamp(20px, 2.35cqw, 36px); line-height: 1.06; margin: 2px 0 0; overflow-wrap: anywhere; }
+.dossierContent h2, .dossierName { font-size: clamp(20px, 2.35cqw, 36px); line-height: 1.06; margin: 2px 0 0; overflow-wrap: anywhere; }
 .dossierContent header strong {
   padding: 6px 9px; border: 1px solid #9777d698; border-radius: 999px;
   background: #211c44; color: #cfedff; font-size: 10px; font-weight: 600;

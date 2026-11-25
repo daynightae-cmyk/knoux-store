@@ -76,7 +76,7 @@ export function ProviderHero({ definitions, selected, connection, discoveredMode
       {current ? <div key={current.id} className={s.dossierContent} aria-live="polite">
         <header>
           {currentMark && <Image src={`/providers/${currentMark}.svg`} alt="" width={43} height={43} />}
-          <div><span>{current.class.replaceAll('_', ' ')}</span><h2>{current.name}</h2></div>
+          <div><span>{current.class.replaceAll('_', ' ')}</span><p className={s.dossierName}>{current.name}</p></div>
           <strong>{connection?.replaceAll('_', ' ')}</strong>
         </header>
         <dl>
