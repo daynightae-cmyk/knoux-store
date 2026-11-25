@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'path';
 import ts from 'typescript';
 import { root } from './helpers.mjs';
@@ -492,13 +492,13 @@ test('an approval is recorded and the pending request is cleared', () => {
 test('no Build OS source reaches for a browser-exposed secret', () => {
   const offenders = [];
   const walk = (dir) => {
-    for (const entry of readdirSync(dir)) {
-      const full = `${dir}/${entry}`;
-      if (statSync(full).isDirectory()) {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = `${dir}/${entry.name}`;
+      if (entry.isDirectory()) {
         walk(full);
         continue;
       }
-      if (!/\.(ts|tsx)$/.test(entry)) continue;
+      if (!/\.(ts|tsx)$/.test(entry.name)) continue;
       const text = readFileSync(full, 'utf8');
       if (/NEXT_PUBLIC_[A-Z_]*(API_KEY|SECRET|TOKEN)/.test(text)) {
         offenders.push(full.replace(root, '.'));

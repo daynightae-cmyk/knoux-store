@@ -36,7 +36,7 @@
   background:
     radial-gradient(ellipse 9% 22% at 50% 100%,#f6eaffcc,transparent 74%),
     radial-gradient(ellipse 58% 40% at 50% 100%,#8b4fd952,transparent 72%)}
-.limb::before{content:'';position:absolute;inset:0;border-radius:inherit;opacity:.75;background:
+.limb::before{content:'';position:absolute;inset:0;border-radius:inherit;opacity:.75;background-image:
   radial-gradient(circle 2px at 22% 30%,#ffbe8ccc,transparent),radial-gradient(circle 1.6px at 29% 48%,#ffaa78b8,transparent),
   radial-gradient(circle 2.4px at 43% 22%,#ffc896d9,transparent),radial-gradient(circle 1.4px at 52% 40%,#ffb482b0,transparent),
   radial-gradient(circle 2px at 63% 27%,#ffbe8cc4,transparent),radial-gradient(circle 1.6px at 72% 45%,#ffaa7899,transparent),
@@ -117,7 +117,7 @@
 .hero .node span:last-child{line-height:1.15;font-size:1.05cqw!important}
 .hero .core{top:41%;height:30%;transform:perspective(900px) rotateX(-15deg) rotateY(11deg) rotateZ(3deg);
   border:1.5px solid #efe2ff;border-radius:2.6cqw;
-  background:
+  background-image:
     radial-gradient(circle 1.1px at 18% 22%,#ffffffcc,transparent),radial-gradient(circle .9px at 34% 12%,#e9d5ffb8,transparent),
     radial-gradient(circle 1.2px at 62% 18%,#fff,transparent),radial-gradient(circle .8px at 80% 30%,#d8b4ffb0,transparent),
     radial-gradient(circle 1px at 24% 52%,#efe6ffb0,transparent),radial-gradient(circle .9px at 70% 60%,#e2d4ff9e,transparent),

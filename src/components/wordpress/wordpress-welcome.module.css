@@ -578,7 +578,7 @@
   inset: 2.6%;
   border-radius: 50%;
   overflow: hidden;
-  background:
+  background-image:
     radial-gradient(ellipse 38% 28% at 28% 68%, rgba(150, 70, 230, .52), transparent 68%),
     radial-gradient(ellipse 30% 22% at 72% 56%, rgba(116, 46, 196, .38), transparent 70%),
     radial-gradient(ellipse 46% 20% at 50% 97%, rgba(200, 150, 255, .46), transparent 72%),

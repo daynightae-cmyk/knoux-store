@@ -121,8 +121,7 @@ test('a bare phrase becomes one candidate per selected extension', () => {
 test('a full domain is checked first, then the same name on other extensions', () => {
   const parsed = parseQuery('knoux.com', ['net', 'dev']);
   assert.equal(parsed.candidates[0], 'knoux.com', 'the typed domain is what the visitor meant');
-  assert.ok(parsed.candidates.includes('knoux.net'));
-  assert.ok(parsed.candidates.includes('knoux.dev'));
+  assert.deepEqual(parsed.candidates, ['knoux.com', 'knoux.net', 'knoux.dev']);
 });
 
 test('a protocol, a path and a www prefix are stripped rather than refused', () => {

@@ -569,6 +569,13 @@ async function copyCompiledFiles(from: string, to: string, files: GeneratedFileR
   signal.throwIfAborted();
 }
 
+async function removePublishStaging(staging: string, stagingRoot: string | null): Promise<void> {
+  if (!stagingRoot || staging === stagingRoot || !inside(stagingRoot, staging)) {
+    throw new Error('Publish staging cleanup escaped its root.');
+  }
+  await fs.rm(staging, { recursive: true, force: true });
+}
+
 export async function deployGeneratedProject(root: string, ownerId: string, operationId: string, target: unknown, confirmation: unknown): Promise<GeneratedRuntimeReceipt> {
   const id = generatedOperationId(operationId);
   const deployTarget = generatedDeployTarget(target);
@@ -661,10 +668,7 @@ export async function deployGeneratedProject(root: string, ownerId: string, oper
     } finally {
       // Only the unique private staging directory created by this attempt is
       // disposable. Never remove existing or committed published output.
-      if (staging) {
-        if (!stagingRoot || staging === stagingRoot || !inside(stagingRoot, staging)) throw new Error('Publish staging cleanup escaped its root.');
-        await fs.rm(staging, { recursive: true, force: true });
-      }
+      if (staging) await removePublishStaging(staging, stagingRoot);
     }
   });
 }

@@ -27,7 +27,7 @@
   z-index: -3;
   inset: 0;
   pointer-events: none;
-  background:
+  background-image:
     radial-gradient(ellipse 60% 50% at 50% 56%, rgba(7, 5, 14, .5), transparent 74%),
     radial-gradient(ellipse 20% 16% at 2% 2%, rgba(139, 70, 245, .55), transparent 62%),
     radial-gradient(ellipse 10% 8% at 12% 12%, rgba(216, 180, 254, .34), transparent 66%),
@@ -217,7 +217,7 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background:
+  background-image:
     radial-gradient(circle 2px at 24% 34%, rgba(255, 190, 140, .8), transparent 100%),
     radial-gradient(circle 1.6px at 31% 52%, rgba(255, 170, 120, .7), transparent 100%),
     radial-gradient(circle 2.4px at 47% 26%, rgba(255, 200, 150, .85), transparent 100%),

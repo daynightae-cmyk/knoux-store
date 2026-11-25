@@ -9,7 +9,7 @@ test('standalone web starters escape edited content and reject CSS injection', (
   const html = starterDocument(system, identity, 'rtl');
   assert.equal(identity.accent, '#9c6bff');
   assert.match(html, /&lt;script&gt;/);
-  assert.doesNotMatch(html, /<script>|onload="alert/);
+  assert.doesNotMatch(html, /<script\b|onload\s*=\s*"alert/i);
   assert.match(html, /dir="rtl"/);
   assert.match(html, /default-src 'none'/);
   assert.match(html, /href="#details"/);
