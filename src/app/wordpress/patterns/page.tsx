@@ -6,6 +6,7 @@ import { ExternalMarketplace, readMarketplaceQuery } from '@/components/wordpres
 import { FirstPartyRail } from '@/components/wordpress/FirstPartyRail';
 import { queryPatterns } from '@/lib/wordpress/wordpress-org';
 import { pageMetadata } from '@/lib/metadata';
+import styles from '@/components/wordpress/StudioLayoutLibrary.module.css';
 
 export const metadata = pageMetadata(
   'Patterns',
@@ -22,7 +23,7 @@ export default async function PatternsPage({
   const patterns = await queryPatterns({ search: query.search, page: query.page, perPage: query.perPage });
 
   return (
-    <main id="main-content" tabIndex={-1}>
+    <main id="main-content" tabIndex={-1} className={styles.patternPage}>
       <PageIntro
         index="WP-06"
         label="WordPress"
@@ -30,11 +31,8 @@ export default async function PatternsPage({
         italic="directory."
         description="Reusable block layouts published in the official WordPress.org pattern directory, attributed to the authors who publish them."
       />
-      <SignalRail division="wordpress" path="/wordpress/patterns" />
-
-      <FirstPartyRail type="block" label="pattern" />
-
-      <section className="shell" style={{ paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
+      <section className={`shell ${styles.patternSurface}`}>
+        <div className={styles.patternDirectory}>
         <ExternalMarketplace
           basePath="/wordpress/patterns"
           query={query}
@@ -51,7 +49,10 @@ export default async function PatternsPage({
             the pattern can be opened, copied and edited in WordPress where it belongs.
           </p>
         </div>
+        </div>
       </section>
+      <SignalRail division="wordpress" path="/wordpress/patterns" />
+      <FirstPartyRail type="block" label="pattern" />
 
       <section className="shell" style={{ paddingBottom: 'clamp(80px, 9vw, 150px)' }}>
         <p className="meta-row" style={{ marginBottom: 30 }}>

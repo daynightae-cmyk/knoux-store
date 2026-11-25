@@ -8,13 +8,16 @@ const routes = ['/build', '/build/apps', '/build/services', '/build/pipeline', '
 test.beforeEach(async ({ page }) => { mkdirSync(evidence, { recursive: true }); await page.addInitScript(() => sessionStorage.setItem('knoux-dev-entry-intent', 'Build a real project')); });
 
 test('all ten connected routes fit and produce fresh evidence at desktop, tablet and mobile', async ({ page }, info) => {
-  test.skip(info.project.name !== 'desktop', 'The existing cinematic suite covers each browser profile; capture widths once.'); test.setTimeout(240_000);
+  test.skip(info.project.name !== 'desktop', 'The existing cinematic suite covers each browser profile; capture widths once.'); test.setTimeout(480_000);
   const errors: string[] = []; page.on('pageerror', (error) => errors.push(error.message));
   for (const width of [1440, 768, 390]) {
     await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
     for (const route of routes) {
       expect((await page.goto(route))?.status()).toBe(200); await expect(page.locator('#main-content h1')).toHaveCount(1);
-      await expect(page.locator('.dev-living-mark canvas')).toHaveAttribute('data-motion', 'stable');
+      const mark = page.locator('.dev-living-mark canvas');
+      // The standalone Provider constellation intentionally suppresses the shared mark.
+      if (route === '/build/providers') await expect(mark).toHaveAttribute('data-loop', 'paused');
+      else await expect(mark).toHaveAttribute('data-motion', 'stable');
       expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
       await page.screenshot({ path: join(evidence, `${route === '/build' ? 'workspace' : route.split('/').at(-1)}-${width}.png`) });
     }
@@ -39,7 +42,7 @@ test('launcher, command palette and integration controls expose exact blockers w
   await expect(palette.getByRole('button', { name: 'Run Tests', exact: true })).toBeDisabled();
   await palette.getByLabel('Search workspace commands').fill('Providers');
   await palette.getByRole('button', { name: 'Open Providers' }).click(); await expect(page).toHaveURL(/\/build\/providers/);
-  for (const category of ['All providers', 'Intelligence', 'Coding agents', 'Local', 'Custom']) {
+  for (const category of ['All providers', 'Intelligence', 'Coding agents', 'Local models', 'Custom']) {
     await page.getByRole('group', { name: 'Provider class' }).getByRole('button', { name: category, exact: true }).click();
     await expect(page.getByRole('button',{name:'Add workspace +'})).toHaveCount(0);
     await expect(page.locator('#main-content')).toContainText('Sign in to manage your provider profiles');

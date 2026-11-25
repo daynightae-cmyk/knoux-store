@@ -172,7 +172,7 @@ export function BuildLivingMarkBackdrop() {
       visible = entry.isIntersecting;
       // While paused, never re-arm the loop on resize or state events; only a
       // fresh visibility callback may restart painting.
-      if (!visible) { cancelAnimationFrame(frame); frame = 0; return; }
+      if (!visible) { surface.dataset.loop = 'paused'; cancelAnimationFrame(frame); frame = 0; return; }
       wake();
     });
 

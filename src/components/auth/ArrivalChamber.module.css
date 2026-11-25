@@ -1,0 +1,34 @@
+.arrival :global(.chamber__void), .account {
+  background: radial-gradient(ellipse at 30% 49%, #3b1c698c 0%, transparent 52%), radial-gradient(ellipse at 77% 21%, #2d1544 0%, transparent 55%), #0b0816;
+}
+
+.gateway {
+  position: absolute;
+  inset: 11% 20%;
+  pointer-events: none;
+  border: 2px solid #bc8cf6;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, #a168ef3d, #2f174455 50%, #9c64df70 91%, #f1dbff80 99%);
+  box-shadow: inset 0 0 30px #c079ff77, 0 0 38px #bc73ff9e;
+  transform: rotate(-13deg);
+}
+
+.gateway::before, .gateway::after { content: ''; position: absolute; pointer-events: none; border: 1px solid #d0a7f6; border-radius: 50%; inset: -10%; transform: rotate(-13deg); }
+.gateway::after { transform: rotate(45deg); inset: 1% -18%; border-color: #af8de17a; }
+.gatewayMark { z-index: 1; height: 34%; max-width: 26%; fill: #ead7ff; filter: drop-shadow(0 0 14px #bc83ff); }
+.arrival :global(.mark-fallback) { fill: #ead7ff; filter: drop-shadow(0 0 14px #bc83ff); }
+.arrival :global(.chamber__living-mark) { inset-inline-start: max(4vw, 48px); inset-inline-end: auto; }
+.arrival :global(.chamber__panel-dock) { width: min(100%, 450px); }
+.arrival :global(.auth-panel), .account :global(.account-shell) { border: 1px solid #8b5fba; border-radius: 22px; background: linear-gradient(145deg, #2b1b42f5, #160e24f5 68%); box-shadow: inset 0 0 22px #b77de329, 0 0 30px #793ea955, 0 25px 70px #090512; }
+.arrival :global(.auth-panel)::before, .arrival :global(.auth-panel)::after { display: none; }
+.arrival :global(.auth-field) input:focus { border-color: #dda8ff; box-shadow: 0 0 0 2px #b17af38f; }
+.arrival :global(.auth-submit), .account :global(.auth-submit) { background: linear-gradient(140deg, #67419c, #3e235d); border-color: #c18df8; color: #fff2ff; }
+.arrival :where(a, button):focus-visible, .account :where(a, button):focus-visible { outline: 2px solid #e9c9ff; outline-offset: 3px; }
+:global(html[data-chamber='armed']) .arrival :global(.auth-panel),
+:global(html[data-chamber='armed']) .arrival :global(.auth-panel) [data-stagger] { opacity: 1; transform: none; transition: none; }
+
+@media (max-width: 800px) {
+  .arrival :global(.chamber__living-mark) { inset-inline: 0; }
+  .gateway { inset: 3% 32%; transform: none; box-shadow: 0 0 24px #bc73ff9e; }
+  .arrival :global(.chamber__panel-dock) { max-width: 460px; }
+}

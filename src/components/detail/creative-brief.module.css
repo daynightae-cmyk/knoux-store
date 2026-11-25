@@ -1,0 +1,12 @@
+.brief { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr); gap: 15px; align-items: start; }
+.choices, .preview { min-width: 0; margin: 0; padding: clamp(12px, 2vw, 24px); border: 1px solid #71538e; border-radius: 16px; background: #1a1428; color: #f3e8fc; }
+.choices legend { padding-inline: 7px; color: #dfb9f8; }
+.choices label { display: flex; gap: 10px; align-items: center; min-height: 44px; padding-block: 4px; cursor: pointer; }
+.choices input { width: 18px; height: 18px; flex: 0 0 18px; accent-color: #bd86fc; }
+.preview { position: relative; isolation: isolate; background: radial-gradient(circle at 80% 20%, #402a5a, #1a1229 63%); }
+.preview h3 { margin: 0 0 10px; font-size: clamp(19px, 2.7vw, 30px); }
+.preview p, .preview li { color: #e5d1f0; font-size: 14px; line-height: 1.55; }
+.preview ul { padding-inline-start: 20px; }
+.preview a { min-height: 44px; }
+.brief :where(input, a):focus-visible { outline: 2px solid #e0bbff; outline-offset: 3px; }
+@media (max-width: 690px) { .brief { grid-template-columns: minmax(0, 1fr); } }

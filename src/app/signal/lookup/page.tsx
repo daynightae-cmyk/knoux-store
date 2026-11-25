@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function SignalLookupPage() {
-  return <SignalExperience context="SG-01 / LOOKUP" />;
+  return <SignalExperience context="SG-01 / LOOKUP" compact />;
 }

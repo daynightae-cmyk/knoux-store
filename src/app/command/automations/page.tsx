@@ -26,6 +26,7 @@ import {
 } from '@/lib/growth/automation';
 import { CAMPAIGN_OBJECTIVES, CAMPAIGN_PLATFORMS, type AutomationTrigger } from '@/lib/growth/types';
 import styles from '@/components/command/command.module.css';
+import lab from './simulation.module.css';
 
 export default function AutomationsPage() {
   return <Automations />;
@@ -34,14 +35,14 @@ export default function AutomationsPage() {
 function Automations() {
   const { records, activeClient } = useWorkspace();
   const area = areaBySlug('automations')!;
+  const currency = activeClient.country === 'EG' ? 'EGP' : 'AED';
 
   const [enabled, setEnabled] = useState<Record<string, boolean>>({});
   const [event, setEvent] = useState<AutomationEvent>({
     type: 'CAMPAIGN_CPL_ABOVE',
     clientId: activeClient.id,
-    currency: activeClient.country === 'EG' ? 'EGP' : 'AED',
+    currency,
     observedAt: new Date().toISOString(),
-    campaignId: 'cmp_demo',
   });
 
   const rules = records.automations.map((rule) => ({
@@ -49,7 +50,9 @@ function Automations() {
     enabled: enabled[rule.id] ?? rule.enabled,
   }));
 
-  const outcomes = evaluateRules(rules, { ...event, clientId: activeClient.id });
+  const campaignId = records.campaigns.some((campaign) => campaign.id === event.campaignId) ? event.campaignId : undefined;
+  const outcomes = evaluateRules(rules, { ...event, currency, clientId: activeClient.id, campaignId });
+  const candidates = rules.filter((rule) => rule.enabled && rule.trigger === event.type).length;
 
   return (
     <CommandShell
@@ -63,6 +66,85 @@ function Automations() {
         { label: 'Spend actions', value: '0' },
       ]}
     >
+      <Section title="Evaluate an event" note="Simulate an input and inspect the advisory result.">
+        <ol className={lab.flow} aria-label="Simulation path" aria-live="polite">
+          <li><strong>Event</strong><span>{TRIGGER_LABELS[event.type]}</span></li>
+          <li><strong>Enabled rules for this trigger</strong><span>{candidates}</span></li>
+          <li><strong>Advisory outcomes</strong><span>{outcomes.length}</span></li>
+        </ol>
+        <div className={styles.commandGrid2 ?? ''}>
+          <Pane title="Simulate">
+            <label className={styles.ccField ?? ''} style={{ marginBottom: 10 }}>
+              <span className={styles.ccFieldLabel ?? ''} id="simulation-trigger-label">Trigger</span>
+              <select
+                className={styles.ccFieldControl ?? ''}
+                aria-labelledby="simulation-trigger-label"
+                value={event.type}
+                onChange={(changeEvent) =>
+                  setEvent((state) => ({ ...state, type: changeEvent.target.value as AutomationTrigger }))
+                }
+              >
+                {(Object.keys(TRIGGER_LABELS) as AutomationTrigger[]).map((trigger) => (
+                  <option key={trigger} value={trigger}>
+                    {TRIGGER_LABELS[trigger]}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            {records.campaigns.length > 0 && <label className={styles.ccField ?? ''}>
+              <span className={styles.ccFieldLabel ?? ''} id="simulation-campaign-label">Campaign context</span>
+              <select className={styles.ccFieldControl ?? ''} aria-labelledby="simulation-campaign-label" value={campaignId ?? ''} onChange={(changeEvent) => {
+                const value = changeEvent.currentTarget.value;
+                setEvent((state) => ({ ...state, campaignId: value || undefined }));
+              }}>
+                <option value="">No campaign selected</option>
+                {records.campaigns.map((campaign) => <option key={campaign.id} value={campaign.id}>{campaign.name}</option>)}
+              </select>
+            </label>}
+
+            <label className={styles.ccField ?? ''}>
+              <span className={styles.ccFieldLabel ?? ''}>
+                Value {currency} — leave empty to simulate a provider that reported nothing
+              </span>
+              <input
+                className={styles.ccFieldControl ?? ''}
+                type="number"
+                value={event.value ?? ''}
+                onChange={(changeEvent) =>
+                  setEvent((state) => ({
+                    ...state,
+                    value: changeEvent.target.value === '' ? undefined : Number(changeEvent.target.value),
+                  }))
+                }
+              />
+            </label>
+          </Pane>
+
+          <Pane title={`Outcomes (${outcomes.length})`}>
+            {outcomes.length === 0 ? (
+              <EmptyState title="No rule fired">
+                Either no enabled rule matches this trigger, or the value did not cross its threshold.
+              </EmptyState>
+            ) : (
+              <ul className={styles.ccPaneList ?? ''}>
+                {outcomes.map((outcome) => (
+                  <li key={outcome.ruleId} style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <CodeBadge tone="info">{outcome.actionLabel}</CodeBadge>
+                    <span style={{ flex: 1, minWidth: 200 }}>{outcome.summary}</span>
+                    <CodeBadge tone="warn">RISK {outcome.risk}</CodeBadge>
+                    <CodeBadge tone="live">ADVISORY</CodeBadge>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 12, marginTop: 8 }}>
+              Each outcome previews the advisory action the rule proposes. This simulation leaves campaigns and tasks as they are.
+            </p>
+          </Pane>
+        </div>
+      </Section>
+
       <Section title="Safety posture" note="Stated three ways because it matters three ways.">
         <div className={styles.commandGrid3 ?? ''}>
           <Pane title="The type cannot express spending">
@@ -98,7 +180,7 @@ function Automations() {
         </div>
       </Section>
 
-      <Section title="Rules" note="Templates ship per client. Threshold rules start disabled.">
+      <Section title="Rules" note="These switches apply to this evaluation.">
         <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
           <table className={styles.ccTable ?? ''}>
             <thead>
@@ -119,7 +201,7 @@ function Automations() {
                     <td>{rule.name}</td>
                     <td>{TRIGGER_LABELS[rule.trigger]}</td>
                     <td className={styles.ccTableNum ?? ''}>
-                      {rule.threshold !== undefined ? `${rule.threshold} ${event.currency}` : '—'}
+                      {rule.threshold !== undefined ? `${rule.threshold} ${currency}` : '—'}
                     </td>
                     <td>{ACTION_LABELS[rule.action]}</td>
                     <td className={styles.ccTableNum ?? ''}>{validation.ok ? validation.risk : '—'}</td>
@@ -140,69 +222,6 @@ function Automations() {
               })}
             </tbody>
           </table>
-        </div>
-      </Section>
-
-      <Section title="Evaluate an event" note="Fire a threshold and watch what happens.">
-        <div className={styles.commandGrid2 ?? ''}>
-          <Pane title="Simulate">
-            <label className={styles.ccField ?? ''} style={{ marginBottom: 10 }}>
-              <span className={styles.ccFieldLabel ?? ''}>Trigger</span>
-              <select
-                className={styles.ccFieldControl ?? ''}
-                value={event.type}
-                onChange={(changeEvent) =>
-                  setEvent((state) => ({ ...state, type: changeEvent.target.value as AutomationTrigger }))
-                }
-              >
-                {(Object.keys(TRIGGER_LABELS) as AutomationTrigger[]).map((trigger) => (
-                  <option key={trigger} value={trigger}>
-                    {TRIGGER_LABELS[trigger]}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className={styles.ccField ?? ''}>
-              <span className={styles.ccFieldLabel ?? ''}>
-                Value {event.currency} — leave empty to simulate a provider that reported nothing
-              </span>
-              <input
-                className={styles.ccFieldControl ?? ''}
-                type="number"
-                value={event.value ?? ''}
-                onChange={(changeEvent) =>
-                  setEvent((state) => ({
-                    ...state,
-                    value: changeEvent.target.value === '' ? undefined : Number(changeEvent.target.value),
-                  }))
-                }
-              />
-            </label>
-          </Pane>
-
-          <Pane title={`Outcomes (${outcomes.length})`}>
-            {outcomes.length === 0 ? (
-              <EmptyState title="No rule fired">
-                Either no enabled rule matches this trigger, or the value did not cross its threshold.
-              </EmptyState>
-            ) : (
-              <ul className={styles.ccPaneList ?? ''}>
-                {outcomes.map((outcome) => (
-                  <li key={outcome.ruleId} style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    <CodeBadge tone="info">{outcome.actionLabel}</CodeBadge>
-                    <span style={{ flex: 1, minWidth: 200 }}>{outcome.summary}</span>
-                    <CodeBadge tone="warn">RISK {outcome.risk}</CodeBadge>
-                    <CodeBadge tone="live">ADVISORY</CodeBadge>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <p className={styles.ccPaneBody ?? ''} style={{ fontSize: 12, marginTop: 8 }}>
-              Nothing was paused, rebalanced or unpublished. An outcome here creates a flag, an alert
-              or a task — never a provider mutation.
-            </p>
-          </Pane>
         </div>
       </Section>
 
@@ -227,8 +246,7 @@ function Automations() {
 
       <div style={{ padding: '0 24px 20px' }}>
         <DemoNotice>
-          Rules are evaluated in memory against fixture data. No scheduler runs, no webhook fires and
-          no provider is contacted.
+          The selected workspace rules are evaluated in memory using the simulated event above.
         </DemoNotice>
       </div>
     </CommandShell>

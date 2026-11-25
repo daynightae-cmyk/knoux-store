@@ -12,6 +12,7 @@
  * disabled because this workspace cannot pause or cancel a host task.
  */
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { VERIFICATION_CHECKS } from '@/lib/build/verification';
 import type { VerificationCheck } from '@/lib/build/types';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
@@ -51,11 +52,21 @@ function Icon({ d }: { d: string }) {
 
 type StationState = 'pass' | 'running' | 'blocked' | 'pending';
 const BLOCKED_STAGES = new Set(['CONFIG_REQUIRED', 'AUTH_REQUIRED', 'PROVIDER_BLOCKED', 'AGENT_UNAVAILABLE', 'EXECUTOR_NOT_CONNECTED']);
+const stationDestinations: Record<string, { href: string; label: string }> = {
+  Request: { href: '/build', label: 'Open Build workspace' },
+  Planning: { href: '/build/engineering', label: 'Open Engineering' },
+  Code: { href: '/build', label: 'Inspect the workspace' },
+  Build: { href: '#pipeline-verification', label: 'Open the verification panel' },
+  Test: { href: '#pipeline-verification', label: 'Open the verification panel' },
+  Preview: { href: '/build', label: 'Open the preview workspace' },
+  Deploy: { href: '/build/deployments', label: 'Inspect release evidence' },
+};
 
 export function BuildPipelinePage() {
   const { state } = useBuildWorkspace();
   const verification = useWorkspaceVerification();
   const [runner, setRunner] = useState<RunnerState | null>(null);
+  const [inspected, setInspected] = useState(0);
   const { running, run } = verification;
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
@@ -104,6 +115,8 @@ export function BuildPipelinePage() {
   ];
 
   const activeLabel = running ? VERIFICATION_CHECKS.find((item) => item.id === running)?.label ?? running : null;
+  const inspectedStation = stations[inspected];
+  const inspectedDestination = stationDestinations[inspectedStation.label];
   const failed = currentChecks.find((check) => check.status === 'fail' || check.status === 'blocked');
   const activity = state.activity.slice(0, 12);
   const activityKind = (message: string): string => /: pass|completed|loaded/i.test(message) ? 'pass' : /refused|failed|: fail|: blocked/i.test(message) ? 'fail' : /requested|requested:/i.test(message) ? 'running' : 'note';
@@ -131,15 +144,20 @@ export function BuildPipelinePage() {
       </header>
 
       <ol className={styles.stations} aria-label="Build orchestration stations">
-        {stations.map((station) => (
+        {stations.map((station, index) => (
           <li key={station.label} className={styles.station} data-state={station.state}>
-            <span className={styles.disc}><Icon d={station.icon} /></span>
+            <button type="button" className={`${styles.disc} ${styles.inspect}`} aria-label={`Inspect ${station.label}`} aria-pressed={inspected === index} aria-controls="pipeline-station-evidence" onClick={() => setInspected(index)}><Icon d={station.icon} /></button>
             <span className={styles.chevron} aria-hidden="true">❯❯</span>
             <span className={styles.stationLabel}><i aria-hidden="true">{station.state === 'pass' ? '✓' : station.state === 'blocked' ? '!' : ''}</i>{station.label}</span>
             <small>{station.evidence}</small>
           </li>
         ))}
       </ol>
+
+      <section className={styles.stationEvidence} id="pipeline-station-evidence" aria-labelledby="pipeline-station-title" aria-live="polite">
+        <div><h2 id="pipeline-station-title">{inspectedStation.label}</h2><p>{inspectedStation.evidence}</p></div>
+        <Link href={inspectedDestination.href}>{inspectedDestination.label} <span aria-hidden="true">↗</span></Link>
+      </section>
 
       <div className={styles.progressPanel} role="status">
         <span className={styles.progressPulse}><Icon d="M2 12h4l3-8 4 16 3-8h6" /></span>
@@ -170,7 +188,7 @@ export function BuildPipelinePage() {
           ) : <DevEmpty title="NO SESSION EVENTS" body="Real workspace events appear here as they happen. Nothing is pre-filled." />}
         </DevPanel>
 
-        <div className={styles.deskColumn}>
+        <div className={styles.deskColumn} id="pipeline-verification">
           <DevPanel title="Current Task">
             <div className={styles.taskCard}>
               <header>

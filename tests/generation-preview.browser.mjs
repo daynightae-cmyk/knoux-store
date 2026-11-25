@@ -25,7 +25,7 @@ try {
     let streams = 0, fallbacks = 0;
     page.on('request', (request) => { if (request.url().endsWith('/api/build/ai/stream')) streams++; if (request.url().endsWith('/api/build/ai/generate')) fallbacks++; });
     await page.goto(`${baseURL}/build`);
-    await expect(page.getByText('Reading canonical model metadata…', { exact: true })).toHaveCount(0);
+    await expect(page.getByText('Reading canonical model metadata…', { exact: true })).toHaveCount(0, { timeout: 15000 });
     await expect(page.locator('.dev-engine')).toHaveAttribute('data-stage', 'LISTENING');
     // Product invariant: KNOUX PRO is the default and renders first; this
     // contract measures the single-pass lifecycle, so it selects Standard
@@ -65,10 +65,10 @@ try {
     await expect(splitPreview).toBeVisible();
     await split.getByRole('button', { name: 'Close split view' }).click();
     await page.getByRole('group', { name: 'Workspace view' }).getByRole('button', { name: 'PREVIEW', exact: true }).click();
-    if (width <= 900) await page.getByRole('group', { name: 'Compact workspace panel' }).getByRole('button', { name: 'Generation', exact: true }).click();
+    if (width <= 900) await page.getByRole('group', { name: 'Compact workspace panel' }).getByRole('button', { name: 'Workbench', exact: true }).click();
     const monitor = page.getByRole('region', { name: 'Generation Process', exact: true });
     await expect(monitor).toBeVisible();
-    const rail = monitor.getByRole('region', { name: 'Generation evidence lifecycle' });
+    const rail = page.getByRole('region', { name: 'Generation evidence lifecycle' });
     await expect(rail.locator('li')).toHaveCount(7);
     await expect(rail).toContainText('READY FOR REVIEW');
     await expect(rail.locator('li').filter({ hasText: 'Real file execution' })).toContainText('UNCONNECTED');

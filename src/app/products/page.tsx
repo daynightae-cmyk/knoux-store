@@ -11,6 +11,7 @@ import { softwareAuditDate, softwareAuditOwner, softwareProducts } from '@/data/
 import { divisions } from '@/lib/entities';
 import { SystemsRegister } from '@/components/SystemsRegister';
 import { ProjectRail } from '@/components/SpatialExperiences';
+import styles from '@/components/ProductUniverse.module.css';
 
 export const metadata = pageMetadata(
   'Software Universe',
@@ -22,7 +23,7 @@ export default function ProductsPage() {
   const families = new Set(softwareProducts.map((product) => product.family));
 
   return (
-    <main id="main-content" tabIndex={-1}>
+    <main id="main-content" tabIndex={-1} className={styles.page}>
       <PageIntro
         index="01"
         label="Software"
@@ -30,14 +31,14 @@ export default function ProductsPage() {
         italic="universe."
         description={`Every public KNOuX system, classified from repository evidence. Audited ${softwareAuditDate} against ${softwareAuditOwner}. Nothing is listed that a repository does not establish.`}
       />
-      <SignalRail division="software" path="/products" />
-      <KxSpotlight />
-
-      <KnouxSoftwareUniverse />
-
       <Suspense fallback={<div className="shell" style={{ minHeight: 620 }} />}>
         <ProductUniverse />
       </Suspense>
+      <SignalRail division="software" path="/products" />
+
+      <KxSpotlight />
+
+      <KnouxSoftwareUniverse />
 
       <section id="register" aria-labelledby="register-heading">
         <h2 id="register-heading" className="visually-hidden">KNOuX Systems Register</h2>

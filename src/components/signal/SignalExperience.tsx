@@ -18,11 +18,11 @@ function useRouteCopy() {
   return (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
 }
 
-export function SignalExperience({ context = 'SG / SIGNAL' }: { context?: string }) {
+export function SignalExperience({ context = 'SG / SIGNAL', compact = false }: { context?: string; compact?: boolean }) {
   const t = useRouteCopy();
   return (
-    <main id="main-content" className={styles.page}>
-      <section className={styles.experience} aria-labelledby="signal-title">
+    <main id="main-content" className={styles.page} tabIndex={-1}>
+      <section className={`${styles.experience} ${compact ? styles.lookupExperience : ''}`} aria-labelledby="signal-title">
         <div className={styles.experienceIntro}>
           <div className={styles.kicker}>{context} — PHONE INTELLIGENCE</div>
           <h1 id="signal-title">KNOuX SIGNAL</h1>

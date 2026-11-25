@@ -3,6 +3,7 @@ import { Breadcrumb } from "@/components/DivisionShell";
 import { capabilityById } from "@/data/capabilities";
 import { entityById } from "@/data/composer-rules";
 import type { CreativeDiscipline, WebSystem } from "@/data/services";
+import { CreativeBrief } from "./CreativeBrief";
 import styles from "./ServiceDetail.module.css";
 
 type Division = "web" | "creative";
@@ -365,11 +366,7 @@ export function CreativeDetail({
       requestHref={requestHref}
     >
       <Section index="01 / OUTPUT" title="Deliverables">
-        <ol className={styles.list}>
-          {discipline.deliverables.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ol>
+        <CreativeBrief title={discipline.title} deliverables={discipline.deliverables} />
       </Section>
       <Section index="02 / METHOD" title="Operating principles">
         <div className={styles.principles}>

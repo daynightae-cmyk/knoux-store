@@ -11,6 +11,7 @@ import { solutions } from '@/data/solutions';
 import { capabilities } from '@/data/capabilities';
 import { AboutOriginRoom } from '@/components/AboutOriginRoom';
 import { AboutFounder } from '@/components/AboutFounder';
+import { InstitutionalWings } from '@/components/InstitutionalWings';
 
 export const metadata = pageMetadata(
   'About',
@@ -58,12 +59,13 @@ export default function AboutPage() {
 
       <AboutFounder />
 
-      <div style={{ paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
+      <div id="institutional-wings" style={{ paddingBottom: 'clamp(70px, 8vw, 130px)', scrollMarginTop: 96 }}>
         <SystemIndex
           eyebrow="DIVISIONS"
           title={<>Eight wings,<br />one institution.</>}
           statement="Each division is a different discipline with its own registry. They share navigation, data model, motion grammar, search and request architecture."
         >
+          <InstitutionalWings />
           <details className="evidence-disclosure"><summary>VIEW DIVISION REGISTRY</summary><div className="index-rows">
             {divisions.map((division) => (
               <IndexRow

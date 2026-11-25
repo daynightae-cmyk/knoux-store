@@ -145,3 +145,10 @@
 .diagnostics[data-tone='bad'] > i { border-color: #ff8d98; color: #ffb3ba; }
 .diagnostics strong { display: block; color: #f2e9fc; font-size: 13px; }
 .diagnostics small { color: #b7a5cf; font-size: 11.5px; line-height: 1.55; }
+.inspect.inspect { padding: 0; cursor: pointer; min-width: 44px; min-height: 44px; }
+.inspect[aria-pressed='true'] { outline: 1px solid #dcacff; outline-offset: 4px; }
+.inspect:focus-visible, .stationEvidence a:focus-visible { outline: 2px solid #ebcaff; outline-offset: 4px; }
+.stationEvidence { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 7px 24px; padding: 11px 16px; margin-block: 8px 18px; border: 1px solid #70508f; border-radius: 12px; background: linear-gradient(95deg, #2c1b45, #150e23); color: #f2e6ff; }
+.stationEvidence h2 { font-size: 15px; margin: 0; }
+.stationEvidence p { color: #d8c1ef; margin: 4px 0 0; font-size: 13px; }
+.stationEvidence a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: #e5b9ff; text-decoration: underline; text-underline-offset: 4px; }

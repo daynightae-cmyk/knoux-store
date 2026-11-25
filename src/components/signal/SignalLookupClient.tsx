@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { SignalEvidenceInspector } from '@/components/signal/SignalEvidenceInspector';
 import { SignalGlobeScene } from '@/components/signal/SignalGlobeScene';
 import { placementMap, type EvidenceNode } from '@/lib/signal/evidenceLayout';
@@ -34,6 +34,12 @@ const COUNTRIES = [
   ['KW', 'Kuwait'],
 ] as const;
 
+const lookupCopy = {
+  en: { cancel: 'Cancel lookup', timeout: 'Lookup timed out. Try again.' },
+  ar: { cancel: 'إلغاء البحث', timeout: 'انتهت مهلة البحث. جرّب تاني.' },
+  ur: { cancel: 'تلاش منسوخ کریں', timeout: 'تلاش کی مہلت ختم ہو گئی۔ دوبارہ کوشش کریں۔' },
+};
+
 function hasSupportedEvidence(data: NonNullable<SignalLookupResponse['data']>) {
   return Boolean(
     data.profile?.verified
@@ -47,6 +53,8 @@ function hasSupportedEvidence(data: NonNullable<SignalLookupResponse['data']>) {
 export function SignalLookupClient() {
   const language = useSiteLanguage();
   const t = useRouteCopy();
+  const copy = lookupCopy[language];
+  const pending = useRef<AbortController | null>(null);
   const [query, setQuery] = useState('');
   const [country, setCountry] = useState('AE');
   const [phase, setPhase] = useState<SignalPhase>('idle');
@@ -156,7 +164,18 @@ export function SignalLookupClient() {
   );
   const visualMode = visualModeForPhase(phase);
 
+  function abortPending() {
+    pending.current?.abort();
+    pending.current = null;
+  }
+
+  useEffect(() => () => {
+    pending.current?.abort();
+    pending.current = null;
+  }, []);
+
   function transitionInput(value: string, nextCountry = country) {
+    abortPending();
     setQuery(value);
     setResult(null);
     setSelectedId(null);
@@ -169,6 +188,7 @@ export function SignalLookupClient() {
   }
 
   function reset() {
+    abortPending();
     setQuery('');
     setResult(null);
     setSelectedId(null);
@@ -178,7 +198,7 @@ export function SignalLookupClient() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (phase === 'searching' || !query.trim()) return;
+    if (pending.current || !query.trim()) return;
 
     const facts = normalizeSignalPhone(query, country);
     if (!facts.valid) {
@@ -190,14 +210,19 @@ export function SignalLookupClient() {
     setPhase('searching');
     setError('');
     setSelectedId(null);
+    const request = new AbortController();
+    const timeout = AbortSignal.timeout(25_000);
+    pending.current = request;
 
     try {
       const response = await fetch('/api/signal/lookup', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ query, country }),
+        signal: AbortSignal.any([request.signal, timeout]),
       });
       const payload = await response.json() as SignalLookupResponse & { error?: string };
+      if (pending.current !== request) return;
       setResult(payload);
 
       if (!response.ok || !payload.ok) {
@@ -212,8 +237,11 @@ export function SignalLookupClient() {
         setPhase('not_found');
       }
     } catch {
-      setError('Signal could not reach the lookup endpoint.');
+      if (pending.current !== request) return;
+      setError(timeout.aborted ? copy.timeout : 'Signal could not reach the lookup endpoint.');
       setPhase('error');
+    } finally {
+      if (pending.current === request) pending.current = null;
     }
   }
 
@@ -257,12 +285,13 @@ export function SignalLookupClient() {
               inputMode="tel"
               autoComplete="tel"
               aria-invalid={Boolean(query.trim()) && normalized?.valid === false}
+              aria-describedby="signal-lookup-status"
             />
             <button
               className={styles.clearButton}
               type="button"
               onClick={reset}
-              disabled={!query.trim() || phase === 'searching'}
+              disabled={!query.trim()}
               aria-label={t('Clear number')}
             >
               ×
@@ -276,7 +305,10 @@ export function SignalLookupClient() {
               →
             </button>
           </div>
-          <p>{language === 'en' ? phaseStatusCopy(phase) : phase === 'searching' ? t('RESOLVING EVIDENCE') : phase === 'result' ? t('EVIDENCE RESOLVED') : phase === 'not_found' ? t('NO SUPPORTED EVIDENCE') : phase === 'ready' ? t('NUMBER READY') : phase === 'error' ? t('LOOKUP INTERRUPTED') : phase === 'rate_limited' ? t('RATE LIMITED') : t('LISTENING')} · {t('EVIDENCE ONLY')}</p>
+          <p role="status" id="signal-lookup-status">{phase === 'input' && normalized?.valid === false
+            ? t('Enter a valid phone number and choose the country.')
+            : <>{language === 'en' ? phaseStatusCopy(phase) : phase === 'searching' ? t('RESOLVING EVIDENCE') : phase === 'result' ? t('EVIDENCE RESOLVED') : phase === 'not_found' ? t('NO SUPPORTED EVIDENCE') : phase === 'ready' ? t('NUMBER READY') : phase === 'error' ? t('LOOKUP INTERRUPTED') : phase === 'rate_limited' ? t('RATE LIMITED') : t('LISTENING')} · {t('EVIDENCE ONLY')}</>}</p>
+          {phase === 'searching' && <button className={styles.cancelLookup} type="button" onClick={() => { abortPending(); setPhase('ready'); }}>{copy.cancel}</button>}
         </form>
 
         {result?.ok && result.data ? (
@@ -319,7 +351,7 @@ export function SignalLookupClient() {
         />
       </section>
 
-      {error ? <div className={styles.error} role="alert">{language === 'en' ? error : phase === 'rate_limited' ? t('Too many requests. Try again later.') : phase === 'input' ? t('Enter a valid phone number and choose the country.') : t('The search could not be completed. No identity was established. Try again.')}</div> : null}
+      {error ? <div className={styles.error} role="alert">{language === 'en' || error === copy.timeout ? error : phase === 'rate_limited' ? t('Too many requests. Try again later.') : phase === 'input' ? t('Enter a valid phone number and choose the country.') : t('The search could not be completed. No identity was established. Try again.')}</div> : null}
 
       {result?.ok && result.data ? (
         <section className={styles.evidenceLedger} aria-live="polite" aria-label="Signal evidence index">

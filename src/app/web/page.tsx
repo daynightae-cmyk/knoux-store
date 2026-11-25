@@ -29,31 +29,13 @@ export default async function WebPage({ searchParams }: WebPageProps) {
         italic="pages."
         description="KNOuX web engineering is organised by what the system has to do. No prices, no delivery windows, no client counts — those are agreed per project, not published as claims."
       />
+      <section className={`shell ${styles.studio}`} id="systems" aria-labelledby="web-systems-title">
+        <h2 className="visually-hidden" id="web-systems-title">Web Systems Studio</h2>
+        <SystemsStudio systems={webSystems} initialSystem={initialSystem} key={initialSystem ?? 'default'} />
+      </section>
       <SignalRail division="web" path="/web" />
 
-      <section className="shell" style={{ paddingTop: 'clamp(60px, 7vw, 120px)' }}><SystemBlueprint /></section>
-
-      <section className="shell" id="systems" style={{ paddingTop: 'clamp(60px, 7vw, 120px)', paddingBottom: 'clamp(80px, 9vw, 150px)', scrollMarginTop: 80 }}>
-        <RevealGroup>
-          <div className="block-head">
-            <div>
-              <span className="label label--signal">SYSTEMS STUDIO</span>
-              <h2 className="block-head__title">
-                What are you
-                <br />
-                building?
-              </h2>
-            </div>
-            <p className="block-head__aside">
-              The answer determines the disciplines, the artefacts and the platform choice. Each system type below
-              is a different shape of problem.
-            </p>
-          </div>
-        </RevealGroup>
-        <div style={{ marginTop: 40 }}>
-          <SystemsStudio systems={webSystems} initialSystem={initialSystem} key={initialSystem ?? "default"} />
-        </div>
-      </section>
+      <section className="shell" style={{ paddingBlock: 'clamp(42px, 6vw, 92px)' }}><SystemBlueprint /></section>
 
       <section className="shell" id="matrix" style={{ paddingBottom: 'clamp(80px, 9vw, 150px)', scrollMarginTop: 80 }}>
         <div className="block-head">

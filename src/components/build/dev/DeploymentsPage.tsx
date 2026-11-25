@@ -15,7 +15,7 @@
  * verified deployment trigger exists.
  */
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRef, useState, type KeyboardEvent } from 'react';
 import { checksById } from '@/lib/build/verification';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { DevEmpty, DevPanel } from './DevUI';
@@ -39,6 +39,8 @@ const STATIONS = [
   { id: 'production', label: 'PRODUCTION', role: 'Live release', icon: 'M12 2c4 2 6 6 6 10l-3 3h-6l-3-3c0-4 2-8 6-10Z M9 15l-2 5M15 15l2 5M12 12v.01' },
 ] as const;
 
+type EnvironmentId = (typeof STATIONS)[number]['id'];
+
 function Icon({ d, ...rest }: { d: string } & React.SVGProps<SVGSVGElement>) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...rest}><path d={d} /></svg>;
 }
@@ -57,12 +59,15 @@ function relativeTime(at: string): string {
 export function DeploymentsPage() {
   const { state } = useBuildWorkspace();
   const [view, setView] = useState<View>('releases');
+  const [environment, setEnvironment] = useState<EnvironmentId>('local');
+  const viewButtons = useRef<(HTMLButtonElement | null)[]>([]);
   const reduced = state.preferences.motion === 'reduced';
   const facts = state.integrations?.deployment;
   const reportedEnvironment = facts?.environment?.toLowerCase();
+  const runtimeReported = state.runtime.status === 'running' && Boolean(state.runtime.url);
   const observed = (target: string) =>
     target === 'local'
-      ? state.adapter.environment === 'local' && Boolean(state.runtime.url)
+      ? state.adapter.environment === 'local' && runtimeReported
       : reportedEnvironment === target && Boolean(facts?.deploymentId);
   const releaseId = facts?.deploymentId ?? null;
   const commits = state.git?.commits ?? [];
@@ -89,6 +94,17 @@ export function DeploymentsPage() {
     if (observed(id)) return [['release', (releaseId ?? '').slice(0, 12)], ['sha', facts?.sha?.slice(0, 7) ?? 'UNREAD']];
     return [['status', 'UNVERIFIED']];
   };
+  const selectedEnvironment = STATIONS.find((station) => station.id === environment) ?? STATIONS[0];
+
+  function moveView(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    const rtl = getComputedStyle(event.currentTarget).direction === 'rtl';
+    const delta = event.key === 'ArrowRight' ? (rtl ? -1 : 1) : event.key === 'ArrowLeft' ? (rtl ? 1 : -1) : 0;
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? VIEWS.length - 1 : delta ? (index + delta + VIEWS.length) % VIEWS.length : null;
+    if (next === null) return;
+    event.preventDefault();
+    setView(VIEWS[next].id);
+    viewButtons.current[next]?.focus();
+  }
 
   return <div className={`dev-route ${styles.page} ${styles.deployment} ${s.page}`} data-reduced={reduced ? '' : undefined}>
     <header className={s.masthead}>
@@ -97,8 +113,8 @@ export function DeploymentsPage() {
         <h1>Deployments</h1>
         <p>Orbital release center for KNOuX. Promote, release, and operate across environments — every claim below is a measured fact, never a promise.</p>
         <div className={s.tabs} role="tablist" aria-label="Deployment views">
-          {VIEWS.map((entry) => (
-            <button key={entry.id} type="button" role="tab" id={`dep-tab-${entry.id}`} aria-selected={view === entry.id} aria-controls="dep-panel" onClick={() => setView(entry.id)}>
+          {VIEWS.map((entry, index) => (
+            <button key={entry.id} type="button" role="tab" id={`dep-tab-${entry.id}`} aria-selected={view === entry.id} aria-controls="dep-panel" tabIndex={view === entry.id ? 0 : -1} ref={(node) => { viewButtons.current[index] = node; }} onKeyDown={(event) => moveView(event, index)} onClick={() => setView(entry.id)}>
               <Icon d={entry.icon} />{entry.label}
             </button>
           ))}
@@ -124,9 +140,22 @@ export function DeploymentsPage() {
                   <span className={s.stationChips}>
                     {stationMeta(station.id).map(([label, value]) => <span key={label} className={s.chip}><Icon d="M6 3v12M6 15a3 3 0 1 0 3 3M18 9a3 3 0 1 0-3-3M18 9c0 4-6 3-9 6" /><em>{value}</em></span>)}
                   </span>
+                  <button type="button" className={s.inspectStation} aria-pressed={station.id === environment} aria-controls="release-environment-evidence" onClick={() => setEnvironment(station.id)}>
+                    Inspect {station.label.toLowerCase()}
+                  </button>
                 </li>;
               })}
             </ol>
+            <section className={s.environmentEvidence} id="release-environment-evidence" aria-labelledby="release-environment-title" aria-live="polite">
+              <div>
+                <h3 id="release-environment-title">{selectedEnvironment.label}</h3>
+                <p>{selectedEnvironment.role}</p>
+              </div>
+              <dl>
+                {stationMeta(environment).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
+                {observed(environment) && environment !== 'local' && <div><dt>Source</dt><dd>{facts?.source ?? 'WITHHELD'}</dd></div>}
+              </dl>
+            </section>
           </section>
 
           <section aria-label="Release evidence">
@@ -189,7 +218,7 @@ export function DeploymentsPage() {
 
       {view === 'environments' ? (
         <div className="dev-route__grid">
-          <DevPanel title="Active runtime"><dl className="dev-kv"><dt>Origin</dt><dd>{state.runtime.url ? <a href={state.runtime.url} target="_blank" rel="noreferrer">{state.runtime.url} ↗</a> : 'UNAVAILABLE'}</dd><dt>Environment</dt><dd>{state.adapter.environment.toUpperCase()}</dd><dt>Serving</dt><dd>{state.runtime.url ? 'CURRENT SITE IS REACHABLE' : 'UNVERIFIED'}</dd><dt>Deployment metadata source</dt><dd>{facts?.source ?? 'WITHHELD'}</dd><dt>Vercel environment</dt><dd>{facts?.environment ?? 'UNAVAILABLE'}</dd><dt>Vercel URL</dt><dd>{facts?.url ?? 'UNAVAILABLE'}</dd><dt>Deployment ID</dt><dd>{facts?.deploymentId ?? 'UNAVAILABLE'}</dd><dt>Release commit</dt><dd>{facts?.sha ?? 'UNAVAILABLE'}</dd></dl></DevPanel>
+          <DevPanel title="Active runtime"><dl className="dev-kv"><dt>Origin</dt><dd>{state.runtime.url ? <a href={state.runtime.url} target="_blank" rel="noreferrer">{state.runtime.url} ↗</a> : 'UNAVAILABLE'}</dd><dt>Environment</dt><dd>{state.adapter.environment.toUpperCase()}</dd><dt>Serving</dt><dd>{runtimeReported ? 'RUNTIME REPORTED RUNNING' : 'UNVERIFIED'}</dd><dt>Deployment metadata source</dt><dd>{facts?.source ?? 'WITHHELD'}</dd><dt>Vercel environment</dt><dd>{facts?.environment ?? 'UNAVAILABLE'}</dd><dt>Vercel URL</dt><dd>{facts?.url ?? 'UNAVAILABLE'}</dd><dt>Deployment ID</dt><dd>{facts?.deploymentId ?? 'UNAVAILABLE'}</dd><dt>Release commit</dt><dd>{facts?.sha ?? 'UNAVAILABLE'}</dd></dl></DevPanel>
           <DevPanel title="Environments"><ol className={styles.releaseStations} aria-label="Release environment detail">{STATIONS.map((station) => {
             const isObserved = observed(station.id);
             return <li key={station.id} data-observed={isObserved}><i aria-hidden="true" /><strong>{station.id}</strong><small>{isObserved ? 'Observed environment' : 'Unverified'}</small></li>;

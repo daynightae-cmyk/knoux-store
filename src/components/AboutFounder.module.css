@@ -1,13 +1,14 @@
 .section { padding-top: clamp(40px, 5vw, 80px); padding-bottom: clamp(80px, 9vw, 140px); scroll-margin-top: 100px; }
 .record { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; border-top: 1px solid var(--line); padding-top: 20px; margin-bottom: 44px; color: #aaa5b0; font: 9px var(--mono); letter-spacing: .12em; }
-.layout { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1fr); align-items: center; gap: clamp(40px, 7vw, 110px); }
+.layout { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1fr); align-items: center; gap: clamp(30px, 6vw, 90px); border: 1px solid #583c73; border-radius: 24px; padding: clamp(14px, 3.2vw, 48px); background: radial-gradient(ellipse at 20% 40%, #36204e, transparent 55%), linear-gradient(145deg, #1e142c, #100d1a 72%); box-shadow: inset 0 1px #c8a2ee3d; }
 .identity { min-width: 0; }
 .identity h2 { font-size: clamp(52px, 6.5vw, 100px); font-weight: 400; letter-spacing: -.065em; line-height: 1; margin: 26px 0; }
 .identity h2 em { color: #b8a5ce; font-style: normal; }
 .role { color: #dedbe3; font-size: 16px; line-height: 1.6; }
 .statement { max-width: 34ch; color: #aaa5b0; font-size: 16px; line-height: 1.8; margin-top: 24px; }
-.practice { display: flex; flex-wrap: wrap; gap: 10px 20px; padding: 22px 0; margin-top: 26px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font: 9px var(--mono); letter-spacing: .09em; color: #c3becb; }
-.links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.links { display: flex; flex-wrap: wrap; gap: 8px 18px; padding-block-start: 18px; border-block-start: 1px solid #5c4275; margin-top: 24px; }
+.links a { min-height: 44px; }
+.links a:focus-visible { outline: 2px solid #e2c6ff; outline-offset: 3px; }
 @media (max-width: 760px) {
   .layout { grid-template-columns: minmax(0, 1fr); gap: 44px; }
   .record { margin-bottom: 30px; }

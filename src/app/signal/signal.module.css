@@ -882,3 +882,11 @@
 @media(max-width:600px){.experienceIntro h1{font-size:42px}.experienceIntro p{font-size:15px}.searchRow{grid-template-columns:92px minmax(0,1fr) 36px 40px}.searchRow select{font-size:12px}.introActions{gap:8px 20px}.signalScene{min-height:520px;height:65svh}}
 
 .contract span{font-size:12px;line-height:1.6;color:#bcb2c8;padding:16px 12px}
+.lookupExperience .experienceIntro { padding-block: 16px 19px; }
+.lookupExperience .experienceIntro h1 { font-size: clamp(38px, 5.1vw, 66px); }
+.lookupExperience .introActions { margin-block-start: 14px; }
+.lookupExperience .signalScene { height: clamp(400px, 62svh, 680px); min-height: 0; border-color: #5d447d; background: radial-gradient(ellipse at 50% 48%, #24133b, #090712 70%); }
+.lookupExperience .searchRow { border-color: #8c69b7; box-shadow: 0 0 23px #a66df24a; }
+.lookupExperience .searchRow input::placeholder { color: #cab8dc; }
+.cancelLookup { display: block; margin: 8px auto 0; min-height: 44px; padding-inline: 12px; border: 1px solid #8762b0; border-radius: 8px; background: #241637; color: #f4e5ff; cursor: pointer; }
+.cancelLookup:focus-visible { outline: 2px solid #e4bcff; outline-offset: 3px; }

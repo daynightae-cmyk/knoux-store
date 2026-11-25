@@ -1,0 +1,19 @@
+.preview { border: 1px solid #644789; border-radius: 18px; background: radial-gradient(ellipse at 80% 18%, #36234f, #161022 62%); padding: clamp(13px, 3vw, 32px); color: #f2e6fc; }
+.preview h2 { margin: 0; font-size: clamp(22px, 3vw, 38px); }
+.preview header p { color: #dfcbed; margin-block: 8px 16px; }
+.layout { display: grid; grid-template-columns: minmax(165px, .8fr) minmax(0, 1.7fr); align-items: stretch; gap: 14px; }
+.filters, .scene { min-width: 0; border: 1px solid #684a87; border-radius: 12px; padding: 12px; margin: 0; background: #171022; }
+.filters legend { padding-inline: 6px; color: #e9c5ff; }
+.filters label { display: flex; gap: 10px; align-items: center; min-height: 44px; }
+.filters input { width: 17px; height: 17px; accent-color: #bc8bff; }
+.scene { display: grid; justify-items: center; gap: 12px; background: radial-gradient(ellipse at center, #352053, #14101e 74%); }
+.sample { display: grid; gap: 6px; width: min(100%, 310px); color: #e5ceed; }
+.sample select { min-height: 44px; width: 100%; border: 1px solid #9473b5; border-radius: 8px; background: #29183c; color: #f6ebff; padding-inline: 8px; }
+.preview :where(input, select):focus-visible { outline: 2px solid #edc6ff; outline-offset: 3px; }
+.radar { display: grid; place-items: center; position: relative; width: min(36vw, 168px); min-width: 82px; aspect-ratio: 1; border: 1px solid #9672b3; border-radius: 50%; box-shadow: inset 0 0 26px #b27ae044; }
+.radar::before, .radar::after { content: ''; position: absolute; inset: 18%; border: 1px solid #7c579c; border-radius: 50%; }
+.radar::after { inset: 35%; }
+.radar span { width: 13px; aspect-ratio: 1; border-radius: 50%; background: #7d6497; }
+.radar[data-visible='true'] span { background: #e4c1ff; box-shadow: 0 0 18px 6px #ad6dff; }
+.status { margin: 0; text-align: center; color: #ead7f8; }
+@media (max-width: 630px) { .layout { grid-template-columns: minmax(0, 1fr); } }

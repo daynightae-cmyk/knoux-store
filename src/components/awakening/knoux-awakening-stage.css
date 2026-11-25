@@ -53,12 +53,34 @@
   position: absolute;
   inset: 0;
   z-index: 1;
+  overflow: hidden;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 56% 52% at 50% 38%, rgba(105, 74, 138, 0.3) 0%, transparent 68%),
-    radial-gradient(ellipse 38% 34% at 50% 40%, rgba(161, 138, 203, 0.16) 0%, transparent 70%),
-    linear-gradient(180deg, #07080a 0%, #050608 56%, #040507 100%);
+    radial-gradient(ellipse 56% 52% at 50% 38%, #5635937a 0%, transparent 72%),
+    radial-gradient(ellipse 38% 34% at 50% 40%, #b184f340 0%, transparent 74%),
+    linear-gradient(180deg, #080713 0%, #0b0818 56%, #05040b 100%);
   animation: shout-backdrop-in 900ms ease-out both;
+}
+
+.shout-backdrop::before, .shout-backdrop::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.shout-backdrop::before {
+  inset: 67% -18% -65%;
+  border-block-start: 2px solid #b991f6;
+  background: radial-gradient(ellipse at 50% 0, #4f3685 0%, #201336 16%, #0b0816 53%);
+  box-shadow: 0 -6px 42px #a165ff60, inset 0 9px 28px #c194ff48;
+}
+
+.shout-backdrop::after {
+  inset: 23% 15% 21%;
+  transform: rotate(-14deg);
+  border: 1px solid #a77adc60;
+  box-shadow: 0 0 18px #9469e140, inset 0 0 12px #9469e12f;
 }
 
 @keyframes shout-backdrop-in {

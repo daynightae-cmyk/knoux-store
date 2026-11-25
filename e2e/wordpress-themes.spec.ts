@@ -4,11 +4,12 @@ test('Theme Explorer selects a live directory result, preserves it on reload, an
   await page.goto('/wordpress/themes');
   await expect(page.getByRole('heading', { name: 'Theme Explorer', exact: true })).toBeVisible();
   const marketplace = page.getByRole('region', { name: 'Themes from the WordPress.org directory' });
-  await expect(marketplace.getByRole('status')).toContainText('Source: WordPress.org');
+  const status = marketplace.locator('.mp__status');
+  await expect(status).toContainText('Source: WordPress.org');
 
   const list = marketplace.getByRole('list', { name: 'Themes', exact: true });
   if (!await list.isVisible()) {
-    await expect(marketplace.getByRole('status')).toContainText(/unavailable|Showing 0/i);
+    await expect(status).toContainText(/unavailable|Showing 0/i);
     return;
   }
   const results = list.getByRole('button');
@@ -37,5 +38,5 @@ test('Theme Explorer selects a live directory result, preserves it on reload, an
   await marketplace.getByRole('searchbox').fill('Twenty Twenty-Five');
   await marketplace.getByRole('button', { name: 'Search', exact: true }).click();
   await expect(page).toHaveURL(/q=Twenty\+Twenty-Five/);
-  await expect(marketplace.getByRole('status')).toContainText('Source: WordPress.org');
+  await expect(status).toContainText('Source: WordPress.org');
 });

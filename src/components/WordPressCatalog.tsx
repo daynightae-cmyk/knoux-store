@@ -4,7 +4,8 @@ import { DivisionBridge, NextLink, SystemIndex, IndexRow, BlockHead } from '@/co
 import { ExternalMarketplace, readMarketplaceQuery } from '@/components/wordpress/ExternalMarketplace';
 import { WordPressCosmicMark } from '@/components/wordpress/WordPressCosmicMark';
 import { ProcessArchitecture } from '@/components/ProcessArchitecture';
-import { StudioLayoutLibrary } from '@/components/wordpress/StudioLayoutLibrary';
+import { StudioLayoutLibrary, StudioLibraryIntro } from '@/components/wordpress/StudioLayoutLibrary';
+import libraryStyles from '@/components/wordpress/StudioLayoutLibrary.module.css';
 import { FirstPartyRail } from '@/components/wordpress/FirstPartyRail';
 import {
   wordpressCategories,
@@ -85,12 +86,12 @@ export async function WordPressCategoryPage({
     : null;
 
   return (
-    <main id="main-content" tabIndex={-1}>
-      {studioTitle || libraryMode ? (
+    <main id="main-content" tabIndex={-1} className={libraryMode ? libraryStyles.catalogue : undefined}>
+      {libraryMode ? <StudioLibraryIntro mode={libraryMode} /> : studioTitle ? (
         <section className="shell wp-catalogue-intro">
           <WordPressCosmicMark label="" />
-          <h1>{studioTitle ?? meta.label}</h1>
-          <p>{libraryMode === 'starter-sites' ? 'Preview a starting layout and add its sections to your Studio draft.' : meta.intent}</p>
+          <h1>{studioTitle}</h1>
+          <p>{meta.intent}</p>
         </section>
       ) : <PageIntro
         index={meta.index}
@@ -99,13 +100,14 @@ export async function WordPressCategoryPage({
         italic="catalogue."
         description={meta.intent}
       />}
-      <SignalRail division="wordpress" path={`/wordpress/${category}`} />
+      {!libraryMode && <SignalRail division="wordpress" path={`/wordpress/${category}`} />}
 
       {libraryMode && (
         <div className="shell wp-layout-library">
           <StudioLayoutLibrary key={libraryMode} mode={libraryMode} />
         </div>
       )}
+      {libraryMode && <SignalRail division="wordpress" path={`/wordpress/${category}`} />}
       {!studioTitle && firstParty}
 
       {external ? (
