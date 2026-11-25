@@ -46,7 +46,7 @@ test('PowerShell buffers only actual PTY output until xterm mounts, bounded', ()
 test('Settings bridge check reports measured state instead of claiming shell availability', () => {
   const page = source('src/components/build/dev/SettingsPage.tsx');
   assert.match(page, /fetch\('\/api\/build\/bridge\/status'/);
-  assert.match(page, /body\?\.reachable && body\.handshake/);
+  assert.match(page, /body\.reachable && body\.handshake/);
   assert.match(page, /response\.status === 401/);
   assert.match(page, /CHECK BRIDGE CONNECTION/);
 });

@@ -45,6 +45,7 @@
     "src/lib/contact/intake-guard.ts": ["exports", "types"],
     "src/lib/security/headers.ts": ["exports", "types"],
     "src/lib/ai/context-manager.ts": ["exports", "types"],
+    "src/lib/ai/cost.ts": ["exports"],
     "src/lib/wordpress/wordpress-org.ts": ["exports", "types"],
     "src/lib/wordpress/asset-policy.ts": ["exports", "types"],
     "src/lib/auth/redirect.ts": ["exports", "types"],

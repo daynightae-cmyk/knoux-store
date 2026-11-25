@@ -125,9 +125,109 @@ async function post(h, path, body, token) {
   });
 }
 
+test('selected project editor saves bytes over HTTP and rejects stale, missing and unauthorized writes', async () => {
+  const h = await harness();
+  try {
+    const project = join(h.root, 'studio');
+    const file = join(project, 'src', 'index.ts');
+    mkdirSync(join(project, 'src'), { recursive: true });
+    writeFileSync(file, 'export const text = "قديم";\r\n');
+    const saveUrl = h.url + '/v1/project/file/save?project=studio';
+    const read = () => get(h, '/v1/project/file?project=studio&path=src%2Findex.ts', mint(h, ['fs:read']));
+    const save = (body, scope = ['fs:write'], url = saveUrl) => fetch(url, {
+      method: 'PUT',
+      headers: { authorization: 'Bearer ' + mint(h, scope), 'content-type': 'application/json' },
+      body: JSON.stringify({ path: 'src/index.ts', ...body }),
+    });
+    const opened = await read();
+    assert.equal(opened.status, 200);
+    const { hash } = await opened.json();
+    assert.match(hash, /^[a-f0-9]{64}$/);
+    const content = 'export const text = "جديد";\r\n';
+    assert.equal((await save({ content })).status, 400);
+    assert.equal((await save({ content, expectedHash: hash }, ['fs:read'])).status, 403);
+    assert.equal((await save({ content, expectedHash: hash }, ['fs:write'], h.url + '/v1/project/file/save?project=.')).status, 403);
+
+    const saved = await save({ content, expectedHash: hash });
+    assert.equal(saved.status, 200);
+    const receipt = await saved.json();
+    assert.equal(receipt.ok, true);
+    assert.equal(receipt.bytes, Buffer.byteLength(content));
+    assert.equal(readFileSync(file, 'utf8'), content);
+    const reloaded = await (await read()).json();
+    assert.equal(reloaded.content, content);
+    assert.equal(reloaded.hash, receipt.hash);
+
+    const writes = await Promise.all([
+      save({ content: 'first', expectedHash: receipt.hash }),
+      save({ content: 'second', expectedHash: receipt.hash }),
+    ]);
+    assert.deepEqual(writes.map((response) => response.status).sort(), [200, 409]);
+    writeFileSync(file, 'outside editor');
+    assert.equal((await save({ content, expectedHash: receipt.hash })).status, 409);
+    assert.equal(readFileSync(file, 'utf8'), 'outside editor');
+    assert.equal((await save({ path: 'src/missing.ts', content, expectedHash: hash })).status, 409);
+    assert.equal(existsSync(join(project, 'src', 'missing.ts')), false);
+    assert.equal((await save({ path: 'src/../.env', content, expectedHash: hash })).status, 400);
+    assert.equal((await save({ content: 'a'.repeat(512 * 1024 + 1), expectedHash: hash })).status, 413);
+  } finally { await h.close(); }
+});
+
 // ---------------------------------------------------------------------------
 // Authentication
 // ---------------------------------------------------------------------------
+
+test('an inspected project can be saved, verified and served over a measured local preview', async (t) => {
+  const task = [
+    process.execPath, '-e',
+    'import("./src/site.js").then(({heading}) => { if (heading !== "Integrated preview") process.exitCode = 1; console.log(heading); })',
+  ];
+  const h = await harness({ config: { allowlistedTasks: { verify: task } } });
+  try {
+    mkdirSync(join(h.root, 'studio', 'src'), { recursive: true });
+    writeFileSync(join(h.root, 'studio', 'src', 'site.js'), 'export const heading = "Original preview";');
+    const inspect = await get(h, '/v1/project/inspect?project=studio', mint(h, ['fs:read']));
+    assert.equal(inspect.status, 200);
+    assert.ok((await inspect.json()).files.some(file => file.path === 'src/site.js'));
+    const file = await get(h, '/v1/project/file?project=studio&path=src%2Fsite.js', mint(h, ['fs:read']));
+    assert.equal(file.status, 200);
+    const { hash } = await file.json();
+    const saved = await fetch(h.url + '/v1/project/file/save?project=studio', {
+      method: 'PUT',
+      headers: { authorization: 'Bearer ' + mint(h, ['fs:write']), 'content-type': 'application/json' },
+      body: JSON.stringify({ path: 'src/site.js', content: 'export const heading = "Integrated preview";', expectedHash: hash }),
+    });
+    assert.equal(saved.status, 200);
+
+    const verification = await post(h, '/v1/exec/run', { task: 'verify', cwd: 'studio' }, mint(h, ['run:allowlisted']));
+    assert.equal(verification.status, 200);
+    const output = await verification.text();
+    assert.match(output, /Integrated preview/);
+    assert.match(output, /"code":0/);
+
+    h.processes.register('preview', { cmd: process.execPath, args: ['-e',
+      'Promise.all([import("node:http"), import("./studio/src/site.js")]).then(([{createServer}, {heading}]) => { const server = createServer((_req, res) => res.end(heading)); server.listen(0, "127.0.0.1", () => console.log("PORT=" + server.address().port)); });',
+    ] });
+    const runtime = await post(h, '/v1/proc/start', { name: 'preview' }, mint(h, ['proc:manage']));
+    assert.equal(runtime.status, 200);
+    const { pid } = await runtime.json();
+    assert.ok(pid > 0);
+    let port;
+    const deadline = Date.now() + 8000;
+    while (Date.now() < deadline) {
+      port = h.processes.logs('preview').map(line => /^PORT=(\d+)$/.exec(line.data.trim())?.[1]).find(Boolean);
+      if (port) break;
+      await new Promise(resolve => setTimeout(resolve, 30));
+    }
+    assert.ok(port, 'preview child must bind a measured loopback port');
+    const page = await fetch('http://127.0.0.1:' + port, { signal: AbortSignal.timeout(3000) });
+    assert.equal(page.status, 200);
+    assert.equal(await page.text(), 'Integrated preview');
+    t.diagnostic('Bridge verification exit=0; preview pid=' + pid + '; HTTP=200; served saved project bytes');
+  } finally {
+    await h.close();
+  }
+});
 
 test('health needs no ticket and reports only that this process is running', async () => {
   const h = await harness();
@@ -558,6 +658,53 @@ test('logs:read returns what the process actually printed', async () => {
     // A process that exited cleanly is stopped, with its real exit code.
     assert.equal(body.info.status, 'stopped');
     assert.equal(body.info.exitCode, 0);
+  } finally { await h.close(); }
+});
+
+test('restart replaces an owned process only after its previous PID has exited', async () => {
+  const h = await harness();
+  try {
+    h.processes.register('runtime', {
+      cmd: process.execPath,
+      args: ['-e', 'console.log(process.pid); setInterval(() => {}, 1000);'],
+    });
+    const started = await post(h, '/v1/proc/start', { name: 'runtime' }, mint(h, ['proc:manage']));
+    assert.equal(started.status, 200);
+    const initial = await started.json();
+    assert.ok(initial.pid > 0);
+    const restarted = await post(h, '/v1/proc/restart', { name: 'runtime' }, mint(h, ['proc:manage']));
+    assert.equal(restarted.status, 200);
+    const replacement = await restarted.json();
+    assert.ok(replacement.pid > 0);
+    assert.notEqual(replacement.pid, initial.pid);
+    assert.throws(() => process.kill(initial.pid, 0), { code: 'ESRCH' });
+    assert.equal(replacement.restarts, 1);
+    const deadline = Date.now() + 5000;
+    while (!h.processes.logs('runtime').some((line) => line.data.trim() === String(replacement.pid)) && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 30));
+    }
+    assert.ok(h.processes.logs('runtime').some((line) => line.data.trim() === String(replacement.pid)));
+  } finally { await h.close(); }
+});
+
+test('shutdown cancels a pending restart and refuses a competing restart', async () => {
+  const h = await harness();
+  try {
+    h.processes.register('runtime', { cmd: process.execPath, args: ['-e', 'setInterval(() => {}, 1000);'] });
+    const started = h.processes.start('runtime');
+    assert.ok(started.ok);
+    const pending = h.processes.restart('runtime');
+    const competing = await h.processes.restart('runtime');
+    assert.equal(competing.ok, false);
+    assert.match(competing.reason, /restart in progress/);
+    h.processes.stopAll();
+    assert.equal((await pending).ok, false);
+    const deadline = Date.now() + 8000;
+    while (h.processes.info('runtime').pid && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 30));
+    }
+    assert.equal(h.processes.info('runtime').pid, null);
+    assert.equal(h.processes.info('runtime').restarts, 0);
   } finally { await h.close(); }
 });
 

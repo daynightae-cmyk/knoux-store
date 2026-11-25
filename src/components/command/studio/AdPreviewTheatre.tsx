@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PLACEMENTS, brandViolations, destinationValid, beginEdit, type StudioEdit, type PlacementId } from '@/lib/growth/studio';
+import { previewMedia } from '@/lib/growth/media';
 import { useWorkspace } from '../workspace-context';
 import { CommandIcon } from '../CommandIcon';
 import { trapDialogFocus } from '../dialog-focus';
@@ -12,12 +13,14 @@ import styles from './studio.module.css';
 export function PlacementPreview({ edit, clientName, placement, safe = false, ratio, mediaUrl, mediaKind, mediaPending = false }: { edit: StudioEdit; clientName: string; placement: PlacementId; safe?: boolean; ratio?: string; mediaUrl?: string | null; mediaKind?: 'IMAGE' | 'VIDEO' | null; mediaPending?: boolean }) {
   const preset = PLACEMENTS.find((item) => item.id === placement)!;
   const creative = edit.creative;
-  const resolved = mediaUrl ?? (creative as { mediaUrl?: string }).mediaUrl ?? null;
-  const kind = mediaKind ?? (creative as { mediaKind?: 'IMAGE' | 'VIDEO' }).mediaKind ?? 'IMAGE';
-  const media = resolved && kind === 'VIDEO' && !preset.formats.includes('MP4')
+  const [failedSource, setFailedSource] = useState<string | null>(null);
+  const { url: resolved, kind } = previewMedia({ selectedAssetId: edit.mediaAssetId, originalAssetId: creative.mediaAssetId, originalUrl: creative.mediaUrl, originalKind: creative.mediaKind, resolvedUrl: mediaUrl, resolvedKind: mediaKind });
+  const media = resolved && failedSource === resolved
+    ? <div className={styles.media} style={{ aspectRatio: ratio ?? preset.ratio }} role="status"><p>Media could not be loaded. Refresh the private media library or select another asset.</p></div>
+    : resolved && kind === 'VIDEO' && !preset.formats.includes('MP4')
     ? <div className={styles.media} style={{ aspectRatio: ratio ?? preset.ratio }}><p>This placement requires an image. Select a video placement to preview this asset.</p></div>
     : resolved
-    ? <div className={styles.media} style={{ aspectRatio: ratio ?? preset.ratio, position: 'relative' }}>{kind === 'VIDEO' ? <video src={resolved} controls playsInline preload="metadata" style={{ width: '100%', height: '100%', objectFit: 'cover' }} aria-label={`${clientName} creative video`} /> : <Image src={resolved} alt={`${clientName} creative`} fill sizes="(max-width: 650px) 90vw, 400px" style={{ objectFit: 'cover' }} unoptimized />}{safe && <div className={styles.safe}>Composition guide · not a verified platform safe zone</div>}</div>
+    ? <div className={styles.media} style={{ aspectRatio: ratio ?? preset.ratio, position: 'relative' }}>{kind === 'VIDEO' ? <video key={resolved} src={resolved} controls playsInline preload="metadata" onError={() => setFailedSource(resolved)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} aria-label={`${clientName} creative video`} /> : <Image key={resolved} src={resolved} alt={`${clientName} creative`} fill sizes="(max-width: 650px) 90vw, 400px" onError={() => setFailedSource(resolved)} style={{ objectFit: 'cover' }} unoptimized />}{safe && <div className={styles.safe}>Composition guide · not a verified platform safe zone</div>}</div>
     : <div className={styles.media} style={{ aspectRatio: ratio ?? preset.ratio }}><svg viewBox="0 0 180 180" aria-hidden="true"><path d="M90 12 158 51v78l-68 39-68-39V51z M90 12v156 M22 51l136 78 M158 51 22 129" /></svg><span>{edit.mediaAssetId ? mediaPending ? 'LOADING MEDIA' : 'MEDIA UNAVAILABLE' : 'EMPTY ASSET SLOT'}</span><small>{edit.mediaAssetId ? 'Media selected · loading or unavailable' : edit.asset ? `${edit.asset} · reference only; no resolved media URL` : 'No approved media selected'}</small>{safe && <div className={styles.safe}>Composition guide · not a verified platform safe zone</div>}</div>;
   const copy = <p className={styles.copy}>{creative.primaryText || 'Primary copy appears here'}</p>;
   /**

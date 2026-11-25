@@ -20,6 +20,8 @@ export type BlockType = (typeof BLOCK_TYPES)[number]['id'];
 export type Block = { key: number; type: BlockType; align: 'start' | 'center' | 'end'; gap: number };
 
 const STORAGE_KEY = 'knoux-wp-composer-draft';
+export const COMPOSER_DRAFT_EVENT = 'knoux:wp-composer-draft';
+let memoryBlocks: Block[] | undefined;
 
 export const STARTING_LAYOUT: readonly Block[] = [
   { key: 1, type: 'hero', align: 'start', gap: 24 },
@@ -34,26 +36,35 @@ export const DEFAULT_BLOCKS: Block[] = [
 ];
 
 export function readComposerBlocks(fallback: Block[] = DEFAULT_BLOCKS): Block[] {
+  if (memoryBlocks) return memoryBlocks;
   try {
     const raw = window.sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return fallback;
+    if (!raw) return memoryBlocks ?? fallback;
     const parsed = JSON.parse(raw) as Block[];
     if (!Array.isArray(parsed)) return fallback;
-    if (!parsed.length) return [];
-    const valid = parsed.filter((block) => block && BLOCK_TYPES.some((type) => type.id === block.type));
-    return valid.length ? valid : fallback;
+    const valid = parsed.filter((block) => block && BLOCK_TYPES.some((type) => type.id === block.type)
+      && Number.isSafeInteger(block.key) && block.key > 0
+      && ['start', 'center', 'end'].includes(block.align)
+      && Number.isInteger(block.gap) && block.gap >= 4 && block.gap <= 48);
+    if (valid.length !== parsed.length || new Set(valid.map((block) => block.key)).size !== valid.length || valid.length > 100) return memoryBlocks ?? fallback;
+    memoryBlocks = valid;
+    return valid;
   } catch {
-    return fallback;
+    return memoryBlocks ?? fallback;
   }
 }
 
 export function saveComposerBlocks(blocks: readonly Block[]): boolean {
+  memoryBlocks = blocks.map((block) => ({ ...block }));
+  let stored = false;
   try {
     window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(blocks));
-    return true;
+    stored = true;
   } catch {
-    return false;
+    // Account save and journey handoffs still use the in-memory document.
   }
+  window.dispatchEvent(new Event(COMPOSER_DRAFT_EVENT));
+  return stored;
 }
 
 export function label(type: BlockType, t: (en: string, ar?: string) => string) {

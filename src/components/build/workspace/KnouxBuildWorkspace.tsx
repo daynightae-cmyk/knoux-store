@@ -285,6 +285,22 @@ export function BuildStateProvider({ children }: { children: ReactNode }) {
       getJson<import('@/lib/build/integration-types').IntegrationSnapshot>('/api/build/integrations').then((result) => { if (current === generation.current && result.ok) dispatch({ type: 'integrations/resolved', snapshot: result.value }); }),
     ]);
   }, [state.projectRef]);
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('knoux-build-active-project');
+      const project = raw ? JSON.parse(raw) : null;
+      if (project && typeof project.name === 'string' && typeof project.path === 'string'
+        && project.path.length <= 240 && !project.path.startsWith('/') && !project.path.includes('..')
+        && !project.path.includes(':') && !project.path.includes('\\') && !project.path.includes('\0') && project.path) {
+        dispatch({ type: 'project/activate', name: project.name.slice(0, 100), path: project.path });
+      }
+    } catch { /* A blocked or malformed session entry does not prevent opening Build. */ }
+  }, []);
+  useEffect(() => {
+    const project = state.recentProjects.find(({ path }) => path === state.projectRef);
+    if (!project) return;
+    try { sessionStorage.setItem('knoux-build-active-project', JSON.stringify(project)); } catch { /* Tab persistence is optional. */ }
+  }, [state.projectRef, state.recentProjects]);
   useEffect(() => { void refresh(); const counter = generation; return () => { counter.current++; }; }, [refresh]);
   useEffect(() => {
     try { const saved = localStorage.getItem(PREFERENCES_KEY); if (saved) { const preferences = parsePreferences(JSON.parse(saved)); dispatch({ type: 'preferences/set', preferences }); const viewport = preferences.viewport === 'phone' ? { id: 'phone', label: 'MOBILE', width: 390, height: 844 } : preferences.viewport === 'tablet' ? { id: 'tablet', label: 'TABLET', width: 768, height: 1024 } : { id: 'laptop', label: 'LAPTOP', width: 1440, height: 900 }; dispatch({ type: 'preview/viewport', viewport }); } } catch { /* Browser storage is optional. */ }

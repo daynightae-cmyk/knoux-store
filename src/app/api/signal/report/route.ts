@@ -2,20 +2,16 @@ import { NextResponse } from 'next/server';
 import { clientAddress, rateLimit } from '@/lib/http/rate-limit';
 import { normalizeSignalPhone } from '@/lib/signal/phone';
 import { createClient } from '@/lib/supabase/server';
+import { readSignalMutation } from '@/lib/signal/mutation-input';
 
 const CATEGORIES = new Set(['spam', 'scam', 'sales', 'harassment', 'safe_business', 'other']);
 
 export async function POST(request: Request) {
+  const body = await readSignalMutation(request);
+  if (body instanceof Response) return body;
   const limit = rateLimit(`signal:report:${clientAddress(request.headers)}`, { max: 8, windowMs: 60 * 60 * 1000 });
   if (!limit.allowed) {
     return NextResponse.json({ error: 'Report limit reached.' }, { status: 429 });
-  }
-
-  let body: Record<string, unknown>;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON.' }, { status: 400 });
   }
 
   const facts = normalizeSignalPhone(
@@ -29,9 +25,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'A valid number and report category are required.' }, { status: 422 });
   }
 
+  try {
   const supabase = await createClient();
-  const { data: auth } = await supabase.auth.getUser();
-  if (!auth.user) return NextResponse.json({ error: 'Sign in before reporting.' }, { status: 401 });
+  const { data: auth, error: authError } = await supabase.auth.getUser();
+  if (authError || !auth.user) return NextResponse.json({ error: 'Sign in before reporting.' }, { status: 401 });
 
   const { data, error } = await supabase.rpc('signal_report_reputation', {
     p_phone: facts.e164,
@@ -42,7 +39,10 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json(
-    error ? { error: 'Signal report storage is unavailable.' } : { ok: true, report: data },
-    { status: error ? 503 : 200, headers: { 'cache-control': 'no-store' } },
+    error || !data ? { error: 'Signal report storage is unavailable; no report confirmed.' } : { ok: true, report: data },
+    { status: error || !data ? 503 : 200, headers: { 'cache-control': 'no-store' } },
   );
+  } catch {
+    return NextResponse.json({ error: 'Signal report storage is unavailable.' }, { status: 503, headers: { 'cache-control': 'no-store' } });
+  }
 }

@@ -2,6 +2,8 @@
 import { useRef, useState } from "react";
 import { AiCenterPage } from "./AiCenterLayout";
 import { DevPanel } from "../dev/DevUI";
+import type { CostEstimate } from "@/lib/ai/types";
+import { formatRuntimeCost } from "./runtime-response";
 
 type SenshialResponse = {
   ok: boolean;
@@ -15,7 +17,7 @@ type SenshialResponse = {
     source: string;
   } | null;
   latencyMs: number | null;
-  estimatedCost: { amount: number | null; basis: string } | null;
+  estimatedCost: CostEstimate | null;
   error: { category: string; safeMessage: string } | null;
   blocked: boolean;
   blocker: string | null;
@@ -302,12 +304,7 @@ export function AiSenshialPage() {
                     {response.usage.outputTokens ?? "?"} out
                   </span>
                 ) : null}
-                {response.estimatedCost?.amount !== null &&
-                response.estimatedCost?.amount !== undefined ? (
-                  <span className="dev-tag">
-                    ${response.estimatedCost.amount.toFixed(6)}
-                  </span>
-                ) : null}
+                <span className="dev-tag">{formatRuntimeCost(response.estimatedCost)}</span>
               </div>
               <pre
                 style={{

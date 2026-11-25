@@ -7,6 +7,7 @@ import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
 import { DeviceFrame, type PreviewDevice } from './journeys/DeviceFrame';
 import {
   ComposerDocument,
+  COMPOSER_DRAFT_EVENT,
   DEFAULT_BLOCKS,
   readComposerBlocks,
   saveComposerBlocks,
@@ -14,6 +15,7 @@ import {
   type Block,
 } from './journeys/ComposerDocument';
 import { WordPressPreviewOrbit } from './WordPressPreviewOrbit';
+import { StudioCatalogPaging, type useStudioCatalog } from './StudioCatalogData';
 import s from './WordPressStudio.module.css';
 
 type Translate = (english: string, arabic?: string) => string;
@@ -23,6 +25,7 @@ type SelectorProps = {
   query: string;
   onQuery: (query: string) => void;
   t: Translate;
+  catalog?: ReturnType<typeof useStudioCatalog>;
 };
 
 function SearchIcon() {
@@ -42,26 +45,28 @@ function navigateChoices(event: ReactKeyboardEvent<HTMLUListElement>) {
   buttons[next]?.focus();
 }
 
-function ThemeSelector({ themes, selectedSlug, active, onSelect, query, onQuery, t }: SelectorProps & Readonly<{
+function ThemeSelector({ themes, selectedSlug, active, onSelect, query, onQuery, t, catalog }: SelectorProps & Readonly<{
   themes: Readonly<ExternalItem[]>;
   selectedSlug: string;
   active: boolean;
   onSelect: (slug: string) => void;
 }>) {
   const filtered = useMemo(() => {
+    if (catalog) return themes;
     const needle = query.trim().toLowerCase();
     if (!needle) return themes;
     return themes.filter((item) => item.name.toLowerCase().includes(needle)
       || item.slug.includes(needle)
       || item.tags.some((tag) => tag.toLowerCase().includes(needle)));
-  }, [themes, query]);
+  }, [themes, query, catalog]);
 
   return <div className={s.selectorContent}>
     <label className={s.cockpitSearch}>
-      <span className={s.srOnly}>{t('Search loaded themes', 'ابحث في القوالب المحمّلة')}</span>
+      <span className={s.srOnly}>{catalog ? t('Search WordPress themes', 'ابحث في قوالب ووردبريس') : t('Search loaded themes', 'ابحث في القوالب المحمّلة')}</span>
       <SearchIcon />
-      <input type="search" value={query} onChange={(event) => onQuery(event.target.value)} placeholder={t('Search themes…', 'ابحث في القوالب…')} />
+      <input type="search" maxLength={120} value={catalog?.search ?? query} onChange={(event) => catalog ? catalog.setSearch(event.target.value) : onQuery(event.target.value)} placeholder={t('Search themes…', 'ابحث في القوالب…')} />
     </label>
+    {catalog && <StudioCatalogPaging catalog={catalog} label="Theme catalog pages" />}
     {filtered.length ? <ul className={s.themeChoices} aria-label={t('Loaded WordPress themes', 'قوالب ووردبريس المحمّلة')} onKeyDown={navigateChoices}>
       {filtered.map((item) => <li key={item.slug}>
         <button type="button" data-cockpit-theme={item.slug} aria-pressed={active && item.slug === selectedSlug} onClick={() => onSelect(item.slug)}>
@@ -84,27 +89,29 @@ function ThemeSelector({ themes, selectedSlug, active, onSelect, query, onQuery,
   </div>;
 }
 
-function PluginSelector({ plugins, selectedSlug, active, onSelect, query, onQuery, t }: SelectorProps & Readonly<{
+function PluginSelector({ plugins, selectedSlug, active, onSelect, query, onQuery, t, catalog }: SelectorProps & Readonly<{
   plugins: Readonly<ExternalItem[]>;
   selectedSlug: string;
   active: boolean;
   onSelect: (slug: string) => void;
 }>) {
   const filtered = useMemo(() => {
+    if (catalog) return plugins;
     const needle = query.trim().toLowerCase();
     if (!needle) return plugins;
     return plugins.filter((item) => item.name.toLowerCase().includes(needle)
       || item.slug.includes(needle)
       || item.shortDescription.toLowerCase().includes(needle)
       || item.tags.some((tag) => tag.toLowerCase().includes(needle)));
-  }, [plugins, query]);
+  }, [plugins, query, catalog]);
 
   return <div className={s.selectorContent}>
     <label className={s.cockpitSearch}>
-      <span className={s.srOnly}>{t('Search loaded plugins', 'ابحث في الإضافات المحمّلة')}</span>
+      <span className={s.srOnly}>{catalog ? t('Search WordPress plugins', 'ابحث في إضافات ووردبريس') : t('Search loaded plugins', 'ابحث في الإضافات المحمّلة')}</span>
       <SearchIcon />
-      <input type="search" value={query} onChange={(event) => onQuery(event.target.value)} placeholder={t('Search capabilities…', 'ابحث عن قدرات…')} />
+      <input type="search" maxLength={120} value={catalog?.search ?? query} onChange={(event) => catalog ? catalog.setSearch(event.target.value) : onQuery(event.target.value)} placeholder={t('Search capabilities…', 'ابحث عن قدرات…')} />
     </label>
+    {catalog && <StudioCatalogPaging catalog={catalog} label="Plugin catalog pages" />}
     {filtered.length ? <ul className={s.pluginChoices} aria-label={t('Loaded WordPress plugins', 'إضافات ووردبريس المحمّلة')} onKeyDown={navigateChoices}>
       {filtered.map((item) => <li key={item.slug}>
         <button type="button" data-cockpit-plugin={item.slug} aria-pressed={active && item.slug === selectedSlug} onClick={() => onSelect(item.slug)}>
@@ -144,7 +151,7 @@ function RegistryFacts({ item, t }: Readonly<{ item: ExternalItem; t: Translate 
  * are rendered; installation remains unavailable until a real site connection
  * and authenticated server-side capability exist.
  */
-export function WordPressCockpit({ themes, plugins, selectedSlug, pluginSlug, kind, onKindChange, onSelectTheme, onSelectPlugin, onCustomize, primary, onSwitch, t }: Readonly<{
+export function WordPressCockpit({ themes, plugins, selectedSlug, pluginSlug, kind, onKindChange, onSelectTheme, onSelectPlugin, onCustomize, primary, onSwitch, t, themeCatalog, pluginCatalog, selectedTheme, selectedPlugin }: Readonly<{
   themes: Readonly<ExternalItem[]>;
   plugins: Readonly<ExternalItem[]>;
   selectedSlug: string;
@@ -157,6 +164,10 @@ export function WordPressCockpit({ themes, plugins, selectedSlug, pluginSlug, ki
   primary: 'draft' | 'starter';
   onSwitch: (preview: 'draft' | 'starter') => void;
   t: Translate;
+  themeCatalog?: ReturnType<typeof useStudioCatalog>;
+  pluginCatalog?: ReturnType<typeof useStudioCatalog>;
+  selectedTheme?: ExternalItem;
+  selectedPlugin?: ExternalItem;
 }>) {
   const [themeQuery, setThemeQuery] = useState('');
   const [pluginQuery, setPluginQuery] = useState('');
@@ -169,12 +180,14 @@ export function WordPressCockpit({ themes, plugins, selectedSlug, pluginSlug, ki
   const previewHeading = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setDraft(readComposerBlocks()), 0);
-    return () => window.clearTimeout(timer);
+    const sync = () => setDraft(readComposerBlocks());
+    const timer = window.setTimeout(sync, 0);
+    window.addEventListener(COMPOSER_DRAFT_EVENT, sync);
+    return () => { window.clearTimeout(timer); window.removeEventListener(COMPOSER_DRAFT_EVENT, sync); };
   }, []);
 
-  const theme = themes.find((item) => item.slug === selectedSlug) ?? themes[0];
-  const plugin = plugins.find((item) => item.slug === pluginSlug) ?? plugins[0];
+  const theme = selectedTheme ?? themes.find((item) => item.slug === selectedSlug);
+  const plugin = selectedPlugin ?? plugins.find((item) => item.slug === pluginSlug);
   const current = kind === 'theme' ? theme : kind === 'plugin' ? plugin : undefined;
   const title = kind === 'site'
     ? t(primary === 'draft' ? 'Your layout draft' : 'Starting layout', primary === 'draft' ? 'مسودة التخطيط' : 'التخطيط الأساسي')
@@ -251,7 +264,7 @@ export function WordPressCockpit({ themes, plugins, selectedSlug, pluginSlug, ki
           <div><span>WORDPRESS.ORG</span><h2 id="wp-cockpit-themes">{t('Themes', 'القوالب')}</h2></div>
           <b>{themes.length}</b>
         </header>
-        <ThemeSelector themes={themes} selectedSlug={selectedSlug} active={kind === 'theme'} onSelect={chooseTheme} query={themeQuery} onQuery={setThemeQuery} t={t} />
+        <ThemeSelector themes={themes} selectedSlug={selectedSlug} active={kind === 'theme'} onSelect={chooseTheme} query={themeQuery} onQuery={setThemeQuery} t={t} catalog={themeCatalog} />
         <a className={s.panelCatalogLink} href="/wordpress/themes">{t('Full theme catalogue', 'فهرس القوالب الكامل')} <span aria-hidden="true">↗</span></a>
       </aside>
 
@@ -333,7 +346,7 @@ export function WordPressCockpit({ themes, plugins, selectedSlug, pluginSlug, ki
           <div><span>WORDPRESS.ORG</span><h2 id="wp-cockpit-plugins">{t('Plugins', 'الإضافات')}</h2></div>
           <b>{plugins.length}</b>
         </header>
-        <PluginSelector plugins={plugins} selectedSlug={pluginSlug} active={kind === 'plugin'} onSelect={choosePlugin} query={pluginQuery} onQuery={setPluginQuery} t={t} />
+        <PluginSelector plugins={plugins} selectedSlug={pluginSlug} active={kind === 'plugin'} onSelect={choosePlugin} query={pluginQuery} onQuery={setPluginQuery} t={t} catalog={pluginCatalog} />
         <a className={s.panelCatalogLink} href="/wordpress/plugins">{t('Full plugin catalogue', 'فهرس الإضافات الكامل')} <span aria-hidden="true">↗</span></a>
       </aside>
       {(kind === 'theme' || kind === 'site') && <div className={`${s.deviceSwitch} ${s.orbitalDeviceDock}`} role="group" aria-label={t('Preview device', 'جهاز المعاينة')}>
@@ -354,11 +367,11 @@ export function WordPressCockpit({ themes, plugins, selectedSlug, pluginSlug, ki
 
     <dialog ref={themeSheet} className={`${s.contextPanel} ${s.cockpitSheet}`} aria-labelledby="wp-theme-sheet-title">
       <header><div><span>WORDPRESS.ORG</span><h3 id="wp-theme-sheet-title">{t('Choose a theme', 'اختر قالباً')}</h3></div><button type="button" onClick={() => themeSheet.current?.close()} aria-label={t('Close themes', 'إغلاق القوالب')}>×</button></header>
-      <ThemeSelector themes={themes} selectedSlug={selectedSlug} active={kind === 'theme'} onSelect={chooseTheme} query={themeQuery} onQuery={setThemeQuery} t={t} />
+      <ThemeSelector themes={themes} selectedSlug={selectedSlug} active={kind === 'theme'} onSelect={chooseTheme} query={themeQuery} onQuery={setThemeQuery} t={t} catalog={themeCatalog} />
     </dialog>
     <dialog ref={pluginSheet} className={`${s.contextPanel} ${s.cockpitSheet}`} aria-labelledby="wp-plugin-sheet-title">
       <header><div><span>WORDPRESS.ORG</span><h3 id="wp-plugin-sheet-title">{t('Choose a plugin', 'اختر إضافة')}</h3></div><button type="button" onClick={() => pluginSheet.current?.close()} aria-label={t('Close plugins', 'إغلاق الإضافات')}>×</button></header>
-      <PluginSelector plugins={plugins} selectedSlug={pluginSlug} active={kind === 'plugin'} onSelect={choosePlugin} query={pluginQuery} onQuery={setPluginQuery} t={t} />
+      <PluginSelector plugins={plugins} selectedSlug={pluginSlug} active={kind === 'plugin'} onSelect={choosePlugin} query={pluginQuery} onQuery={setPluginQuery} t={t} catalog={pluginCatalog} />
     </dialog>
     <dialog ref={draftPanel} className={`${s.contextPanel} ${s.draftPanel}`} aria-labelledby="wp-draft-panel-title">
       <header><div><span>LOCAL SESSION</span><h3 id="wp-draft-panel-title">{t('Layout previews & inspector', 'معاينات التخطيط والفاحص')}</h3></div><button type="button" onClick={() => draftPanel.current?.close()} aria-label={t('Close layout previews', 'إغلاق معاينات التخطيط')}>×</button></header>

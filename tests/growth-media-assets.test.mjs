@@ -28,6 +28,15 @@ test('media resolution distinguishes EMPTY / UNRESOLVED / RESOLVED', () => {
   assert.equal(media.resolveMediaState({ mediaAssetId: 'v1', signedUrl: 'https://cdn/v.mp4', mimeType: 'video/mp4' }).kind, 'VIDEO');
 });
 
+test('a detached, changed or unresolved media selection never displays the previous signed asset', () => {
+  const stored = { originalAssetId: 'a1', originalUrl: 'https://example.test/old.jpg', originalKind: 'IMAGE' };
+  assert.equal(media.previewMedia({ ...stored, selectedAssetId: 'a1' }).url, stored.originalUrl);
+  assert.equal(media.previewMedia({ ...stored, selectedAssetId: null }).url, null);
+  assert.equal(media.previewMedia({ ...stored, selectedAssetId: 'a2' }).url, null);
+  assert.equal(media.previewMedia({ ...stored, selectedAssetId: 'a1', resolvedUrl: null }).url, null);
+  assert.deepEqual(media.previewMedia({ ...stored, selectedAssetId: 'a2', resolvedUrl: 'https://example.test/new.mp4', resolvedKind: 'VIDEO' }), { url: 'https://example.test/new.mp4', kind: 'VIDEO' });
+});
+
 test('media attachment starts from stored draft, bumps revision and invalidates fingerprint', () => {
   const draft = { id: 'c1', clientId: 'client-a', headline: 'H', primaryText: 'P', cta: 'C', languages: ['en'], mediaAssetId: 'a1', updatedAt: '2026-10-16T00:00:00Z', status: 'APPROVED', reviewedBy: 'r' };
   const plan = { id: 'p1', clientId: 'client-a', name: 'N', objective: 'LEADS', platforms: ['instagram'], budgetMinor: 1000, currency: 'AED', locations: ['Dubai'], languages: ['en'], startDate: '2026-10-16', endDate: '2026-10-31', creativeSetIds: ['c1'] };

@@ -29,6 +29,11 @@ export default function CreativePage() {
       />
       <SignalRail division="creative" path="/creative" />
 
+      <section className="shell" style={{ paddingTop: 28 }} aria-label="Creative production workspace">
+        <Link href="/command/creative" prefetch={false} className="action">OPEN CREATIVE PRODUCTION STUDIO <span aria-hidden="true">↗</span></Link>
+        <p style={{ maxWidth: '65ch', marginTop: 12 }}>Edit client drafts, attach private media and inspect platform placements in the existing authenticated workspace.</p>
+      </section>
+
       <section className="shell" style={{ paddingTop: 'clamp(60px, 7vw, 120px)' }}><MaterialLab /></section>
 
       <section className="shell" style={{ paddingTop: 'clamp(50px, 6vw, 100px)', paddingBottom: 'clamp(70px, 8vw, 130px)' }}>

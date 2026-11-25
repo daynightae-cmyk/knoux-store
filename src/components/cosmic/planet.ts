@@ -13,6 +13,10 @@ export function rgba(tone: CosmicColor, alpha: number) {
 }
 
 export function paintPlanet(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, tone: CosmicColor, illumination: number, ring: boolean) {
+  // ResizeObserver can briefly report a hidden or subpixel surface. Canvas
+  // rejects negative arc radii; skip worlds with no area and keep the limb
+  // inside even when its minimum one-pixel stroke exceeds the world radius.
+  if (!Number.isFinite(radius) || radius <= 0) return;
   const lit = mixColor(tone, [243, 229, 255], .68);
   const shade = mixColor(tone, [7, 4, 22], .88);
   const glow = ctx.createRadialGradient(x, y, radius * .8, x, y, radius * 2.4);
@@ -39,7 +43,7 @@ export function paintPlanet(ctx: CanvasRenderingContext2D, x: number, y: number,
   ctx.strokeStyle = horizon;
   ctx.lineWidth = Math.max(1, radius * .038);
   ctx.beginPath();
-  ctx.arc(x, y, radius - ctx.lineWidth / 2, 0, Math.PI * 2);
+  ctx.arc(x, y, Math.max(0, radius - ctx.lineWidth / 2), 0, Math.PI * 2);
   ctx.stroke();
   if (ring) paintRings(ctx, x, y, radius, lit, true);
 }

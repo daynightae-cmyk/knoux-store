@@ -1,5 +1,5 @@
-import { NextResponse, type NextRequest } from 'next/server';
-import { guardBuildApi, resolveBuildOwnerId } from '@/lib/build/api-guard';
+import { type NextRequest } from 'next/server';
+import { authorizeGeneratedProject, generatedProjectResponse } from '@/lib/build/generated-project-access';
 import { generatedOperationId } from '@/lib/build/generated-project-contract';
 import { generatedBundlePath, generatedProjectsRoot } from '@/lib/build/generated-project-executor';
 import { promises as fs } from 'node:fs';
@@ -11,23 +11,15 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ operationId: string }> }
 ) {
-  const denied = await guardBuildApi(request, { scope: 'write' });
-  if (denied) return denied;
-
-  const ownerId = await resolveBuildOwnerId();
-  if (!ownerId) {
-    return NextResponse.json(
-      { error: 'unauthorized', message: 'Sign in to download generated project bundles.' },
-      { status: 401 },
-    );
-  }
+  const access = await authorizeGeneratedProject(request);
+  if (!access.allowed) return access.response;
 
   const { operationId: rawId } = await params;
   let operationId: string;
   try {
     operationId = generatedOperationId(rawId);
   } catch {
-    return NextResponse.json(
+    return generatedProjectResponse(
       { error: 'invalid-id', message: 'A valid operation UUID is required.' },
       { status: 400 },
     );
@@ -37,9 +29,9 @@ export async function GET(
   // containment and refuses links; the route never builds a path from input.
   let bundlePath: string;
   try {
-    bundlePath = await generatedBundlePath(generatedProjectsRoot(), ownerId, operationId);
+    bundlePath = await generatedBundlePath(generatedProjectsRoot(), access.ownerId, operationId);
   } catch {
-    return NextResponse.json(
+    return generatedProjectResponse(
       { error: 'no-bundle', message: 'No export bundle is available for this operation.' },
       { status: 404 },
     );
@@ -63,7 +55,7 @@ export async function GET(
       throw err;
     }
   } catch {
-    return NextResponse.json(
+    return generatedProjectResponse(
       { error: 'bundle-unavailable', message: 'The bundle could not be read.' },
       { status: 500 },
     );

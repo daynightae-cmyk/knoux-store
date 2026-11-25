@@ -1,5 +1,6 @@
 'use client';
 
+import { GeneratedProjectExecution } from '../generator/GeneratedProjectExecution';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRef, useState, type CSSProperties, type FormEvent, useEffect, useLayoutEffect } from 'react';
@@ -16,7 +17,6 @@ import { ModelControlsPanel } from '../generator/ModelControlsPanel';
 import { SplitView } from '../generator/SplitView';
 import { PlanSystemMap } from '../generator/PlanSystemMap';
 import { GenerationMonitor, GenerationLifecycleRail, generationCheckoutScope, scopedEngineeringSession } from '../generator/GenerationMonitor';
-import { GeneratedProjectExecution } from '../generator/GeneratedProjectExecution';
 import previewStyles from '../generator/preview-workspace.module.css';
 import { profileToControls } from '@/lib/build/profile';
 import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';

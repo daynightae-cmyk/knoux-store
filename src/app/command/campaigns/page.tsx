@@ -17,6 +17,8 @@ import Link from 'next/link';
 import { AdPreviewTheatre } from '@/components/command/studio/AdPreviewTheatre';
 import { CommandIcon } from '@/components/command/CommandIcon';
 import { CampaignReview } from '@/components/command/studio/CampaignReview';
+import { CampaignApproval } from '@/components/command/studio/CampaignApproval';
+import { hasUnsavedCampaignReview } from '@/lib/growth/studio';
 import { CreateGrowthDraft } from '@/components/command/studio/CreateGrowthDraft';
 import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
@@ -240,14 +242,14 @@ function Campaigns() {
                 {nextStates(selected.status).join(', ') || 'none — terminal'}.
               </p>
 
-              <ApprovalActions key={`${activeClient.id}:${selected.id}`} campaign={selected} />
+              <ApprovalActions key={`${activeClient.id}:${selected.id}:${selected.updatedAt}`} campaign={selected} />
 
               <div className={styles.ccApprovalActions ?? ''}>
                 <button
                   type="button"
                   className={`${styles.ccButton ?? ''} ${styles.ccButtonPrimary ?? ''}`}
                   disabled
-                  title="Launch requires an approved budget snapshot and a real connector confirmation. Neither exists."
+                  title="Launch requires separate authorization and an available provider execution adapter."
                 >
                   Launch
                 </button>
@@ -325,7 +327,12 @@ function Campaigns() {
  * the refusal verbatim when it is not. That is why the Approve button on a
  * campaign already marked APPROVED explains itself rather than just being grey.
  */
-function ApprovalActions({ campaign }: { campaign: Campaign }) { return <div className={styles.ccApprovalActions}><p>Stored status: {campaign.status}. Approval decisions require a named authenticated reviewer and a durable approval endpoint.</p><button type="button" disabled className={styles.ccButton}>Approve · write endpoint unavailable</button></div>; }
+function ApprovalActions({ campaign }: { campaign: Campaign }) {
+  const { activeClient, records, studioEdits, campaignPlans, isDemoWorkspace } = useWorkspace();
+  const staged = campaignPlans.find(plan => plan.id === campaign.id);
+  const plan = staged?.updatedAt === campaign.updatedAt ? staged : campaign;
+  return <CampaignApproval campaign={campaign} demo={isDemoWorkspace} unsaved={hasUnsavedCampaignReview(campaign, plan, records.creatives, studioEdits, activeClient.website)} />;
+}
 
 function Fact({ label, value }: { label: string; value: string }) {
   return (

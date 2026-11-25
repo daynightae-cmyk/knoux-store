@@ -16,6 +16,7 @@ import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
 import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
 import { DeviceFrame, type PreviewDevice } from './DeviceFrame';
+import { StudioCatalogPaging, type useStudioCatalog } from '../StudioCatalogData';
 import s from './journeys.module.css';
 
 const SELECTED_THEME_KEY = 'knoux-wp-selected-theme';
@@ -27,11 +28,13 @@ function formatInstalls(value: number) {
   return String(value);
 }
 
-export function ThemeExplorer({ themes, selectedSlug, onSelect, directory = false }: Readonly<{
+export function ThemeExplorer({ themes, selectedSlug, selectedItem, onSelect, directory = false, catalog }: Readonly<{
   themes: Readonly<ExternalItem[]>;
   selectedSlug?: string;
   onSelect?: (slug: string) => void;
   directory?: boolean;
+  selectedItem?: ExternalItem;
+  catalog?: ReturnType<typeof useStudioCatalog>;
 }>) {
   const language = useSiteLanguage();
   const t = (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
@@ -50,6 +53,7 @@ export function ThemeExplorer({ themes, selectedSlug, onSelect, directory = fals
   }, [directory]);
 
   const filtered = useMemo(() => {
+    if (catalog) return themes;
     const needle = query.trim().toLowerCase();
     return themes.filter((item) => {
       const matchesFilter = filter === 'All' || item.tags.some((tag) => tag.toLowerCase().includes(filter));
@@ -59,9 +63,9 @@ export function ThemeExplorer({ themes, selectedSlug, onSelect, directory = fals
         || item.tags.some((tag) => tag.toLowerCase().includes(needle));
       return matchesFilter && matchesQuery;
     });
-  }, [themes, query, filter]);
+  }, [themes, query, filter, catalog]);
 
-  const theme = filtered.find((item) => item.slug === (selectedSlug ?? savedSlug)) ?? filtered[0];
+  const theme = selectedItem ?? themes.find((item) => item.slug === (selectedSlug ?? savedSlug)) ?? (selectedSlug ? undefined : filtered[0]);
   const updated = formatOfficialDate(theme?.lastUpdated);
   const downloads = formatCount(theme?.downloaded);
 
@@ -85,7 +89,7 @@ export function ThemeExplorer({ themes, selectedSlug, onSelect, directory = fals
     items: `WordPress site; theme: ${theme.name}; source: ${theme.sourceUrl}; domain and hosting review; maintenance`,
   }).toString()}` : '/contact?requestType=wordpress';
 
-  if (!themes.length) {
+  if (!themes.length && !catalog) {
     return (
       <section className={s.panel}>
         <h3 className={s.panelTitle}>{t('Theme Explorer')}</h3>
@@ -105,16 +109,17 @@ export function ThemeExplorer({ themes, selectedSlug, onSelect, directory = fals
         {!directory && <label className={s.search}>
           <span className={s.visuallyHidden}>{t('Search themes')}</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.8-3.8" strokeLinecap="round" /></svg>
-          <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('Search themes, styles, or industries…')} />
+          <input type="search" maxLength={120} value={catalog?.search ?? query} onChange={(event) => catalog ? catalog.setSearch(event.target.value) : setQuery(event.target.value)} placeholder={t('Search themes, styles, or industries…')} />
         </label>}
+        {catalog && <StudioCatalogPaging catalog={catalog} label="Theme catalog pages" />}
         <div className={s.filters} role="group" aria-label={t('Filter by style')}>
           {FILTERS.map((value) => (
             <button
               key={value}
               type="button"
               className={s.filter}
-              aria-pressed={filter === value}
-              onClick={() => { if (filter !== value) cueAtmosphere('settle'); setFilter(value); }}
+              aria-pressed={catalog ? catalog.tag === (value === 'All' ? '' : value) : filter === value}
+              onClick={() => { cueAtmosphere('settle'); if (catalog) catalog.setTag(value === 'All' ? '' : value); else setFilter(value); }}
             >
               {value === 'All' ? t('All themes', 'كل القوالب') : value}
             </button>

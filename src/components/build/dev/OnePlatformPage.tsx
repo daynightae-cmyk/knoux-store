@@ -6,12 +6,16 @@
  * The whole page is the reference composition, rendered as code: nebula
  * gradients, seeded starfield (the shell's dev-cosmic-field canvas), SVG
  * orbital rings with light nodes, raised glass destinations and the Earth
- * horizon. Every card links to the live workspace surface it names; the
- * central sphere carries the canonical particle mark. No counts, statuses
- * or release values are invented here.
+ * horizon. Every glass card is a link to the live workspace surface it names,
+ * carrying the door's measured capability reading from the canonical workspace
+ * state — no counts, statuses or release values are invented; an unmeasured
+ * surface says so.
  */
 import Link from 'next/link';
+import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
+import { platformRuntime } from '@/lib/build/platform-runtime';
 import { ParticleMark } from '@/components/brand/ParticleMark';
+import { DevStatus } from './DevUI';
 import s from './one-platform.module.css';
 
 const CARDS = [
@@ -35,6 +39,9 @@ const NODES: ReadonlyArray<readonly [number, number]> = [
 ];
 
 export function OnePlatformPage({ onEnter }: Readonly<{ onEnter?: () => void }> = {}) {
+  const { state } = useBuildWorkspace();
+  const services = platformRuntime(state);
+  const serviceMap = new Map(services.map((svc) => [svc.door, svc]));
   const core = (
     <>
       <ParticleMark patternId="one-platform-mark" className={s.mark} dense />
@@ -83,16 +90,26 @@ export function OnePlatformPage({ onEnter }: Readonly<{ onEnter?: () => void }> 
             </Link>
           )}
           <ul className={s.cards} aria-label="One Platform destinations">
-            {CARDS.map((card) => (
-              <li key={card.id} className={s[card.id]}>
-                <Link href={card.href} className={s.card}>
-                  <span className={s.tile} aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill={'solid' in card ? 'currentColor' : 'none'} fillRule="evenodd" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={card.icon} /></svg>
-                  </span>
-                  <span className={s.cardText}><strong>{card.title}</strong><small>{card.body}</small></span>
-                </Link>
-              </li>
-            ))}
+            {CARDS.map((card) => {
+              const svc = serviceMap.get(card.id);
+              const value = svc?.value;
+              const detail = svc?.detail ?? 'The workspace reading has not arrived in this session yet.';
+              return (
+                <li key={card.id} className={s[card.id]}>
+                  <Link href={card.href} className={s.card}>
+                    <span className={s.tile} aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill={'solid' in card ? 'currentColor' : 'none'} fillRule="evenodd" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={card.icon} /></svg>
+                    </span>
+                    <span className={s.cardText}>
+                      <strong>{card.title}</strong>
+                      <small>{card.body}</small>
+                      {value && <DevStatus label={value} tone={svc?.reading === 'measured' ? 'ok' : svc?.reading === 'unmeasured' ? 'none' : 'warn'} />}
+                    </span>
+                    <span className={s.cardDetail} title={detail}>{detail.length > 160 ? `${detail.slice(0, 160)}…` : detail}</span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
         <div className={s.limb} aria-hidden="true" />

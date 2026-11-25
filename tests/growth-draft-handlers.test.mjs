@@ -15,6 +15,7 @@ const creative=await import('../src/app/api/growth/creatives/route.ts');
 const campaign=await import('../src/app/api/growth/campaigns/route.ts');
 const media=await import('../src/app/api/growth/media/route.ts');
 const clients=await import('../src/app/api/growth/clients/route.ts');
+const review=await import('../src/app/api/growth/campaigns/review/route.ts');
 const id='11111111-1111-4111-8111-111111111111';
 const input={id,clientId:'a',expectedUpdatedAt:'2026-10-16T00:00:00Z',name:'Draft',objective:'LEADS',budgetMinor:1000,startDate:'2026-10-16',endDate:'2026-10-31',platforms:['instagram']};
 let rpcCalls=[];
@@ -102,4 +103,28 @@ test('brand profile handler enforces role, validation and expected revision',asy
   auth('OWNER',true);assert.equal((await clients.PATCH(request(body))).status,401);
   auth();assert.equal((await clients.PATCH(request({...body,brandColors:['javascript:bad']}))).status,400);assert.equal(rpcCalls.length,0);
   assert.equal((await clients.PATCH(request(body))).status,200);assert.equal(rpcCalls[0].name,'knoux_growth_save_brand_profile');assert.equal(rpcCalls[0].args.p_expected,input.expectedUpdatedAt);
+});
+
+test('campaign review API validates membership, tenant action and revision before the durable transaction',async()=>{
+  const body={clientId:'a',campaignId:id,expectedUpdatedAt:input.expectedUpdatedAt,action:'SUBMIT'};
+  auth('VIEWER');assert.equal((await review.POST(request(body))).status,403);assert.equal(rpcCalls.length,0);
+  auth('OWNER',true);assert.equal((await review.POST(request(body))).status,401);
+  auth();
+  for(const invalid of [{...body,clientId:'b'},{...body,action:'LAUNCH'},{...body,expectedUpdatedAt:null},{...body,action:'APPROVE'}]) assert.ok([400,403].includes((await review.POST(request(invalid))).status));
+  assert.equal(rpcCalls.length,0);
+  globalThis.__growthAdminClient.rpc=async(name,args)=>{rpcCalls.push({name,args});return {data:{campaign:{status:'READY_FOR_REVIEW'},approval:{id}},error:null};};
+  assert.equal((await review.POST(request(body))).status,200);
+  assert.equal(rpcCalls[0].name,'knoux_growth_review_campaign');assert.equal(rpcCalls[0].args.p_actor,id);assert.equal(rpcCalls[0].args.p_expected,input.expectedUpdatedAt);
+  assert.equal((await review.POST(request(body,'https://foreign.test'))).status,403);
+});
+
+test('review conflicts, missing migration and missing receipts never report approval success',async()=>{
+  const body={clientId:'a',campaignId:id,expectedUpdatedAt:input.expectedUpdatedAt,action:'APPROVE',approvalId:id};
+  auth();
+  for(const [error,status] of [[{code:'40001'},409],[{code:'42501'},403],[{code:'PGRST202'},503]]){
+    globalThis.__growthAdminClient.rpc=async()=>({data:null,error});
+    assert.equal((await review.POST(request(body))).status,status);
+  }
+  globalThis.__growthAdminClient.rpc=async()=>({data:null,error:null});
+  assert.equal((await review.POST(request(body))).status,503);
 });

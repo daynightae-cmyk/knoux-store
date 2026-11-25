@@ -54,6 +54,7 @@ export function GeneratedProjectExecution({ artifact, onReceipt, compact = false
   const [result, setResult] = useState<{ fingerprint: string; receipt: GeneratedRuntimeReceipt } | null>(null);
   const [busy, setBusy] = useState(false);
   const [deployBusy, setDeployBusy] = useState(false);
+  const [cancelDeployBusy, setCancelDeployBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const receipt = result?.fingerprint === fingerprint ? result.receipt : null;
   const reviewDigest = digest?.fingerprint === fingerprint ? digest.value : null;
@@ -72,7 +73,7 @@ export function GeneratedProjectExecution({ artifact, onReceipt, compact = false
         if (!active) return;
         if (response.ok && value?.enabled) {
           setHost({ state: 'enabled', message: 'Trusted static execution is enabled for this allowlisted operator.' });
-        } else if (response.status === 403) {
+        } else if (response.status === 401 || response.status === 403) {
           setHost({ state: 'forbidden', message: value?.message ?? 'Generated project writes require a same-origin allowlisted operator.' });
         } else if (response.status === 503) {
           setHost({ state: 'disabled', message: value?.message ?? 'Static execution is disabled on this host.' });
@@ -165,11 +166,11 @@ export function GeneratedProjectExecution({ artifact, onReceipt, compact = false
   }
 
   async function cancelDeploy() {
-    if (!receipt || deployBusy) return;
-    setDeployBusy(true);
+    if (!receipt || cancelDeployBusy) return;
+    setCancelDeployBusy(true);
     setError(null);
     try {
-      const response = await fetch(`/api/build/generated-projects/${receipt.operationId}/deploy`, { method: 'PATCH' });
+      const response = await fetch(`/api/build/generated-projects/${receipt.operationId}`, { method: 'PATCH' });
       if (!response.ok) throw new Error(await readError(response));
       const value = await response.json() as { receipt?: GeneratedRuntimeReceipt };
       if (!value.receipt) throw new Error('The host returned no cancellation receipt.');
@@ -178,7 +179,7 @@ export function GeneratedProjectExecution({ artifact, onReceipt, compact = false
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'The deployment could not be cancelled.');
     } finally {
-      setDeployBusy(false);
+      setCancelDeployBusy(false);
     }
   }
 
@@ -232,7 +233,7 @@ export function GeneratedProjectExecution({ artifact, onReceipt, compact = false
             <button type="button" disabled={!confirmed || busy || host.state !== 'enabled'} onClick={() => void apply()}>
               {busy && !live ? 'Applying reviewed files…' : 'Apply reviewed static project'}
             </button>
-            {receipt?.bundle ? <a href={`/api/build/generated-projects/${receipt.operationId}/bundle`}>Download bundle</a> : null}
+            {receipt?.bundle?.bytes ? <a href={`/api/build/generated-projects/${receipt.operationId}/bundle`}>Download bundle</a> : null}
             {live ? <button type="button" className={styles.executionStop} disabled={busy} onClick={() => void stop()}>Stop preview</button> : null}
           </div>
         </div>
@@ -280,7 +281,7 @@ export function GeneratedProjectExecution({ artifact, onReceipt, compact = false
                       <button type="button" disabled={!deployConfirmed || deployBusy || !deployable || alreadyDeployed} onClick={() => void deploy()}>
                         {deployBusy ? 'Deploying…' : 'Deploy compiled output'}
                       </button>
-                      {deployReceipt?.status === 'requested' || deployReceipt?.status === 'not-requested' ? <button type="button" className={styles.executionStop} disabled={deployBusy || alreadyDeployed} onClick={() => void cancelDeploy()}>Cancel deployment</button> : null}
+                      {deployBusy || deployReceipt?.status === 'requested' || deployReceipt?.status === 'not-requested' ? <button type="button" className={styles.executionStop} disabled={cancelDeployBusy || alreadyDeployed} onClick={() => void cancelDeploy()}>{cancelDeployBusy ? 'Cancelling deployment…' : 'Cancel deployment'}</button> : null}
                     </div>
                   </div>
                 )}

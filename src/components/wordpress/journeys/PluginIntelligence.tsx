@@ -14,6 +14,7 @@ import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
 import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
 import studioStyles from '../WordPressStudio.module.css';
+import { StudioCatalogPaging, type useStudioCatalog } from '../StudioCatalogData';
 import s from './journeys.module.css';
 
 function formatInstalls(value: number) {
@@ -22,11 +23,15 @@ function formatInstalls(value: number) {
   return String(value);
 }
 
-export function PluginIntelligence({ plugins, directory = false, selectedSlug, onSelect }: Readonly<{
+export function PluginIntelligence({ plugins, directory = false, selectedSlug, selectedItem, onSelect, catalog, selectedPlugins, onPluginsChange }: Readonly<{
   plugins: Readonly<ExternalItem[]>;
   directory?: boolean;
   selectedSlug?: string;
   onSelect?: (slug: string) => void;
+  selectedItem?: ExternalItem;
+  catalog?: ReturnType<typeof useStudioCatalog>;
+  selectedPlugins?: string[];
+  onPluginsChange?: (slugs: string[]) => void;
 }>) {
   const language = useSiteLanguage();
   const t = (english: string, arabic?: string) => resolveRouteCopy(language, english, arabic);
@@ -35,16 +40,19 @@ export function PluginIntelligence({ plugins, directory = false, selectedSlug, o
   const slug = selectedSlug ?? internalSlug;
   // Selection tray: a real curated set (this session only), inspired by the
   // reference's tray — no installs happen here, the set composes one request.
-  const [tray, setTray] = useState<string[]>([]);
+  const [internalTray, setTray] = useState<string[]>([]);
+  const tray = selectedPlugins ?? internalTray;
   const trayPanel = useRef<HTMLDialogElement>(null);
   const detailPanel = useRef<HTMLElement>(null);
 
   function toggleTray(target: string) {
     cueAtmosphere(tray.includes(target) ? 'settle' : 'confirm');
-    setTray((current) => current.includes(target) ? current.filter((entry) => entry !== target) : [...current, target]);
+    const next = tray.includes(target) ? tray.filter((entry) => entry !== target) : [...tray, target].slice(0, 50);
+    if (onPluginsChange) onPluginsChange(next); else setTray(next);
   }
 
   const filtered = useMemo(() => {
+    if (catalog) return plugins;
     const needle = query.trim().toLowerCase();
     if (!needle) return plugins;
     return plugins.filter((item) =>
@@ -52,9 +60,9 @@ export function PluginIntelligence({ plugins, directory = false, selectedSlug, o
       || item.slug.includes(needle)
       || item.shortDescription.toLowerCase().includes(needle)
       || item.tags.some((tag) => tag.toLowerCase().includes(needle)));
-  }, [plugins, query]);
+  }, [plugins, query, catalog]);
 
-  const plugin = filtered.find((item) => item.slug === slug) ?? filtered[0];
+  const plugin = selectedItem ?? plugins.find((item) => item.slug === slug) ?? (selectedSlug ? undefined : filtered[0]);
 
   function selectPlugin(target: string) {
     if (plugin?.slug !== target) cueAtmosphere('confirm');
@@ -68,7 +76,7 @@ export function PluginIntelligence({ plugins, directory = false, selectedSlug, o
     }
   }
 
-  if (!plugins.length) {
+  if (!plugins.length && !catalog) {
     return (
       <section className={s.panel}>
         <h3 className={s.panelTitle}>{t('Plugin Intelligence')}</h3>
@@ -83,7 +91,8 @@ export function PluginIntelligence({ plugins, directory = false, selectedSlug, o
     items: `WordPress site; plugin: ${plugin.name}; source: ${plugin.sourceUrl}; installation and compatibility review; maintenance`,
   }).toString()}` : '/contact?requestType=wordpress';
 
-  const trayPlugins = plugins.filter((item) => tray.includes(item.slug));
+  const trayPlugins = tray.map((slug) => plugins.find((item) => item.slug === slug) ?? (selectedItem?.slug === slug ? selectedItem : undefined)
+    ?? { slug, name: slug, sourceUrl: `https://wordpress.org/plugins/${slug}/`, version: undefined });
   const trayHref = `/contact?${new URLSearchParams({
     requestType: 'wordpress',
     items: `WordPress site; plugins: ${trayPlugins.map((item) => `${item.name} (${item.sourceUrl})`).join('; ')}; installation and compatibility review; maintenance`,
@@ -100,8 +109,9 @@ export function PluginIntelligence({ plugins, directory = false, selectedSlug, o
         {!directory && <label className={s.search}>
           <span className={s.visuallyHidden}>{t('Search plugins')}</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.8-3.8" strokeLinecap="round" /></svg>
-          <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('Search capabilities — SEO, forms, cache…', 'ابحث عن قدرات — SEO، نماذج، كاش…')} />
+          <input type="search" maxLength={120} value={catalog?.search ?? query} onChange={(event) => catalog ? catalog.setSearch(event.target.value) : setQuery(event.target.value)} placeholder={t('Search capabilities — SEO, forms, cache…', 'ابحث عن قدرات — SEO، نماذج، كاش…')} />
         </label>}
+        {catalog && <StudioCatalogPaging catalog={catalog} label="Plugin catalog pages" />}
         {filtered.length ? (
           <ul className={s.pluginList} aria-label={t('Plugins')}>
             {filtered.map((item) => {

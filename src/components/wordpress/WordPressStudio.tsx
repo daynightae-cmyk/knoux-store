@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ExternalItem } from '@/lib/wordpress/external';
 import { resolveRouteCopy } from '@/lib/i18n/route-copy';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
@@ -11,7 +11,12 @@ import { WordPressLibraryGateway } from './WordPressLibraryGateway';
 import { ThemeExplorer } from './journeys/ThemeExplorer';
 import { LiveCanvas } from './journeys/LiveCanvas';
 import { DomainIntelligence } from './journeys/DomainIntelligence';
-import { SiteIdentity } from './journeys/SiteIdentity';
+import { SiteIdentity, readIdentityDraft, saveIdentityDraft, DEFAULT_IDENTITY_DRAFT } from './journeys/SiteIdentity';
+import { readComposerBlocks, saveComposerBlocks } from './journeys/ComposerDocument';
+import { useStudioCatalog } from './StudioCatalogData';
+import { StudioDraftControls } from './StudioDraftControls';
+import { readStudioCatalog, restoreStudioSelection } from '@/lib/wordpress/studio-client';
+import type { WordPressDraft, WordPressDraftDocument } from '@/lib/wordpress/site-drafts';
 import { InfrastructureMap } from './journeys/InfrastructureMap';
 import { OperationsCenter } from './journeys/OperationsCenter';
 import { VisualComposer } from './journeys/VisualComposer';
@@ -69,12 +74,61 @@ export function WordPressStudio({
   const t = useRouteCopy();
   const journeys = useRef<HTMLDialogElement>(null);
   const library = useRef<HTMLDialogElement>(null);
+  const accountDrafts = useRef<HTMLDialogElement>(null);
+  const restoreLookup = useRef<AbortController | null>(null);
   const journeyHeading = useRef<HTMLHeadingElement>(null);
   const journeyTrigger = useRef<HTMLButtonElement>(null);
   const [primary, setPrimary] = useState<'draft' | 'starter'>('draft');
   const [slug, setSlug] = useState<string>(themes[0]?.slug ?? '');
   const [pluginSlug, setPluginSlug] = useState<string>(plugins[0]?.slug ?? '');
   const [previewKind, setPreviewKind] = useState<WordPressPreviewKind>('site');
+  const [pluginSlugs, setPluginSlugs] = useState<string[]>([]);
+  const [selectedTheme, setSelectedTheme] = useState<ExternalItem | undefined>(themes[0]);
+  const [selectedPlugin, setSelectedPlugin] = useState<ExternalItem | undefined>(plugins[0]);
+  const [restoreVersion, setRestoreVersion] = useState(0);
+  const themeCatalog = useStudioCatalog('theme', themes, themes.length ? 'ok' : 'unavailable', active === 'arrival' || active === 'theme');
+  const pluginCatalog = useStudioCatalog('plugin', plugins, plugins.length ? 'ok' : 'unavailable', active === 'arrival' || active === 'plugins');
+  const theme = themeCatalog.items.find((item) => item.slug === slug) ?? (selectedTheme?.slug === slug ? selectedTheme : undefined);
+  const plugin = pluginCatalog.items.find((item) => item.slug === pluginSlug) ?? (selectedPlugin?.slug === pluginSlug ? selectedPlugin : undefined);
+
+  const restoreDraft = useCallback((saved: WordPressDraft) => {
+    restoreLookup.current?.abort();
+    const controller = new AbortController();
+    restoreLookup.current = controller;
+    const selection = restoreStudioSelection(saved);
+    saveIdentityDraft(saved.document.identity ?? DEFAULT_IDENTITY_DRAFT);
+    saveComposerBlocks(saved.document.blocks);
+    setSlug(selection.themeSlug ?? '');
+    setPluginSlug(selection.pluginSlug ?? '');
+    setPluginSlugs(saved.document.pluginSlugs);
+    setSelectedTheme(themes.find((item) => item.slug === selection.themeSlug));
+    setSelectedPlugin(plugins.find((item) => item.slug === selection.pluginSlug));
+    setPreviewKind(selection.kind);
+    setPrimary('draft');
+    setRestoreVersion((version) => version + 1);
+    // A saved selection may live beyond the current catalogue page. Resolve its
+    // official metadata without changing the user's active search or filters.
+    for (const [kind, selectedSlug] of [['theme', selection.themeSlug], ['plugin', selection.pluginSlug]] as const) {
+      if (!selectedSlug) continue;
+      void readStudioCatalog({ kind, search: selectedSlug, page: 1, perPage: 9 }, controller.signal).then((result) => {
+        if (controller.signal.aborted) return;
+        const item = result.items.find((candidate) => candidate.slug === selectedSlug);
+        if (kind === 'theme') setSelectedTheme(item); else setSelectedPlugin(item);
+      }).catch(() => { /* Keep the saved slug; unavailable metadata never changes selection. */ });
+    }
+  }, [themes, plugins]);
+
+  useEffect(() => () => restoreLookup.current?.abort(), []);
+
+  function snapshot(): WordPressDraftDocument {
+    const selectedPlugins = pluginSlug && previewKind === 'plugin' && !pluginSlugs.includes(pluginSlug)
+      ? [...pluginSlugs, pluginSlug].slice(-50) : pluginSlugs;
+    return {
+      schema: 1, identity: readIdentityDraft(), blocks: readComposerBlocks(),
+      themeSlug: slug || null, pluginSlugs: selectedPlugins,
+      selection: { kind: previewKind, pluginSlug: selectedPlugins.includes(pluginSlug) ? pluginSlug : null },
+    };
+  }
   // The arrival composer hands its words here — same tab via the event,
   // a return visit via session storage. The stored sentence is read through
   // an external-store subscription so server and client renders agree.
@@ -112,16 +166,27 @@ export function WordPressStudio({
   }
 
   function selectTheme(next: string) {
+    restoreLookup.current?.abort();
+    setSelectedTheme(themeCatalog.items.find((item) => item.slug === next) ?? (theme?.slug === next ? theme : undefined));
     setSlug(next);
     setPreviewKind('theme');
   }
 
   function selectPlugin(next: string) {
+    restoreLookup.current?.abort();
+    setSelectedPlugin(pluginCatalog.items.find((item) => item.slug === next) ?? (plugin?.slug === next ? plugin : undefined));
+    setPluginSlugs((current) => [...new Set([...current, next])].slice(-50));
     setPluginSlug(next);
     setPreviewKind('plugin');
   }
 
-  const theme = themes.find((item) => item.slug === slug);
+  function changePlugins(next: string[]) {
+    setPluginSlugs(next);
+    if (!next.includes(pluginSlug)) {
+      setPluginSlug(next.at(-1) ?? '');
+      if (previewKind === 'plugin') setPreviewKind('site');
+    }
+  }
   const requestParams = new URLSearchParams({
     requestType: 'wordpress',
     items: [
@@ -145,6 +210,7 @@ export function WordPressStudio({
       <h1 id="wordpress-studio-title" className={styles.studioTitle}>WordPress Studio</h1>
       <div className={styles.toolbar}>
         <button ref={journeyTrigger} type="button" onClick={() => journeys.current?.showModal()}>{t('Studio journeys', 'رحلات الاستوديو')}</button>
+        <button type="button" onClick={() => accountDrafts.current?.showModal()}>{t('Account drafts', 'مسودات الحساب')}</button>
         {active === 'arrival' && <button type="button" onClick={() => library.current?.showModal()}>{t('WordPress library')}</button>}
         {active !== 'arrival' && <button type="button" onClick={() => changeJourney('arrival')}>{t('Preview orbit', 'مدار المعاينة')}</button>}
       </div>
@@ -167,6 +233,15 @@ export function WordPressStudio({
         </nav>
       </dialog>
 
+      <dialog ref={accountDrafts} className={styles.contextPanel} aria-labelledby="wordpress-account-drafts-title">
+        <header>
+          <h3 id="wordpress-account-drafts-title">{t('Account drafts', 'مسودات الحساب')}</h3>
+          <button type="button" onClick={() => accountDrafts.current?.close()}>{t('Close', 'إغلاق')}</button>
+        </header>
+        <p>{t('Save or restore this site’s identity, layout and selections in your signed-in account. Saving does not publish a WordPress site.', 'احفظ أو استرجع هوية الموقع وتخطيطه واختياراته في حسابك المسجّل. الحفظ لا ينشر موقع ووردبريس.')}</p>
+        <StudioDraftControls visible title={() => readIdentityDraft().name.trim() || 'WordPress site draft'} snapshot={snapshot} onRestore={restoreDraft} />
+      </dialog>
+
       {active === 'arrival' && <dialog ref={library} className={`${styles.contextPanel} ${styles.libraryPanel}`} aria-labelledby="wordpress-library-panel">
         <header>
           <h3 id="wordpress-library-panel">{t('WordPress library')}</h3>
@@ -181,8 +256,12 @@ export function WordPressStudio({
           <section className={styles.section} aria-label={t('Document previews', 'معاينات المستند')}>
             {intent && <p className={styles.intent} role="status"><span>{t('Your words', 'وصفك')}</span> “{intent}”</p>}
             <WordPressCockpit
-              themes={themes}
-              plugins={plugins}
+              themes={themeCatalog.items}
+              plugins={pluginCatalog.items}
+              themeCatalog={themeCatalog}
+              pluginCatalog={pluginCatalog}
+              selectedTheme={theme}
+              selectedPlugin={plugin}
               selectedSlug={slug}
               pluginSlug={pluginSlug}
               kind={previewKind}
@@ -203,7 +282,7 @@ export function WordPressStudio({
 
         {/* 04 Site Identity — reference 83382: live brand design tool with the
             canonical mark, honest draft state, request composition. */}
-        {active === 'identity' && <SiteIdentity />}
+        {active === 'identity' && <SiteIdentity key={restoreVersion} />}
 
         {/* 08 Hosting & Infrastructure — reference 83379: orbital map with the
             canonical mark, honest provider states and the seven real services. */}
@@ -215,7 +294,7 @@ export function WordPressStudio({
 
         {/* 07 Visual Website Composer — reference 83375: a working block
             composer with palette, layers, live preview and inspector. */}
-        {active === 'composer' && <VisualComposer onPreview={() => changeJourney('canvas')} />}
+        {active === 'composer' && <VisualComposer key={restoreVersion} onPreview={() => changeJourney('canvas')} />}
 
         {/* 09 Build & Deployment — reference 83376: the real pipeline stages,
             honest checkpoints, no fabricated telemetry. */}
@@ -223,18 +302,18 @@ export function WordPressStudio({
 
         {/* 05 Plugin Intelligence — capability search on live registry data
             with a compatibility readout built only from returned fields. */}
-        {active === 'plugins' && <PluginIntelligence plugins={plugins} selectedSlug={pluginSlug} onSelect={selectPlugin} />}
+        {active === 'plugins' && <PluginIntelligence plugins={pluginCatalog.items} catalog={pluginCatalog} selectedItem={plugin} selectedSlug={pluginSlug} onSelect={selectPlugin} selectedPlugins={pluginSlugs} onPluginsChange={changePlugins} />}
 
         {/* 03 Theme Explorer — reference 83377: searchable library + selected
             theme stage with real registry facts and device-framed preview. */}
         {active === 'theme' && (
-          <ThemeExplorer themes={themes} selectedSlug={slug} onSelect={selectTheme} />
+          <ThemeExplorer themes={themeCatalog.items} catalog={themeCatalog} selectedItem={theme} selectedSlug={slug} onSelect={selectTheme} />
         )}
 
         {/* 06 Live Responsive Canvas — reference 83381: device toggles, scale
             control, breakpoints and three framed viewports on one podium. */}
         {active === 'canvas' && (
-          <LiveCanvas themes={themes} selectedSlug={slug} onSelect={selectTheme} onEdit={() => changeJourney('composer')} />
+          <LiveCanvas key={restoreVersion} themes={theme ? [theme, ...themeCatalog.items.filter((item) => item.slug !== theme.slug)] : []} selectedSlug={slug} onSelect={selectTheme} onEdit={() => changeJourney('composer')} />
         )}
 
         <a className={styles.request} href={`/contact?${requestParams.toString()}`}>{t('Compose a site request')} ↗</a>

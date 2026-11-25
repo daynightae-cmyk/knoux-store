@@ -7,6 +7,7 @@ import { capabilityMatrixDivisions } from '@/data/navigation';
 import { track } from '@/lib/analytics';
 import { useSiteLanguage } from '@/lib/i18n/use-language';
 import { resolveRouteCopy } from '@/lib/i18n/route-copy';
+import { TemplateWorkbench } from '@/components/web/TemplateWorkbench';
 
 /**
  * Capability matrix.
@@ -219,6 +220,7 @@ export function SystemsStudio({
 
       {current ? (
         <div className="systems-panel" key={current.id}>
+          <TemplateWorkbench system={current} />
           <div className="systems-panel__head">
             <span className="label label--signal">
               {current.code} / {current.category.toUpperCase()}

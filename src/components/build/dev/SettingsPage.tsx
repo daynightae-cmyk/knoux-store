@@ -16,6 +16,7 @@ import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { PREFERENCES_KEY, type WorkspacePreferences } from '@/lib/build/preferences';
 import styles from './settings-orbit.module.css';
 import operational from './operational-v3.module.css';
+import { bridgeStatus } from './bridge-status';
 
 /**
  * What a bridge check can honestly conclude.
@@ -66,11 +67,11 @@ export function SettingsPage() {
         setBridge({ kind: 'auth-required' });
         return;
       }
-      const body = (await response.json().catch(() => null)) as
-        | { reachable?: boolean; handshake?: { profiles?: Array<{ id: string }>; root?: string } | null; blocker?: string | null }
-        | null;
+      const body = bridgeStatus(response.status, await response.json().catch(() => null));
 
-      if (body?.reachable && body.handshake) {
+      if (body.noProfiles) {
+        setBridge({ kind: 'no-profiles' });
+      } else if (body.reachable && body.handshake) {
         setBridge({
           kind: 'reachable',
           profiles: (body.handshake.profiles ?? []).map((profile) => profile.id),

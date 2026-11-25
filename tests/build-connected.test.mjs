@@ -89,12 +89,38 @@ test('preview instrumentation redacts values, withholds objects and restores bro
 });
 test('selected bridge adapter fails closed without transport and reports mutation/runner blockers', async () => {
   const adapter = new BridgeProjectAdapter({ root: process.cwd(), environment: 'local', label: 'Selected', handshake: { profiles: [], capabilities: { filesystem: true } }, handshakeMeasuredAt: Date.now(), bridgeReachable: true, bridgeError: null });
-  await assert.rejects(adapter.snapshot(), /transport is unavailable/); assert.equal(adapter.capabilities()['project.write'], 'blocked'); assert.match(adapter.blockerFor('project.write'), /not exposed/); assert.match(adapter.blockerFor('test.run'), /inspection only/); assert.equal(adapter.capabilities()['preview.live'], 'blocked');
+  await assert.rejects(adapter.snapshot(), /transport is unavailable/); assert.equal(adapter.capabilities()['project.write'], 'blocked'); assert.match(adapter.blockerFor('project.write'), /paired bridge/); assert.match(adapter.blockerFor('test.run'), /inspection only/); assert.equal(adapter.capabilities()['preview.live'], 'blocked');
 });
 test('selected bridge adapter sends the actual selected project with a scoped ticket', async () => {
   const seen = []; const adapter = new BridgeProjectAdapter({ root: process.cwd(), environment: 'local', label: 'Selected', handshake: null, handshakeMeasuredAt: null, bridgeReachable: false, bridgeError: null, projectRef: 'my-project', ticket: (scopes) => scopes.join(','), client: { request: async (request) => { seen.push(request); return { ok: true, data: { name: 'Selected' } }; } } });
   assert.equal((await adapter.snapshot()).name, 'Selected'); assert.equal(seen[0].path, '/v1/project/inspect?project=my-project'); assert.equal(seen[0].token, 'fs:read'); assert.equal(await adapter.readFile('../.env'), null);
 });
+test('file saves use the selected project and require a bridge that advertises editor support', async () => {
+  const requests = [];
+  const options = {
+    root: process.cwd(), environment: 'local', label: 'Selected', projectRef: 'apps/studio',
+    handshakeMeasuredAt: Date.now(), bridgeReachable: true, bridgeError: null,
+    ticket: (scopes) => scopes.join(','),
+    client: { request: async (request) => {
+      requests.push(request);
+      return { ok: false, status: 409, error: 'The file changed since it was read.' };
+    } },
+  };
+  const handshake = { profiles: [], capabilities: { filesystem: true } };
+  const previous = new BridgeProjectAdapter({ ...options, handshake });
+  const input = { path: 'src/index.ts', content: 'edited', expectedHash: 'a'.repeat(64) };
+  assert.equal((await previous.saveFile(input)).status, 409);
+  assert.deepEqual(requests, []);
+
+  const current = new BridgeProjectAdapter({ ...options, handshake: { ...handshake, projectFileSave: true } });
+  assert.equal(current.capabilities()['project.write'], 'available');
+  assert.equal((await current.saveFile({ ...input, path: 'src/../.env' })).status, 400);
+  assert.deepEqual(await current.saveFile(input), { status: 409, message: 'The file changed since it was read.' });
+  assert.deepEqual(requests, [{
+    method: 'PUT', path: '/v1/project/file/save?project=apps%2Fstudio', body: input, token: 'fs:write',
+  }]);
+});
+
 test('bridge records translate database columns and keep updates owner scoped', async () => {
   const row = { id: 'record', owner_id: 'owner', url: 'http://127.0.0.1:7331', bridge_id: 'bridge', fingerprint: 'fp', paired_by: 'owner', paired_at: 'now', last_seen_at: null, created_at: 'now' }; const calls = [];
   const chain = { then: (resolve) => resolve({ data: [row], error: null }), select() { return this; }, eq(k,v) { calls.push([k,v]); return this; }, order() { return this; }, update(value) { calls.push(value); return this; }, insert(value) { calls.push(value); return this; }, single: async () => ({ data: row, error: null }) };

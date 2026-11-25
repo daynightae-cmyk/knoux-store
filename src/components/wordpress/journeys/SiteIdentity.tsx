@@ -37,7 +37,7 @@ const MODULES = ['Hero', 'Banner', 'Products', 'Features', 'Testimonials', 'CTA'
 const STORAGE_KEY = 'knoux-wp-identity-draft';
 type Panel = 'brand' | 'structure' | 'inspector';
 
-type Draft = {
+export type Draft = {
   name: string; tagline: string; style: (typeof STYLES)[number]['id'];
   placement: 'start' | 'center' | 'end';
   headingFont: (typeof FONTS)[number]['id']; bodyFont: (typeof FONTS)[number]['id'];
@@ -45,23 +45,28 @@ type Draft = {
   pages: string[]; modules: string[]; activePage: string;
 };
 
-const DEFAULT_DRAFT: Draft = {
+export const DEFAULT_IDENTITY_DRAFT: Draft = {
   name: '', tagline: '', style: 'modern', placement: 'center',
   headingFont: 'sans', bodyFont: 'sans',
   primary: '#a855f7', secondary: '#d8b4fe', backdrop: '#0b0716',
   pages: ['Home'], modules: ['Hero'], activePage: 'Home',
 };
 
-function readDraft(): Draft {
+const DEFAULT_DRAFT = DEFAULT_IDENTITY_DRAFT;
+let memoryDraft: Draft | undefined;
+export const IDENTITY_DRAFT_EVENT = 'knoux:wp-identity-draft';
+
+export function readIdentityDraft(): Draft {
+  if (memoryDraft) return memoryDraft;
   try {
     const raw = window.sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_DRAFT;
+    if (!raw) return memoryDraft ?? DEFAULT_DRAFT;
     const parsed = JSON.parse(raw) as Partial<Draft> | null;
     if (!parsed || typeof parsed !== 'object') return DEFAULT_DRAFT;
     const pages = Array.isArray(parsed.pages) ? PAGES.filter((page) => parsed.pages?.includes(page)) : DEFAULT_DRAFT.pages;
     const modules = Array.isArray(parsed.modules) ? MODULES.filter((module) => parsed.modules?.includes(module)) : DEFAULT_DRAFT.modules;
     const visiblePages = pages.length ? pages : DEFAULT_DRAFT.pages;
-    return {
+    memoryDraft = {
       name: typeof parsed.name === 'string' ? parsed.name.slice(0, 40) : DEFAULT_DRAFT.name,
       tagline: typeof parsed.tagline === 'string' ? parsed.tagline.slice(0, 60) : DEFAULT_DRAFT.tagline,
       style: STYLES.find(({ id }) => id === parsed.style)?.id ?? DEFAULT_DRAFT.style,
@@ -75,20 +80,25 @@ function readDraft(): Draft {
       modules,
       activePage: parsed.activePage && visiblePages.includes(parsed.activePage) ? parsed.activePage : visiblePages[0],
     };
+    return memoryDraft;
   } catch {
-    return DEFAULT_DRAFT;
+    return memoryDraft ?? DEFAULT_DRAFT;
   }
 }
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
 
-function persistDraft(draft: Draft) {
+export function saveIdentityDraft(draft: Draft) {
+  memoryDraft = { ...draft, pages: [...draft.pages], modules: [...draft.modules] };
+  let stored = false;
   try {
     window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
-    return true;
+    stored = true;
   } catch {
-    return false;
+    // Keep the editable document available when browser storage is blocked.
   }
+  window.dispatchEvent(new Event(IDENTITY_DRAFT_EVENT));
+  return stored;
 }
 
 export function SiteIdentity() {
@@ -104,8 +114,10 @@ export function SiteIdentity() {
   const nameField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setDraft(readDraft()), 0);
-    return () => window.clearTimeout(timer);
+    const sync = () => setDraft(readIdentityDraft());
+    const timer = window.setTimeout(sync, 0);
+    window.addEventListener(IDENTITY_DRAFT_EVENT, sync);
+    return () => { window.clearTimeout(timer); window.removeEventListener(IDENTITY_DRAFT_EVENT, sync); };
   }, []);
 
   function patch(part: Partial<Draft>, cue: 'settle' | 'confirm' = 'settle') {
@@ -113,7 +125,7 @@ export function SiteIdentity() {
     const next = { ...draft, ...part };
     setDraft(next);
     setSaveState('idle');
-    persistDraft(next);
+    saveIdentityDraft(next);
   }
 
   function openPanel(selected: Panel) {
@@ -131,7 +143,7 @@ export function SiteIdentity() {
     }
     const next = { ...draft, name, tagline: draft.tagline.trim() };
     setDraft(next);
-    const saved = persistDraft(next);
+    const saved = saveIdentityDraft(next);
     setSaveState(saved ? 'saved' : 'unavailable');
     cueAtmosphere(saved ? 'success' : 'settle');
   }

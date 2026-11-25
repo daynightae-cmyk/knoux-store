@@ -55,6 +55,14 @@ export type ExternalItem = {
  */
 export type ExternalQueryState = 'ok' | 'empty' | 'unavailable';
 
+export type WordPressCatalogRequest = {
+  kind: 'theme' | 'plugin';
+  search?: string;
+  tag?: string;
+  page?: number;
+  perPage?: number;
+};
+
 export type ExternalQueryResult = {
   items: ExternalItem[];
   page: number;

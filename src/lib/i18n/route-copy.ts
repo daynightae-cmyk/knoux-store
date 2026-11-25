@@ -10,6 +10,8 @@ import type { SiteLanguage } from '@/lib/i18n/languages';
  * the shipped Urdu is real rather than an English fallback.
  */
 export const ROUTE_COPY: Record<string, readonly [string, string]> = {
+  "Account drafts": ["مسودات الحساب", "اکاؤنٹ کے مسودے"],
+  "Save or restore this site’s identity, layout and selections in your signed-in account. Saving does not publish a WordPress site.": ["احفظ أو استرجع هوية الموقع وتخطيطه واختياراته في حسابك المسجّل. الحفظ لا ينشر موقع ووردبريس.", "اپنے سائن ان کردہ اکاؤنٹ میں اس سائٹ کی شناخت، ترتیب اور انتخاب محفوظ یا بحال کریں۔ محفوظ کرنے سے ورڈپریس سائٹ شائع نہیں ہوتی۔"],
   "Turn attention into": ["حوّل الاهتمام إلى", "توجہ توجہ کو"],
   "a clear next move.": ["خطوة واضحة.", "ایک واضح اگلا قدم۔"],
   "Strategy, creative and campaigns. One managed workflow, built around your business and reviewed with you before any advertising spend.": ["استراتيجية وإبداع وحملات ضمن مسار عمل مُدار، مصمم لعملك وتراجعه معنا قبل أي إنفاق إعلاني.", "حکمتِ عمل، تخلیق اور مہمات۔ ایک منظم عملی مسیر، آپ کے کاروبار کے مطابق، اور کسی بھی اشتہاری خرچ سے پہلے آپ کے ساتھ جائزہ کیا جاتا ہے۔"],
@@ -346,6 +348,9 @@ export const ROUTE_COPY: Record<string, readonly [string, string]> = {
   "downloads": ["تنزيلات","ڈاؤن لوڈز"],
   "Downloads not published": ["التنزيلات غير منشورة","ڈاؤن لوڈز شائع نہیں"],
   "No loaded theme matches that search. The full directory remains one link away.": ["لا يوجد قالب محمّل يطابق هذا البحث. الدليل الكامل على بُعد رابط واحد.","کوئی لوڈ شدہ تھیم اس تلاش سے مماثل نہیں۔ مکمل ڈائریکٹری ایک لنک کی دوری پر ہے۔"],
+  "Search WordPress themes": ["ابحث في قوالب ووردبريس","ورڈپریس تھیمز تلاش کریں"],
+  "Theme catalog pages": ["صفحات كتالوج القوالب","تھیم کیٹلاگ کے صفحات"],
+  "No themes to display for the current catalog query.": ["لا توجد قوالب لعرضها في استعلام الكتالوج الحالي.","موجودہ کیٹلاگ استفسار کے لیے کوئی تھیمز موجود نہیں۔"],
   "Theme preview": ["معاينة القالب","تھیم کا پیش نظارہ"],
   "No official screenshot": ["لا توجد لقطة شاشة رسمية","کوئی سرکاری اسکرین شاٹ نہیں"],
   "Rating": ["التقييم","درجہ بندی"],
@@ -399,6 +404,8 @@ export const ROUTE_COPY: Record<string, readonly [string, string]> = {
   "By name only": ["بالاسم فقط","صرف نام سے"],
   "Filter the loaded plugins by name, author or description…": ["صفِّ الإضافات المحمّلة بالاسم أو المؤلف أو الوصف…","لوڈ شدہ پلگ انز کو نام، مصنف یا تفصیل سے فلٹر کریں…"],
   "Filter loaded plugins": ["تصفية الإضافات المحمّلة","لوڈ شدہ پلگ انز فلٹر کریں"],
+  "Search WordPress plugins": ["ابحث في إضافات ووردبريس","ورڈپریس پلگ انز تلاش کریں"],
+  "Plugin catalog pages": ["صفحات كتالوج الإضافات","پلگ ان کیٹلاگ کے صفحات"],
   "of": ["من","میں سے"],
   "in view": ["في العرض","نظر میں"],
   "Verdict": ["الحكم","فیصلہ"],

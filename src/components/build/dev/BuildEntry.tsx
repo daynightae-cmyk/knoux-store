@@ -56,7 +56,7 @@ export function BuildEntry() {
     return () => document.documentElement.removeAttribute('data-build-constellation');
   }, [entered, state.intent]);
 
-  const workspace = entered || Boolean(state.intent);
+  const workspace = entered || Boolean(state.intent) || Boolean(state.projectRef);
   function enterWorkspace() {
     cueAtmosphere('wake');
     const { pathname, search } = window.location;

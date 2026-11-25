@@ -6,16 +6,21 @@
  * every bridge-derived capability becomes `blocked` with a measured reason.
  *
  * Selected-project reads use the authenticated bridge transport exclusively.
- * Inspection never authorizes imported package scripts or project mutations.
+ * The filesystem ticket authorizes explicit editor saves. Inspection does not authorize imported package scripts.
  *
  * Server-only. Never imported by client components.
  */
 
-import type { BuildCapability, CapabilityStatus, EnvironmentName, ProjectAdapter, ProjectSnapshot, GitSnapshot, DatabaseStatus, VerificationSnapshot } from './types';
-import type { Handshake } from './bridge-protocol';
+import type { BuildCapability, CapabilityStatus, EnvironmentName, ProjectAdapter, ProjectSnapshot, GitSnapshot, DatabaseStatus, VerificationSnapshot, ProjectFileSaveRequest, ProjectFileSaveReceipt, ProjectFileSaveResult } from './types';
+import type { FsReadResult, Handshake } from './bridge-protocol';
 import { FsProjectAdapter } from './project-adapter';
 import type { BridgeClient } from './bridge-client';
 import type { BridgeScope } from './bridge-protocol';
+
+function isBridgeSourcePath(path: string): boolean {
+  return /^(?:(?:src|docs|tests|references)\/[A-Za-z0-9_@().\[\]/-]+|README\.md|package\.json|AGENTS\.md|tsconfig\.json)$/.test(path)
+    && !path.split('/').some((part) => !part || part.startsWith('.') || part === 'node_modules');
+}
 
 export interface BridgeAdapterOptions {
   client?: BridgeClient;
@@ -97,8 +102,7 @@ export class BridgeProjectAdapter implements ProjectAdapter {
     const caps = handshake.capabilities;
     return {
       ...selectedCaps,
-      // The bridge measures the filesystem capability, so these follow it.
-      'project.write': 'blocked',
+      'project.write': canRead && Boolean(this.options.projectRef) && caps.filesystem && handshake.projectFileSave === true ? 'available' : 'blocked',
       'project.delete': 'blocked',
       'command.allowlisted': 'blocked',
       'test.run': 'blocked',
@@ -135,8 +139,9 @@ export class BridgeProjectAdapter implements ProjectAdapter {
       case 'git.read':
         return this.capabilities()[capability] === 'available' ? null : 'Selected-project reads require a reachable authenticated bridge transport and its measured filesystem or Git capability.';
       case 'project.write':
+        return this.capabilities()['project.write'] === 'available' ? null : 'Saving requires a selected project and a paired bridge that supports editor saves.';
       case 'project.delete':
-        return 'Project mutation is not exposed by this inspection adapter. Use a separately authorized bridge operation.';
+        return 'Deletion is unavailable in the editor.';
 
       case 'terminal.interactive':
         if (!connected) return `Bridge terminal access is unavailable. ${unreachable}`;
@@ -178,9 +183,30 @@ export class BridgeProjectAdapter implements ProjectAdapter {
     return this.remote<ProjectSnapshot>('inspect', ['fs:read']);
   }
 
-  async readFile(path: string): Promise<{ content: string; language: string; bytes: number; lines: number } | null> {
-    if (!/^(?:(?:src|docs|tests|references)\/[A-Za-z0-9_@().\[\]/-]+|README\.md|package\.json|AGENTS\.md|tsconfig\.json)$/.test(path) || path.split('/').some((part) => part.startsWith('.'))) return null;
+  async readFile(path: string): Promise<FsReadResult | null> {
+    if (!isBridgeSourcePath(path)) return null;
     return this.remote('file', ['fs:read'], `&path=${encodeURIComponent(path)}`);
+  }
+
+  async saveFile(input: ProjectFileSaveRequest): Promise<ProjectFileSaveResult> {
+    const { client, ticket, projectRef } = this.options;
+    if (!client || !ticket || !projectRef || this.capabilities()['project.write'] !== 'available') {
+      return { status: 409, message: this.blockerFor('project.write') ?? 'Project save is unavailable.' };
+    }
+    if (!isBridgeSourcePath(input.path)) {
+      return { status: 400, message: 'Select a supported project source or documentation file.' };
+    }
+    const result = await client.request<ProjectFileSaveReceipt>({
+      method: 'PUT',
+      path: `/v1/project/file/save?project=${encodeURIComponent(projectRef)}`,
+      body: input,
+      token: ticket(['fs:write']),
+    });
+    if (result.ok && result.data?.ok === true && /^[a-f0-9]{64}$/.test(result.data.hash)) return { receipt: result.data };
+    if ([400, 403, 409, 413].includes(result.status)) {
+      return { status: result.status, message: result.error ?? 'The bridge refused the save.' };
+    }
+    return { status: 502, message: 'Save could not be confirmed. Reload the file before retrying.' };
   }
 
   async gitSnapshot(): Promise<GitSnapshot> {
