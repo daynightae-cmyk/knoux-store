@@ -13,6 +13,9 @@
   color: #fff;
   font-family: Arial, Helvetica, sans-serif;
   container-type: inline-size;
+  /* The hero is a composition layer, never an interaction target: every
+     click passes through to the orbit nodes and controls beneath it. */
+  pointer-events: none;
 }
 
 /* Deep sky: layered nebula banks across the whole viewport. */
@@ -105,6 +108,7 @@
   font-size: clamp(20px, 2.6cqw, 32px);
   letter-spacing: .04em;
   z-index: 6;
+  pointer-events: auto;
 }
 .brand i {
   width: clamp(8px, .9cqw, 14px);
@@ -418,6 +422,7 @@
   font-weight: 700;
   z-index: 6;
   cursor: pointer;
+  pointer-events: auto;
   transition: box-shadow .25s, transform .2s ease;
 }
 .getApi:hover:not(:disabled) {
@@ -447,6 +452,7 @@
   padding: 0 clamp(10px, 1.2vw, 18px) !important;
   border-radius: 20px !important;
   cursor: pointer;
+  pointer-events: auto;
   transition: opacity .25s;
   opacity: .7;
 }
