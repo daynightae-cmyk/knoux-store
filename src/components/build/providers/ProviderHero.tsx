@@ -39,7 +39,7 @@ export function ProviderHero({ definitions, selected, connection, discoveredMode
   }, []);
   const current = definitions.find(definition => definition.id === selected);
   const currentMark = current ? providerMark(current.id) : null;
-  return <section ref={hero} className={s.hero} data-paused={paused} aria-label="Universal Provider Engine">
+  return <section ref={hero} className={s.hero} data-paused={paused} aria-label="Provider Constellation">
     <button type="button" className={s.motionControl} aria-pressed={paused} onClick={()=>setPaused(value=>!value)}>{paused?'Resume orbit':'Pause orbit'}</button>
     {/* The reference sky is drawn, never photographed: nebula banks, a seeded
         star field and the planet limb are code layers inside this scene. */}
@@ -47,7 +47,7 @@ export function ProviderHero({ definitions, selected, connection, discoveredMode
     <div className={s.limb} aria-hidden="true" />
     <div className={s.planet} aria-hidden="true" />
     <Link href="/build" className={s.brand}><i aria-hidden="true" /> <b>KNOuX</b> <span>STORE</span></Link>
-    <header className={s.title}><h1>Universal Provider Engine</h1><p>Connect. Discover. Route.</p></header>
+    <header className={s.title}><h1>Provider Constellation</h1><p>Connect, orchestrate, and route AI and compute providers across your workspace.</p></header>
     <svg className={s.orbits} viewBox="0 0 1536 1024" preserveAspectRatio="none" aria-hidden="true">
       <defs><filter id="provider-orbit-glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4" /></filter></defs>
       <g fill="none" stroke="#b88bf3" strokeWidth="1.4">

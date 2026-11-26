@@ -109,8 +109,8 @@ test('reference provider hero exposes every shortcut, touch targets and credenti
   for (const [width,height] of [[1536,1024],[1366,768],[999,1024],[768,1024],[390,844],[360,800]]) {
     await page.setViewportSize({ width, height });
     await page.goto('/build/providers');
-    const hero = page.getByRole('region', { name: 'Universal Provider Engine' });
-    await expect(hero.getByRole('heading', { name: 'Universal Provider Engine' })).toBeVisible();
+    const hero = page.getByRole('region', { name: 'Provider Constellation' });
+    await expect(hero.getByRole('heading', { name: 'Provider Constellation' })).toBeVisible();
     const shortcuts = hero.getByRole('button', { name: /^Select / });
     await expect(shortcuts).toHaveCount(9);
     for (const button of await shortcuts.all()) {
