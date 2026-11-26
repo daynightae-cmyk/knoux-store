@@ -36,6 +36,7 @@ type VendorSpec = Omit<
   staticModels?: string[];
   probeStrategy?: 'models' | 'completion';
   envMode?: 'all' | 'any';
+  streamUsage?: boolean;
 };
 
 function spec(input: VendorSpec): OpenAICompatibleConfig {
@@ -63,7 +64,12 @@ export const VENDOR_CONFIGS: OpenAICompatibleConfig[] = [
     // listing probe would call an invalid key authenticated. One token of a
     // real completion is the smallest honest test.
     probeStrategy: 'completion',
-    probeCompletionModel: 'openai/gpt-oss-20b',
+    streamUsage: true,
+    // gpt-oss-20b reached end of life 2026-11-18 (HTTP 410, verified against
+    // the live catalog); gemma-3 variants answer 404 "not found for account"
+    // on this credential. nemotron-3.5-lightning completed a real bounded
+    // inference with HTTP 200 and measured usage (2026-11-22).
+    probeCompletionModel: 'nvidia/nemotron-3.5-lightning-30b-a3b',
     // Published NVIDIA NIM model identities. Visible even when the provider is
     // unconfigured, marked catalogue-only (buildEligible: false) so the picker
     // shows them as "CONFIG REQUIRED" rather than fabricating LIVE availability.
@@ -80,7 +86,6 @@ export const VENDOR_CONFIGS: OpenAICompatibleConfig[] = [
       'nvidia/nemotron-3.5-bolt-e4b',
       'nvidia/nemotron-3.5-lightning-30b-a3b',
       'nvidia/nemotron-3.5-super-vl-120b-a12b',
-      'openai/gpt-oss-20b',
       'stepfun-ai/step-5-preview',
       'z-ai/glm-5.3-flash',
     ],

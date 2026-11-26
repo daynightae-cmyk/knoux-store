@@ -1,6 +1,5 @@
 :global(.dev-shell__stage):has(.router) {
-  background: linear-gradient(90deg, #090811b8, #0b081942 65%, #09071160),
-    url('/creative/build-v3-engineering.webp') center bottom / cover no-repeat;
+  background: linear-gradient(90deg, #090811b8, #0b081942 65%, #09071160);
 }
 .router { min-width: 0; }
 .router :global(.dev-page-heading) > p { max-width: 68ch; }
@@ -67,3 +66,120 @@
 }
 @media (max-width: 1000px) { .network { display: none; } .title { min-height: 0; } }
 @media (max-width: 440px) { .manualFields { grid-template-columns: minmax(0,1fr); } }
+
+/* Raised-glass panels for the router's input, decision and candidate surfaces,
+   matching the operational glass system so the whole route reads as one
+   cosmic instrument rather than flat cards on a nebula. */
+.router { --operational-glow: #a572e665; }
+.router :global(.dev-panel) {
+  min-width: 0;
+  padding: 0;
+  border: 1px solid #ba9bd366;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #20152ddd, #0e0b17f5 68%);
+  box-shadow: 0 12px 35px #04030879, inset 0 0 18px #9f70c31d;
+}
+.router :global(.dev-panel__head) {
+  padding: 13px 17px;
+  border-radius: 14px 14px 0 0;
+  background: #2b1a3a9c;
+  border-bottom: 1px solid #bea1db34;
+}
+.router :global(.dev-panel__body) { padding: 16px; }
+.router :global(.dev-kv-table) { width: 100%; border-collapse: collapse; }
+.router :global(.dev-kv-table) th {
+  padding: 9px 12px;
+  text-align: left;
+  font: 600 10px var(--font-mono, monospace);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #cbb6e6;
+  border-bottom: 1px solid #bea1db34;
+  background: #241634a6;
+}
+.router :global(.dev-kv-table) td {
+  padding: 9px 12px;
+  border-bottom: 1px solid #9f70c31f;
+  color: #e9e0f5;
+  font-size: 12.5px;
+}
+.router :global(.dev-kv-table) tbody tr:hover { background: #67418b2b; }
+.router :global(.dev-tag) {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border: 1px solid #ba9bd355;
+  border-radius: 999px;
+  background: #2a1a3c8c;
+  font: 600 10px var(--font-mono, monospace);
+  letter-spacing: .05em;
+  color: #e3d4f7;
+}
+.router :global(.dev-tag)[data-tone='ok'] { border-color: #68dbad66; background: #1033268c; color: #9ff0cd; box-shadow: 0 0 10px #68dbad33; }
+.router :global(.dev-tag)[data-tone='bad'] { border-color: #ff8d9866; background: #3a14208c; color: #ffb3bc; box-shadow: 0 0 10px #ff8d9833; }
+
+.router :global(.dev-route) > :global(.dev-page-heading):first-child {
+  margin-block-end: 0;
+}
+
+.router :global(.dev-route) > :global(.dev-page-heading):first-child h1 {
+  font-size: clamp(20px, 2.3vw, 32px);
+}
+
+.router :global(.dev-route) > :global(.dev-page-heading):first-child p {
+  display: none;
+}
+
+.router .title {
+  min-height: 186px;
+  display: grid;
+  align-content: center;
+  padding-inline: clamp(14px, 2.5vw, 34px);
+  isolation: isolate;
+}
+
+.router .title::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: 42% 24% 44% 26% / 20% 32% 22% 26%;
+  background:
+    linear-gradient(90deg, #110920f2, #10091a91 56%, transparent),
+    url('/creative/build-v3-nebula.webp') center 57% / cover;
+  box-shadow: inset 0 0 30px 12px #0c0919, 0 16px 32px -27px #cd65ff;
+  pointer-events: none;
+}
+
+.router .network {
+  bottom: 8%;
+  filter: drop-shadow(0 1px 7px #9338e9);
+}
+
+.routingStage {
+  display: grid;
+  grid-template-columns: minmax(0, 1.23fr) minmax(0, 1fr);
+  gap: clamp(12px, 2vw, 28px);
+  align-items: start;
+}
+
+.routingStage .prompt:global(.dev-panel),
+.outcome > :global(.dev-panel) {
+  padding: 0;
+  border-radius: 26px;
+  background: linear-gradient(148deg, #301c4eec, #0e0a1aee 62%);
+  box-shadow: 0 18px 44px #040308a2, inset 0 1px 0 #e3bcff63, inset 0 -2px 0 #691eba66;
+}
+
+.routingStage :global(.dev-panel__head) { border-radius: 25px 25px 0 0; }
+.outcome { min-width: 0; overflow-wrap: anywhere; }
+.outcome > p { padding: 16px; }
+
+@media (max-width: 1000px) {
+  .router .title { min-height: 124px; }
+}
+
+@media (max-width: 820px) {
+  .routingStage { grid-template-columns: minmax(0, 1fr); }
+}

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { signOutAction } from '@/lib/auth/actions';
 import { createClient } from '@/lib/supabase/server';
+import styles from '@/components/auth/ArrivalChamber.module.css';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,7 +36,7 @@ export default async function AccountPage() {
     'KNOuX member';
 
   return (
-    <main id="main-content" tabIndex={-1} className="account-page">
+    <main id="main-content" tabIndex={-1} className={`account-page ${styles.account}`}>
       <section className="account-shell" aria-labelledby="account-heading">
         <span className="eyebrow">KN / AUTH — LIVE SESSION</span>
         <h1 id="account-heading">{displayName}</h1>

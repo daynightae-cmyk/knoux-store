@@ -21,7 +21,7 @@ import type {
   Campaign,
   CampaignStatus,
 } from './types';
-import { canApproveOwnSubmission, type Principal } from './rbac';
+import { can, canApproveOwnSubmission, type Principal } from './rbac';
 
 /* ------------------------------------------------------------- transitions */
 
@@ -150,7 +150,7 @@ export function transition(
     }
 
     if (target === 'LIVE') {
-      if (!context.connectorConfirmed) {
+      if (!context.connectorConfirmed || !context.connectorEvidence?.trim()) {
         return {
           ok: false,
           from,
@@ -232,7 +232,7 @@ export function requestApproval(params: ApprovalRequest): ApprovalOutcome {
     };
   }
 
-  if (campaign.budgetMinor <= 0) {
+  if (!Number.isSafeInteger(campaign.budgetMinor) || campaign.budgetMinor <= 0) {
     return {
       ok: false,
       reason: 'The campaign has no budget.',
@@ -247,6 +247,9 @@ export function requestApproval(params: ApprovalRequest): ApprovalOutcome {
       remedy: 'Select at least one platform so the approver knows where money would go.',
     };
   }
+
+  const permission = can({ principal: approver, clientId: campaign.clientId, permission: 'campaign.approve' });
+  if (!permission.allowed) return { ok: false, reason: permission.reason ?? 'Reviewer cannot approve this campaign.', remedy: 'Choose an authorized reviewer in this client workspace.' };
 
   const approval: Approval = {
     id: `apr_${campaign.id}_${campaign.updatedAt}`,
@@ -295,11 +298,11 @@ export function decideApproval(
     };
   }
 
-  const approved = decision === 'APPROVE';
-  if (approved && decider.role !== 'OWNER' && decider.role !== 'MANAGER' && decider.role !== 'CLIENT') {
+  const permission = can({ principal: decider, clientId: approval.clientId, permission: 'campaign.approve' });
+  if (!permission.allowed) {
     return {
       ok: false,
-      reason: `Role ${decider.role} cannot approve a campaign.`,
+      reason: `This reviewer cannot approve or decide this campaign: ${permission.reason}`,
       remedy: 'Campaign approval is held by Owner, Manager, or the client themselves.',
     };
   }
@@ -325,6 +328,8 @@ export function decideApproval(
 
 /** Inclusive day count between two ISO dates. Invalid input yields 0. */
 export function daysInclusive(start: string, end: string): number {
+  const validDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
+  if (!validDate(start) || !validDate(end)) return 0;
   const from = Date.parse(start);
   const to = Date.parse(end);
   if (Number.isNaN(from) || Number.isNaN(to)) return 0;

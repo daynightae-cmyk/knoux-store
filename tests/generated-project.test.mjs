@@ -156,18 +156,23 @@ test('operation execution cannot adopt an existing destination', async () => {
   } finally { await fs.rm(root, { recursive: true, force: true }); }
 });
 
-test('the workbench wires reviewed static execution into the execution review', async () => {
+test('the workbench wires reviewed static execution into its shipped surfaces', async () => {
   const read = (relative) => fs.readFile(new URL(relative, import.meta.url), 'utf8');
-  const [home, component] = await Promise.all([
+  const [monitor, home, component] = await Promise.all([
+    read('../src/components/build/generator/GenerationMonitor.tsx'),
     read('../src/components/build/dev/DevWorkspaceHome.tsx'),
     read('../src/components/build/generator/GeneratedProjectExecution.tsx'),
   ]);
+  assert.match(monitor, /GeneratedProjectExecution/);
+  assert.match(monitor, /plan\?\.generatedProject/);
   assert.match(home, /GeneratedProjectExecution/);
   assert.match(home, /plan\.generatedProject/);
   assert.match(component, /GENERATED_PROJECT_CONFIRMATION/);
   assert.match(component, /\/api\/build\/generated-projects/);
   assert.match(component, /method: 'DELETE'/);
-  assert.match(component, /Open live preview in a new tab/);
+  assert.match(component, /generated-projects\/\$\{receipt\.operationId\}`, \{ method: 'PATCH' \}/);
+  assert.match(component, /disabled=\{cancelDeployBusy \|\| alreadyDeployed\}/);
+  assert.match(component, /sandbox="allow-scripts"/);
   assert.match(component, /No generated files have been written/);
 });
 
@@ -196,6 +201,8 @@ test('the generated-project API routes delegate to the bounded executor, never a
   assert.match(routes[1], /cancelDeployGeneratedProject/);
   assert.match(routes[2], /generatedBundlePath/);
   assert.match(routes[3], /deployGeneratedProject/);
+  assert.match(routes[1], /export async function PATCH/);
+  assert.doesNotMatch(routes[3], /export async function PATCH/);
 });
 
 test('build produces separate source and compiled output with real measured hashes', async () => {
@@ -325,6 +332,166 @@ test('deployment is refused without exact confirmation, operator credentials, or
     await fs.rm(root, { recursive: true, force: true });
     await fs.rm(deployRoot, { recursive: true, force: true });
   }
+});
+
+async function withPublishFixture(action) {
+  const root = await fs.mkdtemp(path.join(tmpdir(), 'knoux-deploy-contract-'));
+  const publishRoot = await fs.mkdtemp(path.join(tmpdir(), 'knoux-publish-contract-'));
+  const ownerId = crypto.randomUUID();
+  const id = operationId();
+  const keys = ['KNOUX_DEPLOY_ALLOW_PUBLISH', 'KNOUX_DEPLOY_ROOT', 'KNOUX_DEPLOY_OPERATOR_IDS'];
+  const previous = keys.map((key) => process.env[key]);
+  process.env.KNOUX_DEPLOY_ALLOW_PUBLISH = '1';
+  process.env.KNOUX_DEPLOY_ROOT = publishRoot;
+  process.env.KNOUX_DEPLOY_OPERATOR_IDS = ownerId;
+  try {
+    await executeGeneratedProject({ root, ownerId, operationId: id, artifact: artifact(), parentOrigin: 'http://localhost:3315' });
+    await action({ root, publishRoot, ownerId, id, publish: () => deployGeneratedProject(root, ownerId, id, 'local', GENERATED_PROJECT_DEPLOY_CONFIRMATION) });
+  } finally {
+    await cancelGeneratedProject(root, ownerId, id).catch(() => undefined);
+    for (let index = 0; index < keys.length; index += 1) {
+      if (previous[index] === undefined) delete process.env[keys[index]];
+      else process.env[keys[index]] = previous[index];
+    }
+    await fs.rm(root, { recursive: true, force: true });
+    await fs.rm(publishRoot, { recursive: true, force: true });
+  }
+}
+
+test('cancellation joins a real in-flight copy, concurrent retries share it, and cancelled output is never published', async (t) => {
+  await withPublishFixture(async ({ root, publishRoot, ownerId, id, publish }) => {
+    const reached = Promise.withResolvers();
+    const release = Promise.withResolvers();
+    const writeFile = fs.writeFile.bind(fs);
+    let blocked = false;
+    let writes = 0;
+    t.mock.method(fs, 'writeFile', async (file, ...args) => {
+      const result = await writeFile(file, ...args);
+      if (String(file).startsWith(path.join(publishRoot, `.knoux-${id}-`))) {
+        writes += 1;
+        if (!blocked) {
+          blocked = true;
+          reached.resolve();
+          await release.promise;
+        }
+      }
+      return result;
+    });
+    const first = publish();
+    const retry = publish();
+    let cancellation;
+    try {
+      await reached.promise;
+      const pending = await readGeneratedReceipt(root, ownerId, id);
+      assert.equal(pending.state, 'ready', 'a copy request is not deployed output');
+      assert.equal(pending.deploy.status, 'requested');
+      assert.equal(pending.deploy.appliedAt, null);
+      await assert.rejects(fs.stat(path.join(publishRoot, id)), { code: 'ENOENT' });
+      let settled = false;
+      cancellation = cancelDeployGeneratedProject(root, ownerId, id).then((receipt) => { settled = true; return receipt; });
+      await pause(20);
+      assert.equal(settled, false, 'cancellation must wait for the active write to stop');
+      release.resolve();
+      const [cancelled, firstResult, retryResult] = await Promise.all([cancellation, first, retry]);
+      for (const receipt of [cancelled, firstResult, retryResult]) {
+        assert.equal(receipt.deploy.status, 'cancelled');
+        assert.equal(receipt.deploy.reference, null);
+        assert.equal(receipt.deploy.appliedAt, null);
+        assert.notEqual(receipt.state, 'deployed');
+      }
+      assert.equal(writes, 1, 'abort stops the next file and retries share the same copy');
+      assert.deepEqual(await fs.readdir(publishRoot), [], 'no final output or private staging remains');
+      assert.equal((await readGeneratedReceipt(root, ownerId, id)).deploy.status, 'cancelled');
+      t.mock.restoreAll();
+      const applied = await publish();
+      assert.equal(applied.deploy.status, 'applied', 'an explicit new deployment can retry after cancellation');
+      for (const file of artifact().files) assert.equal(await fs.readFile(path.join(publishRoot, id, file.path), 'utf8'), file.content);
+    } finally {
+      release.resolve();
+      await Promise.allSettled([first, retry, cancellation]);
+      t.mock.restoreAll();
+    }
+  });
+});
+
+test('cancellation after the publish commit point waits and refuses to label applied output cancelled', async (t) => {
+  await withPublishFixture(async ({ root, publishRoot, ownerId, id, publish }) => {
+    const reached = Promise.withResolvers();
+    const release = Promise.withResolvers();
+    const rename = fs.rename.bind(fs);
+    t.mock.method(fs, 'rename', async (from, to) => {
+      const result = await rename(from, to);
+      if (to === path.join(publishRoot, id)) {
+        reached.resolve();
+        await release.promise;
+      }
+      return result;
+    });
+    const deployment = publish();
+    let refusal;
+    try {
+      await reached.promise;
+      assert.equal(await fs.readFile(path.join(publishRoot, id, 'index.html'), 'utf8'), artifact().files[0].content);
+      let settled = false;
+      const cancellation = cancelDeployGeneratedProject(root, ownerId, id).finally(() => { settled = true; });
+      refusal = assert.rejects(cancellation, /applied deployment cannot be cancelled/);
+      await pause(20);
+      assert.equal(settled, false);
+      release.resolve();
+      assert.equal((await deployment).deploy.status, 'applied');
+      await refusal;
+      const receipt = await readGeneratedReceipt(root, ownerId, id);
+      assert.equal(receipt.state, 'deployed');
+      assert.equal(receipt.deploy.status, 'applied');
+      assert.ok(receipt.deploy.appliedAt);
+    } finally {
+      release.resolve();
+      await Promise.allSettled([deployment, refusal]);
+      t.mock.restoreAll();
+    }
+  });
+});
+
+test('publish rejects changed compiled bytes and excludes unreviewed files', async () => {
+  await withPublishFixture(async ({ root, publishRoot, ownerId, id, publish }) => {
+    const compiled = path.join(root, id, 'dist');
+    await fs.writeFile(path.join(compiled, 'index.html'), '<h1>Host-mutated output</h1>');
+    await assert.rejects(publish(), /no longer matches its measured receipt/);
+    assert.deepEqual(await fs.readdir(publishRoot), []);
+    assert.equal((await readGeneratedReceipt(root, ownerId, id)).deploy.status, 'failed');
+    await fs.writeFile(path.join(compiled, 'index.html'), artifact().files[0].content);
+    await fs.writeFile(path.join(compiled, 'unreviewed.txt'), 'must not be published');
+    assert.equal((await publish()).deploy.status, 'applied');
+    await assert.rejects(fs.stat(path.join(publishRoot, id, 'unreviewed.txt')), { code: 'ENOENT' });
+  });
+});
+
+test('publish rejects a linked compiled parent instead of copying outside its operation', async () => {
+  await withPublishFixture(async ({ root, publishRoot, id, publish }) => {
+    const outside = path.join(root, 'outside');
+    await fs.mkdir(outside);
+    for (const file of artifact().files.slice(1)) await fs.writeFile(path.join(outside, path.basename(file.path)), file.content);
+    const assets = path.join(root, id, 'dist', 'assets');
+    await fs.rm(assets, { recursive: true });
+    await fs.symlink(outside, assets, process.platform === 'win32' ? 'junction' : 'dir');
+    await assert.rejects(publish(), /not a regular directory/);
+    assert.deepEqual(await fs.readdir(publishRoot), []);
+    assert.equal(await fs.readFile(path.join(outside, 'site.css'), 'utf8'), artifact().files[1].content);
+  });
+});
+
+test('a stale requested receipt cannot claim cancellation when published output already exists', async () => {
+  await withPublishFixture(async ({ root, publishRoot, ownerId, id }) => {
+    const receiptFile = path.join(root, id, '.knoux-operation.json');
+    const receipt = JSON.parse(await fs.readFile(receiptFile, 'utf8'));
+    receipt.deploy.status = 'requested';
+    await fs.writeFile(receiptFile, JSON.stringify(receipt));
+    await fs.mkdir(path.join(publishRoot, id));
+    await fs.writeFile(path.join(publishRoot, id, 'unique.txt'), 'existing output');
+    await assert.rejects(cancelDeployGeneratedProject(root, ownerId, id), /already exists and cannot be cancelled/);
+    assert.equal((await readGeneratedReceipt(root, ownerId, id)).deploy.status, 'requested');
+    assert.equal(await fs.readFile(path.join(publishRoot, id, 'unique.txt'), 'utf8'), 'existing output');
+  });
 });
 
 function sourceDigest(plan) {

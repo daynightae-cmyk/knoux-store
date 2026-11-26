@@ -6,7 +6,6 @@ import type { EngineeringContext } from '@/lib/build/engineering-context';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import { DevEmpty, DevPanel } from './DevUI';
 import styles from './operational-v3.module.css';
-import banner from './engineering-banner.module.css';
 
 const AREAS = ['overview', 'agents', 'worktrees', 'projects', 'host', 'capabilities', 'sessions', 'permissions', 'diagnostics'] as const;
 const AGENT_PROFILES = ['Architect', 'Builder', 'UI', 'Research', 'Release'] as const;
@@ -44,7 +43,7 @@ export function EngineeringConsole({ area }: { area: string }) {
     return () => controller.abort();
   }, [request]);
   const host = context?.host;
-  return <div className="dev-route dev-engineering-console"><header className={banner.hero}><p className={banner.brand}><i aria-hidden="true" /> KNOuX <span>STORE</span></p><h1>Engineering Environment</h1><p className={banner.lede}>{active.charAt(0).toUpperCase() + active.slice(1)} · measured host and project facts, resolved capabilities, and explicit operating boundaries.</p><span className={banner.detail}>{context ? `Last checked ${context.measuredAt}` : 'UNTESTED'}</span></header>
+  return <div className="dev-route dev-engineering-console"><header className="dev-engineering-head"><span className="dev-mini-label">ENGINEERING / ACTIVE ENVIRONMENT</span><h1>{active.charAt(0).toUpperCase() + active.slice(1)}</h1><p>Measured host and project facts, resolved capabilities, and explicit operating boundaries.</p><span className="dev-engineering-head__detail">{context ? `Last checked ${context.measuredAt}` : 'UNTESTED'}</span></header>
     <nav className="dev-engineering-tabs" aria-label="Engineering areas">{AREAS.map((item) => <Link key={item} aria-current={active === item ? 'page' : undefined} href={`/build/engineering?area=${item}`}>{item}</Link>)}</nav>
     <div className="dev-actions"><button type="button" disabled={busy} onClick={() => { setBusy(true); setError(null); retry((current) => current + 1); }}><span aria-hidden="true">⟳</span>{busy ? 'Measuring…' : 'Refresh host facts'}</button></div>
     {error ? <p role="alert" className="dev-plan-error">{error}</p> : null}

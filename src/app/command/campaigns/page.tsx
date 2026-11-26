@@ -12,15 +12,19 @@
  * The UI reflects them; it does not implement them.
  */
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import Link from 'next/link';
 import { AdPreviewTheatre } from '@/components/command/studio/AdPreviewTheatre';
+import { CommandIcon } from '@/components/command/CommandIcon';
 import { CampaignReview } from '@/components/command/studio/CampaignReview';
+import { CampaignApproval } from '@/components/command/studio/CampaignApproval';
+import { hasUnsavedCampaignReview } from '@/lib/growth/studio';
 import { CreateGrowthDraft } from '@/components/command/studio/CreateGrowthDraft';
 import { CommandShell } from '@/components/command/CommandShell';
 import { areaBySlug } from '@/components/command/navigation';
 import {
   CodeBadge,
-  DemoNotice,
+  ConnectionBadge,
   EmptyState,
   MetricCell,
   OriginLabel,
@@ -29,6 +33,7 @@ import {
   Section,
 } from '@/components/command/primitives';
 import { useWorkspace } from '@/components/command/workspace-context';
+import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
 
 import {
   daysInclusive,
@@ -42,28 +47,46 @@ import {
   type Campaign,
 } from '@/lib/growth/types';
 import styles from '@/components/command/command.module.css';
+import studio from './production.module.css';
 
 export default function CampaignsPage() {
   return <Campaigns />;
 }
 
 function Campaigns() {
-  const { records, activeClient, isDemoWorkspace, selectedCreativeId, selectCreative } = useWorkspace();
+  const { records, activeClient, clients, setActiveClientId, isDemoWorkspace, selectedCreativeId, selectCreative } = useWorkspace();
   const area = areaBySlug('campaigns')!;
   const campaigns = records.campaigns;
   const rows = records.performanceRows;
   const currency = activeClient.country === 'EG' ? 'EGP' : 'AED';
 
   const [selectedId, setSelectedId] = useState<string>('');
+  const [selectionPulse, setSelectionPulse] = useState(0);
+  const review = useRef<HTMLDialogElement>(null);
+  const creation = useRef<HTMLDialogElement>(null);
 
   const selected = campaigns.find((campaign) => campaign.id === selectedId)
     ?? campaigns.find((campaign) => campaign.creativeSetIds.includes(selectedCreativeId) || records.creatives.some((draft) => draft.id === selectedCreativeId && draft.campaignId === campaign.id))
     ?? campaigns[0];
   const awaiting = campaigns.filter((campaign) => campaign.status === 'READY_FOR_REVIEW');
+  function selectCampaign(campaign: Campaign) {
+    setSelectedId(campaign.id);
+    const creative = records.creatives.find((draft) => draft.campaignId === campaign.id || campaign.creativeSetIds.includes(draft.id));
+    if (creative) selectCreative(creative.id);
+    if (campaign.id !== selected?.id) {
+      setSelectionPulse((value) => value + 1);
+      cueAtmosphere('confirm');
+    }
+  }
 
   return (
     <CommandShell
       area={area}
+      production={{ actions: <>
+        {isDemoWorkspace && <span className={studio.demoLabel}>Demo workspace</span>}
+        <Link href="/command/clients" className={studio.secondary}>Clients</Link>
+        {!isDemoWorkspace && <button type="button" className={studio.primary} onClick={() => creation.current?.showModal()}>New campaign</button>}
+      </> }}
       dock={{
         surface: 'campaigns',
         subjectId: selected?.id,
@@ -77,89 +100,110 @@ function Campaigns() {
         { label: 'Approved, not live', value: String(campaigns.filter((c) => c.status === 'APPROVED').length) },
       ]}
     >
-      <CreateGrowthDraft key={activeClient.id} kind="campaign" />
-      {isDemoWorkspace && <div style={{ padding: '16px 24px 0' }}>
-        <DemoNotice>
-          Every campaign below is a demo fixture. No campaign has been launched, and no platform has
-          been called. Approval is real logic; the campaigns it would approve are not real.
-        </DemoNotice>
-      </div>}
+      {!isDemoWorkspace && <dialog ref={creation} className={studio.dialog} aria-label="New campaign">
+        <button type="button" className={studio.secondary} onClick={() => creation.current?.close()}>Close</button>
+        <CreateGrowthDraft key={activeClient.id} kind="campaign" />
+      </dialog>}
 
-      <Section title="Campaigns" note="Select a campaign to inspect its approval state.">
-        {campaigns.length === 0 ? (
-          <EmptyState title="No campaigns">
-            A campaign starts as a draft and becomes spendable only through a recorded approval.
-          </EmptyState>
-        ) : (
-          <div tabIndex={0} role="group" aria-label="Scrollable table" className={styles.ccTableWrap ?? ''}>
-            <table className={styles.ccTable ?? ''}>
-              <thead>
-                <tr>
-                  <th scope="col">Campaign</th>
-                  <th scope="col">Objective</th>
-                  <th scope="col">Platforms</th>
-                  <th scope="col" className={styles.ccTableNum ?? ''}>Budget</th>
-                  <th scope="col" className={styles.ccTableNum ?? ''}>Days</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Origin</th>
-                </tr>
-              </thead>
-              <tbody>
+      <div className={studio.deck}>
+        <section className={studio.rail} aria-labelledby="production-campaigns">
+            <header className={studio.panelTitle}><CommandIcon code="05" /><h2 id="production-campaigns">Clients &amp; campaigns</h2></header>
+            <label className={studio.client}>Client workspace
+              <select value={activeClient.id} onChange={(event) => { setSelectedId(''); setActiveClientId(event.target.value); }}>
+                {clients.map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}
+              </select>
+            </label>
+            {campaigns.length > 0 && <label className={studio.campaignPicker}>Campaign
+              <select value={selected?.id ?? ''} onChange={(event) => {
+                const campaign = campaigns.find((item) => item.id === event.target.value);
+                if (campaign) selectCampaign(campaign);
+              }}>
+                {campaigns.map((campaign) => <option key={campaign.id} value={campaign.id}>{campaign.name}</option>)}
+              </select>
+            </label>}
+            {campaigns.length === 0 ? (
+              <EmptyState title="No campaigns">
+                A campaign starts as a draft and becomes spendable only through a recorded approval.
+              </EmptyState>
+            ) : (
+              <ul className={studio.campaignChoices} aria-label="Campaigns">
                 {campaigns.map((campaign) => (
-                  <tr key={campaign.id}>
-                    <td>
-                      <button
-                        type="button"
-                        className={styles.ccButton ?? ''}
-                        style={{ border: 0, padding: 0, textTransform: 'none', letterSpacing: 0, fontSize: 12.5 }}
-                        onClick={() => {
-                          setSelectedId(campaign.id);
-                          const creative = records.creatives.find((draft) => draft.campaignId === campaign.id || campaign.creativeSetIds.includes(draft.id));
-                          if (creative) selectCreative(creative.id);
-                        }}
-                      >
-                        {campaign.name}
-                      </button>
-                    </td>
-                    <td>{campaign.objective}</td>
-                    <td>
-                      <span style={{ display: 'inline-flex', gap: 8, flexWrap: 'wrap' }}>
+                  <li key={campaign.id}>
+                    <button
+                      type="button"
+                      aria-pressed={selected?.id === campaign.id}
+                      aria-labelledby={`campaign-${campaign.id}-name`}
+                      aria-describedby={`campaign-${campaign.id}-details campaign-${campaign.id}-status`}
+                      onClick={() => selectCampaign(campaign)}
+                    >
+                      <strong id={`campaign-${campaign.id}-name`}>{campaign.name}</strong>
+                      <span id={`campaign-${campaign.id}-details`} className={styles.campaignMeta}>{campaign.objective} · {formatBudget(campaign.budgetMinor, campaign.currency)} · {daysInclusive(campaign.startDate, campaign.endDate)} days</span>
+                      <span className={styles.campaignMeta}>
                         {campaign.platforms.map((platform) => (
                           <PlatformName key={platform} platform={platform} label={platform.replace('_', ' ')} />
                         ))}
                       </span>
-                    </td>
-                    <td className={styles.ccTableNum ?? ''}>{formatBudget(campaign.budgetMinor, campaign.currency)}</td>
-                    <td className={styles.ccTableNum ?? ''}>{daysInclusive(campaign.startDate, campaign.endDate)}</td>
-                    <td>
-                      <CodeBadge
-                        tone={
-                          campaign.status === 'LIVE'
-                            ? 'live'
-                            : campaign.status === 'APPROVED'
-                              ? 'info'
-                              : campaign.status === 'READY_FOR_REVIEW'
-                                ? 'warn'
-                                : campaign.status === 'FAILED'
-                                  ? 'bad'
-                                  : 'neutral'
-                        }
-                      >
-                        {campaign.status.replace(/_/g, ' ')}
-                      </CodeBadge>
-                    </td>
-                    <td>
-                      <OriginLabel origin={campaign.origin} />
-                    </td>
-                  </tr>
+                      <span id={`campaign-${campaign.id}-status`} className={styles.campaignMeta}>
+                        <CodeBadge tone={campaign.status === 'LIVE' ? 'live' : campaign.status === 'APPROVED' ? 'info' : campaign.status === 'READY_FOR_REVIEW' ? 'warn' : campaign.status === 'FAILED' ? 'bad' : 'neutral'}>
+                          {campaign.status.replace(/_/g, ' ')}
+                        </CodeBadge>
+                        <OriginLabel origin={campaign.origin} />
+                      </span>
+                    </button>
+                  </li>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Section>
-
-      {selected && <><CampaignReview campaign={selected} /><AdPreviewTheatre campaignId={selected.id} /></>}
+              </ul>
+            )}
+            {selected && <div className={studio.railSchedule}><strong>Campaign schedule</strong><span dir="ltr">{selected.startDate} → {selected.endDate}</span></div>}
+        </section>
+        <div className={studio.stage}>
+          <span className={studio.orbit} aria-hidden="true"><i /></span>
+          {selectionPulse > 0 && <span key={selectionPulse} className={studio.wave} aria-hidden="true" />}
+          {selected ? <AdPreviewTheatre campaignId={selected.id} presentation="production" onReview={() => review.current?.showModal()} /> : <EmptyState title="No campaign selected" />}
+        </div>
+        <section className={studio.settings} aria-labelledby="production-settings">
+          <header className={studio.panelTitle}><CommandIcon code="13" /><h2 id="production-settings">Campaign settings</h2></header>
+          {selected && <>
+            <div className={studio.settingsSection}>
+              <h3>Platform connections</h3>
+              {selected.platforms.map((platform) => {
+                const connection = records.connections.find((record) => record.platform === platform && record.origin !== 'FIXTURE');
+                return <div className={studio.channel} key={platform}>
+                  <PlatformName platform={platform} label={platform.replaceAll('_', ' ')} />
+                  {connection ? <ConnectionBadge state={connection.state} /> : <span>Not connected</span>}
+                </div>;
+              })}
+              <Link href="/command/connections" className={studio.textLink}>Manage connections ↗</Link>
+            </div>
+            <div className={studio.settingsSection}>
+              <h3>Campaign draft</h3>
+              <strong>{selected.name}</strong>
+              <dl className={studio.facts}>
+                <div><dt>Budget</dt><dd>{formatBudget(selected.budgetMinor, selected.currency)}</dd></div>
+                <div><dt>Duration</dt><dd>{daysInclusive(selected.startDate, selected.endDate)} days</dd></div>
+              </dl>
+              <button type="button" className={studio.primary} onClick={() => review.current?.showModal()}>Edit plan &amp; review</button>
+            </div>
+            <p className={studio.safeguard}>Publishing requires an authorized approval and a confirmed connector.</p>
+          </>}
+        </section>
+      </div>
+      {campaigns.length > 0 && <section className={studio.timeline} aria-labelledby="production-timeline">
+        <header className={studio.panelTitle}><CommandIcon code="06" /><h2 id="production-timeline">Campaign timeline</h2></header>
+        <ol>
+          {[...campaigns].sort((first, second) => first.startDate.localeCompare(second.startDate)).map((campaign) => (
+            <li key={campaign.id}>
+              <button type="button" aria-pressed={selected?.id === campaign.id} onClick={() => selectCampaign(campaign)}>
+                <span dir="ltr">{campaign.startDate}</span><strong>{campaign.name}</strong><small>{campaign.status.replaceAll('_', ' ')}</small>
+              </button>
+            </li>
+          ))}
+        </ol>
+      </section>}
+      {selected && <dialog ref={review} className={studio.dialog} aria-label="Campaign review">
+        <button type="button" className={studio.secondary} onClick={() => review.current?.close()}>Close review</button>
+        <CampaignReview campaign={selected} />
+      </dialog>}
       {selected ? (
         <Section title="Campaign detail" note={CAMPAIGN_STATUS_MEANING[selected.status]}>
           <div className={styles.commandGrid2 ?? ''}>
@@ -198,14 +242,14 @@ function Campaigns() {
                 {nextStates(selected.status).join(', ') || 'none — terminal'}.
               </p>
 
-              <ApprovalActions key={`${activeClient.id}:${selected.id}`} campaign={selected} />
+              <ApprovalActions key={`${activeClient.id}:${selected.id}:${selected.updatedAt}`} campaign={selected} />
 
               <div className={styles.ccApprovalActions ?? ''}>
                 <button
                   type="button"
                   className={`${styles.ccButton ?? ''} ${styles.ccButtonPrimary ?? ''}`}
                   disabled
-                  title="Launch requires an approved budget snapshot and a real connector confirmation. Neither exists."
+                  title="Launch requires separate authorization and an available provider execution adapter."
                 >
                   Launch
                 </button>
@@ -283,7 +327,12 @@ function Campaigns() {
  * the refusal verbatim when it is not. That is why the Approve button on a
  * campaign already marked APPROVED explains itself rather than just being grey.
  */
-function ApprovalActions({ campaign }: { campaign: Campaign }) { return <div className={styles.ccApprovalActions}><p>Stored status: {campaign.status}. Approval decisions require a named authenticated reviewer and a durable approval endpoint.</p><button type="button" disabled className={styles.ccButton}>Approve · write endpoint unavailable</button></div>; }
+function ApprovalActions({ campaign }: { campaign: Campaign }) {
+  const { activeClient, records, studioEdits, campaignPlans, isDemoWorkspace } = useWorkspace();
+  const staged = campaignPlans.find(plan => plan.id === campaign.id);
+  const plan = staged?.updatedAt === campaign.updatedAt ? staged : campaign;
+  return <CampaignApproval campaign={campaign} demo={isDemoWorkspace} unsaved={hasUnsavedCampaignReview(campaign, plan, records.creatives, studioEdits, activeClient.website)} />;
+}
 
 function Fact({ label, value }: { label: string; value: string }) {
   return (

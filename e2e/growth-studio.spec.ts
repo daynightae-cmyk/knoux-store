@@ -27,6 +27,7 @@ async function chooseLanguage(page: import('@playwright/test').Page, value: 'en'
 
 
 test('draft edits, placements and client selection stay synchronized across routes', async ({ page }, testInfo) => {
+  test.setTimeout(120_000);
   await page.goto('/command/creative');
   const theatre = page.getByRole('region', { name: 'Ad Preview Theatre' });
   await theatre.getByRole('textbox', { name: 'Headline', exact: true }).fill('A focused local revision');
@@ -51,28 +52,52 @@ test('draft edits, placements and client selection stay synchronized across rout
   await page.screenshot({ path: testInfo.outputPath('creative-ar-search.png'), fullPage: true });
   const mobile = await page.getByRole('button', { name: /Workspace navigation for/ }).isVisible();
   async function navigate(label: string) {
-    if (mobile) await page.getByRole('button', { name: /Workspace navigation for/ }).click();
-    await page.getByRole('navigation', { name: mobile ? 'Mobile Command Center sections' : 'Command Center sections', exact: true }).getByRole('link', { name: label }).click();
+    const toggle = page.getByRole('button', { name: /Workspace navigation for/ });
+    const drawer = await toggle.isVisible();
+    if (drawer) await toggle.click();
+    await page.getByRole('navigation', { name: drawer ? 'Mobile Command Center sections' : 'Command Center sections', exact: true }).getByRole('link', { name: label }).click();
   }
+  async function chooseCampaign(name: string) {
+    const compact = page.getByRole('combobox', { name: 'Campaign', exact: true });
+    if (await compact.count()) {
+      await compact.selectOption({ label: name });
+      return;
+    }
+    await page.getByRole('list', { name: 'Campaigns', exact: true }).getByRole('button', { name, exact: true }).click();
+  }
+  const juniorCampaign = 'Junior learn-to-swim — autumn intake';
+  const adultDraft = 'Adult beginner — WhatsApp enquiries';
   await navigate('Campaigns');
+  await expect(page).toHaveURL(/\/command\/campaigns$/);
   await expect(page.getByRole('heading', { name: 'رسالة واضحة لعميلك' })).toBeVisible();
+  await chooseCampaign(adultDraft);
+  await page.getByRole('button', { name: 'Edit plan & review' }).click();
   const builder = page.getByRole('region', { name: 'Campaign builder' });
   await builder.getByRole('textbox', { name: 'Landing destination' }).fill('https://example.org/growth');
   await builder.getByRole('button', { name: 'Prepare review snapshot' }).click();
   await expect(builder.getByText('Review snapshot frozen locally · not submitted')).toBeVisible();
   await builder.getByRole('spinbutton', { name: 'Media budget (integer minor units)' }).fill('81234');
   await expect(builder.getByText('REVIEW INVALIDATED · plan or creative changed')).toBeVisible();
-  await expect(builder.getByRole('button', { name: /Launch/ })).toBeDisabled();
+  await expect(builder.getByRole('button', { name: /Publish/ })).toBeDisabled();
   await page.screenshot({ path: testInfo.outputPath('campaign-review.png'), fullPage: true });
+  await page.getByRole('button', { name: 'Close review' }).click();
+  await chooseCampaign(juniorCampaign);
   await navigate('Social');
+  await expect(page).toHaveURL(/\/command\/social$/);
   await expect(page.getByRole('region', { name: 'Ad Preview Theatre' }).getByRole('heading', { name: 'رسالة واضحة لعميلك' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Editorial board' })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('social-board.png'), fullPage: true });
   await navigate('Campaigns');
+  await expect(page).toHaveURL(/\/command\/campaigns$/);
+  await chooseCampaign(adultDraft);
+  await page.getByRole('button', { name: 'Edit plan & review' }).click();
   await expect(page.getByRole('spinbutton', { name: 'Media budget (integer minor units)' })).toHaveValue('81234');
-  await page.getByRole('button', { name: 'Adult beginner — WhatsApp enquiries', exact: true }).click();
+  await page.getByRole('button', { name: 'Close review' }).click();
+  await page.getByRole('button', { name: 'Edit creative', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Ad Preview Theatre' }).getByRole('textbox', { name: 'Headline', exact: true })).toHaveValue('');
+  await page.getByRole('button', { name: 'Close editor' }).click();
   await navigate('Creative Studio');
+  await expect(page).toHaveURL(/\/command\/creative$/);
   await expect(theatre.getByRole('textbox', { name: 'Headline', exact: true })).toHaveValue('');
   if (mobile) await page.getByRole('button', { name: /Workspace navigation for/ }).click();
   const nav = page.getByRole('navigation', { name: mobile ? 'Mobile Command Center sections' : 'Command Center sections', exact: true });

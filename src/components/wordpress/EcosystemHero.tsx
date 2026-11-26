@@ -1,205 +1,59 @@
-import Link from 'next/link';
-import { ParticleMark } from '@/components/brand/ParticleMark';
+import type { CSSProperties } from 'react';
 import type { ExternalQueryState } from '@/lib/wordpress/external';
-import { wordPressItems, wordPressServices } from '@/data/wordpress';
+import s from './wordpress-welcome.module.css';
 
-/**
- * 01 — Arrival Experience (reference 83380.png).
- *
- * The gateway composition: compact sub-navigation, the numbered arrival
- * heading with its Arabic subtitle, a luminous circular gateway carrying the
- * canonical particle mark, a product panel on the left, a studio-status panel
- * on the right, the Enter CTA on the light floor, and the lower value rail.
- *
- * Everything decorative is CSS or inline SVG marked aria-hidden — no canvas,
- * no rAF loop, no scroll listener. Every panel value is real: the directory
- * state is the observed outcome of the server-side WordPress.org query, and
- * the counts come from the registries. The reference's invented product,
- * creator and uptime figures are deliberately not reproduced.
- */
-
-const SUBNAV = [
-  { label: 'Store', href: '/products' },
-  { label: 'Studio', href: '#studio' },
-  { label: 'Resources', href: '#library' },
-  { label: 'Support', href: '/contact' },
-] as const;
-
-const PRODUCTS = [
-  { label: 'Official Themes', href: '/wordpress/themes', icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm-4.5 5 2.6 8 1.9-5.4L11 8h2l2.6 8 2-8' },
-  { label: 'Official Plugins', href: '/wordpress/plugins', icon: 'M9 4h6v3a2 2 0 1 0 2 2h3v6h-3a2 2 0 1 1-2 2v3H9v-3a2 2 0 1 0-2-2H4V9h3a2 2 0 1 1 2-2Z' },
-  { label: 'Studio Resources', href: '#library', icon: 'm12 3 9 5-9 5-9-5Zm-9 9 9 5 9-5m-18 4 9 5 9-5' },
-  { label: 'Creative Assets', href: '/creative', icon: 'M12 3v4m0 10v4M3 12h4m10 0h4M6 6l2.5 2.5m7 7L18 18M18 6l-2.5 2.5m-7 7L6 18' },
-] as const;
-
-const VALUES = [
-  { label: 'Discover', note: 'Explore the Collection', href: '/wordpress/themes', icon: 'M13 2 4 14h6l-1 8 9-12h-6Z' },
-  { label: 'Build', note: 'Powerful WordPress Sites', href: '#launch', icon: 'm12 3 9 5-9 5-9-5Zm-9 9 9 5 9-5m-18 4 9 5 9-5' },
-  { label: 'Accelerate', note: 'Your Creative Workflow', href: '/wordpress/solutions', icon: 'M12 2c4 3 6 7 6 11l3 4-5-1-4 4-4-4-5 1 3-4c0-4 2-8 6-11Zm0 7a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z' },
-  { label: 'Go Premium', note: 'Studio-Grade Solutions', href: '/contact?requestType=wordpress&items=Studio-grade%20WordPress%20engagement', icon: 'M6 3h12l4 6-10 12L2 9Zm-4 6h20M9 3l3 6 3-6m-3 6v12' },
-] as const;
-
-const DIRECTORY_LABEL: Record<ExternalQueryState, string> = {
-  ok: 'Directory online',
-  empty: 'Directory empty',
-  unavailable: 'Unavailable',
+type IconName = 'wordpress' | 'plugin' | 'layers' | 'spark' | 'bolt' | 'rocket' | 'diamond' | 'cube' | 'people' | 'infinity';
+const ICONS: Record<IconName, string> = {
+  wordpress: 'M12 2.8a9.2 9.2 0 1 0 0 18.4 9.2 9.2 0 0 0 0-18.4ZM5.2 9h3m-2 6 3.2-8m1-1.2h2.2m-1 9.5 2.7-7.5 2.6 7.5 2.2-7.7',
+  plugin: 'M9 3h6v4a2 2 0 1 0 4 2h2v6h-4a2 2 0 1 1-2 4v2H9v-4a2 2 0 1 0-4-2H3V9h4a2 2 0 1 1 2-4Z',
+  layers: 'm12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5',
+  spark: 'm12 2 2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2L12 2Zm7 0 .8 2.2L22 5l-2.2.8L19 8l-.8-2.2L16 5l2.2-.8L19 2Z',
+  bolt: 'm13 2-8 12h6l-1 8 9-13h-6V2Z',
+  rocket: 'M14 5c3-3 6-2 6-2s1 3-2 6l-5 5-4-4 5-5Zm-5 4-4 1-2 3 6 1m4 0-1 6-3 2-1-6m7-9 1 1M6 18l-3 3m5-2-2 2',
+  diamond: 'm12 21-9-11 4-6h10l4 6-9 11ZM3 10h18M7 4l5 17 5-17M7 4l5 6 5-6',
+  cube: 'm12 2 9 5v10l-9 5-9-5V7l9-5Zm-9 5 9 5 9-5m-9 5v10M7.5 4.5l9 5',
+  people: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m7-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm13 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+  infinity: 'M18.5 7.5c-4 0-9 9-13 9a4.5 4.5 0 0 1 0-9c4 0 9 9 13 9a4.5 4.5 0 0 0 0-9Z',
 };
 
-export function EcosystemHero({ directoryState, themesLoaded }: {
+export function WpIcon({ name, className }: Readonly<{ name: IconName; className?: string }>) {
+  return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.45" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={ICONS[name]} /></svg>;
+}
+
+const BARS = [7, 12, 18, 10, 25, 16, 31, 22, 14, 36, 25, 17, 28, 40, 23, 34, 19, 30, 15, 24, 12, 20, 9, 15, 7, 11, 6];
+
+const DIRECTORY_STATUS = {
+  ok: { label: 'WordPress.org theme directory online', text: 'Online', ar: 'متصل الآن' },
+  empty: { label: 'WordPress.org theme directory returned no results', text: 'No results', ar: 'لا نتائج' },
+  unavailable: { label: 'WordPress.org theme directory unavailable', text: 'Offline', ar: 'غير متصل' },
+} as const;
+
+export function StudioDirectoryStatus({ uid, ar, directoryState, themesLoaded, journeyCount }: Readonly<{
+  uid: string;
+  ar: boolean;
   directoryState: ExternalQueryState;
   themesLoaded: number;
-}) {
+  journeyCount: number;
+}>) {
+  const status = DIRECTORY_STATUS[directoryState];
   return (
-    <section className="eco-hero eco-hero--arrival" aria-label="Arrival experience">
-      {/* Ambient cosmic depth. Pure paint, never data. */}
-      <div className="eco-hero__sky" aria-hidden="true" />
-      <div className="eco-hero__horizon" aria-hidden="true" />
-
-      <div className="eco-hero__inner">
-        <nav className="eco-hero__subnav" aria-label="WordPress studio sections">
-          <div className="eco-hero__subnav-links">
-            {SUBNAV.map((entry) => (
-              <Link key={entry.label} href={entry.href} aria-current={entry.label === 'Studio' ? 'page' : undefined}>
-                {entry.label}
-              </Link>
-            ))}
-          </div>
-          <p className="eco-hero__wordmark">
-            <b>KNOUX <span>STORE</span></b>
-            <small>Digital Headquarters</small>
-          </p>
-          <nav className="page-crumb eco-hero__crumb" aria-label="Breadcrumb">
-            <Link href="/">KNOuX</Link>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page">WordPress</span>
-          </nav>
-        </nav>
-
-        <header className="eco-hero__heading">
-          <h1 className="eco-hero__title">
-            <span className="eco-hero__code">01</span>
-            <span className="eco-hero__rule" aria-hidden="true" />
-            Arrival Experience
-          </h1>
-          <p className="eco-hero__arabic" lang="ar" dir="rtl">بوابة الدخول إلى الاستوديو</p>
-          <p className="eco-hero__eyebrow">
-            <span className="eco-hero__pulse" aria-hidden="true" />
-            KNOUX WordPress Studio
-          </p>
-        </header>
-
-        <div className="eco-hero__stage">
-          {/* Orbital geometry behind the gateway. */}
-          <svg className="eco-hero__orbits" viewBox="0 0 1536 620" preserveAspectRatio="none" aria-hidden="true">
-            <defs>
-              <filter id="eco-orbit-glow" x="-100%" y="-100%" width="300%" height="300%">
-                <feGaussianBlur stdDeviation="4" />
-              </filter>
-            </defs>
-            <g fill="none" stroke="#b88bf3" strokeWidth="1.3">
-              <ellipse cx="768" cy="300" rx="640" ry="150" opacity=".3" />
-              <ellipse cx="768" cy="285" rx="470" ry="190" opacity=".55" transform="rotate(-4 768 285)" />
-              <ellipse cx="768" cy="330" rx="330" ry="80" opacity=".35" transform="rotate(5 768 330)" />
-            </g>
-            {[[180, 250], [420, 150], [1120, 160], [1360, 260], [540, 430], [1010, 440], [768, 90]].map(([x, y]) => (
-              <g key={`${x}-${y}`}>
-                <circle cx={x} cy={y} r="6" fill="#bd76ff" filter="url(#eco-orbit-glow)" />
-                <circle cx={x} cy={y} r="2.6" fill="#fff" />
-              </g>
-            ))}
-          </svg>
-
-          {/* Flanking WordPress banners, as in the original. */}
-          <div className="eco-hero__banner eco-hero__banner--left" aria-hidden="true"><span>W</span></div>
-          <div className="eco-hero__banner eco-hero__banner--right" aria-hidden="true"><span>W</span></div>
-
-          <aside className="eco-hero__panel eco-hero__panel--products" aria-label="WordPress studio destinations">
-            <p className="eco-hero__panel-brand"><b>KNOuX</b> <span>STORE</span></p>
-            <p className="eco-hero__panel-sub">Digital Products for WordPress</p>
-            <ul>
-              {PRODUCTS.map((entry) => (
-                <li key={entry.label}>
-                  <Link href={entry.href}>
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d={entry.icon} /></svg>
-                    <span>{entry.label}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </aside>
-
-          <div className="eco-hero__gateway">
-            <div className="eco-hero__gate" aria-hidden="true">
-              <div className="eco-hero__gate-ring" />
-              <div className="eco-hero__gate-ring eco-hero__gate-ring--inner" />
-              <ParticleMark patternId="eco-mark-particles" className="eco-hero__mark" dense />
-              <div className="eco-hero__gate-flare" />
-            </div>
-            <div className="eco-hero__steps" aria-hidden="true" />
-          </div>
-
-          <aside className="eco-hero__panel eco-hero__panel--status" aria-label="Studio status">
-            <p className="eco-hero__status-head">
-              <span>Studio Status</span>
-              <span className="eco-hero__status-pill" data-state={directoryState}>{DIRECTORY_LABEL[directoryState]}</span>
-            </p>
-            <div className="eco-hero__status-map" aria-hidden="true" />
-            <dl className="eco-hero__stats">
-              <div>
-                <dt>Themes loaded</dt>
-                <dd>{themesLoaded}</dd>
-              </div>
-              <div>
-                <dt>KNOuX releases</dt>
-                <dd>{wordPressItems.length}</dd>
-              </div>
-              <div>
-                <dt>Services</dt>
-                <dd>{wordPressServices.length}</dd>
-              </div>
-            </dl>
-            <p className="eco-hero__status-note">Observed at page render · WordPress.org</p>
-            <div className="eco-hero__equalizer" aria-hidden="true">
-              {Array.from({ length: 24 }, (_, index) => <i key={index} style={{ height: `${22 + ((index * 37) % 60)}%` }} />)}
-            </div>
-          </aside>
-        </div>
-
-        <div className="eco-hero__floor" aria-hidden="true" />
-
-        <p className="eco-hero__enter">
-          <Link className="eco-hero__enter-link" href="#studio">
-            Enter WordPress Studio <span aria-hidden="true">→</span>
-          </Link>
-        </p>
-
-        <div className="eco-hero__stack">
-          <ul className="eco-hero__values" aria-label="What the studio does">
-            {VALUES.map((entry) => (
-              <li key={entry.label}>
-                <Link href={entry.href}>
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d={entry.icon} /></svg>
-                  <span>
-                    <b>{entry.label}</b>
-                    <small>{entry.note}</small>
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <div className="eco-hero__beam" aria-hidden="true" />
-        </div>
+    <aside className={`${s.glassCard} ${s.monitor}`} aria-label={ar ? 'حالة الاستوديو' : 'Studio status'}>
+      <div className={s.cardShine} aria-hidden="true" />
+      <div className={s.monitorHead}>
+        <div><h2>STUDIO STATUS</h2><p lang="ar">حالة الاستوديو</p></div>
+        <span className={s.online} data-online={directoryState !== "unavailable"} aria-label={status.label}>
+          <i />{status.text}<small lang="ar">{status.ar}</small>
+        </span>
       </div>
-
-      <p className="eco-hero__foot meta-row">
-        <span>KN / WORDPRESS ECOSYSTEM</span>
-        <span>REAL WORDPRESS.ORG DATA</span>
-        <span>NO INVENTED AVAILABILITY</span>
-        <a className="eco-hero__scroll" href="#domain">
-          Scroll to the ecosystem
-          <span aria-hidden="true">↓</span>
-        </a>
-      </p>
-    </section>
+      <div className={s.world} aria-hidden="true">
+        <svg viewBox="0 0 320 135"><defs><pattern id={`map-${uid}`} width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1" fill="#a66cff" /></pattern></defs><g fill={`url(#map-${uid})`}><path d="M20 38 36 19 64 12 89 20 111 19 124 34 111 44 105 59 84 57 74 72 61 64 49 46 28 49Z" /><path d="m101 68 21 9 12 19-6 28-14-12-7-24-12-9Z" /><path d="m154 26 25-12 27 6 14-3 42 14 26 23-12 16-24-5-16 11-13-9-14 6-10 29-19 23-13-11 3-27-13-17-18-6-8-17 14-12Z" /><path d="m259 92 18-8 21 12-4 18-23 4-15-11Z" /></g><ellipse cx="160" cy="78" rx="147" ry="35" fill="none" stroke="#b575ff" strokeWidth="1.2" transform="rotate(-8 160 78)" /></svg>
+      </div>
+      <div className={s.stats}>
+        <div><WpIcon name="cube" /><strong>{themesLoaded}</strong><span>Themes</span><small lang="ar">قوالب هذا العرض</small></div>
+        <div><WpIcon name="people" /><strong>{journeyCount}</strong><span>Journeys</span><small lang="ar">مسارات الاستوديو</small></div>
+        <div><WpIcon name="infinity" /><strong>WP.org</strong><span>Directory</span><small lang="ar">المصدر الرسمي</small></div>
+      </div>
+      <div className={s.equalizer} aria-hidden="true">{BARS.map((height, i) => <i key={i} style={{ '--bar': `${height}px`, '--delay': `${i * -80}ms` } as CSSProperties} />)}</div>
+    </aside>
   );
 }

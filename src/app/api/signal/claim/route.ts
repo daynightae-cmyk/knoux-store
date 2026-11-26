@@ -1,14 +1,11 @@
 import { NextResponse } from 'next/server';
 import { normalizeSignalPhone } from '@/lib/signal/phone';
 import { createClient } from '@/lib/supabase/server';
+import { readSignalMutation } from '@/lib/signal/mutation-input';
 
 export async function POST(request: Request) {
-  let body: { query?: unknown; country?: unknown };
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON.' }, { status: 400 });
-  }
+  const body = await readSignalMutation(request);
+  if (body instanceof Response) return body;
 
   const facts = normalizeSignalPhone(
     typeof body.query === 'string' ? body.query.slice(0, 80) : '',
@@ -19,9 +16,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: facts.reason ?? 'Invalid number.' }, { status: 422 });
   }
 
+  try {
   const supabase = await createClient();
-  const { data: auth } = await supabase.auth.getUser();
-  if (!auth.user) return NextResponse.json({ error: 'Sign in first.' }, { status: 401 });
+  const { data: auth, error: authError } = await supabase.auth.getUser();
+  if (authError || !auth.user) return NextResponse.json({ error: 'Sign in first.' }, { status: 401 });
   const { data, error } = await supabase.rpc('signal_claim_number', {
     p_phone: facts.e164,
     p_country_code: facts.countryCode,
@@ -35,11 +33,16 @@ export async function POST(request: Request) {
       : /already_claimed/i.test(error.message)
         ? 'This number is already claimed.'
         : 'Signal claim storage is unavailable.';
-    return NextResponse.json({ error: message }, { status: 409, headers: { 'cache-control': 'no-store' } });
+    const conflict = /verified_phone_required|already_claimed/i.test(error.message);
+    return NextResponse.json({ error: message }, { status: conflict ? 409 : 503, headers: { 'cache-control': 'no-store' } });
   }
+  if (!data) return NextResponse.json({ error: 'No claim receipt was returned. Retry after checking your account.' }, { status: 503 });
 
   return NextResponse.json(
     { ok: true, claim: data },
     { headers: { 'cache-control': 'no-store' } },
   );
+  } catch {
+    return NextResponse.json({ error: 'Signal claim storage is unavailable.' }, { status: 503, headers: { 'cache-control': 'no-store' } });
+  }
 }

@@ -6,6 +6,8 @@ import { pageMetadata } from '@/lib/metadata';
 import { growthChannelBySlug, growthChannelsDetail, growthModulesFor } from '@/data/growth';
 import { entityById } from '@/data/composer-rules';
 import { TrackOnView } from '@/components/TrackOnView';
+import { ChannelWorkbench } from '@/components/growth/ChannelWorkbench';
+import styles from '@/components/growth/channel-workbench.module.css';
 
 export function generateStaticParams() {
   return growthChannelsDetail.map((channel) => ({ slug: channel.slug }));
@@ -30,9 +32,10 @@ export default async function GrowthChannelPage({ params }: { params: Promise<{ 
   const others = growthChannelsDetail.filter((entry) => entry.id !== channel.id);
 
   return (
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1} className={styles.page}>
       <TrackOnView event={{ type: 'division_opened', division: 'growth', route: `/growth/${channel.slug}` }} />
       <PageIntro index={channel.code} label="Growth" title={channel.name.replace(/ \([^)]*\)/, '')} italic="channel." description={channel.tagline} />
+      <ChannelWorkbench channel={channel.slug} modules={modules} />
       <SignalRail division="growth" path={`/growth/${channel.slug}`} />
 
       <section className="shell" style={{ paddingTop: 'clamp(56px, 7vw, 110px)', paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
@@ -55,21 +58,6 @@ export default async function GrowthChannelPage({ params }: { params: Promise<{ 
               </ul>
             </div>
 
-            <div className="dossier__section">
-              <h2>Modules in this channel</h2>
-              <div className="registry" style={{ marginTop: 20 }}>
-                {modules.map((module) => (
-                  <div key={module.id} className="registry-row" style={{ gridTemplateColumns: '44px minmax(0,1fr) 90px' }}>
-                    <span className="registry-row__id">{module.code}</span>
-                    <span className="registry-row__name">
-                      {module.name}
-                      <small>{module.statement}</small>
-                    </span>
-                    <span className="registry-row__compat">{module.setup ? 'SETUP' : 'ONGOING'}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
 
           <aside className="dossier__side">

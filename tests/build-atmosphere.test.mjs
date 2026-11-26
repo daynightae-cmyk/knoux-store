@@ -2,6 +2,25 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTypeScript } from './load.mjs';
 const { activationPhase, seededRandom, lightningBranches, engineeringCue, cueAtmosphere, listenAtmosphere } = await loadTypeScript('../src/components/build/dev/living-atmosphere.ts');
+const { paintPlanet } = await loadTypeScript('../src/components/cosmic/planet.ts');
+
+test('planet painting tolerates hidden and subpixel surfaces without negative canvas radii', () => {
+  const radii = [];
+  const gradient = { addColorStop() {} };
+  const context = new Proxy({
+    createRadialGradient(...args) {
+      assert.ok(args[2] >= 0 && args[5] >= 0);
+      return gradient;
+    },
+    createLinearGradient() { return gradient; },
+    arc(_x, _y, radius) { assert.ok(radius >= 0); radii.push(radius); },
+    ellipse(_x, _y, rx, ry) { assert.ok(rx >= 0 && ry >= 0); },
+  }, { get: (target, name) => target[name] ?? (() => {}) });
+  for (const radius of [0, -1, NaN, Infinity]) paintPlanet(context, 0, 0, radius, [110, 116, 238], .82, true);
+  assert.equal(radii.length, 0);
+  for (const radius of [.001, .1, .49, 28]) paintPlanet(context, 0, 0, radius, [110, 116, 238], .82, true);
+  assert.equal(radii.length, 8);
+});
 
 test('activation has all four exact timing boundaries and terminates', () => {
   for (const [at, expected] of [[-1, null], [0, 'prepare'], [249, 'prepare'], [250, 'gather'], [699, 'gather'], [700, 'discharge'], [1499, 'discharge'], [1500, 'settle'], [4799, 'settle'], [4800, null]]) assert.equal(activationPhase(at), expected);

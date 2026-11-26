@@ -39,3 +39,11 @@ export function brandViolations(edit: StudioEdit, forbidden: readonly string[]):
 export function reviewFingerprint(campaign: Campaign, edits: readonly StudioEdit[]): string {
   return JSON.stringify({ clientId: campaign.clientId, id: campaign.id, name: campaign.name, objective: campaign.objective, platforms: campaign.platforms, budgetMinor: campaign.budgetMinor, currency: campaign.currency, startDate: campaign.startDate, endDate: campaign.endDate, locations: campaign.locations, languages: campaign.languages, audienceNotes: campaign.audienceNotes, creativeSetIds: campaign.creativeSetIds, landingPageUrl: campaign.landingPageUrl, conversionTarget: campaign.conversionTarget, creatives: edits.map((edit) => ({ creative: edit.creative, destination: edit.destination, locale: edit.locale, asset: edit.asset, mediaAssetId: edit.mediaAssetId, revision: edit.revision })) });
 }
+
+/** The review endpoint signs stored work; local plan/media/copy revisions block its UI actions. */
+export function hasUnsavedCampaignReview(source: Campaign, staged: Campaign, creatives: readonly CreativeDraft[], edits: Record<string, StudioEdit>, fallbackDestination = ''): boolean {
+  const linked = creatives.filter(draft => draft.campaignId === source.id || source.creativeSetIds.includes(draft.id));
+  const stored = linked.map(draft => beginEdit(draft, source.landingPageUrl ?? fallbackDestination));
+  const current = linked.map((draft, index) => edits[draft.id] ?? stored[index]);
+  return reviewFingerprint(staged, current) !== reviewFingerprint(source, stored);
+}

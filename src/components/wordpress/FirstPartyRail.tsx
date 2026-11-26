@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { wordPressItems, type WordPressItemType } from '@/data/wordpress';
 
 /**
@@ -65,9 +64,9 @@ export function FirstPartyRail({
       )}
 
       <p className="mp-firstparty__links">
-        <Link href="/wordpress#library">All KNOuX WordPress routes</Link>
+        <a href="/wordpress#library">All KNOuX WordPress routes</a>
         <span aria-hidden="true">·</span>
-        <Link href="/wordpress#operate">KNOuX operating services</Link>
+        <a href="/wordpress#operate">KNOuX operating services</a>
       </p>
     </section>
   );

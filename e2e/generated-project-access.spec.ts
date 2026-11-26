@@ -19,7 +19,7 @@ test('the published Build routes enforce sign-in and same-origin execution', asy
 });
 
 test('production Build hash renders an interactive workspace entry', async ({ page }, info) => {
-  await page.goto('/build/#build');
+  await page.goto('/build/#workspace');
   const workspace = page.getByRole('region', { name: 'Build workspace', exact: true });
   const view = workspace.getByRole('group', { name: 'Workspace view' });
   await view.getByRole('button', { name: 'REGISTRY', exact: true }).click();

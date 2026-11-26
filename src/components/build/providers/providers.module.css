@@ -32,7 +32,7 @@
 .standalone .notice { padding: 0; border: 0; margin: 0 0 8px; font-size: 12px; line-height: 1.5; }
 .standalone.center.center .filters > button { padding-inline: 8px; }
 :global(.dev-shell__stage):has(.standalone) {
-  background: linear-gradient(90deg, #0908109c, #0b081212 48%, #0b08122b), url('/creative/build-v3-providers.webp') center bottom / cover no-repeat;
+  background: linear-gradient(90deg, #0908109c, #0b081212 48%, #0b08122b);
 }
 
 .center .detail {
@@ -87,7 +87,7 @@
 
 @media (max-width: 650px) {
   :global(.dev-shell__stage):has(.standalone) {
-    background-image: linear-gradient(#090810b8, #090810a8), url('/creative/build-v3-providers.webp');
+    background-image: linear-gradient(#090810b8, #090810a8);
   }
 }
 
@@ -261,7 +261,9 @@
 
 /* Provider reference is an independent first screen; management remains below. */
 .center.standalone{max-width:none;padding:0!important}
-.standalone .composition{padding:32px clamp(16px,4vw,70px);background:#0b0812;gap:32px}
+.standalone .composition{padding:32px clamp(16px,4vw,70px);background:linear-gradient(180deg,#07050e,#0b0812 140px);gap:32px}
+/* The hero owns the first viewport; its lower edge dissolves into the page sky. */
+.standalone>:global(section){-webkit-mask-image:linear-gradient(180deg,#000 84%,transparent);mask-image:linear-gradient(180deg,#000 84%,transparent)}
 .standalone .workspaceViews{display:none}
 :global(.dev-cinematic):has(.standalone) :global(.dev-shell__content){padding:0!important}
 :global(.dev-cinematic):has(.standalone) :global(.dev-crumb){display:none}
@@ -270,4 +272,85 @@
  :global(.dev-cinematic):has(.standalone) :global(.dev-shell__grid){display:block;max-width:none}
  :global(.dev-cinematic):has(.standalone) :global(.dev-sidebar),:global(.dev-cinematic):has(.standalone) :global(.dev-shell__top){display:none}
  :global(.dev-cinematic):has(.standalone){padding:0!important}
+ /* The stage scrolls as one page so the hero is never clipped by an inner scroller. */
+ :global(.dev-cinematic):has(.standalone) :global(.dev-shell__stage){overflow-y:auto;scrollbar-width:thin;scrollbar-color:#343443 transparent}
+ :global(.dev-cinematic):has(.standalone) :global(.dev-shell__content){overflow:visible;flex:none}
+ /* The reference is one full-bleed card: no status rail, no second particle mark.
+    Management below the hero keeps its own headings and controls. */
+ :global(.dev-cinematic):has(.standalone) :global(.dev-status-rail),
+ :global(.dev-cinematic):has(.standalone) :global(.dev-living-mark){display:none}
 }
+/* Phone keeps the slim top bar as the only way back, but the status rail and
+   the second particle mark never belong to the reference card. */
+@media(max-width:1024px){
+ :global(.dev-cinematic):has(.standalone) :global(.dev-status-rail),
+ :global(.dev-cinematic):has(.standalone) :global(.dev-living-mark){display:none}
+}
+.modeSwitch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px clamp(12px, 2vw, 28px);
+  border-block-end: 1px solid #cb8fff50;
+  background: linear-gradient(105deg, #281343, #0a091b);
+}
+.center .modeSwitch button {
+  border: 1px solid #a77ad273;
+  border-radius: 10px;
+}
+.center .modeSwitch button[aria-pressed='true'] {
+  border-color: #d99aff;
+  background: linear-gradient(125deg, #7130aa, #30156c);
+  color: #fff;
+  box-shadow: 0 0 14px #ad57ee6e;
+}
+[data-provider-view='catalog'] .composition {
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: clamp(12px, 2vw, 28px);
+}
+[data-provider-view='catalog'] .modeSwitch { border: 1px solid #bd82e265; border-radius: 14px; margin-block-end: 16px; }
+[data-provider-view='catalog'] .providerList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 185px), 1fr));
+  overflow: visible;
+  gap: 8px;
+}
+[data-provider-view='catalog'] .providerList > button {
+  min-width: 0;
+  min-height: 82px;
+  padding: 10px;
+  border: 1px solid #a477dc64;
+  border-radius: 12px;
+  text-align: start;
+  background: linear-gradient(145deg, #231645, #10152d);
+}
+[data-provider-view='catalog'] .providerList > button[aria-current='true'] {
+  border-color: #dd9bff;
+  box-shadow: inset 0 0 16px #a147eb6e, 0 0 9px #ba5afa55;
+}
+[data-provider-view='catalog'] .detail {
+  padding: clamp(12px, 2vw, 24px);
+  border: 1px solid #ac89e683;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #21133d, #0c1129);
+  box-shadow: 0 0 30px #7542d938;
+}
+@media (max-width: 850px) {
+  [data-provider-view='catalog'] .composition { display: flex; flex-direction: column; }
+  [data-provider-view='catalog'] :is(.registryRail, .detail) { width: 100%; }
+}
+
+[data-provider-view='catalog'] .registryRail {
+  min-width: 0; padding: clamp(12px, 1.7vw, 23px); border: 1px solid #a97ac976; border-radius: 19px;
+  background: radial-gradient(ellipse at 74% 0%,#432168a8,transparent 60%),linear-gradient(145deg,#17102b,#0a0e24 92%);
+  box-shadow: 0 0 27px #894ce357, inset 0 1px #d4a3ff53;
+}
+[data-provider-view='catalog'] .providerList { grid-template-columns: repeat(auto-fit, minmax(min(100%, 153px), 1fr)); }
+[data-provider-view='catalog'] .providerList > button {
+  align-items: center; gap: 7px; padding: 8px; border-radius: 13px; min-height: 76px; overflow-wrap: anywhere;
+}
+[data-provider-view='catalog'] .providerList > button > span:first-child { flex: none; }
+[data-provider-view='catalog'] .providerList > button > span:last-child { display: none; }
+[data-provider-view='catalog'] .providerList > button strong { line-height: 1.16; font-size: 13px; }
+[data-provider-view='catalog'] .providerList > button small { line-height: 1.35; font-size: 9px; }
+[data-provider-view='catalog'] .detail { position: relative; box-shadow: inset 0 1px #caa0ff68, 0 0 29px #6d37cd4f; }

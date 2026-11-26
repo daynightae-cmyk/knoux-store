@@ -44,11 +44,13 @@ export type CommandShellProps = {
   dock: DockSurface;
   /** Small metrics shown in the context bar strip. */
   facts?: { label: string; value: string }[];
+  production?: { actions: ReactNode };
 };
 
-export function CommandShell({ area, children, dock, facts = [] }: CommandShellProps) {
+export function CommandShell({ area, children, dock, facts = [], production }: CommandShellProps) {
   const navigation = useRef<HTMLDialogElement>(null);
   const [navigationOpen, setNavigationOpen] = useState(false);
+  const fullWidth = Boolean(production);
   useEffect(() => {
     if (!navigationOpen) return;
     const dialog = navigation.current;
@@ -56,14 +58,14 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
     dialog?.showModal();
     document.body.style.overflow = 'hidden';
     const desktop = matchMedia('(min-width: 1081px)');
-    const resize = () => { if (desktop.matches) setNavigationOpen(false); };
+    const resize = () => { if (desktop.matches && !fullWidth) setNavigationOpen(false); };
     desktop.addEventListener('change', resize);
     return () => {
       desktop.removeEventListener('change', resize);
       dialog?.close();
       document.body.style.overflow = overflow;
     };
-  }, [navigationOpen]);
+  }, [navigationOpen, fullWidth]);
   const { records, clients, activeClient, setActiveClientId, isDemoWorkspace, demoReason } = useWorkspace();
   const t = useRouteCopy();
   const connections = records.connections;
@@ -132,7 +134,7 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
           </div>
         </>);
   return (
-    <div className={styles.command ?? ''}>
+    <div className={styles.command ?? ''} data-production={fullWidth || undefined}>
       <header className={styles.commandBar ?? ''}>
         <div className={styles.commandIdent ?? ''}>
           <KnouxMark />
@@ -173,29 +175,30 @@ export function CommandShell({ area, children, dock, facts = [] }: CommandShellP
 
       <div className={styles.commandBody ?? ''}>
         <button className={styles.commandNavigationToggle} type="button" aria-label={`Workspace navigation for ${activeClient.name}`} aria-haspopup="dialog" aria-controls="command-navigation" aria-expanded={navigationOpen} onClick={() => setNavigationOpen(true)}>{activeClient.name}<span>Workspace navigation +</span></button>
-        <nav className={styles.commandRail} aria-label="Command Center sections">{navigationContent}</nav>
+        {!fullWidth && <nav className={styles.commandRail} aria-label="Command Center sections">{navigationContent}</nav>}
         <dialog ref={navigation} id="command-navigation" className={styles.navigationDialog} aria-label="Workspace navigation" onKeyDown={trapDialogFocus} onCancel={event => { event.preventDefault(); setNavigationOpen(false); }} onClick={(event) => { if (event.target === event.currentTarget) setNavigationOpen(false); }}><button type="button" className={styles.closeNavigation} onClick={() => setNavigationOpen(false)}>Close navigation ×</button><nav aria-label="Mobile Command Center sections">{navigationContent}</nav></dialog>
 
         <main className={styles.commandMain ?? ''} id="main-content" tabIndex={-1}>
           <div className={styles.commandHead ?? ''}>
             <div className={styles.commandHeadText ?? ''}>
               <span className={styles.commandEyebrow ?? ''}>
-                {area.code} · {activeClient.name}
+                {fullWidth ? 'KNOuX Growth / Client Studio' : area.code} · {activeClient.name}
               </span>
-              <h1 className={styles.commandTitle ?? ''}>{t(area.label, area.labelAr)}</h1>
-              <p className={styles.commandLede ?? ''}>{area.purpose}</p>
+              <h1 className={styles.commandTitle ?? ''}>{fullWidth ? t('Campaign production') : t(area.label, area.labelAr)}</h1>
+              {!fullWidth && <p className={styles.commandLede ?? ''}>{area.purpose}</p>}
             </div>
             <div className={styles.commandHeadActions ?? ''}>
-              {connections.slice(0, 3).map((connection) => (
+              {production?.actions ?? connections.slice(0, 3).map((connection) => (
                 <ConnectionBadge key={connection.id} state={connection.state} />
               ))}
             </div>
           </div>
 
-          <CommandDock surface={dock} />
+          {!fullWidth && <CommandDock surface={dock} />}
 
           {children}
 
+          {fullWidth && <CommandDock surface={dock} />}
           <p className={styles.ccFoot ?? ''}>
             <strong>One intelligence.</strong> Every channel, every client. KNOuX reasons through the
             KNOuX Intelligence layer; Meta and Google are connectors, not the brain. No campaign can

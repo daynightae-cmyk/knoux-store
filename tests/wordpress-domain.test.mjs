@@ -121,8 +121,7 @@ test('a bare phrase becomes one candidate per selected extension', () => {
 test('a full domain is checked first, then the same name on other extensions', () => {
   const parsed = parseQuery('knoux.com', ['net', 'dev']);
   assert.equal(parsed.candidates[0], 'knoux.com', 'the typed domain is what the visitor meant');
-  assert.ok(parsed.candidates.includes('knoux.net'));
-  assert.ok(parsed.candidates.includes('knoux.dev'));
+  assert.deepEqual(parsed.candidates, ['knoux.com', 'knoux.net', 'knoux.dev']);
 });
 
 test('a protocol, a path and a www prefix are stripped rather than refused', () => {
@@ -289,22 +288,24 @@ test('an implausible price is refused at the boundary', () => {
 
 test('the finder cannot render a verdict it was not given', () => {
   const finder = sourceOf('src/components/wordpress/DomainFinder.tsx');
+  const journey = sourceOf('src/components/wordpress/journeys/DomainIntelligence.tsx');
   // Every non-positive state is rendered from the provider's own vocabulary,
   // through one declared table. A verdict assembled ad hoc in JSX is a verdict
   // the browser produced rather than received, which is the failure this layer
   // exists to prevent.
-  assert.match(finder, /STATE_COPY/, 'result states must come from one declared table');
+  assert.match(finder, /STATE_TONE/, 'result states must come from one declared table');
+  assert.match(journey, /STATE_TONE\[entry\.state\]/, 'the rendered table uses the returned state');
   assert.match(
     finder,
     /Record<DomainAvailability\['state'\]/,
     'the table must be keyed by the provider state union, so a new state cannot render unlabelled',
   );
   // And the failure branches must be visibly distinct from a negative result.
-  assert.match(finder, /phase: 'unconfigured'/, 'unconfigured is a state of its own');
-  assert.match(finder, /phase: 'error'/, 'an upstream failure is a state of its own');
+  assert.match(journey, /kind: 'unconfigured'/, 'unconfigured is a state of its own');
+  assert.match(journey, /kind: 'error'/, 'an upstream failure is a state of its own');
   // A missing price says so in words, rather than leaving a blank a reader
   // would be free to fill in with a guess.
-  assert.match(finder, /Not published/, 'an absent price is stated, not left blank');
+  assert.match(journey, /Not published/, 'an absent price is stated, not left blank');
 });
 
 test('the API route never answers "unavailable" for a failed check', () => {
@@ -480,17 +481,11 @@ test('the ecosystem page reads no provider configuration while statically genera
   assert.doesNotMatch(page, /process\.env/, 'the page must not read the environment');
 });
 
-test('the overview carries its studio data on the page, so the page stays static', () => {
-  // The Studio renders ten interactable journeys across desktop, tablet and
-  // phone layouts, and each has to behave. The original contract ran the other
-  // way: this page preloaded nothing, not even one bounded slice.
-  //
-  // The rule that still matters is unchanged, and is what this asserts: the page
-  // does not become a live directory reader. Themes are the studio's one bounded
-  // selection. Blocks, patterns and the full plugin catalogue stay on demand,
-  // and no featured set is invented here.
+test('the overview loads bounded official studio selections and leaves full catalogues on demand', () => {
   const page = sourceOf('src/app/wordpress/page.tsx');
+  // Each directory gets one bounded request. Full catalogues are separate routes.
   assert.match(page, /queryThemes\(\{ perPage: 6 \}\)/, 'the studio receives a bounded official theme selection');
+  assert.match(page, /queryPlugins\(\{ perPage: 6 \}\)/, 'the studio receives a bounded official plugin selection');
   assert.doesNotMatch(page, /queryBlocks|queryPatterns/, 'blocks and patterns remain on demand');
   assert.doesNotMatch(page, /featuredPlugins|featuredThemes/);
 });
@@ -504,22 +499,18 @@ test('the gateway is a router and a report, and reads the real registry', () => 
   assert.match(gateway, /Source: WordPress\.org/);
 });
 
-test('the six chapters are present and in the order the work happens', () => {
+test('legacy WordPress deep links select existing journeys in the same immersive shell', () => {
   const page = sourceOf('src/app/wordpress/page.tsx');
-  const order = ['id="domain"', 'id="infrastructure"', 'id="library"', 'id="operate"', 'id="launch"'];
-  let cursor = -1;
-  for (const anchor of order) {
-    const at = page.indexOf(anchor);
-    assert.ok(at > cursor, `chapter ${anchor} must appear after the previous one`);
-    cursor = at;
+  const experience = sourceOf('src/components/wordpress/WordPressExperience.tsx');
+  const studio = sourceOf('src/components/wordpress/WordPressStudio.tsx');
+  assert.equal((page.match(/<WordPressExperience\b/g) ?? []).length, 1);
+  for (const [hash, journey] of Object.entries({
+    studio: 'arrival', system: 'arrival', domain: 'domain', infrastructure: 'hosting',
+    library: 'theme', operate: 'operations', launch: 'composer',
+  })) {
+    assert.ok(experience.includes(`'#${hash}': '${journey}'`), `#${hash} must still open ${journey}`);
+    assert.ok(studio.includes(`id: '${journey}'`), `${journey} must exist in the studio`);
   }
-  // Each chapter is a real section with an id, and the stylesheet reserves
-  // room for the fixed header so an anchor does not land underneath it.
-  for (const anchor of order) {
-    assert.match(page, new RegExp(`<section[^>]*${anchor}`), `${anchor} must be a real section landmark`);
-  }
-  const css = readFileSync(join(root, 'src/app/globals.css'), 'utf8');
-  assert.match(css, /\.eco-section\s*\{[^}]*scroll-margin-top/, 'and the stylesheet offsets them from the header');
 });
 
 test('globals.css has one line-ending convention, or the build silently drops it', () => {

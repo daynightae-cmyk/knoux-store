@@ -2,10 +2,19 @@
 
 import dynamic from 'next/dynamic';
 import { formationIsAligned, type ArrivalPhase } from '@/components/auth/choreography';
+import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
+import styles from './ArrivalChamber.module.css';
 
 const LivingParticleMark = dynamic(
   () => import('@/components/three/LivingParticleMark').then((module) => module.LivingParticleMark),
-  { ssr: false, loading: () => <div className="mark-stage" aria-hidden="true" /> },
+  {
+    ssr: false,
+    loading: () => (
+      <svg className={styles.gatewayMark} viewBox={`0 0 ${MARK_VIEW_BOX.width} ${MARK_VIEW_BOX.height}`} aria-hidden="true">
+        {MARK_PATHS.map((path) => <path key={path.id} d={path.d} />)}
+      </svg>
+    ),
+  },
 );
 
 /**
@@ -31,6 +40,7 @@ export function AuthScene({ phase }: { phase: ArrivalPhase }) {
           Same Three.js/R3F shader, same white particle motion, same mouse push,
           swirl, depth orbit and organic jitter. This is not a 2D approximation. */}
       <div className={`chamber__living-mark ${aligned ? 'is-aligned' : ''}`}>
+        <div className={styles.gateway} />
         <LivingParticleMark progress={0} />
       </div>
 

@@ -1,0 +1,298 @@
+{
+  "date": "2026-11-24",
+  "source": "C:/Users/day night/Downloads",
+  "original_count": 29,
+  "policy": "COPYFILE_EXCL; SHA-256 verified after copy; no existing unique file replaced",
+  "files": [
+    {
+      "source_filename": "ChatGPT Image Nov 23, 2026, 11_56_20 PM-1.png",
+      "local_file": "references/owner-curation-20261124/originals/ChatGPT Image Nov 23, 2026, 11_56_20 PM-1.png",
+      "sha256": "f41c7ddf404bcb85a13efc3b6d82f0860b2e992b04ac2b93525540cf48bfb98c",
+      "bytes": 1835288,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "ChatGPT Image Nov 23, 2026, 11_56_21 PM-2.png",
+      "local_file": "references/owner-curation-20261124/originals/ChatGPT Image Nov 23, 2026, 11_56_21 PM-2.png",
+      "sha256": "e93bda0d7b66f06755c3df9389a67260f6d5d8d02333833d3544659eb0cc0d17",
+      "bytes": 1894180,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "ChatGPT Image Nov 23, 2026, 11_56_22 PM-3.png",
+      "local_file": "references/owner-curation-20261124/originals/ChatGPT Image Nov 23, 2026, 11_56_22 PM-3.png",
+      "sha256": "64ab72d87b635329eb9d65f98f027a905a5ae37f18bf861183f080059c584340",
+      "bytes": 1877653,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "ChatGPT Image Nov 23, 2026, 11_56_23 PM-4.png",
+      "local_file": "references/owner-curation-20261124/originals/ChatGPT Image Nov 23, 2026, 11_56_23 PM-4.png",
+      "sha256": "9289aef85e101c87d14e1a3895df4f06687243133222f62ed3efc5f0198627e0",
+      "bytes": 1952906,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "ChatGPT Image Nov 23, 2026, 11_56_25 PM-5.png",
+      "local_file": "references/owner-curation-20261124/originals/ChatGPT Image Nov 23, 2026, 11_56_25 PM-5.png",
+      "sha256": "107465e84adc7eb8d6da0faaf4ab43626348bba56841f8056961fc40f77c4cab",
+      "bytes": 1889884,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "ChatGPT Image Nov 23, 2026, 11_56_26 PM-6.png",
+      "local_file": "references/owner-curation-20261124/originals/ChatGPT Image Nov 23, 2026, 11_56_26 PM-6.png",
+      "sha256": "d14221a4007694d9cf82f44e4573baad22ca3824622855ff5824812abc219073",
+      "bytes": 1945676,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "ChatGPT Image Nov 23, 2026, 11_56_27 PM-7.png",
+      "local_file": "references/owner-curation-20261124/originals/ChatGPT Image Nov 23, 2026, 11_56_27 PM-7.png",
+      "sha256": "c113f23b316abc0cc81a1331fa39352aa8109822b546b3b412630ff993ec42b6",
+      "bytes": 1915076,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "ChatGPT Image Nov 23, 2026, 11_56_28 PM-8.png",
+      "local_file": "references/owner-curation-20261124/originals/ChatGPT Image Nov 23, 2026, 11_56_28 PM-8.png",
+      "sha256": "e50a3934ca5eea92165a1608522b56fc0e02a694edf89eeab02e9256971ea2d1",
+      "bytes": 1892600,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "ChatGPT Image Nov 23, 2026, 11_56_29 PM-9.png",
+      "local_file": "references/owner-curation-20261124/originals/ChatGPT Image Nov 23, 2026, 11_56_29 PM-9.png",
+      "sha256": "7ef9c26731284a0fe034dcc7ca9ac474965dd5eab597a88d89f9916d91e29c1d",
+      "bytes": 1909821,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "ChatGPT Image Nov 23, 2026, 11_56_31 PM-10.png",
+      "local_file": "references/owner-curation-20261124/originals/ChatGPT Image Nov 23, 2026, 11_56_31 PM-10.png",
+      "sha256": "02fb8195ef04ef2385ded329b961ebc108e9985b472903bf34386de6bd7064dd",
+      "bytes": 2107339,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX Build Command Stage-13.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX Build Command Stage-13.png",
+      "sha256": "80f865920fd0bb8936c9976a5227a8738071267a7d8998e55a87b7b003685057",
+      "bytes": 2270797,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX Build Cosmic AI Workspace-15.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX Build Cosmic AI Workspace-15.png",
+      "sha256": "1316be77894657b4140f8503824a98fba05c7c806d549082ef38d7c09966d660",
+      "bytes": 2104726,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX Build Neon AI Workspace-8.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX Build Neon AI Workspace-8.png",
+      "sha256": "2913abe3c8abe22b76ca35e9244a7216e19e17e884f07a0db3043a68f74859eb",
+      "bytes": 2029318,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX Cosmic Provider Router-16.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX Cosmic Provider Router-16.png",
+      "sha256": "a22306ce535eb06c96d584cfa91062e92ca2f1393d5b7aa478ac79761aef61e2",
+      "bytes": 2051992,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX Growth Arabic Campaign Dashboard-11.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX Growth Arabic Campaign Dashboard-11.png",
+      "sha256": "0f713ff4499647a552c53300590534548c5a7a547a16db7eb531fcadaa4c1fa5",
+      "bytes": 1975203,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX Growth Campaign Studio-12.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX Growth Campaign Studio-12.png",
+      "sha256": "98c6d5b40d87bbb107338cb7c1439789d542de2eeb32012053838ffc161a0022",
+      "bytes": 2007663,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX Growth Campaign Studio-14.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX Growth Campaign Studio-14.png",
+      "sha256": "4ed5a3d352e47d7a29c90b58d50a14927e08e6dafa0e3a61d5d8430f8723b65c",
+      "bytes": 1915760,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX Growth Client Studio Dashboard.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX Growth Client Studio Dashboard.png",
+      "sha256": "1fa023d63d34be41aef9c00b84ee808e3f9316d61978c01f077d17b8da13641d",
+      "bytes": 1864210,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX Neon WordPress Marketplace-5.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX Neon WordPress Marketplace-5.png",
+      "sha256": "cb2322702345a07ccefad7a685c6d32ffbd8640e9dfa02bc1aca6ef12df5bb94",
+      "bytes": 2073807,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX Neon WordPress Marketplace-6.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX Neon WordPress Marketplace-6.png",
+      "sha256": "a7331aad9285392749a6f49427340206c50a243d2283cae770744be417777c5b",
+      "bytes": 2118481,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX One Platform Command Hub-7.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX One Platform Command Hub-7.png",
+      "sha256": "cc7e252387eb221cffdd689ceb389e7262a41d1a2b156129b97f949cf279e3ec",
+      "bytes": 2298550,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX WordPress Plugin Hub-10.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX WordPress Plugin Hub-10.png",
+      "sha256": "d07cb7af352581f7fa112ed84023922fb91015dca8175dc1725450192312785d",
+      "bytes": 2006527,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX WordPress Studio Dashboard-9.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX WordPress Studio Dashboard-9.png",
+      "sha256": "d4c9d12c8bd49d4469630e034c47a19e6c143d2d0002f697a8a19677f3b26bc2",
+      "bytes": 1917255,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX WordPress Studio in Cosmic UI-4.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX WordPress Studio in Cosmic UI-4.png",
+      "sha256": "0a8d2c5f172532189d43ae5eb141b6ecd9304c605ad528d33b2e24e247495df3",
+      "bytes": 2084494,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX WordPress Studio in Space-2.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX WordPress Studio in Space-2.png",
+      "sha256": "2fec2ebdad58918f76761f80bfdd4b863f0f0e3951573ae8179c4890289b1b13",
+      "bytes": 2296669,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX WordPress Studio_ Neon Arabic Workspace-1.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX WordPress Studio_ Neon Arabic Workspace-1.png",
+      "sha256": "e3a245e427ba2ec83250edfbaef842f66ded63a980be22c8bb476d7325c08457",
+      "bytes": 2335956,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "KNOUX WordPress Studio_ Neon Cosmic UI-3.png",
+      "local_file": "references/owner-curation-20261124/originals/KNOUX WordPress Studio_ Neon Cosmic UI-3.png",
+      "sha256": "d47032d2be124ec6fbcae73bf4d6868803345cf892a5a25593347fc8a142c781",
+      "bytes": 2327435,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "knoux_provider_constellation_dashboard.png",
+      "local_file": "references/owner-curation-20261124/originals/knoux_provider_constellation_dashboard.png",
+      "sha256": "40f92e09b1f176c5a732b32e690d663262272f5f6747a1829af11b2b6a89ff38",
+      "bytes": 2105549,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    },
+    {
+      "source_filename": "knoux_provider_intelligence_dashboard.png",
+      "local_file": "references/owner-curation-20261124/originals/knoux_provider_intelligence_dashboard.png",
+      "sha256": "c970c41d0b459147bc6f6947144f36dcabdb8ae81d7433020d0c91a4aa5d081d",
+      "bytes": 2195677,
+      "width": 1672,
+      "height": 941,
+      "provenance": "Owner-supplied original PNG from Windows Downloads; imported byte-for-byte",
+      "import_status": "IMPORTED"
+    }
+  ]
+}

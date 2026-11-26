@@ -1,0 +1,74 @@
+[
+  {
+    "width": 1920,
+    "height": 1080,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-10/after-1920x1080.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "operationsScreenshot": "references/store-20261123/qa/screen-10/operations-1920x1080.png",
+    "actualEndpointStatus": 403,
+    "authorization": "required",
+    "formAvailable": false
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-10/after-1440x900.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "operationsScreenshot": "references/store-20261123/qa/screen-10/operations-1440x900.png",
+    "actualEndpointStatus": 403,
+    "authorization": "required",
+    "formAvailable": false
+  },
+  {
+    "width": 1024,
+    "height": 768,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-10/after-1024x768.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "operationsScreenshot": "references/store-20261123/qa/screen-10/operations-1024x768.png",
+    "actualEndpointStatus": 403,
+    "authorization": "required",
+    "formAvailable": false
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-10/after-768x1024.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "operationsScreenshot": "references/store-20261123/qa/screen-10/operations-768x1024.png",
+    "actualEndpointStatus": 403,
+    "authorization": "required",
+    "formAvailable": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-10/after-390x844.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "operationsScreenshot": "references/store-20261123/qa/screen-10/operations-390x844.png",
+    "actualEndpointStatus": 403,
+    "authorization": "required",
+    "formAvailable": false
+  },
+  {
+    "width": 360,
+    "height": 800,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-10/after-360x800.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "operationsScreenshot": "references/store-20261123/qa/screen-10/operations-360x800.png",
+    "actualEndpointStatus": 403,
+    "authorization": "required",
+    "formAvailable": false
+  }
+]

@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { LivingParticleField } from '@/components/three/LivingParticleMark';
 import { qualityEvent, type QualityTier } from '@/components/QualityControl';
 import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
+import styles from './AboutOriginRoom.module.css';
 
 type AnchorId = 'identity' | 'build' | 'work' | 'method' | 'founder';
 type Phase = 'closed' | 'waking' | 'ready';
@@ -26,6 +27,8 @@ const anchors: ReadonlyArray<{
     label: 'LIVING MARK',
     title: 'Who we are',
     body: 'KNOuX is a digital headquarters. Eight divisions share one data model, one motion grammar and one engineering practice.',
+    href: '#institutional-wings',
+    action: 'Explore the eight wings',
   },
   {
     id: 'build',
@@ -178,12 +181,21 @@ function RoomArchitecture({ mobile }: { mobile: boolean }) {
     <group>
       <mesh position={[0, -2.75, -0.2]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[18, 16]} />
-        <meshStandardMaterial color="#090a0c" roughness={0.96} metalness={0.02} />
+        <meshStandardMaterial color="#272136" roughness={0.4} metalness={0.38} />
       </mesh>
       <mesh position={[0, 0.35, -5.55]}>
         <planeGeometry args={[18, 8.2]} />
-        <meshStandardMaterial color="#08090b" roughness={1} />
+        <meshStandardMaterial color="#231a34" roughness={0.74} />
       </mesh>
+      {[-5.8, -2.9, 0, 2.9, 5.8].map((x) => (
+        <group key={x} position={[x, 0, -5.35]}>
+          <mesh scale={[0.035, 5.4, 0.04]}>
+            <boxGeometry />
+            <meshBasicMaterial color={x === 0 ? '#ac78ee' : '#5a3d7c'} />
+          </mesh>
+          <Line position={[0, -2.69, 4.5]} scale={[0.032, 0.018, 9]} violet />
+        </group>
+      ))}
       {!mobile && (
         <>
           <mesh position={[-7.1, 0, -1.6]} rotation={[0, Math.PI / 2, 0]}>
@@ -320,6 +332,7 @@ function Chamber({
   phase,
   reduced,
   selected,
+  cameraFocus,
   onSelect,
   onReady,
   budget,
@@ -328,6 +341,7 @@ function Chamber({
   phase: Phase;
   reduced: boolean;
   selected: AnchorId | null;
+  cameraFocus: AnchorId | null;
   onSelect: (id: AnchorId) => void;
   onReady: () => void;
   budget: number;
@@ -363,10 +377,10 @@ function Chamber({
     const architecture = THREE.MathUtils.smoothstep(amount, 0.18, 1);
     const markStage = THREE.MathUtils.smoothstep(amount, 0.22, 1);
 
-    if (lampLight.current) lampLight.current.intensity = 7.2 * Math.pow(amount, 1.45);
-    if (ambient.current) ambient.current.intensity = 0.01 + 0.22 * architecture;
-    if (coolFill.current) coolFill.current.intensity = 0.05 + 0.72 * architecture;
-    if (markFill.current) markFill.current.intensity = 0.42 * markStage;
+    if (lampLight.current) lampLight.current.intensity = 13 * Math.pow(amount, 1.45);
+    if (ambient.current) ambient.current.intensity = 0.12 + 0.63 * architecture;
+    if (coolFill.current) coolFill.current.intensity = 0.17 + 1.15 * architecture;
+    if (markFill.current) markFill.current.intensity = 7 * markStage;
     if (bulb.current) bulb.current.emissiveIntensity = 0.02 + 4.8 * amount;
 
     if (phase === 'waking' && amount > 0.965 && !notified.current) {
@@ -376,16 +390,16 @@ function Chamber({
 
     if (phase === 'closed') notified.current = false;
 
-    const focus = selected ? anchorPosition(selected, mobile) : ([0.45, -0.15, -1.8] as [number, number, number]);
-    const xTravel = mobile ? 0.18 : 0.22;
+    const focus = cameraFocus ? anchorPosition(cameraFocus, mobile) : ([0.45, -0.15, -1.8] as [number, number, number]);
+    const xTravel = mobile ? 0.23 : 0.36;
     cameraTarget.current.set(
       focus[0] * xTravel,
       0.45 + focus[1] * 0.12,
-      selected ? (mobile ? 11.6 : 10.7) : (mobile ? 12.2 : 11.6),
+      cameraFocus ? (mobile ? 11.6 : 10) : (mobile ? 12.2 : 11.6),
     );
     camera.position.lerp(cameraTarget.current, reduced ? 1 : 1 - Math.exp(-2.4 * step));
     lookTarget.current.set(
-      focus[0] * (mobile ? 0.28 : 0.34),
+      focus[0] * (mobile ? 0.31 : 0.55),
       focus[1] * 0.2 - 0.1,
       focus[2] * 0.28,
     );
@@ -408,13 +422,13 @@ function Chamber({
       <directionalLight
         ref={coolFill}
         position={[4.2, 5.5, 5]}
-        color="#c5c8d2"
+        color="#bf9fef"
         intensity={0.04}
       />
       <pointLight
         ref={markFill}
         position={[1.1, 0.25, -0.7]}
-        color="#88799a"
+        color="#a77aff"
         intensity={0}
         distance={5.5}
         decay={2}
@@ -452,14 +466,27 @@ function Chamber({
 
 export function AboutOriginRoom() {
   const host = useRef<HTMLElement>(null);
+  const anchorButtons = useRef<(HTMLButtonElement | null)[]>([]);
   const [phase, setPhase] = useState<Phase>('closed');
   const [selected, setSelected] = useState<AnchorId | null>(null);
+  const [cameraFocus, setCameraFocus] = useState<AnchorId | null>(null);
   const [reduced, setReduced] = useState(false);
   const [quality, setQuality] = useState<QualityTier>('auto');
   const [supported, setSupported] = useState<boolean | null>(null);
   const [visible, setVisible] = useState(true);
   const [mobile, setMobile] = useState(false);
-  const selectedAnchor = anchors.find((anchor) => anchor.id === selected);
+  const selectedIndex = anchors.findIndex((anchor) => anchor.id === selected);
+  const selectedAnchor = anchors[selectedIndex];
+
+  const inspect = (id: AnchorId) => {
+    setSelected(id);
+    setCameraFocus(id);
+  };
+  const returnToRoom = useCallback(() => {
+    setSelected(null);
+    setCameraFocus(null);
+    anchorButtons.current[selectedIndex]?.focus({ preventScroll: true });
+  }, [selectedIndex]);
 
   useEffect(() => {
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -503,22 +530,28 @@ export function AboutOriginRoom() {
   useEffect(() => {
     if (!selected) return;
     const escape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setSelected(null);
+      if (event.key !== 'Escape' || event.defaultPrevented) return;
+      if (document.activeElement === document.body || host.current?.contains(document.activeElement)) returnToRoom();
     };
     document.addEventListener('keydown', escape);
     return () => document.removeEventListener('keydown', escape);
-  }, [selected]);
+  }, [selected, returnToRoom]);
 
   useEffect(() => {
-    if (supported !== false || phase !== 'waking') return;
-    const timer = window.setTimeout(() => setPhase('ready'), reduced ? 0 : 650);
+    if (phase !== 'waking') return;
+    const timer = window.setTimeout(() => setPhase('ready'), reduced ? 0 : supported === false ? 650 : 1800);
     return () => window.clearTimeout(timer);
   }, [supported, phase, reduced]);
 
   const enter = () => {
     setSelected(null);
+    setCameraFocus(null);
     setPhase('waking');
   };
+
+  useEffect(() => {
+    if (phase === 'ready' && document.activeElement === document.body) anchorButtons.current[0]?.focus({ preventScroll: true });
+  }, [phase]);
 
   const cores = typeof navigator !== 'undefined' ? navigator.hardwareConcurrency || 8 : 8;
   const tier = quality === 'auto' ? (cores <= 4 ? 'low' : 'balanced') : quality;
@@ -534,6 +567,7 @@ export function AboutOriginRoom() {
 
   const classes = [
     'origin-room',
+    styles.room,
     'origin-room--' + phase,
     selected ? 'origin-room--inspecting' : '',
     selected === 'work' || selected === 'founder' ? 'origin-room--focus-right' : '',
@@ -555,13 +589,13 @@ export function AboutOriginRoom() {
               powerPreference: tier === 'low' ? 'low-power' : 'high-performance',
             }}
             onCreated={({ gl }) => gl.setClearColor('#0a0616')}
-            onPointerMissed={() => setSelected(null)}
           >
             <Chamber
               phase={phase}
               reduced={reduced}
               selected={selected}
-              onSelect={setSelected}
+              cameraFocus={cameraFocus}
+              onSelect={inspect}
               onReady={() => setPhase('ready')}
               budget={budget}
               mobile={mobile}
@@ -616,12 +650,13 @@ export function AboutOriginRoom() {
           {phase === 'ready' && (
             <>
               <div className="origin-room__anchors" role="group" aria-label="Inspect the institution">
-                {anchors.map((anchor) => (
+                {anchors.map((anchor, index) => (
                   <button
                     key={anchor.id}
                     type="button"
                     aria-pressed={selected === anchor.id}
-                    onClick={() => setSelected(anchor.id)}
+                    ref={(element) => { anchorButtons.current[index] = element; }}
+                    onClick={() => inspect(anchor.id)}
                   >
                     <span>
                       {anchor.index} / {anchor.label}
@@ -637,20 +672,25 @@ export function AboutOriginRoom() {
                     <span>
                       {selectedAnchor.index} / {selectedAnchor.label}
                     </span>
-                    <button type="button" onClick={() => setSelected(null)} aria-label="Return to room">
+                    <button type="button" onClick={returnToRoom} aria-label="Close record">
                       ×
                     </button>
                   </div>
-                  <h2>{selectedAnchor.title}</h2>
-                  <p>{selectedAnchor.body}</p>
+                  <div aria-live="polite" aria-atomic="true">
+                    <h2>{selectedAnchor.title}</h2>
+                    <p>{selectedAnchor.body}</p>
+                  </div>
                   {selectedAnchor.href && (
                     <Link href={selectedAnchor.href}>
                       {selectedAnchor.action} <span aria-hidden="true">↗</span>
                     </Link>
                   )}
-                  <button className="origin-room__return" type="button" onClick={() => setSelected(null)}>
-                    ← RETURN TO ROOM
-                  </button>
+                  <div className={styles.controls}>
+                    <button type="button" onClick={() => inspect(anchors[(selectedIndex + anchors.length - 1) % anchors.length].id)}>Previous record</button>
+                    <button type="button" onClick={() => inspect(anchors[(selectedIndex + 1) % anchors.length].id)}>Next record</button>
+                    {supported && <button type="button" onClick={() => setCameraFocus(null)}>Reset camera</button>}
+                    <button type="button" onClick={returnToRoom}>Return to room</button>
+                  </div>
                 </aside>
               )}
             </>

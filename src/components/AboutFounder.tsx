@@ -13,12 +13,12 @@ export function AboutFounder() {
           <h2 id="founder-title">Sadek<br /><em>Elgazar.</em></h2>
           <p className={styles.role}>Founder &amp; Software Developer</p>
           <p className={styles.statement}>Software engineering and product building, brought together in one connected institution.</p>
-          <div className={styles.practice}>
-            <span>ENGINEERING</span><span>PRODUCT BUILDING</span><span>KNOuX SYSTEMS</span>
-          </div>
           <div className={styles.links}>
             <Link className="action" href="/contact">Contact KNOuX <span aria-hidden="true">↗</span></Link>
             <Link className="action" href="/work">Explore verified work <span aria-hidden="true">↗</span></Link>
+            <Link className="action" href="/products">Product portfolio <span aria-hidden="true">↗</span></Link>
+            <Link className="action" href="/engineering">Engineering practice <span aria-hidden="true">↗</span></Link>
+            <Link className="action" href="#about-point-of-view">Institutional point of view <span aria-hidden="true">↑</span></Link>
           </div>
         </div>
       </div>

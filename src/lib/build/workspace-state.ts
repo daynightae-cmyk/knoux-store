@@ -19,6 +19,7 @@
 import { clamp01 } from './spatial';
 import { parseEngineeringPlan, type EngineeringSession } from './engineering-plan';
 import { canTransitionPlan } from './generator-state';
+import { isKnouxBuildMode } from './knoux-modes';
 import { DEFAULT_PREFERENCES, type WorkspacePreferences } from './preferences';
 import type { IntegrationSnapshot } from './integration-types';
 import type {
@@ -105,6 +106,7 @@ export type BuildWorkspaceState = {
   preview: PreviewState;
   ai: {
     generationProfile: import('./profile').GenerationProfile;
+    buildMode: import('./knoux-modes').KnouxBuildMode;
     mode: SenshialMode;
     routingMode: RoutingMode;
     task: TaskClass;
@@ -213,6 +215,7 @@ export const initialBuildState: BuildWorkspaceState = {
   preview: { url: null, viewport: DEFAULT_PREVIEW_VIEWPORT, refreshKey: 0, consoleState: 'idle' },
   ai: {
     generationProfile: 'BALANCED',
+    buildMode: 'PRO',
     mode: 'ask',
     routingMode: 'auto',
     task: 'general',
@@ -269,6 +272,7 @@ export type BuildAction =
   | { type: 'diagnostic/select'; id: string | null }
   | { type: 'engineering/begin'; requestId: string; context: NonNullable<EngineeringSession['context']>; requested?: EngineeringSession['requested'] }
   | { type: 'ai/profile'; profile: import('./profile').GenerationProfile }
+  | { type: 'ai/build-mode'; buildMode: import('./knoux-modes').KnouxBuildMode }
   | { type: 'engineering/update'; patch: Partial<EngineeringSession>; requestId?: string | null }
   | { type: 'ai/mode'; mode: SenshialMode }
   | { type: 'ai/routing-mode'; mode: RoutingMode }
@@ -288,10 +292,37 @@ export type BuildAction =
   | { type: 'runtime/resolved'; runtime: RuntimeProcess }
   | { type: 'reset' };
 
+/**
+ * A proposal compiled before the workspace facts were first measured carries
+ * an empty checkout context. The initial measurement identifies the checkout
+ * the user was already working in — it is not a checkout switch — so the
+ * session adopts that first measurement instead of being discarded by the
+ * checkout scope guard. Project and git facts arrive independently, so the
+ * context keeps completing until both are measured; a context that already
+ * names a fully measured checkout is never rewritten here. Only a real
+ * switch (project/activate) replaces a measured context.
+ */
+function adoptInitialCheckout(state: BuildWorkspaceState): BuildWorkspaceState {
+  const context = state.engineering.context as (NonNullable<EngineeringSession['context']> & { projectRef?: string | null; projectId?: string | null; headSha?: string | null }) | null;
+  if (!context || !state.engineering.plan || !state.project || !state.git) return state;
+  const belongsToThisCheckout = context.projectRef === state.projectRef
+    && (context.projectId === null || context.projectId === (state.project.id ?? null));
+  const alreadyMeasured = context.projectId !== null && context.branch !== null && context.headSha !== null;
+  if (!belongsToThisCheckout || alreadyMeasured) return state;
+  return {
+    ...state,
+    engineering: {
+      ...state.engineering,
+      context: { ...context, projectId: state.project.id ?? null, project: state.project.name ?? null, worktree: state.project.root ?? null, branch: state.git.branch ?? null, headSha: state.git.headSha ?? null },
+    },
+  };
+}
+
 export function buildReducer(state: BuildWorkspaceState, action: BuildAction): BuildWorkspaceState {
   switch (action.type) {
     case 'engineering/begin': return { ...state, engineering: { ...initialBuildState.engineering, host: state.engineering.host, requestId: action.requestId, context: action.context, requested: action.requested ?? null, stage: 'RESOLVING' } };
     case 'ai/profile': return { ...state, ai: { ...state.ai, generationProfile: action.profile } };
+    case 'ai/build-mode': return isKnouxBuildMode(action.buildMode) ? { ...state, ai: { ...state.ai, buildMode: action.buildMode } } : state;
     case 'engineering/update': {
       if (action.requestId && action.requestId !== state.engineering.requestId) return state;
       if (action.patch.stage && !canTransitionPlan(state.engineering.stage, action.patch.stage)) return state;
@@ -323,9 +354,9 @@ export function buildReducer(state: BuildWorkspaceState, action: BuildAction): B
         },
       };
     case 'project/resolved':
-      return { ...state, project: action.project, graph: action.graph };
+      return adoptInitialCheckout({ ...state, project: action.project, graph: action.graph });
     case 'git/resolved':
-      return { ...state, git: action.git, project: state.project ? { ...state.project, currentBranch: action.git.branch, headSha: action.git.headSha } : state.project };
+      return adoptInitialCheckout({ ...state, git: action.git, project: state.project ? { ...state.project, currentBranch: action.git.branch, headSha: action.git.headSha } : state.project });
     case 'environment/resolved':
       return { ...state, environment: { signals: action.signals, fetchedAt: action.fetchedAt } };
     case 'database/resolved':

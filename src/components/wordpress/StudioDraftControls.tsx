@@ -8,7 +8,7 @@ const SESSION_DRAFT = 'knoux-wordpress-active-draft';
 
 export function StudioDraftControls({ visible, title, snapshot, onRestore }: {
   visible: boolean;
-  title: string;
+  title: string | (() => string);
   snapshot: (previous: WordPressDraftDocument | undefined) => WordPressDraftDocument;
   onRestore: (draft: WordPressDraft) => void;
 }) {
@@ -18,12 +18,17 @@ export function StudioDraftControls({ visible, title, snapshot, onRestore }: {
   const [pending, setPending] = useState(false);
   const [conflict, setConflict] = useState(false);
   const [message, setMessage] = useState('');
+  const [restoring, setRestoring] = useState(true);
   const creationId = useRef<string | undefined>(undefined);
+  const busy = useRef(false);
 
   useEffect(() => {
     let id: string | null;
-    try { id = sessionStorage.getItem(SESSION_DRAFT); } catch { return; }
-    if (!isWordPressDraftId(id)) return;
+    try { id = sessionStorage.getItem(SESSION_DRAFT); } catch { id = null; }
+    if (!isWordPressDraftId(id)) {
+      void Promise.resolve().then(() => setRestoring(false));
+      return;
+    }
     const controller = new AbortController();
     void openStudioDraft(id, controller.signal).then((saved) => {
       if (controller.signal.aborted) return;
@@ -32,6 +37,8 @@ export function StudioDraftControls({ visible, title, snapshot, onRestore }: {
       setMessage('Saved draft restored.');
     }).catch((error) => {
       if (!controller.signal.aborted) setMessage(error instanceof Error ? error.message : 'Draft could not be restored.');
+    }).finally(() => {
+      if (!controller.signal.aborted) setRestoring(false);
     });
     return () => controller.abort();
   }, [onRestore]);
@@ -44,18 +51,19 @@ export function StudioDraftControls({ visible, title, snapshot, onRestore }: {
   }
 
   async function run(operation: () => Promise<void>) {
-    if (pending) return;
+    if (busy.current || restoring) return;
+    busy.current = true;
     setPending(true);
     setMessage('');
     try { await operation(); } catch (error) {
       if (error instanceof WordPressStudioRequestError && error.status === 409) setConflict(true);
       setMessage(error instanceof Error ? error.message : 'Draft operation could not be confirmed.');
-    } finally { setPending(false); }
+    } finally { busy.current = false; setPending(false); }
   }
 
   function save() {
-    const payload = { id: draft?.id ?? (creationId.current ??= crypto.randomUUID()), title, document: snapshot(draft?.document) };
     void run(async () => {
+      const payload = { id: draft?.id ?? (creationId.current ??= crypto.randomUUID()), title: typeof title === 'function' ? title() : title, document: snapshot(draft?.document) };
       const saved = await writeStudioDraft(draft ? { ...payload, expectedRevision: draft.revision } : payload);
       select(saved, false);
       setMessage('Draft saved.');
@@ -80,8 +88,8 @@ export function StudioDraftControls({ visible, title, snapshot, onRestore }: {
 
   return (
     <section hidden={!visible} aria-label="WordPress draft storage">
-      <button type="button" disabled={pending || conflict} onClick={save}>Save site draft</button>
-      <button type="button" disabled={pending} onClick={() => list(0)}>List saved drafts</button>
+      <button type="button" disabled={pending || restoring || conflict} onClick={save}>Save site draft</button>
+      <button type="button" disabled={pending || restoring} onClick={() => list(0)}>List saved drafts</button>
       {items.map((item) => (
         <button key={item.id} type="button" disabled={pending} onClick={() => load(item.id)}>Open {item.title}</button>
       ))}

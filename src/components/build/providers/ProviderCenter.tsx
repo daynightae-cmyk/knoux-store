@@ -14,7 +14,7 @@ import { PlatformFacts } from './PlatformFacts';
 import { CustomMetadata } from './CustomMetadata';
 import { providerMark } from './provider-marks';
 import { cueAtmosphere } from '../dev/living-atmosphere';
-const classes = [['ALL', 'All providers'], ['INTELLIGENCE', 'Intelligence'], ['CODING_AGENT', 'Coding agents'], ['LOCAL', 'Local'], ['CUSTOM', 'Custom']] as const;
+const classes = [['ALL', 'All providers'], ['INTELLIGENCE', 'Intelligence'], ['CONNECTED', 'Connected'], ['FREE_MODELS', 'Free models'], ['CODING_AGENT', 'Coding agents'], ['VISION', 'Vision'], ['LOCAL', 'Local models'], ['CUSTOM', 'Custom']] as const;
 const unknown = 'UNKNOWN · not reported';
 const consoleProvider = 'opencode-console-v2';
 // Providers arranged evenly around a large slow-orbiting circle (angle in degrees, 0 = top).
@@ -29,14 +29,18 @@ function ProviderMark({ definition }: { definition: ProviderDefinition }) {
     const mark = providerMark(definition.id);
     return <span className={styles.orbit} data-mark={mark} data-provider={definition.id} aria-hidden="true">{mark ? <Image src={`/providers/${mark}.svg`} alt="" width={26} height={26} loading="eager" /> : definition.id === 'groq' || definition.id === 'grok' ? definition.name : definition.class === 'CODING_AGENT' ? '⌘' : definition.class === 'LOCAL' ? '◉' : '✦'}</span>;
 }
-export function ProviderCenter({ embedded = false }: Readonly<{
+export function ProviderCenter({ embedded = false, initialDefinitions = [] }: Readonly<{
     embedded?: boolean;
+    initialDefinitions?: readonly ProviderDefinition[];
 }>) {
     const { dispatch } = useBuildWorkspace();
     const [celebration, setCelebration] = useState<{name: string; sequence: number} | null>(null);
     const [data, setData] = useState<ProviderWorkspaceSnapshot | null>(null), [message, setMessage] = useState(''), [busy, setBusy] = useState(false);
-    const [search, setSearch] = useState(''), [category, setCategory] = useState('ALL'), [selected, setSelected] = useState(''), [tab, setTab] = useState('Overview');
+    const defaultProvider = initialDefinitions.some(item => item.id === consoleProvider) ? consoleProvider : '';
+    const [search, setSearch] = useState(''), [category, setCategory] = useState('ALL'), [selected, setSelected] = useState(defaultProvider), [tab, setTab] = useState(defaultProvider ? 'Credentials' : 'Overview');
     const [orbitPage, setOrbitPage] = useState(0);
+    const [mode, setMode] = useState<'constellation' | 'catalog'>('constellation');
+    const isConstellation = !embedded && mode === 'constellation';
 
     const [wizard, setWizard] = useState(false), [profileName, setProfileName] = useState(''), [authMode, setAuthMode] = useState<AuthSource['mode']>('API_KEY'), [credentialId, setCredentialId] = useState(''), [reference, setReference] = useState('');
     const [editProfile, setEditProfile] = useState<{
@@ -66,11 +70,6 @@ export function ProviderCenter({ embedded = false }: Readonly<{
                 const result = await response.json();
                 if (result.definitions) {
                     setData(result);
-                    if (!embedded && (result as ProviderWorkspaceSnapshot).definitions.some(item => item.id === consoleProvider)) {
-                        setSelected(consoleProvider);
-                        setTab('Credentials');
-                        if (window.matchMedia('(max-width: 650px)').matches && providerBrowse.current) providerBrowse.current.open = false;
-                    }
                 }
                 else
                     setMessage(result.message ?? 'Provider persistence unavailable. No fixtures were substituted.');
@@ -82,17 +81,28 @@ export function ProviderCenter({ embedded = false }: Readonly<{
         }
         void initialize();
         return () => controller.abort();
-    }, [embedded]);
+    }, []);
     useEffect(() => {
         if (wizard && !dialog.current?.open)
             dialog.current?.showModal();
         if (!wizard && dialog.current?.open)
             dialog.current.close();
     }, [wizard]);
-    const definitions = data?.definitions ?? [], definition = definitions.find(item => item.id === selected), profiles = data?.profiles.filter(item => item.providerId === selected) ?? [];
+    const definitions = data?.definitions ?? initialDefinitions, definition = definitions.find(item => item.id === selected), profiles = data?.profiles.filter(item => item.providerId === selected) ?? [];
     const profile = profiles.find(item => item.active) ?? profiles[0], credentials = data?.credentials.filter(item => item.providerId === selected) ?? [], agent = data?.agents.find(item => item.id === selected);
     const writable = data?.persistence === 'AVAILABLE', vaultWritable = writable && data?.secretStore.writable;
-    const filtered = definitions.filter(item => (category === 'ALL' || item.class === category) && `${item.name} ${item.id} ${item.transport}`.toLowerCase().includes(search.toLowerCase()));
+    const query = search.trim().toLowerCase();
+    const filtered = definitions.filter(item => {
+        const ownProfiles = data?.profiles.filter(candidate => candidate.providerId === item.id) ?? [];
+        const models = ownProfiles.flatMap(candidate => candidate.models);
+        const matches = [item.name, item.id, item.transport, ...models.flatMap(model => [model.modelId, model.displayName])]
+            .some(value => value.toLowerCase().includes(query));
+        if (!matches) return false;
+        if (category === 'CONNECTED') return ownProfiles.some(candidate => candidate.active && providerConnectionLabel(candidate) === 'VERIFIED');
+        if (category === 'FREE_MODELS') return models.some(model => model.pricing.inputPerMillion === 0 && model.pricing.outputPerMillion === 0);
+        if (category === 'VISION') return models.some(model => model.modalities.imageInput);
+        return category === 'ALL' || item.class === category;
+    });
     if (!embedded) filtered.sort((a, b) => (providerOrder.get(a.id) ?? Infinity) - (providerOrder.get(b.id) ?? Infinity));
     // Compact orbit below 1000px: the reference hero stays the desktop authority,
     // while narrow screens keep a pageable, touch-sized shortcut surface.
@@ -167,7 +177,7 @@ export function ProviderCenter({ embedded = false }: Readonly<{
         setEditCredential('');
         setRotate(false);
     }
-    function closeWizard() { setWizard(false); setSecret(''); opener.current?.focus(); }
+    function closeWizard() { setWizard(false); setSecret(''); setEditProfile(null); opener.current?.focus(); }
     function openWizard(button: HTMLButtonElement, existing?: ProviderProfile) {
         if (!definition)
             return;
@@ -203,40 +213,73 @@ export function ProviderCenter({ embedded = false }: Readonly<{
         const saved = await command(existing ? { action: rotate ? 'CREDENTIAL_ROTATE' : 'CREDENTIAL_REPLACE', id: existing.id, version: existing.revision, secret } : { action: 'CREDENTIAL_CREATE', providerId: definition.id, name: credentialName, secret });
         if (saved) setSecret('');
     }
+    async function pasteSecret(field: HTMLElement) {
+        try {
+            const value = (await navigator.clipboard.readText()).trim();
+            if (field.isConnected && !inFlight.current) {
+                if (value.length > 8192) {
+                    setMessage('Clipboard text exceeds the credential field limit.');
+                    return;
+                }
+                setSecret(value);
+            }
+        } catch {
+            if (field.isConnected) setMessage('Clipboard access is unavailable. Paste directly into Secret key.');
+        }
+    }
     function update(patch: Record<string, unknown>) {
         if (profile)
             void command({ action: 'PROFILE_UPDATE', id: profile.id, version: profile.version, patch });
     }
     const models = (profile?.models ?? []).filter(model => (showAll || (model.modalities.text && model.lifecycle !== 'deprecated' && model.catalog?.buildEligible !== false)) && (!freeOnly || (model.pricing.inputPerMillion === 0 && model.pricing.outputPerMillion === 0)) && `${model.modelId} ${model.displayName}`.toLowerCase().includes(modelSearch.toLowerCase()));
-    const heading = <header className={styles.heading}><span className={styles.eyebrow}>PROVIDERS / AI ECOSYSTEM</span>{embedded ? <h2>Providers</h2> : <h1>Providers</h1>}</header>;
+    const heading = <header className={styles.heading}><span className={styles.eyebrow}>PROVIDERS / AI ECOSYSTEM</span>{embedded ? <h2>Providers</h2> : <h1>Provider Intelligence</h1>}</header>;
     const toolbar = <div className={styles.toolbar}><label className={styles.search}>Search providers<input type="search" value={search} onChange={event => { setSearch(event.target.value); if (providerBrowse.current) providerBrowse.current.open = true; }} placeholder="Provider, transport, agent…"/></label>{data?.workspaces?.length ? <label>Provider workspace<select disabled={busy} value={data.workspaceId ?? ''} onChange={event => void command({ action: 'WORKSPACE_SELECT' }, event.target.value)}>{data.workspaces.map(workspace => <option key={workspace.id} value={workspace.id}>{workspace.name}</option>)}</select></label> : null}<button type="button" disabled={busy} onClick={() => void load().catch(() => setMessage('Provider refresh failed.'))}>Refresh facts ↗</button>{writable ? <button type="button" disabled={busy} onClick={() => {
                 const name = window.prompt('New provider workspace name');
                 if (name)
                     void command({ action: 'WORKSPACE_CREATE', name });
             }}>Add workspace +</button> : null}</div>
     const controls = <>
-    {embedded ? heading : <h2>Providers</h2>}
+    {embedded || !isConstellation ? heading : <h2>Providers</h2>}
     {message ? <p role="status" className={styles.notice}>{message}</p> : null}
     {data?.persistence !== 'AVAILABLE' ? <p className={styles.notice}>{data?.persistence === 'AUTH_REQUIRED' ? <><Link href="/login">Sign in</Link> to manage your provider profiles. Operator environment providers remain available through the canonical runtime.</> : data?.blocker ?? 'Reading the authenticated provider registry…'}</p> : null}
-    <div className={styles.filters} role="group" aria-label="Provider class">{classes.map(([id, label]) => <button key={id} type="button" aria-pressed={category === id} onClick={() => { setCategory(id); setSelected(''); setTab('Overview'); if (providerBrowse.current)
+    <div className={styles.filters} role="group" aria-label="Provider class">{classes.map(([id, label]) => <button key={id} type="button" aria-pressed={category === id} onClick={() => { setCategory(id); setSelected(''); setTab('Overview'); if (wizard) closeWizard(); if (providerBrowse.current)
         providerBrowse.current.open = true; }}>{label}</button>)}</div>
     </>;
-    return <div className={`${styles.center} ${!embedded ? styles.standalone : ''} dev-route`}>
+    return <div className={`${styles.center} ${isConstellation ? styles.standalone : ''} dev-route`} data-provider-view={embedded ? undefined : mode}>
     {!embedded ? <nav className={styles.workspaceViews} aria-label="Build workspace views">
       {([['Build', 'genesis'], ['Preview', 'preview'], ['Registry', 'data']] as const).map(([label, surface]) => (
         <Link href="/build" key={surface} onClick={() => dispatch({ type: 'surface/active', surface })}>{label}</Link>
       ))}
     </nav> : null}
+    {!embedded ? <div className={styles.modeSwitch} role="group" aria-label="Provider view mode">
+      <button type="button" aria-pressed={isConstellation} onClick={() => setMode('constellation')}>Constellation</button>
+      <button type="button" aria-pressed={!isConstellation} onClick={() => setMode('catalog')}>Intelligence catalog</button>
+    </div> : null}
     <ProviderAuthFeedback celebration={celebration} />
-    {!embedded && <ProviderHero definitions={definitions} selected={selected} onSelect={item => { choose(item); requestAnimationFrame(() => { detail.current?.scrollIntoView({ block: "start" }); detail.current?.focus({ preventScroll: true }); }); }} onBrowse={() => { if (providerBrowse.current) { providerBrowse.current.open = true; providerBrowse.current.scrollIntoView({ block: "start" }); } }} onGetApi={() => { if (inFlight.current) return; if (definition) { setTab("Credentials"); requestAnimationFrame(() => { detail.current?.scrollIntoView({ block: "start" }); detail.current?.focus({ preventScroll: true }); }); } else { providerBrowse.current?.scrollIntoView({ block: "start" }); } }} />}
+    {isConstellation && <ProviderHero
+      definitions={definitions}
+      selected={selected}
+      connection={definition ? providerConnectionLabel(profile) : null}
+      discoveredModels={profile?.discoveredAt ? profile.models.length : null}
+      onSelect={choose}
+      onBrowse={() => setMode('catalog')}
+      onInspect={() => { detail.current?.scrollIntoView({ block: 'start' }); detail.current?.focus({ preventScroll: true }); }}
+      onGetApi={() => {
+        if (inFlight.current) return;
+        if (!definition) { setMode('catalog'); return; }
+        setTab('Credentials');
+        requestAnimationFrame(() => { detail.current?.scrollIntoView({ block: 'start' }); detail.current?.focus({ preventScroll: true }); });
+      }}
+    />}
     {embedded ? <>{controls}{toolbar}<PlatformFacts /></> : null}
-    <div className={`${styles.composition} ${!embedded && orbitProviders.length ? styles.withOrbit : ''}`}>
+    <div className={`${styles.composition} ${isConstellation && orbitProviders.length ? styles.withOrbit : ''}`}>
       <div className={styles.registryRail}>
       {embedded ? null : controls}
+      {!embedded && !isConstellation ? toolbar : null}
       <details ref={providerBrowse} className={styles.providerBrowse} open><summary>Browse providers &#8599;</summary><nav className={styles.providerList} aria-label="Provider registry">{filtered.map(item => { const own = data?.profiles.filter(profile => profile.providerId === item.id) ?? [], active = own.find(profile => profile.active); return <button key={item.id} type="button" aria-current={selected === item.id ? 'true' : undefined} onClick={() => choose(item)}><ProviderMark definition={item} /><span><strong>{item.name}</strong><small>{item.gateway ? 'GATEWAY · ' : ''}{item.class.replace('_', ' ')} · {active ? active.enabled ? 'PROFILE ACTIVE' : 'PROVIDER DISABLED' : own.length ? 'PROFILE INACTIVE' : 'UNCONFIGURED'}</small></span><span aria-hidden="true">↗</span></button>; })}{!filtered.length ? <p>{data ? 'No provider matches this search. Coding agents appear only from a paired trusted bridge.' : 'Provider registry is unavailable until its status has been read.'}</p> : null}</nav></details>
-      {embedded ? null : <details className={styles.registryUtilities}><summary>Search &amp; workspace</summary>{toolbar}<PlatformFacts /></details>}
+      {embedded ? null : <details className={styles.registryUtilities}><summary>{isConstellation ? 'Search & workspace' : 'Platform facts'}</summary>{isConstellation ? toolbar : null}<PlatformFacts /></details>}
       </div>
-      {!embedded && orbitProviders.length > 0 ? (
+      {isConstellation && orbitProviders.length > 0 ? (
         <aside className={styles.providerOrbit} aria-label="Provider shortcuts">
           <div className={styles.compactOrbit}>
             <div className={styles.compactTrack} aria-hidden="true" />
@@ -282,7 +325,20 @@ export function ProviderCenter({ embedded = false }: Readonly<{
                     }}>Revoke {item.name}</button><button type="button" disabled={!writable || busy || item.referencedBy.length > 0} title={item.referencedBy.length ? 'Remove all profile bindings before deletion.' : undefined} onClick={() => {
                         if (window.confirm('Permanently delete this unreferenced credential?'))
                             void command({ action: 'CREDENTIAL_DELETE', id: item.id, version: item.revision });
-                    }}>Delete {item.name}</button></div></article>)}<form className={styles.form} onSubmit={event => void saveSecret(event)}><h4>{editCredential ? rotate ? 'Rotate credential' : 'Replace credential' : 'Add credential'}</h4>{!editCredential ? <label>Credential name<input required maxLength={80} value={credentialName} onChange={event => setCredentialName(event.target.value)}/></label> : <button type="button" onClick={() => { setEditCredential(''); setSecret(''); }}>Add a different credential</button>}<div className={styles.secretField}><label htmlFor="provider-secret-key">Secret key</label><input id="provider-secret-key" type="password" autoComplete="new-password" required maxLength={8192} disabled={!vaultWritable} aria-describedby="provider-secret-key-hint" value={secret} onChange={event => setSecret(event.target.value)}/><span id="provider-secret-key-hint" className={styles.secretHint}>Paste the full key — typing is not required</span></div><p>No reveal control. Replacement and rotation invalidate dependent connection facts. The field clears after a successful save. Failed saves preserve the unsaved value in this form only.</p><button type="submit" disabled={!vaultWritable || busy}>{editCredential ? 'Save replacement' : 'SAVE API KEY'}</button></form></> : null}
+                    }}>Delete {item.name}</button></div></article>)}
+          <form key={`${definition.id}:${editCredential}`} className={styles.form} onSubmit={event => void saveSecret(event)}>
+            <h4>{editCredential ? rotate ? 'Rotate credential' : 'Replace credential' : 'Add credential'}</h4>
+            {!editCredential ? <label>Credential name<input required maxLength={80} value={credentialName} onChange={event => setCredentialName(event.target.value)}/></label> : <button type="button" onClick={clearCredentialDraft}>Add a different credential</button>}
+            <label htmlFor="provider-secret-key">Secret key
+              <input id="provider-secret-key" type="password" autoComplete="new-password" spellCheck={false} autoCapitalize="none" required maxLength={8192} disabled={!vaultWritable} value={secret} onChange={event => setSecret(event.target.value)}/>
+            </label>
+            <div className={styles.actions}>
+              <button type="button" disabled={!vaultWritable || busy} onClick={event => void pasteSecret(event.currentTarget)}>Paste from clipboard</button>
+            </div>
+            <p>The field clears after a successful save. Replacement and rotation reset dependent connection checks.</p>
+            <button type="submit" disabled={!vaultWritable || busy}>{editCredential ? 'Save replacement' : 'SAVE API KEY'}</button>
+          </form>
+        </> : null}
         {tab === 'Endpoint' ? <><h3>Endpoint binding</h3><p>{profile && 'endpoint' in profile.auth ? profile.auth.endpoint : 'No endpoint bound.'}</p><p>{definition.class === 'LOCAL' ? 'Loopback only, through an authorized local server. A hosted deployment cannot execute a runtime on your computer.' : 'Public HTTPS only. The server operator must allow the hostname; DNS is checked and the socket is pinned. Redirects are refused.'}</p>{profile ? <form className={styles.form} onSubmit={event => {
                         event.preventDefault();
                         const endpoint = String(new FormData(event.currentTarget).get('endpoint'));
@@ -301,6 +357,6 @@ export function ProviderCenter({ embedded = false }: Readonly<{
         </section>
       </>}</section>
     </div>
-    <dialog className={styles.dialog} ref={dialog} onCancel={event => { event.preventDefault(); closeWizard(); }} onClose={() => { setWizard(false); setSecret(''); }} aria-labelledby="provider-profile-title"><form className={styles.form} onSubmit={event => void createProfile(event)}><div className={styles.actions}><h2 id="provider-profile-title">{editProfile ? `Edit ${definition?.name} authentication` : `Add ${definition?.name} profile`}</h2><button type="button" onClick={closeWizard}>Close</button></div><label>Profile name<input autoFocus required maxLength={80} value={profileName} onChange={event => setProfileName(event.target.value)}/></label><label>Authentication source<select value={authMode} onChange={event => { setAuthMode(event.target.value as AuthSource['mode']); setReference(event.target.value === 'ENV_REFERENCE' ? definition?.environmentNames[0] ?? '' : ''); }}>{definition?.authModes.map(mode => <option key={mode} disabled={mode === 'ENV_REFERENCE' && !data?.operator}>{mode}</option>)}</select></label>{authMode === 'ENV_REFERENCE' ? <label>Declared environment name<select value={reference} onChange={event => setReference(event.target.value)}>{definition?.environmentNames.map(variable => <option key={variable}>{variable}</option>)}</select></label> : authMode === 'CLI_PROFILE' ? <label>CLI profile reference<input required maxLength={80} value={reference} onChange={event => setReference(event.target.value)}/></label> : <>{authMode === 'LOCAL_ENDPOINT' || authMode === 'CUSTOM_ENDPOINT' ? <label>Endpoint URL<input required type="url" value={reference} onChange={event => setReference(event.target.value)} placeholder={authMode === 'LOCAL_ENDPOINT' ? 'http://127.0.0.1:11434/v1' : 'https://approved-host.example/v1'}/></label> : null}<label>Stored credential<select value={credentialId} onChange={event => setCredentialId(event.target.value)}><option value="">Unconfigured / no credential</option>{credentials.filter(item => item.configured).map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><p>Add a write-only credential in Credentials first. No key is exposed by this selector.</p></>}<button type="submit" disabled={!writable || busy}>{editProfile ? "Save authentication" : "Create profile"}</button><p>New profiles are inactive until explicitly selected. Authentication and execution remain UNTESTED.</p></form></dialog>
+    <dialog className={styles.dialog} ref={dialog} onCancel={event => { event.preventDefault(); closeWizard(); }} onClose={() => { setWizard(false); setSecret(''); setEditProfile(null); }} aria-labelledby="provider-profile-title"><form className={styles.form} onSubmit={event => void createProfile(event)}><div className={styles.actions}><h2 id="provider-profile-title">{definition ? editProfile ? `Edit ${definition.name} authentication` : `Add ${definition.name} profile` : 'Provider profile'}</h2><button type="button" onClick={closeWizard}>Close</button></div><label>Profile name<input autoFocus required maxLength={80} value={profileName} onChange={event => setProfileName(event.target.value)}/></label><label>Authentication source<select value={authMode} onChange={event => { setAuthMode(event.target.value as AuthSource['mode']); setReference(event.target.value === 'ENV_REFERENCE' ? definition?.environmentNames[0] ?? '' : ''); }}>{definition?.authModes.map(mode => <option key={mode} disabled={mode === 'ENV_REFERENCE' && !data?.operator}>{mode}</option>)}</select></label>{authMode === 'ENV_REFERENCE' ? <label>Declared environment name<select value={reference} onChange={event => setReference(event.target.value)}>{definition?.environmentNames.map(variable => <option key={variable}>{variable}</option>)}</select></label> : authMode === 'CLI_PROFILE' ? <label>CLI profile reference<input required maxLength={80} value={reference} onChange={event => setReference(event.target.value)}/></label> : <>{authMode === 'LOCAL_ENDPOINT' || authMode === 'CUSTOM_ENDPOINT' ? <label>Endpoint URL<input required type="url" value={reference} onChange={event => setReference(event.target.value)} placeholder={authMode === 'LOCAL_ENDPOINT' ? 'http://127.0.0.1:11434/v1' : 'https://approved-host.example/v1'}/></label> : null}<label>Stored credential<select value={credentialId} onChange={event => setCredentialId(event.target.value)}><option value="">Unconfigured / no credential</option>{credentials.filter(item => item.configured).map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><p>Add a write-only credential in Credentials first. No key is exposed by this selector.</p></>}<button type="submit" disabled={!writable || busy}>{editProfile ? "Save authentication" : "Create profile"}</button><p>New profiles are inactive until explicitly selected. Authentication and execution remain UNTESTED.</p></form></dialog>
   </div>;
 }

@@ -1,11 +1,12 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AiCenterPage } from './AiCenterLayout';
 import { DevPanel } from '../dev/DevUI';
 import { useCanonicalModels } from '../generator/useCanonicalModels';
 import { ModelNavigator } from '../generator/ModelNavigator';
 import { effortSupport } from '@/lib/build/profile';
-import type { NormalizedModel, GenerationControls } from '@/lib/ai/types';
+import type { NormalizedModel, GenerationControls, CostEstimate } from '@/lib/ai/types';
+import { formatRuntimeCost, readRuntimeJson, readRuntimeStream } from './runtime-response';
 
 
 type GenerationResponse = {
@@ -13,10 +14,10 @@ type GenerationResponse = {
   text: string;
   finishReason: string | null;
   usage: { inputTokens: number | null; outputTokens: number | null; source: string } | null;
-  latencyMs: number;
+  latencyMs: number | null;
   ttftMs: number | null;
   modelUsed: string | null;
-  estimatedCost: { amount: number | null; basis: string } | null;
+  estimatedCost: CostEstimate | null;
   error: { category: string; safeMessage: string } | null;
   fallbackUsed: boolean;
   fallbackCount: number;
@@ -37,9 +38,17 @@ export function AiControlPage() {
   const [error, setError] = useState<string | null>(null);
   const [streaming, setStreaming] = useState(false);
   const [streamText, setStreamText] = useState('');
+  const requestRef = useRef<AbortController | null>(null);
+  useEffect(() => () => requestRef.current?.abort(), []);
 
   function exposedControls(): GenerationControls {
     if (!selected) return {};
+    if ((selected.controls.temperature && (!Number.isFinite(temp) || temp < 0 || temp > 2))
+      || (selected.controls.topP && (!Number.isFinite(topP) || topP < 0 || topP > 1))
+      || (selected.controls.maxTokens && (!Number.isSafeInteger(maxTokens) || maxTokens < 1))
+      || (selected.controls.seed && seed.trim() && !Number.isSafeInteger(Number(seed)))) {
+      throw new Error('Enter valid numeric controls before starting a provider request.');
+    }
     return {
       ...(selected.controls.temperature ? { temperature: temp } : {}),
       ...(selected.controls.topP ? { topP } : {}),
@@ -50,7 +59,9 @@ export function AiControlPage() {
   }
 
   async function generate() {
-    if (!selected || !prompt.trim() || loading) return;
+    if (!selected || !prompt.trim() || requestRef.current) return;
+    const controller = new AbortController();
+    requestRef.current = controller;
     setLoading(true);
     setError(null);
     setResponse(null);
@@ -60,27 +71,34 @@ export function AiControlPage() {
         modelId: selected.modelId,
         messages: [{ role: 'user', content: prompt }],
         controls: exposedControls(),
+        noFallback: true,
       };
       if (system) body.system = system;
       const res = await fetch('/api/build/ai/generate', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(body),
+        signal: controller.signal,
       });
-      const data: GenerationResponse = await res.json();
+      const data = await readRuntimeJson<GenerationResponse>(res);
+      if (typeof data.ok !== 'boolean') throw new Error('The runtime returned no generation receipt.');
       setResponse(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Generation failed');
+      setError(controller.signal.aborted ? 'Request cancelled.' : e instanceof Error ? e.message : 'Generation failed');
     } finally {
+      if (requestRef.current === controller) requestRef.current = null;
       setLoading(false); intelligence.refresh();
     }
   }
 
   async function stream() {
-    if (!selected || !prompt.trim() || streaming) return;
+    if (!selected || !prompt.trim() || requestRef.current) return;
+    const controller = new AbortController();
+    requestRef.current = controller;
     setStreaming(true);
     setStreamText('');
     setError(null);
+    setResponse(null);
     try {
       const body: Record<string, unknown> = {
         providerId: selected.providerId,
@@ -93,31 +111,21 @@ export function AiControlPage() {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(body),
+        signal: controller.signal,
       });
-      if (!res.ok || !res.body) { setError('Stream failed'); setStreaming(false); return; }
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed.startsWith('data: ')) continue;
-          try {
-            const chunk = JSON.parse(trimmed.slice(6));
-            if (chunk.error) { setError(chunk.error.safeMessage ?? 'Provider stream failed.'); await reader.cancel(); return; }
-            if (chunk.delta) setStreamText((prev) => prev + chunk.delta);
-            if (chunk.done) break;
-          } catch { /* skip */ }
-        }
-      }
+      let text = '';
+      const terminal = await readRuntimeStream(res, (chunk) => {
+        text += chunk.delta;
+        setStreamText(text);
+      });
+      setResponse({ ok: true, text, finishReason: terminal.finishReason, usage: terminal.usage,
+        latencyMs: terminal.latencyMs, ttftMs: terminal.ttftMs,
+        modelUsed: terminal.actualModelId ?? terminal.modelUsed ?? null,
+        estimatedCost: terminal.estimatedCost ?? null, error: null, fallbackUsed: false, fallbackCount: 0 });
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Stream failed');
+      setError(controller.signal.aborted ? 'Request cancelled.' : e instanceof Error ? e.message : 'Stream failed');
     } finally {
+      if (requestRef.current === controller) requestRef.current = null;
       setStreaming(false); intelligence.refresh();
     }
   }
@@ -175,12 +183,13 @@ export function AiControlPage() {
             <input className="dev-field" style={{ width: '100%', padding: 8, marginBottom: 8 }} placeholder="System prompt (optional)" value={system} onChange={(e) => setSystem(e.target.value)} />
             <textarea className="dev-field" style={{ width: '100%', minHeight: 80, padding: 12, fontFamily: 'inherit' }} placeholder="Enter your prompt…" value={prompt} onChange={(e) => setPrompt(e.target.value)} />
             <div className="dev-actions" style={{ marginTop: 8 }}>
-              <button type="button" className="bo-action bo-action--primary" disabled={loading} onClick={() => void generate()}>
+              <button type="button" className="bo-action bo-action--primary" disabled={loading || streaming || !prompt.trim()} onClick={() => void generate()}>
                 {loading ? 'GENERATING…' : 'GENERATE'}
               </button>
-              <button type="button" disabled={streaming} onClick={() => void stream()}>
+              <button type="button" disabled={loading || streaming || !prompt.trim()} onClick={() => void stream()}>
                 {streaming ? 'STREAMING…' : 'STREAM'}
               </button>
+              {loading || streaming ? <button type="button" onClick={() => requestRef.current?.abort()}>CANCEL REQUEST</button> : null}
             </div>
           </DevPanel>
 
@@ -202,9 +211,9 @@ export function AiControlPage() {
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
                   <span className="dev-tag" data-tone={response.ok ? 'ok' : 'bad'}>{response.ok ? 'OK' : 'FAIL'}</span>
                   <span className="dev-tag">{response.modelUsed ?? '—'}</span>
-                  <span className="dev-tag">{response.latencyMs}ms</span>
+                  <span className="dev-tag">{response.latencyMs === null ? 'latency unknown' : `${response.latencyMs}ms`}</span>
                   {response.usage ? <span className="dev-tag">{response.usage.inputTokens ?? '?'}→{response.usage.outputTokens ?? '?'} tok</span> : null}
-                  {response.estimatedCost?.amount != null ? <span className="dev-tag">{response.estimatedCost.basis} ${response.estimatedCost.amount.toFixed(6)}</span> : <span className="dev-tag">cost UNKNOWN</span>}
+                  <span className="dev-tag">{formatRuntimeCost(response.estimatedCost)}</span>
                   {response.fallbackCount > 0 ? <span className="dev-tag" data-tone="warn">fallback ×{response.fallbackCount}</span> : null}
                 </div>
                 {response.ok ? (

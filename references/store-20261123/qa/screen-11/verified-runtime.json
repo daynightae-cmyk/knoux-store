@@ -1,0 +1,74 @@
+[
+  {
+    "width": 1920,
+    "height": 1080,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-11/after-1920x1080.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "libraryScreenshot": "references/store-20261123/qa/screen-11/library-1920x1080.png",
+    "renderedPreviews": 2,
+    "journeySurvivesReload": true,
+    "sameStudio": true
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-11/after-1440x900.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "libraryScreenshot": "references/store-20261123/qa/screen-11/library-1440x900.png",
+    "renderedPreviews": 2,
+    "journeySurvivesReload": true,
+    "sameStudio": true
+  },
+  {
+    "width": 1024,
+    "height": 768,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-11/after-1024x768.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "libraryScreenshot": "references/store-20261123/qa/screen-11/library-1024x768.png",
+    "renderedPreviews": 2,
+    "journeySurvivesReload": true,
+    "sameStudio": true
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-11/after-768x1024.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "libraryScreenshot": "references/store-20261123/qa/screen-11/library-768x1024.png",
+    "renderedPreviews": 2,
+    "journeySurvivesReload": true,
+    "sameStudio": true
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-11/after-390x844.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "libraryScreenshot": "references/store-20261123/qa/screen-11/library-390x844.png",
+    "renderedPreviews": 2,
+    "journeySurvivesReload": true,
+    "sameStudio": true
+  },
+  {
+    "width": 360,
+    "height": 800,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-11/after-360x800.png",
+    "horizontalOverflow": false,
+    "errors": [],
+    "libraryScreenshot": "references/store-20261123/qa/screen-11/library-360x800.png",
+    "renderedPreviews": 2,
+    "journeySurvivesReload": true,
+    "sameStudio": true
+  }
+]

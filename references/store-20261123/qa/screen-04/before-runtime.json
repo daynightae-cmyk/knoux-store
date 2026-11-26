@@ -1,0 +1,86 @@
+[
+  {
+    "route": "starter-sites",
+    "width": 1920,
+    "height": 1080,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-04/before-starter-sites-1920x1080.png"
+  },
+  {
+    "route": "starter-sites",
+    "width": 1440,
+    "height": 900,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-04/before-starter-sites-1440x900.png"
+  },
+  {
+    "route": "starter-sites",
+    "width": 1024,
+    "height": 768,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-04/before-starter-sites-1024x768.png"
+  },
+  {
+    "route": "starter-sites",
+    "width": 768,
+    "height": 1024,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-04/before-starter-sites-768x1024.png"
+  },
+  {
+    "route": "starter-sites",
+    "width": 390,
+    "height": 844,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-04/before-starter-sites-390x844.png"
+  },
+  {
+    "route": "starter-sites",
+    "width": 360,
+    "height": 800,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-04/before-starter-sites-360x800.png"
+  },
+  {
+    "route": "blocks",
+    "width": 1920,
+    "height": 1080,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-04/before-blocks-1920x1080.png"
+  },
+  {
+    "route": "blocks",
+    "width": 1440,
+    "height": 900,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-04/before-blocks-1440x900.png"
+  },
+  {
+    "route": "blocks",
+    "width": 1024,
+    "height": 768,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-04/before-blocks-1024x768.png"
+  },
+  {
+    "route": "blocks",
+    "width": 768,
+    "height": 1024,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-04/before-blocks-768x1024.png"
+  },
+  {
+    "route": "blocks",
+    "width": 390,
+    "height": 844,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-04/before-blocks-390x844.png"
+  },
+  {
+    "route": "blocks",
+    "width": 360,
+    "height": 800,
+    "status": 200,
+    "screenshot": "references/store-20261123/qa/screen-04/before-blocks-360x800.png"
+  }
+]

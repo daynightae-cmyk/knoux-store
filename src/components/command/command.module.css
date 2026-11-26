@@ -1327,3 +1327,39 @@
 @media(max-width:1080px){.commandRail{display:none}.commandNavigationToggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:54px;padding:16px 20px;background:#16141a;color:var(--cc-ink);border:0}}
 
 .navigationDialog { padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); overscroll-behavior: contain; }
+
+.command[data-production] {
+  background: radial-gradient(ellipse at 70% 12%, #290e4c54, transparent 60%), #080516;
+}
+.command[data-production] .commandBar {
+  position: relative;
+  background: linear-gradient(100deg,#0c0621,#110921 62%,#16082c);
+  border-bottom-color: #c183ff56;
+}
+.command[data-production] .commandBody { display: block; }
+.command[data-production] .commandNavigationToggle {
+  display: inline-flex; align-items: center; gap: 8px; width: auto; min-height: 36px;
+  margin: 8px clamp(16px, 2.2vw, 38px) 0; padding: 6px 10px;
+  border-radius: 9px; border: 1px solid #9e77da70; color: #f3ddff; background: #170c2d;
+}
+.command[data-production] .commandNavigationToggle span { color: #cfb6f1; }
+.command[data-production] .commandHead {
+  position: relative; isolation: isolate; align-items: center; column-gap: 12px; row-gap: 7px;
+  margin-top: -14px; padding: 15px clamp(16px, 2.2vw, 38px) 20px;
+  border: 0; overflow: clip;
+}
+.command[data-production] .commandHead::before {
+  position: absolute; content: ''; z-index: -1; inset: 0 0 -100px 35%; pointer-events: none;
+  background: radial-gradient(ellipse at 83% 46%, #8737ef62, transparent 54%), url('/creative/build-v3-nebula.webp') center 81% / cover;
+  mask-image: linear-gradient(90deg,transparent 2%,#000 62%);
+}
+.command[data-production] .commandTitle { font-size: clamp(28px, 3.1vw, 50px); font-weight: 610; color: #f6edff; line-height: 1.06; }
+.command[data-production] .commandEyebrow { color: #dcc4f8; }
+.command[data-production] .commandHeadActions { gap: 7px; }
+@media (max-width: 720px) {
+  .command[data-production] .commandHead { margin-top: 0; padding-block: 12px; }
+  .command[data-production] .commandBar { display: flex; flex-wrap: nowrap; justify-content: space-between; }
+  .command[data-production] .commandStrip { flex: 0 0 auto; width: auto; }
+  .command[data-production] .commandStrip .commandFact:not(:last-child),
+  .command[data-production] .commandSub { display: none; }
+}

@@ -2,71 +2,47 @@
 import { useEffect, useState } from "react";
 import { AiCenterPage } from "./AiCenterLayout";
 import { DevPanel, DevEmpty } from "../dev/DevUI";
-
-type UsageRecord = {
-  id: string;
-  timestamp: string;
-  providerId: string;
-  modelId: string;
-  operation: string;
-  inputTokens: number | null;
-  outputTokens: number | null;
-  cachedTokens: number | null;
-  latencyMs: number | null;
-  ttftMs: number | null;
-  estimatedCost: { amount: number | null; basis: string } | null;
-  success: boolean;
-  errorCategory: string | null;
-  fallbackCount: number;
-};
-
-type UsageSummary = {
-  totalRequests: number;
-  totalInputTokens: number;
-  totalOutputTokens: number;
-  totalEstimatedCost: number | null;
-  byProvider: Record<
-    string,
-    { requests: number; tokens: number; cost: number | null }
-  >;
-  byModel: Record<
-    string,
-    { requests: number; tokens: number; cost: number | null }
-  >;
-  costBasis: string;
-};
+import { readRuntimeJson } from './runtime-response';
+import type { UsageRecord, UsageSummary } from '@/lib/ai/types';
 
 export function AiUsagePage() {
   const [records, setRecords] = useState<UsageRecord[]>([]);
   const [summary, setSummary] = useState<UsageSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [updatedAt, setUpdatedAt] = useState<string | null>(null);
 
   // Polling owns its fetch inside the effect so no state is set synchronously
   // in the effect body, and teardown cancels both the interval and any
   // in-flight write-back.
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout> | undefined;
     async function load() {
       try {
-        const res = await fetch("/api/build/ai/usage", { cache: "no-store" });
-        if (!res.ok) return;
-        const data = await res.json();
+        const res = await fetch("/api/build/ai/usage", { cache: "no-store", signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]) });
+        const data = await readRuntimeJson<{ records: UsageRecord[]; summary: UsageSummary }>(res);
+        if (!Array.isArray(data.records) || !data.summary || typeof data.summary.totalRequests !== 'number') throw new Error('The runtime returned no usage snapshot.');
         if (!active) return;
-        setRecords(data.records ?? []);
-        setSummary(data.summary ?? null);
-      } catch {
-        // silent
+        setRecords(data.records);
+        setSummary(data.summary);
+        setUpdatedAt(new Date().toISOString());
+        setError(null);
+      } catch (cause) {
+        if (active) setError(cause instanceof Error ? cause.message : 'The usage ledger could not be read.');
       } finally {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+          timer = setTimeout(() => void load(), 5000);
+        }
       }
     }
     void load();
-    const interval = setInterval(() => {
-      void load();
-    }, 5000);
     return () => {
       active = false;
-      clearInterval(interval);
+      controller.abort();
+      clearTimeout(timer);
     };
   }, []);
 
@@ -84,14 +60,14 @@ export function AiUsagePage() {
           <span className="dev-mini-label">AI RUNTIME / USAGE</span>
           <h2>Usage Ledger</h2>
           <p>
-            Every AI operation is recorded with safe metadata. Prompt contents
-            are never stored. Secrets are never logged.
+            Current server instance · up to 10,000 retained workspace operations.
+            Prompt contents and secrets are never stored. This is a runtime ledger, not a provider invoice.
           </p>
           {summary ? (
             <span className="dev-page-heading__detail">
               {summary.totalRequests} requests ·{" "}
-              {summary.totalInputTokens.toLocaleString()} in /{" "}
-              {summary.totalOutputTokens.toLocaleString()} out ·{" "}
+              {summary.totalInputTokens.toLocaleString()} known input /{" "}
+              {summary.totalOutputTokens.toLocaleString()} known output tokens ·{" "}
               {summary.totalEstimatedCost !== null
                 ? `$${summary.totalEstimatedCost.toFixed(6)}`
                 : "cost unknown"}{" "}
@@ -101,6 +77,7 @@ export function AiUsagePage() {
         </header>
       }
     >
+      {error ? <p className="dev-note" role="alert">Usage unavailable: {error}{updatedAt ? ` Showing the last successful snapshot from ${updatedAt}.` : ''}</p> : null}
       {summary && summary.totalRequests > 0 ? (
         <>
           <DevPanel title="By Provider">
@@ -162,8 +139,8 @@ export function AiUsagePage() {
       <DevPanel title={`Records (${records.length})`}>
         {records.length === 0 ? (
           <DevEmpty
-            title="NO USAGE RECORDED"
-            body="AI operations will appear here once you run generations, streams, or arena comparisons."
+            title={error && !summary ? 'USAGE UNAVAILABLE' : 'NO USAGE RECORDED'}
+            body={error && !summary ? 'The ledger could not be read. An unavailable ledger does not establish zero usage or zero cost.' : 'AI operations will appear here once you run generations, streams, or arena comparisons.'}
           />
         ) : (
           <div style={{ overflowX: "auto" }}>
@@ -200,12 +177,12 @@ export function AiUsagePage() {
                     <td>{r.operation}</td>
                     <td>{r.inputTokens ?? "—"}</td>
                     <td>{r.outputTokens ?? "—"}</td>
-                    <td>{r.latencyMs ?? "—"}ms</td>
+                    <td>{r.latencyMs === null ? '—' : `${r.latencyMs}ms`}</td>
                     <td>{r.ttftMs !== null ? `${r.ttftMs}ms` : "—"}</td>
                     <td>
                       {r.estimatedCost?.amount !== null &&
                       r.estimatedCost?.amount !== undefined
-                        ? `$${r.estimatedCost.amount.toFixed(6)}`
+                        ? `${r.estimatedCost.currency} ${r.estimatedCost.amount.toFixed(6)} · ${r.estimatedCost.basis}`
                         : "—"}
                     </td>
                     <td>

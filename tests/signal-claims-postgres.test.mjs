@@ -1,0 +1,38 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { PGlite } from '@electric-sql/pglite';
+
+test('Signal SQL requires a confirmed account phone and cannot replace another verified owner', async t => {
+  const db = new PGlite(); t.after(() => db.close());
+  const first = '11111111-1111-4111-8111-111111111111', second = '22222222-2222-4222-8222-222222222222';
+  await db.exec(`create role anon; create role authenticated;
+    create schema auth; create table auth.users(id uuid primary key, phone text, phone_confirmed_at timestamptz);
+    create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+    create table public.signal_numbers(id uuid primary key default gen_random_uuid(),phone_e164 text unique,country_code text,national_number text,line_type text,updated_at timestamptz default now());
+    create table public.signal_profiles(number_id uuid primary key references signal_numbers,owner_id uuid references auth.users,verified_at timestamptz,updated_at timestamptz default now());
+    create table public.signal_reputation_reports(number_id uuid references signal_numbers,reporter_id uuid references auth.users,category text,status text,created_at timestamptz default now(),unique(number_id,reporter_id,category));
+    insert into auth.users values ('${first}','971501234567',null),('${second}','+971501234567',now());`);
+  await db.exec(readFileSync(new URL('../supabase/migrations/20261124131830_knoux_signal_verified_claims.sql', import.meta.url), 'utf8'));
+  const claim = () => db.query(`select public.signal_claim_number('+971501234567','AE','501234567','mobile') as receipt`);
+  await assert.rejects(claim(), /authentication_required/);
+  await db.exec(`select set_config('request.jwt.claim.sub','${first}',false)`);
+  await assert.rejects(claim(), /verified_phone_required/);
+  assert.equal((await db.query('select count(*)::int as n from signal_profiles')).rows[0].n, 0);
+  await db.exec(`update auth.users set phone_confirmed_at=now() where id='${first}'`);
+  const result = (await claim()).rows[0].receipt;
+  assert.deepEqual(result, { claimed: true, verified: true, phone: '+971501234567' });
+  assert.deepEqual((await claim()).rows[0].receipt, result, 'same-owner retry is idempotent');
+  await db.exec(`select set_config('request.jwt.claim.sub','${second}',false)`);
+  await assert.rejects(claim(), /already_claimed/);
+  assert.equal((await db.query('select owner_id from signal_profiles')).rows[0].owner_id, first);
+  await db.exec('set role anon');
+  await assert.rejects(claim(), e => e.code === '42501');
+  await db.exec('reset role; set role authenticated');
+  await assert.rejects(claim(), /already_claimed/);
+  const report = (await db.query(`select public.signal_report_reputation('+971501234567','AE','501234567','mobile','spam') as receipt`)).rows[0].receipt;
+  assert.equal(report.recorded, true);
+  await assert.rejects(db.query(`select public.signal_report_reputation('+971501234567','AE','501234567','mobile','unfounded')`), /invalid_category/);
+  await db.exec('reset role');
+  assert.equal((await db.query('select status from signal_reputation_reports')).rows[0].status, 'pending', 'a report never becomes verified reputation automatically');
+});

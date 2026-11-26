@@ -24,6 +24,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { DevEmpty, DevPanel } from './DevUI';
 import { RuntimeHero } from './RuntimeHero';
+import { bridgeStatus } from './bridge-status';
 import {
   TerminalTransport,
   type TerminalExit,
@@ -32,7 +33,7 @@ import {
   type TerminalStats,
   type TerminalTimings,
 } from '@/lib/build/terminal-transport';
-import type { BridgeCapabilities, BridgeProfile, Handshake, ShellProfile } from '@/lib/build/bridge-protocol';
+import type { BridgeProfile, Handshake, ShellProfile } from '@/lib/build/bridge-protocol';
 
 type BridgeState =
   | { kind: 'checking' }
@@ -46,19 +47,6 @@ type BridgeState =
    */
   | { kind: 'unavailable'; blocker: string; authRequired?: boolean }
   | { kind: 'ready'; handshake: Handshake };
-
-interface BridgeStatusResponse {
-  configured: boolean;
-  paired: boolean;
-  reachable: boolean;
-  bridgeId: string | null;
-  fingerprint: string | null;
-  capabilities: BridgeCapabilities | null;
-  handshake: Handshake | null;
-  blocker: string | null;
-  /** Present on guard refusals; a fallback when `blocker` is absent. */
-  message?: string;
-}
 
 /**
  * Shown when the workspace guard could not identify the caller. It names the
@@ -108,6 +96,9 @@ export function TerminalPage() {
   const [timings, setTimings] = useState<TerminalTimings | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [findQuery, setFindQuery] = useState('');
+  const [opening, setOpening] = useState(false);
+  const openingRef = useRef(false);
+  const mountedRef = useRef(false);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const transportRef = useRef<TerminalTransport | null>(null);
@@ -122,8 +113,8 @@ export function TerminalPage() {
     let cancelled = false;
     (async () => {
       try {
-        const response = await fetch('/api/build/bridge/status', { cache: 'no-store' });
-        const body = (await response.json()) as BridgeStatusResponse;
+        const response = await fetch('/api/build/bridge/status', { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
+        const body = bridgeStatus(response.status, await response.json().catch(() => null));
         if (cancelled) return;
         // A 401 is only ever the guard refusing an unidentified caller. It is
         // reported before the body is trusted, so a 401 carrying a stale or
@@ -173,21 +164,25 @@ export function TerminalPage() {
 
   // Tear down everything on unmount: the socket, the timers, the terminal.
   useEffect(() => {
-    const transport = transportRef.current;
-    const term = termRef.current;
+    mountedRef.current = true;
     return () => {
+      mountedRef.current = false;
       stopStatsPoll();
-      transport?.close();
-      term?.dispose();
+      transportRef.current?.close();
+      termRef.current?.dispose();
       transportRef.current = null;
       termRef.current = null;
     };
   }, [stopStatsPoll]);
 
   const openSession = useCallback(async () => {
+    if (bridge.kind !== 'ready' || openingRef.current) return;
+    openingRef.current = true;
+    setOpening(true);
     setError(null);
     setExit(null);
 
+    try {
     const mount = containerRef.current;
     if (!mount) {
       setError('The terminal container is not mounted.');
@@ -203,6 +198,7 @@ export function TerminalPage() {
           import('@xterm/addon-web-links'),
           import('@xterm/addon-search'),
         ]);
+        if (!mountedRef.current) return;
         const term = new Terminal({
           cursorBlink: true,
           fontFamily: 'ui-monospace, "Cascadia Mono", Consolas, monospace',
@@ -270,11 +266,16 @@ export function TerminalPage() {
       cols,
       rows,
     });
+    if (!mountedRef.current) return;
     refreshStats();
 
     stopStatsPoll();
     statsTimer.current = setInterval(refreshStats, 1000);
-  }, [profile, cwd, refreshStats, stopStatsPoll]);
+    } finally {
+      openingRef.current = false;
+      if (mountedRef.current) setOpening(false);
+    }
+  }, [bridge, profile, cwd, refreshStats, stopStatsPoll]);
 
   const closeSession = useCallback(() => {
     transportRef.current?.close();
@@ -415,8 +416,8 @@ export function TerminalPage() {
                   Only the profiles this bridge measured are offered. The directory must stay
                   inside the bridge root; anything else is refused.
                 </p>
-                <button type="button" className="dev-button" onClick={() => void openSession()}>
-                  OPEN SESSION
+                <button type="button" className="dev-button" disabled={opening} onClick={() => void openSession()}>
+                  {opening ? 'LOADING TERMINAL…' : 'OPEN SESSION'}
                 </button>
               </div>
             )}
@@ -435,10 +436,9 @@ export function TerminalPage() {
               </div>
             )}
 
-            {(live || stage === 'reconnecting' || stage === 'exited') && (
-              <>
                 <div
                   ref={containerRef}
+                  hidden={!(live || stage === 'reconnecting' || stage === 'exited')}
                   className="dev-terminal-mount"
                   role="application"
                   aria-label="Terminal session. Escape does not leave the terminal; use Leave terminal."
@@ -449,13 +449,15 @@ export function TerminalPage() {
                     }
                   }}
                 />
+            {(live || stage === 'reconnecting' || stage === 'exited') && (
+              <>
                 <div className="dev-terminal-toolbar" role="toolbar" aria-label="Terminal controls">
                   <span>{session ? `${session.profile} · ${session.cwd} · PID ${session.pid}` : '—'}</span>
                   <span title={stats?.latencyMs === null ? 'No ping/pong pair has completed yet' : 'Measured round trip'}>
                     RTT {formatLatency(stats?.latencyMs ?? null)}
                   </span>
                   <button type="button" onClick={clearTerminal} disabled={!live}>CLEAR</button>
-                  <button type="button" onClick={() => void copySelection()} disabled={!live}>COPY SELECTION</button>
+                  <button type="button" onClick={() => void copySelection()} disabled={!session}>COPY SELECTION</button>
                   <button
                     type="button"
                     id="terminal-leave-target"

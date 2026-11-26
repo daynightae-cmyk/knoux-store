@@ -3,7 +3,7 @@
 body:has(.dev-cinematic) > .site-header,
 body:has(.dev-cinematic) > .site-footer { display: none; }
 body:has(.dev-cinematic) { overflow: hidden; }
-.dev-cinematic { --dev-bg:#080a10; --dev-panel:#101218; --dev-border:rgba(226,225,241,.09); --dev-muted:#a0a2b0; --dev-violet:#a89bc8; height:100dvh; min-height:0; background:#0b0d14; color:#edf0f7; padding:18px 18px 18px 0; overflow:hidden; }
+.dev-cinematic { --dev-bg:#07050e; --dev-panel:#0d0a16; --dev-border:rgba(196,164,255,.12); --dev-muted:#a49fc0; --dev-violet:#b9a8d2; --dev-bad:#ff8d98; height:100dvh; min-height:0; background:#07050e; color:#f0ecf9; padding:18px 18px 18px 0; overflow:hidden; }
 .dev-cinematic .dev-shell__top { display:none; }
 .dev-cinematic .dev-shell__grid { grid-template-columns:218px minmax(0,1fr); height:100%; min-height:0; max-width:none; }
 .dev-cinematic .dev-sidebar { padding:10px 14px 0 18px; background:transparent; border:0; gap:21px; min-height:0; overflow-y:auto; scrollbar-width:thin; }
@@ -29,9 +29,51 @@ body:has(.dev-cinematic) { overflow: hidden; }
 .dev-sidebar__facts { border-top:1px solid var(--dev-border); padding:15px 10px 0; margin:0; font:8px var(--font-mono,monospace); line-height:1.5; }
 .dev-sidebar__facts dt { color:#858693; letter-spacing:.12em; margin-bottom:4px; }
 .dev-sidebar__facts dd { color:#bbb9c9; margin:0 0 14px; overflow-wrap:anywhere; font-size:9px; }
-.dev-shell__stage { min-width:0; min-height:0; display:flex; flex-direction:column; position:relative; isolation:isolate; background:radial-gradient(ellipse at 108% -12%,#6b659e26,transparent 51%),radial-gradient(ellipse at 53% 120%,#11254caa,transparent 65%),#080b13; border:1px solid #e4def00c; border-radius:18px; box-shadow:inset 0 1px #ffffff03,0 12px 50px #0003; overflow:hidden; }
+.dev-shell__stage { min-width:0; min-height:0; display:flex; flex-direction:column; position:relative; isolation:isolate; background:radial-gradient(ellipse at 108% -12%,rgba(168,85,247,.16),transparent 51%),radial-gradient(ellipse at 53% 120%,rgba(88,48,168,.42),transparent 65%),#07050e; border:1px solid rgba(196,164,255,.07); border-radius:18px; box-shadow:inset 0 1px rgba(243,232,255,.03),0 12px 50px rgba(2,1,6,.55); overflow:hidden; }
 .dev-cosmic-field { position:absolute; inset:0; width:100%; height:100%; z-index:-1; pointer-events:none; opacity:.78; }
-.dev-cinematic .dev-shell__content { flex:1; min-height:0; padding:0 28px; overflow:auto; scrollbar-width:thin; scrollbar-color:#343443 transparent; }
+/* The Build sky is drawn, never photographed: a nebula bank across the upper
+   right and right edge, faint veils upper-left, a tiled star field and the
+   planet limb. Every Build surface shares these two layers, so no page places
+   a reference screenshot behind its content. */
+/* --cosmic-glow is written by the shared sky from the visitor's real clock:
+   1 at deep night, ~.55 at midday. The painted banks dim with it. */
+.dev-drawn-sky { position:absolute; inset:0; z-index:-2; pointer-events:none; opacity:calc(.55 + .45 * var(--cosmic-glow, 1)); transition:opacity 2s ease; background:
+  radial-gradient(ellipse 30% 17% at 74% 7%,#c084fc6b,transparent 68%),
+  radial-gradient(ellipse 16% 11% at 85% 3%,#e9d5ff4a,transparent 70%),
+  radial-gradient(ellipse 24% 34% at 100% 42%,#9333ea5e,transparent 68%),
+  radial-gradient(ellipse 16% 22% at 92% 62%,#a855f747,transparent 70%),
+  radial-gradient(ellipse 36% 15% at 58% 18%,#7c3aed26,transparent 72%),
+  radial-gradient(ellipse 26% 15% at 10% 7%,#6d28d921,transparent 72%),
+  radial-gradient(ellipse 22% 14% at 4% 62%,#5b21b62e,transparent 72%),
+  radial-gradient(ellipse 70% 22% at 50% 106%,#5830a852,transparent 64%); }
+.dev-drawn-sky::before, .dev-drawn-sky::after { content:''; position:absolute; inset:0; background-repeat:repeat; }
+.dev-drawn-sky::before { background-image:
+  radial-gradient(1.2px 1.2px at 14% 16%,#fff,transparent),radial-gradient(1px 1px at 37% 7%,#e9d5ffe6,transparent),
+  radial-gradient(1.4px 1.4px at 62% 21%,#fff,transparent),radial-gradient(.9px .9px at 86% 12%,#d8b4ffcc,transparent),
+  radial-gradient(1px 1px at 24% 44%,#efe6ffcc,transparent),radial-gradient(1.3px 1.3px at 71% 39%,#fff,transparent),
+  radial-gradient(.9px .9px at 48% 58%,#e2d4ffb8,transparent),radial-gradient(1.1px 1.1px at 91% 63%,#fff,transparent),
+  radial-gradient(1px 1px at 8% 71%,#d9c8f2cc,transparent),radial-gradient(1.2px 1.2px at 55% 81%,#fff,transparent),
+  radial-gradient(.8px .8px at 79% 86%,#cdb6f0b8,transparent),radial-gradient(1px 1px at 32% 92%,#e6dcf7cc,transparent);
+  background-size:20% 24%; opacity:.8; }
+.dev-drawn-sky::after { background-image:
+  radial-gradient(.8px .8px at 5% 11%,#fff,transparent),radial-gradient(.7px .7px at 29% 27%,#e0cff5cc,transparent),
+  radial-gradient(.9px .9px at 53% 5%,#fff,transparent),radial-gradient(.7px .7px at 77% 31%,#d5c0f0c4,transparent),
+  radial-gradient(.8px .8px at 17% 61%,#fff,transparent),radial-gradient(.7px .7px at 64% 68%,#dccdf3c4,transparent),
+  radial-gradient(.9px .9px at 88% 47%,#fff,transparent),radial-gradient(.7px .7px at 41% 83%,#d3c0eecc,transparent);
+  background-size:12% 16%; opacity:.55; }
+.dev-drawn-limb { position:absolute; z-index:-2; left:-14%; right:-14%; bottom:-2%; height:22%; min-height:150px; border-radius:50% 50% 0 0/100% 100% 0 0;
+  border-top:2.5px solid #f5ecff; pointer-events:none;
+  background:radial-gradient(ellipse 46% 62% at 50% 0%,#c4a4f7a6,transparent 74%),radial-gradient(ellipse 100% 100% at 50% -14%,#3d1f7a6b,#07050e 60%),#07050e;
+  box-shadow:0 -14px 48px #d9b8ff8c,inset 0 20px 56px #a855f72e; }
+/* Painted bloom and city speckle: gradients rather than very large shadows,
+   which software rendering repaints far more slowly. */
+.dev-drawn-limb::before { content:''; position:absolute; left:-6%; right:-6%; bottom:50%; height:160%; border-radius:50%; pointer-events:none;
+  background:radial-gradient(ellipse 58% 40% at 50% 100%,#8b4fd952,transparent 72%); }
+.dev-drawn-limb::after { content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none; opacity:.7;
+  background:radial-gradient(circle 2px at 24% 30%,#ffbe8ccc,transparent),radial-gradient(circle 1.6px at 33% 48%,#ffaa78b8,transparent),
+    radial-gradient(circle 2.4px at 46% 22%,#ffc896d9,transparent),radial-gradient(circle 1.4px at 56% 40%,#ffb482b0,transparent),
+    radial-gradient(circle 2px at 66% 27%,#ffbe8cc4,transparent),radial-gradient(circle 1.6px at 75% 45%,#ffaa7899,transparent); }
+.dev-cinematic .dev-shell__content { flex:1; min-height:0; padding:0 var(--dev-content-pad, 28px); overflow:auto; scrollbar-width:thin; scrollbar-color:#343443 transparent; }
 .dev-cinematic .dev-crumb { height:50px; font-size:9px; color:#9797aa; border-bottom:1px solid #ffffff07; }
 .dev-cinematic.dev-shell--landing .dev-crumb { display:none; }
 .dev-status-rail { z-index:1; border-top:1px solid #d1cee80c; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px 18px; padding:14px 25px; color:#a2a4b4; font:8px var(--font-mono,monospace); letter-spacing:.05em; background:#0c101980; }
@@ -141,7 +183,7 @@ body:has(.dev-cinematic) { overflow: hidden; }
   .dev-cinematic .dev-sidebar__brand { justify-content:space-between; }
   .dev-sidebar__close { display:block; }
   .dev-nav-backdrop { display:block; position:fixed; inset:0; z-index:120; background:#0008; border:0; backdrop-filter:blur(5px); }
-  .dev-cinematic .dev-shell__content { padding:0 22px; }
+  .dev-cinematic .dev-shell__content { --dev-content-pad:22px; }
   .dev-universe { min-height:680px; }
   .dev-build-center { width:min(610px,94%); }
   .dev-build-center h1 { font-size:35px; }
@@ -153,7 +195,7 @@ body:has(.dev-cinematic) { overflow: hidden; }
   .dev-cinematic .dev-shell__top { padding:0 7px; }
   .dev-shell__top > .dev-mini-label { display:none; }
   .dev-shell__stage { border-radius:12px; }
-  .dev-cinematic .dev-shell__content { padding:0 15px; }
+  .dev-cinematic .dev-shell__content { --dev-content-pad:15px; }
   .dev-stage-head { min-height:64px; align-items:center; }
   .dev-stage-head > .dev-mini-label { max-width:95px; font-size:7px; line-height:1.6; }
   .dev-stage-views { gap:0; }

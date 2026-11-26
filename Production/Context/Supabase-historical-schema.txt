@@ -1,0 +1,195 @@
+Now I have a complete picture of the Supabase setup. Let me provide you with a comprehensive summary of all Supabase-related information from the project.
+
+---
+
+# KNOuX Store — Supabase Complete Reference
+
+## 1. Project Configuration
+
+| Property | Value |
+|----------|-------|
+| **Project URL** | `https://cnkddxxhcfceokxzaaot.supabase.co` |
+| **Project Ref** | `cnkddxxhcfceokxzaaot` |
+| **Publishable Key** | `[PUBLIC KEY: resolve current target configuration]` (fallback) |
+| **Config Source** | Environment (`NEXT_PUBLIC_SUPABASE_URL`) or fallback |
+
+## 2. Client Architecture
+
+| Client Type | File | Purpose |
+|-------------|------|---------|
+| **Browser** | `src/lib/supabase/client.ts` | `createBrowserClient` with SSR cookies |
+| **Server (RSC)** | `src/lib/supabase/server.ts` | `createServerClient` with cookie handling |
+| **Admin (Service Role)** | `src/lib/supabase/admin.ts` | Service role operations, no session persistence |
+| **Middleware Proxy** | `src/lib/supabase/proxy.ts` | Session refresh via `updateSession` |
+
+---
+
+## 3. Database Schema — Core Tables
+
+### 3.1 Foundation Schema (from `references/supabase/foundation-database.types.ts`)
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| `contact_requests` | Contact form submissions | `name, email, company, message, status, request_type, metadata` |
+| `content_registry` | Canonical content registry | `id, entity_type, code, slug, title, status, route, payload, search_terms, related_ids` |
+| `content_sync_runs` | Sync metadata | `source_revision, source_hash, row_count, status, details` |
+| `profiles` | User profiles | `id, display_name, avatar_url, role, preferences` |
+| `site_settings` | Key-value settings | `key, value, is_public, description` |
+
+**RPC Function**: `submit_contact_request` — validates and inserts contact requests
+
+---
+
+### 3.2 Growth Module (Command Center)
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| `knoux_growth_clients` | Workspaces | `id, name, legal_name, country, city, brand_colors, brand_fonts, autonomy_mode (ADVISOR/COPILOT/AUTOPILOT), origin (FIXTURE/LIVE)` |
+| `knoux_growth_memberships` | Tenancy boundary | `user_id, client_id, role (OWNER/MANAGER/ADS_SPECIALIST/DESIGNER/CONTENT_CREATOR/CLIENT/VIEWER)` |
+| `knoux_growth_connections` | Platform connections | `client_id, platform, state (NOT_CONNECTED/CONNECTED/...), capability_state (UI_READY/LIVE_VERIFIED/...), secret_ref, account_id, granted_scopes, token_expires_at, last_verified_at` |
+| `knoux_growth_oauth_states` | OAuth handshakes | `state_hash, binding_hash, client_id, user_id, platform, requested_scopes, return_path, expires_at, consumed_at` |
+| `knoux_growth_campaigns` | Campaign plans | `client_id, name, objective, budget_minor, currency, start/end_date, status (DRAFT/APPROVED/LIVE/...), plan_hash, version, provider_campaign_id` |
+| `knoux_growth_campaign_channels` | Per-platform channels | `campaign_id, platform (facebook/instagram/google_search/...), remote_campaign_id, daily_budget_minor, status` |
+| `knoux_growth_campaign_approvals` | Approval records | `campaign_id, approved_plan_hash, campaign_version, budget_minor, decision (APPROVE/REQUEST_CHANGES/REJECT), invalidated_at` |
+| `knoux_growth_creatives` | Creative assets | `client_id, campaign_id, format (IMAGE/CAROUSEL/...), concept, headline, cta, ai_generated, status` |
+| `knoux_growth_content` | Scheduled content | `client_id, campaign_id, platforms, copy, media_asset_ids, scheduled_for, status, provider_post_id` |
+| `knoux_growth_communities` | Community directory | `client_id, name, platform, public_url, country, city, category, visibility, verification_status, source, public_admin_contact` |
+| `knoux_growth_leads` | Lead pipeline | `client_id, campaign_id, source, platform, name, phone, email, status (NEW/WON/LOST), qualification, sale_value_minor` |
+| `knoux_growth_metrics` | Normalised metrics | `client_id, campaign_id, channel, metric_key (spend/impressions/...), value, origin (LIVE/FIXTURE), evidence` |
+| `knoux_growth_audit_log` | Append-only trail | `client_id, actor_id, action (LOGIN_TO_GROWTH/CAMPAIGN_CREATED/...), subject_type, subject_id, detail` |
+| `knoux_growth_ai_threads` | AI conversations | `client_id, user_id, family (REPAIR/GROWTH/...), intent, prompt, response_summary, provider_id, provisional` |
+
+**Private Schema**: `knoux_growth_private.secret_owners` — vault secret ownership mapping
+
+---
+
+### 3.3 Provider Operating System
+
+| Table | Purpose |
+|-------|---------|
+| `knoux_provider_workspaces` | Owner-scoped workspaces |
+| `knoux_provider_credentials` | Encrypted credentials (AES-256-GCM), `encrypted_value` with `iv, tag, ciphertext, keyId`, `configured` generated column |
+| `knoux_provider_profiles` | Provider configs, `active` unique index per owner/workspace/provider |
+| `knoux_provider_audit` | Audit trail |
+
+**RPC**: `knoux_provider_command` (SECURITY INVOKER, service_role only) — handles WORKSPACE_CREATE, PROFILE_CREATE/UPDATE/SWITCH/DELETE, CREDENTIAL_CREATE/REPLACE/ROTATE/REVOKE, LIVE_TEST_REQUESTED
+
+---
+
+### 3.4 Bridge Control Plane (Local Machine)
+
+| Table | Purpose |
+|-------|---------|
+| `knoux_bridge_enrollments` | One-time enrollment tokens (SHA-256 hash) |
+| `knoux_bridge_machines` | Registered machines with Ed25519 identity (`bridge_id`, `fingerprint`, `public_key`, `capabilities`) |
+| `knoux_bridge_registration_nonces` | Replay protection |
+| `knoux_bridge_sessions` | Short-lived sessions (SHA-256 token hash, 12h TTL) |
+| `knoux_bridge_jobs` | Durable job queue (`tool`, `args`, `required_scopes`, `status`: queued/claimed/running/succeeded/failed) |
+| `knoux_bridge_events` | Audit trail |
+| `knoux_bridge_gateway_tokens` | Gateway auth tokens |
+
+**RPCs**:
+- `knoux_bridge_enroll_machine` — enrolls machine from enrollment token
+- `knoux_bridge_claim_job` — atomic claim with `FOR UPDATE SKIP LOCKED`
+
+---
+
+### 3.5 Signal Module
+
+| Table | Purpose |
+|-------|---------|
+| `signal_numbers` | E.164 phone numbers |
+| `signal_profiles` | Verified profiles (person/business), `allow_community_aliases`, `visibility` |
+| `signal_alias_submissions` | Community aliases (consent-gated) |
+| `signal_reputation_reports` | Spam/scam/safe reports |
+| `signal_search_events` | Lookup/profile_view events (aggregate only) |
+
+**RPCs** (SECURITY DEFINER):
+- `signal_lookup_safe` — anonymized lookup with aliases only for verified+opted-in
+- `signal_contribute_alias` — consent-gated alias submission
+- `signal_record_profile_view` — records profile view
+- `signal_my_activity` — owner's search/profile view counts
+
+---
+
+### 3.6 Content Registry (Generated)
+
+**Source**: `supabase/build-content-seed.mjs` — extracts from 30 TypeScript source files
+
+| Collection | Entity Types |
+|------------|--------------|
+| Software | `software_product`, `repository_record`, `lab_experiment` |
+| Navigation | `navigation_primary`, `navigation_institution`, `capability_division` |
+| Growth | `growth_target`, `growth_objective`, `growth_reach`, `growth_module`, `growth_channel`, `budget_band` |
+| Services | `web_system_category`, `web_system`, `creative_discipline`, `engineering_stage` |
+| Solutions | `solution_group`, `solution` |
+| WordPress | `wordpress_category`, `wordpress_vertical`, `wordpress_pillar`, `wordpress_item`, `wordpress_service`, `wordpress_goal` |
+
+**Output**: `supabase/content-registry.generated.json` + `seed.generated.sql` → `content_registry` table
+
+---
+
+## 4. Edge Functions
+
+| Function | Purpose |
+|----------|---------|
+| `knoux-store-mcp-gateway` | MCP gateway (tools: `gateway_status`, `machine_git_status`, `machine_metrics`, `machine_processes`, `machine_list_files`, `machine_read_file`, `machine_logs`) → calls `knoux-bridge-control` |
+| `knoux-bridge-control` | Control plane: `enroll`, `register`, `heartbeat`, `poll`, `result`, `status`, `run` |
+| `knoux-bridge-gateway-api` | Gateway API: `status` (machine state), `tool` (job execution) |
+
+---
+
+## 5. Key Security Patterns
+
+| Pattern | Implementation |
+|---------|----------------|
+| **RLS everywhere** | Every business table has RLS + policies |
+| **Anon revoked** | `revoke all on table ... from anon` on all Growth/Provider/Bridge/Signal tables |
+| **Service role only** | Admin RPCs, vault access, enrollment, job claim — `security definer` + `revoke from public,anon,authenticated; grant to service_role` |
+| **Vault for secrets** | `knoux_growth_private.secret_owners` maps vault secrets to owners; `knoux_provider_credentials.encrypted_value` uses AES-256-GCM |
+| **SHA-256 token hashes** | All bearer tokens stored as SHA-256 hashes only |
+| **OAuth state binding** | `state_hash` + `binding_hash` + owner verification |
+| **Plan hash binding** | Campaign approvals bind to `plan_hash`; edits invalidate approval |
+| **No self-approval** | `knoux_growth_campaign_approvals_not_self_approved` constraint |
+
+---
+
+## 6. Key RPCs (Service Role Only)
+
+| RPC | Purpose |
+|-----|---------|
+| `knoux_provider_command` | Provider OS CRUD (workspace, profile, credential, live test) |
+| `knoux_bridge_enroll_machine` | Machine enrollment from token |
+| `knoux_bridge_claim_job` | Atomic job claim with `SKIP LOCKED` |
+| `knoux_growth_require_owner` | Owner check (SECURITY DEFINER) |
+| `knoux_growth_oauth_begin/consume/finish` | OAuth handshake + vault storage |
+| `knoux_growth_secret_put/get/delete` | Vault secret management |
+| `knoux_growth_connection_remove` | Credential removal + vault cleanup |
+| `signal_lookup_safe` | Anonymized phone lookup |
+| `signal_contribute_alias` | Consent-gated alias submission |
+
+---
+
+## 7. Seed & Sync
+
+| Script | Output |
+|--------|--------|
+| `supabase/build-content-seed.mjs` | `supabase/content-registry.generated.json` + `seed.generated.sql` |
+| `content_registry` table | 30 source files → canonical registry with `source_hash` |
+| `content_sync_runs` | Tracks sync metadata (`source_revision`, `source_hash`, `row_count`) |
+
+---
+
+## 8. Environment Variables Required
+
+| Variable | Purpose |
+|----------|---------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Project URL (fallback: `https://cnkddxxhcfceokxzaaot.supabase.co`) |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role (admin client, edge functions) |
+| `SUPABASE_SECRET_KEYS` | Modern secret format (fallback to legacy) |
+| `VERCEL_ENV=production` | For production deployments |
+
+---
+
+This covers the complete Supabase architecture as implemented in the KNOuX Store codebase. The schema is **additive-only**, **RLS-enforced**, **tenant-isolated**, and **credential-free** (vault references only).

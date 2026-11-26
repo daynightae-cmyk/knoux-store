@@ -1,0 +1,5 @@
+.flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; list-style: none; padding: 0; margin: 0 0 14px; }
+.flow li { display: grid; align-content: start; gap: 7px; min-width: 0; padding: 12px 13px; border: 1px solid #64487e; border-radius: 12px; background: linear-gradient(135deg, #2f2047, #1a1328); color: #f3e5fb; }
+.flow strong { color: #e3bafa; font-size: 12px; font-weight: 500; }
+.flow span { font-size: clamp(14px, 2vw, 22px); overflow-wrap: anywhere; }
+@media (max-width: 620px) { .flow { grid-template-columns: 1fr; } }

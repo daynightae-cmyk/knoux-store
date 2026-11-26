@@ -1,14 +1,15 @@
 .portrait { margin: 0; min-width: 0; }
-.frame { position: relative; width: 100%; aspect-ratio: 1; overflow: hidden; background: #0c0d10; border: 1px solid #34343c; }
-.frame::after { content: ''; position: absolute; inset: 14px; border: 1px solid #25262e; pointer-events: none; }
-.image { display: block; width: 92%; height: 92%; margin: 4%; object-fit: contain; filter: grayscale(1); }
-.canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; }
+.frame { position: relative; width: 100%; aspect-ratio: 1; overflow: hidden; background: #100d1b; border: 1px solid #b583e5; border-radius: 18px; box-shadow: 0 14px 40px #08050e, 0 0 25px #ab66f44d; }
+.frame::after { content: ''; position: absolute; inset: 3%; border: 1px solid #c59db978; border-radius: 12px; pointer-events: none; box-shadow: inset 0 0 16px #c181f840; }
+.image { display: block; width: 92%; height: 92%; margin: 4%; object-fit: contain; opacity: 1; transition: opacity .36s ease; }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .36s ease; }
 .frame[data-particles-ready='true'] .image { opacity: .24; }
 .frame[data-particles-ready='true'] .canvas { opacity: 1; }
-.coordinates { position: absolute; bottom: 18px; left: 22px; font: 9px var(--mono); letter-spacing: .12em; color: #c5c1ce; pointer-events: none; }
+.coordinates { position: absolute; inset-block-end: 18px; inset-inline-start: 22px; padding: 4px 6px; border-radius: 4px; background: #120b1e; font: 9px var(--mono); letter-spacing: .12em; color: #eee1ff; pointer-events: none; }
 .caption { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; padding-top: 18px; }
 .caption > span { font: 9px var(--mono); letter-spacing: .08em; color: #aaa5b0; }
-.caption button { padding: 8px 0; background: transparent; color: #e9e6ee; border: 0; border-bottom: 1px solid #65616d; font-size: 12px; cursor: pointer; }
+.caption button { min-height: 44px; padding: 8px 0; background: transparent; color: #e9e6ee; border: 0; border-bottom: 1px solid #a083b7; font-size: 12px; cursor: pointer; }
 .caption button:hover { color: #c8b7de; }
 .caption button:focus-visible { outline: 2px solid #c8b7de; outline-offset: 5px; }
 @media (pointer: coarse) { .frame[data-particles-ready='true'] .image { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .image, .canvas { transition: none; } }

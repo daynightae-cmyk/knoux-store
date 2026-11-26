@@ -1,0 +1,20 @@
+.room :global(.origin-room__scene)::before { background: radial-gradient(ellipse at 52% 44%, transparent 22%, #0a061666 100%); }
+.room:global(.origin-room--closed) :global(.origin-room__scene)::after { opacity: .25; }
+.room :global(.origin-room__heading) p { color: #eee1f7; }
+.room :global(.origin-room__panel) { color: #fff2ff; background: #1a1228ed; border: 1px solid #9468c6; border-radius: 18px; box-shadow: 0 20px 46px #07030d9e, 0 0 24px #8248ac55; }
+.room :global(.origin-room__panel-meta) { color: #ead3ff; }
+.room :global(.origin-room__panel-meta) button { width: 44px; height: 44px; }
+.room :global(.origin-room__panel) h2 { margin-block-start: 8px; }
+.room :global(.origin-room__panel) p { color: #e5d6ef; margin-block-end: 14px; }
+.room :global(.origin-room__panel) > a { color: #f2dcff; font-size: 12px; min-height: 44px; }
+.room :global(.origin-room__anchors) { background: #100c1bdc; border: 1px solid #5b4175; border-radius: 12px; }
+.room :global(.origin-room__anchors) button { text-align: start; }
+.room :global(.origin-room__anchors) button span { color: #dac2ef; }
+.room :global(.origin-room__anchors) button[aria-pressed='true'] { background: #36214f; box-shadow: inset 0 2px #c892ff; }
+.controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.controls button { min-height: 44px; border: 1px solid #78579b; border-radius: 8px; padding: 4px; background: #28193c; color: #f9ebff; font-size: 12px; cursor: pointer; }
+.controls button:hover { border-color: #d7a5ff; }
+@media (max-width: 760px) {
+  .room:global(.origin-room--inspecting) :global(.origin-room__anchors) { opacity: 1; pointer-events: auto; }
+  .room :global(.origin-room__panel) { max-height: calc(100% - 310px); }
+}

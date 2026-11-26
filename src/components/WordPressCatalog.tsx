@@ -2,9 +2,12 @@ import { PageIntro } from '@/components/PageIntro';
 import { SignalRail } from '@/components/DivisionShell';
 import { DivisionBridge, NextLink, SystemIndex, IndexRow, BlockHead } from '@/components/blocks';
 import { ExternalMarketplace, readMarketplaceQuery } from '@/components/wordpress/ExternalMarketplace';
+import { WordPressCosmicMark } from '@/components/wordpress/WordPressCosmicMark';
+import { ProcessArchitecture } from '@/components/ProcessArchitecture';
+import { StudioLayoutLibrary, StudioLibraryIntro } from '@/components/wordpress/StudioLayoutLibrary';
+import libraryStyles from '@/components/wordpress/StudioLayoutLibrary.module.css';
 import { FirstPartyRail } from '@/components/wordpress/FirstPartyRail';
 import {
-  starterSiteVerticals,
   wordpressCategories,
   wordPressGoals,
   wordPressItems,
@@ -69,7 +72,10 @@ export async function WordPressCategoryPage({
 
   const count = wordPressItems.filter((item) => item.type === meta.type).length;
   const source = EXTERNAL_SOURCE[category];
+  const libraryMode = category === 'starter-sites' || category === 'blocks' ? category : null;
   const query = readMarketplaceQuery(searchParams ?? {});
+  const studioTitle = source === 'theme' ? 'Theme Explorer' : source === 'plugin' ? 'Plugin Intelligence' : null;
+  const firstParty = <FirstPartyRail type={meta.type} label={singularLabel(meta.type)} />;
 
   const external = source
     ? source === 'plugin'
@@ -80,17 +86,29 @@ export async function WordPressCategoryPage({
     : null;
 
   return (
-    <main id="main-content" tabIndex={-1}>
-      <PageIntro
+    <main id="main-content" tabIndex={-1} className={libraryMode ? libraryStyles.catalogue : undefined}>
+      {libraryMode ? <StudioLibraryIntro mode={libraryMode} /> : studioTitle ? (
+        <section className="shell wp-catalogue-intro">
+          <WordPressCosmicMark label="" />
+          <h1>{studioTitle}</h1>
+          <p>{meta.intent}</p>
+        </section>
+      ) : <PageIntro
         index={meta.index}
         label="WordPress"
         title={meta.label}
         italic="catalogue."
         description={meta.intent}
-      />
-      <SignalRail division="wordpress" path={`/wordpress/${category}`} />
+      />}
+      {!libraryMode && <SignalRail division="wordpress" path={`/wordpress/${category}`} />}
 
-      <FirstPartyRail type={meta.type} label={singularLabel(meta.type)} />
+      {libraryMode && (
+        <div className="shell wp-layout-library">
+          <StudioLayoutLibrary key={libraryMode} mode={libraryMode} />
+        </div>
+      )}
+      {libraryMode && <SignalRail division="wordpress" path={`/wordpress/${category}`} />}
+      {!studioTitle && firstParty}
 
       {external ? (
         <section className="shell" style={{ paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
@@ -106,8 +124,15 @@ export async function WordPressCategoryPage({
         </section>
       ) : null}
 
-      {category === 'starter-sites' ? <StarterSiteFilters /> : null}
-      {category === 'solutions' ? <BundleSurface /> : null}
+      {studioTitle && firstParty}
+
+      {category === 'solutions' && (
+        <>
+          <BundleSurface />
+          <WordPressGoalIndex />
+          <div className="shell"><ProcessArchitecture kind="wordpress" /></div>
+        </>
+      )}
 
       {category === 'starter-sites' ? (
         <section className="shell" style={{ paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
@@ -152,29 +177,6 @@ function FirstPartyOnlyNotice({ title, body }: { title: string; body: string }) 
   );
 }
 
-function StarterSiteFilters() {
-  return (
-    <section className="shell" style={{ paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
-      <BlockHead
-        code="VERTICALS"
-        title="Vertical filters, ready"
-        aside="The filter set is fixed ahead of the catalogue so that publishing a starter site is a data change. These are the verticals KNOuX intends to publish into."
-      />
-      <div className="finder-chips" style={{ marginTop: 26 }}>
-        {starterSiteVerticals.map((vertical) => (
-          <span key={vertical.id} className="tag">
-            {vertical.label}
-          </span>
-        ))}
-      </div>
-      <p className="meta-row" style={{ marginTop: 24 }}>
-        <span>0 of {starterSiteVerticals.length} verticals populated</span>
-        <span>Filters render regardless of catalogue size</span>
-      </p>
-    </section>
-  );
-}
-
 function BundleSurface() {
   return (
     <section className="shell" style={{ paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
@@ -198,7 +200,7 @@ function BundleSurface() {
   );
 }
 
-export function WordPressGoalIndex() {
+function WordPressGoalIndex() {
   return (
     <SystemIndex
       eyebrow="START WITH A GOAL"

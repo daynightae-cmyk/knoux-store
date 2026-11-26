@@ -1,0 +1,34 @@
+.page { --reader-edge: #64488a; --reader-panel: #161124; }
+.desk { display: grid; grid-template-columns: minmax(200px, .8fr) minmax(0, 2.2fr); gap: 14px; align-items: start; }
+.desk > * { min-width: 0; border: 1px solid var(--reader-edge); border-radius: 16px; background: radial-gradient(ellipse at top, #2a1b41, var(--reader-panel) 62%); box-shadow: inset 0 1px #c79bf24a; padding: 12px; }
+.index { max-height: 58dvh; overflow: auto; margin-block-start: 10px; }
+.index button { min-height: 44px; text-align: start; }
+.index strong { overflow-wrap: anywhere; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; padding-block-end: 8px; }
+.toolbar :global(.dev-doc-meta) { display: flex; flex-wrap: wrap; gap: 5px 12px; margin: 0; padding-block: 4px; color: #e3c7fb; }
+.toolbar code { overflow-wrap: anywhere; }
+.modes { display: flex; gap: 5px; }
+.modes button { min-height: 42px; border: 1px solid #8c61b7; border-radius: 9px; background: #241634; color: #f6e7ff; padding-inline: 12px; cursor: pointer; }
+.modes button[aria-pressed='true'] { border-color: #d5a4ff; background: #512e73; }
+.document { display: grid; grid-template-columns: minmax(0, 1fr) minmax(110px, .35fr); align-items: start; gap: 12px; }
+.markdown { grid-column: 1 / -1; min-width: 0; padding: clamp(13px, 2vw, 26px); border: 1px solid #543e71; border-radius: 11px; background: #110c1c; color: #f1e7fa; font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }
+.document:has(.outline) .markdown { grid-column: 1; }
+.markdown h3, .markdown h4 { color: #f6dbff; line-height: 1.2; margin-block: 1.15em .65em; scroll-margin-block-start: 18px; }
+.markdown h3:first-child, .markdown h4:first-child { margin-block-start: 0; }
+.markdown p { margin-block: 0 1em; white-space: pre-line; }
+.markdown ul { padding-inline-start: 1.45em; }
+.markdown pre { max-width: 100%; overflow: auto; padding: 10px; background: #231634; border-radius: 6px; color: #e4c4ff; }
+.markdown :is(a, .inlineLink), .outline a { color: #e3baff; text-decoration: underline; text-underline-offset: 4px; }
+.inlineLink { border: 0; background: transparent; font: inherit; padding: 0; cursor: pointer; }
+.outline { display: grid; gap: 7px; border-inline-start: 1px solid #69458d; padding-inline-start: 10px; font-size: 13px; line-height: 1.5; }
+.outline a { overflow-wrap: anywhere; }
+.raw.raw { max-width: 100%; border-radius: 10px; padding: 12px; }
+.desk :where(button, input, a):focus-visible { outline: 2px solid #e5c1ff; outline-offset: 2px; }
+@media (max-width: 1040px) {
+  .document { grid-template-columns: minmax(0, 1fr); }
+  .outline { grid-row: 1; max-block-size: 130px; overflow: auto; }
+}
+@media (max-width: 760px) {
+  .desk { grid-template-columns: minmax(0, 1fr); }
+  .index { max-height: 190px; }
+}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { DiscoverySource, NormalizedModel } from "@/lib/ai/types";
 import { searchModels } from "@/lib/build/model-search";
+import { cueAtmosphere } from "../dev/living-atmosphere";
 import { useBuildWorkspace } from "../workspace/KnouxBuildWorkspace";
 import { AiCenterNav } from "./AiCenterLayout";
 import styles from "./model-discovery.module.css";
@@ -57,11 +58,18 @@ export function AiModelsPage() {
           : "The model catalog could not be loaded.");
         const catalog: { providers: ModelEntry[] } = await response.json();
         if (!Array.isArray(catalog.providers)) throw new Error("The model catalog returned an invalid response.");
-        if (!controller.signal.aborted) setData(catalog.providers);
+        if (!controller.signal.aborted) {
+          setData(catalog.providers);
+          // A completed discovery is a real event: the sky answers once.
+          if (attempt > 0) cueAtmosphere("success");
+        }
       } catch (failure) {
-        if (!controller.signal.aborted) setError(timeout.aborted
-          ? "Discovery timed out. Refresh to try again."
-          : failure instanceof Error ? failure.message : "The model catalog is unavailable.");
+        if (!controller.signal.aborted) {
+          setError(timeout.aborted
+            ? "Discovery timed out. Refresh to try again."
+            : failure instanceof Error ? failure.message : "The model catalog is unavailable.");
+          if (attempt > 0) cueAtmosphere("error");
+        }
       } finally {
         if (!controller.signal.aborted) setPending(false);
       }
@@ -72,6 +80,7 @@ export function AiModelsPage() {
   }, [attempt]);
 
   function refreshCatalog() {
+    cueAtmosphere("confirm");
     setError(undefined);
     setPending(true);
     setAttempt((current) => current + 1);

@@ -88,7 +88,6 @@ export function WordPressLibraryGateway() {
               key={entry.id}
               href={entry.route}
               className={`library-gateway__tab ${isActive ? 'is-active' : ''}`}
-              aria-current={isActive ? 'true' : undefined}
               onMouseEnter={() => setActive(entry.id)}
               onFocus={() => setActive(entry.id)}
             >

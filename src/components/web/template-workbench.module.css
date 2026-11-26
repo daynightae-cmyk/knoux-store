@@ -1,0 +1,20 @@
+.workbench { margin-block: 28px 44px; min-width: 0; padding: clamp(14px, 2vw, 26px); border: 1px solid #a774f74d; border-radius: 24px; background: radial-gradient(ellipse at top right, #6a258b24, transparent 62%), #100b1bdb; box-shadow: 0 20px 70px #07020e66, inset 0 1px #dbc0ff1a; }
+.header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
+.header span { font-size: 10px; letter-spacing: .2em; color: #cdaaff; }
+.header h3 { margin: 5px 0; font-size: clamp(23px, 3vw, 34px); color: #f5efff; }
+.header p { margin: 0; color: #c2b6d4; font-size: 13px; }
+.header [role=group] { display: flex; flex-wrap: wrap; gap: 6px; }
+.workbench button { min-height: 42px; padding: 10px 14px; border: 1px solid #a987ce55; border-radius: 10px; color: #eee6fc; background: #21152e; cursor: pointer; }
+.workbench button[aria-pressed=true], .inspector button[type=submit] { background: linear-gradient(140deg, #663092, #322252); border-color: #c393f0; box-shadow: 0 0 20px #9a57e829; }
+.workbench :is(button,input,textarea):focus-visible { outline: 2px solid #d6adff; outline-offset: 4px; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 20px; align-items: start; }
+.stage { min-width: 0; padding-block: 12px; border-radius: 16px; background: linear-gradient(145deg, #33224455, #0b0815); overflow: hidden; }
+.viewport { direction: ltr; margin-inline: auto; overflow: hidden; border-radius: 12px; box-shadow: 0 12px 45px #0006; }
+.viewport iframe { display: block; border: 0; transform-origin: top left; background: #0c0916; }
+.inspector { display: grid; gap: 15px; min-width: 0; }
+.inspector label { display: grid; gap: 7px; color: #d4c7e5; font-size: 13px; }
+.inspector :is(input,textarea) { width: 100%; min-width: 0; border: 1px solid #9d73c34d; border-radius: 9px; padding: 11px; background: #0b0816; color: #faf4ff; font: inherit; }
+.inspector input[type=color] { height: 44px; padding: 5px; }
+.inspector p { font-size: 12px; line-height: 1.6; color: #b9a9d0; margin: 0; }
+@media(max-width: 850px) { .layout { grid-template-columns: 1fr; } .inspector { grid-template-columns: repeat(2, minmax(0, 1fr)); } .inspector label:nth-child(2), .inspector p { grid-column: 1 / -1; } }
+@media(max-width: 420px) { .inspector { grid-template-columns: 1fr; } }

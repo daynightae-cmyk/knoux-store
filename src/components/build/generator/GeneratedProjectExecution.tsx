@@ -7,7 +7,7 @@ import {
   type GeneratedProjectPlan,
   type GeneratedRuntimeReceipt,
 } from '@/lib/build/generated-project-contract';
-import styles from './generated-project-execution.module.css';
+import styles from './preview-workspace.module.css';
 
 type HostAccess = { state: 'checking' | 'enabled' | 'disabled' | 'forbidden' | 'unreachable'; message: string };
 
@@ -54,12 +54,14 @@ export function GeneratedProjectExecution({ artifact, onReceipt, compact = false
   const [result, setResult] = useState<{ fingerprint: string; receipt: GeneratedRuntimeReceipt } | null>(null);
   const [busy, setBusy] = useState(false);
   const [deployBusy, setDeployBusy] = useState(false);
+  const [cancelDeployBusy, setCancelDeployBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const receipt = result?.fingerprint === fingerprint ? result.receipt : null;
   const reviewDigest = digest?.fingerprint === fingerprint ? digest.value : null;
   const confirmed = reviewedFor === fingerprint && phrase === GENERATED_PROJECT_CONFIRMATION;
   const deployConfirmed = deployReviewedFor === fingerprint && deployPhrase === GENERATED_PROJECT_DEPLOY_CONFIRMATION;
   const live = receipt?.state === 'ready' || receipt?.state === 'deployed';
+  const canEmbed = typeof window !== 'undefined' && window.location.protocol === 'http:';
   const deployable = receipt?.state === 'exported' || receipt?.state === 'ready' || receipt?.state === 'deployed';
   const alreadyDeployed = receipt?.deploy?.status === 'applied';
 
@@ -164,11 +166,11 @@ export function GeneratedProjectExecution({ artifact, onReceipt, compact = false
   }
 
   async function cancelDeploy() {
-    if (!receipt || deployBusy) return;
-    setDeployBusy(true);
+    if (!receipt || cancelDeployBusy) return;
+    setCancelDeployBusy(true);
     setError(null);
     try {
-      const response = await fetch(`/api/build/generated-projects/${receipt.operationId}/deploy`, { method: 'PATCH' });
+      const response = await fetch(`/api/build/generated-projects/${receipt.operationId}`, { method: 'PATCH' });
       if (!response.ok) throw new Error(await readError(response));
       const value = await response.json() as { receipt?: GeneratedRuntimeReceipt };
       if (!value.receipt) throw new Error('The host returned no cancellation receipt.');
@@ -177,7 +179,7 @@ export function GeneratedProjectExecution({ artifact, onReceipt, compact = false
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'The deployment could not be cancelled.');
     } finally {
-      setDeployBusy(false);
+      setCancelDeployBusy(false);
     }
   }
 
@@ -279,7 +281,7 @@ export function GeneratedProjectExecution({ artifact, onReceipt, compact = false
                       <button type="button" disabled={!deployConfirmed || deployBusy || !deployable || alreadyDeployed} onClick={() => void deploy()}>
                         {deployBusy ? 'Deploying…' : 'Deploy compiled output'}
                       </button>
-                      {deployReceipt?.status === 'requested' || deployReceipt?.status === 'not-requested' ? <button type="button" className={styles.executionStop} disabled={deployBusy || alreadyDeployed} onClick={() => void cancelDeploy()}>Cancel deployment</button> : null}
+                      {deployBusy || deployReceipt?.status === 'requested' || deployReceipt?.status === 'not-requested' ? <button type="button" className={styles.executionStop} disabled={cancelDeployBusy || alreadyDeployed} onClick={() => void cancelDeploy()}>{cancelDeployBusy ? 'Cancelling deployment…' : 'Cancel deployment'}</button> : null}
                     </div>
                   </div>
                 )}
@@ -289,7 +291,8 @@ export function GeneratedProjectExecution({ artifact, onReceipt, compact = false
 
             {receipt.preview?.url ? <p>Preview origin <code>{receipt.preview.origin}</code> · HTTP {receipt.preview.httpStatus ?? 'UNKNOWN'} · ticket expires {receipt.preview.expiresAt ?? 'UNKNOWN'}</p> : null}
             {receipt.preview?.blocker ? <p role="status">{receipt.preview.blocker}</p> : null}
-            {live && receipt.preview?.url ? <p><a href={receipt.preview.url} target="_blank" rel="noreferrer">Open live preview in a new tab ↗</a></p> : null}
+            {receipt.preview?.url ? <p><a href={receipt.preview.url} target="_blank" rel="noreferrer">Open live preview in a new tab ↗</a></p> : null}
+            {live && canEmbed && receipt.preview?.url ? <iframe className={styles.executionPreviewFrame} src={receipt.preview.url} title="Generated application live preview" sandbox="allow-scripts" /> : null}
             {!live && receipt.state !== 'validating' && receipt.state !== 'built' && receipt.state !== 'exported' ? <p className={styles.executionMeta}>No preview process is claimed while this receipt is {receipt.state}.</p> : null}
             {!receipt.compiled?.files?.length && receipt.state === 'failed' ? <p className={styles.executionMeta}>No files were confirmed as written by this receipt.</p> : null}
           </div>

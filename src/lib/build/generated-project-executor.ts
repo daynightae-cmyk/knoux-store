@@ -31,6 +31,30 @@ const runtimes = new Map<string, {
   stopRequested: boolean;
 }>();
 const abortControllers = new Map<string, AbortController>();
+const deploymentOperations = new Map<string, {
+  kind: 'deploy' | 'cancel';
+  controller: AbortController;
+  work: Promise<GeneratedRuntimeReceipt>;
+}>();
+
+// Register before any I/O. A cancellation aborts the current copy, then joins
+// it before reading or saving a receipt; later explicit deploys queue behind it.
+async function coordinateDeployment(
+  key: string,
+  kind: 'deploy' | 'cancel',
+  action: (signal: AbortSignal) => Promise<GeneratedRuntimeReceipt>,
+): Promise<GeneratedRuntimeReceipt> {
+  const previous = deploymentOperations.get(key);
+  if (previous?.kind === kind) return previous.work;
+  if (kind === 'cancel') previous?.controller.abort();
+  const controller = new AbortController();
+  const work = (previous?.work.catch(() => undefined) ?? Promise.resolve()).then(() => action(controller.signal));
+  const operation = { kind, controller, work };
+  deploymentOperations.set(key, operation);
+  try { return await work; } finally {
+    if (deploymentOperations.get(key) === operation) deploymentOperations.delete(key);
+  }
+}
 
 function sha256(value: string | Uint8Array): string {
   return createHash('sha256').update(value).digest('hex');
@@ -516,18 +540,40 @@ function deployOperatorId(ownerId: string | null): boolean {
   return (process.env.KNOUX_DEPLOY_OPERATOR_IDS ?? '').split(',').map((id) => id.trim()).filter(Boolean).includes(ownerId);
 }
 
-async function copyDirectory(from: string, to: string): Promise<void> {
-  await fs.mkdir(to, { recursive: true });
-  const entries = await fs.readdir(from, { withFileTypes: true });
-  for (const entry of entries) {
-    const sourcePath = path.join(from, entry.name);
-    const targetPath = path.join(to, entry.name);
-    if (entry.isDirectory()) {
-      await copyDirectory(sourcePath, targetPath);
-    } else {
-      await fs.copyFile(sourcePath, targetPath);
+async function copyCompiledFiles(from: string, to: string, files: GeneratedFileReceipt[], signal: AbortSignal): Promise<void> {
+  // Publish only the measured compiled manifest. Never follow host-added links
+  // or recursively copy unreviewed files from a changed output directory.
+  for (const file of files) {
+    signal.throwIfAborted();
+    const sourcePath = path.resolve(from, ...file.path.split('/'));
+    const targetPath = path.resolve(to, ...file.path.split('/'));
+    if (sourcePath === from || targetPath === to || !inside(from, sourcePath) || !inside(to, targetPath)) throw new Error('Compiled publish path escaped its directory.');
+    let cursor = path.dirname(sourcePath);
+    while (true) {
+      const stat = await fs.lstat(cursor);
+      if (!stat.isDirectory() || stat.isSymbolicLink()) throw new Error('Compiled publish directory is not a regular directory.');
+      if (cursor === from) break;
+      cursor = path.dirname(cursor);
     }
+    await requireNoLink(sourcePath);
+    const canonical = await fs.realpath(sourcePath);
+    if (!inside(from, canonical)) throw new Error('Compiled publish source escaped its directory.');
+    const handle = await fs.open(sourcePath, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+    let bytes: Buffer;
+    try { bytes = await handle.readFile(); } finally { await handle.close(); }
+    if (bytes.byteLength !== file.bytes || sha256(bytes) !== file.sha256) throw new Error('Compiled publish source no longer matches its measured receipt.');
+    signal.throwIfAborted();
+    await fs.mkdir(path.dirname(targetPath), { recursive: true });
+    await fs.writeFile(targetPath, bytes, { flag: 'wx' });
   }
+  signal.throwIfAborted();
+}
+
+async function removePublishStaging(staging: string, stagingRoot: string | null): Promise<void> {
+  if (!stagingRoot || staging === stagingRoot || !inside(stagingRoot, staging)) {
+    throw new Error('Publish staging cleanup escaped its root.');
+  }
+  await fs.rm(staging, { recursive: true, force: true });
 }
 
 export async function deployGeneratedProject(root: string, ownerId: string, operationId: string, target: unknown, confirmation: unknown): Promise<GeneratedRuntimeReceipt> {
@@ -537,65 +583,118 @@ export async function deployGeneratedProject(root: string, ownerId: string, oper
   if (!deployEnabled()) throw new Error('Local publish is disabled. Set KNOUX_DEPLOY_ALLOW_PUBLISH=1 and KNOUX_DEPLOY_ROOT on the trusted host.');
   if (!deployOperatorId(ownerId)) throw new Error('Deployment requires an operator in KNOUX_DEPLOY_OPERATOR_IDS.');
 
-  const current = await readGeneratedReceipt(root, ownerId, id);
-  if (!current) throw new Error('Generated operation was not found for this operator.');
-  if (!current.export) throw new Error('No export bundle is available to deploy. Build and export the project first.');
-  if (current.deploy?.status === 'applied') throw new Error('This operation has already been deployed.');
+  return coordinateDeployment(`${path.resolve(root)}:${ownerId}:${id}`, 'deploy', async (signal) => {
+    const current = await readGeneratedReceipt(root, ownerId, id);
+    if (!current) throw new Error('Generated operation was not found for this operator.');
+    if (!current.export?.bytes || !current.compiled?.files?.length || current.compiled.build?.status !== 'passed') throw new Error('No export bundle is available to deploy. Build and export the project first.');
+    if (current.deploy?.status === 'applied') throw new Error('This operation has already been deployed.');
+    signal.throwIfAborted();
 
-  const confirmedConfirmation = generatedDeployConfirmation(confirmation);
-  const currentDeploy = current.deploy ?? emptyDeploy(deployTarget);
-  currentDeploy.status = 'requested';
-  currentDeploy.confirmation = confirmedConfirmation;
-  currentDeploy.blocker = null;
-  currentDeploy.error = null;
-  current.deploy = currentDeploy;
-  current.state = 'deployed';
-  await save(root, current);
-
-  try {
-    const destination = await operationRoot(root, id);
-    const compiledDir = path.join(destination, COMPILED_DIR);
-    const publishRoot = deployRoot();
-    await fs.mkdir(publishRoot, { recursive: true });
-    const publishTarget = path.resolve(publishRoot, id);
-    if (!inside(publishRoot, publishTarget)) throw new Error('Publish target escaped its configured root.');
-    await fs.mkdir(publishTarget, { recursive: false });
-    await copyDirectory(compiledDir, publishTarget);
-    const reference = `local-publish:${id}`;
-    current.deploy = {
-      ...current.deploy,
-      status: 'applied',
-      reference,
-      blocker: null,
-      error: null,
-      appliedAt: new Date().toISOString(),
-    };
-    current.state = 'deployed';
+    const confirmedConfirmation = generatedDeployConfirmation(confirmation);
+    const currentDeploy = current.deploy ?? emptyDeploy(deployTarget);
+    currentDeploy.status = 'requested';
+    currentDeploy.confirmation = confirmedConfirmation;
+    currentDeploy.blocker = null;
+    currentDeploy.error = null;
+    current.deploy = currentDeploy;
+    // A request is not deployment evidence. Preserve the actual preview/export
+    // state until the compiled output has been copied and an applied receipt saved.
     await save(root, current);
-    return current;
-  } catch (error) {
-    current.deploy = {
-      ...current.deploy,
-      status: 'failed',
-      blocker: null,
-      error: error instanceof Error ? error.message : 'Deployment failed.',
-    };
-    current.state = 'failed';
-    current.error = current.deploy.error;
-    await save(root, current).catch(() => null);
-    throw error;
-  }
+
+    let staging: string | null = null;
+    let stagingRoot: string | null = null;
+    let published = false;
+    try {
+      signal.throwIfAborted();
+      const destination = await operationRoot(root, id);
+      const destinationStat = await fs.lstat(destination);
+      if (!destinationStat.isDirectory() || destinationStat.isSymbolicLink()) throw new Error('Generated operation directory is not a regular directory.');
+      const compiledDir = path.join(destination, COMPILED_DIR);
+      const publishRoot = deployRoot();
+      await fs.mkdir(publishRoot, { recursive: true });
+      const canonicalPublishRoot = await fs.realpath(publishRoot);
+      stagingRoot = canonicalPublishRoot;
+      const publishTarget = path.resolve(canonicalPublishRoot, id);
+      if (!inside(canonicalPublishRoot, publishTarget)) throw new Error('Publish target escaped its configured root.');
+      try {
+        await fs.lstat(publishTarget);
+        throw new Error('Publish target already exists; existing output will not be replaced.');
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+      }
+      staging = await fs.mkdtemp(path.join(canonicalPublishRoot, `.knoux-${id}-`));
+      await copyCompiledFiles(compiledDir, staging, current.compiled.files, signal);
+      signal.throwIfAborted();
+      // The rename is the commit point. Once it starts, cancellation joins this
+      // work and observes applied output instead of claiming it was cancelled.
+      await fs.rename(staging, publishTarget);
+      published = true;
+      staging = null;
+      const reference = `local-publish:${id}`;
+      current.deploy = {
+        ...current.deploy,
+        status: 'applied',
+        reference,
+        blocker: null,
+        error: null,
+        appliedAt: new Date().toISOString(),
+      };
+      current.state = 'deployed';
+      current.error = null;
+      await save(root, current);
+      return current;
+    } catch (error) {
+      // A receipt-save failure after the commit point cannot undo publication or
+      // truthfully turn it into cancellation. Retain the applied evidence.
+      if (published) {
+        await save(root, current).catch(() => null);
+        throw error;
+      }
+      current.deploy = {
+        ...current.deploy,
+        status: signal.aborted ? 'cancelled' : 'failed',
+        reference: null,
+        appliedAt: null,
+        blocker: signal.aborted ? 'Deployment cancelled by the operator before it was applied.' : null,
+        error: signal.aborted ? null : error instanceof Error ? error.message : 'Deployment failed.',
+      };
+      if (!signal.aborted) {
+        current.state = 'failed';
+        current.error = current.deploy.error;
+      }
+      if (signal.aborted) return await save(root, current);
+      await save(root, current).catch(() => null);
+      throw error;
+    } finally {
+      // Only the unique private staging directory created by this attempt is
+      // disposable. Never remove existing or committed published output.
+      if (staging) await removePublishStaging(staging, stagingRoot);
+    }
+  });
 }
 
 export async function cancelDeployGeneratedProject(root: string, ownerId: string, operationId: string): Promise<GeneratedRuntimeReceipt> {
   const id = generatedOperationId(operationId);
-  const current = await readGeneratedReceipt(root, ownerId, id);
-  if (!current) throw new Error('Generated operation was not found for this operator.');
-  if (!current.deploy) throw new Error('No deployment exists for this operation.');
-  if (current.deploy.status === 'applied') throw new Error('An applied deployment cannot be cancelled by the operator. Remove the published output manually on the trusted host.');
-  current.deploy.status = 'cancelled';
-  current.deploy.blocker = 'Deployment cancelled by the operator before it was applied.';
-  current.state = current.state === 'deployed' ? 'exported' : current.state;
-  await save(root, current);
-  return current;
+  return coordinateDeployment(`${path.resolve(root)}:${ownerId}:${id}`, 'cancel', async () => {
+    const current = await readGeneratedReceipt(root, ownerId, id);
+    if (!current) throw new Error('Generated operation was not found for this operator.');
+    if (!current.deploy) throw new Error('No deployment exists for this operation.');
+    if (current.deploy.status === 'applied') throw new Error('An applied deployment cannot be cancelled by the operator. Remove the published output manually on the trusted host.');
+    // A process restart or failed receipt write can leave committed output with
+    // an older receipt. Its existence also forbids a cancellation claim.
+    if (process.env.KNOUX_DEPLOY_ROOT) {
+      try {
+        const publishedRoot = await fs.realpath(deployRoot());
+        await fs.lstat(path.join(publishedRoot, id));
+        throw new Error('Published output already exists and cannot be cancelled by the operator.');
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+      }
+    }
+    current.deploy.status = 'cancelled';
+    current.deploy.blocker = 'Deployment cancelled by the operator before it was applied.';
+    current.state = current.state === 'deployed' ? 'exported' : current.state;
+    await save(root, current);
+    return current;
+  });
 }

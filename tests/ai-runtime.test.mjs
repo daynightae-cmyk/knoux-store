@@ -31,9 +31,9 @@ test.before(async () => {
 // Provider Registry
 // ---------------------------------------------------------------------------
 
-test("registers the 13 preserved providers and distinct Console V2 provider", () => {
+test("registers the 13 preserved providers, distinct Console V2 provider and NVIDIA NIM", () => {
   const adapters = registry.getAdapters();
-  assert.equal(adapters.length, 14);
+  assert.equal(adapters.length, 15);
 });
 
 test("declared capabilities do not pass runtime acceptance without execution", () => {
@@ -73,6 +73,7 @@ test("includes all required provider IDs", () => {
     "ollama",
     "lm-studio",
     "custom-openai",
+    "nvidia",
   ]) {
     assert.ok(ids.includes(expected), `Missing provider: ${expected}`);
   }

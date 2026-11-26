@@ -1,0 +1,114 @@
+﻿{
+    "source":  "Knouf store References.zip",
+    "source_sha256":  "E415851C6C324764F3BAF37D684C43D5A1483EAD908BFFBAC48478098C8D79C6",
+    "original_images":  46,
+    "unique_by_sha256":  36,
+    "excluded_exact_duplicates":  10,
+    "selected_images":  13,
+    "images":  [
+                   {
+                       "name":  "01-arrival-experience.png",
+                       "original":  "file_00000000e9f48211845bef5157b520bd.png",
+                       "sha256":  "44465E769C495818838C35A3C159E6BC0F2783224C2CC51D2F8356D9A51FA0FF",
+                       "bytes":  2341224,
+                       "route":  "/wordpress",
+                       "usage":  "visual_reference_only_not_screenshot_UI"
+                   },
+                   {
+                       "name":  "02-site-identity-setup.png",
+                       "original":  "file_00000000b6c482119bbd6c088fed3949.png",
+                       "sha256":  "49431C1545A18306ABB7A2727CFE5E858DD1FA6BCB6BBCDA1239F5E7F37696EA",
+                       "bytes":  2056598,
+                       "route":  "/wordpress",
+                       "usage":  "visual_reference_only_not_screenshot_UI"
+                   },
+                   {
+                       "name":  "03-theme-explorer.png",
+                       "original":  "file_0000000071448211bd811b06dc38305f.png",
+                       "sha256":  "AB75034F315C3D316B62A1CC709B496E9F3811B968FBB6653E4571E8CB1D0031",
+                       "bytes":  3037554,
+                       "route":  "/wordpress/themes",
+                       "usage":  "visual_reference_only_not_screenshot_UI"
+                   },
+                   {
+                       "name":  "04-starter-sites-blocks.png",
+                       "original":  "file_00000000696482119c023a917517727e.png",
+                       "sha256":  "861DD3993694EEC967FC08B1A00BD12D91EF74FD9CAE97B48913055BCC7898D1",
+                       "bytes":  2150363,
+                       "route":  "/wordpress/starter-sites",
+                       "usage":  "visual_reference_only_not_screenshot_UI"
+                   },
+                   {
+                       "name":  "05-plugin-intelligence.png",
+                       "original":  "file_000000005be88211bc973d14f8ad5efd.png",
+                       "sha256":  "5C63132BE1FC1EF99ECA707C3CACE284CE825AC9CEA1FC33047035AE9018E74D",
+                       "bytes":  2170865,
+                       "route":  "/wordpress/plugins",
+                       "usage":  "visual_reference_only_not_screenshot_UI"
+                   },
+                   {
+                       "name":  "06-domain-intelligence.png",
+                       "original":  "file_00000000a85c821196990a50f1dff133.png",
+                       "sha256":  "F137FBAD0E5D3C19BACA64D5B77A1A27661CAE6C7EBE55C5F31AE112F1EC4D23",
+                       "bytes":  2059412,
+                       "route":  "/wordpress",
+                       "usage":  "visual_reference_only_not_screenshot_UI"
+                   },
+                   {
+                       "name":  "07-visual-website-composer.png",
+                       "original":  "file_00000000f7308211af1dc72daefe0690.png",
+                       "sha256":  "4B54C8C9281FAAEBC0717301AADF0ACBBEFFD9BBBECDBF9FE1CE7F4C70B6A89B",
+                       "bytes":  1962297,
+                       "route":  "/wordpress",
+                       "usage":  "visual_reference_only_not_screenshot_UI"
+                   },
+                   {
+                       "name":  "08-hosting-infrastructure.png",
+                       "original":  "file_0000000022d48211ae76bc7d07354cc6.png",
+                       "sha256":  "07A90C0E5A3752EA33DFBD972C3AAAF2087B835B61D6B68A8F96583EF4A2F0E4",
+                       "bytes":  2151053,
+                       "route":  "/wordpress",
+                       "usage":  "visual_reference_only_not_screenshot_UI"
+                   },
+                   {
+                       "name":  "09-build-deployment.png",
+                       "original":  "file_0000000053cc8211885944fb72785d13.png",
+                       "sha256":  "79076FF1232D724A89E2B5833CCCC5E249463746D424F01C6B672B52A7D9B434",
+                       "bytes":  3102845,
+                       "route":  "/build/deployments",
+                       "usage":  "visual_reference_only_not_screenshot_UI"
+                   },
+                   {
+                       "name":  "10-operations-command-center.png",
+                       "original":  "file_000000005cec82119a3a1c990b35adf4.png",
+                       "sha256":  "5E16CC7B1B13A96425C2C0351748145B68B0A8EC0DD13D190CC132CE26EFF12F",
+                       "bytes":  3427277,
+                       "route":  "/wordpress",
+                       "usage":  "visual_reference_only_not_screenshot_UI"
+                   },
+                   {
+                       "name":  "11-wordpress-studio.png",
+                       "original":  "file_0000000049088211887621f3fb254e21.png",
+                       "sha256":  "A59912D59F394A8D2A6A0182DA80639FEB7CCE62197D5FD660793F8EA3297A33",
+                       "bytes":  2058337,
+                       "route":  "/wordpress",
+                       "usage":  "visual_reference_only_not_screenshot_UI"
+                   },
+                   {
+                       "name":  "12-live-responsive-canvas.png",
+                       "original":  "file_00000000f0f0821181715e61cf470369.png",
+                       "sha256":  "91D5D36294BFFCD61E11FF4E5C7686E96D4DB6E1E4A6FD75B5E3217B3FFF01CE",
+                       "bytes":  1966976,
+                       "route":  "/wordpress",
+                       "usage":  "visual_reference_only_not_screenshot_UI"
+                   },
+                   {
+                       "name":  "13-build-hub.png",
+                       "original":  "file_000000002e848211bde91506a270d58c.png",
+                       "sha256":  "AC47AFC82545484F30B9E6766F67231C18E5DB7502253764107C6794261068E8",
+                       "bytes":  2051367,
+                       "route":  "/build",
+                       "usage":  "visual_reference_only_not_screenshot_UI"
+                   }
+               ]
+}

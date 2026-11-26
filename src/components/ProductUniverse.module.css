@@ -1,0 +1,80 @@
+.page :global(.page-intro) { min-height: 0; padding-block-start: clamp(100px, 8vw, 136px); background: transparent; }
+.page :global(.page-intro-body) { padding-block: 12px 18px; align-items: center; }
+.page :global(.page-intro h1) { font-size: clamp(42px, 5.7vw, 80px); margin-block: 6px 0; }
+.page :global(.page-rule) { display: none; }
+
+.exhibition:global(.constellation-wrap) {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 14px;
+  margin-block-start: 22px;
+  align-items: start;
+}
+
+.exhibition .map {
+  border: 1px solid #543b70;
+  border-radius: 20px;
+  background: radial-gradient(ellipse at 50% 47%, #32204e, #12101e 56%, #090910 90%);
+}
+
+.map :global(.constellation__core) {
+  border-radius: 50%;
+  border: 1px solid #b39ad5;
+  background: radial-gradient(ellipse at 48% 45%, #4d3276, #20132e 72%);
+  box-shadow: inset 0 0 12px #b58af08c, 0 0 26px #ad78f88c;
+}
+
+.mark { width: 28px; height: 46px; fill: #e6d6ff; filter: drop-shadow(0 0 8px #be91ff); }
+
+.planet {
+  padding: 3px;
+  color: #faf3ff;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.planet img { object-fit: cover; border: 1px solid #9875b7; border-radius: 50%; box-shadow: 0 0 16px #aa6df073; }
+.planet:focus-visible { outline: 2px solid #e1c3ff; outline-offset: 3px; border-radius: 10px; }
+.planet[aria-pressed='true'] img { border-color: #e6c3ff; box-shadow: 0 0 22px 3px #a361fc; }
+
+.exhibition .exhibit {
+  position: static;
+  width: auto;
+  min-width: 0;
+  gap: 12px;
+  padding: clamp(14px, 2vw, 25px);
+  border: 1px solid #543b70;
+  border-radius: 20px;
+  background: #181224;
+  color: #f5edff;
+  scroll-margin-top: 92px;
+}
+
+.exhibit h2 { font-size: clamp(21px, 2.4vw, 36px); line-height: 1.16; margin: 0; }
+.exhibit dt, .exhibit dd { font-size: 11px; line-height: 1.45; }
+.exhibit dd { text-align: end; overflow-wrap: anywhere; }
+.exhibit dl > div { gap: 16px; }
+.exhibit summary { min-height: 44px; align-content: center; cursor: pointer; }
+.exhibit ul { color: #e4d6f2; font-size: 14px; line-height: 1.6; padding-inline-start: 20px; }
+.exhibit a:focus-visible, .exhibit summary:focus-visible, .compactPicker select:focus-visible { outline: 2px solid #e1c3ff; outline-offset: 3px; }
+.exhibit dd a { text-decoration: underline; }
+
+.gallery {
+  display: grid;
+  place-items: center;
+  min-height: 178px;
+  border: 1px solid #6e498e;
+  border-radius: 14px;
+  background: radial-gradient(ellipse at 50% 70%, #6d3ca4, #261737 48%, #131021 78%);
+}
+
+.gallery img { width: 132px; height: auto; border-radius: 22px; box-shadow: 0 18px 30px #09061194; }
+.compactPicker { display: none; }
+
+@media (max-width: 840px) {
+  .exhibition:global(.constellation-wrap) { grid-template-columns: 1fr; }
+  .exhibition .map { display: none; }
+  .compactPicker { display: grid; gap: 6px; font-size: 14px; }
+  .compactPicker select { min-height: 46px; border: 1px solid #735591; border-radius: 10px; padding-inline: 12px; background: #181224; color: #f5edff; }
+}

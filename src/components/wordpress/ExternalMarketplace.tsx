@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { ExternalItemCard } from './ExternalItemCard';
+import { PluginIntelligence } from './journeys/PluginIntelligence';
+import { ThemeExplorer } from './journeys/ThemeExplorer';
 import { officialDateValue } from '@/lib/wordpress/external';
 import type { ExternalItem, ExternalQueryResult } from '@/lib/wordpress/external';
 
@@ -203,16 +205,19 @@ export function ExternalMarketplace({
   firstPartyCount: number;
 }) {
   const items = sortItems(result.items, query.sort);
+  const isThemeDirectory = kindNoun === 'theme';
+  const isPluginDirectory = kindNoun === 'plugin';
+  const isStudioCatalogue = isThemeDirectory || isPluginDirectory;
   const isUnavailable = result.state === 'unavailable';
   // A DOM id derived from the route, without slashes or brackets.
   const fieldId = `mp-search-${basePath.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '')}`;
 
   return (
-    <section className="mp" aria-label={`${kindLabel} from the WordPress.org directory`}>
+    <section className={isStudioCatalogue ? 'mp mp--studio-catalogue' : 'mp'} aria-label={`${kindLabel} from the WordPress.org directory`}>
       <div className="mp__split">
         <div>
           <span className="label label--signal">WORDPRESS.ORG DISCOVERY</span>
-          <h2 className="mp__title">Explore the {kindLabel.toLowerCase()} directory.</h2>
+          <h2 className={isStudioCatalogue ? 'sr-only' : 'mp__title'}>Explore the {kindLabel.toLowerCase()} directory.</h2>
         </div>
         <p className="mp__summary">
           Live results read from the official WordPress.org API. These items are published by their own authors.
@@ -317,13 +322,19 @@ export function ExternalMarketplace({
         <EmptyState result={result} query={query} basePath={basePath} />
       ) : (
         <>
-          <ul className="mp-grid">
-            {items.map((item, index) => (
-              <li key={`${item.kind}-${item.slug}`}>
-                <ExternalItemCard item={item} index={index} />
-              </li>
-            ))}
-          </ul>
+          {isThemeDirectory ? (
+            <ThemeExplorer themes={items} directory />
+          ) : isPluginDirectory ? (
+            <PluginIntelligence plugins={items} directory />
+          ) : (
+            <ul className="mp-grid">
+              {items.map((item, index) => (
+                <li key={`${item.kind}-${item.slug}`}>
+                  <ExternalItemCard item={item} index={index} />
+                </li>
+              ))}
+            </ul>
+          )}
           <Pagination basePath={basePath} query={query} result={result} />
         </>
       )}
@@ -333,7 +344,7 @@ export function ExternalMarketplace({
           Every item above is third-party work published on WordPress.org. KNOuX performs WordPress engineering —
           installation, configuration, migration, performance, security and maintenance — and can scope that work
           around a plugin or theme you have chosen. See the{' '}
-          <Link href="/wordpress#operate">operating services</Link> or the{' '}
+          <a href="/wordpress#operate">operating services</a> or the{' '}
           <Link href={kindRoute}>KNOuX {kindLabel.toLowerCase()} registry</Link>.
         </p>
       </div>

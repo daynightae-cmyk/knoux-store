@@ -27,6 +27,7 @@ import { useWorkspace } from '@/components/command/workspace-context';
 import { mergeMetrics, PROVIDERS } from '@/lib/growth/metrics';
 import type { Sourced } from '@/lib/growth/states';
 import styles from '@/components/command/command.module.css';
+import observation from './observation.module.css';
 
 export default function AnalyticsPage() {
   return <Analytics />;
@@ -44,15 +45,24 @@ const METRIC_COLUMNS = [
   { key: 'revenue', label: 'Revenue', kind: 'currency' },
 ] as const;
 
+type MetricKey = (typeof METRIC_COLUMNS)[number]['key'];
+
 function Analytics() {
   const { records, activeClient } = useWorkspace();
   const area = areaBySlug('analytics')!;
   const rows = records.performanceRows;
   const currency = activeClient.country === 'EG' ? 'EGP' : 'AED';
   const [provider, setProvider] = useState<string>('all');
+  const [metric, setMetric] = useState<MetricKey>('clicks');
 
-  const totals = useMemo(() => mergeMetrics(rows.map((row) => row.metrics)), [rows]);
-  const filtered = provider === 'all' ? rows : rows.filter((row) => row.platformLabel.toLowerCase().includes(provider));
+  const filtered = useMemo(() => provider === 'all' ? rows : rows.filter((row) => row.platformLabel.toLowerCase().replace(/[^a-z0-9]+/g, '_').includes(provider)), [provider, rows]);
+  const totals = useMemo(() => mergeMetrics(filtered.map((row) => row.metrics)), [filtered]);
+  const metricColumn = METRIC_COLUMNS.find((column) => column.key === metric) ?? METRIC_COLUMNS[0];
+  const points = filtered.flatMap((row) => {
+    const value = row.metrics[metric];
+    return value && Number.isFinite(value.value) ? [{ row, value }] : [];
+  });
+  const maxMagnitude = points.reduce((largest, point) => Math.max(largest, Math.abs(point.value.value)), 0);
 
   return (
     <CommandShell
@@ -66,11 +76,15 @@ function Analytics() {
         { label: 'Currency', value: currency },
       ]}
     >
-      <div className={styles.commandFilters ?? ''}>
+      <div className={observation.plane}>
+        <header className={observation.header}>
+          <h2 id="observation-title">Provider measurements</h2>
+          <div className={observation.controls}>
         <label className={styles.ccField ?? ''}>
-          <span className={styles.ccFieldLabel ?? ''}>Provider</span>
+          <span className={styles.ccFieldLabel ?? ''} id="observation-provider-label">Provider</span>
           <select
             className={styles.ccFieldControl ?? ''}
+            aria-labelledby="observation-provider-label"
             value={provider}
             onChange={(event) => setProvider(event.target.value)}
           >
@@ -82,10 +96,31 @@ function Analytics() {
             ))}
           </select>
         </label>
+            <label className={styles.ccField ?? ''}>
+              <span className={styles.ccFieldLabel ?? ''} id="observation-metric-label">Metric</span>
+              <select className={styles.ccFieldControl ?? ''} aria-labelledby="observation-metric-label" value={metric} onChange={(event) => setMetric(event.target.value as MetricKey)}>
+                {METRIC_COLUMNS.map((column) => <option key={column.key} value={column.key}>{column.label}</option>)}
+              </select>
+            </label>
+          </div>
+        </header>
+        {points.length === 0 ? <EmptyState title={`No reported ${metricColumn.label.toLowerCase()} for this filter`} /> : (
+          <ul className={observation.series} aria-labelledby="observation-title" aria-live="polite">
+            {points.map(({ row, value }) => (
+              <li key={row.key}>
+                <span className={observation.provider}>{row.platformLabel} <OriginLabel origin={value.origin} /></span>
+                <span className={observation.track} aria-hidden="true"><span data-negative={value.value < 0} style={{ width: `${maxMagnitude ? 100 * Math.abs(value.value) / maxMagnitude : 0}%` }} /></span>
+                <strong className={observation.value}>
+                  {metricColumn.kind === 'currency' ? `${currency} ` : ''}{value.value.toLocaleString('en-AE')}
+                </strong>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <Section
-        title="Workspace totals"
+        title={provider === 'all' ? 'Workspace totals' : 'Filtered totals'}
         note="A total is only shown when every contributing row reported the metric. A mixed-provenance sum is refused."
       >
         <div className={styles.commandGrid3 ?? ''}>

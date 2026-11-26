@@ -85,6 +85,18 @@ export type ResolvedMedia =
   | { state: 'EMPTY' }
   | { state: 'UNRESOLVED'; reference: string };
 
+/** An explicit unresolved selection or detached asset must never reuse an older signed URL. */
+export function previewMedia(input: {
+  selectedAssetId: string | null; originalAssetId?: string; originalUrl?: string;
+  originalKind?: 'IMAGE' | 'VIDEO'; resolvedUrl?: string | null; resolvedKind?: 'IMAGE' | 'VIDEO' | null;
+}): { url: string | null; kind: 'IMAGE' | 'VIDEO' } {
+  if (!input.selectedAssetId) return { url: null, kind: 'IMAGE' };
+  if (input.resolvedUrl !== undefined) return { url: input.resolvedUrl, kind: input.resolvedKind ?? 'IMAGE' };
+  return input.selectedAssetId === input.originalAssetId
+    ? { url: input.originalUrl ?? null, kind: input.originalKind ?? 'IMAGE' }
+    : { url: null, kind: 'IMAGE' };
+}
+
 /** Pure projection: a creative's media state given an optional signed URL. */
 export function resolveMediaState(input: {
   mediaAssetId?: string | null;

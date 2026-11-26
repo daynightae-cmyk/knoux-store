@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { PageIntro } from '@/components/PageIntro';
 import { SignalRail } from '@/components/DivisionShell';
 import { DivisionBridge, NextLink } from '@/components/blocks';
 import { pageMetadata } from '@/lib/metadata';
@@ -21,28 +20,14 @@ export default function SolutionsPage() {
   return (
     <main id="main-content" tabIndex={-1} className={styles.page}>
       <TrackOnView event={{ type: 'division_opened', division: 'solutions', route: '/solutions' }} />
-      <PageIntro
-        index="06"
-        label="Solutions"
-        title="Start from"
-        italic="the need."
-        description="You should not have to know which internal department serves you. Every solution below is assembled from the same registries the divisions publish."
-      />
-      <SignalRail division="solutions" path="/solutions" />
-      <section
-        className={`shell ${styles.mission}`}
-      >
-        <div className="block-head">
-          <div>
-            <span className="label label--signal">MISSION NAVIGATION</span>
-            <h2 className="block-head__title">Follow the need.</h2>
-          </div>
-          <p className="block-head__aside">
-            Move through real business objectives. Each station resolves into documented systems and services.
-          </p>
-        </div>
+      <section className={`shell ${styles.mission}`} aria-labelledby="solutions-title">
+        <header className={styles.arrival}>
+          <h1 id="solutions-title">Solutions <em>mission control.</em></h1>
+          <p>Choose a business objective to explore its architecture, services and next steps.</p>
+        </header>
         <SolutionsMissionPath missions={missions} />
       </section>
+      <SignalRail division="solutions" path="/solutions" />
 
       <SolutionMissionRows />
 

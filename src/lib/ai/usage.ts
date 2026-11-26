@@ -1,7 +1,6 @@
 import "server-only";
 import { runtimeNamespace, providerRuntimeContext } from "./provider-os/runtime-context";
 import type { UsageRecord, UsageSummary, CostEstimate } from "./types";
-import { mergeCostBasis } from "./cost";
 
 /**
  * Usage ledger. In-memory per server instance. Records every AI operation
@@ -24,6 +23,22 @@ function scopedRecords(): UsageRecord[] {
 
 let recordCounter = 0;
 
+const count = (value: number | null): number | null =>
+  typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : null;
+
+function recordedCost(entry: Omit<UsageRecord, 'id' | 'timestamp'>): CostEstimate | null {
+  const cost = entry.estimatedCost;
+  if (!cost) return null;
+  const known = cost.basis !== 'UNKNOWN' && count(cost.amount) !== null
+    && (cost.basis !== 'ESTIMATED' || (count(entry.inputTokens) !== null && count(entry.outputTokens) !== null));
+  return { amount: known ? cost.amount : null, basis: known ? cost.basis : 'UNKNOWN', currency: cost.currency };
+}
+
+function usdAmount(record: UsageRecord): number | null {
+  return record.estimatedCost?.currency === 'USD' && record.estimatedCost.basis !== 'UNKNOWN'
+    ? count(record.estimatedCost.amount) : null;
+}
+
 export function recordUsage(
   entry: Omit<UsageRecord, "id" | "timestamp">,
 ): UsageRecord {
@@ -31,18 +46,25 @@ export function recordUsage(
   const record: UsageRecord = {
     id: `usage-${Date.now().toString(36)}-${(recordCounter++).toString(36)}`,
     timestamp: new Date().toISOString(),
-    ...entry,
+    // Explicit projection: extra runtime properties can never retain prompts,
+    // raw provider bodies or credential-bearing metadata in the usage ledger.
+    providerId: entry.providerId, modelId: entry.modelId, operation: entry.operation,
+    taskClass: entry.taskClass, inputTokens: count(entry.inputTokens), outputTokens: count(entry.outputTokens),
+    cachedTokens: count(entry.cachedTokens), latencyMs: count(entry.latencyMs), ttftMs: count(entry.ttftMs),
+    estimatedCost: recordedCost(entry), success: entry.success, errorCategory: entry.errorCategory,
+    fallbackCount: count(entry.fallbackCount) ?? 0,
     profileId: providerRuntimeContext()?.profileIds.get(entry.providerId) ?? null,
   };
   records.unshift(record);
   if (records.length > MAX_RECORDS) {
     records.length = MAX_RECORDS;
   }
-  return record;
+  return structuredClone(record);
 }
 
 export function getUsageRecords(limit = 100): UsageRecord[] {
-  return scopedRecords().slice(0, Math.max(0, Math.min(MAX_RECORDS, limit)));
+  const bounded = Number.isFinite(limit) ? Math.max(0, Math.min(MAX_RECORDS, Math.trunc(limit))) : 100;
+  return scopedRecords().slice(0, bounded).map((record) => structuredClone(record));
 }
 
 export function getUsageSummary(): UsageSummary {
@@ -50,27 +72,25 @@ export function getUsageSummary(): UsageSummary {
   const totalRequests = records.length;
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
-  const allCosts: CostEstimate[] = [];
 
   const byProvider: Record<
     string,
     { requests: number; tokens: number; cost: number | null }
-  > = {};
+  > = Object.create(null);
   const byModel: Record<
     string,
     { requests: number; tokens: number; cost: number | null }
-  > = {};
+  > = Object.create(null);
 
   for (const r of records) {
     if (r.inputTokens) totalInputTokens += r.inputTokens;
     if (r.outputTokens) totalOutputTokens += r.outputTokens;
-    if (r.estimatedCost) allCosts.push(r.estimatedCost);
 
     // A record with no cost, or a cost whose basis is UNKNOWN, contributes
     // nothing to the numeric total. Accumulating it as 0 would make an
     // unpriced provider indistinguishable from a free one, which is exactly
     // the "UNKNOWN COST != ZERO" rule this ledger has to honour.
-    const amount = r.estimatedCost?.amount ?? null;
+    const amount = usdAmount(r);
 
     const pKey = r.providerId;
     if (!byProvider[pKey])
@@ -92,14 +112,17 @@ export function getUsageSummary(): UsageSummary {
 
   // A partial priced sum is not a total bill. Preserve unknown costs at every scope.
   for (const record of records) {
-    if (record.estimatedCost?.amount == null) {
+    if (usdAmount(record) === null) {
       byProvider[record.providerId].cost = null;
       byModel[`${record.providerId}:${record.modelId}`].cost = null;
     }
   }
-  const mergedCost = records.some((record) => record.estimatedCost?.amount == null)
-    ? { amount: null, basis: 'UNKNOWN' as const }
-    : mergeCostBasis(...allCosts);
+  const knownCosts = records.length > 0 && records.every((record) => usdAmount(record) !== null);
+  const mergedCost = {
+    amount: knownCosts ? Math.round(records.reduce((total, record) => total + usdAmount(record)!, 0) * 1_000_000) / 1_000_000 : null,
+    basis: !knownCosts ? 'UNKNOWN' as const
+      : records.every((record) => record.estimatedCost?.basis === 'MEASURED') ? 'MEASURED' as const : 'ESTIMATED' as const,
+  };
 
   return {
     totalRequests,

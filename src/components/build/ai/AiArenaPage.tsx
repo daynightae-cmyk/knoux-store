@@ -1,7 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AiCenterPage } from "./AiCenterLayout";
 import { DevPanel, DevEmpty } from "../dev/DevUI";
+import { useCanonicalModels } from '../generator/useCanonicalModels';
+import { formatRuntimeCost, readRuntimeJson } from './runtime-response';
 import type {
   ArenaResult,
   CostEstimate,
@@ -24,44 +26,22 @@ type ArenaResultView = Omit<ArenaResult, "response"> & {
     "ok" | "text" | "finishReason" | "latencyMs" | "ttftMs"
   > & {
     usage: Pick<TokenUsage, "inputTokens" | "outputTokens"> | null;
-    estimatedCost: Pick<CostEstimate, "amount" | "basis"> | null;
+    estimatedCost: CostEstimate | null;
     error: { category: string; safeMessage: string } | null;
   };
 };
 
-type ProviderModel = {
-  providerId: string;
-  modelId: string;
-  displayName: string;
-};
-
 export function AiArenaPage() {
+  const intelligence = useCanonicalModels();
   const [prompt, setPrompt] = useState("");
   const [system, setSystem] = useState("");
-  const [availableModels, setAvailableModels] = useState<ProviderModel[]>([]);
+  const availableModels = intelligence.models.filter((model) => model.modalities.text && model.lifecycle !== 'deprecated' && model.catalog?.buildEligible !== false);
   const [selected, setSelected] = useState<ArenaModel[]>([]);
   const [results, setResults] = useState<ArenaResultView[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    void fetch("/api/build/ai/models", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((data) => {
-        const models: ProviderModel[] = [];
-        for (const p of data.providers ?? []) {
-          for (const m of p.models ?? []) {
-            models.push({
-              providerId: p.providerId,
-              modelId: m.modelId,
-              displayName: m.displayName ?? m.modelId,
-            });
-          }
-        }
-        setAvailableModels(models);
-      })
-      .catch(() => {});
-  }, []);
+  const validSelected = selected.filter((selection) => availableModels.some((model) => model.providerId === selection.providerId && model.modelId === selection.modelId));
 
   function toggleModel(model: ArenaModel) {
     setSelected((old) => {
@@ -79,7 +59,7 @@ export function AiArenaPage() {
   }
 
   async function run() {
-    if (!prompt.trim() || selected.length < 2 || loading) return;
+    if (!prompt.trim() || validSelected.length < 2 || loading || intelligence.loading || intelligence.error) return;
     setLoading(true);
     setError(null);
     setResults(null);
@@ -90,11 +70,12 @@ export function AiArenaPage() {
         body: JSON.stringify({
           prompt,
           system: system || undefined,
-          selections: selected,
+          selections: validSelected,
         }),
       });
-      const data = await res.json();
-      setResults(data.results ?? []);
+      const data = await readRuntimeJson<{ results: ArenaResultView[] }>(res);
+      if (!Array.isArray(data.results) || data.results.length !== validSelected.length) throw new Error('The runtime returned no complete arena comparison.');
+      setResults(data.results);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Arena failed");
     } finally {
@@ -141,8 +122,8 @@ export function AiArenaPage() {
 
       <div style={{ height: 16 }} />
 
-      <DevPanel title={`Model Selection (${selected.length}/4)`}>
-        {availableModels.length === 0 ? (
+      <DevPanel title={`Model Selection (${validSelected.length}/4)`}>
+        {intelligence.loading ? <p className="dev-note" role="status">Reading canonical model discovery…</p> : intelligence.error ? <p className="dev-note" role="alert">{intelligence.error}</p> : availableModels.length === 0 ? (
           <DevEmpty
             title="NO MODELS AVAILABLE"
             body="Run model discovery on the Models page first."
@@ -163,6 +144,8 @@ export function AiArenaPage() {
                 <button
                   key={`${m.providerId}:${m.modelId}`}
                   type="button"
+                  aria-pressed={isSel}
+                  disabled={loading || (!isSel && validSelected.length >= 4)}
                   onClick={() =>
                     toggleModel({
                       providerId: m.providerId,
@@ -197,7 +180,7 @@ export function AiArenaPage() {
         <button
           type="button"
           className="bo-action bo-action--primary"
-          disabled={!prompt.trim() || selected.length < 2 || loading}
+          disabled={!prompt.trim() || validSelected.length < 2 || loading || intelligence.loading || Boolean(intelligence.error)}
           onClick={() => void run()}
         >
           {loading ? "RUNNING ARENA…" : "RUN ARENA"}
@@ -220,7 +203,7 @@ export function AiArenaPage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: `repeat(${results.length}, 1fr)`,
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
                 gap: 12,
               }}
             >
@@ -263,9 +246,7 @@ export function AiArenaPage() {
                     {r.response.usage
                       ? ` · ${r.response.usage.inputTokens ?? "?"}→${r.response.usage.outputTokens ?? "?"} tok`
                       : ""}
-                    {r.response.estimatedCost?.amount
-                      ? ` · $${r.response.estimatedCost.amount.toFixed(6)}`
-                      : ""}
+                    {` · ${formatRuntimeCost(r.response.estimatedCost)}`}
                   </div>
                   {r.response.ok ? (
                     <pre

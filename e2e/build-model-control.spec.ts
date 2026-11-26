@@ -102,3 +102,88 @@ test('auth, configuration and partial output stay blocked without a success plan
   await expect(page.getByRole('region', { name: 'Engineering plan', exact: true })).toHaveCount(0);
   await expect(page.getByRole('region', { name: 'Draft architecture formation' })).toContainText('not a validated plan yet');
 });
+
+test('Control preserves reported currencies, rejects malformed receipts and surfaces nested stream errors', async ({ page }) => {
+  await page.goto('/build/ai/control');
+  await page.getByRole('button', { name: /INTELLIGENCE Explore providers & models/ }).click();
+  await page.getByRole('option', { name: /Thinking · CONTRACT FIXTURE/ }).click();
+  const prompt = page.getByPlaceholder('Enter your prompt…', { exact: true });
+  await prompt.fill('Report a EUR fixture receipt');
+  let generation = 0;
+  await page.route('**/api/build/ai/generate', (route) => route.fulfill({ json: {
+    ok: true,
+    text: 'Explicit browser contract fixture; no provider was called.',
+    finishReason: 'stop',
+    usage: { inputTokens: 4, outputTokens: 7, source: 'CONTRACT_FIXTURE' },
+    latencyMs: 12,
+    ttftMs: null,
+    modelUsed: 'contract-thinking',
+    estimatedCost: generation++ === 0
+      ? { amount: 0.012345, basis: 'ESTIMATED', currency: 'EUR' }
+      : { amount: 9, basis: 'ESTIMATED', currency: null },
+    error: null,
+    fallbackUsed: false,
+    fallbackCount: 0,
+  } }));
+  await page.getByRole('button', { name: 'GENERATE', exact: true }).click();
+  await expect(page.getByText('ESTIMATED EUR 0.012345', { exact: true })).toBeVisible();
+  await prompt.fill('Return malformed currency');
+  await page.getByRole('button', { name: 'GENERATE', exact: true }).click();
+  await expect(page.getByText('cost UNKNOWN', { exact: true })).toBeVisible();
+  await expect(page.getByText(/ESTIMATED (?:USD|EUR) 9\.000000/)).toHaveCount(0);
+
+  await page.route('**/api/build/ai/stream', (route) => route.fulfill({ status: 429, json: { error: { safeMessage: 'Nested fixture refusal' } } }));
+  await page.getByRole('button', { name: 'STREAM', exact: true }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'Nested fixture refusal' })).toBeVisible();
+});
+
+test('Arena renders each reported currency and never converts malformed costs to zero', async ({ page }) => {
+  await page.goto('/build/ai/arena');
+  await page.getByRole('button', { name: /Thinking · CONTRACT FIXTURE/ }).click();
+  await page.getByRole('button', { name: /Fixed · CONTRACT FIXTURE/ }).click();
+  await page.getByPlaceholder('Enter a prompt to compare across models…', { exact: true }).fill('Compare explicit receipt fixtures');
+  await page.route('**/api/build/ai/arena', (route) => route.fulfill({ json: { results: [
+    { providerId: 'gemini', modelId: 'contract-thinking', displayName: 'Thinking fixture', response: { ok: true, text: 'EUR fixture', finishReason: 'stop', latencyMs: 10, ttftMs: null, usage: null, estimatedCost: { amount: 0.25, basis: 'REPORTED', currency: 'EUR' }, error: null } },
+    { providerId: 'deepseek', modelId: 'contract-fixed', displayName: 'Fixed fixture', response: { ok: true, text: 'Malformed fixture', finishReason: 'stop', latencyMs: 11, ttftMs: null, usage: null, estimatedCost: { amount: 0, basis: 'ESTIMATED', currency: 42 }, error: null } },
+  ] } }));
+  await page.getByRole('button', { name: 'RUN ARENA', exact: true }).click();
+  await expect(page.getByText(/REPORTED EUR 0\.250000/)).toBeVisible();
+  await expect(page.getByText(/cost UNKNOWN/)).toBeVisible();
+  await expect(page.getByText(/ESTIMATED (?:USD|EUR) 0\.000000/)).toHaveCount(0);
+});
+
+test('Senshial preserves AED and UNKNOWN receipts while EXECUTE remains blocked', async ({ page }) => {
+  let requests = 0;
+  await page.route('**/api/build/ai/senshial', (route) => {
+    requests += 1;
+    const unknown = route.request().postDataJSON().prompt === 'Unknown receipt';
+    return route.fulfill({ json: {
+      ok: true,
+      mode: 'ask',
+      text: unknown ? 'Unknown fixture' : 'AED fixture',
+      providerId: 'fixture',
+      modelId: 'contract-only',
+      usage: null,
+      latencyMs: 8,
+      estimatedCost: unknown
+        ? { amount: null, basis: 'UNKNOWN', currency: 'USD' }
+        : { amount: 0.25, basis: 'REPORTED', currency: 'AED' },
+      error: null,
+      blocked: false,
+      blocker: null,
+    } });
+  });
+  await page.goto('/build/ai/senshial');
+  const prompt = page.getByRole('textbox', { name: 'Senshial request', exact: true });
+  await prompt.fill('AED receipt');
+  await page.getByRole('button', { name: 'RUN ASK', exact: true }).click();
+  await expect(page.getByText('REPORTED AED 0.250000', { exact: true })).toBeVisible();
+  await prompt.fill('Unknown receipt');
+  await page.getByRole('button', { name: 'RUN ASK', exact: true }).click();
+  await expect(page.getByText('cost UNKNOWN', { exact: true })).toBeVisible();
+  await expect(page.getByText(/USD 0\.000000/)).toHaveCount(0);
+  await page.getByRole('tab', { name: 'EXECUTE', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'RUN EXECUTE', exact: true })).toBeDisabled();
+  await expect(page.getByText('BLOCKED · Agent write runtime not yet security-verified', { exact: true })).toBeVisible();
+  expect(requests).toBe(2);
+});

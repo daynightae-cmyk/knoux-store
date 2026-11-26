@@ -120,7 +120,7 @@ test('the full spend path requires approval and a connector, in that order', () 
   const queued = transition('APPROVED', 'LAUNCH_CONFIRMED_BY_CONNECTOR', { approval: approvalRecord });
   assert.equal(queued.to, 'LAUNCH_PENDING');
 
-  const live = transition('LAUNCH_PENDING', 'LAUNCH_CONFIRMED_BY_CONNECTOR', { connectorConfirmed: true });
+  const live = transition('LAUNCH_PENDING', 'LAUNCH_CONFIRMED_BY_CONNECTOR', { connectorConfirmed: true, connectorEvidence: 'test-only-provider-receipt' });
   assert.equal(live.to, 'LIVE');
   assert.equal(live.requiresApproval, true);
 });
@@ -232,4 +232,28 @@ test('money formats from minor units without floating point drift', () => {
   assert.equal(formatBudget(75000, 'AED'), 'AED 750.00');
   assert.equal(formatBudget(1, 'AED'), 'AED 0.01');
   assert.equal(formatBudget(0, 'AED'), 'AED 0.00');
+});
+
+test('approval refuses non-finite money, fractional units and rolled calendar dates', () => {
+  for (const budgetMinor of [NaN, Infinity, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+    assert.equal(requestApproval({ campaign: { ...baseCampaign, budgetMinor }, requestedBy: 'author', approver: manager }).ok, false);
+  }
+  assert.equal(daysInclusive('2026-02-30', '2026-03-10'), 0);
+  assert.equal(daysInclusive('2026-10-06T00:00:00Z', '2026-10-13'), 0);
+});
+
+test('all reviewer decisions require the campaign tenant permission, including reject and request changes', () => {
+  const pending = { ...approvalRecord, decision: undefined };
+  for (const decision of ['APPROVE', 'REQUEST_CHANGES', 'REJECT']) {
+    for (const principal of [
+      { userId: 'other', role: 'VIEWER', clientIds: ['cl_test'] },
+      { userId: 'other', role: 'CLIENT', clientIds: ['another-client'] },
+      { userId: 'other', role: 'OWNER', clientIds: ['cl_test'], clientRoles: { cl_test: 'VIEWER' } },
+    ]) assert.equal(decideApproval(pending, decision, principal).ok, false);
+  }
+  assert.equal(requestApproval({ campaign: baseCampaign, requestedBy: 'author', approver: { ...manager, clientRoles: { other: 'MANAGER' } } }).ok, false);
+});
+
+test('a local connector boolean without receipt evidence never makes a campaign LIVE', () => {
+  for (const connectorEvidence of [undefined, '', '  ']) assert.equal(transition('LAUNCH_PENDING', 'LAUNCH_CONFIRMED_BY_CONNECTOR', { connectorConfirmed: true, connectorEvidence }).ok, false);
 });

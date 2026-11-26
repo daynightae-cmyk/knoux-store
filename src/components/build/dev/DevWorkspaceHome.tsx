@@ -5,10 +5,10 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRef, useState, type CSSProperties, type FormEvent, useEffect, useLayoutEffect } from 'react';
 import type { NormalizedModel } from '@/lib/ai/types';
+import type { BuildIntent } from '@/lib/build/types';
 import type { EngineeringSession } from '@/lib/build/engineering-plan';
 import { compileBuildIntent, summariseIntent } from '@/lib/build/intent';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
-import { BuildEntryGate } from './BuildEntryGate';
 import { workspaceFacts } from './workspace-facts';
 import { useCanonicalModels } from '../generator/useCanonicalModels';
 import { ComposerModelPicker } from '../generator/ComposerModelPicker';
@@ -22,6 +22,7 @@ import { profileToControls } from '@/lib/build/profile';
 import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
 import styles from '../generator/generator.module.css';
 import { consumePlanStream, parseEngineeringPlan, canFallbackPlanError, PlanStreamError, ENGINEERING_PLAN_SYSTEM, PLAN_SECTIONS, planPrompt, type EngineeringPlan, type EngineeringStage } from '@/lib/build/engineering-plan';
+import { KNOUX_BUILD_MODES, KNOUX_MODE_LABELS, KNOUX_MODE_DESCRIPTIONS, PRO_ROLES, proRoleSystem, proRolePrompt, initialProRoleRuns, aggregateProRuns, assertFinalProPlan, type ProRoleRun } from '@/lib/build/knoux-modes';
 import { QUICK_INTENTS } from './quick-intents';
 
 const Preview = dynamic(() => import('../surfaces/PreviewSurface').then((mod) => mod.PreviewSurface));
@@ -66,6 +67,67 @@ export function createGenerationRequestLock() {
   };
 }
 
+type PlanTransport = (url: string, body: unknown) => Promise<Response>;
+type PlanRuntime = { decision: { selected?: { providerId: string; modelId: string }; reasons: string[]; fallbackChain?: { providerId: string; modelId: string }[]; blocker?: string | null }; state?: string };
+
+/** Resolve the canonical runtime for one pass. Shared by Standard and every PRO role. */
+export async function resolvePlanRuntime({ post, requirement, mode, profile, manualSelection, update }: {
+  post: PlanTransport;
+  requirement: string;
+  mode: 'auto' | 'manual';
+  profile: NonNullable<EngineeringSession['requested']>['profile'];
+  manualSelection: { providerId: string | null; modelId: string | null };
+  update: (patch: Partial<EngineeringSession>) => void;
+}): Promise<{ runtime: PlanRuntime; selected: { providerId: string; modelId: string } } | null> {
+  const prepared = await post('/api/build/ai/prepare', { prompt: requirement, mode, generationProfile: profile, manualSelection });
+  if (prepared.status === 401 || prepared.status === 403) { update({ stage: 'AUTH_REQUIRED', error: 'Sign in with an authorized Build account to use the provider runtime.' }); return null; }
+  if (!prepared.ok) throw new Error(prepared.status === 400 ? 'Select a discovered provider/model for MANUAL routing.' : 'The canonical provider runtime could not resolve this request.');
+  const runtime = await prepared.json() as PlanRuntime;
+  if (!runtime.decision?.selected) { update({ stage: runtime.state === 'CONFIG_REQUIRED' ? 'CONFIG_REQUIRED' : 'PROVIDER_BLOCKED', error: runtime.decision?.blocker ?? 'No runtime-eligible provider is available.' }); return null; }
+  return { runtime, selected: runtime.decision.selected };
+}
+
+/** One bounded provider pass with the existing stream-first, canonical-fallback contract. */
+export async function executePlanPass({ post, runtime, selected, mode, profile, models, system, messages, isCurrent, update, record }: {
+  post: PlanTransport;
+  runtime: PlanRuntime;
+  selected: { providerId: string; modelId: string };
+  mode: 'auto' | 'manual';
+  profile: NonNullable<EngineeringSession['requested']>['profile'];
+  models: NormalizedModel[];
+  system: string;
+  messages: { role: string; content: string }[];
+  isCurrent: () => boolean;
+  update: (patch: Partial<EngineeringSession>) => void;
+  record: (message: string) => void;
+}): Promise<{ plan: EngineeringPlan; terminal: NonNullable<EngineeringSession['measurement']> }> {
+  const selectedModel = models.find((model) => model.providerId === selected.providerId && model.modelId === selected.modelId);
+  const controls = profileToControls(profile, selectedModel).controls;
+  const stream = await post('/api/build/ai/stream', { ...selected, generationProfile: profile, system, messages, controls });
+  if (stream.status === 401 || stream.status === 403) throw new PlanStreamError('The runtime refused access. No plan was generated.', 'AUTHENTICATION');
+  if (!stream.ok || !stream.body) throw new Error('The provider stream could not be opened.');
+  update({ stage: 'GENERATING' });
+  try {
+    const result = await consumePlanStream(stream.body, (characters) => { if (isCurrent()) update({ characters }); }, (draftPlan) => { if (isCurrent()) update({ draftPlan }); }, (streamText) => { if (isCurrent()) update({ streamText }); });
+    record(`Engineering plan generated by ${selected.providerId}/${selected.modelId}. No project mutations.`);
+    return { plan: result.plan, terminal: result.terminal };
+  } catch (cause) {
+    if (cause instanceof Error && cause.name === 'AbortError') throw cause; // Cancellation must never charge a fallback.
+    const alternatives = runtime.decision.fallbackChain;
+    if (mode === 'manual' || !alternatives?.length || !canFallbackPlanError(cause)) throw cause;
+    const [primary, ...fallbackChain] = alternatives;
+    update({ draftPlan: null, streamText: '' });
+    const response = await post('/api/build/ai/generate', { ...primary, fallbackChain, generationProfile: profile, system, messages, controls });
+    if (!response.ok) throw new Error('The canonical fallback runtime refused this request.');
+    const result = await response.json();
+    if (!result.ok || !result.actualProviderId || !result.routedModelId) throw new Error(result.error?.safeMessage ?? 'No eligible fallback completed the plan.');
+    const artifact = parseEngineeringPlan(result.text);
+    update({ selection: { ...selected, reasons: [...runtime.decision.reasons, `Requested ${selected.providerId}/${selected.modelId}. Streaming failed; canonical generation fallback used ${result.actualProviderId}/${result.routedModelId}; actual model ${result.actualModelId ?? 'UNKNOWN'}. ${1 + (result.fallbackCount ?? 0)} fallback attempts.`] } });
+    record(`Engineering plan generated by fallback ${result.actualProviderId}/${result.actualModelId}. Requested ${selected.providerId}/${selected.modelId}. No project mutations.`);
+    return { plan: artifact, terminal: result };
+  }
+}
+
 /** The shipped request pipeline, also exercised with deferred transports in tests. */
 export async function generateEngineeringProposal({ request, requirement, mode, profile, manualSelection, models, messages, isCurrent, update, record }: {
   request: GenerationRequest;
@@ -88,44 +150,112 @@ export async function generateEngineeringProposal({ request, requirement, mode, 
     return response;
   };
   try {
-    const prepared = await post('/api/build/ai/prepare', { prompt: requirement, mode, generationProfile: profile, manualSelection });
-    if (prepared.status === 401 || prepared.status === 403) { update({ stage: 'AUTH_REQUIRED', error: 'Sign in with an authorized Build account to use the provider runtime.' }); return; }
-    if (!prepared.ok) throw new Error(prepared.status === 400 ? 'Select a discovered provider/model for MANUAL routing.' : 'The canonical provider runtime could not resolve this request.');
-    const runtime = await prepared.json();
+    const resolved = await resolvePlanRuntime({ post, requirement, mode, profile, manualSelection, update });
+    if (!resolved) return;
     assertCurrent();
-    if (!runtime.decision?.selected) { update({ stage: runtime.state === 'CONFIG_REQUIRED' ? 'CONFIG_REQUIRED' : 'PROVIDER_BLOCKED', error: runtime.decision?.blocker ?? 'No runtime-eligible provider is available.' }); return; }
-    const selected = runtime.decision.selected as { providerId: string; modelId: string };
+    const { runtime, selected } = resolved;
     update({ selection: { ...selected, reasons: runtime.decision.reasons }, stage: 'ROUTING' });
-    const selectedModel = models.find((model) => model.providerId === selected.providerId && model.modelId === selected.modelId);
-    const controls = profileToControls(profile, selectedModel).controls;
-    const stream = await post('/api/build/ai/stream', { ...selected, generationProfile: profile, system: ENGINEERING_PLAN_SYSTEM, messages, controls });
-    if (stream.status === 401 || stream.status === 403) { update({ stage: 'AUTH_REQUIRED', error: 'The runtime refused access. No plan was generated.' }); return; }
-    if (!stream.ok || !stream.body) throw new Error('The provider stream could not be opened.');
-    update({ stage: 'GENERATING' });
-    try {
-      const result = await consumePlanStream(stream.body, (characters) => { if (isCurrent()) update({ characters }); }, (draftPlan) => { if (isCurrent()) update({ draftPlan }); }, (streamText) => { if (isCurrent()) update({ streamText }); });
-      assertCurrent();
-      update({ plan: result.plan, measurement: result.terminal, stage: 'PLANNED' });
-      record(`Engineering plan generated by ${selected.providerId}/${selected.modelId}. No project mutations.`);
-    } catch (cause) {
-      assertCurrent(); // Includes fetch AbortError: cancellation must never charge a fallback.
-      if (cause instanceof Error && cause.name === 'AbortError') throw cause;
-      const alternatives = runtime.decision.fallbackChain as { providerId: string; modelId: string }[];
-      if (mode === 'manual' || !alternatives?.length || !canFallbackPlanError(cause)) throw cause;
-      const [primary, ...fallbackChain] = alternatives;
-      update({ draftPlan: null, streamText: '' });
-      const response = await post('/api/build/ai/generate', { ...primary, fallbackChain, generationProfile: profile, system: ENGINEERING_PLAN_SYSTEM, messages, controls });
-      if (!response.ok) throw new Error('The canonical fallback runtime refused this request.');
-      const result = await response.json();
-      assertCurrent();
-      if (!result.ok || !result.actualProviderId || !result.routedModelId) throw new Error(result.error?.safeMessage ?? 'No eligible fallback completed the plan.');
-      const artifact = parseEngineeringPlan(result.text);
-      update({ selection: { ...selected, reasons: [...runtime.decision.reasons, `Requested ${selected.providerId}/${selected.modelId}. Streaming failed; canonical generation fallback used ${result.actualProviderId}/${result.routedModelId}; actual model ${result.actualModelId ?? 'UNKNOWN'}. ${1 + (result.fallbackCount ?? 0)} fallback attempts.`] }, plan: artifact, measurement: result, stage: 'PLANNED' });
-      record(`Engineering plan generated by fallback ${result.actualProviderId}/${result.actualModelId}. Requested ${selected.providerId}/${selected.modelId}. No project mutations.`);
-    }
+    // A fallback pass rewrites the selection evidence; keep it so the terminal
+    // patch lands the proposal and its routing evidence together.
+    let fallbackSelection: EngineeringSession['selection'] = null;
+    const passUpdate = (patch: Partial<EngineeringSession>) => { if (patch.selection) fallbackSelection = patch.selection; update(patch); };
+    const { plan, terminal } = await executePlanPass({ post, runtime, selected, mode, profile, models, system: ENGINEERING_PLAN_SYSTEM, messages, isCurrent, update: passUpdate, record });
+    assertCurrent();
+    update({ ...(fallbackSelection ? { selection: fallbackSelection } : {}), plan, measurement: terminal, stage: 'PLANNED', execution: null });
   } catch (cause) {
     if (!isCurrent() || signal.aborted) return;
     if ((cause instanceof Error && cause.name === 'AbortError') || (cause instanceof PlanStreamError && cause.category === 'ABORTED')) { update({ stage: 'CANCELLED', error: null }); return; }
+    update({ stage: cause instanceof PlanStreamError && cause.category === 'AUTHENTICATION' ? 'AUTH_REQUIRED' : 'PROVIDER_BLOCKED', error: cause instanceof Error ? cause.message : 'Planning failed.' });
+  }
+}
+
+/**
+ * KNOUX PRO — five sequential role passes through the SAME canonical engine.
+ * Each role is one measured provider request; a failed role halts the chain
+ * and the last complete proposal is retained honestly. No fabricated progress:
+ * the ledger only advances on real terminal measurements.
+ */
+export async function generateProProposal({ request, requirement, intent, context, mode, profile, manualSelection, models, isCurrent, update, record }: {
+  request: GenerationRequest;
+  requirement: string;
+  intent: BuildIntent;
+  context: { project: string | null; worktree: string | null; branch: string | null };
+  mode: 'auto' | 'manual';
+  profile: NonNullable<EngineeringSession['requested']>['profile'];
+  manualSelection: { providerId: string | null; modelId: string | null };
+  models: NormalizedModel[];
+  isCurrent: () => boolean;
+  update: (patch: Partial<EngineeringSession>) => void;
+  record: (message: string) => void;
+}) {
+  const signal = request.controller.signal;
+  const assertCurrent = () => { if (!isCurrent() || signal.aborted) throw new DOMException('Planning request cancelled or superseded.', 'AbortError'); };
+  const post = async (url: string, body: unknown) => {
+    assertCurrent();
+    const response = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal });
+    assertCurrent();
+    return response;
+  };
+  const runs = initialProRoleRuns();
+  const publishRuns = () => update({ proRuns: runs.map((run) => ({ ...run })) });
+  let plan: EngineeringPlan | null = null;
+  let characters = 0;
+  const patchRun = (index: number, patch: Partial<ProRoleRun>) => { runs[index] = { ...runs[index], ...patch }; publishRuns(); };
+  publishRuns();
+  try {
+    for (let index = 0; index < PRO_ROLES.length; index++) {
+      const role = PRO_ROLES[index];
+      assertCurrent();
+      patchRun(index, { status: 'PENDING', error: null });
+      const resolved = await resolvePlanRuntime({ post, requirement, mode, profile, manualSelection, update });
+      if (!resolved) { patchRun(index, { status: 'FAILED', error: 'The canonical runtime could not resolve this role.' }); return; }
+      assertCurrent();
+      const { runtime, selected } = resolved;
+      update({ selection: { ...selected, reasons: [...runtime.decision.reasons, `KNOUX PRO pass ${index + 1}/${PRO_ROLES.length} · ${role}`] }, stage: 'ROUTING' });
+      patchRun(index, { providerId: selected.providerId, modelId: selected.modelId });
+      const messages = [{ role: 'user', content: proRolePrompt(role, intent, context, plan ?? undefined) }];
+      const passUpdate = (patch: Partial<EngineeringSession>) => {
+        if (!isCurrent()) return;
+        if (typeof patch.characters === 'number') update({ characters: characters + patch.characters });
+        const { characters: _characters, ...rest } = patch;
+        if (Object.keys(rest).length) update(rest);
+      };
+      try {
+        const result = await executePlanPass({ post, runtime, selected, mode, profile, models, system: proRoleSystem(role), messages, isCurrent, update: passUpdate, record });
+        assertCurrent();
+        plan = result.plan;
+        const terminal = result.terminal;
+        characters = Object.values(result.plan).reduce((total, value) => total + (Array.isArray(value) ? value.join('\n').length : 0), characters);
+        patchRun(index, { status: 'COMPLETE', providerId: terminal.actualProviderId ?? selected.providerId, modelId: terminal.actualModelId ?? selected.modelId, latencyMs: terminal.latencyMs ?? null, usage: terminal.usage ?? null, error: null });
+        update({ plan: result.plan, measurement: terminal, draftPlan: null, streamText: '' });
+        record(`KNOUX PRO ${role} pass completed by ${terminal.actualProviderId ?? selected.providerId}/${terminal.actualModelId ?? selected.modelId}. No project mutations.`);
+      } catch (cause) {
+        if (!isCurrent() || signal.aborted) throw cause;
+        if (cause instanceof Error && cause.name === 'AbortError') throw cause;
+        if (cause instanceof PlanStreamError && cause.category === 'ABORTED') throw cause;
+        const message = cause instanceof Error ? cause.message : 'Role pass failed.';
+        patchRun(index, { status: 'FAILED', error: message });
+        update({ stage: cause instanceof PlanStreamError && cause.category === 'AUTHENTICATION' ? 'AUTH_REQUIRED' : 'PROVIDER_BLOCKED', error: `KNOUX PRO ${role} pass failed: ${message}${plan ? ' The last complete proposal is retained.' : ''}` });
+        return;
+      }
+    }
+    assertCurrent();
+    if (!plan) throw new Error('The PRO chain produced no proposal.');
+    // The Reviewer artifact re-enters through the same parser the reducer
+    // enforces; a malformed final never reaches PLANNED.
+    const finalPlan = assertFinalProPlan(plan);
+    const totals = aggregateProRuns(runs);
+    update({ plan: finalPlan, stage: 'PLANNED', execution: null, measurement: { latencyMs: totals.latencyMs, usage: totals.usage, actualProviderId: runs.at(-1)?.providerId ?? null, actualModelId: runs.at(-1)?.modelId ?? null } });
+    record(`KNOUX PRO chain complete: ${totals.completed}/${totals.total} measured passes. No project mutations.`);
+  } catch (cause) {
+    const cancelled = signal.aborted || (cause instanceof Error && cause.name === 'AbortError') || (cause instanceof PlanStreamError && cause.category === 'ABORTED');
+    if (cancelled) {
+      const active = runs.findIndex((run) => run.status === 'PENDING');
+      if (active >= 0) runs[active] = { ...runs[active], status: 'CANCELLED' };
+      update({ proRuns: runs.map((run) => ({ ...run })), stage: 'CANCELLED', error: null });
+      return;
+    }
+    if (!isCurrent()) return;
     update({ stage: cause instanceof PlanStreamError && cause.category === 'AUTHENTICATION' ? 'AUTH_REQUIRED' : 'PROVIDER_BLOCKED', error: cause instanceof Error ? cause.message : 'Planning failed.' });
   }
 }
@@ -167,8 +297,9 @@ export function DevWorkspaceHome() {
   const planning = ['RESOLVING', 'ROUTING', 'GENERATING'].includes(stage);
   const [showSplitView, setShowSplitView] = useState(false);
   const [expandedPreview, setExpandedPreview] = useState(false);
-  const [previewWidth, setPreviewWidth] = useState(44);
+  const [previewWidth, setPreviewWidth] = useState(45);
   const [compactPanel, setCompactPanel] = useState<'preview' | 'generation'>('preview');
+  const [workspaceTool, setWorkspaceTool] = useState<'generation' | 'source'>('generation');
 
   const modelPicker = (
     <ComposerModelPicker
@@ -208,12 +339,17 @@ export function DevWorkspaceHome() {
     const context = { project: state.project?.name ?? null, worktree: state.project?.root ?? null, branch: state.git?.branch ?? null, projectRef: state.projectRef, projectId: state.project?.id ?? null, headSha: state.git?.headSha ?? null };
     const update = (patch: Partial<EngineeringSession>) => { if (isCurrent()) dispatch({ type: 'engineering/update', requestId: request.id, patch }); };
     const record = (message: string) => { if (isCurrent()) dispatch({ type: 'activity/record', message }); };
-    dispatch({ type: 'engineering/begin', requestId: request.id, context, requested: { mode: state.ai.routingMode, profile: state.ai.generationProfile, providerId: state.ai.routingMode === 'manual' ? state.ai.providerId : null, modelId: state.ai.routingMode === 'manual' ? state.ai.modelId : null } });
+    const buildMode = state.ai.buildMode;
+    dispatch({ type: 'engineering/begin', requestId: request.id, context, requested: { mode: state.ai.routingMode, profile: state.ai.generationProfile, providerId: state.ai.routingMode === 'manual' ? state.ai.providerId : null, modelId: state.ai.routingMode === 'manual' ? state.ai.modelId : null, buildMode } });
     const intent = compileBuildIntent(requirement);
     dispatch({ type: 'intent/compiled', intent });
-    const messages = [{ role: 'user', content: planPrompt(intent, context, revision?.previousPlan) }];
     try {
-      await generateEngineeringProposal({ request, requirement, mode: state.ai.routingMode, profile: state.ai.generationProfile, manualSelection: { providerId: state.ai.providerId, modelId: state.ai.modelId }, models: intelligence.models, messages, isCurrent, update, record });
+      if (buildMode === 'PRO' && !revision) {
+        await generateProProposal({ request, requirement, intent, context, mode: state.ai.routingMode, profile: state.ai.generationProfile, manualSelection: { providerId: state.ai.providerId, modelId: state.ai.modelId }, models: intelligence.models, isCurrent, update, record });
+      } else {
+        const messages = [{ role: 'user', content: planPrompt(intent, context, revision?.previousPlan) }];
+        await generateEngineeringProposal({ request, requirement, mode: state.ai.routingMode, profile: state.ai.generationProfile, manualSelection: { providerId: state.ai.providerId, modelId: state.ai.modelId }, models: intelligence.models, messages, isCurrent, update, record });
+      }
     } finally {
       if (isCurrent()) intelligence.refresh();
       requests.finish(request);
@@ -221,15 +357,14 @@ export function DevWorkspaceHome() {
   }
 
   return <>
-    <BuildEntryGate />
-    <section className={`dev-observatory dev-observatory--${view}`} aria-label="Build workspace">
+    <section id="build-workspace" tabIndex={-1} className={`dev-observatory dev-observatory--${view}`} aria-label="Build workspace">
       <header className="dev-stage-head">
         <span className="dev-mini-label">KNOuX / ENGINEERING ENVIRONMENT</span>
         <div className="dev-stage-views" role="group" aria-label="Workspace view">
           {(['build', 'preview', 'code', 'registry'] as const).map((item) => <button key={item} type="button" aria-pressed={view === item} onClick={() => setView(item)}>{item.toUpperCase()}</button>)}
         </div>
       </header>
-      <details className="dev-context-rail" open={view !== 'preview'}><summary><span>{state.project?.name ?? 'Project not connected'}</span><span>{state.git?.branch ?? 'No branch'}</span><span>{state.engineering.host?.name ?? 'Host unmeasured'}</span><span>KNOuX Architect</span><span>{selection?.modelId ?? state.ai.modelId ?? 'Model per request'}</span><span>{state.ai.routingMode.toUpperCase()}</span><b>Context ↓</b></summary><dl className="dev-home-context"><div><dt>PROJECT / WORKTREE</dt><dd>{state.project?.root ?? 'NOT CONNECTED'}</dd></div><div><dt>HOST</dt><dd>{state.engineering.host?.kind ?? facts.environment}</dd></div><div><dt>PROVIDER</dt><dd>{facts.provider}</dd></div><div><dt>AGENT / TOOLS</dt><dd>Logical planning profile · provider planning only</dd></div></dl></details>
+      <details className="dev-context-rail" open={view !== 'preview'}><summary><span>{state.project?.name ?? 'Project not connected'}</span><span>{state.git?.branch ?? 'No branch'}</span><span>{state.engineering.host?.name ?? 'Host unmeasured'}</span><span>{KNOUX_MODE_LABELS[state.ai.buildMode]}</span><span>{selection?.modelId ?? state.ai.modelId ?? 'Model per request'}</span><span>{state.ai.routingMode.toUpperCase()}</span><b>Context ↓</b></summary><dl className="dev-home-context"><div><dt>PROJECT / WORKTREE</dt><dd>{state.project?.root ?? 'NOT CONNECTED'}</dd></div><div><dt>HOST</dt><dd>{state.engineering.host?.kind ?? facts.environment}</dd></div><div><dt>PROVIDER</dt><dd>{facts.provider}</dd></div><div><dt>AGENT / TOOLS</dt><dd>Logical planning profile · provider planning only</dd></div></dl></details>
       {view === 'build' ? <div className="dev-universe">
         <div className="dev-universe__orbit" aria-hidden="true" />
         <div className="dev-build-center">
@@ -256,6 +391,9 @@ export function DevWorkspaceHome() {
             <p><span role="status">ENGINE / {stage}</span><small aria-live="off">{planning ? `${characters.toLocaleString()} characters received` : stage === 'LISTENING' ? 'Describe a system. Resolve its architecture.' : stage === 'PLANNED' ? 'Proposal ready · review before execution' : stage === 'CANCELLED' ? 'Request aborted · no further output or fallback accepted' : stage === 'AUTH_REQUIRED' ? 'Provider access requires an authorized account' : stage === 'EXECUTOR_NOT_CONNECTED' ? 'Plan retained · trusted execution required' : 'Canonical engineering state'}</small></p>
             </div>
           </div>
+          <div className="dev-knoux-modes" role="group" aria-label="KNOUX build mode">
+            {KNOUX_BUILD_MODES.map((mode) => <button key={mode} type="button" className="dev-knoux-mode" data-mode={mode} aria-pressed={state.ai.buildMode === mode} disabled={planning} onClick={() => dispatch({ type: 'ai/build-mode', buildMode: mode })}><span className="dev-knoux-mode__name">{KNOUX_MODE_LABELS[mode]}</span><span className="dev-knoux-mode__desc">{KNOUX_MODE_DESCRIPTIONS[mode]}</span>{mode === 'PRO' ? <span className="dev-knoux-mode__roles" aria-hidden="true">{PRO_ROLES.join(' · ')}</span> : null}</button>)}
+          </div>
           <div className="dev-composer-routing">
             {modelPicker}
           </div>
@@ -272,16 +410,17 @@ export function DevWorkspaceHome() {
           <ModelControlsPanel model={chosenModel} profile={state.ai.generationProfile} disabled={planning} />
           <div className="dev-card-grid dev-card-grid--intents" role="group" aria-label="Intent suggestions">{QUICK_INTENTS.slice(0, 4).map((item) => <button type="button" key={item.label} className="dev-card dev-card--interactive dev-quick-card" onClick={() => { setDraftOverride(item.prompt); input.current?.focus(); }}><span className="dev-quick-card__icon"><IntentIcon label={item.label} /></span><span className="dev-quick-card__text"><span className="dev-quick-card__label">{item.label}</span><span className="dev-quick-card__desc">{item.prompt}…</span></span><span className="dev-quick-card__arrow" aria-hidden="true">→</span></button>)}</div>
           <GenerationLifecycleRail state={state} session={engineering} />
-          <p className="dev-compiler-note" aria-live="off">{stage}{planning ? ` · ${characters.toLocaleString()} characters received` : ''} · {selection ? `${selection.providerId} / ${selection.modelId}` : 'Canonical runtime · planning only'}</p>
+          <p className="dev-compiler-note" aria-live="off">{stage}{planning ? ` · ${characters.toLocaleString()} characters received` : ''} · {selection ? `${selection.providerId} / ${selection.modelId}` : 'Canonical runtime · planning only'} · {KNOUX_MODE_LABELS[state.ai.buildMode]}</p>
+          {engineering.proRuns?.length ? <div className="dev-pro-ledger" aria-label="KNOUX PRO role evidence"><p className="dev-mini-label">KNOUX PRO · MEASURED ROLE PASSES</p><ol>{engineering.proRuns.map((run) => <li key={run.role} data-status={run.status}><span className="dev-pro-ledger__role">{run.role}</span><span className="dev-pro-ledger__state">{run.status}</span><span className="dev-pro-ledger__runtime">{run.providerId ? `${run.providerId} / ${run.modelId}` : 'UNRESOLVED'}</span><span className="dev-pro-ledger__measure">{run.latencyMs != null ? `${run.latencyMs} ms` : 'latency UNKNOWN'} · in {run.usage?.inputTokens ?? 'UNKNOWN'} / out {run.usage?.outputTokens ?? 'UNKNOWN'}</span>{run.error ? <span className="dev-pro-ledger__error" role="status">{run.error}</span> : null}</li>)}</ol></div> : null}
           {requested ? <div className={styles.runtimeReading} aria-label="Requested and actual intelligence"><p>Requested: {requested.mode.toUpperCase()} · {requested.profile} · {requested.providerId ? `${requested.providerId} / ${requested.modelId}` : 'RouterV2 eligible selection'}</p><p>Routed endpoint: {selection ? `${selection.providerId} / ${selection.modelId}` : 'UNRESOLVED'}</p><p>Actual: {measurement?.actualProviderId ?? 'UNKNOWN'} / {measurement?.actualModelId ?? 'UNKNOWN'} · latency {measurement?.latencyMs ?? 'UNKNOWN'} ms · TTFT {measurement?.ttftMs ?? 'UNKNOWN'} ms</p>{measurement?.controlsUsed ? <p>Applied controls: output {measurement.controlsUsed.maxOutputTokens ?? 'provider default'} · temperature {measurement.controlsUsed.temperature ?? 'provider default'}</p> : null}{selection?.reasons.length ? <details><summary>Routing and fallback evidence</summary><ul>{selection.reasons.map((reason, index) => <li key={index}>{reason}</li>)}</ul></details> : null}</div> : null}
           {streamText && !plan ? <details className={styles.streamEvidence}><summary>Provider text received · {characters.toLocaleString()} characters · unvalidated</summary><pre aria-live="off">{streamText}</pre></details> : null}
           <div className="dev-intent-reading" role="status">{state.intent ? summariseIntent(state.intent) : 'Describe your next system to compile its intent.'}</div>
         </div>
         <div className="dev-universe__caption"><span>PROJECT CONSTELLATION</span><button type="button" onClick={() => setView('registry')}>EXPLORE {facts.registryCount} PRODUCTS ↗</button></div>
       </div> : view === 'preview' ? (
-        <div className={previewStyles.workspace} data-reduced={state.preferences.motion === 'reduced' ? '' : undefined}>
+        <div className={previewStyles.workspace} data-engineering-workspace data-reduced={state.preferences.motion === 'reduced' ? '' : undefined}>
           <header className={previewStyles.workspaceHeading}>
-            <div><span>BUILD / GENERATION</span><h1>Project preview</h1><p>Inspect the runtime while you plan and review changes.</p></div>
+            <div><span>KNOuX BUILD</span><h1>Project preview</h1></div>
             <div className={previewStyles.desktopControls}>
               {!expandedPreview && <label className={previewStyles.resizeControl}>
                 <span>Preview width <output>{previewWidth}%</output></span>
@@ -294,12 +433,22 @@ export function DevWorkspaceHome() {
           </header>
           <div className={previewStyles.compactControls} role="group" aria-label="Compact workspace panel">
             <button type="button" className="bo-chip" aria-pressed={compactPanel === 'preview'} onClick={() => setCompactPanel('preview')}>Preview</button>
-            <button type="button" className="bo-chip" aria-pressed={compactPanel === 'generation'} onClick={() => setCompactPanel('generation')}>Generation</button>
+            <button type="button" className="bo-chip" aria-pressed={compactPanel === 'generation'} onClick={() => setCompactPanel('generation')}>Workbench</button>
           </div>
           <div className={previewStyles.layout} data-expanded={expandedPreview} data-compact-panel={compactPanel} style={{ '--preview-share': `${previewWidth}fr`, '--generation-share': `${100 - previewWidth}fr` } as CSSProperties}>
             <section className={previewStyles.preview} aria-label="Preview workspace"><Preview cinematic workspace /></section>
-            <GenerationMonitor modelPicker={modelPicker} draft={draft} onDraft={setDraftOverride} onCompile={(event) => void compile(event)} planning={planning} engineering={engineering} onCancel={cancelPlanning} onReview={reviewFromPreview} onFollowUp={(event, text, previousPlan) => void compile(event, { text, previousPlan })} />
+            <div className={previewStyles.workbench}>
+              <div className={previewStyles.workbenchControls} role="group" aria-label="Workbench panel">
+                <button type="button" className="bo-chip" aria-pressed={workspaceTool === 'generation'} onClick={() => setWorkspaceTool('generation')}>Generation</button>
+                <button type="button" className="bo-chip" aria-pressed={workspaceTool === 'source'} onClick={() => setWorkspaceTool('source')}>Source files</button>
+              </div>
+              <div hidden={workspaceTool !== 'generation'}>
+                <GenerationMonitor modelPicker={modelPicker} draft={draft} onDraft={setDraftOverride} onCompile={(event) => void compile(event)} planning={planning} engineering={engineering} onCancel={cancelPlanning} onReview={reviewFromPreview} onFollowUp={(event, text, previousPlan) => void compile(event, { text, previousPlan })} />
+              </div>
+              {workspaceTool === 'source' ? <Code /> : null}
+            </div>
           </div>
+          <GenerationLifecycleRail state={state} session={engineering} />
         </div>
       ) : view === 'code' ? <div className={previewStyles.workspace}><header className={previewStyles.workspaceHeading}><div><span>BUILD / CHECKOUT</span><h1>Code Constellation</h1><p>Inspect the real source and file metadata for this checkout.</p></div></header><Code /></div>
         : <div className="dev-stage-surface"><h1 className="dev-surface-title">Product constellation</h1><Registry /></div>}
@@ -308,12 +457,12 @@ export function DevWorkspaceHome() {
       {plan && view === 'build' ? <>
           <section ref={planPanel} tabIndex={-1} className="dev-engineering-plan" aria-label="Engineering plan">
             <header><div><span className="dev-mini-label">ENGINEERING ARTIFACT / PROPOSAL</span><h2>From intent to architecture.</h2></div><div style={{display:'flex',gap:'12px',flexWrap:'wrap',alignItems:'center'}}><button type="button" className="dev-neon-btn dev-neon-btn--ghost" onClick={() => setStage('REVIEWING')}>Review plan</button><button type="button" className="dev-neon-btn dev-neon-btn--primary" onClick={() => setShowSplitView(true)}><span aria-hidden="true">▦</span> Open Preview & Code</button></div></header>
-            <dl className="dev-plan-context"><div><dt>Agent</dt><dd>KNOuX Architect · logical planning profile</dd></div><div><dt>Runtime / profile</dt><dd>{selection?.providerId} / {selection?.modelId} · {requested?.profile}</dd></div><div><dt>Worktree</dt><dd>{state.engineering.context?.worktree ?? 'No worktree connected'}</dd></div><div><dt>Measurements</dt><dd>{measurement?.latencyMs ?? 'UNKNOWN'} ms · input {measurement?.usage?.inputTokens ?? 'UNKNOWN'} / output {measurement?.usage?.outputTokens ?? 'UNKNOWN'} tokens · cost {measurement?.estimatedCost?.amount != null ? `${measurement.estimatedCost.basis} ${measurement.estimatedCost.amount} ${measurement.estimatedCost.currency}` : 'UNKNOWN'}</dd></div></dl>
+            <dl className="dev-plan-context"><div><dt>Agent</dt><dd>{requested?.buildMode === 'PRO' ? 'KNOUX PRO · Architect → Coder → UI Designer → Debugger → Reviewer' : 'KNOuX Architect · logical planning profile'} · {KNOUX_MODE_LABELS[requested?.buildMode ?? state.ai.buildMode]}</dd></div><div><dt>Runtime / profile</dt><dd>{selection?.providerId} / {selection?.modelId} · {requested?.profile}</dd></div><div><dt>Worktree</dt><dd>{state.engineering.context?.worktree ?? 'No worktree connected'}</dd></div><div><dt>Measurements</dt><dd>{measurement?.latencyMs ?? 'UNKNOWN'} ms · input {measurement?.usage?.inputTokens ?? 'UNKNOWN'} / output {measurement?.usage?.outputTokens ?? 'UNKNOWN'} tokens · cost {measurement?.estimatedCost?.amount != null ? `${measurement.estimatedCost.basis} ${measurement.estimatedCost.amount} ${measurement.estimatedCost.currency}` : 'UNKNOWN'}</dd></div></dl>
             <p className={styles.note}>Session-only proposal: retained while navigating Build; a new request or page reload clears it. No plan is stored on the server.</p>
             <PlanSystemMap plan={plan} />
             <nav className="dev-plan-index" aria-label="Plan architecture">{PLAN_SECTIONS.map((section, index) => <a key={section} href={`#plan-${index}`} onClick={() => { const detail = document.getElementById(`plan-${index}`); if (detail instanceof HTMLDetailsElement) detail.open = true; }}>{section.replaceAll('_', ' ')}</a>)}</nav>
             <div className="dev-plan-sections">{PLAN_SECTIONS.map((section, index) => <details id={`plan-${index}`} key={section} open={index < 3}><summary><span>{String(index + 1).padStart(2, '0')}</span><h3>{section.replaceAll('_', ' ')}</h3><span>{plan[section].length} items</span></summary><ul>{plan[section].map((line, i) => <li key={i}>{line}</li>)}</ul></details>)}</div>
-            {stage === 'REVIEWING' || stage === 'EXECUTOR_NOT_CONNECTED' ? <aside className="dev-plan-review" aria-label="Execution review">{plan.generatedProject ? <GeneratedProjectExecution artifact={plan.generatedProject} compact /> : <><h3>Review before execution</h3><p>Proposed files and actions appear above. Planning has provider generation permission only; no shell, browser, Git write, MCP, plugin or skill tools were invoked. Execution risk is unverified until a trusted executor validates this proposal.</p><p>{selection?.reasons.join(' ')}</p><div style={{display:'flex',gap:'12px',flexWrap:'wrap',marginTop:'16px'}}><button type="button" className="dev-neon-btn dev-neon-btn--ghost" onClick={() => setStage('EXECUTOR_NOT_CONNECTED')}>Check execution availability</button><Link href="/build/pipeline" className="dev-neon-btn dev-neon-btn--success"><span aria-hidden="true">⌁</span> Inspect real verification ↗</Link></div>{stage === 'EXECUTOR_NOT_CONNECTED' ? <p role="status">EXECUTOR_NOT_CONNECTED · This plan has no structured write executor. Connect and approve a trusted local execution environment. The public server cannot modify its deployed source.</p> : null}</>}</aside> : null}
+            {stage === 'REVIEWING' || stage === 'EXECUTOR_NOT_CONNECTED' ? <aside className="dev-plan-review" aria-label="Execution review"><h3>Review before execution</h3><p>Proposed files and actions appear above. Planning has provider generation permission only; no shell, browser, Git write, MCP, plugin or skill tools were invoked. Execution risk is unverified until a trusted executor validates this proposal.</p><p>{selection?.reasons.join(' ')}</p>{plan.generatedProject ? <GeneratedProjectExecution artifact={plan.generatedProject} compact onReceipt={(execution) => { if (engineering.requestId) dispatch({ type: 'engineering/update', requestId: engineering.requestId, patch: { execution } }); }} /> : <><div style={{display:'flex',gap:'12px',flexWrap:'wrap',marginTop:'16px'}}><button type="button" className="dev-neon-btn dev-neon-btn--ghost" onClick={() => setStage('EXECUTOR_NOT_CONNECTED')}>Check execution availability</button><Link href="/build/pipeline" className="dev-neon-btn dev-neon-btn--success"><span aria-hidden="true">⌁</span> Inspect real verification ↗</Link></div>{stage === 'EXECUTOR_NOT_CONNECTED' ? <p role="status">EXECUTOR_NOT_CONNECTED · This proposal has no bounded write executor. Connect and approve a trusted execution environment. The public server cannot modify its deployed source.</p> : null}</>}</aside> : null}
           </section>
           {showSplitView && <SplitView plan={plan} onClose={() => setShowSplitView(false)} onBackToPlan={() => setShowSplitView(false)} />}
         </> : null}

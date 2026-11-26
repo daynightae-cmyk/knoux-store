@@ -9,7 +9,9 @@ try {
   for (const width of [1440, 390]) {
     const page = await browser.newPage({ viewport: { width, height: width > 1000 ? 900 : 844 }, reducedMotion: 'reduce' });
     page.on('pageerror', (error) => errors.push(`pageerror: ${error.message.slice(0, 160)}`));
-    page.on('console', (message) => { if (message.type() === 'error') errors.push(`console: ${message.text().slice(0, 160)}`); });
+    // An anonymous adapter probe answering 401 is the honest, expected
+    // boundary in a local production build (same filter as the e2e suites).
+    page.on('console', (message) => { if (message.type() === 'error' && !/status of (401|403)/.test(message.text())) errors.push(`console: ${message.text().slice(0, 160)}`); });
 
     await page.goto(`${base}/build?intro=1`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(1200);

@@ -9,7 +9,7 @@
 .providerStates{list-style:none;padding:0;margin:14px 0;display:flex;flex-wrap:wrap;gap:10px 22px}.providerStates li{display:grid;gap:5px;font-size:12px}.providerStates small{color:#c8bed5;font:10px var(--mono,monospace)}
 .modelList{list-style:none;margin:12px 0;padding:0;max-height:280px;overflow:auto}
 .modelList button{display:grid;gap:7px;width:100%;min-height:72px;padding:14px 10px;border:0;border-radius:0;background:transparent;color:#ece8f1;text-align:left;cursor:pointer;font-size:13px}
-.modelList button[data-active=true],.modelList button[aria-selected=true]{background:linear-gradient(90deg,#b9a8d222,transparent);box-shadow:inset 2px 0 #cbb5e3}
+.modelList button[data-active=true],.modelList button[aria-selected=true]{background:linear-gradient(90deg,rgba(190,161,219,.16),transparent);box-shadow:inset 2px 0 #cbb5e3}
 .modelList strong{font-size:15px;font-weight:500}.modelList span,.modelList small{overflow-wrap:anywhere;color:#c3bbcf}.modelList small{font-size:11px;line-height:1.6}
 .note{font-size:12px!important;line-height:1.7!important;color:#bfb7cc;overflow-wrap:anywhere;margin:9px 0}
 .textButton{min-height:44px;padding:9px 0!important;border:0!important;border-radius:0!important;background:transparent!important;color:#ddd1eb!important;font-size:13px!important;text-decoration:underline;text-underline-offset:5px;cursor:pointer}
@@ -49,7 +49,7 @@
 .composerPickerGroupLabel{font:10px var(--mono,monospace);letter-spacing:.14em;color:#858693;margin:10px 0 6px;padding:0 4px;text-transform:uppercase}
 .composerPickerOption{display:grid;grid-template-columns:1fr auto;gap:10px;width:100%;min-height:56px;padding:10px 12px;border:0;border-radius:8px;background:transparent;color:#ece8f1;text-align:left;cursor:pointer;font-size:13px;align-items:center}
 .composerPickerOption:not([aria-disabled=true]):hover{background:#1a1823;border-color:#cab8dc33}
-.composerPickerOption[data-active=true],.composerPickerOptionActive{background:#b9a8d222;box-shadow:inset 2px 0 #cbb5e3}
+.composerPickerOption[data-active=true],.composerPickerOptionActive{background:rgba(190,161,219,.16);box-shadow:inset 2px 0 #cbb5e3}
 .composerPickerOptionSelected{background:#2a1a3a;border-color:#c4aecf66}
 .composerPickerOption[aria-disabled=true]{opacity:.55;cursor:not-allowed}
 .composerPickerOptionName{font-size:13px;font-weight:500;overflow-wrap:anywhere}
@@ -78,8 +78,8 @@
 .modelControl input[type="text"]{padding:8px 10px;background:#1a1823;border:1px solid #b9a8d250;border-radius:6px;color:#e8deef;font:12px var(--mono,monospace)}
 
 /* ===== SplitView ===== */
-.splitView{position:relative;display:flex;flex-direction:column;height:100%;min-height:600px;background:#0a0b10;border:1px solid #b9a8d233;border-radius:16px;overflow:hidden;box-shadow:0 24px 80px #000a,inset 0 1px 0 #ffffff08}
-.splitViewHeader{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;border-bottom:1px solid #b9a8d222;background:linear-gradient(90deg,#1a1823cc,#0e1014e8);backdrop-filter:blur(12px);flex-shrink:0}
+.splitView{position:relative;display:flex;flex-direction:column;height:100%;min-height:600px;background:linear-gradient(160deg,rgba(28,16,52,.66),rgba(10,6,22,.85) 62%);border:1px solid rgba(192,132,252,.42);border-radius:16px;overflow:hidden;box-shadow:0 24px 80px #000a,0 0 46px rgba(168,85,247,.18),inset 0 1px 0 rgba(243,232,255,.14),inset 0 0 38px rgba(168,85,247,.07);backdrop-filter:blur(10px)}
+.splitViewHeader{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;border-bottom:1px solid rgba(190,161,219,.2);background:linear-gradient(90deg,rgba(43,26,58,.6),rgba(14,10,24,.9));backdrop-filter:blur(12px);flex-shrink:0}
 .splitViewBody {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -110,49 +110,49 @@
   .splitViewBody .splitViewCode { grid-template-columns: minmax(0, 1fr); }
   .splitViewBody .splitViewFileTree { border-right: 0; border-bottom: 1px solid #b298da38; }
 }
-.splitViewBadge{font:10px var(--font-mono,monospace);letter-spacing:.1em;color:#c4b4da;padding:4px 10px;border:1px solid #b9a8d244;border-radius:999px;background:#0e1014e8;text-transform:uppercase}
-.splitViewTitle h2{margin:0;font-size:clamp(18px,2.5vw,24px);font-weight:500;color:#e8deef}
+.splitViewBadge{font:10px var(--font-mono,monospace);letter-spacing:.1em;color:#d9c6f2;padding:4px 10px;border:1px solid rgba(192,132,252,.35);border-radius:999px;background:rgba(42,26,60,.55);text-transform:uppercase}
+.splitViewTitle h2{margin:0;font-size:clamp(18px,2.5vw,24px);font-weight:500;color:#f3eafa;text-shadow:0 0 18px rgba(192,132,252,.35)}
 .splitViewActions{display:flex;align-items:center;gap:8px}
-.splitViewModeBtn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid transparent;border-radius:8px;background:transparent;color:#b5b3c1;font:12px var(--sans,sans-serif);cursor:pointer;transition:all .2s ease}
-.splitViewModeBtn:hover{border-color:#b9a8d250;color:#e8deef;background:#1a1823}
-.splitViewModeBtn.active{border-color:#c4b4da;color:#e8deef;background:linear-gradient(90deg,#b9a8d222,transparent);box-shadow:0 0 16px rgba(196,180,218,.12)}
-.splitViewClose{width:32px;height:32px;display:grid;place-items:center;border:1px solid #b9a8d233;border-radius:8px;background:transparent;color:#b5b3c1;font-size:16px;cursor:pointer;transition:all .2s}
+.splitViewModeBtn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid transparent;border-radius:8px;background:transparent;color:#b3a8c9;font:12px var(--sans,sans-serif);cursor:pointer;transition:all .2s ease}
+.splitViewModeBtn:hover{border-color:rgba(192,132,252,.35);color:#f3eafa;background:rgba(43,26,58,.5)}
+.splitViewModeBtn.active{border-color:#c084fc;color:#f6f0ff;background:linear-gradient(90deg,rgba(168,85,247,.28),rgba(168,85,247,.04));box-shadow:0 0 16px rgba(168,85,247,.3)}
+.splitViewClose{width:32px;height:32px;display:grid;place-items:center;border:1px solid rgba(186,155,211,.3);border-radius:8px;background:transparent;color:#b3a8c9;font-size:16px;cursor:pointer;transition:all .2s}
 .splitViewClose:hover{border-color:#e89ad1;color:#e89ad1;background:#2a1a3a}
 .splitViewPreview{flex:1;min-height:0;display:flex;overflow:hidden}
 .splitViewBody[data-view='preview'] .splitViewPreview{border-radius:0 0 16px 16px}
 .splitViewBody > [hidden]{display:none}
-.splitViewCode{flex:1;min-height:0;display:flex;flex-direction:column;background:#0e1014e8;border-left:1px solid #b9a8d222}
-.splitViewFileTree{width:260px;min-width:200px;max-width:320px;padding:16px;overflow-y:auto;border-right:1px solid #b9a8d222;background:#0a0b10}
-.splitViewFileTree h3{margin:0 0 12px;font:10px var(--font-mono,monospace);letter-spacing:.14em;color:#c4b4da;text-transform:uppercase}
+.splitViewCode{flex:1;min-height:0;display:flex;flex-direction:column;background:rgba(14,10,24,.9);border-left:1px solid rgba(190,161,219,.16)}
+.splitViewFileTree{width:260px;min-width:200px;max-width:320px;padding:16px;overflow-y:auto;border-right:1px solid rgba(190,161,219,.16);background:rgba(10,6,20,.72)}
+.splitViewFileTree h3{margin:0 0 12px;font:10px var(--font-mono,monospace);letter-spacing:.14em;color:#cbb6e6;text-transform:uppercase}
 .splitViewFileList{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:4px}
-.splitViewFileBtn{width:100%;display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid transparent;border-radius:8px;background:transparent;color:#b5b3c1;font:12px var(--sans,sans-serif);text-align:left;cursor:pointer;transition:all .2s}
-.splitViewFileBtn:hover{border-color:#b9a8d244;color:#e8deef;background:#1a1823}
-.splitViewFileBtn.active{border-color:#c4b4da;color:#e8deef;background:linear-gradient(90deg,#b9a8d222,transparent)}
+.splitViewFileBtn{width:100%;display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid transparent;border-radius:8px;background:transparent;color:#b3a8c9;font:12px var(--sans,sans-serif);text-align:left;cursor:pointer;transition:all .2s}
+.splitViewFileBtn:hover{border-color:rgba(192,132,252,.3);color:#f3eafa;background:rgba(43,26,58,.5)}
+.splitViewFileBtn.active{border-color:#c084fc;color:#f6f0ff;background:linear-gradient(90deg,rgba(168,85,247,.28),rgba(168,85,247,.04));box-shadow:inset 2px 0 #dbb1ff,0 0 12px rgba(168,85,247,.25)}
 .splitViewEditor{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
-.splitViewEditorHeader{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #b9a8d222;background:#0a0b10}
-.splitViewEditorFilename{font:12px var(--font-mono,monospace);color:#e8deef;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.splitViewEditorClose{width:28px;height:28px;display:grid;place-items:center;border:1px solid transparent;border-radius:6px;background:transparent;color:#b5b3c1;cursor:pointer}
+.splitViewEditorHeader{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(190,161,219,.16);background:rgba(10,6,20,.72)}
+.splitViewEditorFilename{font:12px var(--font-mono,monospace);color:#e9e0f5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.splitViewEditorClose{width:28px;height:28px;display:grid;place-items:center;border:1px solid transparent;border-radius:6px;background:transparent;color:#b3a8c9;cursor:pointer}
 .splitViewEditorClose:hover{border-color:#e89ad1;color:#e89ad1;background:#2a1a3a}
-.splitViewEditorContent{flex:1;padding:16px;overflow:auto;font:13px/1.6 var(--font-mono,monospace);color:#d5cadd;background:#0a0b10;tab-size:2}
+.splitViewEditorContent{flex:1;padding:16px;overflow:auto;font:13px/1.6 var(--font-mono,monospace);color:#dcd2ee;background:rgba(9,6,18,.85);tab-size:2}
 .splitViewEditorContent code{font-family:inherit}
 .splitViewEditorPlaceholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#858693;text-align:center;padding:24px}
 .splitViewEditorPlaceholder[aria-hidden]{font-size:48px;opacity:.3}
 .splitViewEmpty{font-size:12px;color:#858693;text-align:center;padding:24px}
-.splitViewFooter{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid #b9a8d222;background:linear-gradient(90deg,#1a1823cc,#0e1014e8);backdrop-filter:blur(12px);flex-shrink:0}
-.splitViewBackBtn,.splitViewVerifyBtn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border:1px solid #b9a8d244;border-radius:8px;background:transparent;color:#e8deef;font:12px var(--sans,sans-serif);cursor:pointer;transition:all .2s}
-.splitViewBackBtn:hover{border-color:#c4b4da;background:#1a1823}
+.splitViewFooter{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid rgba(190,161,219,.2);background:linear-gradient(90deg,rgba(43,26,58,.6),rgba(14,10,24,.9));backdrop-filter:blur(12px);flex-shrink:0}
+.splitViewBackBtn,.splitViewVerifyBtn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border:1px solid rgba(186,155,211,.35);border-radius:8px;background:transparent;color:#f3eafa;font:12px var(--sans,sans-serif);cursor:pointer;transition:all .2s}
+.splitViewBackBtn:hover{border-color:#c084fc;background:rgba(43,26,58,.5)}
 .splitViewVerifyBtn{border-color:#8cebb2;color:#8cebb2}
 .splitViewVerifyBtn:hover{border-color:#5bd98e;background:#143a2a}
 
 @media(max-width:900px){
   .splitView{flex-direction:column}
-  .splitViewCode{flex-direction:row;border-left:none;border-top:1px solid #b9a8d222}
+  .splitViewCode{flex-direction:row;border-left:none;border-top:1px solid rgba(190,161,219,.16)}
   .splitViewFileTree{width:auto;min-width:0;flex:0 0 240px;max-width:none}
   .splitViewPreview{order:-1}
 }
 @media(max-width:640px){
   .splitViewCode{flex-direction:column}
-  .splitViewFileTree{border-right:none;border-bottom:1px solid #b9a8d222;max-height:200px}
+  .splitViewFileTree{border-right:none;border-bottom:1px solid rgba(190,161,219,.16);max-height:200px}
   .splitViewHeader{flex-wrap:wrap;gap:12px}
   .splitViewActions{width:100%;justify-content:space-between}
 }

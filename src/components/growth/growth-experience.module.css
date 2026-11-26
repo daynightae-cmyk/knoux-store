@@ -7,6 +7,26 @@
 .experience::after { content: ''; position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(1.2px 1.2px at 22% 34%, #fff 98%, transparent), radial-gradient(1px 1px at 41% 15%, #d8b4fe 98%, transparent), radial-gradient(1.3px 1.3px at 60% 30%, #fff 98%, transparent), radial-gradient(1px 1px at 77% 22%, #f0abfc 98%, transparent), radial-gradient(1.2px 1.2px at 90% 36%, #fff 98%, transparent), radial-gradient(1px 1px at 12% 60%, #e9d5ff 98%, transparent), radial-gradient(1.3px 1.3px at 48% 55%, #fff 98%, transparent), radial-gradient(1px 1px at 82% 58%, #d8b4fe 98%, transparent); animation: divisionTwinkle 6.4s ease-in-out infinite; }
 @keyframes divisionTwinkle { 50% { opacity: .3; } }
 .experience > * { position: relative; z-index: 1; }
+.workspaceLinks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: 10px;
+  margin-block: 24px;
+}
+.workspaceLinks a {
+  display: grid;
+  gap: 5px;
+  padding: 16px;
+  border: 1px solid #bb8cf66b;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #32134e, #0d0d23);
+  color: #f7efff;
+}
+.workspaceLinks a:hover, .workspaceLinks a:focus-visible {
+  border-color: #e3acff;
+  box-shadow: 0 0 20px #a146e568;
+}
+.workspaceLinks span { color: #dfcaee; font-size: 13px; }
 .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: clamp(32px, 5vw, 90px); align-items: start; }
 .editorial { padding-block: 24px; }
 /* The demo label is the second-level heading of the demo block: the preview

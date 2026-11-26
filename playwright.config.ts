@@ -71,8 +71,9 @@ export default defineConfig({
     command: `npx next start -p ${PORT} -H localhost`,
     url: BASE_URL,
     // A server from another checkout can serve stale HTML against new assets.
-    // Occupied ports must fail instead of silently reusing an unknown process.
-    reuseExistingServer: false,
+    // Occupied ports fail unless the operator explicitly identifies the current
+    // verified production server for a resource-constrained local run.
+    reuseExistingServer: process.env.KNOUX_E2E_REUSE_CURRENT === '1',
     timeout: 120_000,
     env: {
       // The workspace boundary is exercised as a deployment would answer, so

@@ -1,6 +1,6 @@
-import { DevWorkspaceHome } from '@/components/build/dev/DevWorkspaceHome';
+import { BuildEntry } from '@/components/build/dev/BuildEntry';
 import { pageMetadata } from '@/lib/metadata';
 
-export const metadata = pageMetadata('KNOuX DEV', 'The KNOuX engineering workspace: inspect real products, project state, preview, and verification.', '/build');
+export const metadata = pageMetadata('Welcome to KNOUX STORE', 'A cinematic engineering platform. Enter the KNOuX Build workspace or jump straight to providers, models, terminal and deployments.', '/build');
 
-export default function BuildPage() { return <DevWorkspaceHome />; }
+export default function BuildPage() { return <BuildEntry />; }

@@ -2,12 +2,16 @@
 
 import { useSiteLanguage } from '@/lib/i18n/use-language';
 import { translatedSiteCopy } from '@/lib/i18n/site-copy';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { softwareAuditDate, softwareEntities, softwareProducts, type SoftwareProduct } from '@/data/software';
+import { softwareEntities, softwareProducts, type SoftwareProduct } from '@/data/software';
+import { resolveProductLogo } from '@/data/product-visuals';
 import { scoreEntity } from '@/lib/entities';
+import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
 import { track } from '@/lib/analytics';
+import styles from './ProductUniverse.module.css';
 
 /**
  * KNOuX Software Universe.
@@ -17,15 +21,18 @@ import { track } from '@/lib/analytics';
  * KNOuX core by signal paths, and cross-linked where the registry says two
  * products are related.
  *
- * Hovering or focusing a node lights its paths, dims the rest of the field and
- * displaces its related nodes a few pixels along the path, so the map responds
- * without becoming a light show. The compact readout beside the field carries
- * the same information as the dossier route, so the map is never the only way
- * to learn anything.
+ * Selecting a node lights its paths and moves related nodes along their
+ * orbits. The exhibit and compact picker use the same selection so readers
+ * can inspect any product without relying on the map.
  */
 
 const CORE = { x: 50, y: 50 };
 const ORBIT_RADIUS: Record<1 | 2 | 3, number> = { 1: 23, 2: 36, 3: 47 };
+const exhibitCopy = {
+  en: { pick: 'Select a product', features: 'Documented features', version: 'Version' },
+  ar: { pick: 'اختَر منتجًا', features: 'الميزات الموثّقة', version: 'الإصدار' },
+  ur: { pick: 'ایک پروڈکٹ منتخب کریں', features: 'دستاویزی خصوصیات', version: 'ورژن' },
+};
 
 type Point = { x: number; y: number };
 
@@ -50,6 +57,7 @@ function displacement(from: Point, to: Point): Point {
 
 export function ProductUniverse() {
   const language = useSiteLanguage(), t = (text: string) => translatedSiteCopy(text, language);
+  const copy = exhibitCopy[language];
   const router = useRouter();
   const params = useSearchParams();
   const queryParam = params.get('q') ?? '';
@@ -57,8 +65,7 @@ export function ProductUniverse() {
   // field is deep-linkable without a state-sync effect.
   const [query, setQuery] = useState(queryParam);
   const [family, setFamily] = useState<string>('all');
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [departingId, setDepartingId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState(softwareProducts[0].id);
   const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -94,10 +101,8 @@ export function ProductUniverse() {
     return map;
   }, []);
 
-  const active = useMemo(
-    () => (activeId ? softwareProducts.find((product) => product.id === activeId) ?? null : null),
-    [activeId],
-  );
+  const active = softwareProducts.find((product) => product.id === activeId) ?? softwareProducts[0];
+  const logo = resolveProductLogo(active.slug);
 
   const layout = useMemo(() => {
     const positions = new Map<string, Point>();
@@ -212,8 +217,8 @@ export function ProductUniverse() {
 
       {/* Constellation */}
       {!filtered ? (
-        <div className="constellation-wrap" style={{ marginTop: 34 }}>
-          <div className={`constellation spatial-surface ${departingId ? 'is-departing' : ''}`} data-spatial>
+        <div className={`constellation-wrap ${styles.exhibition}`}>
+          <div className={`constellation spatial-surface ${styles.map}`} data-spatial>
             <div className="constellation__grid" aria-hidden="true">
               <svg viewBox="0 0 100 100" preserveAspectRatio="none" role="presentation">
                 {[12, 24, 36, 47, 58].map((r) => (
@@ -251,7 +256,7 @@ export function ProductUniverse() {
                 {softwareProducts.map((product) => {
                   const point = layout.get(product.id);
                   if (!point) return null;
-                  const dimmed = activeId !== null && activeId !== product.id && !active?.relatedIds.includes(product.id);
+                  const dimmed = activeId !== product.id && !active.relatedIds.includes(product.id);
                   return (
                     <line
                       key={`core-${product.id}`}
@@ -270,53 +275,46 @@ export function ProductUniverse() {
             </div>
 
             <div className="constellation__core" aria-hidden="true">
-              <span className="constellation__core-name">
-                KNOuX
-                <small>{t("CORE")}</small>
-              </span>
+              <svg className={styles.mark} viewBox={`0 0 ${MARK_VIEW_BOX.width} ${MARK_VIEW_BOX.height}`}>
+                {MARK_PATHS.map((path) => <path key={path.id} d={path.d} />)}
+              </svg>
             </div>
 
             {softwareProducts.map((product) => {
               const point = layout.get(product.id) ?? pointFor(product);
-              const dimmed =
-                activeId !== null && activeId !== product.id && !active?.relatedIds.includes(product.id);
+              const productLogo = resolveProductLogo(product.slug);
               return (
-                <Link
+                <button
                   key={product.id}
-                  href={`/products/${product.slug}`}
-                  className={`constellation__node ${dimmed ? 'is-dimmed' : ''} ${activeId === product.id ? 'is-active' : ''}`}
+                  type="button"
+                  aria-pressed={activeId === product.id}
+                  aria-controls="product-exhibit"
+                  className={`constellation__node ${styles.planet} ${activeId === product.id ? 'is-active' : ''}`}
                   style={{ left: `${point.x}%`, top: `${point.y}%` }}
-                  onMouseEnter={() => setActiveId(product.id)}
-                  onMouseLeave={() => setActiveId(null)}
-                  onFocus={() => {
-                    setActiveId(product.id);
-                    track({ type: 'product_node_focused', id: product.id, method: 'keyboard' });
-                  }}
-                  onBlur={() => setActiveId(null)}
-                  onClick={(event) => {
-                    track({ type: 'product_opened', id: product.id, slug: product.slug });
-                    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-                    event.preventDefault();
-                    setDepartingId(product.id);
-                    window.setTimeout(() => router.push(`/products/${product.slug}`), 240);
-                  }}
+                  onClick={() => setActiveId(product.id)}
                 >
-                  <span className="constellation__node-dot" aria-hidden="true" />
-                  <span className="constellation__node-code">{product.code}</span>
+                  {productLogo && <Image src={productLogo} width={46} height={46} alt="" unoptimized />}
                   <span className="constellation__node-name">{product.shortName}</span>
-                </Link>
+                </button>
               );
             })}
           </div>
 
-          <aside className="constellation__readout" aria-live="polite">
-            {active ? (
-              <>
+          <label className={styles.compactPicker}>
+            {copy.pick}
+            <select value={activeId} onChange={(event) => setActiveId(event.target.value)} aria-controls="product-exhibit">
+              {softwareProducts.map((product) => <option key={product.id} value={product.id}>{product.shortName}</option>)}
+            </select>
+          </label>
+          <aside className={`constellation__readout ${styles.exhibit}`} id="product-exhibit" aria-labelledby="product-exhibit-title">
+                <div className={styles.gallery}>
+                  {logo && <Image src={logo} width={180} height={180} alt="" unoptimized />}
+                </div>
                 <div className="constellation__readout-head">
                   <span>{active.code}</span>
                   <span className={`mark mark--${active.status}`}>{active.status.replace('-', ' ')}</span>
                 </div>
-                <h3>{active.name}</h3>
+                <h2 id="product-exhibit-title" aria-live="polite">{active.name}</h2>
                 <p>{active.tagline}</p>
                 <dl>
                   <div>
@@ -325,32 +323,24 @@ export function ProductUniverse() {
                   </div>
                   <div>
                     <dt>{t("Platform")}</dt>
-                    <dd>{active.platform.slice(0, 46)}{active.platform.length > 46 ? '…' : ''}</dd>
+                    <dd>{active.platform}</dd>
                   </div>
                   <div>
                     <dt>{t("Repository")}</dt>
-                    <dd>{active.repository.split('/').pop()}</dd>
+                    <dd><a href={active.repository}>{active.repository.split('/').pop()}</a></dd>
                   </div>
+                  {active.version && <div><dt>{copy.version}</dt><dd>{active.version}</dd></div>}
                 </dl>
-                <Link href={`/products/${active.slug}`} className="action">
+                <details key={active.id}>
+                  <summary>{copy.features}</summary>
+                  <ul>{active.capabilities.map((capability) => <li key={capability}>{capability}</li>)}</ul>
+                </details>
+                <Link href={`/products/${active.slug}`} className="action" onClick={() => track({ type: 'product_opened', id: active.id, slug: active.slug })}>
                   Open dossier
                   <span className="action-arrow" aria-hidden="true">
                     ↗
                   </span>
                 </Link>
-              </>
-            ) : (
-              <div className="constellation__idle">
-                <span className="label label--signal">{t("SYSTEM TOPOLOGY")}</span>
-                <p>
-                  Seven verified systems connected to one practice. Move across a node to read its registration, or open
-                  it for the full dossier.
-                </p>
-                <p className="mono" style={{ fontSize: 12, color: 'var(--dim)' }}>
-                  AUDITED {softwareAuditDate}
-                </p>
-              </div>
-            )}
           </aside>
         </div>
       ) : null}

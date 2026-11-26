@@ -5,6 +5,7 @@ import { AuthScene } from '@/components/auth/AuthScene';
 import { AuthPanel } from '@/components/auth/AuthPanel';
 import { ChamberBoot } from '@/components/auth/ChamberBoot';
 import { useArrivalChoreography } from '@/components/auth/choreography';
+import styles from './ArrivalChamber.module.css';
 
 /**
  * The Arrival Chamber shell.
@@ -30,7 +31,7 @@ export function AuthShell({
   const phase = useArrivalChoreography();
 
   return (
-    <main id="main-content" tabIndex={-1} className="chamber-page" data-route={route} data-phase={phase}>
+    <main id="main-content" tabIndex={-1} className={`chamber-page ${styles.arrival}`} data-route={route} data-phase={phase}>
       <ChamberBoot />
       <AuthScene phase={phase} />
 

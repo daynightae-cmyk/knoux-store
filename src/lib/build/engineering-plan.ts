@@ -1,16 +1,19 @@
 import type { BuildIntent } from './types';
-import { parseGeneratedProject, type GeneratedProjectPlan } from './generated-project-contract.ts';
+import { parseGeneratedProject, type GeneratedProjectPlan, type GeneratedRuntimeReceipt } from './generated-project-contract.ts';
 
 export type EngineeringSession = {
   requestId: string | null;
-  context: { project: string | null; worktree: string | null; branch: string | null } | null;
+  context: { project: string | null; worktree: string | null; branch: string | null; projectRef?: string | null; projectId?: string | null; headSha?: string | null } | null;
   host: { name: string; os: string; kind: string } | null;
   stage: EngineeringStage; plan: EngineeringPlan | null; draftPlan: Partial<EngineeringPlan> | null;
   streamText: string; error: string | null;
-  requested: { mode: 'auto' | 'manual'; profile: import('./profile').GenerationProfile; providerId: string | null; modelId: string | null } | null;
+  requested: { mode: 'auto' | 'manual'; profile: import('./profile').GenerationProfile; providerId: string | null; modelId: string | null; buildMode?: import('./knoux-modes').KnouxBuildMode } | null;
   selection: { providerId: string; modelId: string; reasons: string[] } | null;
+  /** Measured per-role evidence for a KNOUX PRO multi-pass request. */
+  proRuns?: import('./knoux-modes').ProRoleRun[] | null;
   characters: number;
   measurement: { latencyMs?: number | null; ttftMs?: number | null; actualProviderId?: string | null; actualModelId?: string | null; controlsUsed?: import('../ai/types').GenerationControls | null; estimatedCost?: import('../ai/types').CostEstimate | null; usage?: { inputTokens: number | null; outputTokens: number | null } | null } | null;
+  execution?: GeneratedRuntimeReceipt | null;
 };
 
 export const PLAN_SECTIONS = ['GOAL', 'PRODUCT TYPE', 'ARCHITECTURE', 'STACK', 'ROUTES', 'DATA MODEL', 'AUTH', 'INTEGRATIONS', 'UI SYSTEM', 'FILES / MODULES', 'TEST PLAN', 'DEPLOYMENT PLAN', 'RISKS', 'EXECUTION PLAN'] as const;

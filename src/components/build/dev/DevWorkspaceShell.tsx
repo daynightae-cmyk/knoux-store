@@ -18,8 +18,8 @@ const Palette = dynamic(() => import('./WorkspaceUtilities').then((mod) => mod.W
 const Activity = dynamic(() => import('./WorkspaceUtilities').then((mod) => mod.WorkspaceActivity));
 
 export const DEV_DESTINATIONS = [
-  { label: 'Getting Started', href: '/build', code: '01', icon: '◱' },
-  { label: 'One Platform', href: '/build/platform', code: '00', icon: '◍' },
+  { label: 'Welcome', href: '/build', code: '00', icon: '◍' },
+  { label: 'One Platform', href: '/build/platform', code: '01', icon: '◍' },
   { label: 'Engineering', href: '/build/engineering', code: 'OS', icon: '◈' },
   { label: 'Build', href: '/build/pipeline', code: '02', icon: '⌁' },
   { label: 'Apps', href: '/build/apps', code: '03', icon: '⬡' },
@@ -85,7 +85,8 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
     return () => { document.removeEventListener('keydown', onKey); window.removeEventListener('resize', onResize); toggle?.focus(); };
   }, [navOpen]);
 
-  return <div data-cosmic-reduced={state.preferences.motion === 'reduced' ? '' : undefined} className={`dev-shell dev-cinematic ${pathname === '/build' ? 'dev-shell--landing' : 'dev-shell--operational'}`}>
+  const landing = pathname === '/build' || pathname === '/build/platform';
+  return <div data-cosmic-reduced={state.preferences.motion === 'reduced' ? '' : undefined} className={`dev-shell dev-cinematic ${landing ? 'dev-shell--landing' : 'dev-shell--operational'}`}>
     {/* A `header` element, not a styled `div`: this bar carries the site
         identity and the navigation control, and content outside every landmark
         is exactly what landmark navigation cannot reach. The class list is
@@ -102,6 +103,8 @@ export function DevWorkspaceShell({ children }: { children: ReactNode }) {
         <dl className="dev-sidebar__facts"><dt>ADAPTER STATUS</dt><dd>{facts.adapter}</dd><dt>PROJECT STATUS</dt><dd>{facts.project}</dd><dt>ENVIRONMENT</dt><dd>{facts.environment}</dd></dl>
       </aside>
       <div className="dev-shell__stage" inert={navOpen}>
+        <div className="dev-drawn-sky" aria-hidden="true" />
+        <div className="dev-drawn-limb" aria-hidden="true" />
         <BuildAtmosphere reduced={state.preferences.motion === 'reduced'} />
         <LivingMark />
         {pathname === '/build/engineering' && <EngineeringSky reducedMotion={state.preferences.motion === 'reduced'} />}

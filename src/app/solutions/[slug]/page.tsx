@@ -1,12 +1,12 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { PageIntro } from '@/components/PageIntro';
 import { SignalRail } from '@/components/DivisionShell';
 import { DivisionBridge, NextLink, IndexRow } from '@/components/blocks';
 import { pageMetadata } from '@/lib/metadata';
 import { findSolution, solutionEntityIds, solutions, type Solution } from '@/data/solutions';
 import { entityById } from '@/data/composer-rules';
 import { TrackOnView } from '@/components/TrackOnView';
+import styles from '../solutions.module.css';
 
 export function generateStaticParams() {
   return solutions.map((solution) => ({ slug: solution.slug }));
@@ -31,7 +31,7 @@ function Layer({
     .filter((entity): entity is NonNullable<typeof entity> => Boolean(entity));
 
   return (
-    <div className="solution-layer">
+    <div className={`solution-layer ${styles.dossierLayer}`}>
       <div className="solution-layer__head">
         <span className="assembly__key">
           {kind === 'core' ? 'CORE' : 'OPTIONAL'}
@@ -67,15 +67,20 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
   const divisionsTouched = [...new Set(composed.map((id) => entityById.get(id)!.division))];
 
   return (
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       <TrackOnView event={{ type: 'solution_opened', slug: solution.slug }} />
-      <PageIntro
-        index={solution.code}
-        label="Solution"
-        title={solution.title.replace(/^(Start|Build|Create|Promote|Launch|Digitise|Modernise) /, '')}
-        italic={solution.group === 'reach' ? 'found.' : 'built.'}
-        description={solution.objective}
-      />
+      <header className={`shell ${styles.dossierArrival}`}>
+        <div>
+          <Link href="/solutions" className="action">All solutions <span aria-hidden="true">↗</span></Link>
+          <h1>{solution.title}</h1>
+          <p>{solution.objective}</p>
+        </div>
+        <dl>
+          <div><dt>Mission</dt><dd>{solution.code}</dd></div>
+          <div><dt>Core layers</dt><dd>{solution.core.length}</dd></div>
+          <div><dt>Optional layers</dt><dd>{solution.optional.length}</dd></div>
+        </dl>
+      </header>
       <SignalRail division="solutions" path={`/solutions/${solution.slug}`} />
 
       <section className="shell" style={{ paddingTop: 'clamp(56px, 7vw, 110px)', paddingBottom: 'clamp(70px, 8vw, 130px)' }}>
@@ -114,7 +119,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
             to need all of them.
           </p>
         </div>
-        <div className="assembly" style={{ marginTop: 34 }}>
+        <div className={`assembly ${styles.dossierAssembly}`}>
           {solution.core.map((layer) => (
             <Layer key={layer.label} layer={layer} kind="core" />
           ))}
@@ -136,7 +141,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
             answer is sometimes none of them.
           </p>
         </div>
-        <div className="assembly" style={{ marginTop: 34 }}>
+        <div className={`assembly ${styles.dossierAssembly}`}>
           {solution.optional.map((layer) => (
             <Layer key={layer.label} layer={layer} kind="optional" />
           ))}

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { DevEmpty, DevPanel } from './DevUI';
 import { RuntimeHero } from './RuntimeHero';
+import { bridgeStatus as readBridgeStatus } from './bridge-status';
 import {
   TerminalTransport,
   type TerminalExit,
@@ -13,7 +14,7 @@ import {
   type TerminalTimings,
 } from '@/lib/build/terminal-transport';
 import { PtyPreloadBuffer } from '@/lib/build/pty-preload';
-import type { BridgeCapabilities, BridgeProfile, Handshake, ShellProfile } from '@/lib/build/bridge-protocol';
+import type { BridgeProfile, Handshake, ShellProfile } from '@/lib/build/bridge-protocol';
 
 // Formatters
 function formatLatency(ms: number | null): string {
@@ -42,19 +43,6 @@ type BridgeState =
 
 const SIGN_IN_REQUIRED = 'Sign in to use PowerShell. This workspace needs an identified account.';
 const SIGN_IN_HREF = '/login?next=%2Fbuild%2Fpowershell';
-
-interface BridgeStatusResponse {
-  configured: boolean;
-  paired: boolean;
-  reachable: boolean;
-  bridgeId: string | null;
-  fingerprint: string | null;
-  capabilities: BridgeCapabilities | null;
-  handshake: Handshake | null;
-  blocker: string | null;
-  /** Present on guard refusals; a fallback when `blocker` is absent. */
-  message?: string;
-}
 
 export function PowerShellPage() {
   const [bridge, setBridge] = useState<BridgeState>({ kind: 'checking' });
@@ -94,8 +82,8 @@ export function PowerShellPage() {
     let cancelled = false;
     (async () => {
       try {
-        const response = await fetch('/api/build/bridge/status', { cache: 'no-store' });
-        const body = (await response.json()) as BridgeStatusResponse;
+        const response = await fetch('/api/build/bridge/status', { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
+        const body = readBridgeStatus(response.status, await response.json().catch(() => null));
         if (cancelled) return;
         // Resolved from the status code before the body is trusted, so a 401
         // cannot present itself as a connected shell.
@@ -230,7 +218,7 @@ export function PowerShellPage() {
   }, []);
 
   const clearTerminal = useCallback(() => {
-    if (transportRef.current) transportRef.current.write('\x0c');
+    termRef.current?.write('\x1bc');
   }, []);
 
   const leaveTerminal = useCallback(() => {
@@ -246,7 +234,7 @@ export function PowerShellPage() {
       const selection = termRef.current?.getSelection?.() ?? '';
       if (selection) await navigator.clipboard.writeText(selection);
     } catch {
-      /* clipboard unavailable or permission refused */
+      setError('The selection could not reach the clipboard.');
     }
   }, []);
 
@@ -490,10 +478,9 @@ export function PowerShellPage() {
               </div>
             )}
 
-            {(live || stage === 'reconnecting' || stage === 'exited') && (
-              <>
                 <div
                   ref={containerRef}
+                  hidden={!(live || stage === 'reconnecting' || stage === 'exited')}
                   className="dev-terminal-mount"
                   role="application"
                   aria-label="PowerShell session. Escape does not leave the terminal; use Leave terminal."
@@ -504,13 +491,15 @@ export function PowerShellPage() {
                     }
                   }}
                 />
+            {(live || stage === 'reconnecting' || stage === 'exited') && (
+              <>
                 <div className="dev-terminal-toolbar" role="toolbar" aria-label="Terminal controls">
                   <span>{session ? `${session.profile} · ${session.cwd} · PID ${session.pid}` : '—'}</span>
                   <span title={stats?.latencyMs === null ? 'No ping/pong pair has completed yet' : 'Measured round trip'}>
                     RTT {formatLatency(stats?.latencyMs ?? null)}
                   </span>
                   <button type="button" onClick={clearTerminal} disabled={!live}>CLEAR</button>
-                  <button type="button" onClick={() => void copySelection()} disabled={!live}>COPY SELECTION</button>
+                  <button type="button" onClick={() => void copySelection()} disabled={!session}>COPY SELECTION</button>
                   <button
                     type="button"
                     id="terminal-leave-target"

@@ -44,6 +44,18 @@ load('src/lib/wordpress/wordpress-org.ts', { './external': external });
 
 /* ------------------------------------------------- first-party stays empty */
 
+test('theme demos use trusted browser links without widening the asset proxy', () => {
+  assert.equal(external.toOfficialThemePreviewUrl('https://wp-themes.com/drishti/'), 'https://wp-themes.com/drishti/');
+  assert.equal(external.toOfficialThemePreviewUrl('https://2021.wordpress.net/'), 'https://2021.wordpress.net/');
+  for (const url of [
+    'http://wp-themes.com/drishti/',
+    'https://wp-themes.com:8080/drishti/',
+    'https://wp-themes.com@other.example/drishti/',
+    'https://wp-themes.com.other.example/drishti/',
+  ]) assert.equal(external.toOfficialThemePreviewUrl(url), undefined);
+  assert.equal(external.toOfficialAssetUrl('https://wp-themes.com/drishti/'), undefined);
+});
+
 test('the KNOuX first-party registry is still empty', () => {
   assert.deepEqual(
     [...wordpress.wordPressItems],
