@@ -116,27 +116,31 @@ export function ProviderHero({ definitions, selected, connection, discoveredMode
           </button>
         );
       })}
-      {/* Dominant central provider instrument — the heart of the constellation. */}
-      <div className={s.instrument} aria-hidden={!current}>
-        <div className={s.instrumentMark} aria-hidden="true">
-          {currentMark ? <Image src={`/providers/${currentMark}.svg`} alt="" width={72} height={72} /> : <ParticleMark patternId="provider-mark-particles" className={s.seal} />}
-        </div>
-        <div className={s.instrumentBody}>
-          <div className={s.instrumentLabel}>
-            <span>{current?.class.replaceAll('_', ' ') ?? 'Select a provider'}</span>
-            <h2 className={s.instrumentName}>{current?.name ?? 'Provider Constellation'}</h2>
-            <strong className={s.instrumentStatus}>{connection?.replaceAll('_', ' ') ?? 'Not configured'}</strong>
+      {/* Dominant central provider instrument — the heart of the constellation.
+          Rendered only when a provider is selected so it never intercepts
+          orbit-node clicks on the unselected constellation. */}
+      {current && (
+        <div className={s.instrument} aria-hidden={!current}>
+          <div className={s.instrumentMark} aria-hidden="true">
+            {currentMark ? <Image src={`/providers/${currentMark}.svg`} alt="" width={72} height={72} /> : <ParticleMark patternId="provider-mark-particles" className={s.seal} />}
           </div>
-          <dl className={s.instrumentFacts}>
-            <div><dt>Transport</dt><dd>{current?.transport ?? '—'}</dd></div>
-            <div><dt>Discovered models</dt><dd>{discoveredModels ?? 'Not reported'}</dd></div>
-          </dl>
-          <div className={s.instrumentActions}>
-            {current ? <button type="button" className={s.instrumentBtn} onClick={onInspect}>Provider details</button> : null}
-            <button type="button" className={s.instrumentBtn} onClick={onBrowse}>Browse catalog</button>
+          <div className={s.instrumentBody}>
+            <div className={s.instrumentLabel}>
+              <span>{current.class.replaceAll('_', ' ')}</span>
+              <h2 className={s.instrumentName}>{current.name}</h2>
+              <strong className={s.instrumentStatus}>{connection?.replaceAll('_', ' ') ?? 'Not configured'}</strong>
+            </div>
+            <dl className={s.instrumentFacts}>
+              <div><dt>Transport</dt><dd>{current.transport}</dd></div>
+              <div><dt>Discovered models</dt><dd>{discoveredModels ?? 'Not reported'}</dd></div>
+            </dl>
+            <div className={s.instrumentActions}>
+              <button type="button" className={s.instrumentBtn} onClick={onInspect}>Provider details</button>
+              <button type="button" className={s.instrumentBtn} onClick={onBrowse}>Browse catalog</button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
       {/* Contextual panel — populated when a provider is selected, otherwise empty. */}
       {current && (
         <aside className={s.contextPanel} aria-label={current.name + ' details'}>
