@@ -75,7 +75,7 @@ export type GeneratedRuntimeReceipt = {
   export: ExportReceipt | null;
   /** Legacy alias kept for surfaces that still read bundle directly. */
   bundle: ExportReceipt | null;
-  /** Local publish deployment, null until explicitly requested by the operator. */
+  /** Local publish deployment, null until explicitly confirmed and applied. */
   deploy: DeployReceipt | null;
   preview: PreviewReceipt | null;
   externalReference: string;
@@ -102,7 +102,7 @@ export function parseGeneratedProject(value: unknown): GeneratedProjectPlan {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('A structured generatedProject artifact is required.');
   const candidate = value as { kind?: unknown; files?: unknown };
   if (candidate.kind !== GENERATED_PROJECT_KIND) throw new Error(`Only ${GENERATED_PROJECT_KIND} projects can be executed by this bounded runtime.`);
-  if (!Array.isArray(candidate.files) || candidate.files.length < 1 || candidate.files.length > GENERATED_PROJECT_MAX_FILES) throw new Error(`Generated project must contain 1–${GENERATED_PROJECT_MAX_FILES} files.`);
+  if (!Array.isArray(candidate.files) || candidate.files.length < 1 || candidate.files.length > GENERATED_PROJECT_MAX_FILES) throw new Error(`Generated project must contain 1ΓÇô${GENERATED_PROJECT_MAX_FILES} files.`);
   const paths = new Set<string>();
   let bytes = 0;
   const files = candidate.files.map((entry): GeneratedProjectFile => {

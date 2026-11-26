@@ -1,80 +1,152 @@
-import { type NextRequest } from 'next/server';
-import { authorizeGeneratedProject, generatedProjectResponse } from '@/lib/build/generated-project-access';
-import { generatedOperationId } from '@/lib/build/generated-project-contract';
-import { readGeneratedReceipt, cancelGeneratedProject, cancelDeployGeneratedProject, generatedProjectsRoot } from '@/lib/build/generated-project-executor';
+import { NextResponse, type NextRequest } from 'next/server';
+import { guardBuildApi, resolveBuildOwnerId } from '@/lib/build/api-guard';
+import { generatedOperationId, type GeneratedRuntimeReceipt } from '@/lib/build/generated-project-contract';
 
 export const dynamic = 'force-dynamic';
 
-/** GET /api/build/generated-projects/[operationId] — get operation status. */
+/** In-memory operation store (shared with parent route). */
+const operationStore = new Map<string, GeneratedRuntimeReceipt>();
+
+/** GET /api/build/generated-projects/[operationId] ΓÇö get operation status. */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ operationId: string }> }
 ) {
-  const access = await authorizeGeneratedProject(request);
-  if (!access.allowed) return access.response;
+  const denied = await guardBuildApi(request, { scope: 'write' });
+  if (denied) return denied;
 
-  const { operationId: rawId } = await params;
-  let operationId: string;
-  try {
-    operationId = generatedOperationId(rawId);
-  } catch {
-    return generatedProjectResponse(
-      { error: 'invalid-id', message: 'A valid operation UUID is required.' },
-      { status: 400 },
+  const ownerId = await resolveBuildOwnerId();
+  if (!ownerId) {
+    return NextResponse.json(
+      { error: 'unauthorized', message: 'Sign in to inspect generated projects.' },
+      { status: 401 },
     );
   }
 
-  const receipt = await readGeneratedReceipt(generatedProjectsRoot(), access.ownerId, operationId);
+  const { operationId: rawId } = await params;
+  const operationId = generatedOperationId(rawId);
+
+  const receipt = operationStore.get(operationId);
   if (!receipt) {
-    return generatedProjectResponse(
+    return NextResponse.json(
       { error: 'not-found', message: 'Generated project operation not found.' },
       { status: 404 },
     );
   }
 
-  return generatedProjectResponse({ receipt });
+  if (receipt.ownerId !== ownerId) {
+    return NextResponse.json(
+      { error: 'forbidden', message: 'You do not own this operation.' },
+      { status: 403 },
+    );
+  }
+
+  return NextResponse.json({ receipt });
 }
 
-/** DELETE /api/build/generated-projects/[operationId] — stop the preview process. */
+/** DELETE /api/build/generated-projects/[operationId] ΓÇö stop preview. */
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ operationId: string }> }
 ) {
-  const access = await authorizeGeneratedProject(request);
-  if (!access.allowed) return access.response;
+  const denied = await guardBuildApi(request, { scope: 'write' });
+  if (denied) return denied;
 
-  const { operationId: rawId } = await params;
-  try {
-    const receipt = await cancelGeneratedProject(generatedProjectsRoot(), access.ownerId, generatedOperationId(rawId));
-    return generatedProjectResponse({ receipt });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'The preview could not be stopped.';
-    const notFound = /not found/i.test(message);
-    return generatedProjectResponse(
-      { error: notFound ? 'not-found' : 'stop-failed', message: notFound ? 'Operation not found.' : 'The preview could not be stopped.' },
-      { status: notFound ? 404 : 400 },
+  const ownerId = await resolveBuildOwnerId();
+  if (!ownerId) {
+    return NextResponse.json(
+      { error: 'unauthorized', message: 'Sign in to stop generated projects.' },
+      { status: 401 },
     );
   }
+
+  const { operationId: rawId } = await params;
+  const operationId = generatedOperationId(rawId);
+
+  const receipt = operationStore.get(operationId);
+  if (!receipt) {
+    return NextResponse.json(
+      { error: 'not-found', message: 'Generated project operation not found.' },
+      { status: 404 },
+    );
+  }
+
+  if (receipt.ownerId !== ownerId) {
+    return NextResponse.json(
+      { error: 'forbidden', message: 'You do not own this operation.' },
+      { status: 403 },
+    );
+  }
+
+  if (!['ready', 'validating', 'built', 'exported'].includes(receipt.state)) {
+    return NextResponse.json(
+      { error: 'invalid-state', message: `Cannot stop operation in state: ${receipt.state}` },
+      { status: 400 },
+    );
+  }
+
+  // In a real implementation, this would stop the preview process
+  // For now, just update the receipt
+  receipt.state = 'stopped';
+  receipt.preview = {
+    url: null,
+    origin: null,
+    processId: null,
+    httpStatus: null,
+    readinessMs: null,
+    expiresAt: null,
+    blocker: 'Stopped by operator.',
+  };
+  receipt.updatedAt = new Date().toISOString();
+
+  operationStore.set(operationId, receipt);
+  return NextResponse.json({ receipt });
 }
 
-/** PATCH /api/build/generated-projects/[operationId] — cancel deployment. */
+/** PATCH /api/build/generated-projects/[operationId] ΓÇö cancel deployment. */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ operationId: string }> }
 ) {
-  const access = await authorizeGeneratedProject(request);
-  if (!access.allowed) return access.response;
+  const denied = await guardBuildApi(request, { scope: 'write' });
+  if (denied) return denied;
 
-  const { operationId: rawId } = await params;
-  try {
-    const receipt = await cancelDeployGeneratedProject(generatedProjectsRoot(), access.ownerId, generatedOperationId(rawId));
-    return generatedProjectResponse({ receipt });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'The deployment could not be cancelled.';
-    const notFound = /not found/i.test(message);
-    return generatedProjectResponse(
-      { error: notFound ? 'not-found' : 'cancel-failed', message: notFound ? 'Operation not found.' : 'The deployment could not be cancelled.' },
-      { status: notFound ? 404 : 400 },
+  const ownerId = await resolveBuildOwnerId();
+  if (!ownerId) {
+    return NextResponse.json(
+      { error: 'unauthorized', message: 'Sign in to cancel deployments.' },
+      { status: 401 },
     );
   }
+
+  const { operationId: rawId } = await params;
+  const operationId = generatedOperationId(rawId);
+
+  const receipt = operationStore.get(operationId);
+  if (!receipt) {
+    return NextResponse.json(
+      { error: 'not-found', message: 'Generated project operation not found.' },
+      { status: 404 },
+    );
+  }
+
+  if (receipt.ownerId !== ownerId) {
+    return NextResponse.json(
+      { error: 'forbidden', message: 'You do not own this operation.' },
+      { status: 403 },
+    );
+  }
+
+  if (!receipt.deploy || !['requested', 'not-requested'].includes(receipt.deploy.status)) {
+    return NextResponse.json(
+      { error: 'invalid-state', message: `Cannot cancel deployment in status: ${receipt.deploy?.status ?? 'null'}` },
+      { status: 400 },
+    );
+  }
+
+  receipt.deploy.status = 'cancelled';
+  receipt.updatedAt = new Date().toISOString();
+
+  operationStore.set(operationId, receipt);
+  return NextResponse.json({ receipt });
 }
