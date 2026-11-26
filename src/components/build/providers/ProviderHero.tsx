@@ -79,7 +79,7 @@ export function ProviderHero({ definitions, selected, connection, discoveredMode
         </g>
         {/* Luminous orbital particles between the rings. */}
         <g stroke="#f4ebff" fill="none">
-          {[45, 105, 165, 225, 285, 345].map((angle, i) => {
+          {[45, 105, 165, 225, 285, 345].map((angle) => {
             const rad = (angle * Math.PI) / 180;
             const x = 500 + Math.cos(rad) * 310;
             const y = 360 + Math.sin(rad) * 170;
