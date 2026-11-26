@@ -47,7 +47,15 @@ export function ProviderCenter({ embedded = false, initialDefinitions = [] }: Re
     // slow tablet/mobile runners, preventing the credential-recovery spec
     // from timing out waiting for the summary to appear.
     const [heroMounted, setHeroMounted] = useState(false);
-    useEffect(() => { setHeroMounted(true); }, []);
+    // Defer the heavy hero constellation until after mount so the registry
+    // rail and its "Browse providers" summary are in the DOM immediately on
+    // slow tablet/mobile runners, preventing the credential-recovery spec
+    // from timing out waiting for the summary to appear. setTimeout avoids a
+    // synchronous setState inside the effect.
+    useEffect(() => {
+      const timer = setTimeout(() => setHeroMounted(true), 0);
+      return () => clearTimeout(timer);
+    }, []);
 
     const [wizard, setWizard] = useState(false), [profileName, setProfileName] = useState(''), [authMode, setAuthMode] = useState<AuthSource['mode']>('API_KEY'), [credentialId, setCredentialId] = useState(''), [reference, setReference] = useState('');
     const [editProfile, setEditProfile] = useState<{
