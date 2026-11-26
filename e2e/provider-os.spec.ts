@@ -141,7 +141,10 @@ for (const width of [1440, 390])
         await tabs.getByRole('button', { name: 'Usage', exact: true }).click();
         await page.getByRole('region', { name: 'Usage', exact: true }).scrollIntoViewIfNeeded();
         await capture('fixture-unknown-usage');
-        await page.getByRole('group', { name: 'Provider class' }).getByRole('button', { name: 'Local', exact: true }).click();
+        // The LOCAL filter chip is labelled "Local models" (renamed together
+        // with build-connected.spec.ts in f23265d); this assertion follows the
+        // same approved label instead of the pre-rename "Local".
+        await page.getByRole('group', { name: 'Provider class' }).getByRole('button', { name: 'Local models', exact: true }).click();
         await capture('fixture-local-class');
         await page.getByRole('group', { name: 'Provider class' }).getByRole('button', { name: 'Coding agents', exact: true }).click();
         fixture.data.agents[0].detected = false;
