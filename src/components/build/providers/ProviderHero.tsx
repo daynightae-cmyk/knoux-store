@@ -7,11 +7,12 @@ import type { ProviderDefinition } from '@/lib/ai/provider-os/types';
 import { providerMark } from './provider-marks';
 import s from './provider-hero.module.css';
 
-const positions = [
-  ['openai', 'OpenAI', 33, 30], ['anthropic', 'Anthropic', 21, 42],
-  ['gemini', 'Google Gemini', 67, 30], ['openrouter', 'OpenRouter', 80, 42],
-  ['deepseek', 'DeepSeek', 89, 57], ['groq', 'Groq', 11, 57],
-  ['qwen', 'QwenCloud', 21, 73], ['mistral', 'Mistral', 79, 73], ['grok', 'Grok', 67, 83],
+// Providers arranged around a centered elliptical orbit (angle in degrees, 0 = top).
+const orbitSlots = [
+  ['openai', 'OpenAI', -10], ['anthropic', 'Anthropic', 30],
+  ['gemini', 'Google Gemini', 70], ['openrouter', 'OpenRouter', 110],
+  ['deepseek', 'DeepSeek', 150], ['groq', 'Groq', 190],
+  ['qwen', 'QwenCloud', 230], ['mistral', 'Mistral', 270], ['grok', 'Grok', 310],
 ] as const;
 
 export function ProviderHero({ definitions, selected, connection, discoveredModels, onSelect, onGetApi, onBrowse, onInspect }: {
@@ -39,57 +40,124 @@ export function ProviderHero({ definitions, selected, connection, discoveredMode
   }, []);
   const current = definitions.find(definition => definition.id === selected);
   const currentMark = current ? providerMark(current.id) : null;
-  return <section ref={hero} className={s.hero} data-paused={paused} aria-label="Provider Constellation">
-    <button type="button" className={s.motionControl} aria-pressed={paused} onClick={()=>setPaused(value=>!value)}>{paused?'Resume orbit':'Pause orbit'}</button>
-    {/* The reference sky is drawn, never photographed: nebula banks, a seeded
-        star field and the planet limb are code layers inside this scene. */}
-    <div className={s.sky} aria-hidden="true" />
-    <div className={s.limb} aria-hidden="true" />
-    <div className={s.planet} aria-hidden="true" />
-    <Link href="/build" className={s.brand}><i aria-hidden="true" /> <b>KNOuX</b> <span>STORE</span></Link>
-    <header className={s.title}><h1>Provider Constellation</h1><p>Connect, orchestrate, and route AI and compute providers across your workspace.</p></header>
-    <svg className={s.orbits} viewBox="0 0 1536 1024" preserveAspectRatio="none" aria-hidden="true">
-      <defs><filter id="provider-orbit-glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4" /></filter></defs>
-      <g fill="none" stroke="#b88bf3" strokeWidth="1.4">
-        <ellipse cx="768" cy="557" rx="631" ry="170" opacity=".35"/>
-        <ellipse cx="768" cy="531" rx="488" ry="209" opacity=".75"/>
-        <ellipse cx="768" cy="568" rx="348" ry="80" opacity=".38" transform="rotate(-6 768 568)"/>
-        <ellipse cx="768" cy="560" rx="170" ry="43" opacity=".8" transform="rotate(-8 768 560)"/>
-        <ellipse cx="768" cy="813" rx="370" ry="39" opacity=".35"/>
-        <ellipse cx="768" cy="813" rx="300" ry="24" opacity=".25"/>
-      </g>
-      {[[433,389], [649,332], [885,332], [1101,399], [510,519], [1055,534], [531,716], [1009,716], [156,599], [1374,540], [665,614], [916,550]].map(([x,y])=><g key={x}><circle cx={x} cy={y} r="6" fill="#bd76ff" filter="url(#provider-orbit-glow)"/><circle cx={x} cy={y} r="3" fill="#fff"/></g>)}
-      {/* Four-point flares: the reference's brightest sky stars. */}
-      <g stroke="#f4ebff" fill="none">
-        {[[1428, 54, 22], [1497, 561, 15], [1471, 899, 12], [742, 866, 26], [235, 128, 9]].map(([x, y, r]) => (
-          <g key={`flare-${x}`} data-flare="" opacity=".8">
-            <path d={`M${x - r} ${y}h${r * 2}M${x} ${y - r}v${r * 2}`} strokeWidth="1.2" />
-            <path d={`M${x - r * .45} ${y - r * .45}l${r * .9} ${r * .9}M${x + r * .45} ${y - r * .45}l${-r * .9} ${r * .9}`} strokeWidth=".8" opacity=".6" />
-            <circle cx={x} cy={y} r={r * .22} fill="#fff" stroke="none" />
-          </g>
-        ))}
-      </g>
-    </svg>
-    {positions.map(([id,name,x,y], index)=>{const d=definitions.find(p=>p.id===id),mark=providerMark(id);return <button type="button" key={id} className={s.node} style={{'--x':x+'%','--y':y+'%','--phase':(([6,7,8,5,0,4,1,3,2][index] / 9)*100)+'%'} as CSSProperties} disabled={!d} aria-label={'Select '+name} aria-pressed={selected===id} onClick={()=>d&&onSelect(d)}><span className={s.sphere} aria-hidden="true">{mark?<Image src={'/providers/'+mark+'.svg'} alt="" width={48} height={48}/>:<b data-provider={id} />}</span><span>{name}</span></button>})}
-    <div className={s.dossier}>
-      <ParticleMark patternId="provider-mark-particles" className={s.dossierSeal} />
-      {current ? <div key={current.id} className={s.dossierContent} aria-live="polite">
-        <header>
-          {currentMark && <Image src={`/providers/${currentMark}.svg`} alt="" width={43} height={43} />}
-          <div><span>{current.class.replaceAll('_', ' ')}</span><p className={s.dossierName}>{current.name}</p></div>
-          <strong>{connection?.replaceAll('_', ' ')}</strong>
-        </header>
-        <dl>
-          <div><dt>Transport</dt><dd>{current.transport}</dd></div>
-          <div><dt>Discovered models</dt><dd>{discoveredModels ?? 'Not reported'}</dd></div>
-        </dl>
-      </div> : <div className={s.dossierContent}><h2>Select a provider</h2></div>}
-      <div className={s.dossierActions}>
-        {current ? <button type="button" onClick={onInspect}>Provider details</button> : null}
-        <button type="button" onClick={onBrowse}>Browse catalog</button>
-        <Link href="/build/ai/models">Models</Link>
+
+  // Elliptical orbit position for a given angle (degrees), centered at 50%/50%.
+  // rx/ry are fractions of the viewport (e.g. 31 = 31% from center).
+  const orbitPosition = (angleDeg: number, rx: number, ry: number) => {
+    const rad = (angleDeg * Math.PI) / 180;
+    const x = 50 + Math.cos(rad) * rx;
+    const y = 50 + Math.sin(rad) * ry;
+    return { x: `${x}%`, y: `${y}%` };
+  };
+
+  return (
+    <section ref={hero} className={s.hero} data-paused={paused} aria-label="Provider Constellation">
+      <button type="button" className={s.motionControl} aria-pressed={paused} onClick={() => setPaused((v) => !v)}>
+        {paused ? 'Resume orbit' : 'Pause orbit'}
+      </button>
+      {/* Deep sky: nebula banks, starfield, planetary horizon — all code, no photograph. */}
+      <div className={s.sky} aria-hidden="true" />
+      <div className={s.limb} aria-hidden="true" />
+      <div className={s.horizon} aria-hidden="true" />
+      {/* Centered KNOX identity — owns the top of the viewport. */}
+      <Link href="/build" className={s.brand}><i aria-hidden="true" /> <b>KNOuX</b> <span>STORE</span></Link>
+      <header className={s.title}>
+        <h1>Provider Constellation</h1>
+        <p>Connect, orchestrate, and route AI and compute providers across your workspace.</p>
+      </header>
+      {/* Orbital paths drawn around the central instrument. */}
+      <svg className={s.orbits} viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <filter id="provider-orbit-glow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="4" />
+          </filter>
+        </defs>
+        <g fill="none" stroke="#b88bf3" strokeWidth="1.2" opacity=".5">
+          <ellipse cx="500" cy="360" rx="360" ry="210" />
+          <ellipse cx="500" cy="360" rx="260" ry="135" opacity=".6" />
+          <ellipse cx="500" cy="360" rx="150" ry="70" opacity=".35" />
+        </g>
+        {/* Luminous orbital particles between the rings. */}
+        <g stroke="#f4ebff" fill="none">
+          {[45, 105, 165, 225, 285, 345].map((angle, i) => {
+            const rad = (angle * Math.PI) / 180;
+            const x = 500 + Math.cos(rad) * 310;
+            const y = 360 + Math.sin(rad) * 170;
+            return (
+              <g key={angle} data-flare="" opacity=".85">
+                <circle cx={x} cy={y} r="2.5" fill="#fff" />
+                <circle cx={x} cy={y} r="7" fill="none" stroke="#bd76ff" strokeWidth=".6" />
+              </g>
+            );
+          })}
+        </g>
+      </svg>
+      {/* Provider nodes on the elliptical orbit around the center. */}
+      {orbitSlots.map(([id, name, angle], index) => {
+        const d = definitions.find((p) => p.id === id);
+        const mark = providerMark(id);
+        const pos = orbitPosition(angle, 34, 19);
+        const phase = ((index / orbitSlots.length) * 100).toFixed(2);
+        return (
+          <button
+            type="button"
+            key={id}
+            className={s.node}
+            style={{ '--x': pos.x, '--y': pos.y, '--phase': phase + '%' } as CSSProperties}
+            disabled={!d}
+            aria-label={'Select ' + name}
+            aria-pressed={selected === id}
+            onClick={() => d && onSelect(d)}
+          >
+            <span className={s.sphere} aria-hidden="true">
+              {mark ? <Image src={`/providers/${mark}.svg`} alt="" width={40} height={40} loading="eager" /> : <b data-provider={id} />}
+            </span>
+            <span>{name}</span>
+          </button>
+        );
+      })}
+      {/* Dominant central provider instrument — the heart of the constellation. */}
+      <div className={s.instrument} aria-hidden={!current}>
+        <div className={s.instrumentMark} aria-hidden="true">
+          {currentMark ? <Image src={`/providers/${currentMark}.svg`} alt="" width={72} height={72} /> : <ParticleMark patternId="provider-mark-particles" className={s.seal} />}
+        </div>
+        <div className={s.instrumentBody}>
+          <div className={s.instrumentLabel}>
+            <span>{current?.class.replaceAll('_', ' ') ?? 'Select a provider'}</span>
+            <h2 className={s.instrumentName}>{current?.name ?? 'Provider Constellation'}</h2>
+            <strong className={s.instrumentStatus}>{connection?.replaceAll('_', ' ') ?? 'Not configured'}</strong>
+          </div>
+          <dl className={s.instrumentFacts}>
+            <div><dt>Transport</dt><dd>{current?.transport ?? '—'}</dd></div>
+            <div><dt>Discovered models</dt><dd>{discoveredModels ?? 'Not reported'}</dd></div>
+          </dl>
+          <div className={s.instrumentActions}>
+            {current ? <button type="button" className={s.instrumentBtn} onClick={onInspect}>Provider details</button> : null}
+            <button type="button" className={s.instrumentBtn} onClick={onBrowse}>Browse catalog</button>
+          </div>
+        </div>
       </div>
-    </div>
-    <button type="button" className={s.getApi} onClick={onGetApi}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 14 4-4m-6 7-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m2-1 2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0" transform="translate(1 0)"/></svg>Get API</button>
-  </section>;
+      {/* Contextual panel — populated when a provider is selected, otherwise empty. */}
+      {current && (
+        <aside className={s.contextPanel} aria-label={current.name + ' details'}>
+          <header className={s.contextHead}>
+            <span className={s.contextEyebrow}>{current.class.replaceAll('_', ' ')} / {current.transport}</span>
+            <h3 className={s.contextTitle}>{current.name}</h3>
+          </header>
+          <p className={s.contextLine}>{connection ? 'Connection: ' + connection : 'No profile bound.'}</p>
+          <div className={s.contextActions}>
+            <button type="button" className={s.contextBtn} onClick={onInspect}>Configure provider</button>
+            <button type="button" className={s.contextBtn} onClick={onGetApi}>Get API</button>
+          </div>
+          <p className={s.contextNote}>Connection testing checks authentication and discovery only; it does not generate content.</p>
+        </aside>
+      )}
+      {/* Primary action — always visible, centered at the bottom, never clipped. */}
+      <button type="button" className={s.getApi} onClick={onGetApi}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 14 4-4m-6 7-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m2-1 2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0" transform="translate(1 0)" /></svg>
+        Get API
+      </button>
+    </section>
+  );
 }
+
