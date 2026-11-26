@@ -42,6 +42,12 @@ export function ProviderCenter({ embedded = false, initialDefinitions = [] }: Re
     const [orbitPage, setOrbitPage] = useState(0);
     const [mode, setMode] = useState<'constellation' | 'catalog'>('constellation');
     const isConstellation = !embedded && mode === 'constellation';
+    // Defer the heavy hero constellation until after mount so the registry
+    // rail and its "Browse providers" summary are in the DOM immediately on
+    // slow tablet/mobile runners, preventing the credential-recovery spec
+    // from timing out waiting for the summary to appear.
+    const [heroMounted, setHeroMounted] = useState(false);
+    useEffect(() => { setHeroMounted(true); }, []);
 
     const [wizard, setWizard] = useState(false), [profileName, setProfileName] = useState(''), [authMode, setAuthMode] = useState<AuthSource['mode']>('API_KEY'), [credentialId, setCredentialId] = useState(''), [reference, setReference] = useState('');
     const [editProfile, setEditProfile] = useState<{
@@ -257,7 +263,7 @@ export function ProviderCenter({ embedded = false, initialDefinitions = [] }: Re
       <button type="button" aria-pressed={!isConstellation} onClick={() => setMode('catalog')}>Intelligence catalog</button>
     </div> : null}
     <ProviderAuthFeedback celebration={celebration} />
-    {isConstellation && <ProviderHero
+    {isConstellation && heroMounted && <ProviderHero
       definitions={definitions}
       selected={selected}
       connection={definition ? providerConnectionLabel(profile) : null}
