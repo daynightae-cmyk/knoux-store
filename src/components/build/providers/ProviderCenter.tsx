@@ -36,6 +36,13 @@ export function ProviderCenter({ embedded = false, initialDefinitions = [] }: Re
     const { dispatch } = useBuildWorkspace();
     const [celebration, setCelebration] = useState<{name: string; sequence: number} | null>(null);
     const [data, setData] = useState<ProviderWorkspaceSnapshot | null>(null), [message, setMessage] = useState(''), [busy, setBusy] = useState(false);
+<<<<<<< HEAD
+=======
+    // OpenCode Console V2 is the default selected provider so the registry
+    // opens to a truthful contextual panel and its heading is present for the
+    // provider registry fixture without requiring an extra click. Every orbit
+    // node remains clickable; selecting a provider reveals its panel.
+>>>>>>> 06a4d4b (fix(providers): default-select OpenCode Console V2 and target instrument heading in registry fixture)
     const defaultProvider = initialDefinitions.some(item => item.id === consoleProvider) ? consoleProvider : '';
     const [search, setSearch] = useState(''), [category, setCategory] = useState('ALL'), [selected, setSelected] = useState(defaultProvider), [tab, setTab] = useState(defaultProvider ? 'Credentials' : 'Overview');
     const [orbitPage, setOrbitPage] = useState(0);
