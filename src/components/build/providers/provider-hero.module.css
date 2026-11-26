@@ -13,9 +13,6 @@
   color: #fff;
   font-family: Arial, Helvetica, sans-serif;
   container-type: inline-size;
-  /* The hero is a composition layer, never an interaction target: every
-     click passes through to the orbit nodes and controls beneath it. */
-  pointer-events: none;
 }
 
 /* Deep sky: layered nebula banks across the whole viewport. */
