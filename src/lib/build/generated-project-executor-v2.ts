@@ -680,7 +680,7 @@ async function startPreview(compiledDir: string, parentOrigin: string, signal?: 
       settled = true;
       clearTimeout(timeout);
       signal?.removeEventListener('abort', onAbort);
-      err ? reject(err) : resolve(val!);
+      if (err) reject(err); else resolve(val!);
     };
     const onAbort = () => finish(new Error('Preview start cancelled'));
     const timeout = setTimeout(() => finish(new Error('Preview process did not publish listener in time')), PREVIEW_READY_TIMEOUT_MS);
