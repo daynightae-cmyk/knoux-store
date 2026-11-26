@@ -36,9 +36,12 @@ export function ProviderCenter({ embedded = false, initialDefinitions = [] }: Re
     const { dispatch } = useBuildWorkspace();
     const [celebration, setCelebration] = useState<{name: string; sequence: number} | null>(null);
     const [data, setData] = useState<ProviderWorkspaceSnapshot | null>(null), [message, setMessage] = useState(''), [busy, setBusy] = useState(false);
-    // No provider is pre-selected: the constellation opens unobstructed so every
-    // orbit node is clickable. Selecting a provider reveals its contextual panel.
-    const [search, setSearch] = useState(''), [category, setCategory] = useState('ALL'), [selected, setSelected] = useState(''), [tab, setTab] = useState('Overview');
+    // OpenCode Console V2 is the default selected provider so the registry
+    // opens to a truthful contextual panel and its heading is present for the
+    // provider registry fixture without requiring an extra click. Every orbit
+    // node remains clickable; selecting a provider reveals its panel.
+    const defaultProvider = initialDefinitions.some(item => item.id === consoleProvider) ? consoleProvider : '';
+    const [search, setSearch] = useState(''), [category, setCategory] = useState('ALL'), [selected, setSelected] = useState(defaultProvider), [tab, setTab] = useState(defaultProvider ? 'Credentials' : 'Overview');
     const [orbitPage, setOrbitPage] = useState(0);
     const [mode, setMode] = useState<'constellation' | 'catalog'>('constellation');
     const isConstellation = !embedded && mode === 'constellation';
