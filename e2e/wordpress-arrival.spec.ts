@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test';
 
+// The composer sets `align-items: flex-end` inline. Newer Chromium serializes
+// the computed value of flex-end as the equivalent logical `flow-end`, so the
+// end-alignment assertion accepts both spellings of the same computed result.
+const END_ALIGNED = /^(flex-end|flow-end)$/;
+
 test('WordPress arrival swaps rendered documents and restores focus after the inspector and studio close', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
@@ -36,19 +41,19 @@ test('WordPress arrival swaps rendered documents and restores focus after the in
   await page.keyboard.press('Escape');
   await expect(inspector).toBeHidden();
   await expect(trigger).toBeFocused();
-  await expect(draft.locator('[data-type=hero]')).toHaveCSS('align-items', 'flex-end');
+  await expect(draft.locator('[data-type=hero]')).toHaveCSS('align-items', END_ALIGNED);
 
   await page.keyboard.press('Escape');
   await expect(comparison).toBeHidden();
   await expect(openPreviews).toBeFocused();
   const focalHero = studio.locator('[data-wordpress-cockpit] [data-type=hero]');
-  await expect(focalHero).toHaveCSS('align-items', 'flex-end');
+  await expect(focalHero).toHaveCSS('align-items', END_ALIGNED);
   await page.keyboard.press('Escape');
   await expect(studio).toBeHidden();
   await expect(entry).toBeFocused();
   await page.goForward();
   await expect(studio).toBeVisible();
-  await expect(focalHero).toHaveCSS('align-items', 'flex-end');
+  await expect(focalHero).toHaveCSS('align-items', END_ALIGNED);
   await openPreviews.click();
   await trigger.click();
   await expect(inspector).toBeVisible();

@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test';
 
+// The composer sets `align-items: flex-end` inline. Newer Chromium serializes
+// the computed value of flex-end as the equivalent logical `flow-end`, so the
+// end-alignment assertion accepts both spellings of the same computed result.
+const END_ALIGNED = /^(flex-end|flow-end)$/;
+
 test('Composer applies, reorders, saves and includes real sections in a project request', async ({ page }) => {
   await page.goto('/wordpress#launch');
   const composer = page.getByRole('region', { name: 'Visual Website Composer', exact: true });
@@ -23,7 +28,7 @@ test('Composer applies, reorders, saves and includes real sections in a project 
   await composer.getByRole('button', { name: 'Inspector', exact: true }).click();
   await composer.getByRole('dialog', { name: 'Inspector' }).getByRole('button', { name: 'End', exact: true }).click();
   await page.keyboard.press('Escape');
-  await expect(gallery).toHaveCSS('align-items', 'flex-end');
+  await expect(gallery).toHaveCSS('align-items', END_ALIGNED);
 
   await composer.getByRole('button', { name: 'Layers', exact: true }).click();
   await composer.getByRole('dialog', { name: 'Layers' }).getByRole('listitem').filter({ hasText: 'Gallery' }).getByRole('button', { name: 'Move up' }).click();
@@ -36,5 +41,5 @@ test('Composer applies, reorders, saves and includes real sections in a project 
   expect(href.pathname).toBe('/contact');
   expect(href.searchParams.get('items')).toContain('gallery (end');
   await page.reload();
-  await expect(gallery).toHaveCSS('align-items', 'flex-end');
+  await expect(gallery).toHaveCSS('align-items', END_ALIGNED);
 });
