@@ -527,6 +527,16 @@
 @keyframes welcomeDust { from { translate: -1.2% -.4%; } to { translate: 1.2% 1.4%; } }
 @keyframes welcomeLimb { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.1); } }
 
+/* Reduced motion: the fractal-noise grain and the orbit drop-shadow are this
+   scene's two most expensive raster operations, and both exist only to move.
+   Under reduced motion the painted nebula banks and the canvas sky carry the
+   scene on their own, so the filters go — first paint is not held hostage by
+   a full-viewport feTurbulence pass. */
+@media (prefers-reduced-motion: reduce) {
+  .dust { display: none; }
+  .rings { filter: none; }
+}
+
 /* ------------------------------------------------------------- compact ---- */
 /* Phones and portrait tablets: the same scene re-composed into a usable
    column. The mark first, then the Build gate, then the four destinations
@@ -620,4 +630,19 @@
 @media (prefers-reduced-motion: reduce) {
   .scene *, .scene *::before, .scene *::after { animation: none !important; }
   .nebula, .dust, .planetA, .planetB { translate: none !important; }
+  /* The full star-bank gradient stack is a ~20-layer radial raster over a
+     112% viewport; on a constrained host it holds the first presented frame
+     (and with it the page's LCP) back by a second+. Reduced motion gets the
+     same banks as four representative gradients — identical composition,
+     a fifth of the raster — and the streaked dust lanes (already static
+     here) drop entirely. */
+  .nebula {
+    background-image:
+      radial-gradient(ellipse 54% 44% at 50% 50%, rgba(4, 2, 10, .52), transparent 72%),
+      radial-gradient(ellipse 26% 22% at 6% 7%, rgba(126, 34, 206, .48), transparent 68%),
+      radial-gradient(ellipse 21% 18% at 98% 17%, rgba(107, 33, 168, .46), transparent 68%),
+      radial-gradient(ellipse 13% 11% at 102% 88%, rgba(168, 85, 247, .46), transparent 68%),
+      radial-gradient(ellipse 12% 10% at -2% 72%, rgba(107, 33, 168, .2), transparent 72%);
+  }
+  .nebula::before, .nebula::after { display: none; }
 }

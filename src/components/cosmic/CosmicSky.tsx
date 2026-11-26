@@ -244,6 +244,10 @@ export function CosmicSky({ reduced = false, className }: Readonly<{ reduced?: b
     let frame = 0, previous = 0, pointerX = 0, pointerY = 0, decay: number | undefined;
     let pulseOrigin: LightningPoint | null = null;
     let wakeStarted = -Infinity, paints = 0, paintTotal = 0;
+    // Static (reduced-motion) frames rasterize the nebula banks into this
+    // quarter-resolution buffer and blit it: radial gradients scale losslessly,
+    // so the sky looks identical at a sixteenth of the pixel cost.
+    let haze: HTMLCanvasElement | null = null, hazeCtx: CanvasRenderingContext2D | null = null;
     let accumulatedVisibleMs = 0, visibleSince: number | null = null;
     let bounds = stage.getBoundingClientRect();
 
@@ -290,7 +294,18 @@ export function CosmicSky({ reduced = false, className }: Readonly<{ reduced?: b
       const energy = phase ? Math.pow(1 - wakeElapsed / ACTIVATION_DURATION_MS, 1.5) : 0;
       const renderStarted = performance.now();
       ctx!.clearRect(0, 0, sky.width, sky.height);
-      nebula(ctx!, sky, energy); starfield(ctx!, sky, stars, energy, still); planets(ctx!, sky, worlds, still);
+      if (still) {
+        const hw = Math.max(1, Math.round(sky.width / 4)), hh = Math.max(1, Math.round(sky.height / 4));
+        if (!haze || haze.width !== hw || haze.height !== hh) {
+          haze = document.createElement('canvas'); haze.width = hw; haze.height = hh;
+          hazeCtx = haze.getContext('2d');
+        }
+        hazeCtx!.setTransform(hw / sky.width, 0, 0, hh / sky.height, 0, 0);
+        hazeCtx!.clearRect(0, 0, sky.width, sky.height);
+        nebula(hazeCtx!, sky, energy);
+        ctx!.drawImage(haze, 0, 0, sky.width, sky.height);
+      } else nebula(ctx!, sky, energy);
+      starfield(ctx!, sky, stars, energy, still); planets(ctx!, sky, worlds, still);
       if (!still) { shootingStar(ctx!, sky); lightning(ctx!, sky, visibleSeconds); pulses(ctx!, sky); activation(ctx!, sky, phase, energy); }
       paintTotal += performance.now() - renderStarted; paints++;
       surface!.dataset.motion = still ? 'stable' : 'animated';
@@ -302,17 +317,35 @@ export function CosmicSky({ reduced = false, className }: Readonly<{ reduced?: b
     function refresh() {
       cancelAnimationFrame(frame); previous = 0;
       const now = performance.now();
-      if (document.hidden || reduced || motion.matches || !sky.width || !sky.height) {
+      const still = reduced || motion.matches;
+      if (document.hidden || still || !sky.width || !sky.height) {
         if (visibleSince !== null) accumulatedVisibleMs += now - visibleSince;
         visibleSince = null;
         clearActivation();
       } else visibleSince ??= now;
-      if (!document.hidden) frame = requestAnimationFrame(draw);
+      if (!document.hidden) {
+        if (still) {
+          // A static sky has exactly one frame. Paint it in the very next
+          // animation frame: headless compositors only emit LCP once a frame
+          // after the first paint is presented, so deferring this frame
+          // defers the page's LCP entry as well. The haze buffer keeps the
+          // raster cheap enough to not hold that frame back.
+          frame = requestAnimationFrame(draw);
+        } else frame = requestAnimationFrame(draw);
+      }
     }
     function resize() {
-      bounds = stage!.getBoundingClientRect(); sky.width = surface!.clientWidth; sky.height = surface!.clientHeight;
-      const dpr = Math.min(devicePixelRatio || 1, 1.5);
-      surface!.width = Math.round(sky.width * dpr); surface!.height = Math.round(sky.height * dpr);
+      // The ResizeObserver fires once when observation starts, immediately
+      // after the explicit first call below; re-sizing to the same box must be
+      // a no-op, or reduced motion paints twice for one layout.
+      const nextWidth = surface!.clientWidth, nextHeight = surface!.clientHeight;
+      // The still frame is the only one a reduced-motion visitor ever sees:
+      // paint it at CSS resolution — half the pixels, same sky.
+      const dpr = (reduced || motion.matches) ? 1 : Math.min(devicePixelRatio || 1, 1.5);
+      const pixelWidth = Math.round(nextWidth * dpr), pixelHeight = Math.round(nextHeight * dpr);
+      if (sky.width === nextWidth && sky.height === nextHeight && surface!.width === pixelWidth && surface!.height === pixelHeight) return;
+      bounds = stage!.getBoundingClientRect(); sky.width = nextWidth; sky.height = nextHeight;
+      surface!.width = pixelWidth; surface!.height = pixelHeight;
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0); updatePhase(); refresh();
     }
     function follow(event: PointerEvent) {
@@ -342,8 +375,16 @@ export function CosmicSky({ reduced = false, className }: Readonly<{ reduced?: b
       stage.dataset.cosmicEnergy = 'active'; stage.dataset.cosmicPhase = 'prepare';
       window.clearTimeout(decay); decay = window.setTimeout(clearActivation, ACTIVATION_DURATION_MS);
     });
-    // The sky follows the real clock without polling every frame.
-    const clock = window.setInterval(() => { updatePhase(); if (reduced || motion.matches) refresh(); }, 60_000);
+    // The sky follows the real clock without polling every frame. A static
+    // (reduced-motion) frame only repaints when the palette actually moves to
+    // a new minute, so the interval never counts as animation.
+    let lastMinute = Math.floor(dayFraction() * 1440);
+    const clock = window.setInterval(() => {
+      const minute = Math.floor(dayFraction() * 1440);
+      updatePhase();
+      if ((reduced || motion.matches) && minute !== lastMinute) refresh();
+      lastMinute = minute;
+    }, 60_000);
     const observer = new ResizeObserver(resize); observer.observe(stage);
     motion.addEventListener('change', refresh); document.addEventListener('visibilitychange', refresh);
     window.addEventListener('pointermove', follow, { passive: true });

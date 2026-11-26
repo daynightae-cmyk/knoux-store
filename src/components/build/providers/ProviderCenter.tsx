@@ -14,7 +14,7 @@ import { PlatformFacts } from './PlatformFacts';
 import { CustomMetadata } from './CustomMetadata';
 import { providerMark } from './provider-marks';
 import { cueAtmosphere } from '../dev/living-atmosphere';
-const classes = [['ALL', 'All providers'], ['INTELLIGENCE', 'Intelligence'], ['CONNECTED', 'Connected'], ['FREE_MODELS', 'Free models'], ['CODING_AGENT', 'Coding agents'], ['VISION', 'Vision'], ['LOCAL', 'Local models'], ['CUSTOM', 'Custom']] as const;
+const classes = [['ALL', 'All providers'], ['INTELLIGENCE', 'Intelligence'], ['CONNECTED', 'Connected'], ['FREE_MODELS', 'Free models'], ['CODING_AGENT', 'Coding agents'], ['VISION', 'Vision'], ['LOCAL', 'Local'], ['CUSTOM', 'Custom']] as const;
 const unknown = 'UNKNOWN · not reported';
 const consoleProvider = 'opencode-console-v2';
 // Providers arranged evenly around a large slow-orbiting circle (angle in degrees, 0 = top).

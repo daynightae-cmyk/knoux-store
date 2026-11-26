@@ -19,11 +19,11 @@ export function paintPlanet(ctx: CanvasRenderingContext2D, x: number, y: number,
   if (!Number.isFinite(radius) || radius <= 0) return;
   const lit = mixColor(tone, [243, 229, 255], .68);
   const shade = mixColor(tone, [7, 4, 22], .88);
-  const glow = ctx.createRadialGradient(x, y, radius * .8, x, y, radius * 2.4);
+  const glow = ctx.createRadialGradient(x, y, radius * .8, x, y, radius * 2.25);
   glow.addColorStop(0, rgba(tone, .34 * illumination));
   glow.addColorStop(1, rgba(tone, 0));
   ctx.fillStyle = glow;
-  ctx.fillRect(x - radius * 2.4, y - radius * 2.4, radius * 4.8, radius * 4.8);
+  ctx.fillRect(x - radius * 2.25, y - radius * 2.25, radius * 4.5, radius * 4.5);
   if (ring) paintRings(ctx, x, y, radius, lit, false);
 
   const body = ctx.createRadialGradient(x - radius * .53, y - radius * .54, radius * .05, x + radius * .23, y + radius * .24, radius * 1.2);

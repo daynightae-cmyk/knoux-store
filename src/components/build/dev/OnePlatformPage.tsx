@@ -52,6 +52,16 @@ export function OnePlatformPage({ onEnter }: Readonly<{ onEnter?: () => void }> 
     <div className={s.page}>
       <div className={s.scene} data-scene="one-platform">
         <div className={s.nebula} aria-hidden="true" />
+        {/* The constellation hides the workspace shell chrome, so this page
+            carries its own visible navigation landmark: a keyboard user can
+            always leave the scene. */}
+        <nav className={s.topNav} aria-label="Build platform navigation">
+          <Link href="/">Home</Link>
+          <Link href="/build">Workspace</Link>
+          <Link href="/build/providers">Providers</Link>
+          <Link href="/build/ai/models">Models</Link>
+          <Link href="/build/settings">Settings</Link>
+        </nav>
         <p className={s.brand}><i aria-hidden="true" /> KNOuX <span>BUILD</span></p>
         <h1 className={s.title}>One Platform</h1>
         <p className={s.lede}>Services <b aria-hidden="true">•</b> Apps <b aria-hidden="true">•</b> Intelligence <b aria-hidden="true">•</b> Control</p>

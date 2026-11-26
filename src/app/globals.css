@@ -36,6 +36,15 @@
 @media(max-width:390px){.orbit-node{min-height:95px}.orbit-node strong{font-size:11px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
+/* Reduced motion is also a raster budget. A backdrop blur over a full-viewport
+   layer is the most expensive thing a software rasterizer can be asked to do,
+   and on a loaded host it pushes the first paint past a second. The glass
+   panels keep their translucent fills, borders and inset light — the
+   composition is unchanged, only the frosted refraction goes. */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+}
+
 /* Arrival sequence: the wordmark only resolves once the particle mark has
    computed itself into place, so the identity never appears as a finished
    logo that simply fades in. */
@@ -455,6 +464,14 @@
 .signal-rail a em { font-family: var(--mono); font-style: normal; font-size: 8.5px; color: var(--dim); }
 .signal-rail a:hover, .signal-rail a[aria-current="page"] { color: var(--text); }
 .signal-rail a[aria-current="page"] em { color: var(--violet); }
+
+/* On a phone the rail must not become a horizontal scroller that pushes the
+   contact entry past the viewport edge: it wraps into as many rows as it
+   needs and every destination stays inside the shell's content box. */
+@media (max-width: 700px) {
+  .signal-rail__inner { flex-wrap: wrap; overflow-x: visible; row-gap: 10px; column-gap: 14px; padding: 12px 0; }
+  .signal-rail__label { border-right: 0; padding-right: 0; }
+}
 
 /* --- BLOCK: Capability matrix ------------------------------------- */
 .matrix { width: 100%; border-collapse: collapse; }

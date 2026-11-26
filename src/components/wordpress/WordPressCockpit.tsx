@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import type { ExternalItem } from '@/lib/wordpress/external';
 import { formatCount, formatOfficialDate } from '@/lib/wordpress/external';
 import { cueAtmosphere } from '@/components/build/dev/living-atmosphere';
@@ -19,6 +19,25 @@ import { StudioCatalogPaging, type useStudioCatalog } from './StudioCatalogData'
 import s from './WordPressStudio.module.css';
 
 type Translate = (english: string, arabic?: string) => string;
+
+/**
+ * Live media query via useSyncExternalStore: the server snapshot (and the
+ * first hydrated render) is the wide cockpit, so SSR markup matches; if the
+ * real viewport is narrow, React re-renders synchronously during the
+ * hydration commit — before any later pointer event can observe the stale
+ * value — so a collapsed panel never leaves hidden copies of the choice
+ * buttons in the document.
+ */
+function useMediaQuery(query: string) {
+  const subscribe = useCallback((onChange: () => void) => {
+    const media = matchMedia(query);
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, [query]);
+  const getSnapshot = useCallback(() => matchMedia(query).matches, [query]);
+  const getServerSnapshot = useCallback(() => true, []);
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+}
 export type WordPressPreviewKind = 'site' | 'theme' | 'plugin';
 
 type SelectorProps = {
@@ -178,6 +197,13 @@ export function WordPressCockpit({ themes, plugins, selectedSlug, pluginSlug, ki
   const pluginSheet = useRef<HTMLDialogElement>(null);
   const draftPanel = useRef<HTMLDialogElement>(null);
   const previewHeading = useRef<HTMLHeadingElement>(null);
+  // Below 1101px the side panels collapse into the dock sheets (CSS), so the
+  // selector lists render only where they are actually shown; the sheets
+  // render their content only while open. A collapsed panel must not leave
+  // hidden copies of the choice buttons in the document.
+  const wide = useMediaQuery('(min-width: 1101px)');
+  const [themeSheetOpen, setThemeSheetOpen] = useState(false);
+  const [pluginSheetOpen, setPluginSheetOpen] = useState(false);
 
   useEffect(() => {
     const sync = () => setDraft(readComposerBlocks());
@@ -264,7 +290,9 @@ export function WordPressCockpit({ themes, plugins, selectedSlug, pluginSlug, ki
           <div><span>WORDPRESS.ORG</span><h2 id="wp-cockpit-themes">{t('Themes', 'القوالب')}</h2></div>
           <b>{themes.length}</b>
         </header>
-        <ThemeSelector themes={themes} selectedSlug={selectedSlug} active={kind === 'theme'} onSelect={chooseTheme} query={themeQuery} onQuery={setThemeQuery} t={t} catalog={themeCatalog} />
+        {wide
+          ? <ThemeSelector themes={themes} selectedSlug={selectedSlug} active={kind === 'theme'} onSelect={chooseTheme} query={themeQuery} onQuery={setThemeQuery} t={t} catalog={themeCatalog} />
+          : <button type="button" className={s.panelCatalogLink} onClick={() => { setThemeSheetOpen(true); themeSheet.current?.showModal(); }}>{t('Choose a theme', 'اختر قالباً')} <span aria-hidden="true">↗</span></button>}
         <a className={s.panelCatalogLink} href="/wordpress/themes">{t('Full theme catalogue', 'فهرس القوالب الكامل')} <span aria-hidden="true">↗</span></a>
       </aside>
 
@@ -346,7 +374,9 @@ export function WordPressCockpit({ themes, plugins, selectedSlug, pluginSlug, ki
           <div><span>WORDPRESS.ORG</span><h2 id="wp-cockpit-plugins">{t('Plugins', 'الإضافات')}</h2></div>
           <b>{plugins.length}</b>
         </header>
-        <PluginSelector plugins={plugins} selectedSlug={pluginSlug} active={kind === 'plugin'} onSelect={choosePlugin} query={pluginQuery} onQuery={setPluginQuery} t={t} catalog={pluginCatalog} />
+        {wide
+          ? <PluginSelector plugins={plugins} selectedSlug={pluginSlug} active={kind === 'plugin'} onSelect={choosePlugin} query={pluginQuery} onQuery={setPluginQuery} t={t} catalog={pluginCatalog} />
+          : <button type="button" className={s.panelCatalogLink} onClick={() => { setPluginSheetOpen(true); pluginSheet.current?.showModal(); }}>{t('Choose a plugin', 'اختر إضافة')} <span aria-hidden="true">↗</span></button>}
         <a className={s.panelCatalogLink} href="/wordpress/plugins">{t('Full plugin catalogue', 'فهرس الإضافات الكامل')} <span aria-hidden="true">↗</span></a>
       </aside>
       {(kind === 'theme' || kind === 'site') && <div className={`${s.deviceSwitch} ${s.orbitalDeviceDock}`} role="group" aria-label={t('Preview device', 'جهاز المعاينة')}>
@@ -361,17 +391,21 @@ export function WordPressCockpit({ themes, plugins, selectedSlug, pluginSlug, ki
 
     <nav className={s.mobileCockpitDock} aria-label={t('Studio libraries', 'مكتبات الاستوديو')}>
       <button type="button" aria-pressed={kind === 'site'} onClick={showSite}><span aria-hidden="true">◇</span>{t('Site', 'الموقع')}</button>
-      <button type="button" aria-pressed={kind === 'theme'} onClick={() => themeSheet.current?.showModal()}><span aria-hidden="true">▧</span>{t('Themes', 'القوالب')}<small>{themes.length}</small></button>
-      <button type="button" aria-pressed={kind === 'plugin'} onClick={() => pluginSheet.current?.showModal()}><span aria-hidden="true">◈</span>{t('Plugins', 'الإضافات')}<small>{plugins.length}</small></button>
+      <button type="button" aria-pressed={kind === 'theme'} onClick={() => { setThemeSheetOpen(true); themeSheet.current?.showModal(); }}><span aria-hidden="true">▧</span>{t('Themes', 'القوالب')}<small>{themes.length}</small></button>
+      <button type="button" aria-pressed={kind === 'plugin'} onClick={() => { setPluginSheetOpen(true); pluginSheet.current?.showModal(); }}><span aria-hidden="true">◈</span>{t('Plugins', 'الإضافات')}<small>{plugins.length}</small></button>
     </nav>
 
-    <dialog ref={themeSheet} className={`${s.contextPanel} ${s.cockpitSheet}`} aria-labelledby="wp-theme-sheet-title">
-      <header><div><span>WORDPRESS.ORG</span><h3 id="wp-theme-sheet-title">{t('Choose a theme', 'اختر قالباً')}</h3></div><button type="button" onClick={() => themeSheet.current?.close()} aria-label={t('Close themes', 'إغلاق القوالب')}>×</button></header>
-      <ThemeSelector themes={themes} selectedSlug={selectedSlug} active={kind === 'theme'} onSelect={chooseTheme} query={themeQuery} onQuery={setThemeQuery} t={t} catalog={themeCatalog} />
+    <dialog ref={themeSheet} className={`${s.contextPanel} ${s.cockpitSheet}`} aria-labelledby="wp-theme-sheet-title" onClose={() => setThemeSheetOpen(false)}>
+      {themeSheetOpen ? <>
+        <header><div><span>WORDPRESS.ORG</span><h3 id="wp-theme-sheet-title">{t('Choose a theme', 'اختر قالباً')}</h3></div><button type="button" onClick={() => themeSheet.current?.close()} aria-label={t('Close themes', 'إغلاق القوالب')}>×</button></header>
+        <ThemeSelector themes={themes} selectedSlug={selectedSlug} active={kind === 'theme'} onSelect={chooseTheme} query={themeQuery} onQuery={setThemeQuery} t={t} catalog={themeCatalog} />
+      </> : null}
     </dialog>
-    <dialog ref={pluginSheet} className={`${s.contextPanel} ${s.cockpitSheet}`} aria-labelledby="wp-plugin-sheet-title">
-      <header><div><span>WORDPRESS.ORG</span><h3 id="wp-plugin-sheet-title">{t('Choose a plugin', 'اختر إضافة')}</h3></div><button type="button" onClick={() => pluginSheet.current?.close()} aria-label={t('Close plugins', 'إغلاق الإضافات')}>×</button></header>
-      <PluginSelector plugins={plugins} selectedSlug={pluginSlug} active={kind === 'plugin'} onSelect={choosePlugin} query={pluginQuery} onQuery={setPluginQuery} t={t} catalog={pluginCatalog} />
+    <dialog ref={pluginSheet} className={`${s.contextPanel} ${s.cockpitSheet}`} aria-labelledby="wp-plugin-sheet-title" onClose={() => setPluginSheetOpen(false)}>
+      {pluginSheetOpen ? <>
+        <header><div><span>WORDPRESS.ORG</span><h3 id="wp-plugin-sheet-title">{t('Choose a plugin', 'اختر إضافة')}</h3></div><button type="button" onClick={() => pluginSheet.current?.close()} aria-label={t('Close plugins', 'إغلاق الإضافات')}>×</button></header>
+        <PluginSelector plugins={plugins} selectedSlug={pluginSlug} active={kind === 'plugin'} onSelect={choosePlugin} query={pluginQuery} onQuery={setPluginQuery} t={t} catalog={pluginCatalog} />
+      </> : null}
     </dialog>
     <dialog ref={draftPanel} className={`${s.contextPanel} ${s.draftPanel}`} aria-labelledby="wp-draft-panel-title">
       <header><div><span>LOCAL SESSION</span><h3 id="wp-draft-panel-title">{t('Layout previews & inspector', 'معاينات التخطيط والفاحص')}</h3></div><button type="button" onClick={() => draftPanel.current?.close()} aria-label={t('Close layout previews', 'إغلاق معاينات التخطيط')}>×</button></header>

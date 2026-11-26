@@ -155,7 +155,7 @@ export function StoreStarfield({ phase }: { phase?: StoreStarfieldPhase } = {}) 
       if (count && nextWidth === width && nextHeight === height && element.width === Math.round(nextWidth * dpr) && element.height === Math.round(nextHeight * dpr)) return;
       width = nextWidth;
       height = nextHeight;
-      count = Math.min(stars.length, Math.max(55, Math.round(width * height / 7000)));
+      count = Math.min(stars.length, Math.max(55, Math.round(width * height / 10000)));
       element.width = Math.round(width * dpr);
       element.height = Math.round(height * dpr);
       context.setTransform(dpr, 0, 0, dpr, 0, 0);

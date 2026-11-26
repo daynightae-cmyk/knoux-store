@@ -6,6 +6,15 @@
   background-position: center;
 }
 
+/* Reduced motion never animates this stage, so the full-bleed photo is pure
+   decode cost at first paint. The constellation gradient below is the same
+   artwork the constellation state already uses — keep it, drop the webp. */
+@media (prefers-reduced-motion: reduce) {
+  .dev-cinematic.dev-shell--landing .dev-shell__stage {
+    background-image: radial-gradient(ellipse 60% 44% at 50% 116%, rgba(76, 52, 168, .28), transparent 64%);
+  }
+}
+
 /* While the constellation is the entry, the page is one full-bleed reference
    card: no workspace sidebar, no top bar, no status rail, no second particle
    mark. The scene draws its own nebula, orbits and horizon as code. */

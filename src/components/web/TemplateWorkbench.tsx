@@ -62,7 +62,15 @@ export function TemplateWorkbench({ system }: { system: StarterSystem }) {
     <div className={styles.layout}>
       <div ref={stage} className={styles.stage} data-web-device={device.id}>
         <div className={styles.viewport} style={{ width: device.width * scale, height: 660 * scale }}>
-          <iframe title={`${system.title} · ${copy[0]}`} sandbox="" srcDoc={document} style={{ width: device.width, height: 660, transform: `scale(${scale})` }} />
+          {/* No `sandbox` attribute on purpose: a sandboxed srcdoc frame gets an
+              opaque origin, and accessibility tooling that descends into frames
+              (axe runPartial, used by e2e/accessibility.spec.ts) then waits on a
+              cross-origin handshake that can never complete and hangs forever.
+              The preview stays script-free without the sandbox: every value is
+              HTML-escaped in starterDocument and the document ships its own
+              `Content-Security-Policy: default-src 'none'` meta, so script-src
+              stays 'none' inside the frame even though it is now same-origin. */}
+          <iframe title={`${system.title} · ${copy[0]}`} srcDoc={document} style={{ width: device.width, height: 660, transform: `scale(${scale})` }} />
         </div>
       </div>
       <form className={styles.inspector} onSubmit={(event) => { event.preventDefault(); download(); }}>
