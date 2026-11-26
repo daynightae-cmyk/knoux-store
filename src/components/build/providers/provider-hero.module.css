@@ -475,8 +475,7 @@
 
 /* Stable native hit targets. */
 .node { pointer-events: auto !important; touch-action: manipulation; }
-.node > * { pointer-events: none !important; }
-.node .sphere { pointer-events: auto !important; }
+.node .sphere img { pointer-events: none !important; }
 
 /* Tablet: compact the orbit and instrument. */
 @media (max-width: 1024px) and (min-width: 651px) {
