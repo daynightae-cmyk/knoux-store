@@ -151,7 +151,7 @@ export function ProviderHero({ definitions, selected, connection, discoveredMode
           <p className={s.contextLine}>{connection ? 'Connection: ' + connection : 'No profile bound.'}</p>
           <div className={s.contextActions}>
             <button type="button" className={s.contextBtn} onClick={onInspect}>Configure provider</button>
-            <button type="button" className={s.contextBtn} onClick={onGetApi}>Get API</button>
+            <button type="button" className={s.contextBtn} onClick={onGetApi}>API key</button>
           </div>
           <p className={s.contextNote}>Connection testing checks authentication and discovery only; it does not generate content.</p>
         </aside>

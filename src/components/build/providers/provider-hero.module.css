@@ -13,9 +13,6 @@
   color: #fff;
   font-family: Arial, Helvetica, sans-serif;
   container-type: inline-size;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 /* Deep sky: layered nebula banks across the whole viewport. */
@@ -477,7 +474,7 @@
 @keyframes providerStars { 0%, 100% { opacity: .42 } 50% { opacity: .86 } }
 
 /* Stable native hit targets. */
-.node { transform: none !important; translate: -50% -50%; pointer-events: auto !important; touch-action: manipulation; }
+.node { pointer-events: auto !important; touch-action: manipulation; }
 .node > * { pointer-events: none !important; }
 .node .sphere { pointer-events: auto !important; }
 
