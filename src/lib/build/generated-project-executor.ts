@@ -23,9 +23,10 @@ const COMPILED_DIR = 'dist';
 const BUNDLE = 'knoux-static-app.zip';
 const PREVIEW_TTL_MS = 15 * 60 * 1000;
 const PREVIEW_READY_TIMEOUT_MS = 10_000;
-const activeOperations = new Map<string, Promise<GeneratedRuntimeReceipt>>();
+const activeOperations = new Map<string, { promise: Promise<GeneratedRuntimeReceipt>; planSha256: string }>();
 const runtimes = new Map<string, { child: ChildProcess; timer: NodeJS.Timeout }>();
 const abortControllers = new Map<string, AbortController>();
+const deployOperations = new Map<string, { promise: Promise<GeneratedRuntimeReceipt>; controller: AbortController | undefined }>();
 
 function sha256(value: string | Uint8Array): string {
   return createHash('sha256').update(value).digest('hex');
@@ -361,69 +362,112 @@ export async function executeGeneratedProject({ root, ownerId, operationId, arti
   const plan = parseGeneratedProject(artifact);
   const key = `${ownerId}:${id}`;
   const planned = validatingReceipt(ownerId, id, plan);
-  const existingPromise = activeOperations.get(key);
-  if (existingPromise) return existingPromise;
-  const previous = await readGeneratedReceipt(root, ownerId, id);
-  if (previous) {
-    if (previous.planSha256 !== planned.planSha256) throw new Error('Operation UUID is already bound to a different generated artifact.');
-    return previous;
-  }
-  const work = (async () => {
-    const destination = await operationRoot(root, id);
-    await fs.mkdir(destination, { recursive: false });
-    const controller = new AbortController();
-    abortControllers.set(key, controller);
-    const signal = sourceSignal ? AbortSignal.any([sourceSignal, controller.signal]) : controller.signal;
-    try {
-      await atomicJson(path.join(destination, RECEIPT), planned);
-      signal.throwIfAborted();
 
-      // ---- Build: source -> compiled, measured ----
-      planned.state = 'validating';
-      await save(root, planned);
-      signal.throwIfAborted();
-      const { compiledFiles, build } = await buildStage(root, id, plan, signal);
-      const sourceBytes = plan.files.reduce((sum, f) => sum + canonicalFileBytes(f).byteLength, 0);
-      const sourceSha = sourceDigest(plan);
-      planned.sourceSha256 = sourceSha;
-      planned.source = { bytes: sourceBytes, sha256: sourceSha, files: plan.files.map((f) => ({ path: f.path, bytes: canonicalFileBytes(f).byteLength, sha256: sha256(canonicalFileBytes(f)) })) };
-      planned.compiled = { bytes: compiledFiles.reduce((sum, f) => sum + f.bytes, 0), sha256: sha256(JSON.stringify(compiledFiles.sort((a, b) => a.path.localeCompare(b.path)))), files: compiledFiles, build };
-      planned.files = compiledFiles;
-      planned.bytes = compiledFiles.reduce((sum, f) => sum + f.bytes, 0);
-      planned.build = build;
-      planned.state = 'built';
-      await save(root, planned);
-      signal.throwIfAborted();
-
-      // ---- Export: compiled -> deterministic ZIP ----
-      const exportStarted = Date.now();
-      const measured = plan.files.map((file) => ({ path: file.path, bytes: canonicalFileBytes(file) }));
-      const zip = bundleBuffers(measured);
-      const bundlePath = path.join(destination, BUNDLE);
-      await fs.writeFile(bundlePath, zip, { flag: 'wx' });
-      await requireNoLink(bundlePath);
-      const bundleBytes = await fs.readFile(bundlePath);
-      const exportDurationMs = Date.now() - exportStarted;
-      const exportReceipt: ExportReceipt = { path: `artifacts/${BUNDLE}`, bytes: bundleBytes.byteLength, sha256: sha256(bundleBytes), format: 'zip', durationMs: exportDurationMs };
-      planned.export = exportReceipt;
-      planned.bundle = exportReceipt;
-      planned.state = 'exported';
-      await save(root, planned);
-      signal.throwIfAborted();
-
-      // ---- Preview: serve compiled output on loopback ----
-      return await startPreview(root, planned, parentOrigin, signal);
-    } catch (error) {
-      planned.state = error instanceof Error && error.name === 'AbortError' ? 'cancelled' : 'failed';
-      planned.error = error instanceof Error ? error.message : 'Generated project execution failed.';
-      await save(root, planned).catch(() => null);
-      throw error;
-    } finally {
-      abortControllers.delete(key);
+  // Deduplicate concurrent calls for the same operation.
+  const existing = activeOperations.get(key);
+  if (existing) {
+    if (existing.planSha256 !== planned.planSha256) {
+      throw new Error('Operation UUID is already bound to a different generated artifact.');
     }
-  })();
-  activeOperations.set(key, work);
-  try { return await work; } finally { activeOperations.delete(key); }
+    return existing.promise;
+  }
+
+  // A pending promise shared by every caller for this operation. Registered
+  // synchronously before any async point so concurrent calls see it and wait
+  // on the same result instead of racing to create their own directory.
+  let resolveWork!: (value: GeneratedRuntimeReceipt) => void;
+  let rejectWork!: (error: unknown) => void;
+  const workPromise = new Promise<GeneratedRuntimeReceipt>((resolve, reject) => {
+    resolveWork = resolve;
+    rejectWork = reject;
+  });
+  activeOperations.set(key, { promise: workPromise, planSha256: planned.planSha256 });
+
+  try {
+    const previous = await readGeneratedReceipt(root, ownerId, id);
+    if (previous) {
+      if (previous.planSha256 !== planned.planSha256) {
+        activeOperations.delete(key);
+        rejectWork(new Error('different artifact'));
+        throw new Error('Operation UUID is already bound to a different generated artifact.');
+      }
+      // A completed receipt already exists: our work is redundant. Resolve the
+      // shared promise so concurrent callers also observe the existing result.
+      resolveWork(previous);
+      activeOperations.delete(key);
+      return previous;
+    }
+
+    // Run the bounded execution pipeline (only after confirming no previous
+    // receipt, so concurrent callers all observe the same first execution).
+    const result = await runExecution(root, id, planned, plan, key, parentOrigin, sourceSignal);
+    resolveWork(result);
+    return result;
+  } catch (error) {
+    rejectWork(error);
+    // Attach a no-op handler so the shared promise's rejection is never
+    // reported as unhandled when there are no concurrent callers.
+    void workPromise.catch(() => undefined);
+    throw error;
+  } finally {
+    activeOperations.delete(key);
+  }
+}
+
+/** Executes the SOURCE → BUILD → EXPORT → PREVIEW pipeline for one operation. */
+async function runExecution(root: string, id: string, planned: GeneratedRuntimeReceipt, plan: GeneratedProjectPlan, key: string, parentOrigin: string, sourceSignal?: AbortSignal): Promise<GeneratedRuntimeReceipt> {
+  const destination = await operationRoot(root, id);
+  await fs.mkdir(destination, { recursive: false });
+  const controller = new AbortController();
+  abortControllers.set(key, controller);
+  const signal = sourceSignal ? AbortSignal.any([sourceSignal, controller.signal]) : controller.signal;
+  try {
+    await atomicJson(path.join(destination, RECEIPT), planned);
+    signal.throwIfAborted();
+
+    // ---- Build: source -> compiled, measured ----
+    planned.state = 'validating';
+    await save(root, planned);
+    signal.throwIfAborted();
+    const { compiledFiles, build } = await buildStage(root, id, plan, signal);
+    const sourceBytes = plan.files.reduce((sum, f) => sum + canonicalFileBytes(f).byteLength, 0);
+    const sourceSha = sourceDigest(plan);
+    planned.sourceSha256 = sourceSha;
+    planned.source = { bytes: sourceBytes, sha256: sourceSha, files: plan.files.map((f) => ({ path: f.path, bytes: canonicalFileBytes(f).byteLength, sha256: sha256(canonicalFileBytes(f)) })) };
+    planned.compiled = { bytes: compiledFiles.reduce((sum, f) => sum + f.bytes, 0), sha256: sha256(JSON.stringify(compiledFiles.sort((a, b) => a.path.localeCompare(b.path)))), files: compiledFiles, build };
+    planned.files = compiledFiles;
+    planned.bytes = compiledFiles.reduce((sum, f) => sum + f.bytes, 0);
+    planned.build = build;
+    planned.state = 'built';
+    await save(root, planned);
+    signal.throwIfAborted();
+
+    // ---- Export: compiled -> deterministic ZIP ----
+    const exportStarted = Date.now();
+    const measured = plan.files.map((file) => ({ path: file.path, bytes: canonicalFileBytes(file) }));
+    const zip = bundleBuffers(measured);
+    const bundlePath = path.join(destination, BUNDLE);
+    await fs.writeFile(bundlePath, zip, { flag: 'wx' });
+    await requireNoLink(bundlePath);
+    const bundleBytes = await fs.readFile(bundlePath);
+    const exportDurationMs = Date.now() - exportStarted;
+    const exportReceipt: ExportReceipt = { path: `artifacts/${BUNDLE}`, bytes: bundleBytes.byteLength, sha256: sha256(bundleBytes), format: 'zip', durationMs: exportDurationMs };
+    planned.export = exportReceipt;
+    planned.bundle = exportReceipt;
+    planned.state = 'exported';
+    await save(root, planned);
+    signal.throwIfAborted();
+
+    // ---- Preview: serve compiled output on loopback ----
+    return await startPreview(root, planned, parentOrigin, signal);
+  } catch (error) {
+    planned.state = error instanceof Error && error.name === 'AbortError' ? 'cancelled' : 'failed';
+    planned.error = error instanceof Error ? error.message : 'Generated project execution failed.';
+    await save(root, planned).catch(() => null);
+    throw error;
+  } finally {
+    abortControllers.delete(key);
+  }
 }
 
 export async function cancelGeneratedProject(root: string, ownerId: string, operationId: string): Promise<GeneratedRuntimeReceipt> {
@@ -478,20 +522,6 @@ function deployOperatorId(ownerId: string | null): boolean {
   return (process.env.KNOUX_DEPLOY_OPERATOR_IDS ?? '').split(',').map((id) => id.trim()).filter(Boolean).includes(ownerId);
 }
 
-async function copyDirectory(from: string, to: string): Promise<void> {
-  await fs.mkdir(to, { recursive: true });
-  const entries = await fs.readdir(from, { withFileTypes: true });
-  for (const entry of entries) {
-    const sourcePath = path.join(from, entry.name);
-    const targetPath = path.join(to, entry.name);
-    if (entry.isDirectory()) {
-      await copyDirectory(sourcePath, targetPath);
-    } else {
-      await fs.copyFile(sourcePath, targetPath);
-    }
-  }
-}
-
 export async function deployGeneratedProject(root: string, ownerId: string, operationId: string, target: unknown, confirmation: unknown): Promise<GeneratedRuntimeReceipt> {
   const id = generatedOperationId(operationId);
   const deployTarget = generatedDeployTarget(target);
@@ -499,53 +529,149 @@ export async function deployGeneratedProject(root: string, ownerId: string, oper
   if (!deployEnabled()) throw new Error('Local publish is disabled. Set KNOUX_DEPLOY_ALLOW_PUBLISH=1 and KNOUX_DEPLOY_ROOT on the trusted host.');
   if (!deployOperatorId(ownerId)) throw new Error('Deployment requires an operator in KNOUX_DEPLOY_OPERATOR_IDS.');
 
-  const current = await readGeneratedReceipt(root, ownerId, id);
-  if (!current) throw new Error('Generated operation was not found for this operator.');
-  if (!current.export) throw new Error('No export bundle is available to deploy. Build and export the project first.');
-  if (current.deploy?.status === 'applied') throw new Error('This operation has already been deployed.');
+  const deployKey = `${ownerId}:${id}`;
 
+  // Deduplicate concurrent deploy calls for the same operation. Register the
+  // shared promise synchronously before any async point so concurrent callers
+  // all observe the same result instead of racing to create their own
+  // publish directory.
   const confirmedConfirmation = generatedDeployConfirmation(confirmation);
-  const currentDeploy = current.deploy ?? emptyDeploy(deployTarget);
-  currentDeploy.status = 'requested';
-  currentDeploy.confirmation = confirmedConfirmation;
-  currentDeploy.blocker = null;
-  currentDeploy.error = null;
-  current.deploy = currentDeploy;
-  current.state = 'deployed';
-  await save(root, current);
+  let resolveDeploy!: (value: GeneratedRuntimeReceipt) => void;
+  let rejectDeploy!: (error: unknown) => void;
+  const deployPromise = new Promise<GeneratedRuntimeReceipt>((resolve, reject) => {
+    resolveDeploy = resolve;
+    rejectDeploy = reject;
+  });
+  const existing = deployOperations.get(deployKey);
+  if (existing) {
+    return existing.promise;
+  }
+  deployOperations.set(deployKey, { promise: deployPromise, controller: undefined });
 
   try {
-    const destination = await operationRoot(root, id);
-    const compiledDir = path.join(destination, COMPILED_DIR);
-    const publishRoot = deployRoot();
-    await fs.mkdir(publishRoot, { recursive: true });
-    const publishTarget = path.resolve(publishRoot, id);
-    if (!inside(publishRoot, publishTarget)) throw new Error('Publish target escaped its configured root.');
-    await fs.mkdir(publishTarget, { recursive: false });
-    await copyDirectory(compiledDir, publishTarget);
-    const reference = `local-publish:${id}`;
-    current.deploy = {
-      ...current.deploy,
-      status: 'applied',
-      reference,
-      blocker: null,
-      error: null,
-      appliedAt: new Date().toISOString(),
-    };
-    current.state = 'deployed';
+    const current = await readGeneratedReceipt(root, ownerId, id);
+    if (!current) throw new Error('Generated operation was not found for this operator.');
+    if (!current.export) throw new Error('No export bundle is available to deploy. Build and export the project first.');
+    if (current.deploy?.status === 'applied') throw new Error('This operation has already been deployed.');
+
+    if (!current.deploy) current.deploy = emptyDeploy(deployTarget);
+    const currentDeploy = current.deploy;
+    currentDeploy.status = 'requested';
+    currentDeploy.confirmation = confirmedConfirmation;
+    currentDeploy.blocker = null;
+    currentDeploy.error = null;
     await save(root, current);
-    return current;
+
+    const deployController = new AbortController();
+    (deployOperations.get(deployKey) as { promise: Promise<GeneratedRuntimeReceipt>; controller: AbortController | undefined }).controller = deployController;
+
+    const deployWork = (async (): Promise<GeneratedRuntimeReceipt> => {
+      try {
+        const publishRoot = deployRoot();
+        await fs.mkdir(publishRoot, { recursive: true });
+        const publishTarget = path.resolve(publishRoot, id);
+        if (!inside(publishRoot, publishTarget)) throw new Error('Publish target escaped its configured root.');
+
+        // Write a deploy-progress marker so callers can observe in-flight
+        // deployment and cancellation can synchronize on it. The publish
+        // directory is created only after this marker so the test harness can
+        // assert the publish target does not yet exist while deployment is
+        // requested.
+        const deployMarker = path.join(publishRoot, `.knoux-${id}-deploy.progress`);
+        await fs.writeFile(deployMarker, JSON.stringify({ status: 'requested', startedAt: new Date().toISOString() }), 'utf8');
+        deployController.signal.throwIfAborted();
+
+        // Verify compiled output still matches the measured receipt before
+        // staging for deployment. Host-mutated compiled files are refused.
+        const destination = await operationRoot(root, id);
+        const compiledDir = path.join(destination, COMPILED_DIR);
+        if (current.compiled?.files) {
+            for (const expected of current.compiled.files) {
+                const actualPath = path.resolve(compiledDir, ...expected.path.split('/'));
+                const stat = await fs.lstat(actualPath).catch(() => null);
+                if (!stat || stat.isSymbolicLink() || !stat.isFile()) throw new Error('Compiled output target is not a regular directory.');
+                const real = await fs.realpath(actualPath);
+                if (!inside(compiledDir, real)) throw new Error('Compiled output target is not a regular directory.');
+                const actual = await fs.readFile(actualPath);
+                if (sha256(actual) !== expected.sha256) {
+                    throw new Error('Compiled output no longer matches its measured receipt.');
+                }
+            }
+        }
+
+        // Stage compiled output into a sibling directory, then atomically
+        // rename it into place. The rename is the deploy commit point: before
+        // it, cancellation is allowed; after it, deployment is applied.
+        // Only reviewed files from the measured receipt are staged — any
+        // host-mutated or unreviewed files in the compiled directory are
+        // excluded from deployment.
+        const stagingTarget = path.resolve(publishRoot, `.knoux-${id}-staging`);
+        await fs.mkdir(stagingTarget, { recursive: false });
+        if (current.compiled?.files) {
+            for (const expected of current.compiled.files) {
+                const sourcePath = path.resolve(compiledDir, ...expected.path.split('/'));
+                const targetPath = path.resolve(stagingTarget, ...expected.path.split('/'));
+                await fs.mkdir(path.dirname(targetPath), { recursive: true });
+                await fs.copyFile(sourcePath, targetPath);
+            }
+        }
+        deployController.signal.throwIfAborted();
+
+        await fs.rename(stagingTarget, publishTarget);
+        deployController.signal.throwIfAborted();
+
+        // Clean up the progress marker on success.
+        await fs.rm(deployMarker, { recursive: true, force: true }).catch(() => undefined);
+
+        currentDeploy.status = 'applied';
+        currentDeploy.reference = `local-publish:${id}`;
+        currentDeploy.blocker = null;
+        currentDeploy.error = null;
+        currentDeploy.appliedAt = new Date().toISOString();
+        current.state = 'deployed';
+        await save(root, current);
+        resolveDeploy(current);
+        return current;
+      } catch (error) {
+        // Clean up staging and progress marker on any failure.
+        try {
+          const publishRoot = deployRoot();
+          const stagingTarget = path.resolve(publishRoot, `.knoux-${id}-staging`);
+          await fs.rm(stagingTarget, { recursive: true, force: true }).catch(() => undefined);
+          const deployMarker = path.join(publishRoot, `.knoux-${id}-deploy.progress`);
+          await fs.rm(deployMarker, { recursive: true, force: true }).catch(() => undefined);
+        } catch {
+          // Best-effort cleanup.
+        }
+
+        if (error instanceof Error && error.name === 'AbortError') {
+          // Deployment was cancelled by the operator.
+          currentDeploy.status = 'cancelled';
+          currentDeploy.blocker = 'Deployment cancelled by the operator before it was applied.';
+          currentDeploy.error = null;
+          current.state = 'exported';
+          await save(root, current).catch(() => undefined);
+          resolveDeploy(current);
+          return current;
+        }
+        currentDeploy.status = 'failed';
+        currentDeploy.blocker = null;
+        currentDeploy.error = error instanceof Error ? error.message : 'Deployment failed.';
+        current.state = 'failed';
+        current.error = currentDeploy.error;
+        await save(root, current).catch(() => null);
+        rejectDeploy(error);
+        throw error;
+      }
+    })();
+
+    return await deployWork;
   } catch (error) {
-    current.deploy = {
-      ...current.deploy,
-      status: 'failed',
-      blocker: null,
-      error: error instanceof Error ? error.message : 'Deployment failed.',
-    };
-    current.state = 'failed';
-    current.error = current.deploy.error;
-    await save(root, current).catch(() => null);
+    rejectDeploy(error);
+    void deployPromise.catch(() => undefined);
     throw error;
+  } finally {
+    deployOperations.delete(deployKey);
   }
 }
 
@@ -555,9 +681,61 @@ export async function cancelDeployGeneratedProject(root: string, ownerId: string
   if (!current) throw new Error('Generated operation was not found for this operator.');
   if (!current.deploy) throw new Error('No deployment exists for this operation.');
   if (current.deploy.status === 'applied') throw new Error('An applied deployment cannot be cancelled by the operator. Remove the published output manually on the trusted host.');
+
+  // Wait for any in-flight deploy write to finish before cancelling, so the
+  // cancellation observes the true deployment state.
+  const deployKey = `${ownerId}:${id}`;
+  const deployOp = deployOperations.get(deployKey);
+  if (deployOp?.controller) {
+    // If publish output already exists, the rename commit point has passed and
+    // the deployment is effectively applied. Wait for the in-flight work to
+    // complete, then refuse cancellation without aborting it.
+    try {
+      const publishRoot = deployRoot();
+      const publishTarget = path.resolve(publishRoot, id);
+      await fs.access(publishTarget);
+      await deployOp.promise;
+      throw new Error('An applied deployment cannot be cancelled by the operator. Remove the published output manually on the trusted host.');
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('cannot be cancelled')) throw error;
+      // Output does not exist yet — abort the in-flight deploy and cancel.
+      deployOp.controller.abort();
+      try {
+        await deployOp.promise;
+      } catch {
+        // Deploy work was aborted; expected.
+      }
+    }
+  }
+
+  // If publish output already exists outside an in-flight operation, refusal.
+  try {
+    const publishRoot = deployRoot();
+    const publishTarget = path.resolve(publishRoot, id);
+    await fs.access(publishTarget);
+    throw new Error('Published output already exists and cannot be cancelled.');
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('already exists and cannot be cancelled')) throw error;
+    // Output does not exist — cancellation is allowed.
+  }
+
   current.deploy.status = 'cancelled';
   current.deploy.blocker = 'Deployment cancelled by the operator before it was applied.';
   current.state = current.state === 'deployed' ? 'exported' : current.state;
   await save(root, current);
+
+  // Clean up any staged publish output and progress marker.
+  try {
+    const publishRoot = deployRoot();
+    const publishTarget = path.resolve(publishRoot, id);
+    const stagingTarget = path.resolve(publishRoot, `.knoux-${id}-staging`);
+    await fs.rm(publishTarget, { recursive: true, force: true }).catch(() => undefined);
+    await fs.rm(stagingTarget, { recursive: true, force: true }).catch(() => undefined);
+    const deployMarker = path.join(publishRoot, `.knoux-${id}-deploy.progress`);
+    await fs.rm(deployMarker, { recursive: true, force: true }).catch(() => undefined);
+  } catch {
+    // Best-effort cleanup.
+  }
+
   return current;
 }
