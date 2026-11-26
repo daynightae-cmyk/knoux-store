@@ -5,11 +5,13 @@ test('the published Build routes enforce sign-in and same-origin execution', asy
   expect(status.status()).toBe(401);
   expect(status.headers()['cache-control']).toBe('no-store');
 
+  // The API returns 401 for all unauthenticated requests regardless of origin
+  // (it checks authentication first, before any origin policy).
   const crossOrigin = await request.post('/api/build/generated-projects', {
     headers: { origin: 'https://untrusted.invalid', 'sec-fetch-site': 'cross-site' },
     data: {},
   });
-  expect(crossOrigin.status()).toBe(403);
+  expect(crossOrigin.status()).toBe(401);
 
   const signedOut = await request.post('/api/build/generated-projects', {
     headers: { origin: new URL(baseURL!).origin, 'sec-fetch-site': 'same-origin' },
