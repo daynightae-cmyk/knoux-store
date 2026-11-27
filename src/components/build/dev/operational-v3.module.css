@@ -3,6 +3,15 @@
 }
 
 .page:global(.dev-route) { --operational-glow: #a572e665; min-width: 0; }
+.page :global(.dev-route .scene) {
+  padding: 16px 24px 32px;
+}
+.page :global(.dev-route .window) {
+  margin: 16px auto 0;
+}
+.page :global(.dev-route .windowBody) {
+  min-height: 140px;
+}
 .page :global(.dev-page-heading) { margin-bottom: 22px; }
 .page :global(.dev-page-heading) h1 { color: #f3eafa; }
 .page :global(.dev-panel) {
