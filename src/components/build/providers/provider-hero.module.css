@@ -314,7 +314,8 @@
   display: flex;
   gap: 8px;
 }
-.instrumentBtn {
+.instrumentBtn,
+.contextBtn {
   flex: 1;
   display: inline-grid;
   align-items: center;
@@ -325,11 +326,11 @@
   border-radius: 10px;
   background: #3a205a;
   color: #f3e4ff;
-  text-decoration: none;
   font-size: 12px;
   cursor: pointer;
   transition: background .2s, box-shadow .2s;
 }
+.instrumentBtn { text-decoration: none; }
 .instrumentBtn:hover { background: #4a2e6a; box-shadow: 0 0 16px #a147eb6e; }
 .instrumentBtn:first-child { border-color: #86dffa; background: #193454; color: #c9f3ff; }
 
@@ -360,21 +361,6 @@
 }
 .contextActions button {
   pointer-events: auto;
-}
-.contextBtn {
-  flex: 1;
-  display: inline-grid;
-  align-items: center;
-  justify-content: center;
-  min-height: 38px;
-  padding: 5px 11px;
-  border: 1px solid #b78aea90;
-  border-radius: 10px;
-  background: #3a205a;
-  color: #f3e4ff;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background .2s, box-shadow .2s;
 }
 .contextHead {
   padding: clamp(14px, 2cqw, 18px) clamp(16px, 2cqw, 20px);
