@@ -87,3 +87,29 @@ The disconnected state is unchanged and honest: `SIGN IN REQUIRED` and
   build hashes, deterministic ZIP, preview/stop, idempotent retries, cancellation
   (including after the publish commit point), publish ownership, symlink
   containment and exact deployment confirmation.
+
+## Production verification (post-merge, `main` @ `0c4aef1`)
+
+PR #132 was squash-merged into `main` as `0c4aef1` and the Vercel production
+deployment (`Production – knoux-store`) succeeded. The live site was then
+measured with the same probe that produced the pre-merge baseline, at 1920×1080
+and 1440×900. Raw dump:
+[`production-measurements.json`](./production-measurements.json).
+
+| Screen | Metric | Production before | Production after |
+|---|---|---|---|
+| `/build/providers` | route width / unused right gap @1920 | 1400 / 520px | **1920 / 0px** |
+| `/build/providers` | Get API in viewport @1920 / @1440 | clipped below the fold | **visible** (bottom 1026 / 855) |
+| `/build/providers` | title band vs top orbit node | — | **0 px²**; nodes span x 97→1823 at 1920 |
+| `/build/powershell` | hero height @1920 | 553px | **360px** |
+| `/build/powershell` | console @1920 | 692×293 | **974×454** |
+| `/build/deployments` | masthead background | `rgb(7, 5, 14)` | **`rgba(0, 0, 0, 0)`** |
+| `/build/deployments` | station widths @1920 | 4×277px | **4×390px** |
+| `/build/platform` | card↔card overlaps @1440 | 1 | **0** |
+| `/build/services` | route width / unused gap @1920 | 1400 / 250px | **1618 / 32px**; 6 services, copy capped |
+| all five routes | horizontal overflow | none | **none** |
+
+Comparison screenshots of the live site (1920×1080):
+`providers-1920.png`, `powershell-1920.png`, `deployments-1920.png`,
+`platform-1920.png`, `services-1920.png` (PNG is git-ignored by repository
+convention; the files live beside this report on the verification machine).

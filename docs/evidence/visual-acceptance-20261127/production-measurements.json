@@ -1,0 +1,242 @@
+{
+  "providers@1920": {
+    "scrollW": 1920,
+    "vw": 1920,
+    "route": {
+      "w": 1920,
+      "right": 1920
+    },
+    "content": {
+      "left": 0,
+      "right": 1920
+    },
+    "gap": 0,
+    "hero": {
+      "w": 1920,
+      "h": 1080,
+      "top": 0
+    },
+    "api": {
+      "bottom": 1026,
+      "inViewport": true
+    },
+    "subNodeOverlap": 0,
+    "nodeSpan": [
+      97,
+      1823
+    ]
+  },
+  "powershell@1920": {
+    "scrollW": 1920,
+    "vw": 1920,
+    "route": {
+      "w": 1618,
+      "right": 1868
+    },
+    "content": {
+      "left": 218,
+      "right": 1900
+    },
+    "gap": 32,
+    "session": {
+      "hero": {
+        "w": 1682,
+        "h": 360
+      },
+      "grid": {
+        "w": 1618,
+        "h": 582
+      },
+      "cols": "973.75px 628.234px",
+      "console": {
+        "w": 974,
+        "h": 454
+      }
+    }
+  },
+  "deployments@1920": {
+    "scrollW": 1920,
+    "vw": 1920,
+    "route": {
+      "w": 1618,
+      "right": 1868
+    },
+    "content": {
+      "left": 218,
+      "right": 1900
+    },
+    "gap": 32,
+    "deploy": {
+      "mast": {
+        "w": 1682,
+        "h": 296
+      },
+      "mastBg": "rgba(0, 0, 0, 0)",
+      "stations": {
+        "w": 1618,
+        "h": 294
+      },
+      "items": [
+        390,
+        390,
+        390,
+        390
+      ]
+    }
+  },
+  "platform@1920": {
+    "scrollW": 1920,
+    "vw": 1920,
+    "route": null,
+    "content": {
+      "left": 0,
+      "right": 1920
+    },
+    "gap": null,
+    "platform": {
+      "overlaps": []
+    }
+  },
+  "services@1920": {
+    "scrollW": 1920,
+    "vw": 1920,
+    "route": {
+      "w": 1618,
+      "right": 1868
+    },
+    "content": {
+      "left": 218,
+      "right": 1900
+    },
+    "gap": 32,
+    "services": {
+      "count": 6,
+      "widths": [
+        1344,
+        1344,
+        1344,
+        664
+      ]
+    }
+  },
+  "providers@1440": {
+    "scrollW": 1440,
+    "vw": 1440,
+    "route": {
+      "w": 1440,
+      "right": 1440
+    },
+    "content": {
+      "left": 0,
+      "right": 1440
+    },
+    "gap": 0,
+    "hero": {
+      "w": 1440,
+      "h": 900,
+      "top": 0
+    },
+    "api": {
+      "bottom": 855,
+      "inViewport": true
+    },
+    "subNodeOverlap": 0,
+    "nodeSpan": [
+      65,
+      1375
+    ]
+  },
+  "powershell@1440": {
+    "scrollW": 1440,
+    "vw": 1440,
+    "route": {
+      "w": 1138,
+      "right": 1388
+    },
+    "content": {
+      "left": 218,
+      "right": 1420
+    },
+    "gap": 32,
+    "session": {
+      "hero": {
+        "w": 1202,
+        "h": 360
+      },
+      "grid": {
+        "w": 1138,
+        "h": 506
+      },
+      "cols": "682px 440px",
+      "console": {
+        "w": 682,
+        "h": 378
+      }
+    }
+  },
+  "deployments@1440": {
+    "scrollW": 1440,
+    "vw": 1440,
+    "route": {
+      "w": 1138,
+      "right": 1388
+    },
+    "content": {
+      "left": 218,
+      "right": 1420
+    },
+    "gap": 32,
+    "deploy": {
+      "mast": {
+        "w": 1202,
+        "h": 296
+      },
+      "mastBg": "rgba(0, 0, 0, 0)",
+      "stations": {
+        "w": 1138,
+        "h": 289
+      },
+      "items": [
+        270,
+        270,
+        270,
+        270
+      ]
+    }
+  },
+  "platform@1440": {
+    "scrollW": 1440,
+    "vw": 1440,
+    "route": null,
+    "content": {
+      "left": 0,
+      "right": 1440
+    },
+    "gap": null,
+    "platform": {
+      "overlaps": []
+    }
+  },
+  "services@1440": {
+    "scrollW": 1440,
+    "vw": 1440,
+    "route": {
+      "w": 1138,
+      "right": 1388
+    },
+    "content": {
+      "left": 218,
+      "right": 1420
+    },
+    "gap": 32,
+    "services": {
+      "count": 6,
+      "widths": [
+        864,
+        864,
+        864,
+        424
+      ]
+    }
+  }
+}

@@ -1,23 +1,105 @@
 # KNOuX Store — main convergence handoff (2026-11-27)
 
-## Merge blocker: the SonarCloud quality gate on new code
+## Merge outcome
 
-CI run `46016828173` on `8cf6d96` is **green** on every job (CodeQL static
-analysis, Lint/types/build/tests/coverage/audit, V4 exact-build visual matrix,
-Browser desktop/tablet/mobile). The merge is nevertheless refused by the
-`protect-main` ruleset because its required **SonarCloud Code Analysis** check
-fails its quality gate on the PR's new code:
+PR #132 was **merged into `main`** on 2026-11-27 at 17:57:39Z through the
+authorized workflow — squash merge, no `--admin`, no protection bypass, no
+branch deletion.
+
+| Item | Value |
+|---|---|
+| PR #132 head (merged) | `40f5df3b7f01d432e5eaadf4e1ffae755c309304` |
+| CI run on that head | `46039181544` — **success** (all 6 jobs) |
+| SonarCloud Code Analysis on that head | **success** (security A, reliability A, duplication ≤ 3%) |
+| Required checks | CodeQL static analysis, lint/types/build/tests/coverage/audit, Browser desktop/tablet/mobile, V4 exact-build visual matrix, SonarCloud Code Analysis — **all SUCCESS** |
+| Merge commit on `main` | `0c4aef17170797a13ad04bdf26a6bff3af2a579c` |
+| `origin/main` after the merge | `0c4aef17170797a13ad04bdf26a6bff3af2a579c` (linear: `0c4aef1` → `0ffbd8f` → `5ae5f9c`) |
+| Vercel production deployment | `Production – knoux-store`, state `success` |
+| `integration/main-convergence` | reset onto `origin/main` (`0c4aef1`) after the squash merge, so the next PR carries only new work |
+
+### Production verification (live `https://knoux.store`, merge commit `0c4aef1`)
+
+Measured with the same probe used for the pre-merge baseline
+(`D:\Temp\opencode\prod-evidence\production-baseline-premerge.json` →
+`production-measurements.json`), Chromium at 1920×1080 and 1440×900:
+
+| Screen | Metric | Before (production) | After (production) |
+|---|---|---|---|
+| Providers | route width / unused right gap @1920 | 1400 / 520px | **1920 / 0px** |
+| Providers | Get API in viewport @1920 / @1440 | clipped below the fold | **visible** (bottom 1026 / 855) |
+| Providers | title band vs top orbit node | — | **0 px²** overlap; nodes span 97→1823 at 1920 |
+| PowerShell | hero height @1920 | 553px | **360px** |
+| PowerShell | console size @1920 | 692×293 | **974×454** (terminal dominates) |
+| Deployments | masthead background | `rgb(7, 5, 14)` (rectangular seam) | **`rgba(0, 0, 0, 0)`** (transparent) |
+| Deployments | station widths @1920 | 4×277px | **4×390px** |
+| One Platform | card↔card overlaps @1440 | 1 | **0** |
+| Services | route width / unused gap @1920 | 1400 / 250px | **1618 / 32px**; 6 services, copy capped |
+| All five routes | horizontal overflow | none | **none** (`scrollWidth === innerWidth`) |
+
+Owner comparison screenshots: `D:\Temp\opencode\prod-evidence\*.png`
+(`providers-1920.png`, `powershell-1920.png`, `deployments-1920.png`,
+`platform-1920.png`, `services-1920.png`).
+
+## How the SonarCloud gate was cleared
+
+CI runs `46016828173` (`8cf6d96`) and `46026384809` (`2dcd8eb`) are **green** on
+every job (CodeQL static analysis, Lint/types/build/tests/coverage/audit, V4
+exact-build visual matrix, Browser desktop/tablet/mobile). The merge is
+nevertheless refused by the `protect-main` ruleset because its required
+**SonarCloud Code Analysis** check fails its quality gate on the PR's new code:
 
 | Gate condition | Required | Observed | Cause |
 |---|---|---|---|
-| Security rating on new code | ≥ A | **C** | `typescript:S2245` — `Math.random()` used to build the executor's atomic-write temp file name (`generated-project-executor.ts:58`) |
-| Reliability rating on new code | ≥ A | **C** | `css:S4656` duplicate `min-height` in `provider-hero.module.css`; `typescript:S2871` / `typescript:S4158` on the generated-projects API routes |
-| Duplication on new code | ≤ 3% | **4.9%** | duplicated rule blocks in `provider-hero.module.css` (`.contextActions`, `.contextBtn`) and `providers.module.css` (`.standalone .composition`) |
+| Security rating on new code | ≥ A | **A** ✓ | was **C** — `typescript:S2245`, `Math.random()` used to build the executor's atomic-write temp file name (`generated-project-executor.ts:58`); now `crypto.randomUUID()` |
+| Reliability rating on new code | ≥ A | **A** ✓ | was **C** — `css:S4656` duplicate `min-height` in `provider-hero.module.css` plus `typescript:S2871` / `typescript:S4158` on the generated-projects API routes; the duplicate declaration is removed and the routes now share one guarded entry point |
+| Duplication on new code | ≤ 3% | **5.0%** on `7135c24` → **0.08%** locally on `40f5df3` (CI verification pending) | the duplicated lines are the generated-project API route boilerplate and the executor's deploy cleanup, not application logic |
 
-Fixes in this increment:
+### How the duplication was located and removed
 
-- the executor's atomic write now uses `crypto.randomUUID()` instead of
-  `Math.random()` — a collision-proof, non-predictable temp name;
+SonarCloud's file-level duplication measures are not exposed for a pull
+request through the public API, and a line-based scan of the diff finds
+nothing — SonarCloud's CPD compares **tokens** against whole files, including
+unchanged context, and counts a block once it reaches its token threshold. The
+duplication was therefore located with a token-level copy-paste detector over
+the PR's changed files, intersected with the PR's changed line ranges:
+
+```
+npx --yes jscpd@4 --min-lines 5 --min-tokens 50 \
+  --format typescript,tsx,javascript,css,json --reporters json \
+  --output D:\Temp\opencode\jscpd src
+```
+
+On `7135c24` that scan reported **85 duplicated new-code lines**, all in the
+generated-projects API routes and the executor:
+
+- `src/app/api/build/generated-projects/[operationId]/route.ts` — the write
+  guard, the owner lookup, the operation-id validation and the
+  not-found/forbidden responses were restated in each of the three handlers;
+- `src/app/api/build/generated-projects/[operationId]/deploy/route.ts`,
+  `.../bundle/route.ts` and `generated-projects/route.ts` — the same preamble
+  again, plus a private copy of `getGeneratedProjectsRoot()`;
+- `src/lib/build/generated-project-executor.ts` — the staged-publish and
+  progress-marker cleanup written out twice (failed deploy and cancellation).
+
+Fixes (commit `40f5df3`):
+
+- new `src/lib/build/generated-project-route.ts` owns the shared plumbing:
+  `getGeneratedProjectsRoot()`, `authorizeBuildOwner()` (same-origin write
+  guard + owner identity), `resolveOperationId()`, `operationNotFound()` and
+  `operationForbidden()`. Each route keeps its own exact status wording, so
+  the HTTP contract is unchanged;
+- the status, cancel, deploy, bundle and apply handlers now route through that
+  helper instead of restating the preamble;
+- `removeDeployStaging()` in the executor cleans up the staging directory and
+  the progress marker in one implementation, used by both the failed-deploy and
+  the cancellation path.
+
+After the refactor the same scan reports **1 duplicated new-code line out of
+1299 analyzed new lines (0.08%)** — the remaining pair is the pre-existing
+PowerShell/Terminal console markup, of which only one line is new.
+
+### Other fixes already in this increment
+
 - the duplicate `min-height` is removed (the `!important` reset already won, so
   the rendering is unchanged);
 - the duplicated `.contextActions`, `.contextBtn`, `.nodeWrapper`, `.node` and
@@ -27,6 +109,15 @@ Fixes in this increment:
 - the duplicate `.standalone .composition` selector is merged into one rule;
 - the bundle route's two `catch` blocks now explain, in a comment, why the
   underlying error is deliberately not surfaced.
+
+Note on the evidence ledgers: `docs/evidence/**.json` and
+`references/**/report.json` are **not** analysed by SonarCloud (the analysis
+covers the 24 changed source files only), so their formatting does not move the
+duplication metric. They were still rewritten losslessly — one record per line,
+verified by re-parsing and comparing the JSON content — because the repeated
+empty-field record templates were noise in the repository (the owner visual
+delivery ledger shrank from 2840 to 180 lines, the acceptance measurements from
+3032 to 28 lines, the QA cockpit report from 121 to 10 lines).
 
 Known remaining items on the PR's new code, to be closed before the gate can
 pass (all reported by SonarCloud for this PR):
@@ -54,14 +145,19 @@ pass (all reported by SonarCloud for this PR):
 
 | Item | Value |
 |---|---|
-| Branch | `integration/main-convergence` |
-| Remote HEAD before this increment | `eb9b913f336aa8645465933fb7dac96849fb8ccf` (PR #132 head) |
-| Local HEAD before this increment | `eb9b913f336aa8645465933fb7dac96849fb8ccf` |
-| `origin/main` at hand-off | `0ffbd8f4c7e9e508ac313d9e99a82a5c463e7ccb` |
+| Branch | `integration/main-convergence` (now tracking `origin/main` at `0c4aef1`) |
+| Merged PR head | `40f5df3b7f01d432e5eaadf4e1ffae755c309304` |
+| `origin/main` | `0c4aef17170797a13ad04bdf26a6bff3af2a579c` |
 
-The local increment in this document is the commit created with it; read the
-commit SHA from `git log -1` on `integration/main-convergence` (it is the PR
-#132 head after the push).
+Increment history on this branch (each pushed and verified against the remote):
+
+| Commit | Content |
+|---|---|
+| `af25930` → `c71c862` → `8cf6d96` | WordPress canvas measurement fix, five visual defects, evidence, handoff ledger |
+| `2dcd8eb` | SonarCloud security + reliability fixes (`crypto.randomUUID()`, duplicate `min-height`, merged CSS blocks) |
+| `7135c24` | lossless compaction of the evidence JSON ledgers; merged `.instrumentBtn`/`.contextBtn` rule |
+| `40f5df3` | shared generated-project route plumbing; shared deploy cleanup (the duplication fix) |
+| `0c4aef1` | the squash merge of PR #132 into `main` (branch reset onto it) |
 
 ## What this increment changed
 
@@ -178,6 +274,12 @@ cmd /c "set KNOUX_E2E_REUSE_CURRENT=1&& npx playwright test e2e/wordpress-respon
                                                # 3 passed (desktop, tablet, mobile)
 cmd /c "set KNOUX_E2E_REUSE_CURRENT=1&& npx playwright test e2e/wordpress --reporter=line"
                                                # 52 passed, 2 skipped (all WordPress browser flows)
+cmd /c "set KNOUX_E2E_REUSE_CURRENT=1&& npx playwright test e2e/provider-os.spec.ts e2e/provider-credential-validation.spec.ts e2e/provider-credential-recovery.spec.ts e2e/build-atmosphere.spec.ts --project=desktop"
+                                               # 35 passed (provider + atmosphere, after the CSS merge)
+cmd /c "set KNOUX_E2E_REUSE_CURRENT=1&& npx playwright test e2e/generated-project-access.spec.ts e2e/api-boundary.spec.ts e2e/build-connected.spec.ts --project=desktop"
+                                               # 25 passed (after the generated-project route refactor)
+npx --yes jscpd@4 --min-lines 5 --min-tokens 50 --format typescript,tsx,javascript,css,json --reporters json --output D:\Temp\opencode\jscpd src
+                                               # token-level CPD scan: 85 duplicated new-code lines before, 1 after
 ```
 
 Production-bundle geometry probe (Chromium, 1920×1080 / 1440×900 / 1366×768 /
@@ -187,20 +289,46 @@ Get API inside the viewport at 1920 / 1440 / 1366; Providers title band vs top
 orbit node overlap **0 px²** at every viewport; One Platform card↔card
 overlaps **0** at every viewport.
 
+The same probe was re-run against the rebuilt local bundle after the CSS and
+route changes and reports unchanged geometry: Providers route 1920 with a 0px
+gap and Get API bottom 1026 inside the viewport, PowerShell hero 360px with a
+974×454 console, Deployments masthead `rgba(0, 0, 0, 0)` with 4×390px
+stations, One Platform with no overlaps, and no horizontal overflow on any of
+the five routes.
+
 ## Remaining blockers
 
-1. CI must be green on the new PR #132 head (run `45999138498` failed only the
-   WordPress 125% zoom assertion, whose root causes — a stale sampled frame and
-   a platform-dependent fit — are fixed by this increment).
-2. PR #132 must then be merged through the authorized workflow and the
-   resulting `main` SHA verified.
-3. The Vercel production deployment must be re-checked on the five corrected
-   routes against the owner's screenshots.
-4. PR #134 (`fix/provider-tablet-wordpress-clean`) was compared: its
+None for PR #132 — it is merged, CI and every required quality gate are green,
+and the production deployment is verified on the five corrected routes.
+
+Open work, in order:
+
+1. Continue the remaining approved platform experiences on
+   `integration/main-convergence` (now tracking `main`): SIGNAL, Apps, Build
+   Hub, Web Systems Studio, WordPress, Developer Workspace, OpenCode Console
+   V2, Model Explorer, Agent Workspace, split-screen generation. Each screen
+   needs the same treatment this branch just received: a real defect list
+   from the owner's approved reference, a root-cause fix, and measured visual
+   evidence — not a green test run.
+2. PR #134 (`fix/provider-tablet-wordpress-clean`) was compared: its
    provider-fixture heading scoping, the Chromium `flex-end`/`flow-end`
    assertion and the Sentinel speech-session serial are **already present** in
-   this branch, and its conflict markers are already resolved — it carries no
-   missing functionality and needs no cherry-pick.
+   `main` via PR #132, and its conflict markers are already resolved — it
+   carries no missing functionality and needs no cherry-pick.
+3. The separate `CodeQL` code-scanning check still reports 19
+   `js/path-injection` alerts and one `js/file-system-race` in
+   `src/lib/build/generated-project-executor.ts` (plus two
+   `js/http-to-file-access` in `qa/owner-product-matrix-20261124.mjs`). Those
+   patterns pre-date this work — the file last changed on `main` in `0ffbd8f` —
+   and the check is not in the required set, but the intended remediation point
+   is the containment helper (`operationRoot()` → `path.resolve` + `inside()`)
+   and its symlink-containment test.
+4. SonarCloud code smells that remain open but drive no gate condition:
+   `typescript:S3776`, `typescript:S9382`, `typescript:S6606`,
+   `typescript:S6582`, `typescript:S7503`, `typescript:S7780`,
+   `typescript:S4030`, `typescript:S4323`, `typescript:S8783` in the executor
+   area, and `css:S7924` contrast on `.getApi` (the button keeps the approved
+   brand purple).
 
 ## Relevant reference paths
 
@@ -211,15 +339,18 @@ overlaps **0** at every viewport.
   `references/owner-curation-20261124/originals/knoux_provider_constellation_dashboard.png`
 - Owner visual ledger: `docs/evidence/owner-cosmic-expansion-20261124/visual-delivery-ledger.json`
 - Canonical executor: `src/lib/build/generated-project-executor.ts`
+- Shared generated-project route plumbing: `src/lib/build/generated-project-route.ts`
 - Executor parity tests: `tests/generated-project.test.mjs`
 
 ## Next executable action
 
-Push this increment to `integration/main-convergence`, confirm the PR #132 head
-SHA equals the new local commit, then check CI **once** for that exact SHA.
-When the matrix is green, merge PR #132, verify the resulting `main` SHA and
-the Vercel production deployment, and re-open the five corrected production
-routes for the owner's comparison. Then continue the remaining approved
-platform experiences (SIGNAL, Apps, Build Hub, Web Systems Studio, WordPress,
-Developer Workspace, OpenCode Console V2, Model Explorer, Agent Workspace,
-split-screen generation).
+PR #132 is merged and verified in production. Continue the remaining approved
+platform experiences on `integration/main-convergence` (tracking `main` at
+`0c4aef1`): take the next unverified screen from
+`docs/evidence/owner-cosmic-expansion-20261124/visual-delivery-ledger.json`,
+compare it against the owner's approved reference in `references/owner-curation-20261124/`,
+list the real defects, fix their root causes, and capture measured visual
+evidence in `docs/evidence/` — then push the increment and open the follow-up
+PR for the remaining experiences (SIGNAL, Apps, Build Hub, Web Systems Studio,
+WordPress, Developer Workspace, OpenCode Console V2, Model Explorer, Agent
+Workspace, split-screen generation).
