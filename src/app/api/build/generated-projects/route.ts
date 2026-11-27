@@ -6,6 +6,7 @@ import {
   type GeneratedProjectPlan,
 } from '@/lib/build/generated-project-contract';
 import { executeGeneratedProject } from '@/lib/build/generated-project-executor';
+import { authorizeBuildOwner } from '@/lib/build/generated-project-route';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -42,16 +43,8 @@ export async function GET() {
 
 /** POST /api/build/generated-projects — apply a reviewed static project. */
 export async function POST(request: NextRequest) {
-  const denied = await guardBuildApi(request, { scope: 'write' });
-  if (denied) return denied;
-
-  const ownerId = await resolveBuildOwnerId();
-  if (!ownerId) {
-    return NextResponse.json(
-      { error: 'unauthorized', message: 'Sign in to apply generated projects.' },
-      { status: 401 },
-    );
-  }
+  const owner = await authorizeBuildOwner(request, 'Sign in to apply generated projects.');
+  if (!owner.ok) return owner.response;
 
   let body: { operationId: string; artifact: GeneratedProjectPlan; confirmation: string };
   try {
@@ -92,7 +85,7 @@ export async function POST(request: NextRequest) {
   try {
     const receipt = await executeGeneratedProject({
       root: process.env.KNOUX_GENERATED_PROJECTS_ROOT ?? '',
-      ownerId,
+      ownerId: owner.ownerId,
       operationId: body.operationId,
       artifact,
       parentOrigin: new URL(request.url).origin,

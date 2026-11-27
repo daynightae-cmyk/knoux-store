@@ -528,6 +528,19 @@ function deployEnabled(): boolean {
   return process.env.KNOUX_DEPLOY_ALLOW_PUBLISH === '1' && Boolean(process.env.KNOUX_DEPLOY_ROOT);
 }
 
+/**
+ * Remove the staged publish output and the deployment progress marker.
+ *
+ * Both the failed-deployment path and the cancellation path clean up the same
+ * two artifacts, so the cleanup lives here instead of being restated twice.
+ */
+async function removeDeployStaging(publishRoot: string, id: string): Promise<void> {
+  const stagingTarget = path.resolve(publishRoot, `.knoux-${id}-staging`);
+  await fs.rm(stagingTarget, { recursive: true, force: true }).catch(() => undefined);
+  const deployMarker = path.join(publishRoot, `.knoux-${id}-deploy.progress`);
+  await fs.rm(deployMarker, { recursive: true, force: true }).catch(() => undefined);
+}
+
 function deployOperatorId(ownerId: string | null): boolean {
   if (!ownerId) return false;
   return (process.env.KNOUX_DEPLOY_OPERATOR_IDS ?? '').split(',').map((id) => id.trim()).filter(Boolean).includes(ownerId);
@@ -646,11 +659,7 @@ export async function deployGeneratedProject(root: string, ownerId: string, oper
       } catch (error) {
         // Clean up staging and progress marker on any failure.
         try {
-          const publishRoot = deployRoot();
-          const stagingTarget = path.resolve(publishRoot, `.knoux-${id}-staging`);
-          await fs.rm(stagingTarget, { recursive: true, force: true }).catch(() => undefined);
-          const deployMarker = path.join(publishRoot, `.knoux-${id}-deploy.progress`);
-          await fs.rm(deployMarker, { recursive: true, force: true }).catch(() => undefined);
+          await removeDeployStaging(deployRoot(), id);
         } catch {
           // Best-effort cleanup.
         }
@@ -739,11 +748,8 @@ export async function cancelDeployGeneratedProject(root: string, ownerId: string
   try {
     const publishRoot = deployRoot();
     const publishTarget = path.resolve(publishRoot, id);
-    const stagingTarget = path.resolve(publishRoot, `.knoux-${id}-staging`);
     await fs.rm(publishTarget, { recursive: true, force: true }).catch(() => undefined);
-    await fs.rm(stagingTarget, { recursive: true, force: true }).catch(() => undefined);
-    const deployMarker = path.join(publishRoot, `.knoux-${id}-deploy.progress`);
-    await fs.rm(deployMarker, { recursive: true, force: true }).catch(() => undefined);
+    await removeDeployStaging(publishRoot, id);
   } catch {
     // Best-effort cleanup.
   }

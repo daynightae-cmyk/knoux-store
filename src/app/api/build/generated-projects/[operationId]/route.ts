@@ -1,9 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import path from 'node:path';
-import { guardBuildApi, resolveBuildOwnerId } from '@/lib/build/api-guard';
 import {
-  generatedOperationId,
-} from '@/lib/build/generated-project-contract';
+  authorizeBuildOwner,
+  getGeneratedProjectsRoot,
+  operationForbidden,
+  operationNotFound,
+  resolveOperationId,
+} from '@/lib/build/generated-project-route';
 import {
   cancelGeneratedProject,
   cancelDeployGeneratedProject,
@@ -12,46 +14,18 @@ import {
 
 export const dynamic = 'force-dynamic';
 
-function getGeneratedProjectsRoot(): string {
-  const envRoot = process.env.KNOUX_GENERATED_PROJECTS_ROOT;
-  if (envRoot) return envRoot;
-  return path.resolve(process.cwd(), '..', 'knoux-generated-projects');
-}
-
 /** GET /api/build/generated-projects/[operationId] — get operation status. */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ operationId: string }> },
 ) {
-  const denied = await guardBuildApi(request, { scope: 'write' });
-  if (denied) return denied;
+  const owner = await authorizeBuildOwner(request, 'Sign in to inspect generated projects.');
+  if (!owner.ok) return owner.response;
 
-  const ownerId = await resolveBuildOwnerId();
-  if (!ownerId) {
-    return NextResponse.json(
-      { error: 'unauthorized', message: 'Sign in to inspect generated projects.' },
-      { status: 401 },
-    );
-  }
-
-  const { operationId: rawId } = await params;
-  const operationId = generatedOperationId(rawId);
-
-  const receipt = await readGeneratedReceipt(getGeneratedProjectsRoot(), ownerId, operationId);
-  if (!receipt) {
-    return NextResponse.json(
-      { error: 'not-found', message: 'Generated project operation not found.' },
-      { status: 404 },
-    );
-  }
-
-  if (receipt.ownerId !== ownerId) {
-    return NextResponse.json(
-      { error: 'forbidden', message: 'You do not own this operation.' },
-      { status: 403 },
-    );
-  }
-
+  const operationId = await resolveOperationId(params);
+  const receipt = await readGeneratedReceipt(getGeneratedProjectsRoot(), owner.ownerId, operationId);
+  if (!receipt) return operationNotFound();
+  if (receipt.ownerId !== owner.ownerId) return operationForbidden();
   return NextResponse.json({ receipt });
 }
 
@@ -60,35 +34,13 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ operationId: string }> },
 ) {
-  const denied = await guardBuildApi(request, { scope: 'write' });
-  if (denied) return denied;
+  const owner = await authorizeBuildOwner(request, 'Sign in to stop generated projects.');
+  if (!owner.ok) return owner.response;
 
-  const ownerId = await resolveBuildOwnerId();
-  if (!ownerId) {
-    return NextResponse.json(
-      { error: 'unauthorized', message: 'Sign in to stop generated projects.' },
-      { status: 401 },
-    );
-  }
-
-  const { operationId: rawId } = await params;
-  const operationId = generatedOperationId(rawId);
-
-  const receipt = await cancelGeneratedProject(getGeneratedProjectsRoot(), ownerId, operationId);
-  if (!receipt) {
-    return NextResponse.json(
-      { error: 'not-found', message: 'Generated project operation not found.' },
-      { status: 404 },
-    );
-  }
-
-  if (receipt.ownerId !== ownerId) {
-    return NextResponse.json(
-      { error: 'forbidden', message: 'You do not own this operation.' },
-      { status: 403 },
-    );
-  }
-
+  const operationId = await resolveOperationId(params);
+  const receipt = await cancelGeneratedProject(getGeneratedProjectsRoot(), owner.ownerId, operationId);
+  if (!receipt) return operationNotFound();
+  if (receipt.ownerId !== owner.ownerId) return operationForbidden();
   return NextResponse.json({ receipt });
 }
 
@@ -97,34 +49,19 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ operationId: string }> },
 ) {
-  const denied = await guardBuildApi(request, { scope: 'write' });
-  if (denied) return denied;
+  const owner = await authorizeBuildOwner(request, 'Sign in to cancel deployments.');
+  if (!owner.ok) return owner.response;
 
-  const ownerId = await resolveBuildOwnerId();
-  if (!ownerId) {
-    return NextResponse.json(
-      { error: 'unauthorized', message: 'Sign in to cancel deployments.' },
-      { status: 401 },
-    );
-  }
-
-  const { operationId: rawId } = await params;
-  const operationId = generatedOperationId(rawId);
+  const operationId = await resolveOperationId(params);
 
   try {
-    const receipt = await cancelDeployGeneratedProject(getGeneratedProjectsRoot(), ownerId, operationId);
-    if (!receipt) {
-      return NextResponse.json(
-        { error: 'not-found', message: 'Generated project operation not found.' },
-        { status: 404 },
-      );
-    }
-    if (receipt.ownerId !== ownerId) {
-      return NextResponse.json(
-        { error: 'forbidden', message: 'You do not own this operation.' },
-        { status: 403 },
-      );
-    }
+    const receipt = await cancelDeployGeneratedProject(
+      getGeneratedProjectsRoot(),
+      owner.ownerId,
+      operationId,
+    );
+    if (!receipt) return operationNotFound();
+    if (receipt.ownerId !== owner.ownerId) return operationForbidden();
     return NextResponse.json({ receipt });
   } catch (err) {
     return NextResponse.json(

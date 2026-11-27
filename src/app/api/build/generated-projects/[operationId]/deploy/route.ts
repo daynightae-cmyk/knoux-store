@@ -1,39 +1,26 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import path from 'node:path';
-import { guardBuildApi, resolveBuildOwnerId } from '@/lib/build/api-guard';
 import {
   generatedDeployConfirmation,
   generatedDeployTarget,
-  generatedOperationId,
 } from '@/lib/build/generated-project-contract';
 import { deployGeneratedProject } from '@/lib/build/generated-project-executor';
+import {
+  authorizeBuildOwner,
+  getGeneratedProjectsRoot,
+  resolveOperationId,
+} from '@/lib/build/generated-project-route';
 
 export const dynamic = 'force-dynamic';
-
-function getGeneratedProjectsRoot(): string {
-  const envRoot = process.env.KNOUX_GENERATED_PROJECTS_ROOT;
-  if (envRoot) return envRoot;
-  return path.resolve(process.cwd(), '..', 'knoux-generated-projects');
-}
 
 /** POST /api/build/generated-projects/[operationId]/deploy — deploy compiled output. */
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ operationId: string }> },
 ) {
-  const denied = await guardBuildApi(request, { scope: 'write' });
-  if (denied) return denied;
+  const owner = await authorizeBuildOwner(request, 'Sign in to deploy generated projects.');
+  if (!owner.ok) return owner.response;
 
-  const ownerId = await resolveBuildOwnerId();
-  if (!ownerId) {
-    return NextResponse.json(
-      { error: 'unauthorized', message: 'Sign in to deploy generated projects.' },
-      { status: 401 },
-    );
-  }
-
-  const { operationId: rawId } = await params;
-  const operationId = generatedOperationId(rawId);
+  const operationId = await resolveOperationId(params);
 
   let body: { target: string; confirmation: string };
   try {
@@ -60,7 +47,7 @@ export async function POST(
   try {
     const receipt = await deployGeneratedProject(
       getGeneratedProjectsRoot(),
-      ownerId,
+      owner.ownerId,
       operationId,
       target,
       confirmation,
