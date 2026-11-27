@@ -38,6 +38,8 @@ export async function GET(
   try {
     bundlePath = await generatedBundlePath(getGeneratedProjectsRoot(), ownerId, operationId);
   } catch {
+    // A missing or unreadable operation is reported as "not available" without
+    // exposing why: the caller learns nothing about the store's layout.
     return NextResponse.json(
       { error: 'not-found', message: 'Generated project bundle is not available for this operation.' },
       { status: 404 },
@@ -58,6 +60,8 @@ export async function GET(
       },
     });
   } catch {
+    // A bundle that cannot be opened is reported as unavailable; the underlying
+    // error is deliberately not surfaced to the caller.
     return NextResponse.json(
       { error: 'bundle-unavailable', message: 'The bundle could not be read.' },
       { status: 500 },

@@ -55,7 +55,7 @@ async function receiptPath(root: string, operationId: string): Promise<string> {
 }
 
 async function atomicJson(file: string, value: unknown): Promise<void> {
-  const temporary = `${file}.${process.pid}.${Date.now()}.${Math.random().toString(36).slice(2)}.tmp`;
+  const temporary = `${file}.${process.pid}.${Date.now()}.${crypto.randomUUID()}.tmp`;
   await fs.writeFile(temporary, JSON.stringify(value, null, 2), { encoding: 'utf8', flag: 'wx' });
   await fs.rename(temporary, file);
 }

@@ -1,5 +1,55 @@
 # KNOuX Store — main convergence handoff (2026-11-27)
 
+## Merge blocker: the SonarCloud quality gate on new code
+
+CI run `46016828173` on `8cf6d96` is **green** on every job (CodeQL static
+analysis, Lint/types/build/tests/coverage/audit, V4 exact-build visual matrix,
+Browser desktop/tablet/mobile). The merge is nevertheless refused by the
+`protect-main` ruleset because its required **SonarCloud Code Analysis** check
+fails its quality gate on the PR's new code:
+
+| Gate condition | Required | Observed | Cause |
+|---|---|---|---|
+| Security rating on new code | ≥ A | **C** | `typescript:S2245` — `Math.random()` used to build the executor's atomic-write temp file name (`generated-project-executor.ts:58`) |
+| Reliability rating on new code | ≥ A | **C** | `css:S4656` duplicate `min-height` in `provider-hero.module.css`; `typescript:S2871` / `typescript:S4158` on the generated-projects API routes |
+| Duplication on new code | ≤ 3% | **4.9%** | duplicated rule blocks in `provider-hero.module.css` (`.contextActions`, `.contextBtn`) and `providers.module.css` (`.standalone .composition`) |
+
+Fixes in this increment:
+
+- the executor's atomic write now uses `crypto.randomUUID()` instead of
+  `Math.random()` — a collision-proof, non-predictable temp name;
+- the duplicate `min-height` is removed (the `!important` reset already won, so
+  the rendering is unchanged);
+- the duplicated `.contextActions`, `.contextBtn`, `.nodeWrapper`, `.node` and
+  `.node .sphere img` blocks are merged into their original declarations —
+  the stable hit-target rules (`pointer-events`, `touch-action`) now live with
+  the components they belong to;
+- the duplicate `.standalone .composition` selector is merged into one rule;
+- the bundle route's two `catch` blocks now explain, in a comment, why the
+  underlying error is deliberately not surfaced.
+
+Known remaining items on the PR's new code, to be closed before the gate can
+pass (all reported by SonarCloud for this PR):
+
+- `typescript:S3776` cognitive complexity and `typescript:S9382` await-in-loop
+  in `generated-project-executor.ts`, `generated-project-executor-v2.ts`,
+  `build-executor.ts`, `write-executor.ts`,
+  `generated-project-contract-v2.ts` and `generated-project-api.ts`;
+- `typescript:S6606`, `typescript:S6582`, `typescript:S7503`,
+  `typescript:S4323`, `typescript:S7780`, `typescript:S4030` and
+  `typescript:S8783` in the same area;
+- `css:S7924` contrast on `.getApi` (a code smell — it does not drive any of
+  the three failing gate conditions, and the button keeps the approved brand
+  purple);
+- the separate `CodeQL` code-scanning check reports 19 `js/path-injection`
+  alerts and one `js/file-system-race` in
+  `src/lib/build/generated-project-executor.ts` (plus two
+  `js/http-to-file-access` in `qa/owner-product-matrix-20261124.mjs`). Those
+  patterns pre-date this PR — the file last changed on `main` in `0ffbd8f` —
+  but the PR modifies those lines, so the scan attributes them to the PR. The
+  containment helper (`operationRoot()` → `path.resolve` + `inside()`) and its
+  symlink-containment test are the intended remediation points.
+
 ## Branch and SHAs
 
 | Item | Value |
