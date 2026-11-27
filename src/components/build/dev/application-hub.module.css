@@ -32,7 +32,11 @@
   flex: 0 1 360px; display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 14px;
   border: 1px solid #b393d35f; border-radius: 10px; background: #170f26cc; color: #b79bd8; min-width: 0;
 }
-.search input { flex: 1; min-width: 0; border: 0; background: transparent; color: #f0e7fb; font-size: 13.5px; outline: none; }
+.search .searchInput,
+.search input.searchInput {
+  flex: 1; min-width: 0; border: 0; background: transparent; color: #f0e7fb; font-size: 13.5px; outline: none;
+  border-radius: 0 !important; padding: 0 !important; min-height: 0 !important; width: 100%;
+}
 .search:focus-within { border-color: #dbb5ff; box-shadow: 0 0 14px #a465ed4d; }
 .viewToggle { display: flex; border: 1px solid #b393d35f; border-radius: 10px; overflow: hidden; }
 .viewToggle button {

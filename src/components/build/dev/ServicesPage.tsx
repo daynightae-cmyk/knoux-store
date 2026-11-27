@@ -115,7 +115,7 @@ export function ServicesPage() {
               <div className={styles.search}>
                 <span aria-hidden="true">⌕</span>
                 <label className="dev-visually-hidden" htmlFor="svc-search">Find a service</label>
-                <input id="svc-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find a service…" />
+                <input id="svc-search" className={styles.searchInput} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find a service…" />
               </div>
               <label className={styles.select}>
                 <span className="dev-visually-hidden">Filter by category</span>
