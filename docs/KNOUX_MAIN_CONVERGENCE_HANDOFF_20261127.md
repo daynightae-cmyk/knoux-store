@@ -31,6 +31,43 @@ commit SHA from `git log -1` on `integration/main-convergence` (it is the PR
 - the `data-logical-width` attribute is never asserted as a substitute for a
   measurement.
 
+### The CI-only 125% failure (run `45999138498`) and its root cause
+
+With the logical-width measurement corrected, CI failed on one assertion in all
+three browser jobs:
+
+```
+Expected: > 0.329006
+Received:   0.329006
+```
+
+The received value was **exactly** the 100% zoom, which proves the preview never
+rendered at the requested 125% *in the sampled frame*. Two root causes, both
+fixed:
+
+1. **A stale frame.** The canvas applies the new zoom to the preview's inline
+   style, but the *rendered* geometry settles on the following frame. Measured
+   locally at the instant CI sampled: inline `zoom` already `0.411258` while the
+   bounding rect still reported the previous `128.313px` width. The spec now
+   polls the rendered geometry until it reaches the requested scale instead of
+   sampling a single frame.
+2. **A platform-dependent fit.** `LiveCanvas` fitted the preview with the
+   workspace's *content* box (`ResizeObserverEntry.contentRect.width`). Scaling
+   the preview makes it overflow, which adds a scrollbar, which shrinks that
+   content box — so the fit factor, and therefore the outcome of the scale
+   control, depended on whether the platform draws classic (Linux CI) or
+   overlay scrollbars. The canvas now measures the workspace's *border* box, so
+   the visible space the preview is scaled into never depends on the preview's
+   own scrollbar. Under classic scrollbars the zoom ratio is now exactly 1.25
+   (`0.329006 → 0.411258`, rendered `128.313px → 160.391px`, logical width
+   unchanged at 390).
+
+The 125% scenario is now asserted against the implementation's real semantics:
+the expected zoom is the measured fit (`min(available / logicalWidth, 1)`)
+multiplied by the requested 125%, the logical width must stay 390, the rendered
+geometry must equal `logical × zoom`, and the rendered geometry must visibly
+grow.
+
 ### Owner-reported visual defects (root causes, not symptoms)
 
 See [`docs/evidence/visual-acceptance-20261127/report.md`](./evidence/visual-acceptance-20261127/report.md)
@@ -64,6 +101,8 @@ node --import ./tests/isolate-network.mjs --test tests/generated-project.test.mj
                                                # 24 pass / 0 fail (executor parity)
 cmd /c "set KNOUX_E2E_REUSE_CURRENT=1&& npx playwright test e2e/wordpress-responsive-canvas.spec.ts --reporter=line"
                                                # 3 passed (desktop, tablet, mobile)
+cmd /c "set KNOUX_E2E_REUSE_CURRENT=1&& npx playwright test e2e/wordpress --reporter=line"
+                                               # 52 passed, 2 skipped (all WordPress browser flows)
 ```
 
 Production-bundle geometry probe (Chromium, 1920×1080 / 1440×900 / 1366×768 /
@@ -75,8 +114,9 @@ overlaps **0** at every viewport.
 
 ## Remaining blockers
 
-1. CI must be green on the new PR #132 head (the previous run `45928378543`
-   failed only the WordPress measurement test, which this increment fixes).
+1. CI must be green on the new PR #132 head (run `45999138498` failed only the
+   WordPress 125% zoom assertion, whose root causes — a stale sampled frame and
+   a platform-dependent fit — are fixed by this increment).
 2. PR #132 must then be merged through the authorized workflow and the
    resulting `main` SHA verified.
 3. The Vercel production deployment must be re-checked on the five corrected

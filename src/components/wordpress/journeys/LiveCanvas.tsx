@@ -25,7 +25,14 @@ function DraftViewport({ device, draft, scale, title }: Readonly<{
   useEffect(() => {
     const element = viewport.current;
     if (!element) return;
-    const observer = new ResizeObserver(([entry]) => setAvailable(entry.contentRect.width));
+    const observer = new ResizeObserver(([entry]) => {
+      // The visible workspace, not the space the preview's own scrollbar leaves
+      // behind: scaling the preview must not shrink the space it is scaled into,
+      // or the scale control would resolve differently on platforms that draw
+      // classic scrollbars.
+      const box = entry.borderBoxSize?.[0]?.inlineSize;
+      setAvailable(box && box > 0 ? box : entry.contentRect.width);
+    });
     observer.observe(element);
     return () => observer.disconnect();
   }, []);

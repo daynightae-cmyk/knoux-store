@@ -7,6 +7,8 @@ type PreviewMetrics = {
   visualWidth: number;
   /** Active CSS zoom factor applied to the preview document. */
   zoom: number;
+  /** The visible workspace the preview is fitted into. */
+  available: number;
 };
 
 /**
@@ -21,11 +23,16 @@ async function measurePreview(viewport: Locator): Promise<PreviewMetrics> {
     if (!(node instanceof HTMLElement)) {
       throw new Error('The responsive preview must render an HTMLElement layout boundary.');
     }
+    const workspace = node.parentElement;
+    if (!(workspace instanceof HTMLElement)) {
+      throw new Error('The responsive preview must be fitted into a measured workspace element.');
+    }
     const style = getComputedStyle(node);
     return {
       logicalWidth: node.offsetWidth,
       visualWidth: node.getBoundingClientRect().width,
       zoom: Number.parseFloat(style.zoom) || 1,
+      available: workspace.getBoundingClientRect().width,
     };
   });
 }
@@ -83,15 +90,27 @@ test('Responsive canvas renders the same editable draft at three actual layout w
   await canvas.getByRole('switch', { name: 'Tablet', exact: true }).click();
 
   // Scaling to 125% changes the rendered geometry, never the logical document
-  // width: the mobile document keeps laying out at 390px and the rendered size
-  // grows by exactly the new zoom factor.
+  // width: the mobile document keeps laying out at 390px while the rendered
+  // size grows by the scale factor on top of the fit-to-workspace zoom.
+  const baseline = await measurePreview(mobile.locator('[data-logical-width]'));
+  // The canvas fits the preview into its workspace and then applies the scale
+  // percentage to that fit, so the expected zoom is the measured fit multiplied
+  // by the requested 125%.
+  const expectedZoom = Math.min(baseline.available / baseline.logicalWidth, 1) * 1.25;
   await canvas.getByRole('button', { name: '125%', exact: true }).click();
   await expect(canvas.getByRole('button', { name: '125%', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  // The rendered geometry settles on the following frame, so poll until the
+  // measured geometry reaches the requested scale instead of sampling the frame
+  // that still carries the previous size.
+  await expect.poll(async () => {
+    const metrics = await measurePreview(mobile.locator('[data-logical-width]'));
+    return metrics.visualWidth / metrics.logicalWidth;
+  }, { timeout: 10_000 }).toBeCloseTo(expectedZoom, 3);
   const zoomed = await measurePreview(mobile.locator('[data-logical-width]'));
   expect(zoomed.logicalWidth, '125% zoom keeps the 390px logical layout').toBeCloseTo(390, 1);
   expect(zoomed.visualWidth, '125% rendered geometry matches the zoom').toBeCloseTo(390 * zoomed.zoom, 0);
-  expect(zoomed.zoom, '125% raises the fit-to-workspace zoom').toBeGreaterThan(measured.get('mobile')?.zoom ?? 0);
-  expect(zoomed.visualWidth, '125% visibly enlarges the preview').toBeGreaterThan(measured.get('mobile')?.visualWidth ?? 0);
+  expect(zoomed.zoom, '125% multiplies the fit-to-workspace zoom by 1.25').toBeCloseTo(expectedZoom, 3);
+  expect(zoomed.visualWidth, '125% visibly enlarges the preview').toBeGreaterThan(baseline.visualWidth);
 
   await canvas.getByRole('button', { name: 'Edit draft', exact: true }).click();
   await expect(page).toHaveURL(/#launch$/);
