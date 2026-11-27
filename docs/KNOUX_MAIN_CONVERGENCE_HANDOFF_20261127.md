@@ -68,6 +68,31 @@ multiplied by the requested 125%, the logical width must stay 390, the rendered
 geometry must equal `logical × zoom`, and the rendered geometry must visibly
 grow.
 
+### The second CI-only failure (run `46010671865`) and its root cause
+
+With the scale semantics fixed, CI still failed on desktop and mobile (the
+tablet job passed) with:
+
+```
+Error: 125% visibly enlarges the preview
+Expected: > 207.953125
+Received:   160.390625
+```
+
+`207.953125` is the mobile preview's rendered width **while the tablet device
+was still hidden** — the test toggled the tablet off and on but never asserted
+that the device came back, so the baseline was sampled in a podium layout that
+no longer existed; by the time the 125% preview was measured, the podium had
+re-flowed around the restored tablet and the mobile preview had been re-fitted.
+
+Two fixes:
+
+- the test now asserts the restored device is back on the podium
+  (`await expect(tablet).toHaveCount(1)`) before anything is measured;
+- `settlePreview()` waits until the rendered geometry has stopped changing
+  *and* agrees with the fit the canvas should be applying, so no measurement is
+  ever taken while the podium is still re-fitting the previews.
+
 ### Owner-reported visual defects (root causes, not symptoms)
 
 See [`docs/evidence/visual-acceptance-20261127/report.md`](./evidence/visual-acceptance-20261127/report.md)

@@ -37,6 +37,28 @@ async function measurePreview(viewport: Locator): Promise<PreviewMetrics> {
   });
 }
 
+/**
+ * The podium re-fits the previews whenever the device layout changes, and the
+ * canvas learns the new workspace size through a ResizeObserver, so a preview
+ * can be sampled while the fit it is drawn in is still moving. Wait until the
+ * rendered geometry has stopped changing *and* agrees with the fit the canvas
+ * should be applying, so every measurement is taken in a settled layout.
+ */
+async function settlePreview(viewport: Locator, multiplier: number): Promise<PreviewMetrics> {
+  let previous = -1;
+  let stable = 0;
+  await expect.poll(async () => {
+    const metrics = await measurePreview(viewport);
+    const fit = Math.min(metrics.available / metrics.logicalWidth, 1);
+    const ratio = metrics.visualWidth / metrics.logicalWidth;
+    const settled = metrics.visualWidth === previous && Math.abs(ratio - fit * multiplier) < 0.002;
+    stable = settled ? stable + 1 : 0;
+    previous = metrics.visualWidth;
+    return stable >= 3;
+  }, { timeout: 15_000 }).toBe(true);
+  return measurePreview(viewport);
+}
+
 test('Responsive canvas renders the same editable draft at three actual layout widths', async ({ page }) => {
   await page.goto('/wordpress#canvas');
   const canvas = page.getByRole('region', { name: 'Live Responsive Canvas' });
@@ -88,28 +110,25 @@ test('Responsive canvas renders the same editable draft at three actual layout w
   await canvas.getByRole('switch', { name: 'Tablet', exact: true }).click();
   await expect(tablet).toHaveCount(0);
   await canvas.getByRole('switch', { name: 'Tablet', exact: true }).click();
+  // The device has to be back on the podium before the canvas is measured: the
+  // podium re-fits the remaining previews around it, so measuring while the
+  // device is still missing samples a layout that no longer exists.
+  await expect(tablet).toHaveCount(1);
 
   // Scaling to 125% changes the rendered geometry, never the logical document
   // width: the mobile document keeps laying out at 390px while the rendered
   // size grows by the scale factor on top of the fit-to-workspace zoom.
-  const baseline = await measurePreview(mobile.locator('[data-logical-width]'));
-  // The canvas fits the preview into its workspace and then applies the scale
-  // percentage to that fit, so the expected zoom is the measured fit multiplied
-  // by the requested 125%.
-  const expectedZoom = Math.min(baseline.available / baseline.logicalWidth, 1) * 1.25;
+  const baseline = await settlePreview(mobile.locator('[data-logical-width]'), 1);
   await canvas.getByRole('button', { name: '125%', exact: true }).click();
   await expect(canvas.getByRole('button', { name: '125%', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  // The rendered geometry settles on the following frame, so poll until the
-  // measured geometry reaches the requested scale instead of sampling the frame
-  // that still carries the previous size.
-  await expect.poll(async () => {
-    const metrics = await measurePreview(mobile.locator('[data-logical-width]'));
-    return metrics.visualWidth / metrics.logicalWidth;
-  }, { timeout: 10_000 }).toBeCloseTo(expectedZoom, 3);
-  const zoomed = await measurePreview(mobile.locator('[data-logical-width]'));
+  const zoomed = await settlePreview(mobile.locator('[data-logical-width]'), 1.25);
   expect(zoomed.logicalWidth, '125% zoom keeps the 390px logical layout').toBeCloseTo(390, 1);
+  // The scale control multiplies the fit-to-workspace zoom by the scale
+  // percentage; the fit factor itself is unchanged, so the zoom is the measured
+  // fit times the requested 125%.
+  expect(zoomed.zoom, '125% multiplies the fit-to-workspace zoom by 1.25')
+    .toBeCloseTo(Math.min(zoomed.available / zoomed.logicalWidth, 1) * 1.25, 3);
   expect(zoomed.visualWidth, '125% rendered geometry matches the zoom').toBeCloseTo(390 * zoomed.zoom, 0);
-  expect(zoomed.zoom, '125% multiplies the fit-to-workspace zoom by 1.25').toBeCloseTo(expectedZoom, 3);
   expect(zoomed.visualWidth, '125% visibly enlarges the preview').toBeGreaterThan(baseline.visualWidth);
 
   await canvas.getByRole('button', { name: 'Edit draft', exact: true }).click();
