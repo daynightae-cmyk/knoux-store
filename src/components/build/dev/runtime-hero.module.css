@@ -11,8 +11,7 @@
   background:
     radial-gradient(ellipse 42% 34% at 10% 8%, #7c3aed2e, transparent 68%),
     radial-gradient(ellipse 40% 30% at 92% 10%, #a855f724, transparent 70%),
-    radial-gradient(ellipse 72% 42% at 50% 118%, #6d28d950, transparent 62%),
-    #07050e;
+    radial-gradient(ellipse 72% 42% at 50% 118%, #6d28d950, transparent 62%);
 }
 .brand { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0; color: #fff; font-size: 19px; font-weight: 600; }
 .brand i { width: 7px; height: 7px; border-radius: 50%; background: #fff; box-shadow: 0 0 12px 4px #b57aff; }
@@ -100,6 +99,28 @@
   background: radial-gradient(ellipse at 50% 0%, #7c3aed3a, #0a0714 58%), #0a0714;
   box-shadow: 0 -18px 70px #8b4fd94d;
   pointer-events: none;
+}
+/* Workspace routes (Terminal, PowerShell): the runtime identity stays, but the
+   hero yields the viewport to the live session. Only block spacing and the
+   window scale change; the responsive inline padding above is preserved. */
+.scene[data-compact] {
+  margin-block: -8px 14px;
+  padding-block: 14px 24px;
+}
+.scene[data-compact] .title { margin-top: 4px; font-size: clamp(26px, 3vw, 40px); }
+.scene[data-compact] .lede { margin-top: 4px; font-size: clamp(12px, 1.1vw, 15px); }
+.scene[data-compact] .window { max-width: 700px; margin-top: 14px; }
+.scene[data-compact] .windowBar { padding: 9px 16px; font-size: 12px; }
+.scene[data-compact] .windowBody { grid-template-columns: 48px 1fr; min-height: 128px; }
+.scene[data-compact] .rail { gap: 6px; padding: 10px 0; }
+.scene[data-compact] .rail a { width: 32px; height: 32px; }
+.scene[data-compact] .code { padding: 10px 16px; font: 11.5px/1.55 var(--font-mono, monospace); }
+.scene[data-compact] .doors { max-width: 780px; margin-top: -18px; gap: 12px; }
+.scene[data-compact] .door { padding: 12px 10px; gap: 6px; border-radius: 14px; font-size: clamp(13px, 1.2vw, 16px); }
+.scene[data-compact] .door svg { width: 24px; height: 24px; }
+.scene[data-compact] .rings { bottom: 0; height: 30%; }
+@media (max-width: 600px) {
+  .scene[data-compact] .doors { margin-top: 16px; }
 }
 @media (prefers-reduced-motion: no-preference) {
   .cursor { animation: runtimeCursor 1.2s steps(2) infinite; }

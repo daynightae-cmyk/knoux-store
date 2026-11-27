@@ -1,0 +1,52 @@
+[
+  {
+    "name": "campaigns-production",
+    "width": 1024,
+    "height": 768,
+    "motion": "reduce",
+    "errors": [],
+    "failure": "page.goto: Timeout 90000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/command/campaigns\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "build-workspace",
+    "width": 1672,
+    "height": 941,
+    "motion": "no-preference",
+    "errors": [],
+    "failure": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('group', { name: 'Workspace view' }).getByRole('button', { name: 'PREVIEW', exact: true })\u001b[22m\n"
+  },
+  {
+    "name": "providers",
+    "width": 1672,
+    "height": 941,
+    "motion": "no-preference",
+    "errors": [],
+    "failure": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /^OpenAI/ }).first()\u001b[22m\n"
+  },
+  {
+    "name": "router",
+    "width": 1672,
+    "height": 941,
+    "motion": "no-preference",
+    "errors": [],
+    "failure": "page.waitForResponse: Timeout 30000ms exceeded while waiting for event \"response\""
+  },
+  {
+    "name": "providers",
+    "width": 390,
+    "height": 844,
+    "motion": "reduce",
+    "errors": [
+      "Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\nhttps://react.dev/link/hydration-mismatch\n\n  ...\n    <RenderFromTemplateContext>\n      <ScrollHandler renderTree={{...}}>\n        <InnerScrollHandler scrollRef={{scrollRef:null, ...}} renderTree={{...}}>\n          <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>\n            <LoadingBoundary name=\"providers/\" loading={null}>\n              <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>\n                <RedirectBoundary>\n                  <RedirectErrorBoundary router={{...}}>\n                    <InnerLayoutRouter url=\"/build/pro...\" tree={[...]} params={{}} renderTree={{...}} ...>\n                      <SegmentViewNode type=\"page\" pagePath=\"build/prov...\">\n                        <SegmentTrieNode>\n                        <Page>\n                          <ProviderCenter initialDefinitions={[...]}>\n                            <div\n                              className=\"providers-module__YMVlbG__center providers-module__YMVlbG__standalone dev-route\"\n-                             data-provider-view=\"constellation\"\n                            >\n                              <nav>\n                              <ProviderAuthFeedback>\n                              <ProviderHero definitions={[...]} selected=\"\" onSelect={function onSelect} ...>\n+                               <section\n+                                 ref={{current:null}}\n+                                 className=\"provider-hero-module__hSdGkG__hero\"\n+                                 data-paused={false}\n+                                 aria-label=\"Universal Provider Engine\"\n+                               >\n-                               <div\n-                                 className=\"providers-module__YMVlbG__modeSwitch\"\n-                                 role=\"group\"\n-                                 aria-label=\"Provider workspace view\"\n-                               >\n                              ...\n                      ...\n                    ...\n          ...\n"
+    ],
+    "failure": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /^OpenAI/ }).first()\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m  - element was detached from the DOM, retrying\u001b[22m\n"
+  },
+  {
+    "name": "router",
+    "width": 390,
+    "height": 844,
+    "motion": "reduce",
+    "errors": [],
+    "failure": "expect(locator).toBeDisabled() failed\n\nLocator:  getByRole('button', { name: 'ROUTE', exact: true })\nExpected: disabled\nReceived: enabled\nTimeout:  30000ms\n\nCall log:\n  - Expect \"toBeDisabled\" getByRole('button', { name: 'ROUTE', exact: true }) with timeout 30000ms\n  - waiting for getByRole('button', { name: 'ROUTE', exact: true })\n    27 × locator resolved to <button type=\"button\" class=\"bo-action bo-action--primary\">ROUTE</button>\n       - unexpected value \"enabled\"\n"
+  }
+]

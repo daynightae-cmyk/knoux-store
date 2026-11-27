@@ -1,0 +1,1501 @@
+{
+  "revision": "a3f5d33a64d65ea2822debeaa2fae67d528936df",
+  "origin": "http://127.0.0.1:3322",
+  "productionAccessMode": true,
+  "records": [
+    {
+      "profile": "desktop",
+      "route": "/build",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build",
+      "heading": "Welcome to KNOUX STORE",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/platform",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/platform",
+      "heading": "One Platform",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-platform.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build#workspace",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/ai/models",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/ai/providers",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build#workspace",
+      "heading": "Welcome to KNOUX STORE",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-workspace.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/apps",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/apps",
+      "heading": "Application Hub",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-apps.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/engineering",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/context",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/engineering",
+      "heading": "Overview",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-engineering.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/services",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/services",
+      "heading": "Services",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-services.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/settings",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/settings",
+      "heading": "Settings",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-settings.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/providers",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/provider-os",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/providers",
+      "heading": "Universal Provider Engine",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-providers.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/ai",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/provider-os",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/providers",
+      "heading": "Universal Provider Engine",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-ai.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/ai/providers",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/provider-os",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/providers",
+      "heading": "Universal Provider Engine",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-ai-providers.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/ai/models",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/ai/models",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/ai/models",
+      "heading": "Model Discovery",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-ai-models.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/ai/router",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/ai/router",
+      "heading": "AI Command Center",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-ai-router.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/pipeline",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/verify",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/pipeline",
+      "heading": "Live Build Orchestration",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-pipeline.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/deployments",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/deployments",
+      "heading": "Deployments",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-deployments.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/terminal",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/bridge/status",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/terminal",
+      "heading": "Local Engineering Runtime",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-terminal.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/powershell",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/bridge/status",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/powershell",
+      "heading": "Local Engineering Runtime",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-powershell.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/docs",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/file",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/docs",
+      "heading": "Documentation",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-docs.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/ai/arena",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/ai/models",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/ai/arena",
+      "heading": "AI Command Center",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-ai-arena.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/ai/control",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/ai/models",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/ai/providers",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/ai/control",
+      "heading": "AI Command Center",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-ai-control.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/ai/senshial",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/ai/senshial",
+      "heading": "AI Command Center",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-ai-senshial.png"
+    },
+    {
+      "profile": "desktop",
+      "route": "/build/ai/usage",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/ai/usage",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/ai/usage",
+      "heading": "AI Command Center",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/desktop-build-ai-usage.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build",
+      "heading": "Welcome to KNOUX STORE",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/platform",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/platform",
+      "heading": "One Platform",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-platform.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build#workspace",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/ai/models",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/ai/providers",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build#workspace",
+      "heading": "Welcome to KNOUX STORE",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-workspace.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/apps",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/apps",
+      "heading": "Application Hub",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-apps.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/engineering",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/context",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/engineering",
+      "heading": "Overview",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-engineering.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/services",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/services",
+      "heading": "Services",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-services.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/settings",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/settings",
+      "heading": "Settings",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-settings.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/providers",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/provider-os",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/providers",
+      "heading": "Universal Provider Engine",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-providers.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/ai",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/provider-os",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/providers",
+      "heading": "Universal Provider Engine",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-ai.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/ai/providers",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/provider-os",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/providers",
+      "heading": "Universal Provider Engine",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-ai-providers.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/ai/models",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/ai/models",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/ai/models",
+      "heading": "Model Discovery",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-ai-models.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/ai/router",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/ai/router",
+      "heading": "AI Command Center",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-ai-router.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/pipeline",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/verify",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/pipeline",
+      "heading": "Live Build Orchestration",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-pipeline.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/deployments",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/deployments",
+      "heading": "Deployments",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-deployments.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/terminal",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/bridge/status",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/terminal",
+      "heading": "Local Engineering Runtime",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-terminal.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/powershell",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/bridge/status",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/powershell",
+      "heading": "Local Engineering Runtime",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-powershell.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/docs",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/file",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/docs",
+      "heading": "Documentation",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-docs.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/ai/arena",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/ai/models",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/ai/arena",
+      "heading": "AI Command Center",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-ai-arena.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/ai/control",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/ai/models",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/ai/providers",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/ai/control",
+      "heading": "AI Command Center",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-ai-control.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/ai/senshial",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/ai/senshial",
+      "heading": "AI Command Center",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-ai-senshial.png"
+    },
+    {
+      "profile": "mobile",
+      "route": "/build/ai/usage",
+      "errors": [],
+      "api": [
+        {
+          "path": "/api/build/ai/usage",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/project",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/environment",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/git",
+          "status": 401,
+          "method": "GET"
+        },
+        {
+          "path": "/api/build/integrations",
+          "status": 401,
+          "method": "GET"
+        }
+      ],
+      "status": 200,
+      "actualRoute": "/build/ai/usage",
+      "heading": "AI Command Center",
+      "horizontalOverflow": false,
+      "screenshot": "references/store-20261123/qa/build-supporting/mobile-build-ai-usage.png"
+    }
+  ]
+}

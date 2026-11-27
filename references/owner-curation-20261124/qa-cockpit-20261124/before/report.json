@@ -1,0 +1,9 @@
+{
+  "phase": "before",
+  "base": "http://localhost:3001",
+  "capturedAt": "2026-11-24T05:13:21.106Z",
+  "results": [
+    {"viewport":{"width":1440,"height":900},"errors":[],"interactions":{"directStudioEntry":true,"themeSelection":{"slug":"reactpress-blog","expected":"ReactPress Blog","actual":"ReactPress Blog"},"pluginSelection":{"slug":"wordpress-seo","expected":"Yoast SEO – Advanced SEO with real-time guidance and built-in AI","actual":"Yoast SEO – Advanced SEO with real-time guidance and built-in AI"}},"initial":{"kind":"theme","title":"Blogx Blocks","themeChoices":12,"pluginChoices":12,"cockpit":{"x":36,"y":181,"width":1368,"height":692},"themesPanel":{"x":47,"y":195,"width":263,"height":623},"previewPanel":{"x":321,"y":190,"width":798,"height":634},"pluginsPanel":{"x":1129,"y":195,"width":263,"height":623},"viewportWidth":1440,"documentWidth":1440},"screenshot":"references/owner-curation-20261124/qa-cockpit-20261124/before/wordpress-cockpit-1440x900.png","finalMetrics":{"viewportWidth":1440,"documentWidth":1440,"studioScrollWidth":1440,"studioClientWidth":1440}},
+    {"viewport":{"width":390,"height":844},"errors":[],"interactions":{"directStudioEntry":true,"mobileThemeSheet":true,"mobileSelection":{"expected":"ReactPress Blog","actual":"ReactPress Blog"},"mobileSheetClosed":true},"initial":{"kind":"theme","title":"Blogx Blocks","themeChoices":12,"pluginChoices":12,"cockpit":{"x":10,"y":132,"width":370,"height":679},"themesPanel":{"x":0,"y":0,"width":0,"height":0},"previewPanel":{"x":10,"y":132,"width":370,"height":599},"pluginsPanel":{"x":0,"y":0,"width":0,"height":0},"viewportWidth":390,"documentWidth":390},"screenshot":"references/owner-curation-20261124/qa-cockpit-20261124/before/wordpress-cockpit-390x844.png","finalMetrics":{"viewportWidth":390,"documentWidth":390,"studioScrollWidth":390,"studioClientWidth":390}}
+  ]
+}

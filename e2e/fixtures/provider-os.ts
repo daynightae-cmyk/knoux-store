@@ -59,7 +59,15 @@ export async function providerFixture(page: Page) {
 }
 
 export async function openProviderRegistry(page: Page) {
-  await page.getByRole('heading', { name: 'OpenCode Console V2', exact: true }).waitFor();
+  // Wait for the OpenCode Console V2 instrument heading inside the Provider
+  // Constellation hero: the central instrument's h2. The context panel shares
+  // the same name but renders an h3, so limit to h2 within the region to avoid
+  // a strict-mode violation.
+  await page
+    .getByRole('region', { name: 'Provider Constellation' })
+    .locator('h2')
+    .filter({ hasText: 'OpenCode Console V2' })
+    .waitFor();
   const summary = page.locator('summary').filter({ hasText: 'Browse providers' });
   if (await summary.isVisible() && !(await summary.locator('..').evaluate((details) => (details as HTMLDetailsElement).open))) {
     await summary.click();

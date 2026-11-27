@@ -79,7 +79,7 @@ export function ServicesPage() {
   const runtimeOnline = state.runtime.status === 'running' && Boolean(state.runtime.url);
 
   return (
-    <div className={`dev-route ${styles.page}`} data-reduced={reduced ? '' : undefined}>
+    <div className={`dev-route dev-route--wide ${styles.page}`} data-reduced={reduced ? '' : undefined}>
       <div className={styles.masthead}>
         <div className={styles.mastheadText}>
           <span className="dev-mini-label">SERVICES / PLATFORM</span>

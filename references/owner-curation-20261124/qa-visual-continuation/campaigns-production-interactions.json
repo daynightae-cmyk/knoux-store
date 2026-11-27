@@ -1,0 +1,35 @@
+[
+  {
+    "width": 1672,
+    "height": 941,
+    "motion": "no-preference",
+    "geometry": {
+      "documentWidth": 1672,
+      "previewTop": 319,
+      "clipped": []
+    },
+    "errors": []
+  },
+  {
+    "width": 1024,
+    "height": 768,
+    "motion": "reduce",
+    "geometry": {
+      "documentWidth": 1024,
+      "previewTop": 305,
+      "clipped": []
+    },
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "motion": "reduce",
+    "geometry": {
+      "documentWidth": 390,
+      "previewTop": 870,
+      "clipped": []
+    },
+    "errors": []
+  }
+]

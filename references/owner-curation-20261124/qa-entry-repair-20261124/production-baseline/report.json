@@ -1,0 +1,53 @@
+{
+  "base": "http://127.0.0.1:3011",
+  "pages": {
+    "wordpress": {
+      "initial": {
+        "url": "http://127.0.0.1:3011/wordpress",
+        "react": true,
+        "phase": "arrival",
+        "dialog": false
+      },
+      "after": {
+        "url": "http://127.0.0.1:3011/wordpress#studio",
+        "phase": "studio",
+        "dialog": true,
+        "arrivalHidden": true,
+        "workspace": false,
+        "welcome": false,
+        "active": "wordpress-studio-back"
+      },
+      "errors": []
+    },
+    "build": {
+      "initial": {
+        "url": "http://127.0.0.1:3011/build",
+        "react": false
+      },
+      "after": {
+        "url": "http://127.0.0.1:3011/build#workspace",
+        "workspace": true,
+        "welcome": false,
+        "active": "build-workspace"
+      },
+      "errors": [
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ]
+    }
+  },
+  "wordpressDirect": {
+    "url": "http://127.0.0.1:3011/wordpress#studio",
+    "phase": "arrival",
+    "dialog": false
+  },
+  "buildDirect": {
+    "url": "http://127.0.0.1:3011/build#workspace",
+    "workspace": false,
+    "welcome": true
+  }
+}

@@ -24,6 +24,10 @@
 .center .orbit img { object-fit: contain; }
 .center .orbit:is([data-mark='openai'], [data-mark='ollama'], [data-mark='qwen']) img { filter: invert(1); }
 .center.standalone { padding: 6px 0 20px !important; }
+/* Constellation mode owns the whole stage: the hero's parent must not be the
+   1400px readable-content cap that left a quarter of the viewport unused. */
+.center.center.standalone { max-width: none; }
+.standalone .composition { max-width: 1560px; margin-inline: auto; padding: 32px clamp(16px, 4vw, 70px); background: linear-gradient(180deg, #07050e, #0b0812 140px); gap: 32px; }
 .standalone .heading { margin-bottom: 8px; }
 .standalone .heading h1 { margin: 6px 0; font-size: clamp(38px, 3.35vw, 52px); }
 .standalone .eyebrow { font: 10px var(--font-mono,monospace); letter-spacing: .12em; }
@@ -261,7 +265,6 @@
 
 /* Provider reference is an independent first screen; management remains below. */
 .center.standalone{max-width:none;padding:0!important}
-.standalone .composition{padding:32px clamp(16px,4vw,70px);background:linear-gradient(180deg,#07050e,#0b0812 140px);gap:32px}
 /* The hero owns the first viewport; its lower edge dissolves into the page sky. */
 .standalone>:global(section){-webkit-mask-image:linear-gradient(180deg,#000 84%,transparent);mask-image:linear-gradient(180deg,#000 84%,transparent)}
 .standalone .workspaceViews{display:none}
@@ -309,6 +312,23 @@
   gap: clamp(12px, 2vw, 28px);
 }
 [data-provider-view='catalog'] .modeSwitch { border: 1px solid #bd82e265; border-radius: 14px; margin-block-end: 16px; }
+/* In constellation mode the switch floats over the sky so the full-height hero
+   starts at the top of the stage and its Get API action stays above the fold. */
+@media (min-width: 900px) {
+  .standalone .modeSwitch {
+    position: absolute;
+    top: 12px;
+    left: 14px;
+    z-index: 7;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+  .standalone .modeSwitch button {
+    background: rgba(18, 11, 34, .78);
+    backdrop-filter: blur(10px);
+  }
+}
 [data-provider-view='catalog'] .providerList {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 185px), 1fr));

@@ -134,7 +134,8 @@ jobs:
     # Run 44455302989 reached only 733/786 desktop checks before the 25-minute
     # job limit, losing its failure summary. Budget for the complete suite,
     # including install/build and evidence upload, without skipping assertions.
-    timeout-minutes: 40
+    # Mobile suite processes 838 tests; 41m observed. Budget 60 minutes for full suite.
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:

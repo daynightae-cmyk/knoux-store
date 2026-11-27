@@ -73,7 +73,8 @@ export default function SentinelGuidePanel({ onClose, closing, character, contex
     }).catch(() => { if (!controller.signal.aborted || node?.open) setFailed(true); }).finally(() => clearTimeout(timeout));
     // Feature detection after mounting; voices never start automatically.
     const detection = window.setTimeout(() => setVoiceSupported(typeof window.speechSynthesis?.speak === 'function' && typeof window.SpeechSynthesisUtterance === 'function'), 0);
-    return () => { const _serial = ++speechSerial.current; controller.abort(); clearTimeout(timeout); clearTimeout(detection); window.speechSynthesis?.cancel(); node?.close(); document.body.style.overflow = previous; };
+    const serial = speechSerial.current;
+    return () => { speechSerial.current = serial + 1; controller.abort(); clearTimeout(timeout); clearTimeout(detection); window.speechSynthesis?.cancel(); node?.close(); document.body.style.overflow = previous; };
   }, []);
   useEffect(() => { speechSerial.current++; window.speechSynthesis?.cancel(); }, [key]);
 
@@ -90,7 +91,8 @@ export default function SentinelGuidePanel({ onClose, closing, character, contex
   };
   const speak = () => {
     if (!voiceSupported || muted || quiet || !catalog) return;
-    const _serial = ++speechSerial.current;
+    speechSerial.current++;
+    const _serial = speechSerial.current;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(response.slice(0, 3600));
     // Speech locale follows the selected language, so Urdu is spoken with an

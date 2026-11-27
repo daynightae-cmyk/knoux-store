@@ -1,0 +1,62 @@
+[
+  {
+    "name": "campaigns-production",
+    "width": 1672,
+    "height": 941,
+    "motion": "no-preference",
+    "errors": [],
+    "top": 319,
+    "documentWidth": 1672,
+    "selection": true,
+    "placement": true,
+    "reviewGuard": true,
+    "ok": true
+  },
+  {
+    "name": "campaigns-production",
+    "width": 1024,
+    "height": 768,
+    "motion": "reduce",
+    "errors": [],
+    "failure": "page.goto: Timeout 60000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/command/campaigns\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "campaigns-production",
+    "width": 390,
+    "height": 844,
+    "motion": "reduce",
+    "errors": [],
+    "top": 547,
+    "documentWidth": 390,
+    "selection": true,
+    "placement": true,
+    "reviewGuard": true,
+    "ok": true
+  },
+  {
+    "name": "wordpress-studio",
+    "width": 1672,
+    "height": 941,
+    "motion": "no-preference",
+    "errors": [],
+    "deviceChange": true,
+    "ok": true
+  },
+  {
+    "name": "wordpress-studio",
+    "width": 390,
+    "height": 844,
+    "motion": "reduce",
+    "errors": [],
+    "deviceChange": true,
+    "ok": true
+  },
+  {
+    "name": "build-workspace",
+    "width": 1672,
+    "height": 941,
+    "motion": "no-preference",
+    "errors": [],
+    "failure": "expect(locator).toBeVisible() failed\n\nLocator:  locator('[data-engineering-workspace]')\nExpected: visible\nReceived: undefined\nTimeout:  30000ms\n\nCall log:\n  - Expect \"toBeVisible\" locator('[data-engineering-workspace]') with timeout 30000ms\n  - waiting for locator('[data-engineering-workspace]')\n"
+  }
+]

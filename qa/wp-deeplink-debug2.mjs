@@ -1,0 +1,13 @@
+import { chromium } from '@playwright/test';
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+await page.goto('http://127.0.0.1:3101/wordpress', { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(2000);
+console.log('before', await page.evaluate(() => ({ hash: location.hash, phase: document.querySelector('[data-wordpress-experience]')?.dataset.phase })));
+await page.evaluate(() => { location.hash = '#domain'; });
+await page.waitForTimeout(1000);
+console.log('after hashchange', await page.evaluate(() => ({ hash: location.hash, phase: document.querySelector('[data-wordpress-experience]')?.dataset.phase })));
+await page.click('[data-enter-studio]');
+await page.waitForTimeout(1000);
+console.log('after click', await page.evaluate(() => ({ hash: location.hash, phase: document.querySelector('[data-wordpress-experience]')?.dataset.phase })));
+await browser.close();

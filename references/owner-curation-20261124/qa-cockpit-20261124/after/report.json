@@ -1,0 +1,323 @@
+{
+  "phase": "after",
+  "base": "http://localhost:3001",
+  "capturedAt": "2026-11-24T05:30:33.513Z",
+  "results": [
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "errors": [],
+      "interactions": {
+        "directStudioEntry": true
+      },
+      "initial": {
+        "kind": "theme",
+        "title": "Blogx Blocks",
+        "themeChoices": 12,
+        "pluginChoices": 12,
+        "cockpit": {
+          "x": 250,
+          "y": 182,
+          "width": 1420,
+          "height": 760
+        },
+        "themesPanel": {
+          "x": 257,
+          "y": 195,
+          "width": 277,
+          "height": 694
+        },
+        "previewPanel": {
+          "x": 546,
+          "y": 190,
+          "width": 828,
+          "height": 703
+        },
+        "pluginsPanel": {
+          "x": 1386,
+          "y": 195,
+          "width": 277,
+          "height": 694
+        },
+        "viewportWidth": 1920,
+        "documentWidth": 1920
+      },
+      "screenshot": "references/owner-curation-20261124/qa-cockpit-20261124/after/wordpress-cockpit-1920x1080.png",
+      "finalMetrics": {
+        "viewportWidth": 1920,
+        "documentWidth": 1920,
+        "studioScrollWidth": 1920,
+        "studioClientWidth": 1920
+      }
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "errors": [],
+      "interactions": {
+        "directStudioEntry": true,
+        "themeSelection": {
+          "slug": "reactpress-blog",
+          "expected": "ReactPress Blog",
+          "actual": "ReactPress Blog"
+        },
+        "pluginSelection": {
+          "slug": "wordpress-seo",
+          "expected": "Yoast SEO – Advanced SEO with real-time guidance and built-in AI",
+          "actual": "Yoast SEO – Advanced SEO with real-time guidance and built-in AI"
+        }
+      },
+      "initial": {
+        "kind": "theme",
+        "title": "Blogx Blocks",
+        "themeChoices": 12,
+        "pluginChoices": 12,
+        "cockpit": {
+          "x": 36,
+          "y": 181,
+          "width": 1368,
+          "height": 692
+        },
+        "themesPanel": {
+          "x": 44,
+          "y": 194,
+          "width": 266,
+          "height": 625
+        },
+        "previewPanel": {
+          "x": 321,
+          "y": 190,
+          "width": 798,
+          "height": 634
+        },
+        "pluginsPanel": {
+          "x": 1130,
+          "y": 194,
+          "width": 266,
+          "height": 625
+        },
+        "viewportWidth": 1440,
+        "documentWidth": 1440
+      },
+      "screenshot": "references/owner-curation-20261124/qa-cockpit-20261124/after/wordpress-cockpit-1440x900.png",
+      "finalMetrics": {
+        "viewportWidth": 1440,
+        "documentWidth": 1440,
+        "studioScrollWidth": 1440,
+        "studioClientWidth": 1440
+      }
+    },
+    {
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "errors": [],
+      "interactions": {
+        "directStudioEntry": true
+      },
+      "initial": {
+        "kind": "theme",
+        "title": "Blogx Blocks",
+        "themeChoices": 12,
+        "pluginChoices": 12,
+        "cockpit": {
+          "x": 26,
+          "y": 173,
+          "width": 973,
+          "height": 606
+        },
+        "themesPanel": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "previewPanel": {
+          "x": 30,
+          "y": 173,
+          "width": 965,
+          "height": 520
+        },
+        "pluginsPanel": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "viewportWidth": 1024,
+        "documentWidth": 1024
+      },
+      "screenshot": "references/owner-curation-20261124/qa-cockpit-20261124/after/wordpress-cockpit-1024x768.png",
+      "finalMetrics": {
+        "viewportWidth": 1024,
+        "documentWidth": 1024,
+        "studioScrollWidth": 1024,
+        "studioClientWidth": 1024
+      }
+    },
+    {
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "interactions": {
+        "directStudioEntry": true
+      },
+      "initial": {
+        "kind": "theme",
+        "title": "Blogx Blocks",
+        "themeChoices": 12,
+        "pluginChoices": 12,
+        "cockpit": {
+          "x": 19,
+          "y": 161,
+          "width": 730,
+          "height": 846
+        },
+        "themesPanel": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "previewPanel": {
+          "x": 23,
+          "y": 161,
+          "width": 722,
+          "height": 760
+        },
+        "pluginsPanel": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "viewportWidth": 768,
+        "documentWidth": 768
+      },
+      "screenshot": "references/owner-curation-20261124/qa-cockpit-20261124/after/wordpress-cockpit-768x1024.png",
+      "finalMetrics": {
+        "viewportWidth": 768,
+        "documentWidth": 768,
+        "studioScrollWidth": 768,
+        "studioClientWidth": 768
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "interactions": {
+        "directStudioEntry": true,
+        "mobileThemeSheet": true,
+        "mobileSelection": {
+          "expected": "ReactPress Blog",
+          "actual": "ReactPress Blog"
+        },
+        "mobileSheetClosed": true
+      },
+      "initial": {
+        "kind": "theme",
+        "title": "Blogx Blocks",
+        "themeChoices": 12,
+        "pluginChoices": 12,
+        "cockpit": {
+          "x": 10,
+          "y": 132,
+          "width": 370,
+          "height": 679
+        },
+        "themesPanel": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "previewPanel": {
+          "x": 10,
+          "y": 132,
+          "width": 370,
+          "height": 599
+        },
+        "pluginsPanel": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "viewportWidth": 390,
+        "documentWidth": 390
+      },
+      "screenshot": "references/owner-curation-20261124/qa-cockpit-20261124/after/wordpress-cockpit-390x844.png",
+      "finalMetrics": {
+        "viewportWidth": 390,
+        "documentWidth": 390,
+        "studioScrollWidth": 390,
+        "studioClientWidth": 390
+      }
+    },
+    {
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "errors": [],
+      "interactions": {
+        "directStudioEntry": true
+      },
+      "initial": {
+        "kind": "theme",
+        "title": "Blogx Blocks",
+        "themeChoices": 12,
+        "pluginChoices": 12,
+        "cockpit": {
+          "x": 10,
+          "y": 130,
+          "width": 340,
+          "height": 635
+        },
+        "themesPanel": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "previewPanel": {
+          "x": 10,
+          "y": 130,
+          "width": 340,
+          "height": 555
+        },
+        "pluginsPanel": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "viewportWidth": 360,
+        "documentWidth": 360
+      },
+      "screenshot": "references/owner-curation-20261124/qa-cockpit-20261124/after/wordpress-cockpit-360x800.png",
+      "finalMetrics": {
+        "viewportWidth": 360,
+        "documentWidth": 360,
+        "studioScrollWidth": 360,
+        "studioClientWidth": 360
+      }
+    }
+  ],
+  "arrivalEntry": {
+    "interactions": {
+      "arrivalClickOpensStudio": true
+    },
+    "hash": "#studio"
+  }
+}

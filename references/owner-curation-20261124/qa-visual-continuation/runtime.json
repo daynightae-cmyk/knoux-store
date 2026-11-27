@@ -1,0 +1,50 @@
+{
+  "base": "http://localhost:3001",
+  "receipts": [
+    {
+      "name": "WordPress mobile actions stay inside panel",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "ok": true
+    },
+    {
+      "name": "WordPress arrival keyboard, device and close",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "errors": [],
+      "ok": true
+    },
+    {
+      "name": "provider constellation, selection, catalog search, shared selection",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "errors": [],
+      "failure": "page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/build/providers\", waiting until \"load\"\u001b[22m\n"
+    },
+    {
+      "name": "build direct entry and compact workbench",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "ok": true
+    },
+    {
+      "name": "build click, split workspace, source and back",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "errors": [],
+      "failure": "Expected values to be strictly equal:\n\n'false' !== 'true'\n"
+    }
+  ]
+}

@@ -26,51 +26,52 @@
   z-index: 2;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  gap: 20px;
   list-style: none;
   margin: 30px auto 0;
   padding: 0;
-  max-width: 1150px;
+  max-width: none;
 }
 .station { position: relative; display: grid; justify-items: center; gap: 8px; min-width: 0; padding-bottom: 4px; }
+/* Station labels — larger to fill more of the available width. */
 .stationLabel {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  min-height: 38px;
-  padding: 7px 18px;
+  min-height: 48px;
+  padding: 11px 26px;
   border: 1px solid #caa4f573;
   border-radius: 999px;
   background: linear-gradient(150deg, #33204fb3, #120b21e6 72%);
   box-shadow: inset 0 1px 0 #f3e8ff2b, 0 0 14px #8b4fd93d;
   color: #f4edfc;
-  font-size: 13px;
+  font-size: 16px;
   letter-spacing: .08em;
   white-space: nowrap;
 }
 .stationLabel svg { width: 17px; height: 17px; color: #d9b8ff; }
-.platform { position: relative; width: min(150px, 80%); aspect-ratio: 2.4; display: block; }
+.platform { position: relative; width: min(190px, 85%); aspect-ratio: 2.4; display: block; }
 .platform i {
   position: absolute;
   left: 50%;
   translate: -50% 0;
   border: 1px solid #c9a2ff80;
   border-radius: 50%;
-  box-shadow: 0 0 12px #a465ed59, inset 0 0 10px #a855f733;
+  box-shadow: 0 0 16px #a465ed59, inset 0 0 14px #a855f733;
 }
-.platform i:nth-child(1) { bottom: 0; width: 100%; height: 46%; }
-.platform i:nth-child(2) { bottom: 16%; width: 68%; height: 34%; opacity: .8; }
-.platform i:nth-child(3) { bottom: 30%; width: 38%; height: 24%; opacity: .65; }
+.platform i:nth-child(1) { bottom: 0; width: 100%; height: 48%; }
+.platform i:nth-child(2) { bottom: 16%; width: 72%; height: 38%; opacity: .85; }
+.platform i:nth-child(3) { bottom: 30%; width: 42%; height: 28%; opacity: .7; }
 .platform b {
   position: absolute;
   left: 50%;
   bottom: 34%;
   translate: -50% 0;
-  width: 16%;
-  height: 62%;
+  width: 20%;
+  height: 66%;
   background: linear-gradient(180deg, #e9d5ff, #7c3aed 70%, transparent);
   clip-path: polygon(50% 0, 78% 26%, 66% 26%, 90% 60%, 72% 60%, 100% 100%, 0 100%, 28% 60%, 10% 60%, 34% 26%, 22% 26%);
-  filter: drop-shadow(0 0 8px #b678f8);
+  filter: drop-shadow(0 0 10px #b678f8);
 }
 .chevrons { position: absolute; right: -14px; top: 52%; color: #c084fc; font-size: 13px; letter-spacing: 2px; text-shadow: 0 0 8px #a465ed; }
 .badge {
@@ -173,7 +174,7 @@
 /* Reference 10 full-page composition — masthead over the planet limb, six
    view tabs, glass saucers on the stations, and the two-column release desk.
    Every surface keeps the measured-state contract: OBSERVED or UNVERIFIED. */
-.masthead { position: relative; isolation: isolate; overflow: hidden; margin: -8px -32px 26px; padding: 30px 32px 46px; background: radial-gradient(ellipse 46% 38% at 12% 0%, #7c3aed2e, transparent 68%), radial-gradient(ellipse 40% 32% at 92% 4%, #a855f722, transparent 70%), #07050e; }
+.masthead { position: relative; isolation: isolate; overflow: hidden; margin: -8px -32px 26px; padding: 30px 32px 46px; background: radial-gradient(ellipse 46% 38% at 12% 0%, #7c3aed2e, transparent 68%), radial-gradient(ellipse 40% 32% at 92% 4%, #a855f722, transparent 70%); }
 .mastheadText { position: relative; z-index: 2; max-width: 860px; }
 .mastheadText h1 { margin: 10px 0 12px; color: #f7f2fd; font-size: clamp(40px, 4.6vw, 64px); font-weight: 450; letter-spacing: -.035em; line-height: 1.02; }
 .mastheadText > p { margin: 0; max-width: 64ch; color: #d3c2ec; font-size: clamp(13px, 1.3vw, 16px); line-height: 1.6; }
@@ -186,12 +187,12 @@
 .sectionHead { display: flex; align-items: center; gap: 10px; margin: 30px 0 16px; color: #f0e8fa; font-size: clamp(18px, 2vw, 24px); font-weight: 500; letter-spacing: -.01em; }
 .sectionHead span { color: #c084fc; font-weight: 400; }
 .stationRole { color: #b3a3c9; font-size: 11px; letter-spacing: .06em; text-align: center; }
-.saucer { position: relative; width: min(150px, 80%); aspect-ratio: 2.4; display: block; }
-.saucer i { position: absolute; left: 50%; translate: -50% 0; border: 1px solid #c9a2ff80; border-radius: 50%; box-shadow: 0 0 12px #a465ed59, inset 0 0 10px #a855f733; }
-.saucer i:nth-child(1) { bottom: 0; width: 100%; height: 46%; }
-.saucer i:nth-child(2) { bottom: 16%; width: 68%; height: 34%; opacity: .8; }
-.saucer i:nth-child(3) { bottom: 30%; width: 38%; height: 24%; opacity: .65; }
-.saucer b { position: absolute; left: 50%; bottom: 34%; translate: -50% 0; width: 16%; height: 62%; background: linear-gradient(180deg, #e9d5ff, #7c3aed 70%, transparent); clip-path: polygon(50% 0, 78% 26%, 66% 26%, 90% 60%, 72% 60%, 100% 100%, 0 100%, 28% 60%, 10% 60%, 34% 26%, 22% 26%); filter: drop-shadow(0 0 8px #b678f8); }
+.saucer { position: relative; width: min(240px, 85%); aspect-ratio: 2.4; display: block; }
+.saucer i { position: absolute; left: 50%; translate: -50% 0; border: 1px solid #c9a2ff80; border-radius: 50%; box-shadow: 0 0 16px #a465ed59, inset 0 0 14px #a855f733; }
+.saucer i:nth-child(1) { bottom: 0; width: 100%; height: 48%; }
+.saucer i:nth-child(2) { bottom: 16%; width: 72%; height: 38%; opacity: .85; }
+.saucer i:nth-child(3) { bottom: 30%; width: 42%; height: 28%; opacity: .7; }
+.saucer b { position: absolute; left: 50%; bottom: 34%; translate: -50% 0; width: 20%; height: 66%; background: linear-gradient(180deg, #e9d5ff, #7c3aed 70%, transparent); clip-path: polygon(50% 0, 78% 26%, 66% 26%, 90% 60%, 72% 60%, 100% 100%, 0 100%, 28% 60%, 10% 60%, 34% 26%, 22% 26%); filter: drop-shadow(0 0 10px #b678f8); }
 .saucer u { position: absolute; left: 50%; bottom: -8%; translate: -50% 0; width: 74%; height: 16%; border-radius: 50%; background: radial-gradient(ellipse, #a855f74d, transparent 70%); filter: blur(3px); }
 .station[data-observed='true'] .saucer i { border-color: #d8b4fe; box-shadow: 0 0 16px #b678f880, inset 0 0 12px #a855f74d; }
 .inspectStation { min-height: 44px; padding-inline: 12px; border: 1px solid #8d65b2; border-radius: 10px; background: #271740; color: #f3e2ff; font-size: 12px; cursor: pointer; }

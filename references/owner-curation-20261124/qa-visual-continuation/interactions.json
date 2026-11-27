@@ -1,0 +1,79 @@
+{
+  "base": "http://localhost:3001",
+  "results": [
+    {
+      "name": "build-desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "errors": [],
+      "ok": true
+    },
+    {
+      "name": "providers-desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "errors": [],
+      "ok": true
+    },
+    {
+      "name": "apps-desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "errors": [],
+      "ok": true
+    },
+    {
+      "name": "apps-mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "ok": true
+    },
+    {
+      "name": "growth-campaigns-desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "errors": [],
+      "failure": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('navigation', { name: 'Growth workspaces' }).getByRole('link', { name: /Campaign production/ })\u001b[22m\n\u001b[2m    - locator resolved to <a href=\"/command/campaigns\">…</a>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\u001b[2m    - click action done\u001b[22m\n\u001b[2m    - waiting for scheduled navigations to finish\u001b[22m\n"
+    },
+    {
+      "name": "growth-campaigns-mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [
+        "compact is not defined"
+      ],
+      "failure": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('region', { name: 'Ad Preview Theatre' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole('region', { name: 'Ad Preview Theatre' }) with timeout 5000ms\n  - waiting for getByRole('region', { name: 'Ad Preview Theatre' })\n"
+    },
+    {
+      "name": "cosmic-motion-build",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "errors": [],
+      "ok": true
+    },
+    {
+      "name": "cosmic-reduced-wordpress",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "ok": true
+    }
+  ]
+}

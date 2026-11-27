@@ -382,8 +382,9 @@ export function PowerShellPage() {
   }
 
   return (
-    <div className="dev-route">
+    <div className="dev-route dev-route--wide">
       <RuntimeHero
+        compact
         active="powershell"
         sessionLive={live}
         bridgeLine={
@@ -395,7 +396,7 @@ export function PowerShellPage() {
       />
       <p className="dev-note">Windows PowerShell requires a trusted machine bridge. The web deployment has no access to your local shell. · {bridgeStatus}</p>
       
-      <div className="dev-route__grid">
+      <div className="dev-route__grid dev-route__grid--session">
         <DevPanel title="PowerShell session">
           <div className={`dev-console dev-console--terminal ${live ? '' : 'dev-console--blocked'}`}>
             <div className="dev-console__bar">

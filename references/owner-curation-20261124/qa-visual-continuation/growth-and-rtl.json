@@ -1,0 +1,29 @@
+[
+  {
+    "name": "growth-desktop",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "errors": [],
+    "ok": true
+  },
+  {
+    "name": "growth-mobile",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "errors": [],
+    "ok": true
+  },
+  {
+    "name": "WordPress RTL and reduced motion",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "errors": [],
+    "ok": true
+  }
+]
