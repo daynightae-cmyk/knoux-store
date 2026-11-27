@@ -1,0 +1,255 @@
+{
+  "archive": "KNOuX_BUILD_ALL_REFERENCES_AND_DIRECTIVE.zip",
+  "archive_sha256": "1f49345a7cf13fc6e319cb7a7a341bf7d1b46f2630032158df1ec2e760e76ed4",
+  "image_entries": 30,
+  "unique_images": 28,
+  "decisions": {
+    "KEEP": "Primary reference for the mapped experience or view.",
+    "MERGE": "Supplement to an existing reference and route.",
+    "REFERENCE-ONLY": "Already covered by an approved primary reference, a duplicate, or a concept without its own route."
+  },
+  "entries": [
+    {
+      "original": "REFERENCES/01_CORE/01_One_Platform.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "a5b926ca81cdc0e22106efa670a6b0bc64935aacaf5f564f11c33b79d3b1e1cf",
+      "target": "/build/platform",
+      "decision": "KEEP"
+    },
+    {
+      "original": "REFERENCES/01_CORE/02_Universal_Provider_Engine.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "464d37225c56a7d2e9031088d426c49402dcdd38be3e0a14c70dbcd07240473a",
+      "target": "/build/providers",
+      "decision": "MERGE"
+    },
+    {
+      "original": "REFERENCES/01_CORE/03_Arrival_Experience.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "44465e769c495818838c35a3c159e6bc0f2783224c2cc51d2f8356d9a51fa0ff",
+      "target": "/wordpress",
+      "decision": "REFERENCE-ONLY"
+    },
+    {
+      "original": "REFERENCES/01_CORE/04_Code_Build_Preview.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "a7e5cd616abdb028bc6440768d0930a4a095afc94a235b8cf0b824997da3f195",
+      "target": "/build#workspace",
+      "decision": "KEEP"
+    },
+    {
+      "original": "REFERENCES/02_BUILD_WORKSPACE/01_Build_Workspace_Real_UI.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "de7d18d895e7bf0645ac2555df7756bdfd08ba8498a064de8305ad5a7ecd3cf3",
+      "target": "/build#workspace",
+      "decision": "KEEP"
+    },
+    {
+      "original": "REFERENCES/02_BUILD_WORKSPACE/02_Build_With_Knoux.png",
+      "width": 1671,
+      "height": 941,
+      "sha256": "3c4410884eb8bfc7410ef78bd6c740d7230fb9c1ad3f167fe2e235453ca8cead",
+      "target": "/build#workspace",
+      "decision": "MERGE"
+    },
+    {
+      "original": "REFERENCES/02_BUILD_WORKSPACE/03_Code_Constellation.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "c78c6ba09402f000c51f8bb3e2c0466c968f6050551580bbeca88dbe97bc4bd5",
+      "target": "/build#workspace (Code)",
+      "decision": "KEEP"
+    },
+    {
+      "original": "REFERENCES/02_BUILD_WORKSPACE/04_AI_Command_Center.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "ee4a616df5c3e6fc7d086516a5f68a780202ebd32e5de0b2bfae60402d47a90e",
+      "target": "/build/ai/router",
+      "decision": "REFERENCE-ONLY",
+      "same_image_as": "REFERENCES/03_PROVIDERS_MODELS/04_Model_Router.png"
+    },
+    {
+      "original": "REFERENCES/02_BUILD_WORKSPACE/05_Generate_Application.png",
+      "width": 1671,
+      "height": 941,
+      "sha256": "85b8bab0b4715cc2ec0b90276fe08043d14a30ed0138bafec0a6126dc24e81d6",
+      "target": "/build#workspace (Preview)",
+      "decision": "KEEP"
+    },
+    {
+      "original": "REFERENCES/02_BUILD_WORKSPACE/06_Code_Constellation_Alternate.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "a0aa9c7fa5bda20f0529fa5e52426ab94c4438862e496cca9f40c9ad5ec0a468",
+      "target": "/build#workspace (Code)",
+      "decision": "MERGE"
+    },
+    {
+      "original": "REFERENCES/03_PROVIDERS_MODELS/01_Provider_Engine.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "5254d439512adb2ac2b19273d61a38c271d896702467cc0eef88c9a5f70ba8e0",
+      "target": "/build/providers",
+      "decision": "KEEP"
+    },
+    {
+      "original": "REFERENCES/03_PROVIDERS_MODELS/02_Provider_Management_Real_UI.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "fbeaa16a09af0d871c4b9d994bbb9c4e6d92d39fff6601cacdc81a795ff8634b",
+      "target": "/build/providers (Credentials)",
+      "decision": "KEEP"
+    },
+    {
+      "original": "REFERENCES/03_PROVIDERS_MODELS/03_Model_Discovery_Real_UI.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "6cf53d3c531ce238ef9047812943b18e9fdcb962ea02bc6f15a914dc5c3b1736",
+      "target": "/build/ai/models",
+      "decision": "KEEP"
+    },
+    {
+      "original": "REFERENCES/03_PROVIDERS_MODELS/04_Model_Router.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "ee4a616df5c3e6fc7d086516a5f68a780202ebd32e5de0b2bfae60402d47a90e",
+      "target": "/build/ai/router",
+      "decision": "KEEP"
+    },
+    {
+      "original": "REFERENCES/03_PROVIDERS_MODELS/05_Provider_Setup_Real_UI.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "729048faf3c2185e30d810ea1fba65a8e7e511cda205f3ca58a3e8a5301f7167",
+      "target": "/build/settings",
+      "decision": "KEEP"
+    },
+    {
+      "original": "REFERENCES/04_DESIGN_PREVIEW/01_Theme_Explorer.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "69f759b6ebab9b461314e8186bf0c181db0eff103db288da4dd6243d1026d9c5",
+      "target": "/wordpress/themes",
+      "decision": "REFERENCE-ONLY"
+    },
+    {
+      "original": "REFERENCES/04_DESIGN_PREVIEW/02_Live_Responsive_Canvas.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "2fe13cc08378149a0577cd7f5253ad8f30323dcee0232ff56dc5e5e67e74486a",
+      "target": "/wordpress#canvas",
+      "decision": "REFERENCE-ONLY"
+    },
+    {
+      "original": "REFERENCES/04_DESIGN_PREVIEW/03_Visual_Website_Composer.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "15db5f5c173b3719c5cbcbff9091f85508d846b8894a4b87ca603b0092bcf978",
+      "target": "/wordpress#operate",
+      "decision": "REFERENCE-ONLY",
+      "same_image_as": "REFERENCES/06_OPERATIONS/01_Operations_Command_Center.png"
+    },
+    {
+      "original": "REFERENCES/04_DESIGN_PREVIEW/04_Visual_Composer_Real_UI.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "4b54c8c9281faaebc0717301aadf0acbbeffd9bbbecdbf9fe1ce7f4c70b6a89b",
+      "target": "/wordpress#launch",
+      "decision": "REFERENCE-ONLY"
+    },
+    {
+      "original": "REFERENCES/05_RELEASE_RUNTIME/01_Build_Deployment_Experience.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "ac47afc82545484f30b9e6766f67231c18e5db7502253764107c6794261068e8",
+      "target": "/build",
+      "decision": "REFERENCE-ONLY"
+    },
+    {
+      "original": "REFERENCES/05_RELEASE_RUNTIME/02_Live_Release_Center.png",
+      "width": 1774,
+      "height": 887,
+      "sha256": "cdd2515b51f4f9217dfa6715ad1e36361b4f693fd93eb54e42079f2767397bc9",
+      "target": "/build/deployments",
+      "decision": "MERGE"
+    },
+    {
+      "original": "REFERENCES/05_RELEASE_RUNTIME/03_Local_Engineering_Runtime.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "6b35fc447328e7b623171a970fd09866c25dec7cc70a599f57ad9ce5a2553c90",
+      "target": "/build/terminal + /build/powershell",
+      "decision": "KEEP"
+    },
+    {
+      "original": "REFERENCES/05_RELEASE_RUNTIME/04_Deployments_Real_UI.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "02d0e18e2cca816efaf2442a4cbe208ab5502e3859ce0c239c0c1cab37cd95bb",
+      "target": "/build/deployments",
+      "decision": "KEEP"
+    },
+    {
+      "original": "REFERENCES/05_RELEASE_RUNTIME/05_Build_Deployment_Real_UI.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "3c778e5bc5488d35421eb7f533b805374cb6c4ae2bdfe0d4e988e0e18d468917",
+      "target": "/wordpress#build",
+      "decision": "REFERENCE-ONLY"
+    },
+    {
+      "original": "REFERENCES/06_OPERATIONS/01_Operations_Command_Center.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "15db5f5c173b3719c5cbcbff9091f85508d846b8894a4b87ca603b0092bcf978",
+      "target": "/wordpress#operate",
+      "decision": "REFERENCE-ONLY"
+    },
+    {
+      "original": "REFERENCES/06_OPERATIONS/02_Operations_Real_UI.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "4bd612c94a4e2c7f970178ad637608b2cec088850c50f3971255b36b7f57e2d6",
+      "target": "/build/engineering",
+      "decision": "KEEP"
+    },
+    {
+      "original": "REFERENCES/06_OPERATIONS/03_Control_And_Services.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "e69a7e399ee994f6600fa603ecb8d48419e9d72f607f326537d00afa674f06df",
+      "target": "/build/services",
+      "decision": "KEEP"
+    },
+    {
+      "original": "REFERENCES/06_OPERATIONS/04_Device_Link.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "c012bfe2767f908056016b55a0032eee08b76081f01bbdfcba95518e4072a8db",
+      "target": "/build/settings (Bridge)",
+      "decision": "REFERENCE-ONLY"
+    },
+    {
+      "original": "REFERENCES/07_IDENTITY/01_Brand_Reveal.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "0456ed66898cee60491b38cc8e13cee785f3d9989db8eb8ce6fa914a0bd61431",
+      "target": "Shared Build/Store atmosphere",
+      "decision": "REFERENCE-ONLY"
+    },
+    {
+      "original": "REFERENCES/07_IDENTITY/02_Identity.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "bc53bda7af1e6a13256f9c7cbef13f7f2eafc0625b2f86bc44c6d8a686d7a9c7",
+      "target": "Shared Build/Store brand identity",
+      "decision": "REFERENCE-ONLY"
+    }
+  ]
+}

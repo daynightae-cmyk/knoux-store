@@ -1,0 +1,16 @@
+import { chromium } from '@playwright/test';
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+page.on('console', m => console.log('CONSOLE', m.type(), m.text().slice(0, 500)));
+page.on('pageerror', e => console.log('PAGEERROR', e.message, e.stack?.slice(0, 600)));
+page.on('requestfailed', r => console.log('FAILED', r.url(), r.failure()?.errorText));
+page.on('response', r => { if (r.status() >= 400) console.log('HTTP', r.status(), r.url()); });
+await page.goto('http://localhost:3101/wordpress', { waitUntil: 'load' });
+await page.waitForTimeout(4000);
+console.log('scripts', await page.evaluate(() => Array.from(document.scripts).map(s => s.src).filter(Boolean).slice(-12)));
+console.log('phase', await page.evaluate(() => document.querySelector('[data-wordpress-experience]')?.dataset.phase));
+console.log('search exists', await page.locator('button[aria-label="Open search"]').count());
+await page.locator('button[aria-label="Open search"]').first().click().catch(e => console.log('click failed', e.message));
+await page.waitForTimeout(600);
+console.log('dialog', await page.evaluate(() => !!document.querySelector('[role="dialog"], dialog[open]')));
+await browser.close();

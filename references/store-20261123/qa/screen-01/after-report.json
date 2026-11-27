@@ -1,0 +1,340 @@
+[
+  {
+    "viewport": {
+      "width": 1672,
+      "height": 941
+    },
+    "shot": "references/store-20261123/qa/screen-01/after-1672x941.png",
+    "errors": [],
+    "metrics": {
+      "scrollWidth": 1672,
+      "clientWidth": 1672,
+      "scrollHeight": 941,
+      "clientHeight": 941,
+      "scene": {
+        "x": 0,
+        "y": 88,
+        "width": 1672,
+        "height": 853
+      },
+      "header": {
+        "x": 504,
+        "y": 114,
+        "width": 664,
+        "height": 59
+      },
+      "gateway": {
+        "x": 615,
+        "y": 244,
+        "width": 442,
+        "height": 442
+      },
+      "library": {
+        "x": 80,
+        "y": 178,
+        "width": 291,
+        "height": 346
+      },
+      "monitor": {
+        "x": 1311,
+        "y": 186,
+        "width": 288,
+        "height": 339
+      },
+      "enter": {
+        "x": 652,
+        "y": 698,
+        "width": 368,
+        "height": 51
+      },
+      "features": {
+        "x": 366,
+        "y": 792,
+        "width": 940,
+        "height": 62
+      },
+      "overflow": [
+        "div.wp-cosmos__limb @-234..1906",
+        "div.wordpress-welcome-module__bSnJia__nebula @-100..1772",
+        "svg.[object SVGAnimatedString] @-100..1772",
+        "rect.[object SVGAnimatedString] @-100..1772",
+        "div.wordpress-welcome-module__bSnJia__floor @-134..1806",
+        "div.wordpress-welcome-module__bSnJia__floorGrid @-2005..3677",
+        "div.wordpress-welcome-module__bSnJia__clouds wordpre @-134..435",
+        "div.wordpress-welcome-module__bSnJia__clouds wordpre @1237..1806"
+      ]
+    }
+  },
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "shot": "references/store-20261123/qa/screen-01/after-1440x900.png",
+    "errors": [],
+    "metrics": {
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "scrollHeight": 900,
+      "clientHeight": 900,
+      "scene": {
+        "x": 0,
+        "y": 88,
+        "width": 1440,
+        "height": 812
+      },
+      "header": {
+        "x": 420,
+        "y": 113,
+        "width": 601,
+        "height": 53
+      },
+      "gateway": {
+        "x": 509,
+        "y": 232,
+        "width": 423,
+        "height": 423
+      },
+      "library": {
+        "x": 69,
+        "y": 169,
+        "width": 251,
+        "height": 325
+      },
+      "monitor": {
+        "x": 1125,
+        "y": 176,
+        "width": 252,
+        "height": 314
+      },
+      "enter": {
+        "x": 562,
+        "y": 666,
+        "width": 317,
+        "height": 49
+      },
+      "features": {
+        "x": 250,
+        "y": 756,
+        "width": 940,
+        "height": 60
+      },
+      "overflow": [
+        "div.wp-cosmos__limb @-202..1642",
+        "div.wordpress-welcome-module__bSnJia__nebula @-86..1526",
+        "svg.[object SVGAnimatedString] @-86..1526",
+        "rect.[object SVGAnimatedString] @-86..1526",
+        "div.wordpress-welcome-module__bSnJia__floor @-115..1555",
+        "div.wordpress-welcome-module__bSnJia__floorGrid @-1519..2959",
+        "div.wordpress-welcome-module__bSnJia__clouds wordpre @-115..374",
+        "div.wordpress-welcome-module__bSnJia__clouds wordpre @1066..1555"
+      ]
+    },
+    "studioHash": "#studio",
+    "studioVisible": true,
+    "arrivalHidden": true,
+    "backArrivalVisible": true,
+    "backHash": "",
+    "focusAfterBack": true,
+    "escapeReturnsArrival": true,
+    "escapeHash": "",
+    "deepLinkJourney": "02\nDomain Intelligence"
+  },
+  {
+    "viewport": {
+      "width": 1024,
+      "height": 768
+    },
+    "shot": "references/store-20261123/qa/screen-01/after-1024x768.png",
+    "errors": [],
+    "metrics": {
+      "scrollWidth": 1024,
+      "clientWidth": 1024,
+      "scrollHeight": 768,
+      "clientHeight": 768,
+      "scene": {
+        "x": 0,
+        "y": 88,
+        "width": 1024,
+        "height": 680
+      },
+      "header": {
+        "x": 324,
+        "y": 92,
+        "width": 376,
+        "height": 32
+      },
+      "gateway": {
+        "x": 312,
+        "y": 168,
+        "width": 400,
+        "height": 400
+      },
+      "library": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "monitor": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "enter": {
+        "x": 297,
+        "y": 577,
+        "width": 430,
+        "height": 46
+      },
+      "features": {
+        "x": 62,
+        "y": 631,
+        "width": 900,
+        "height": 56
+      },
+      "overflow": [
+        "div.wp-cosmos__limb @-143..1167",
+        "div.wordpress-welcome-module__bSnJia__nebula @-61..1085",
+        "svg.[object SVGAnimatedString] @-61..1085",
+        "rect.[object SVGAnimatedString] @-61..1085",
+        "div.wordpress-welcome-module__bSnJia__floor @-82..1106",
+        "div.wordpress-welcome-module__bSnJia__floorGrid @-584..1608",
+        "div.wordpress-welcome-module__bSnJia__limb @-246..1270"
+      ]
+    }
+  },
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "shot": "references/store-20261123/qa/screen-01/after-390x844.png",
+    "errors": [],
+    "metrics": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "scrollHeight": 971,
+      "clientHeight": 844,
+      "scene": {
+        "x": 0,
+        "y": 78,
+        "width": 390,
+        "height": 893
+      },
+      "header": {
+        "x": 46,
+        "y": 102,
+        "width": 298,
+        "height": 28
+      },
+      "gateway": {
+        "x": 23,
+        "y": 183,
+        "width": 343,
+        "height": 343
+      },
+      "library": {
+        "x": 14,
+        "y": 751,
+        "width": 362,
+        "height": 196
+      },
+      "monitor": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "enter": {
+        "x": 14,
+        "y": 536,
+        "width": 362,
+        "height": 50
+      },
+      "features": {
+        "x": 14,
+        "y": 600,
+        "width": 362,
+        "height": 107
+      },
+      "overflow": [
+        "div.wp-cosmos__limb @-55..445",
+        "div.wordpress-welcome-module__bSnJia__nebula @-23..413",
+        "svg.[object SVGAnimatedString] @-23..413",
+        "rect.[object SVGAnimatedString] @-23..413",
+        "div.wordpress-welcome-module__bSnJia__orbit @-23..413",
+        "div.wordpress-welcome-module__bSnJia__orbit wordpres @-72..462",
+        "div.wordpress-welcome-module__bSnJia__crown @-36..426",
+        "div.wordpress-welcome-module__bSnJia__pylon wordpres @-28..75"
+      ]
+    }
+  },
+  {
+    "viewport": {
+      "width": 360,
+      "height": 800
+    },
+    "shot": "references/store-20261123/qa/screen-01/after-360x800.png",
+    "errors": [],
+    "metrics": {
+      "scrollWidth": 360,
+      "clientWidth": 360,
+      "scrollHeight": 933,
+      "clientHeight": 800,
+      "scene": {
+        "x": 0,
+        "y": 78,
+        "width": 360,
+        "height": 855
+      },
+      "header": {
+        "x": 42,
+        "y": 100,
+        "width": 277,
+        "height": 26
+      },
+      "gateway": {
+        "x": 22,
+        "y": 177,
+        "width": 317,
+        "height": 317
+      },
+      "library": {
+        "x": 14,
+        "y": 714,
+        "width": 332,
+        "height": 195
+      },
+      "monitor": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "enter": {
+        "x": 14,
+        "y": 503,
+        "width": 332,
+        "height": 50
+      },
+      "features": {
+        "x": 14,
+        "y": 566,
+        "width": 332,
+        "height": 107
+      },
+      "overflow": [
+        "div.wp-cosmos__limb @-50..410",
+        "div.wordpress-welcome-module__bSnJia__nebula @-22..382",
+        "svg.[object SVGAnimatedString] @-22..382",
+        "rect.[object SVGAnimatedString] @-22..382",
+        "div.wordpress-welcome-module__bSnJia__orbit @-21..381",
+        "div.wordpress-welcome-module__bSnJia__orbit wordpres @-67..427",
+        "div.wordpress-welcome-module__bSnJia__crown @-34..394",
+        "div.wordpress-welcome-module__bSnJia__pylon wordpres @-26..69"
+      ]
+    }
+  }
+]

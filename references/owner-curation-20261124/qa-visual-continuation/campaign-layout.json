@@ -1,0 +1,22 @@
+[
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "previewBeforeLibrary": true,
+    "campaignSwitch": true,
+    "horizontalOverflow": 0,
+    "errors": []
+  },
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "previewBeforeLibrary": true,
+    "campaignSwitch": true,
+    "horizontalOverflow": 0,
+    "errors": []
+  }
+]

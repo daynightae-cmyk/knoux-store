@@ -1,0 +1,14 @@
+[
+  {
+    "route": "/wordpress#studio",
+    "errors": [],
+    "deviceChange": true
+  },
+  {
+    "route": "/build#workspace",
+    "status": 200,
+    "errors": [],
+    "computed": "Skip to content\nKNOuX\nBUILD\nKNOuX Store home\nNew build\n↗\n◍\n00\nWelcome\n◍\n01\nOne Platform\n◈\nOS\nEngineering\n⌁\n02\nBuild\n⬡\n03\nApps\n⌘\n04\nServices\n◉\n05\nDeployments\n▤\n06\nDocs & Knowledge\n▸\n07\nTerminal\n▷\n08\nPowerShell\n✣\n09\nProviders\n◈\nAI\nModels\n◈\nRT\nModel Routing\n⚙\n10\nSettings\nPROJECTS\n+\nKNOUX ONE\nKNOuX Forge\nKNOuX Repair\nKNOuX SmartOrganizer\nADAPTER STATUS\nADAPTER S",
+    "issue": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('region', { name: 'Preview workspace' })\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole('region', { name: 'Preview workspace' }) with timeout 45000ms\n  - waiting for getByRole('region', { name: 'Preview workspace' })\n"
+  }
+]

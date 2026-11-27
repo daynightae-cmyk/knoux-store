@@ -98,7 +98,7 @@
 .rail h2 { margin: 0 0 8px; color: #f0e6fb; font: 600 13px var(--font-mono, monospace); letter-spacing: .22em; }
 .rail p { margin: 0 0 14px; color: #c9b6e2; font-size: 13px; line-height: 1.6; }
 .railCount { display: inline-block; padding: 6px 11px; border: 1px solid #b393d35f; border-radius: 8px; color: #d9c4f2; font: 10px var(--font-mono, monospace); letter-spacing: .16em; }
-.rowCards { position: relative; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 14px; padding-top: 6px; }
+.rowCards { position: relative; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 16px; padding-top: 6px; }
 .rowCards::before {
   content: '';
   position: absolute;
@@ -154,7 +154,7 @@
 .configure { color: #d9c4f2 !important; font-size: 12.5px; text-decoration: none !important; border-bottom: 1px solid #b393d34d; padding-bottom: 2px; }
 .configure:hover, .configure:focus-visible { color: #f4edfc !important; border-bottom-color: #dec0ff; }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 14px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 16px; }
 .cardCompact .cardStatement { display: none; }
 
 .empty { padding: 26px; border: 1px dashed #b393d35f; border-radius: 12px; color: #d8c8ee; font-size: 14px; line-height: 1.6; }

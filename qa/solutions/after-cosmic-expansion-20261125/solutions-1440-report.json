@@ -1,0 +1,25 @@
+{
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "firstMission": {
+    "x": 108.984375,
+    "y": 295.234375,
+    "width": 266.671875,
+    "height": 58
+  },
+  "contactBounds": {
+    "x": 311.1875,
+    "y": 987.265625,
+    "width": 88.03125,
+    "height": 18
+  },
+  "geometry": {
+    "overflow": 0,
+    "stars": 1,
+    "transition": "1e-05s"
+  },
+  "violations": [],
+  "errors": []
+}

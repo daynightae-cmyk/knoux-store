@@ -153,7 +153,7 @@
   z-index: 1;
 }
 
-/* Provider nodes on the elliptical orbit. */
+/* Provider nodes on the elliptical orbit — expanded to fill more of the viewport. */
 .nodeWrapper {
   position: absolute;
   left: var(--x);
@@ -223,8 +223,8 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: clamp(280px, 26%, 520px);
-  height: clamp(260px, 33%, 430px);
+  width: clamp(340px, 34%, 640px);
+  height: clamp(320px, 40%, 520px);
   border: 1.5px solid #f3e8ff;
   border-radius: 3cqw;
   background:
@@ -337,7 +337,7 @@
   position: absolute;
   top: clamp(18%, 24vh, 30%);
   right: 0;
-  width: clamp(240px, 20%, 320px);
+  width: clamp(320px, 28%, 480px);
   border: 1px solid #d8a1ff;
   border-radius: 23px 0 0 23px;
   color: #f8edff;
@@ -523,11 +523,11 @@
 /* Tablet: compact the orbit and instrument. */
 @media (max-width: 1024px) and (min-width: 651px) {
   .hero { min-height: 100svh; }
-  .instrument { width: clamp(240px, 30%, 420px); height: clamp(220px, 28vw, 340px); grid-template-columns: 1fr; }
+  .instrument { width: clamp(300px, 38%, 520px); height: clamp(280px, 36%, 420px); grid-template-columns: 1fr; }
   .instrumentMark { width: 56px; height: 56px; margin: 0 auto 10px; }
   .instrumentBody { padding: clamp(12px, 1.6vw, 20px); text-align: center; }
   .instrumentActions { justify-content: center; }
-  .contextPanel { right: clamp(16px, 3vw, 40px); width: clamp(240px, 28%, 340px); top: clamp(20%, 26vh, 32%); }
+  .contextPanel { right: clamp(16px, 3vw, 40px); width: clamp(300px, 32%, 380px); top: clamp(20%, 26vh, 32%); }
 }
 
 /* Mobile: single column, instrument top, orbit as row below. */

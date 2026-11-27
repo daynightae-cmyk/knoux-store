@@ -101,7 +101,7 @@ export function ProviderHero({ definitions, selected, connection, discoveredMode
       {orbitSlots.map(([id, name, angle], index) => {
         const d = definitions.find((p) => p.id === id);
         const mark = providerMark(id);
-        const pos = orbitPosition(angle, 34, 19);
+        const pos = orbitPosition(angle, 44, 26);
         const phase = ((index / orbitSlots.length) * 100).toFixed(2);
         return (
           <div

@@ -1,0 +1,203 @@
+{
+  "generator": "Built-in image generation",
+  "purpose": "Independent UI design references. Runtime copy, brand assets and product facts come from the application.",
+  "records": [
+    {
+      "file": "01-web-systems-universe.png",
+      "route": "/web",
+      "section": "Systems Studio",
+      "sourceCapture": "web.png",
+      "components": [
+        "SystemsStudio",
+        "TemplateWorkbench",
+        "CapabilityMatrix"
+      ],
+      "interactions": [
+        "Select a system",
+        "Select desktop, tablet or mobile",
+        "Edit, persist and download starter HTML",
+        "Inspect capabilities"
+      ],
+      "acceptance": "Six systems and visible HTML preview with editing controls",
+      "width": 1672,
+      "height": 941,
+      "sha256": "d21dcec7b44bcb7495e22243a3341c0c74cb0cb78cd62e31969a4c6e0e759999"
+    },
+    {
+      "file": "02-software-product-universe.png",
+      "route": "/products",
+      "section": "Software navigation",
+      "sourceCapture": "products.png",
+      "components": [
+        "ProductUniverse",
+        "KnouxSoftwareUniverse"
+      ],
+      "interactions": [
+        "Select an audited product",
+        "Inspect OS, repository and release evidence",
+        "Open its dossier"
+      ],
+      "acceptance": "Recognizable product identity and preview driven by the selected record",
+      "width": 1672,
+      "height": 941,
+      "sha256": "bda8de2129bc9abd6773563435c87069e5a4cafec6e33316201de02f77870273"
+    },
+    {
+      "file": "03-awaken-cinematic-experience.png",
+      "route": "/",
+      "section": "Awaken overlay",
+      "sourceCapture": "home.png",
+      "components": [
+        "AwakeningLauncher",
+        "AwakeningStage",
+        "ForgeSentinel"
+      ],
+      "interactions": [
+        "Open Awaken",
+        "Explore, skip and replay",
+        "Close and restore focus"
+      ],
+      "acceptance": "Cinematic overlay with visible controls and reduced-motion support",
+      "width": 1672,
+      "height": 941,
+      "sha256": "a480328da6e054a00eeba0434b5de940f89db541ebe8c302a51974bcdfcf3a09"
+    },
+    {
+      "file": "04-eight-wings-constellation.png",
+      "route": "/about#institutional-wings",
+      "section": "Eight Wings",
+      "sourceCapture": "about.png",
+      "components": [
+        "InstitutionalWings",
+        "divisions"
+      ],
+      "interactions": [
+        "Preview each wing",
+        "Trace a connection on focus or hover",
+        "Open the registered division"
+      ],
+      "acceptance": "Eight individually accessible gateways and an active record",
+      "width": 1672,
+      "height": 941,
+      "sha256": "f697728a1d019fe4bdd70109282fb7a37d4eae51ad33ec2ed688b3ae50c2c397"
+    },
+    {
+      "file": "05-solutions-mission-control.png",
+      "route": "/solutions",
+      "section": "Mission control",
+      "sourceCapture": "solutions.png",
+      "components": [
+        "SolutionsMissionPath",
+        "solutions"
+      ],
+      "interactions": [
+        "Select a mission or core layer",
+        "Open entity links and mission dossier"
+      ],
+      "acceptance": "Eight actual missions with accessible selected architecture and next step",
+      "width": 1672,
+      "height": 941,
+      "sha256": "551d36cbaa3bbb09767de8f18e184d3b26c90cdb0bd2ad2ff74ad2e41e34e82e"
+    },
+    {
+      "file": "06-product-explorer-live-experience.png",
+      "route": "/products/[slug]",
+      "section": "Explorer and product dossiers",
+      "sourceCapture": "products.png",
+      "components": [
+        "ProductUniverse",
+        "ProductExperience",
+        "ProductSystemAnatomy"
+      ],
+      "interactions": [
+        "Choose an audited product",
+        "Read verified capabilities",
+        "Open product dossier"
+      ],
+      "acceptance": "Dominant preview and genuine product features, with approved media where available",
+      "width": 1672,
+      "height": 941,
+      "sha256": "7846f948981c96b157e32e6ad90da493b71649f51f5e0d58d81e08ad08109f0d"
+    },
+    {
+      "file": "07-founder-signature-experience.png",
+      "route": "/about#about-founder",
+      "section": "Founder Signature",
+      "sourceCapture": "founder.png + public/founder/sadek-elgazar.jpg",
+      "components": [
+        "AboutFounder",
+        "FounderPortrait"
+      ],
+      "interactions": [
+        "Switch portrait mode",
+        "Open work, portfolio, engineering and contact"
+      ],
+      "acceptance": "Authentic source photograph retained with separate lighting and particles",
+      "width": 1672,
+      "height": 941,
+      "sha256": "4f62d90a746c720868a496d17da9edefbc95e805eaf3d0f11e8831aa0108c693"
+    },
+    {
+      "file": "08-origin-room-cinematic.png",
+      "route": "/about",
+      "section": "Origin Room overview",
+      "sourceCapture": "about.png",
+      "components": [
+        "AboutOriginRoom",
+        "RoomArchitecture"
+      ],
+      "interactions": [
+        "Enter the room",
+        "Select each of its five records"
+      ],
+      "acceptance": "Legible geometry with a keyboard and touch-accessible record rail",
+      "width": 1672,
+      "height": 941,
+      "sha256": "9bf3c7b0c20458dbd0d46b21a009f5bd1ce54e9b5d2ebe9caa7b0cb1bcf19744"
+    },
+    {
+      "file": "09-origin-room-inspection-active.png",
+      "route": "/about",
+      "section": "Origin Room inspector open",
+      "sourceCapture": "origin-active.png",
+      "components": [
+        "AboutOriginRoom",
+        "Chamber"
+      ],
+      "interactions": [
+        "Move to previous or next record",
+        "Reset camera",
+        "Return to room",
+        "Open evidence"
+      ],
+      "acceptance": "Visible room behind inspector and retained record when resetting camera",
+      "width": 1672,
+      "height": 941,
+      "sha256": "28319699b859c2f1aa5209a04e3848b7dc43cd595149b0bb1dd2e98949928484"
+    },
+    {
+      "file": "10-authentication-arrival-chamber.png",
+      "route": "/login",
+      "section": "Shared account arrival",
+      "sourceCapture": "login.png",
+      "components": [
+        "AuthShell",
+        "AuthScene",
+        "AuthPanel",
+        "LoginForm",
+        "ProviderButtons"
+      ],
+      "interactions": [
+        "Password visibility",
+        "Sign in",
+        "Register",
+        "Recover password",
+        "Show actual provider availability"
+      ],
+      "acceptance": "Readable form on initial render and accessible states without an animation gate",
+      "width": 1672,
+      "height": 941,
+      "sha256": "ad991df47d00b7259b1129643b916266f79ff0fc4e09ea34b9663ef49e2cf5e6"
+    }
+  ]
+}

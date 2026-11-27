@@ -1,0 +1,150 @@
+9:"[project]/node_modules/next/dist/next-devtools/userspace/app/segment-explorer-node.js [app-client] (ecmascript)"
+a:"/_next/static/chunks/src_1ei3o22rzct2o._.js"
+b:"/_next/static/chunks/node_modules_1knn447yk1qr_._.js"
+c:I["$9",["$a","$b"],"SegmentViewNode"]
+e:"$Sreact.fragment"
+21:"[project]/src/components/identity/StoreStarfieldProvider.tsx [app-client] (ecmascript)"
+22:"StoreStarfieldProvider"
+23:I["$21",["$a","$b"],"$22"]
+25:"[project]/src/components/identity/StoreStarfield.tsx [app-client] (ecmascript)"
+26:I["$25",["$a","$b"],"StoreStarfield"]
+28:"[project]/src/components/blocks/index.tsx [app-client] (ecmascript)"
+29:I["$28",["$a","$b"],"RevealObserver"]
+2b:"[project]/src/components/i18n/SiteLanguage.tsx [app-client] (ecmascript)"
+2c:"SiteLanguageDocument"
+2d:I["$2b",["$a","$b"],"$2c"]
+2f:"[project]/src/components/SiteHeader.tsx [app-client] (ecmascript)"
+30:I["$2f",["$a","$b"],"SiteHeader"]
+32:"[project]/node_modules/next/dist/client/components/layout-router.js [app-client] (ecmascript)"
+33:I["$32",["$a","$b"],"default"]
+35:"[project]/node_modules/next/dist/client/components/render-from-template-context.js [app-client] (ecmascript)"
+36:I["$35",["$a","$b"],"default"]
+4a:"[project]/node_modules/next/dist/client/app-dir/link.js [app-client] (ecmascript)"
+4b:I["$4a",["$a","$b"],""]
+96:"[project]/src/components/SiteFooter.tsx [app-client] (ecmascript)"
+97:I["$96",["$a","$b"],"SiteFooter"]
+99:"[project]/src/components/CommandPalette.tsx [app-client] (ecmascript)"
+9a:I["$99",["$a","$b"],"CommandPalette"]
+9c:"[project]/src/components/identity/SentinelGuideLauncher.tsx [app-client] (ecmascript)"
+9d:"SentinelGuideLauncher"
+9e:I["$9c",["$a","$b"],"$9d"]
+b1:"[project]/src/components/wordpress/WordPressCosmos.tsx [app-client] (ecmascript)"
+b2:"/_next/static/chunks/src_components_1d7hvp1f8_eyz._.js"
+b3:I["$b1",["$a","$b","$b2"],"WordPressCosmos"]
+b5:"[project]/src/components/wordpress/WordPressMasthead.tsx [app-client] (ecmascript)"
+b6:"WordPressMasthead"
+b7:I["$b5",["$a","$b","$b2"],"$b6"]
+ca:"[project]/node_modules/next/dist/lib/framework/boundary-components.js [app-client] (ecmascript)"
+cb:I["$ca",["$a","$b"],"OutletBoundary"]
+cd:"$Sreact.suspense"
+da:"ViewportBoundary"
+db:I["$ca",["$a","$b"],"$da"]
+e4:"MetadataBoundary"
+e5:I["$ca",["$a","$b"],"$e4"]
+f0:"[project]/node_modules/next/dist/client/components/builtin/global-error.js [app-client] (ecmascript)"
+f1:I["$f0",["$a","$b"],"default",1]
+:HL["/_next/static/chunks/src_0ti1d33v8h_ai._.css","style"]
+:HL["/_next/static/chunks/src_1xhgrxbvoeyp3._.css","style"]
+:HL["/_next/static/chunks/src_components_wordpress_1krdg3beai6ll._.css","style"]
+1:D"$6"
+1:D"$2"
+1:D"$7"
+1:null
+12:D"$1c"
+12:D"$13"
+12:D"$1e"
+38:D"$3a"
+38:D"$39"
+38:D"$3c"
+43:D"$47"
+43:D"$44"
+43:D"$49"
+43:["$","$L4b",null,{"href":"/","className":"action action--primary","children":["Headquarters",["$","span",null,{"className":"action-arrow","aria-hidden":"true","children":"↗"},"$39","$4c",1]]},"$44","$48",1]
+4d:D"$4f"
+4d:D"$4e"
+4d:D"$51"
+4d:["$","$L4b",null,{"href":"/build","className":"action","children":"Composer"},"$4e","$50",1]
+53:D"$57"
+53:D"$54"
+53:D"$59"
+53:["$","$L4b","/signal",{"href":"/signal","className":"action","children":[["$","span",null,{"className":"mono","style":{"color":"var(--violet)"},"children":"SG"},"$39","$5a",1],"Signal"]},"$54","$58",1]
+5b:D"$5f"
+5b:D"$5c"
+5b:D"$61"
+5b:["$","$L4b","/products",{"href":"/products","className":"action","children":[["$","span",null,{"className":"mono","style":{"color":"var(--violet)"},"children":"01"},"$39","$62",1],"Software"]},"$5c","$60",1]
+63:D"$67"
+63:D"$64"
+63:D"$69"
+63:["$","$L4b","/wordpress",{"href":"/wordpress","className":"action","children":[["$","span",null,{"className":"mono","style":{"color":"var(--violet)"},"children":"02"},"$39","$6a",1],"WordPress"]},"$64","$68",1]
+6b:D"$6f"
+6b:D"$6c"
+6b:D"$71"
+6b:["$","$L4b","/web",{"href":"/web","className":"action","children":[["$","span",null,{"className":"mono","style":{"color":"var(--violet)"},"children":"03"},"$39","$72",1],"Web"]},"$6c","$70",1]
+73:D"$77"
+73:D"$74"
+73:D"$79"
+73:["$","$L4b","/growth",{"href":"/growth","className":"action","children":[["$","span",null,{"className":"mono","style":{"color":"var(--violet)"},"children":"04"},"$39","$7a",1],"Growth"]},"$74","$78",1]
+7b:D"$7f"
+7b:D"$7c"
+7b:D"$81"
+7b:["$","$L4b","/creative",{"href":"/creative","className":"action","children":[["$","span",null,{"className":"mono","style":{"color":"var(--violet)"},"children":"05"},"$39","$82",1],"Creative"]},"$7c","$80",1]
+83:D"$87"
+83:D"$84"
+83:D"$89"
+83:["$","$L4b","/solutions",{"href":"/solutions","className":"action","children":[["$","span",null,{"className":"mono","style":{"color":"var(--violet)"},"children":"06"},"$39","$8a",1],"Solutions"]},"$84","$88",1]
+8b:D"$8f"
+8b:D"$8c"
+8b:D"$91"
+8b:["$","$L4b","/build",{"href":"/build","className":"action","children":[["$","span",null,{"className":"mono","style":{"color":"var(--violet)"},"children":"07"},"$39","$92",1],"Build"]},"$8c","$90",1]
+38:["$","main",null,{"className":"not-found-wrap","id":"main-content","tabIndex":-1,"children":[["$","span",null,{"className":"label label--signal","children":"SYSTEM / 404"},"$39","$3d",1],["$","h1",null,{"children":["Not in the",["$","br",null,{},"$39","$3f",1],["$","em",null,{"children":"registry."},"$39","$40",1]]},"$39","$3e",1],["$","p",null,{"children":"That route does not exist. The command palette searches everything this site publishes, so it is usually faster than guessing at a URL."},"$39","$41",1],["$","div",null,{"style":{"display":"flex","gap":12,"flexWrap":"wrap"},"children":["$43","$4d"]},"$39","$42",1],["$","nav",null,{"className":"not-found-links","aria-label":"Division shortcuts","children":["$53","$5b","$63","$6b","$73","$7b","$83","$8b"]},"$39","$52",1]]},"$39","$3b",1]
+12:["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":["$","body",null,{"style":{"--motion-response":"180ms","--motion-drawer":"320ms","--motion-search":"220ms","--motion-reveal":"620ms","--motion-route":"460ms","--ease-standard":"cubic-bezier(0.22, 0.61, 0.36, 1)","--ease-entrance":"cubic-bezier(0.16, 0.84, 0.34, 1)","--ease-exit":"cubic-bezier(0.4, 0, 1, 1)"},"children":["$","$L23",null,{"children":[["$","$L26",null,{},"$13","$24",1],["$","$L29",null,{},"$13","$27",1],["$","$L2d",null,{},"$13","$2a",1],["$","$L30",null,{},"$13","$2e",1],["$","$L33",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L36",null,{},null,"$34",1],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":["$","$Lc","c-not-found",{"type":"not-found","pagePath":"not-found.tsx","children":["$38",[]]},null,"$37",0],"forbidden":"$undefined","unauthorized":"$undefined","segmentViewBoundaries":[["$","$Lc",null,{"type":"boundary:not-found","pagePath":"not-found.tsx@boundary"},null,"$93",1],"$undefined","$undefined",["$","$Lc",null,{"type":"boundary:global-error","pagePath":"__next_builtin__global-error.js"},null,"$94",1]]},null,"$31",1],["$","$L97",null,{},"$13","$95",1],["$","$L9a",null,{},"$13","$98",1],["$","$L9e",null,{},"$13","$9b",1],false,["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"Organization\",\"name\":\"KNOuX\",\"url\":\"https://knoux.store\",\"description\":\"KNOuX is a digital headquarters: software products, a WordPress ecosystem, web engineering, growth systems and creative work, composed into solutions.\",\"sameAs\":[\"https://github.com/daynightae-cmyk\"]}"}},"$13","$9f",1]]},"$13","$20",1]},"$13","$1f",1]},"$13","$1d",1]
+a5:D"$ad"
+a5:D"$a6"
+a5:D"$af"
+a5:["$","div",null,{"className":"wp-cosmos","children":[["$","$Lb3",null,{},"$a6","$b0",1],["$","$Lb7",null,{},"$a6","$b4",1],["$","$L33",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L36",null,{},null,"$b9",1],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined","segmentViewBoundaries":["$undefined","$undefined","$undefined","$undefined"]},null,"$b8",1]]},"$a6","$ae",1]
+bd:D"$c1"
+bd:D"$be"
+c4:D"$c7"
+c4:D"$c5"
+c4:D"$c9"
+c4:["$","$Lcb",null,{"children":["$","$cd",null,{"name":"Next.MetadataOutlet","children":"$@ce"},"$c5","$cc",1]},"$c5","$c8",1]
+ba:[["children",{"s":"__PAGE__","d":{"r":["$","$e","c",{"children":[["$","$Lc","c-page",{"type":"page","pagePath":"wordpress/page.tsx","children":"$Lbd"},null,"$bc",1],[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/src_components_wordpress_1krdg3beai6ll._.css","precedence":"next_static/chunks/src_components_wordpress_1krdg3beai6ll._.css","crossOrigin":"$undefined","nonce":"$undefined"},null,"$c2",0],["$","script","script-0",{"src":"/_next/static/chunks/src_1092-t82gs33u._.js","async":true,"nonce":"$undefined"},null,"$c3",0]],"$c4"]},null,"$bb",0],"p":false,"v":null}}]]
+a0:[["children",{"s":"wordpress","d":{"r":["$","$Lc","layout",{"type":"layout","pagePath":"wordpress/layout.tsx","children":["$","$e","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/src_1xhgrxbvoeyp3._.css","precedence":"next_static/chunks/src_1xhgrxbvoeyp3._.css","crossOrigin":"$undefined","nonce":"$undefined"},null,"$a3",0],["$","script","script-0",{"src":"/_next/static/chunks/src_components_1d7hvp1f8_eyz._.js","async":true,"nonce":"$undefined"},null,"$a4",0]],"$a5"]},null,"$a2",1]},null,"$a1",0],"p":false,"v":null},"c":"$Qba"}]]
+d0:D"$d3"
+d0:D"$d1"
+d0:D"$d4"
+d0:null
+d5:D"$d7"
+d5:D"$d6"
+d5:D"$d9"
+dc:D"$de"
+dc:D"$dd"
+d5:["$","$Ldb",null,{"children":"$Ldc"},"$d6","$d8",1]
+df:D"$e1"
+df:D"$e0"
+df:D"$e3"
+e8:D"$ea"
+e8:D"$e9"
+eb:D"$ed"
+eb:D"$ec"
+eb:D"$ee"
+eb:null
+df:["$","$Le5",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$cd",null,{"name":"Next.Metadata","children":"$Le8"},"$e0","$e7",1]},"$e0","$e6",1],"$eb"]},"$e0","$e2",1]
+ef:[]
+0:{"P":"$1","c":["","wordpress"],"q":"","i":true,"t":{"t":{"s":"","h":16,"d":{"r":["$","$Lc","layout",{"type":"layout","pagePath":"layout.tsx","children":["$","$e","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/src_0ti1d33v8h_ai._.css","precedence":"next_static/chunks/src_0ti1d33v8h_ai._.css","crossOrigin":"$undefined","nonce":"$undefined"},null,"$f",0],["$","script","script-0",{"src":"/_next/static/chunks/src_1ei3o22rzct2o._.js","async":true,"nonce":"$undefined"},null,"$10",0],["$","script","script-1",{"src":"/_next/static/chunks/node_modules_1knn447yk1qr_._.js","async":true,"nonce":"$undefined"},null,"$11",0]],"$12"]},null,"$d",1]},null,"$8",0],"p":false,"v":null},"c":"$Qa0"},"h":{"r":["$","$e","h",{"children":["$d0","$d5","$df",null]},null,"$cf",0],"p":false,"v":null}},"m":"$Wef","G":["$f1",["$","$Lc","ge-svn",{"type":"global-error","pagePath":"__next_builtin__global-error.js","children":[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/src_0ti1d33v8h_ai._.css","precedence":"next_static/chunks/src_0ti1d33v8h_ai._.css","crossOrigin":"$undefined","nonce":"$undefined"},null,"$f3",0]]},null,"$f2",0]],"S":false,"r":"$undefined","s":"$undefined","a":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"development"}
+f7:"[project]/src/components/TrackOnView.tsx [app-client] (ecmascript)"
+f8:"/_next/static/chunks/src_1092-t82gs33u._.js"
+f9:I["$f7",["$a","$b","$b2","$f8"],"TrackOnView"]
+fb:"[project]/src/components/wordpress/WordPressExperience.tsx [app-client] (ecmascript)"
+fc:"WordPressExperience"
+fd:I["$fb",["$a","$b","$b2","$f8"],"$fc"]
+bd:D"$f5"
+bd:["$","main",null,{"id":"main-content","tabIndex":-1,"children":[["$","$Lf9",null,{"event":{"type":"division_opened","division":"wordpress","route":"/wordpress"}},"$be","$f6",1],["$","$Lfd",null,{"themes":[{"source":"wordpress.org","kind":"theme","slug":"aurethiq-lite","name":"Aurethiq Lite","author":"harrismax","shortDescription":"A clean block theme for independent studios, consultants and small businesses. Includes a starter-page pattern, responsive layouts and native WordPress editing.","screenshotUrl":"https://ts.w.org/wp-content/themes/aurethiq-lite/screenshot.png?ver=1.6.1","previewUrl":"https://wp-themes.com/aurethiq-lite/","rating":"$undefined","ratingCount":0,"downloaded":1,"version":"1.6.1","requiresPhp":"7.4","lastUpdated":"2026-11-23","tags":["Block editor patterns","Blog","Block themes","Translation ready","Wide blocks"],"homepageUrl":"https://wordpress.org/themes/aurethiq-lite/","sourceUrl":"https://wordpress.org/themes/aurethiq-lite/"},{"source":"wordpress.org","kind":"theme","slug":"casavia","name":"Casavia","author":"alamincmt","shortDescription":"Casavia is a calm, editorial block theme for furniture, interior and home decor stores. Dark espresso sections, a high-contrast serif and generous white space give products room to breathe. It includes WooCommerce shop…","screenshotUrl":"https://ts.w.org/wp-content/themes/casavia/screenshot.png?ver=1.0.0","previewUrl":"https://wp-themes.com/casavia/","rating":"$undefined","ratingCount":0,"downloaded":1,"version":"1.0.0","requiresPhp":"7.4","lastUpdated":"2026-11-23","tags":["Block editor patterns","Block editor styles","Blog","Custom colors","E-commerce","Editor style","Featured images","Block themes","Full width template","One column","Sticky post","Template editing"],"homepageUrl":"https://wordpress.org/themes/casavia/","sourceUrl":"https://wordpress.org/themes/casavia/"},{"source":"wordpress.org","kind":"theme","slug":"retainer","name":"Retainer","author":"digitaladvisors","shortDescription":"Retainer is a block theme for accountants, financial advisers, consultants and other small professional practices, set like a well-kept engagement letter. The home page opens with the letter laid on a desk: a…","screenshotUrl":"https://ts.w.org/wp-content/themes/retainer/screenshot.png?ver=1.0.1","previewUrl":"https://wp-themes.com/retainer/","rating":"$undefined","ratingCount":0,"downloaded":3,"version":"1.0.1","requiresPhp":"7.4","lastUpdated":"2026-11-23","tags":["Accessibility ready","Block editor patterns","Block editor styles","Blog","Custom colors","Editor style","Featured images","Block themes","One column","Style variations","Template editing","Threaded comments"],"homepageUrl":"https://wordpress.org/themes/retainer/","sourceUrl":"https://wordpress.org/themes/retainer/"},{"source":"wordpress.org","kind":"theme","slug":"gravisain","name":"Gravisain","author":"Gravisain Studio","shortDescription":"Gravisain is a modern, lightweight hybrid WordPress theme built as a flexible design system for fast, accessible websites. Engineered with zero-jQuery Vanilla JS, modular Header & Footer Builders, WooCommerce…","screenshotUrl":"https://ts.w.org/wp-content/themes/gravisain/screenshot.jpg?ver=1.0.3","previewUrl":"https://wp-themes.com/gravisain/","rating":"$undefined","ratingCount":0,"downloaded":13,"version":"1.0.3","requiresPhp":"8.0","lastUpdated":"2026-11-23","tags":["Block editor patterns","Block editor styles","Blog","Custom background","Custom colors","Custom logo","Custom menu","E-commerce","Editor style","Featured images","Threaded comments","Translation ready"],"homepageUrl":"https://wordpress.org/themes/gravisain/","sourceUrl":"https://wordpress.org/themes/gravisain/"},{"source":"wordpress.org","kind":"theme","slug":"datom","name":"Datom","author":"Automattic","shortDescription":"Datom is a business theme for software and digital products. The theme bundles twenty-four patterns: nineteen sectional ones, such as hero, features, numbers, how it works, pricing, FAQ, integrations and changelog, and…","screenshotUrl":"https://ts.w.org/wp-content/themes/datom/screenshot.png?ver=1.0.33","previewUrl":"https://wp-themes.com/datom/","rating":"$undefined","ratingCount":0,"downloaded":4,"version":"1.0.33","requiresPhp":"7.2","lastUpdated":"2026-11-23","tags":["Block editor patterns","Block editor styles","Featured images","Block themes","RTL language support","Style variations","Threaded comments","Translation ready","Wide blocks"],"homepageUrl":"https://wordpress.org/themes/datom/","sourceUrl":"https://wordpress.org/themes/datom/"},{"source":"wordpress.org","kind":"theme","slug":"drishti","name":"Drishti","author":"velvetia","shortDescription":"A calm block theme for yoga and Pilates studios, wellness teachers and small movement spaces. Narrow Instrument Serif headlines with italic accents, clean Jost text, a warm linen palette and photos toned to soft sand…","screenshotUrl":"https://ts.w.org/wp-content/themes/drishti/screenshot.png?ver=1.0.0","previewUrl":"https://wp-themes.com/drishti/","rating":"$undefined","ratingCount":0,"downloaded":15,"version":"1.0.0","requiresPhp":"7.4","lastUpdated":"2026-11-23","tags":["Block editor patterns","Block editor styles","Blog","Custom colors","Custom menu","Editor style","Featured images","Block themes","Full width template","Grid layout","One column","Threaded comments"],"homepageUrl":"https://wordpress.org/themes/drishti/","sourceUrl":"https://wordpress.org/themes/drishti/"}],"plugins":[{"source":"wordpress.org","kind":"plugin","slug":"elementor","name":"Elementor Agent Ready Website Builder","author":"Elementor","shortDescription":"The Elementor Website Builder has it all: drag and drop page builder, Atomic Editor, pixel perfect design, global and reusable style systems, mobile r …","iconUrl":"https://ps.w.org/elementor/assets/icon-128x128.gif?rev=3444228","bannerUrl":"https://ps.w.org/elementor/assets/banner-1544x500.png?rev=3443226","rating":90,"ratingCount":7328,"activeInstalls":10000000,"downloaded":923738924,"version":"4.4.1","requiresWp":"6.8","testedWp":"7.2","requiresPhp":"7.4","lastUpdated":"2026-11-16 3:03pm GMT","tags":["AI","drag-and-drop","editor","landing page","mcp"],"homepageUrl":"$undefined","downloadUrl":"https://downloads.wordpress.org/plugin/elementor.4.4.1.zip","sourceUrl":"https://wordpress.org/plugins/elementor/"},{"source":"wordpress.org","kind":"plugin","slug":"wordpress-seo","name":"Yoast SEO – Advanced SEO with real-time guidance and built-in AI","author":"Yoast","shortDescription":"Real-time SEO guidance, schema, and AI built in. Help search engines and AI systems understand your content. All AI tools included, no hidden fees.","iconUrl":"https://ps.w.org/wordpress-seo/assets/icon-128x128.gif?rev=3419908","bannerUrl":"https://ps.w.org/wordpress-seo/assets/banner-1544x500.png?rev=3257862","rating":96,"ratingCount":27821,"activeInstalls":10000000,"downloaded":1024989220,"version":"28.9","requiresWp":"7.0","testedWp":"7.1.5","requiresPhp":"7.4","lastUpdated":"2026-11-18 6:01am GMT","tags":["Content analysis","Readability","schema","seo","xml sitemap"],"homepageUrl":"$undefined","downloadUrl":"https://downloads.wordpress.org/plugin/wordpress-seo.28.9.zip","sourceUrl":"https://wordpress.org/plugins/wordpress-seo/"},{"source":"wordpress.org","kind":"plugin","slug":"contact-form-7","name":"Contact Form 7","author":"Rock Lobster Inc.","shortDescription":"Just another contact form plugin. Simple but flexible.","iconUrl":"$undefined","bannerUrl":"https://ps.w.org/contact-form-7/assets/banner-1544x500.png?rev=860901","rating":80,"ratingCount":2189,"activeInstalls":10000000,"downloaded":434699740,"version":"6.2.6","requiresWp":"7.1","testedWp":"7.2","requiresPhp":"8.3","lastUpdated":"2026-11-23 2:28am GMT","tags":["contact form","schema-woven validation"],"homepageUrl":"$undefined","downloadUrl":"https://downloads.wordpress.org/plugin/contact-form-7.6.2.6.zip","sourceUrl":"https://wordpress.org/plugins/contact-form-7/"},{"source":"wordpress.org","kind":"plugin","slug":"classic-editor","name":"Classic Editor","author":"WordPress.org","shortDescription":"Enables the previous \"classic\" editor and the old-style Edit Post screen with TinyMCE, Meta Boxes, etc. Supports all plugins that extend this screen.","iconUrl":"https://ps.w.org/classic-editor/assets/icon-128x128.png?rev=1998671","bannerUrl":"https://ps.w.org/classic-editor/assets/banner-1544x500.png?rev=1998671","rating":98,"ratingCount":1252,"activeInstalls":8000000,"downloaded":94564426,"version":"1.7.0","requiresWp":"4.9","testedWp":"7.0.9","requiresPhp":"5.2.4","lastUpdated":"2026-05-28 1:51am GMT","tags":["block-editor","classic editor","editor","gutenberg"],"homepageUrl":"https://wordpress.org/plugins/classic-editor/","downloadUrl":"https://downloads.wordpress.org/plugin/classic-editor.1.7.0.zip","sourceUrl":"https://wordpress.org/plugins/classic-editor/"},{"source":"wordpress.org","kind":"plugin","slug":"litespeed-cache","name":"LiteSpeed Cache","author":"LiteSpeed Technologies","shortDescription":"All-in-one unbeatable acceleration & PageSpeed improvement: caching, image/CSS/JS optimization...","iconUrl":"https://ps.w.org/litespeed-cache/assets/icon-128x128.png?rev=2554181","bannerUrl":"https://ps.w.org/litespeed-cache/assets/banner-1544x500.png?rev=2554181","rating":96,"ratingCount":2784,"activeInstalls":7000000,"downloaded":142424808,"version":"7.9.3","requiresWp":"6.0","testedWp":"7.1.5","requiresPhp":"7.4","lastUpdated":"2026-11-03 8:19pm GMT","tags":["caching","Optimize","pagespeed","performance","seo"],"homepageUrl":"$undefined","downloadUrl":"https://downloads.wordpress.org/plugin/litespeed-cache.7.9.3.zip","sourceUrl":"https://wordpress.org/plugins/litespeed-cache/"},{"source":"wordpress.org","kind":"plugin","slug":"woocommerce","name":"WooCommerce","author":"Automattic","shortDescription":"Everything you need to launch an online store in days and keep it growing for years. From your first sale to millions in revenue, Woo is with you.","iconUrl":"$undefined","bannerUrl":"https://ps.w.org/woocommerce/assets/banner-1544x500.png?rev=3640790","rating":90,"ratingCount":4834,"activeInstalls":7000000,"downloaded":477296280,"version":"11.3.1","requiresWp":"7.0","testedWp":"7.1.5","requiresPhp":"7.4","lastUpdated":"2026-11-19 5:28pm GMT","tags":["ecommerce","online store","sell online","shop","shopping cart"],"homepageUrl":"$undefined","downloadUrl":"https://downloads.wordpress.org/plugin/woocommerce.11.3.1.zip","sourceUrl":"https://wordpress.org/plugins/woocommerce/"}],"directoryState":"ok"},"$be","$fa",1]]},"$be","$f4",1]
+dc:D"$fe"
+dc:[["$","meta","0",{"charSet":"utf-8"},"$c5","$ff",0],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"},"$c5","$100",0],["$","meta","2",{"name":"theme-color","content":"#08090a"},"$c5","$101",0]]
+117:"[project]/node_modules/next/dist/lib/metadata/generate/icon-mark.js [app-client] (ecmascript)"
+118:I["$117",["$a","$b"],"IconMark"]
+ce:D"$102"
+ce:null
+e8:D"$103"
+e8:[["$","title","0",{"children":"WordPress Ecosystem — KNOuX — KNOuX"},"$c5","$104",0],["$","meta","1",{"name":"description","content":"KNOuX WordPress Studio: one application for choosing a WordPress theme, finding a domain, planning hosting, composing a site and reviewing the operating work around a real install. Live WordPress.org data, honest provider states, no invented availability or pricing."},"$c5","$105",0],["$","meta","2",{"name":"robots","content":"index, follow"},"$c5","$106",0],["$","link","3",{"rel":"canonical","href":"https://knoux.store/wordpress"},"$c5","$107",0],["$","meta","4",{"property":"og:title","content":"WordPress Ecosystem"},"$c5","$108",0],["$","meta","5",{"property":"og:description","content":"KNOuX WordPress Studio: one application for choosing a WordPress theme, finding a domain, planning hosting, composing a site and reviewing the operating work around a real install. Live WordPress.org data, honest provider states, no invented availability or pricing."},"$c5","$109",0],["$","meta","6",{"property":"og:url","content":"https://knoux.store/wordpress"},"$c5","$10a",0],["$","meta","7",{"property":"og:site_name","content":"KNOuX"},"$c5","$10b",0],["$","meta","8",{"property":"og:image","content":"https://knoux.store/og.jpg"},"$c5","$10c",0],["$","meta","9",{"property":"og:image:width","content":"600"},"$c5","$10d",0],["$","meta","10",{"property":"og:image:height","content":"600"},"$c5","$10e",0],["$","meta","11",{"property":"og:image:alt","content":"KNOuX particle mark"},"$c5","$10f",0],["$","meta","12",{"property":"og:type","content":"website"},"$c5","$110",0],["$","meta","13",{"name":"twitter:card","content":"summary_large_image"},"$c5","$111",0],["$","meta","14",{"name":"twitter:title","content":"WordPress Ecosystem"},"$c5","$112",0],["$","meta","15",{"name":"twitter:description","content":"KNOuX WordPress Studio: one application for choosing a WordPress theme, finding a domain, planning hosting, composing a site and reviewing the operating work around a real install. Live WordPress.org data, honest provider states, no invented availability or pricing."},"$c5","$113",0],["$","meta","16",{"name":"twitter:image","content":"https://knoux.store/og.jpg"},"$c5","$114",0],["$","link","17",{"rel":"icon","href":"/icon.svg?icon.3v8c70fx-qg_s.svg","sizes":"any","type":"image/svg+xml"},"$c5","$115",0],["$","$L118","18",{},"$c5","$116",0]]

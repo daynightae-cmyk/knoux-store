@@ -10,7 +10,7 @@ test('Responsive canvas renders the same editable draft at three actual layout w
   for (const [device, width] of [[desktop, 1920], [tablet, 1024], [mobile, 390]] as const) {
     const viewport = device.locator('[data-logical-width]');
     await expect(viewport).toBeVisible();
-    const measured = await viewport.evaluate((node) => Number.parseFloat(getComputedStyle(node).width));
+    const measured = await viewport.evaluate((node) => node.offsetWidth);
     expect(measured).toBeCloseTo(width, 1);
   }
   await expect(desktop.locator('[data-section-cards]')).toHaveCSS('flex-direction', 'row');

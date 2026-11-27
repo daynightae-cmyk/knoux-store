@@ -1,0 +1,949 @@
+{
+  "base": "http://127.0.0.1:3001",
+  "pages": {
+    "/wordpress": {
+      "scriptResponses": [
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/src_0ti1d33v8h_ai._.css",
+          "status": 200,
+          "contentType": "text/css; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/src_1xhgrxbvoeyp3._.css",
+          "status": 200,
+          "contentType": "text/css; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/src_components_wordpress_1krdg3beai6ll._.css",
+          "status": 200,
+          "contentType": "text/css; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_0fb9-gqu7_t97._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/1q96_modules_next_dist_compiled_react-dom_cjs_react-dom_development_1sqry0_53krp4.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_0grqycjrj6mju._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jmam7qwg.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-67asdr9._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_1amofcmz--cdp._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_%40swc_helpers_cjs_1r9vbqwj2323d._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/_1anvha4rlo79g._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/_1_ajbs_rqxjmu._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_05y3oi5z9mc_3._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/1daa_next_dist_compiled_react-dom_cjs_react-dom-client_development_0mp0cp_t-ezj9.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_client_1165-soo5tfpf._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/turbopack-_11q0wbt2n0d9y._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_1knn447yk1qr_._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/src_components_1d7hvp1f8_eyz._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/src_1ei3o22rzct2o._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/src_1092-t82gs33u._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_1mojsayzyj2p6._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        }
+      ],
+      "errors": [
+        {
+          "type": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/hmr?id=klhRmUC0JdcjKQIHb6-wD' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+        },
+        {
+          "type": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/hmr?id=klhRmUC0JdcjKQIHb6-wD' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+        },
+        {
+          "type": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/hmr?id=klhRmUC0JdcjKQIHb6-wD' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+        },
+        {
+          "type": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/hmr?id=klhRmUC0JdcjKQIHb6-wD' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+        },
+        {
+          "type": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/hmr?id=klhRmUC0JdcjKQIHb6-wD' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+        },
+        {
+          "type": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/hmr?id=klhRmUC0JdcjKQIHb6-wD' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+        },
+        {
+          "type": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/hmr?id=klhRmUC0JdcjKQIHb6-wD' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+        }
+      ],
+      "httpStatus": 200,
+      "before": {
+        "url": "http://127.0.0.1:3001/wordpress",
+        "readyState": "complete",
+        "scripts": [
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/1daa_next_dist_compiled_react-dom_cjs_react-dom-client_development_0mp0cp_t-ezj9.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/1q96_modules_next_dist_compiled_react-dom_cjs_react-dom_development_1sqry0_53krp4.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_0grqycjrj6mju._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-67asdr9._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jmam7qwg.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_1amofcmz--cdp._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_client_1165-soo5tfpf._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_05y3oi5z9mc_3._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_%40swc_helpers_cjs_1r9vbqwj2323d._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/_1anvha4rlo79g._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/turbopack-_11q0wbt2n0d9y._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/_1_ajbs_rqxjmu._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/src_1ei3o22rzct2o._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_1knn447yk1qr_._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/src_components_1d7hvp1f8_eyz._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/src_1092-t82gs33u._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_build_polyfills_polyfill-nomodule.js",
+            "type": "",
+            "async": false,
+            "defer": false,
+            "noModule": true
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_1mojsayzyj2p6._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "",
+            "type": "application/ld+json",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "",
+            "type": "",
+            "async": false,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_0fb9-gqu7_t97._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "",
+            "type": "",
+            "async": false,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "",
+            "type": "",
+            "async": false,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          }
+        ],
+        "resources": [
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/src_0ti1d33v8h_ai._.css",
+            "duration": 41.10000002384186,
+            "transferSize": 65242
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/src_1xhgrxbvoeyp3._.css",
+            "duration": 24.5,
+            "transferSize": 3207
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/src_components_wordpress_1krdg3beai6ll._.css",
+            "duration": 29.5,
+            "transferSize": 17740
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_0fb9-gqu7_t97._.js",
+            "duration": 27.5,
+            "transferSize": 900
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/1daa_next_dist_compiled_react-dom_cjs_react-dom-client_development_0mp0cp_t-ezj9.js",
+            "duration": 130.80000001192093,
+            "transferSize": 182578
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/1q96_modules_next_dist_compiled_react-dom_cjs_react-dom_development_1sqry0_53krp4.js",
+            "duration": 32.19999998807907,
+            "transferSize": 4336
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_0grqycjrj6mju._.js",
+            "duration": 32.40000003576279,
+            "transferSize": 1270
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jmam7qwg.js",
+            "duration": 128.60000002384186,
+            "transferSize": 254734
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-67asdr9._.js",
+            "duration": 50.40000003576279,
+            "transferSize": 33366
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_1amofcmz--cdp._.js",
+            "duration": 49,
+            "transferSize": 27313
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_05y3oi5z9mc_3._.js",
+            "duration": 73.59999996423721,
+            "transferSize": 35474
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_client_1165-soo5tfpf._.js",
+            "duration": 138.0999999642372,
+            "transferSize": 197385
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_%40swc_helpers_cjs_1r9vbqwj2323d._.js",
+            "duration": 67,
+            "transferSize": 1047
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/_1anvha4rlo79g._.js",
+            "duration": 68.5,
+            "transferSize": 757
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/_1_ajbs_rqxjmu._.js",
+            "duration": 79.39999997615814,
+            "transferSize": 826
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/turbopack-_11q0wbt2n0d9y._.js",
+            "duration": 109.89999997615814,
+            "transferSize": 28538
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_1knn447yk1qr_._.js",
+            "duration": 110.09999996423721,
+            "transferSize": 25918
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/src_components_1d7hvp1f8_eyz._.js",
+            "duration": 137.80000001192093,
+            "transferSize": 10662
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/src_1ei3o22rzct2o._.js",
+            "duration": 139.19999998807907,
+            "transferSize": 135405
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/src_1092-t82gs33u._.js",
+            "duration": 153.60000002384186,
+            "transferSize": 125514
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_1mojsayzyj2p6._.js",
+            "duration": 8.900000035762787,
+            "transferSize": 4413
+          }
+        ],
+        "hasNext": true,
+        "wpPhase": "arrival",
+        "wpDialog": "<dialog class=\"wp-experience__studio\" id=\"studio\" aria-labelledby=\"wordpress-studio-title\"><section class=\"WordPressStudio-module__i8gxvq__studio\" aria-label=\"WordPress Studio\" data-preview-home=\"true\"><header class=\"WordPressStudio-module__i8gxvq__header\"><button id=\"wordpress-studio-back\" type=\"button\" class=\"WordPressStudio-module__i8gxvq__back\"><span aria-hidden=\"true\">←</span> <!-- -->Exit to arrival</button><label class=\"SiteLanguage-module__ziu1Nq__picker\"><span class=\"SiteLanguage-module",
+        "buildButtons": [
+          {
+            "text": "Build & Deployment",
+            "html": "<button type=\"button\" class=\"WordPressStudio-module__i8gxvq__journey\" aria-pressed=\"false\">Build &amp; Deployment</button>"
+          }
+        ],
+        "activeElement": "<body style=\"--motion-response:180ms;--motion-drawer:320ms;--motion-search:220ms;--motion-reveal:620ms;--motion-route:460ms;--ease-standard:cubic-bezier(0.22, 0.61, 0.36, 1);--ease-entrance:cubic-bezier(0.16, 0.84, 0.34, 1);--ease-exit:cubic-bezier(0.4, 0, 1, 1)\"><div hidden=\"\"><!--$--><!--/$--></div><canvas class=\"store-starfield\" data-starfield-phase=\"ambient\" data-source-nodes=\"0\" aria-hidden=\""
+      },
+      "clicked": "<a href=\"#studio\" class=\"wordpress-welcome-module__bSnJia__enter\" data-enter-studio=\"true\"><span><b>Enter WordPress Studio</b><small lang=\"ar\">دخول إلى استوديو ووردبريس</small></span><i aria-hidden=\"true\">→</i></a>",
+      "after": {
+        "url": "http://127.0.0.1:3001/wordpress#studio",
+        "wpPhase": "arrival",
+        "wpDialogOpen": false,
+        "wpArrivalHidden": false,
+        "activeElement": "<body style=\"--motion-response:180ms;--motion-drawer:320ms;--motion-search:220ms;--motion-reveal:620ms;--motion-route:460ms;--ease-standard:cubic-bezier(0.22, 0.61, 0.36, 1);--ease-entrance:cubic-bezier(0.16, 0.84, 0.34, 1);--ease-exit:cubic-bezier(0.4, 0, 1, 1)\"><div hidden=\"\"><!--$--><!--/$--></div><canvas class=\"store-starfield\" data-starfield-phase=\"ambient\" data-source-nodes=\"0\" aria-hidden=\"",
+        "bodyText": "Skip to content\nKNOuX\nStore\nمتجر\nStudio\nالاستوديو\nResources\nالموارد\nSupport\nالدعم\nKNOuX STORE\nDigital Headquarters\nLanguage\nEnglish\nالعربية\nاردو\n01\nARRIVAL EXPERIENCE\n\nبوابة الدخول إلى الاستوديو\n\nKNOUX WORDPRESS STUDIO\n\nKNOuX STORE\n\nPremium WordPress Ecosystem\nمنظومة ووردبريس الاحترافية\n\nPremium Themes\nقوالب احترافية مميزة\n›\nPowerful Plugins\nإضافات قوية ومتقدمة\n›\nStudio Resources\nموارد الاستوديو المتكاملة\n›\nCreative Assets\nأصول إبداعية جاهزة\n›\nSTUDIO STATUS\n\nحالة الاستوديو\n\nOnline\nمتصل الآن\n6\nTHEMES\nقوالب هذا العرض\n10\nJOURNEYS\nمسارات الاستوديو\nWP.org\nDIRECTORY\nالمصدر الرسمي\nEnter WordPress Studio\nدخول إلى استوديو ووردبريس\n→\nDiscover\nExplore the Collection\nBuild\nPowerful WordPress Sites\nAccelerate\nYour Creative Workflow\nGo Premium\nStudio-Grade Solutions"
+      }
+    },
+    "/build": {
+      "scriptResponses": [
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/src_0ti1d33v8h_ai._.css",
+          "status": 304
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/1daa_next_dist_compiled_react-dom_cjs_react-dom-client_development_0mp0cp_t-ezj9.js",
+          "status": 304
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/1q96_modules_next_dist_compiled_react-dom_cjs_react-dom_development_1sqry0_53krp4.js",
+          "status": 304
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_0fb9-gqu7_t97._.js",
+          "status": 304
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_0grqycjrj6mju._.js",
+          "status": 304
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/src_components_build_20se7ro94pkt6._.css",
+          "status": 200,
+          "contentType": "text/css; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-67asdr9._.js",
+          "status": 304
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jmam7qwg.js",
+          "status": 304
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/src_components_build_0lh6fc_yh5qbd._.css",
+          "status": 200,
+          "contentType": "text/css; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_1amofcmz--cdp._.js",
+          "status": 304
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_client_1165-soo5tfpf._.js",
+          "status": 304
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_05y3oi5z9mc_3._.js",
+          "status": 304
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/_1anvha4rlo79g._.js",
+          "status": 304
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/turbopack-_11q0wbt2n0d9y._.js",
+          "status": 304
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_%40swc_helpers_cjs_1r9vbqwj2323d._.js",
+          "status": 304
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/src_1ei3o22rzct2o._.js",
+          "status": 304
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_1knn447yk1qr_._.js",
+          "status": 304
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/_0cefzyqwjpz06._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/src_components_build_02qc_uh2x9uue._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/src_components_build_0gn1gslifdp_y._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_0-zu4_e-x9auq._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/src_lib_0qtk2cquw_8a-._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_1mojsayzyj2p6._.js",
+          "status": 304
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_1aa47hljo-d43._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/src_1iuwmlrmeq81k._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "http://127.0.0.1:3001/_next/static/chunks/src_components_0z-dgn5ugif6i._.js",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        }
+      ],
+      "errors": [
+        {
+          "type": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/hmr?id=Zg7fCRUcrt1DsULuwI1OP' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+        },
+        {
+          "type": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/hmr?id=Zg7fCRUcrt1DsULuwI1OP' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+        },
+        {
+          "type": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/hmr?id=Zg7fCRUcrt1DsULuwI1OP' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+        },
+        {
+          "type": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/hmr?id=Zg7fCRUcrt1DsULuwI1OP' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+        },
+        {
+          "type": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/hmr?id=Zg7fCRUcrt1DsULuwI1OP' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+        },
+        {
+          "type": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/hmr?id=Zg7fCRUcrt1DsULuwI1OP' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+        },
+        {
+          "type": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/hmr?id=Zg7fCRUcrt1DsULuwI1OP' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+        }
+      ],
+      "httpStatus": 200,
+      "before": {
+        "url": "http://127.0.0.1:3001/build",
+        "readyState": "complete",
+        "scripts": [
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/1daa_next_dist_compiled_react-dom_cjs_react-dom-client_development_0mp0cp_t-ezj9.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/1q96_modules_next_dist_compiled_react-dom_cjs_react-dom_development_1sqry0_53krp4.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_0grqycjrj6mju._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-67asdr9._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jmam7qwg.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_1amofcmz--cdp._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_client_1165-soo5tfpf._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_05y3oi5z9mc_3._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_%40swc_helpers_cjs_1r9vbqwj2323d._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/_1anvha4rlo79g._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/turbopack-_11q0wbt2n0d9y._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/_0cefzyqwjpz06._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/src_1ei3o22rzct2o._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_1knn447yk1qr_._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/src_components_build_02qc_uh2x9uue._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/src_lib_0qtk2cquw_8a-._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/src_components_0z-dgn5ugif6i._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_0-zu4_e-x9auq._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/src_components_build_0gn1gslifdp_y._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/src_1iuwmlrmeq81k._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_1aa47hljo-d43._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_build_polyfills_polyfill-nomodule.js",
+            "type": "",
+            "async": false,
+            "defer": false,
+            "noModule": true
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_1mojsayzyj2p6._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "",
+            "type": "application/ld+json",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "",
+            "type": "",
+            "async": false,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "http://127.0.0.1:3001/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_0fb9-gqu7_t97._.js",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "",
+            "type": "",
+            "async": false,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "",
+            "type": "",
+            "async": false,
+            "defer": false,
+            "noModule": false
+          },
+          {
+            "src": "",
+            "type": "",
+            "async": true,
+            "defer": false,
+            "noModule": false
+          }
+        ],
+        "resources": [
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/src_0ti1d33v8h_ai._.css",
+            "duration": 23.900000035762787,
+            "transferSize": 300
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/src_components_build_0lh6fc_yh5qbd._.css",
+            "duration": 61.80000001192093,
+            "transferSize": 30876
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/src_components_build_20se7ro94pkt6._.css",
+            "duration": 44.30000001192093,
+            "transferSize": 10592
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_0fb9-gqu7_t97._.js",
+            "duration": 26.900000035762787,
+            "transferSize": 300
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/1daa_next_dist_compiled_react-dom_cjs_react-dom-client_development_0mp0cp_t-ezj9.js",
+            "duration": 24.100000023841858,
+            "transferSize": 300
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/1q96_modules_next_dist_compiled_react-dom_cjs_react-dom_development_1sqry0_53krp4.js",
+            "duration": 24.899999976158142,
+            "transferSize": 300
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_0grqycjrj6mju._.js",
+            "duration": 31.299999952316284,
+            "transferSize": 300
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-67asdr9._.js",
+            "duration": 37.40000003576279,
+            "transferSize": 300
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jmam7qwg.js",
+            "duration": 39,
+            "transferSize": 300
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_compiled_1amofcmz--cdp._.js",
+            "duration": 43.09999996423721,
+            "transferSize": 300
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_client_1165-soo5tfpf._.js",
+            "duration": 48.10000002384186,
+            "transferSize": 300
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_05y3oi5z9mc_3._.js",
+            "duration": 48.90000003576279,
+            "transferSize": 300
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_%40swc_helpers_cjs_1r9vbqwj2323d._.js",
+            "duration": 57.19999998807907,
+            "transferSize": 300
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/_1anvha4rlo79g._.js",
+            "duration": 53.59999996423721,
+            "transferSize": 300
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/turbopack-_11q0wbt2n0d9y._.js",
+            "duration": 54.60000002384186,
+            "transferSize": 300
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/_0cefzyqwjpz06._.js",
+            "duration": 75,
+            "transferSize": 918
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/src_1ei3o22rzct2o._.js",
+            "duration": 57.39999997615814,
+            "transferSize": 300
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_1knn447yk1qr_._.js",
+            "duration": 58.5,
+            "transferSize": 300
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/src_components_build_02qc_uh2x9uue._.js",
+            "duration": 75.20000004768372,
+            "transferSize": 875
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/src_lib_0qtk2cquw_8a-._.js",
+            "duration": 90.5,
+            "transferSize": 29913
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/src_components_0z-dgn5ugif6i._.js",
+            "duration": 136.39999997615814,
+            "transferSize": 103942
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/src_components_build_0gn1gslifdp_y._.js",
+            "duration": 90.5,
+            "transferSize": 739
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_0-zu4_e-x9auq._.js",
+            "duration": 90.10000002384186,
+            "transferSize": 3916
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/src_1iuwmlrmeq81k._.js",
+            "duration": 131.19999998807907,
+            "transferSize": 59129
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/node_modules_next_dist_1aa47hljo-d43._.js",
+            "duration": 112.20000004768372,
+            "transferSize": 27654
+          },
+          {
+            "name": "http://127.0.0.1:3001/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_1mojsayzyj2p6._.js",
+            "duration": 18.099999964237213,
+            "transferSize": 300
+          }
+        ],
+        "hasNext": true,
+        "buildButtons": [
+          {
+            "text": "Build",
+            "html": "<button type=\"button\" class=\"build-welcome-module__4CUdTa__node build-welcome-module__4CUdTa__build\"><span class=\"build-welcome-module__4CUdTa__nodeIcon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.55\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 3.4 21 8l-9 4.6L3 8l9-4.6Z M3 12.1l9 4.6 9-4.6 M3 16.2l9 4.6 9-4.6\"></path></svg></span><span>Build</span><span class=\"build-welcome-module__4CUdTa__pin\" aria-hidden=\"true\"></span></button>"
+          }
+        ],
+        "activeElement": "<body style=\"--motion-response:180ms;--motion-drawer:320ms;--motion-search:220ms;--motion-reveal:620ms;--motion-route:460ms;--ease-standard:cubic-bezier(0.22, 0.61, 0.36, 1);--ease-entrance:cubic-bezier(0.16, 0.84, 0.34, 1);--ease-exit:cubic-bezier(0.4, 0, 1, 1)\"><div hidden=\"\"><!--$--><!--/$--></div><canvas class=\"store-starfield\" data-starfield-phase=\"ambient\" data-source-nodes=\"0\" aria-hidden=\""
+      },
+      "clicked": "<button type=\"button\" class=\"dev-sidebar__action\">New build <span aria-hidden=\"true\">↗</span></button>",
+      "after": {
+        "url": "http://127.0.0.1:3001/build",
+        "activeElement": "<button type=\"button\" class=\"dev-sidebar__action\">New build <span aria-hidden=\"true\">↗</span></button>",
+        "bodyText": "Skip to content\nKNOuX\nBUILD\nKNOuX Store home\nNew build\n↗\n◍\n00\nWelcome\n◍\n01\nOne Platform\n◈\nOS\nEngineering\n⌁\n02\nBuild\n⬡\n03\nApps\n⌘\n04\nServices\n◉\n05\nDeployments\n▤\n06\nDocs & Knowledge\n▸\n07\nTerminal\n▷\n08\nPowerShell\n✣\n09\nProviders\n◈\nAI\nModels\n◈\nRT\nModel Routing\n⚙\n10\nSettings\nPROJECTS\n+\nKNOUX ONE\nKNOuX Forge\nKNOuX Repair\nKNOuX SmartOrganizer\nADAPTER STATUS\nADAPTER STATE UNKNOWN\nPROJECT STATUS\nPROJECT UNAVAILABLE\nENVIRONMENT\nUNKNOWN\nKNOuX\nSTORE\nWelcome to KNOUX STORE\nOne Platform\nVerification pipeline\nBuild\nProviders\nModels\nTerminal\nDeployments\nCOMMANDS · Ctrl K\nACTIVITY · 0\nSound\nNO RUNTIME REPORTED\nVERIFICATION NOT RUN\nDEPLOYMENT · UNKNOWN\nNO PROVIDER SELECTED"
+      }
+    }
+  }
+}
