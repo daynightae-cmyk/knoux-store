@@ -55,7 +55,7 @@ async function receiptPath(root: string, operationId: string): Promise<string> {
 }
 
 async function atomicJson(file: string, value: unknown): Promise<void> {
-  const temporary = `${file}.${process.pid}.${Date.now()}.tmp`;
+  const temporary = `${file}.${process.pid}.${Date.now()}.${Math.random().toString(36).slice(2)}.tmp`;
   await fs.writeFile(temporary, JSON.stringify(value, null, 2), { encoding: 'utf8', flag: 'wx' });
   await fs.rename(temporary, file);
 }
@@ -477,7 +477,18 @@ export async function cancelGeneratedProject(root: string, ownerId: string, oper
   const runtime = runtimes.get(key);
   if (runtime) {
     clearTimeout(runtime.timer);
+    // Wait for the child process to actually exit before returning,
+    // so the preview URL becomes unreachable before the cancellation
+    // receipt is returned. The preview process handles SIGTERM by
+    // closing its server and exiting, but this is asynchronous.
+    const childExited = new Promise<void>((resolve) => {
+      runtime.child.once('exit', () => resolve());
+      // Fallback timeout in case the process doesn't exit cleanly.
+      setTimeout(resolve, 2000);
+    });
     runtime.child.kill();
+    await childExited;
+    clearTimeout(runtime.timer);
     runtimes.delete(key);
   }
   const current = await readGeneratedReceipt(root, ownerId, id);
