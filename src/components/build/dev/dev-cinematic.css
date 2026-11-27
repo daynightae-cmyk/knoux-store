@@ -150,6 +150,9 @@ body:has(.dev-cinematic) { overflow: hidden; }
 .dev-cinematic .dev-machine__core { background:radial-gradient(#4e435b44,#121521); border-color:#b1a5c540; box-shadow:0 0 80px #88709e0a; }
 .dev-cinematic .dev-machine__core strong, .dev-cinematic .dev-machine__title em { color:#d6ccdf; }
 .dev-cinematic .dev-route { margin:0; padding:32px 0 40px; max-width:1400px; }
+/* Workspace routes that own the whole stage (constellation, terminal sessions,
+   release stations, service catalog) opt out of the readable-content cap. */
+.dev-cinematic .dev-route--wide { max-width:none; }
 .dev-cinematic .dev-panel { border-color:#e1ddea12; background:#0e121bcc; border-radius:10px; }
 .dev-cinematic .dev-panel__head { background:#ffffff02; border-bottom-color:#ffffff0a; min-height:46px; }
 .dev-cinematic .dev-panel__body { padding:18px; }
@@ -157,6 +160,10 @@ body:has(.dev-cinematic) { overflow: hidden; }
 .dev-cinematic .dev-apps-grid, .dev-cinematic .dev-docs-grid { gap:18px; }
 .dev-cinematic .dev-route h1 { font-weight:400; }
 .dev-cinematic .dev-console, .dev-cinematic .dev-terminal-mount { min-height:350px; background:#080b11; border-color:#ffffff12; border-radius:7px; }
+/* The live session owns the workspace height on terminal routes; this scoped
+   rule outranks the shared cinematic console minimum above. */
+.dev-cinematic .dev-route__grid--session .dev-console--terminal { min-height:clamp(340px,42vh,480px); max-height:none; }
+.dev-cinematic .dev-route__grid--session .dev-terminal-mount { min-height:clamp(300px,38vh,440px); }
 .dev-cinematic .dev-button { background:#cbc5d7; color:#111017; }
 .dev-cinematic .dev-tag--ok, .dev-cinematic .dev-tag { color:#c4bdd4; background:#28253260; border-color:#ada1c12b; }
 .dev-cinematic .dev-terminal-mount:focus-visible, .dev-cinematic .dev-field input:focus-visible, .dev-cinematic .dev-field select:focus-visible { outline-color:#bdb0d6; }

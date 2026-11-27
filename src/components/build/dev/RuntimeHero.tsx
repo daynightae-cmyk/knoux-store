@@ -11,10 +11,12 @@ import Link from 'next/link';
 import { useBuildWorkspace } from '../workspace/KnouxBuildWorkspace';
 import s from './runtime-hero.module.css';
 
-export function RuntimeHero({ active, bridgeLine, sessionLive }: {
+export function RuntimeHero({ active, bridgeLine, sessionLive, compact = false }: {
   active: 'engineering' | 'terminal' | 'powershell';
   bridgeLine: { text: string; tone: 'ok' | 'warn' | 'comment' };
   sessionLive: boolean;
+  /** Workspace routes keep the runtime identity but yield the viewport to the live session. */
+  compact?: boolean;
 }) {
   const { state } = useBuildWorkspace();
   const doors = [
@@ -23,7 +25,7 @@ export function RuntimeHero({ active, bridgeLine, sessionLive }: {
     { id: 'powershell', label: 'PowerShell', href: '/build/powershell', icon: 'M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z M8 9l3 3-3 3M13 15h3' },
   ] as const;
   return (
-    <header className={s.scene}>
+    <header className={s.scene} data-compact={compact ? '' : undefined}>
       <p className={s.brand}><i aria-hidden="true" /> KNOUX <span>STORE</span></p>
       <h1 className={s.title}>Local Engineering Runtime</h1>
       <p className={s.lede}>Terminal <b>•</b> PowerShell <b>•</b> Bridge</p>

@@ -68,7 +68,7 @@
   pointer-events: none;
   background:
     radial-gradient(ellipse 46% 62% at 50% 0%, #c4a4f7b3, transparent 74%),
-    radial-gradient(ellipse 100% 100% at 50% -14%, #3d1f7a70, #07050e 60%), #07050e;
+    radial-gradient(ellipse 100% 100% at 50% -14%, #3d1f7a70, transparent 60%);
   box-shadow: 0 -14px 48px #d9b8ffa6, 0 -40px 130px #7c4dd08c;
 }
 
@@ -128,7 +128,7 @@
   z-index: 5;
 }
 .title h1 {
-  font-size: clamp(34px, 4.35cqw, 72px) !important;
+  font-size: clamp(34px, min(4.35cqw, 6.4vh), 72px) !important;
   font-weight: 400;
   letter-spacing: -.04em;
   line-height: 1.12;
@@ -136,7 +136,7 @@
   color: white;
 }
 .title p {
-  font-size: clamp(14px, 2.15cqw, 24px) !important;
+  font-size: clamp(14px, min(2.15cqw, 2.5vh), 24px) !important;
   letter-spacing: .15em;
   margin: .4cqw 0 !important;
   color: #e3d5f7 !important;
@@ -222,9 +222,9 @@
 .instrument {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 53.5%;
   width: clamp(340px, 34%, 640px);
-  height: clamp(320px, 40%, 520px);
+  height: clamp(240px, 30vh, 460px);
   border: 1.5px solid #f3e8ff;
   border-radius: 3cqw;
   background:

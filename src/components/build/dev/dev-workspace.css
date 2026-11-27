@@ -177,6 +177,10 @@
 .dev-page-heading__detail{font:10px var(--font-mono,monospace);color:#c4a6e6;margin-top:13px;display:inline-block}
 .dev-route__grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;display:grid}
 .dev-route__grid>.dev-panel{min-height:230px}
+/* Terminal/PowerShell workspaces: the live session owns the width and height;
+   the facts rail stays readable instead of splitting the viewport in half. */
+.dev-route__grid--session{grid-template-columns:minmax(0,1.55fr) minmax(280px,1fr)}
+.dev-route__grid--session>.dev-panel:first-child{min-height:460px}
 .dev-pipeline-flow{grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:16px;display:grid}
 .dev-pipeline-flow>div{background:var(--surface);border:1px solid var(--line);flex-direction:column;gap:5px;min-height:83px;padding:11px;display:flex}
 .dev-pipeline-flow span{font:9px var(--font-mono,monospace);color:#a878da}
@@ -186,7 +190,7 @@
 .dev-console>div:not(.dev-empty){padding-bottom:10px}
 .dev-console span{margin-bottom:4px;display:block}
 .dev-console pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#aaa6b8}
-.dev-console--terminal{min-height:300px}
+.dev-console--terminal{min-height:clamp(340px,42vh,480px);max-height:none}
 .dev-console__bar{color:#8d84a1;border-bottom:1px solid #242532;justify-content:space-between;display:flex;padding-bottom:8px!important}
 .dev-apps-grid,.dev-docs-grid{grid-template-columns:minmax(230px,.75fr) minmax(0,1.25fr);align-items:start;gap:12px;display:grid}
 .dev-app-detail{padding:7px}

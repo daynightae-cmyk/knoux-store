@@ -46,12 +46,13 @@ export function ProviderHero({ definitions, selected, connection, discoveredMode
   const current = definitions.find(definition => definition.id === selected);
   const currentMark = current ? providerMark(current.id) : null;
 
-  // Elliptical orbit position for a given angle (degrees), centered at 50%/50%.
-  // rx/ry are fractions of the viewport (e.g. 31 = 31% from center).
+  // Elliptical orbit position for a given angle (degrees), centered at 53.5% of
+  // the viewport so the upper arc clears the title band while the lower nodes
+  // stay below the central instrument.
   const orbitPosition = (angleDeg: number, rx: number, ry: number) => {
     const rad = (angleDeg * Math.PI) / 180;
     const x = 50 + Math.cos(rad) * rx;
-    const y = 50 + Math.sin(rad) * ry;
+    const y = 53.5 + Math.sin(rad) * ry;
     return { x: `${x}%`, y: `${y}%` };
   };
 
@@ -78,16 +79,16 @@ export function ProviderHero({ definitions, selected, connection, discoveredMode
           </filter>
         </defs>
         <g fill="none" stroke="#b88bf3" strokeWidth="1.2" opacity=".5">
-          <ellipse cx="500" cy="360" rx="360" ry="210" />
-          <ellipse cx="500" cy="360" rx="260" ry="135" opacity=".6" />
-          <ellipse cx="500" cy="360" rx="150" ry="70" opacity=".35" />
+          <ellipse cx="500" cy="375" rx="360" ry="150" />
+          <ellipse cx="500" cy="375" rx="260" ry="95" opacity=".6" />
+          <ellipse cx="500" cy="375" rx="150" ry="48" opacity=".35" />
         </g>
         {/* Luminous orbital particles between the rings. */}
         <g stroke="#f4ebff" fill="none">
           {[45, 105, 165, 225, 285, 345].map((angle) => {
             const rad = (angle * Math.PI) / 180;
             const x = 500 + Math.cos(rad) * 310;
-            const y = 360 + Math.sin(rad) * 170;
+            const y = 375 + Math.sin(rad) * 130;
             return (
               <g key={angle} data-flare="" opacity=".85">
                 <circle cx={x} cy={y} r="2.5" fill="#fff" />
@@ -101,7 +102,7 @@ export function ProviderHero({ definitions, selected, connection, discoveredMode
       {orbitSlots.map(([id, name, angle], index) => {
         const d = definitions.find((p) => p.id === id);
         const mark = providerMark(id);
-        const pos = orbitPosition(angle, 44, 26);
+        const pos = orbitPosition(angle, 44, 21.5);
         const phase = ((index / orbitSlots.length) * 100).toFixed(2);
         return (
           <div

@@ -130,12 +130,12 @@
 .cardIcon { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #c9a2ff59; border-radius: 10px; background: linear-gradient(150deg, #5b3a8f80, #241338e6); color: #e9d5ff; }
 .cardIcon svg { width: 20px; height: 20px; }
 .cardTitle { display: grid; gap: 2px; min-width: 0; }
-.cardTitle strong { color: #f6effd; font-size: 15px; font-weight: 600; overflow-wrap: anywhere; }
+.cardTitle strong { color: #f6effd; font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
 .cardTitle small { color: #bd9ddd; font: 10px var(--font-mono, monospace); letter-spacing: .12em; }
 .cardState { margin-left: auto; flex: none; color: #d9c4f2; font: 9px var(--font-mono, monospace); letter-spacing: .14em; padding: 4px 8px; border: 1px solid #b393d34d; border-radius: 999px; }
-.card p { margin: 0; color: #d8c8ee; font-size: 13px; line-height: 1.55; }
+.card p { margin: 0; color: #d8c8ee; font-size: 13px; line-height: 1.55; max-width: 72ch; }
 .cardStatement { color: #bda9d6 !important; font-size: 12.5px !important; }
-.card footer { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 2px; }
+.card footer { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 4px; padding-top: 12px; border-top: 1px solid #ffffff12; }
 .open {
   display: inline-flex;
   align-items: center;

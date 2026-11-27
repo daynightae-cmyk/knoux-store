@@ -150,9 +150,13 @@
 .cards { position: absolute; z-index: 2; inset: 0; margin: 0; padding: 0; list-style: none; pointer-events: none; }
 .cards li { position: absolute; width: clamp(260px, 22vw, 340px); pointer-events: auto; }
 .card {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'tile text'
+    'detail detail';
   align-items: center;
-  gap: 14px;
+  gap: 10px 14px;
   width: 100%;
   padding: 14px 18px;
   border: 1px solid rgba(202, 164, 245, .5);
@@ -187,6 +191,7 @@
   box-shadow: inset 0 1px 0 rgba(243, 232, 255, .28), inset 0 0 28px rgba(182, 120, 248, .24), 0 0 34px rgba(164, 101, 237, .5), 0 16px 34px rgba(2, 1, 8, .55);
 }
 .tile {
+  grid-area: tile;
   flex: none;
   display: grid;
   place-items: center;
@@ -199,11 +204,11 @@
   color: #e9d5ff;
 }
 .tile svg { width: 25px; height: 25px; }
-.cardText { display: grid; gap: 4px; min-width: 0; }
+.cardText { grid-area: text; display: grid; gap: 4px; min-width: 0; }
 .cardText strong { font-size: 16px; font-weight: 700; letter-spacing: .01em; }
 .cardText small { color: #c9b7e5; font-size: 12.5px; line-height: 1.5; }
 /* Measured capability reading carried by each glass card (main #129). */
-.cardDetail { color: #a89cc7; font-size: 11.5px; line-height: 1.4; margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cardDetail { grid-area: detail; color: #a89cc7; font-size: 11.5px; line-height: 1.4; margin-top: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 /* Reference positions, measured on 01_One_Platform.png (fractions of the
    constellation field, core centred like the orbit ellipses). */
 .apps { left: 50%; top: 0; translate: -50% 0; }
@@ -211,8 +216,8 @@
 .routing { right: 9.5%; top: 12%; }
 .providers { left: 2%; top: 38%; }
 .docs { right: 2%; top: 38%; }
-.services { left: 9%; top: 62%; }
-.deployments { right: 9%; top: 62%; }
+.services { left: 9%; top: 64%; }
+.deployments { right: 9%; top: 64%; }
 .control { left: 50%; top: 80%; translate: -50% 0; }
 
 /* Earth horizon: the reference's planet limb, drawn as layered gradients.

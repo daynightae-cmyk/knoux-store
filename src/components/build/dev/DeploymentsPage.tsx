@@ -106,7 +106,7 @@ export function DeploymentsPage() {
     viewButtons.current[next]?.focus();
   }
 
-  return <div className={`dev-route ${styles.page} ${styles.deployment} ${s.page}`} data-reduced={reduced ? '' : undefined}>
+  return <div className={`dev-route dev-route--wide ${styles.page} ${styles.deployment} ${s.page}`} data-reduced={reduced ? '' : undefined}>
     <header className={s.masthead}>
       <div className={s.mastheadText}>
         <span className="dev-mini-label">ENGINEERING / RELEASE CENTER</span>

@@ -341,8 +341,9 @@ export function TerminalPage() {
   const busy = stage === 'requesting-ticket' || stage === 'connecting' || stage === 'reconnecting';
 
   return (
-    <div className="dev-route">
+    <div className="dev-route dev-route--wide">
       <RuntimeHero
+        compact
         active="terminal"
         sessionLive={live}
         bridgeLine={
@@ -353,7 +354,7 @@ export function TerminalPage() {
         }
       />
       <p className="dev-note">A real shell on the paired machine, or an honest statement that there is none. This page never presents a simulated shell.{live && session ? ` LIVE · PID ${session.pid}` : ` · ${stage.toUpperCase()}`}</p>
-      <div className="dev-route__grid">
+      <div className="dev-route__grid dev-route__grid--session">
         <DevPanel title="Session">
           <div className={`dev-console dev-console--terminal ${live ? '' : 'dev-console--blocked'}`}>
             <div className="dev-console__bar">
