@@ -7,20 +7,26 @@ import type { ProviderDefinition } from '@/lib/ai/provider-os/types';
 import { providerMark } from './provider-marks';
 import s from './provider-hero.module.css';
 
-const positions = [
-  ['openai', 'OpenAI', 34.4, 34.7], ['anthropic', 'Anthropic', 49.8, 31.2],
-  ['gemini', 'Google Gemini', 64.9, 34.7], ['openrouter', 'OpenRouter', 23.8, 44.6],
-  ['deepseek', 'DeepSeek', 75.5, 44.6], ['groq', 'Groq', 19, 57.7],
-  ['qwen', 'QwenCloud', 80.3, 57.7], ['mistral', 'Mistral', 27.6, 67.3],
-  ['grok', 'Grok', 71.9, 67.3],
+// Providers arranged around a centered elliptical orbit (angle in degrees, 0 = top).
+const orbitSlots = [
+  ['openai', 'OpenAI', -10], ['anthropic', 'Anthropic', 30],
+  ['gemini', 'Google Gemini', 70], ['openrouter', 'OpenRouter', 110],
+  ['deepseek', 'DeepSeek', 150], ['groq', 'Groq', 190],
+  ['qwen', 'QwenCloud', 230], ['mistral', 'Mistral', 270], ['grok', 'Grok', 310],
 ] as const;
 
-export function ProviderHero({ definitions, selected, onSelect, onGetApi, onBrowse }: {
+// Set of provider IDs that have orbit nodes.
+const orbitProviderIds = new Set<string>(orbitSlots.map(([id]) => id));
+
+export function ProviderHero({ definitions, selected, connection, discoveredModels, onSelect, onGetApi, onBrowse, onInspect }: {
   definitions: readonly ProviderDefinition[];
   selected: string;
+  connection: string | null;
+  discoveredModels: number | null;
   onSelect: (definition: ProviderDefinition) => void;
   onGetApi: () => void;
   onBrowse: () => void;
+  onInspect: () => void;
 }) {
   const hero = useRef<HTMLElement>(null);
   const [paused, setPaused] = useState(false);
@@ -36,15 +42,36 @@ export function ProviderHero({ definitions, selected, onSelect, onGetApi, onBrow
     return () => { observer.disconnect(); document.removeEventListener('visibilitychange', sync); };
   }, []);
 
+  const current = definitions.find(definition => definition.id === selected);
+  const currentMark = current ? providerMark(current.id) : null;
+
+  // Elliptical orbit position for a given angle (degrees), centered at 53.5% of
+  // the viewport so the upper arc clears the title band while the lower nodes
+  // stay below the central instrument.
+  const orbitPosition = (angleDeg: number, rx: number, ry: number) => {
+    const rad = (angleDeg * Math.PI) / 180;
+    const x = 50 + Math.cos(rad) * rx;
+    const y = 53.5 + Math.sin(rad) * ry;
+    return { x: `${x}%`, y: `${y}%` };
+  };
+
   return (
-    <section ref={hero} className={s.hero} data-paused={paused} aria-label="Universal Provider Engine">
-      {/* Cosmic background from UniversalProviderEngine */}
+    <section ref={hero} className={s.hero} data-paused={paused} aria-label="Provider Constellation">
+      {/* UniversalProviderEngine cosmic background */}
       <div className={s.cosmicBg} aria-hidden="true" />
       <div className={s.cosmicStars} aria-hidden="true" />
       <div className={s.cosmicPlanet} aria-hidden="true" />
       <div className={s.cosmicGlow} aria-hidden="true" />
 
-      <button type="button" className={s.motionControl} aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? 'Resume orbit' : 'Pause orbit'}</button>
+      <button type="button" className={s.motionControl} aria-pressed={paused} onClick={() => setPaused((v) => !v)}>
+        {paused ? 'Resume orbit' : 'Pause orbit'}
+      </button>
+
+      <Link href="/build" className={s.brand}><i aria-hidden="true" /> <b>KNOuX</b> <span>STORE</span></Link>
+      <header className={s.title}>
+        <h1>Provider Constellation</h1>
+        <p>Connect, orchestrate, and route AI and compute providers across your workspace.</p>
+      </header>
 
       {/* Orbit stage: CSS rings + orbiting provider nodes connected to real state */}
       <div className={s.orbitStage}>
@@ -74,89 +101,86 @@ export function ProviderHero({ definitions, selected, onSelect, onGetApi, onBrow
         </div>
 
         {/* Orbiting provider nodes - each connected to real provider selection */}
-        {positions.map(([id, name], index) => {
-          const angle = (index / positions.length) * 360;
-          const d = definitions.find(p => p.id === id);
+        {orbitSlots.map(([id, name, angle], index) => {
+          const d = definitions.find((p) => p.id === id);
           const mark = providerMark(id);
+          const pos = orbitPosition(angle, 44, 21.5);
+          const phase = ((index / orbitSlots.length) * 100).toFixed(2);
           return (
-            <button
+            <div
               key={id}
-              type="button"
-              className={s.orbitNode}
-              style={{ '--angle': `${angle}deg` } as CSSProperties}
-              disabled={!d}
-              aria-label={`Select ${name}`}
-              aria-pressed={selected === id}
-              onClick={() => d && onSelect(d)}
+              className={s.nodeWrapper}
+              style={{ '--x': pos.x, '--y': pos.y, '--phase': phase + '%' } as CSSProperties}
             >
-              <div className={s.nodeMark}>
-                {mark ? (
-                  <Image src={`/providers/${mark}.svg`} alt="" width={24} height={24} loading="eager" className={s.markImg} style={{ filter: 'invert(1) drop-shadow(0 0 10px rgba(201,151,255,0.45))' }} />
-                ) : (
-                  <b data-provider={id}>{id === 'groq' ? 'groq' : '≡'}</b>
-                )}
-              </div>
-              <span className={s.nodeName}>{name}</span>
-            </button>
+              <button
+                type="button"
+                className={s.orbitNode}
+                style={{ '--angle': `calc(${angle}deg + ${phase} * 3.6deg)` } as CSSProperties}
+                disabled={!d}
+                aria-label={'Select ' + name}
+                aria-pressed={selected === id}
+                onClick={() => { if (d) { document.title = 'SELECT:' + d.id; onSelect(d); } }}
+              >
+                <div className={s.nodeMark}>
+                  {mark ? (
+                    <Image src={`/providers/${mark}.svg`} alt="" width={40} height={40} loading="eager" className={s.markImg} style={{ filter: 'invert(1) drop-shadow(0 0 10px rgba(201,151,255,0.45))' }} />
+                  ) : (
+                    <b data-provider={id} />
+                  )}
+                </div>
+                <span className={s.nodeName}>{name}</span>
+              </button>
+            </div>
           );
         })}
       </div>
 
-      {/* Header overlay */}
-      <div className={s.headerOverlay}>
-        <Link href="/build" className={s.brandLink}><span aria-hidden="true">•</span> <b>KNOuX</b> <span>STORE</span></Link>
-        <header className={s.title}>
-          <h1>Universal Provider Engine</h1>
-          <p>Connect. Discover. Route.</p>
-        </header>
-      </div>
-
-      {/* Left provider panel - real provider list connected to selection */}
-      <div className={s.providerPanel}>
-        <div className={s.panelHeader}>
-          <span className={s.panelTitle}>Providers</span>
+      {/* Dominant central provider instrument — the heart of the constellation.
+          Rendered only when a provider is selected so it never intercepts
+          orbit-node clicks on the unselected constellation. */}
+      {current && (
+        <div className={s.instrument} aria-hidden={!current}>
+          <div className={s.instrumentMark} aria-hidden="true">
+            {currentMark ? <Image src={`/providers/${currentMark}.svg`} alt="" width={72} height={72} /> : <b data-provider={current.id} />}
+          </div>
+          <div className={s.instrumentBody}>
+            <div className={s.instrumentLabel}>
+              <span>{current.class.replaceAll('_', ' ')}</span>
+              <h2 className={s.instrumentName}>{current.name}</h2>
+              <strong className={s.instrumentStatus}>{connection?.replaceAll('_', ' ') ?? 'Not configured'}</strong>
+            </div>
+            <dl className={s.instrumentFacts}>
+              <div><dt>Transport</dt><dd>{current.transport}</dd></div>
+              <div><dt>Discovered models</dt><dd>{discoveredModels ?? 'Not reported'}</dd></div>
+            </dl>
+            <div className={s.instrumentActions}>
+              <button type="button" className={s.instrumentBtn} onClick={onInspect}>Provider details</button>
+              <button type="button" className={s.instrumentBtn} onClick={onBrowse}>Browse catalog</button>
+            </div>
+          </div>
         </div>
-        <nav className={s.providerList} aria-label="Provider registry">
-          {positions.map(([id, name]) => {
-            const d = definitions.find(p => p.id === id);
-            const mark = providerMark(id);
-            return (
-              <button
-                key={id}
-                type="button"
-                className={s.listItem}
-                aria-current={selected === id ? 'true' : undefined}
-                disabled={!d}
-                onClick={() => d && onSelect(d)}
-              >
-                {mark ? (
-                  <Image src={`/providers/${mark}.svg`} alt="" width={20} height={20} loading="eager" className={s.listMark} style={{ filter: 'invert(1) drop-shadow(0 0 10px rgba(201,151,255,0.45))' }} />
-                ) : (
-                  <b data-provider={id}>{id === 'groq' ? 'groq' : '≡'}</b>
-                )}
-                <span>{name}</span>
-                <span className={s.arrow}>→</span>
-                <span className={s.statusBadge}>
-                  {d ? 'REGISTERED' : '—'}
-                </span>
-              </button>
-            );
-          })}
-          {!definitions.length ? <p className={s.emptyState}>Provider registry is unavailable until its status has been read.</p> : null}
-        </nav>
-      </div>
+      )}
 
-      <div className={s.coreLinks}>
-        <button type="button" onClick={onBrowse} aria-label="Browse providers">
-          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 4 21 11-21 11L3 15Z M3 24l21 11 21-11 M3 33l21 11 21-11" /></svg>
-        </button>
-        <Link href="/build/ai/models" aria-label="Discover models">
-          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 3 20 11v22L24 47 4 36V14Z M4 14l20 11 20-11 M24 25v22" /></svg>
-        </Link>
-      </div>
+      {/* Contextual panel — populated when a provider is selected, otherwise empty. */}
+      {current && orbitProviderIds.has(current.id) && (
+        <aside className={s.contextPanel} aria-label={current.name + ' details'}>
+          <header className={s.contextHead}>
+            <span className={s.contextEyebrow}>{current.class.replaceAll('_', ' ')} / {current.transport}</span>
+            <h3 className={s.contextTitle}>{current.name}</h3>
+          </header>
+          <p className={s.contextLine}>{connection ? 'Connection: ' + connection : 'No profile bound.'}</p>
+          <div className={s.contextActions}>
+            <button type="button" className={s.contextBtn} onClick={onInspect}>Configure provider</button>
+            <button type="button" className={s.contextBtn} onClick={onGetApi}>API key</button>
+          </div>
+          <p className={s.contextNote}>Connection testing checks authentication and discovery only; it does not generate content.</p>
+        </aside>
+      )}
 
+      {/* Primary action — always visible, centered at the bottom, never clipped. */}
       <button type="button" className={s.getApi} onClick={onGetApi}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 14 4-4m-6 7-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m2-1 2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0" transform="translate(1 0)" /></svg>Get API
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 14 4-4m-6 7-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m2-1 2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0" transform="translate(1 0)" /></svg>
+        Get API
       </button>
     </section>
   );
