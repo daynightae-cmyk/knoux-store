@@ -26,7 +26,13 @@
     "src/components/products/ProductSceneBase.tsx",
     "src/lib/auth/provider.ts",
     "src/lib/supabase/client.ts",
-    "src/lib/ai/adapters/vendors.ts"
+    "src/lib/ai/adapters/vendors.ts",
+    "src/components/build/providers/CustomMetadata.tsx",
+    "src/components/build/providers/PlatformFacts.tsx",
+    "src/components/build/providers/ProviderAuthFeedback.tsx",
+    "src/components/build/providers/ProviderCenter.tsx",
+    "src/components/build/providers/ProviderHero.tsx",
+    "src/lib/ai/provider-os/connection-label.ts"
   ],
   "ignoreDependencies": [],
   "ignoreBinaries": [],
@@ -85,6 +91,8 @@
     "src/components/build/orb-icons.ts": ["exports", "types"],
     "src/components/identity/knoux-sentinel.ts": ["exports", "types"],
     "src/lib/wordpress/external.ts": ["exports", "types"],
-    "src/lib/supabase/config.ts": ["exports", "types"]
+    "src/lib/supabase/config.ts": ["exports", "types"],
+    "src/components/build/providers/UniversalProviderEngine.tsx": ["exports"],
+    "src/lib/build/custom-provider.ts": ["exports"]
   }
 }

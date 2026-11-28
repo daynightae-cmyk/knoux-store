@@ -1,5 +1,5 @@
-import { ProviderCenter } from '@/components/build/providers/ProviderCenter';
+import { UniversalProviderEngine } from '@/components/build/providers/UniversalProviderEngine';
 
 export default function Page() {
-  return <ProviderCenter />;
+  return <UniversalProviderEngine />;
 }
