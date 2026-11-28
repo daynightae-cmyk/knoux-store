@@ -120,7 +120,14 @@ async function requireNoLink(file: string): Promise<void> {
 }
 
 async function writeProjectFile(destination: string, root: string, file: GeneratedProjectFile): Promise<{ path: string; bytes: number; sha256: string }> {
-  const target = path.resolve(destination, ...file.path.split('/'));
+  // Validate and normalize the file path to prevent path injection.
+  // Use posix separators consistently since GeneratedProjectFile paths use forward slashes.
+  const normalizedPath = file.path.replace(/\\/g, '/');
+  const segments = normalizedPath.split('/').filter((segment) => segment.length > 0 && segment !== '.' && segment !== '..');
+  if (segments.length !== normalizedPath.split('/').filter(Boolean).length) {
+    throw new Error('Generated file path contains invalid segments (. or ..).');
+  }
+  const target = path.resolve(destination, ...segments);
   if (!inside(root, target)) throw new Error('Generated write escaped its operation destination.');
   await fs.mkdir(path.dirname(target), { recursive: true });
   let cursor = path.dirname(target);
@@ -533,12 +540,13 @@ function deployEnabled(): boolean {
  *
  * Both the failed-deployment path and the cancellation path clean up the same
  * two artifacts, so the cleanup lives here instead of being restated twice.
+ * Direct removal without prior existence check to avoid TOCTOU race.
  */
 async function removeDeployStaging(publishRoot: string, id: string): Promise<void> {
   const stagingTarget = path.resolve(publishRoot, `.knoux-${id}-staging`);
-  await fs.rm(stagingTarget, { recursive: true, force: true }).catch(() => undefined);
+  await fs.rm(stagingTarget, { recursive: true, force: true });
   const deployMarker = path.join(publishRoot, `.knoux-${id}-deploy.progress`);
-  await fs.rm(deployMarker, { recursive: true, force: true }).catch(() => undefined);
+  await fs.rm(deployMarker, { recursive: true, force: true });
 }
 
 function deployOperatorId(ownerId: string | null): boolean {
@@ -658,8 +666,13 @@ export async function deployGeneratedProject(root: string, ownerId: string, oper
         return current;
       } catch (error) {
         // Clean up staging and progress marker on any failure.
+        // Use direct removal without prior existence check to avoid TOCTOU race.
         try {
-          await removeDeployStaging(deployRoot(), id);
+          const publishRoot = deployRoot();
+          const stagingTarget = path.resolve(publishRoot, `.knoux-${id}-staging`);
+          const deployMarker = path.join(publishRoot, `.knoux-${id}-deploy.progress`);
+          await fs.rm(stagingTarget, { recursive: true, force: true });
+          await fs.rm(deployMarker, { recursive: true, force: true });
         } catch {
           // Best-effort cleanup.
         }
@@ -745,13 +758,14 @@ export async function cancelDeployGeneratedProject(root: string, ownerId: string
   await save(root, current);
 
   // Clean up any staged publish output and progress marker.
+  // Use atomic removal without prior existence check to avoid TOCTOU race.
   try {
     const publishRoot = deployRoot();
     const publishTarget = path.resolve(publishRoot, id);
-    await fs.rm(publishTarget, { recursive: true, force: true }).catch(() => undefined);
+    await fs.rm(publishTarget, { recursive: true, force: true });
     await removeDeployStaging(publishRoot, id);
   } catch {
-    // Best-effort cleanup.
+    // Best-effort cleanup; ignore if already gone.
   }
 
   return current;
