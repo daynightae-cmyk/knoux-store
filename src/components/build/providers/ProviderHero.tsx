@@ -120,8 +120,6 @@ export function ProviderHero({ definitions, selected, onSelect, onGetApi, onBrow
           {positions.map(([id, name]) => {
             const d = definitions.find(p => p.id === id);
             const mark = providerMark(id);
-            const own = d ? [] : [];
-            const active = d ? undefined : undefined;
             return (
               <button
                 key={id}
