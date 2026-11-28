@@ -1,521 +1,95 @@
-/* Provider Constellation hero — full-viewport cosmic experience.
-   Reference: knoux_provider_constellation_dashboard.png (owner-curation-20261124/originals).
-   KNOX identity owns the center; providers orbit as living stars around it;
-   the selected provider illuminates a contextual panel. No photographs,
-   no empty quarter-screen, no clipped primary action. */
-.hero {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  min-height: 100svh;
-  background: #07050e;
-  color: #fff;
-  font-family: Arial, Helvetica, sans-serif;
-  container-type: inline-size;
-}
+.hero{position:relative;isolation:isolate;overflow:hidden;width:100%;aspect-ratio:3/2;min-height:0;background:#07050e url('/creative/build-v3-providers.webp') center center/100% 100% no-repeat;color:#fff;font-family:Arial,Helvetica,sans-serif;container-type:inline-size}
+.hero::after{content:'';position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 50% 57%,#8450d329,transparent 39%),radial-gradient(ellipse at 50% 89%,#ba83ff44,transparent 22%);pointer-events:none}
+.planet{position:absolute;z-index:-1;right:-8%;top:-34%;width:34%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 72% 20%,#0d091b 45%,#272042 78%,#9668d7 99%);box-shadow:-3px 4px 13px #a976f8,0 0 42px #7d4dc44d;opacity:.7}
+.brand{position:absolute;top:4.1%;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:1.1cqw;color:white!important;text-decoration:none!important;white-space:nowrap;font-size:2.6cqw;letter-spacing:.04em}
+.brand i{width:.9cqw;height:.9cqw;border-radius:50%;background:white;box-shadow:0 0 16px 5px #b57aff}.brand span{font-size:1.5cqw;letter-spacing:.3em}
+.title{position:absolute;top:11%;left:0;right:0;text-align:center;z-index:2}.title h1{font-size:4.35cqw!important;font-weight:400;letter-spacing:-.04em;line-height:1.12;margin:0!important;color:white}.title p{font-size:2.15cqw!important;letter-spacing:.15em;margin:.4cqw 0!important;color:#e3d5f7!important;line-height:1.3!important}
+.orbits{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hero .node{position:absolute;left:var(--x);top:var(--y);transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:.15cqw;background:none!important;border:0!important;padding:0!important;min-height:0!important;box-shadow:none!important;color:white;font-size:1.28cqw!important;white-space:nowrap;z-index:4;font-weight:400}
+.node .sphere{width:5.65cqw;height:5.65cqw;border:1px solid #d9b8ff;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 38% 28%,#34234b,#120e25 75%);box-shadow:inset 0 0 1.15cqw #bc8cff91,0 0 1.25cqw #a46cfd51;transition:box-shadow .2s,scale .2s}
+.node .sphere img{width:53%;height:53%;object-fit:contain}.node .sphere img[src*="openai"],.node .sphere img[src*="qwen"]{filter:invert(1)}.sphere b{font-size:2.2cqw;line-height:1}.sphere b[data-provider="groq"]{color:#ff6b57;font-size:1.8cqw}.node:is(:hover,:focus-visible) .sphere{scale:1.1;box-shadow:inset 0 0 1.5cqw #c69cff,0 0 2cqw #bd88ff}.node:disabled{opacity:.55!important}
+.core{position:absolute;left:37.4%;top:42%;width:25%;height:31%;border:1.5px solid #d8b6ff;border-radius:2.6cqw;background:radial-gradient(ellipse at 50% 42%,#6c3da52d,transparent 67%),linear-gradient(150deg,#4f2f7874,#110d22d9 65%,#8b50d28c);box-shadow:inset 0 0 2.5cqw #be8cfc6b,0 0 2.2cqw #b78afc55;transform:perspective(900px) rotateX(9deg) rotateY(6deg);z-index:3}
+.mark{position:absolute;height:59%;width:44%;left:29%;top:11%;filter:drop-shadow(0 0 4px #fff) drop-shadow(0 0 13px #b67cff);transform:rotate(6deg)}.coreLight{position:absolute;left:50%;top:45%;width:3%;aspect-ratio:1;background:#fff;border-radius:50%;box-shadow:0 0 1.5cqw .7cqw #f0baff,0 0 3.5cqw 1.25cqw #9d5fff}
+.coreLinks{position:absolute;bottom:3%;left:13%;width:74%;height:24%;border:1px solid #ab83df55;border-radius:1.5cqw;display:flex;align-items:center;background:#130d28aa}.hero .coreLinks button,.coreLinks a{width:50%;height:80%;display:grid;place-items:center;background:transparent!important;border:0!important;border-radius:0!important;padding:0!important}.coreLinks a{border-left:1px solid #af8fe57d!important}.coreLinks svg{width:3.4cqw;height:3.4cqw;fill:none;stroke:#ecd7ff;stroke-width:2;filter:drop-shadow(0 0 7px #9e60ff)}
+.hero .getApi{position:absolute;top:79.2%;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:1cqw;border:2px solid #f1caff!important;border-radius:4cqw!important;background:radial-gradient(ellipse,#523078,#211331)!important;box-shadow:inset 0 0 1cqw #d49bff,0 0 1.6cqw #c27bff!important;padding:.8cqw 3.3cqw!important;color:#fff;font-size:1.85cqw!important;font-weight:600;min-height:0!important;z-index:5}.getApi svg{width:2.2cqw;height:2.2cqw;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round}
+.leftPanel,.rightPanel,.lowerLeft,.lowerRight{position:absolute;border:1px solid #9a7cc76b;border-radius:1cqw;padding:1.1cqw;background:linear-gradient(145deg,#1a1326de,#0d0a17b3);box-shadow:inset 0 0 1.8cqw #bc8bff12;z-index:1;width:22%}.leftPanel{left:4%;top:19%;transform:perspective(650px) rotateY(24deg) rotateZ(8deg)}.rightPanel{right:4%;top:19%;transform:perspective(650px) rotateY(-24deg) rotateZ(-8deg)}.lowerLeft{left:4%;top:70%;transform:perspective(650px) rotateY(24deg) rotateZ(7deg);opacity:.65}.lowerRight{right:4%;top:70%;transform:perspective(650px) rotateY(-24deg) rotateZ(-7deg);opacity:.65}
+.hero .leftPanel button,.hero .rightPanel a{width:100%;display:flex;align-items:center;text-align:left;gap:.8cqw;color:#efebff;background:#2419366b!important;border:1px solid #a18ac833!important;border-radius:.55cqw!important;font-size:1.15cqw!important;padding:.4cqw .8cqw!important;min-height:0!important;text-decoration:none!important;margin:.25cqw 0;box-shadow:none!important}.hero .leftPanel button:first-child,.hero .rightPanel a{border:0!important;background:none!important;font-size:1.45cqw!important;margin-bottom:.8cqw}.leftPanel button span:nth-last-child(2){flex:1}.leftPanel img{width:1.5cqw;height:1.5cqw;object-fit:contain}.leftPanel img[src*="openai"]{filter:invert(1)}.skeleton{display:grid;gap:.9cqw;padding:.6cqw}.skeleton i{height:.4cqw;border-radius:10px;background:linear-gradient(90deg,#a088d063 0 15%,transparent 15% 22%,#a088d043 22% 49%,transparent 49% 60%,#a088d043 60% 81%,transparent 81% 88%,#a088d063 88%);opacity:.65}
+@media(max-width:650px){.hero{aspect-ratio:auto;min-height:540px;display:flex;flex-direction:column;align-items:center;padding:22px 10px 26px;background-size:cover}.brand{position:static;transform:none;font-size:24px;gap:8px}.brand span{font-size:12px}.brand i{width:8px;height:8px}.title{position:static;margin:14px 0 0}.title h1{font-size:clamp(25px,7cqw,44px)!important}.title p{font-size:12px!important;letter-spacing:.1em;margin-top:8px!important}.orbits,.leftPanel,.rightPanel,.lowerLeft,.lowerRight,.planet{display:none}.core{position:relative;order:1;left:auto;top:auto;width:124px;height:145px;margin:14px 0 12px;border-radius:16px;transform:none}.coreLinks svg{width:22px;height:22px}.hero .node{position:relative;left:auto;top:auto;transform:none;display:inline-flex;font-size:10px!important;gap:4px;white-space:normal;width:30%;min-height:56px!important}.node .sphere{width:38px;height:38px}.sphere b,.sphere b[data-provider="groq"]{font-size:14px}.hero{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));justify-items:center;align-items:center;gap:8px}.brand,.title,.core,.getApi{grid-column:1/-1}.hero .node{width:100%}.core{order:0;grid-row:3}.hero .getApi{position:static;transform:none;font-size:16px!important;padding:9px 30px!important;margin-top:10px;order:5}.getApi svg{width:20px;height:20px}}
+@media(prefers-reduced-motion:reduce){.node .sphere{transition:none}}
 
-/* Deep sky: layered nebula banks across the whole viewport. */
-.sky {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 70% 40% at 80% 10%, #c084fc33, transparent 62%),
-    radial-gradient(ellipse 50% 25% at 20% 5%, #e9d5ff26, transparent 68%),
-    radial-gradient(ellipse 40% 30% at 100% 50%, #9333ea2e, transparent 62%),
-    radial-gradient(ellipse 30% 20% at 10% 85%, #a855f722, transparent 68%),
-    radial-gradient(ellipse 60% 18% at 60% 100%, #5830a844, transparent 60%);
-}
-.sky::before, .sky::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-repeat: repeat;
-  opacity: .75;
-}
-.sky::before {
-  background-image:
-    radial-gradient(1.2px 1.2px at 14% 16%, #fff, transparent),
-    radial-gradient(1px 1px at 37% 7%, #e9d5ffe6, transparent),
-    radial-gradient(1.4px 1.4px at 62% 21%, #fff, transparent),
-    radial-gradient(.9px .9px at 86% 12%, #d8b4ffcc, transparent),
-    radial-gradient(1px 1px at 24% 44%, #efe6ffcc, transparent),
-    radial-gradient(1.3px 1.3px at 71% 39%, #fff, transparent);
-  background-size: 22% 26%;
-}
-.sky::after {
-  background-image:
-    radial-gradient(.8px .8px at 5% 11%, #fff, transparent),
-    radial-gradient(.7px .7px at 29% 27%, #e0cff5cc, transparent),
-    radial-gradient(.9px .9px at 53% 5%, #fff, transparent),
-    radial-gradient(.7px .7px at 77% 31%, #d5c0f0c4, transparent),
-    radial-gradient(.8px .8px at 17% 61%, #fff, transparent),
-    radial-gradient(.7px .7px at 64% 68%, #dccdf3c4, transparent);
-  background-size: 13% 17%;
-}
+/* Stable native hit targets, including the legacy workspace active transform. */
+.hero .node{transform:none!important;translate:-50% -39%;pointer-events:auto!important;touch-action:manipulation}
+.hero .node>*{pointer-events:none}
+.hero .getApi{transform:none!important;translate:-50% 0;pointer-events:auto!important}
+.hero .getApi svg{pointer-events:none}
+.hero .leftPanel button,.hero .coreLinks button{transform:none!important;pointer-events:auto!important}
+.hero .title h1{letter-spacing:-.015em;font-size:4.55cqw!important}
+.hero .title p{font-weight:400!important;letter-spacing:.15em}
+.hero .sphere{box-shadow:inset 0 0 1.2cqw #bc8cffb0,0 0 .9cqw #a46cfd8a;background:radial-gradient(circle at 35% 22%,#3e2b55,#110c22 72%)}
+.hero .node .sphere img{filter:brightness(1.18)}
+.hero .node .sphere img[src*="openai"]{filter:invert(1)}
+.hero .node .sphere img[src*="qwen"]{filter:invert(1) sepia(1) saturate(7) hue-rotate(225deg)}
+.hero .node .sphere img[src*="gemini"]{filter:none;opacity:0}
+.hero .node:has(img[src*="gemini"]) .sphere::after{content:'';position:absolute;width:3.2cqw;height:3.2cqw;background:conic-gradient(from 20deg,#ff946c,#f1d76e,#4aaef7,#657cf8,#ff946c);clip-path:polygon(50% 0,57% 25%,70% 40%,100% 50%,70% 60%,57% 75%,50% 100%,43% 75%,30% 60%,0 50%,30% 40%,43% 25%)}
+.hero .core{transform:perspective(900px) rotateX(-12deg) rotateY(5deg) rotateZ(2deg);box-shadow:inset 0 0 2.2cqw #be8cfca0,0 0 2cqw #b78afc77}
+.hero .mark{filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 12px #b67cff)}
+.hero .planet{top:-42%;right:-7%;opacity:.55}
+.hero::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:url('/creative/build-v3-providers.webp') center/100% 100% no-repeat;transform:scaleX(-1);mask-image:radial-gradient(ellipse at 15% 7%,#000 0,transparent 36%);opacity:.85}
+.hero .orbits{filter:drop-shadow(0 0 2px #ad81ef)}
+@media(min-width:651px) and (max-aspect-ratio:3/2){.hero{aspect-ratio:3/2}}
+@media(min-width:651px) and (min-aspect-ratio:3/2){.hero{aspect-ratio:auto;height:calc(100svh - 1px);min-height:480px}}
+@media(max-width:650px){.hero .title h1{font-size:clamp(25px,7cqw,44px)!important}.hero .node,.hero .getApi{translate:none}.hero .core{transform:none}.hero .node:has(img[src*="gemini"]) .sphere::after{width:22px;height:22px}}
 
-/* Planetary limb at top edge (dimensional horizon). */
-.limb {
-  position: absolute;
-  z-index: -1;
-  left: -10%;
-  right: -10%;
-  top: -12%;
-  height: clamp(150px, 22cqw, 260px);
-  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-  border-top: 2px solid #f7f0ff;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 46% 62% at 50% 0%, #c4a4f7b3, transparent 74%),
-    radial-gradient(ellipse 100% 100% at 50% -14%, #3d1f7a70, transparent 60%);
-  box-shadow: 0 -14px 48px #d9b8ffa6, 0 -40px 130px #7c4dd08c;
-}
+.hero::before{mask-image:radial-gradient(ellipse at 85% 9%,#000 0,transparent 35%);opacity:.8}
+.hero .node{min-width:44px!important;min-height:44px!important}
+.hero .getApi{min-height:44px!important}
+.hero .mark{opacity:1;filter:drop-shadow(0 0 1px #fff) drop-shadow(0 0 6px #c997ff) drop-shadow(0 0 10px #9b59ff)}
+.hero .coreLight{width:2%;left:49.5%;box-shadow:0 0 .6cqw .4cqw #fff,0 0 1.8cqw .7cqw #f0baff,0 0 3.5cqw 1.25cqw #9d5fff}
+.hero .coreLight::after,.hero .coreLight::before{position:absolute;content:'';left:50%;top:50%;width:9cqw;height:1px;background:linear-gradient(90deg,transparent,#fff,transparent);transform:translate(-50%,-50%) rotate(-15deg);filter:drop-shadow(0 0 5px #b97bff)}
+.hero .coreLight::after{transform:translate(-50%,-50%) rotate(54deg);width:7cqw}
+.hero .leftPanel,.hero .rightPanel{box-shadow:inset 0 0 1.8cqw #bc8bff22,0 0 1cqw #8058c326}
+@media(max-width:650px){.hero .core{height:166px}.hero .coreLinks{height:44px}.hero .coreLinks button,.hero .coreLinks a{height:44px;min-width:44px!important}.hero .getApi{min-height:44px!important}}
 
-/* Planetary horizon at bottom — grounds the scene. */
-.horizon {
-  position: absolute;
-  z-index: -1;
-  left: -15%;
-  right: -15%;
-  bottom: -10%;
-  height: clamp(120px, 18cqw, 220px);
-  border-radius: 0 0 50% 50% / 100% 100% 0 0;
-  border-bottom: 1.5px solid #9d6be8;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 80% 40% at 50% 100%, #4a327a55, transparent 72%),
-    #05030a;
-  box-shadow: 0 14px 48px #d9b8ff55, inset 0 22px 60px #a855f726;
+/* Choreography: one shared cycle, stable upright logos and a quiet optical pulse. */
+.hero .title h1{font-size:clamp(28px,3.25cqw,52px)!important;font-weight:450;letter-spacing:-.025em}
+.hero .title p{font-size:clamp(12px,1.35cqw,23px)!important;letter-spacing:.17em}
+.hero .brand{font-size:2cqw}.hero .brand span{font-size:1.12cqw}
+.hero .motionControl{position:absolute;z-index:8;right:2%;top:3%;font-size:11px!important;color:#ddd0f3;border:1px solid #a88bd64d!important;background:#171124bb!important;min-height:44px!important}
+.hero .sphere{display:grid;place-items:center;position:relative;aspect-ratio:1;flex:none;width:5.1cqw;height:5.1cqw}
+.hero .node .sphere img{width:52%;height:52%;object-fit:contain}
+.hero .node span:last-child{line-height:1.15;font-size:1.05cqw!important}
+.hero .core{top:41%;height:30%;transform:perspective(900px) rotateX(-12deg) rotateY(5deg) rotateZ(2deg)}
+.hero .getApi{top:86%}
+.hero .orbits g:first-of-type{opacity:.85}
+@keyframes providerJourney{from{offset-distance:var(--phase)}to{offset-distance:calc(var(--phase) + 100%)}}
+@keyframes providerBreath{0%,100%{opacity:.62}50%{opacity:1}}
+@keyframes providerFloat{0%,100%{translate:0 0}50%{translate:0 -5px}}
+@keyframes providerStars{0%,100%{opacity:.42}50%{opacity:.86}}
+@media(min-width:651px) and (prefers-reduced-motion:no-preference){
+ @supports(offset-path:ellipse(32% 25% at 50% 52%)){
+  .hero .node{left:0;top:0;translate:none;offset-path:ellipse(32% 25% at 50% 52%);offset-rotate:0deg;offset-anchor:50% 39%;offset-distance:var(--phase);animation:providerJourney 94s linear infinite;pointer-events:auto!important}
+  .hero:has(.node:hover,.node:focus-visible,.leftPanel:hover,.rightPanel:hover,.coreLinks:hover) .node{animation-play-state:paused}
+ }
+ .hero .core{animation:providerFloat 6s ease-in-out infinite}
+ .hero .coreLight,.hero .mark,.hero .orbits circle,.hero .brand i{animation:providerBreath 6s ease-in-out infinite}
+ .hero::before,.hero::after{animation:providerStars 6s ease-in-out infinite}
+ .hero[data-paused=true] *,.hero[data-motion-active=false] *,.hero[data-paused=true]::before,.hero[data-paused=true]::after,.hero[data-motion-active=false]::before,.hero[data-motion-active=false]::after{animation-play-state:paused!important}
+ :global([data-cosmic-reduced]) .hero *,:global([data-cosmic-reduced]) .hero::before,:global([data-cosmic-reduced]) .hero::after{animation:none!important}
 }
-
-/* Centered KNOX identity — top of viewport. */
-.brand {
-  position: absolute;
-  top: clamp(18px, 3cqw, 34px);
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: clamp(6px, 1cqw, 14px);
-  color: white !important;
-  text-decoration: none !important;
-  white-space: nowrap;
-  font-size: clamp(20px, 2.6cqw, 32px);
-  letter-spacing: .04em;
-  z-index: 6;
-  pointer-events: auto;
+@media(max-width:650px){
+ .hero .title h1{font-size:clamp(25px,7cqw,38px)!important}
+ .hero .brand{font-size:21px}.hero .brand span{font-size:11px}
+ .hero .core{top:auto;height:166px;transform:none}
+ .hero .sphere{width:40px;height:40px}
+ .hero .node span:last-child{font-size:11px!important}
+ .hero .motionControl{display:none}
 }
-.brand i {
-  width: clamp(8px, .9cqw, 14px);
-  height: clamp(8px, .9cqw, 14px);
-  border-radius: 50%;
-  background: white;
-  box-shadow: 0 0 16px 5px #b57aff;
-}
-.brand span {
-  font-size: clamp(12px, 1.5cqw, 18px);
-  letter-spacing: .3em;
-}
-
-/* Centered title + subtitle. */
-.title {
-  position: absolute;
-  top: clamp(11%, 14vh, 22%);
-  left: 0;
-  right: 0;
-  text-align: center;
-  z-index: 5;
-}
-.title h1 {
-  font-size: clamp(34px, min(4.35cqw, 6.4vh), 72px) !important;
-  font-weight: 400;
-  letter-spacing: -.04em;
-  line-height: 1.12;
-  margin: 0 !important;
-  color: white;
-}
-.title p {
-  font-size: clamp(14px, min(2.15cqw, 2.5vh), 24px) !important;
-  letter-spacing: .15em;
-  margin: .4cqw 0 !important;
-  color: #e3d5f7 !important;
-  line-height: 1.3 !important;
-}
-
-/* Orbital paths around center (500, 360 in viewBox). */
-.orbits {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Provider nodes on the elliptical orbit — expanded to fill more of the viewport. */
-.nodeWrapper {
-  position: absolute;
-  left: var(--x);
-  top: var(--y);
-  transform: translate(-50%, -50%);
-  z-index: 4;
-  pointer-events: none !important;
-}
-.node {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: .15cqw;
-  background: none !important;
-  border: 0 !important;
-  padding: 0 !important;
-  min-height: 0 !important;
-  box-shadow: none !important;
-  color: white;
-  font-size: clamp(11px, 1.28cqw, 14px) !important;
-  white-space: nowrap;
-  font-weight: 400;
-  cursor: pointer;
-  pointer-events: auto !important;
-  touch-action: manipulation;
-  transition: transform .25s ease, filter .25s ease;
-  min-width: 44px;
-}
-.node .sphere {
-  width: clamp(34px, 5.65cqw, 62px);
-  height: clamp(34px, 5.65cqw, 62px);
-  border: 1px solid #d9b8ff;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: radial-gradient(circle at 38% 28%, #34234b, #120e25 75%);
-  box-shadow: inset 0 0 1.15cqw #bc8cff91, 0 0 1.25cqw #a46cfd51;
-  transition: box-shadow .2s, scale .2s;
-}
-.node .sphere img {
-  width: 53%;
-  height: 53%;
-  object-fit: contain;
-  pointer-events: none !important;
-}
-.node .sphere img[src*="openai"], .node .sphere img[src*="qwen"] { filter: invert(1); }
-.sphere b {
-  font-size: clamp(12px, 2.2cqw, 16px);
-  line-height: 1;
-}
-.sphere b[data-provider="groq"] { color: #ff6b57; font-size: clamp(11px, 1.8cqw, 14px); }
-.sphere b[data-provider="groq"]::before { content: 'groq'; }
-.sphere b[data-provider="grok"]::before { content: '𝕏'; }
-.node:is(:hover, :focus-visible) .sphere {
-  scale: 1.12;
-  box-shadow: inset 0 0 1.5cqw #c69cff, 0 0 2cqw #bd88ff;
-}
-.node:is(:hover, :focus-visible) span { color: #fff; }
-.node:disabled { opacity: .5 !important; cursor: not-allowed; }
-.node[aria-pressed=true] .sphere {
-  border-color: #c6f6ff;
-  box-shadow: inset 0 0 1.5cqw #c6f6ff, 0 0 2cqw #9cf;
-}
-.node > span:last-child { line-height: 1.15; margin-top: 4px; }
-
-/* Dominant central provider instrument — heart of the constellation. */
-.instrument {
-  position: absolute;
-  left: 50%;
-  top: 53.5%;
-  width: clamp(340px, 34%, 640px);
-  height: clamp(240px, 30vh, 460px);
-  border: 1.5px solid #f3e8ff;
-  border-radius: 3cqw;
-  background:
-    radial-gradient(ellipse at 50% 42%, #a855f740, transparent 67%),
-    linear-gradient(150deg, #6d28d98c, #150a2ee6 65%, #a855f7a6);
-  box-shadow: inset 0 0 2.5cqw #c084fc8c, 0 0 2.6cqw #a855f780, 0 0 40px #7c3aed47;
-  transform: translate(-50%, -50%) perspective(900px) rotateX(8deg) rotateY(5deg);
-  z-index: 5;
-  display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 0;
-  overflow: hidden;
-}
-.instrumentMark {
-  position: relative;
-  width: 72px;
-  height: 72px;
-  border: 1px solid #ecc3ff;
-  border-radius: 50%;
-  background: #30114f;
-  box-shadow: inset 0 0 13px #bb51fab0, 0 0 17px #e481ff;
-  display: grid;
-  place-items: center;
-  margin: 0 auto;
-  z-index: 2;
-}
-.instrumentMark img { filter: brightness(0) invert(1) drop-shadow(0 0 9px #d794ff); width: 44px; height: 44px; }
-.seal {
-  width: 58px; height: 58px; padding: 8px; border: 1px solid #ecc3ff; border-radius: 50%;
-  background: #30114f; box-shadow: inset 0 0 13px #bb51fab0, 0 0 17px #e481ff;
-}
-.instrumentBody {
-  padding: clamp(16px, 2cqw, 24px);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  z-index: 2;
-}
-.instrumentLabel {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 10px;
-}
-.instrumentLabel span {
-  color: #dcc0ff;
-  font-size: 10px;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-}
-.instrumentName {
-  font-size: clamp(20px, 2.35cqw, 34px);
-  line-height: 1.06;
-  margin: 2px 0 0;
-  color: #fff;
-}
-.instrumentStatus {
-  padding: 6px 10px;
-  border: 1px solid #9777d698;
-  border-radius: 999px;
-  background: #211c44;
-  color: #cfedff;
-  font-size: 10px;
-  font-weight: 600;
-  margin-top: 6px;
-  display: inline-block;
-}
-.instrumentFacts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 10px;
-  border-top: 1px solid #ba80fc52;
-  padding-top: 8px;
-}
-.instrumentFacts div {
-  padding: 8px 10px;
-  border: 1px solid #ba80fc52;
-  border-radius: 11px;
-  background: #140b2b;
-}
-.instrumentFacts dt { color: #d5b8ec; font-size: 10px; }
-.instrumentFacts dd { margin: 4px 0 0; color: #fff0ff; font-size: 12px; overflow-wrap: anywhere; }
-.instrumentActions {
-  margin-top: 14px;
-  display: flex;
-  gap: 8px;
-}
-.instrumentBtn,
-.contextBtn {
-  flex: 1;
-  display: inline-grid;
-  align-items: center;
-  justify-content: center;
-  min-height: 38px;
-  padding: 5px 11px;
-  border: 1px solid #b78aea90;
-  border-radius: 10px;
-  background: #3a205a;
-  color: #f3e4ff;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background .2s, box-shadow .2s;
-}
-.instrumentBtn { text-decoration: none; }
-.instrumentBtn:hover { background: #4a2e6a; box-shadow: 0 0 16px #a147eb6e; }
-.instrumentBtn:first-child { border-color: #86dffa; background: #193454; color: #c9f3ff; }
-
-/* Contextual panel — right side, populated when a provider is selected. */
-.contextPanel {
-  position: absolute;
-  top: clamp(18%, 24vh, 30%);
-  right: 0;
-  width: clamp(320px, 28%, 480px);
-  border: 1px solid #d8a1ff;
-  border-radius: 23px 0 0 23px;
-  color: #f8edff;
-  background:
-    radial-gradient(ellipse 70% 65% at 50% 0%, #702bc39e, transparent 80%),
-    linear-gradient(145deg, #2b1249f7, #100822f5 67%);
-  box-shadow: inset 0 1px #e6bdff, inset 0 0 27px #b24fff69, 0 0 25px #ba5effa6, 0 26px 49px #020007d9;
-  z-index: 5;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-.contextActions {
-  display: flex;
-  gap: 8px;
-  padding: clamp(12px, 1.8cqw, 16px) clamp(16px, 2cqw, 20px);
-  /* Prevent this container from intercepting clicks on orbit nodes behind it. */
-  pointer-events: none;
-}
-.contextActions button {
-  pointer-events: auto;
-}
-.contextHead {
-  padding: clamp(14px, 2cqw, 18px) clamp(16px, 2cqw, 20px);
-  border-bottom: 1px solid #ba80fc52;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.contextEyebrow {
-  color: #dcc0ff;
-  font-size: 10px;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-}
-.contextTitle {
-  font-size: clamp(18px, 2.2cqw, 26px);
-  line-height: 1.08;
-  margin: 0;
-  color: #fff;
-}
-.contextLine {
-  padding: clamp(10px, 1.5cqw, 14px) clamp(16px, 2cqw, 20px);
-  font-size: clamp(12px, 1.1cqw, 14px);
-  color: #cfedff;
-  border-bottom: 1px solid #ba80fc52;
-}
-.contextBtn:hover { background: #4a2e6a; box-shadow: 0 0 16px #a147eb6e; }
-.contextBtn:first-child { border-color: #86dffa; background: #193454; color: #c9f3ff; }
-.contextNote {
-  padding: clamp(10px, 1.5cqw, 14px) clamp(16px, 2cqw, 20px);
-  font-size: 11px;
-  color: #d4c3ed;
-  line-height: 1.5;
-}
-
-/* Primary action — centered at bottom, always visible, never clipped. */
-.getApi {
-  position: absolute;
-  bottom: clamp(34px, 5vh, 70px);
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(6px, 1cqw, 10px);
-  border: 2px solid #f3e8ff !important;
-  border-radius: 4cqw !important;
-  background: linear-gradient(180deg, #a855f7, #6d28d9) !important;
-  box-shadow: inset 0 1px 0 #ffffff73, inset 0 0 1cqw #f0abfc66, 0 0 2cqw #a855f7b3 !important;
-  padding: clamp(8px, 1cqw, 14px) clamp(24px, 3.3cqw, 44px) !important;
-  color: #fff;
-  font-size: clamp(16px, 1.85cqw, 22px) !important;
-  font-weight: 700;
-  z-index: 6;
-  cursor: pointer;
-  pointer-events: auto;
-  transition: box-shadow .25s, transform .2s ease;
-}
-.getApi:hover:not(:disabled) {
-  box-shadow: 0 0 32px #a855f7b3, inset 0 0 20px #f0abfc66;
-  transform: translateX(-50%) translateY(-2px);
-}
-.getApi svg {
-  width: clamp(16px, 2.2cqw, 24px);
-  height: clamp(16px, 2.2cqw, 24px);
-  stroke: #fff;
-  fill: none;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-}
-
-/* Motion control — small, top-right, non-intrusive. */
-.motionControl {
-  position: absolute;
-  z-index: 8;
-  right: clamp(16px, 2vw, 30px);
-  top: clamp(18px, 2.5vh, 26px);
-  font-size: clamp(10px, 11px, 12px) !important;
-  color: #ddd0f3;
-  border: 1px solid #a88bd64d !important;
-  background: #171124bb !important;
-  min-height: 40px !important;
-  padding: 0 clamp(10px, 1.2vw, 18px) !important;
-  border-radius: 20px !important;
-  cursor: pointer;
-  pointer-events: auto;
-  transition: opacity .25s;
-  opacity: .7;
-}
-.motionControl:hover { opacity: 1; }
-
-/* Choreography: slow elegant orbit, twinkling stars, breath. */
-@media (min-width: 651px) and (prefers-reduced-motion: no-preference) {
-  @supports (offset-path: ellipse(32% 25% at 50% 52%)) {
-    .hero .nodeWrapper {
-      left: 0;
-      top: 0;
-      translate: none;
-      offset-path: ellipse(32% 25% at 50% 52%);
-      offset-rotate: 0deg;
-      offset-anchor: 50% 39%;
-      offset-distance: var(--phase);
-      animation: providerJourney 94s linear infinite;
-      pointer-events: none !important;
-    }
-    .hero:has(.nodeWrapper:hover, .nodeWrapper:focus-visible) .nodeWrapper { animation-play-state: paused; }
-  }
-  .hero .instrument { animation: providerFloat 7s ease-in-out infinite; }
-  .hero .instrumentMark, .hero .instrumentStatus, .hero .orbits circle, .hero .brand i {
-    animation: providerBreath 6s ease-in-out infinite;
-  }
-  .hero .sky::before, .hero .sky::after { animation: providerStars 6s ease-in-out infinite; }
-  .hero[data-paused=true] *, .hero[data-motion-active=false] *, .hero[data-paused=true]::before, .hero[data-paused=true]::after, .hero[data-motion-active=false]::before, .hero[data-motion-active=false]::after {
-    animation-play-state: paused !important;
-  }
-}
-@keyframes providerJourney { from { offset-distance: var(--phase); } to { offset-distance: calc(var(--phase) + 100%); } }
-@keyframes providerBreath { 0%, 100% { opacity: .62 } 50% { opacity: 1 } }
-@keyframes providerFloat { 0%, 100% { translate: 0 0 } 50% { translate: 0 -6px } }
-@keyframes providerStars { 0%, 100% { opacity: .42 } 50% { opacity: .86 } }
-
-/* Stable native hit targets are declared with their own components above. */
-
-/* Tablet: compact the orbit and instrument. */
-@media (max-width: 1024px) and (min-width: 651px) {
-  .hero { min-height: 100svh; }
-  .instrument { width: clamp(300px, 38%, 520px); height: clamp(280px, 36%, 420px); grid-template-columns: 1fr; }
-  .instrumentMark { width: 56px; height: 56px; margin: 0 auto 10px; }
-  .instrumentBody { padding: clamp(12px, 1.6vw, 20px); text-align: center; }
-  .instrumentActions { justify-content: center; }
-  .contextPanel { right: clamp(16px, 3vw, 40px); width: clamp(300px, 32%, 380px); top: clamp(20%, 26vh, 32%); }
-}
-
-/* Mobile: single column, instrument top, orbit as row below. */
-@media (max-width: 650px) {
-  .hero { min-height: auto; padding: 18px 10px 90px; flex-direction: column; align-items: center; }
-  .brand { position: static; transform: none; font-size: 20px; gap: 8px; margin-bottom: 6px; }
-  .brand span { font-size: 12px; }
-  .title { position: static; margin: 12px 0 4px; }
-  .title h1 { font-size: clamp(24px, 7cqw, 40px) !important; }
-  .title p { font-size: 13px !important; margin-top: 4px !important; }
-  .orbits, .limb, .horizon { display: none; }
-  .instrument { position: static; left: auto; top: auto; transform: none; width: 100%; height: auto; grid-template-columns: 1fr; border-radius: 16px; margin: 12px 0; }
-  .instrumentMark { width: 56px; height: 56px; margin: 0 auto 10px; }
-  .instrumentBody { text-align: center; padding: 14px; }
-  .instrumentActions { justify-content: center; gap: 10px; }
-  .contextPanel { position: static; width: 100%; max-width: 100%; margin: 14px 0; border-radius: 16px; }
-  .node { position: static; transform: none; display: inline-flex; font-size: 11px !important; gap: 6px; white-space: normal; margin: 6px; }
-  .node .sphere { width: 40px; height: 40px; }
-  .getApi { position: static; transform: none; left: auto; bottom: auto; margin-top: 16px; font-size: 17px !important; padding: 11px 34px !important; border-radius: 28px !important; }
-  .motionControl { display: none; }
-}
-
-/* Reduced motion — keep visuals, remove animation. */
-@media (prefers-reduced-motion: reduce) {
-  .node .sphere { transition: none; }
-  .hero .node, .hero .instrument, .hero .instrumentMark, .hero .instrumentStatus, .hero .orbits circle, .hero .brand i, .hero .sky::before, .hero .sky::after { animation: none !important; }
-}
+.authFeedback{position:fixed;inset:0;z-index:1000;pointer-events:none;display:grid;place-items:center}
+.authFeedback>svg{position:absolute;inset:0;width:100%;height:100%;animation:authBolt 1.45s ease-out both}
+.boltHalo{stroke:#a16aff;stroke-width:13;filter:blur(7px)}.boltLine{stroke:#f6e9ff;stroke-width:3.5;filter:drop-shadow(0 0 9px #a16aff)}
+.authReceipt{position:absolute;left:50%;bottom:12%;translate:-50% 0;max-width:calc(100% - 32px);width:max-content;padding:14px 24px;border:1px solid #bda0ff;border-radius:16px;background:#100c20f2;box-shadow:0 0 32px #8750ca88;color:#fff;display:grid;gap:6px;text-align:center;animation:authReceiptIn .5s ease-out both}
+.authReceipt strong{font-size:21px;font-weight:550}.authReceipt span{font-size:12px;color:#d4c3ed}
+@keyframes authBolt{0%{opacity:0}12%{opacity:.95}100%{opacity:0}}
+@keyframes authReceiptIn{from{opacity:0;translate:-50% 8px}to{opacity:1;translate:-50% 0}}
+@media(prefers-reduced-motion:reduce){.authFeedback>svg{display:none}.authReceipt{animation:none}}
+:global([data-cosmic-reduced]) .authFeedback>svg{display:none}:global([data-cosmic-reduced]) .authReceipt{animation:none}
