@@ -27,12 +27,7 @@
     "src/lib/auth/provider.ts",
     "src/lib/supabase/client.ts",
     "src/lib/ai/adapters/vendors.ts",
-    "src/components/build/providers/CustomMetadata.tsx",
-    "src/components/build/providers/PlatformFacts.tsx",
-    "src/components/build/providers/ProviderAuthFeedback.tsx",
-    "src/components/build/providers/ProviderCenter.tsx",
-    "src/components/build/providers/ProviderHero.tsx",
-    "src/lib/ai/provider-os/connection-label.ts"
+    "src/components/build/providers/UniversalProviderEngine.tsx"
   ],
   "ignoreDependencies": [],
   "ignoreBinaries": [],
