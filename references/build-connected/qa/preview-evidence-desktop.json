@@ -6,22 +6,22 @@
     "id": "custom",
     "label": "CUSTOM"
   },
-  "at": "2026-11-22T08:46:39.740Z",
-  "branch": "feat/build-cosmic-fidelity",
-  "sha": "7c50077afb6a2bca8bc23871bd055e8dd86c3019",
+  "at": "2026-11-28T00:38:18.317Z",
+  "branch": "integration/main-convergence",
+  "sha": "a4bd3e1a18e5aa130464dec4371568e1effd6873",
   "document": "same-origin loaded",
   "observations": [
     {
-      "id": 1795337189091,
+      "id": 1795826290401,
       "kind": "error",
       "message": "Preview observation token=[REDACTED]]",
-      "at": "2026-11-22T08:46:29.091Z"
+      "at": "2026-11-28T00:38:10.401Z"
     },
     {
-      "id": 1795337189313,
+      "id": 1795826290487,
       "kind": "resource",
       "message": "img failed to load: /not-a-real-preview-image.png",
-      "at": "2026-11-22T08:46:29.283Z"
+      "at": "2026-11-28T00:38:10.482Z"
     }
   ],
   "inspected": {
@@ -30,7 +30,7 @@
     "classes": "NONE",
     "role": "heading",
     "name": "The productuniverse.",
-    "box": "873×209 at 76, 315",
+    "box": "873×149 at 76, 175",
     "styles": [
       {
         "property": "color",
@@ -42,7 +42,7 @@
       },
       {
         "property": "font-size",
-        "value": "112.32px"
+        "value": "80px"
       },
       {
         "property": "display",
@@ -54,7 +54,7 @@
       },
       {
         "property": "margin",
-        "value": "28px 0px 0px"
+        "value": "6px 0px 0px"
       },
       {
         "property": "border-width",
@@ -170,6 +170,151 @@
       "tag": "h1",
       "role": "heading",
       "name": "The productuniverse."
+    },
+    {
+      "tag": "input",
+      "role": "input",
+      "name": "Search KNOuX products"
+    },
+    {
+      "tag": "div",
+      "role": "group",
+      "name": "Filter by family"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "ALL FAMILIES"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "WINDOWS INTELLIGENCE"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "ENGINEERING TOOLING"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "SYSTEM MAINTENANCE"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "FILE MANAGEMENT"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "CAPTURE & MEDIA"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "DEVELOPER PRODUCTIVITY"
+    },
+    {
+      "tag": "p",
+      "role": "status",
+      "name": "07 / 07 SYSTEMS"
+    },
+    {
+      "tag": "svg",
+      "role": "presentation",
+      "name": ""
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "ONE"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "Forge"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "Repair"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "Organizer"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "REC"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "Player X"
+    },
+    {
+      "tag": "button",
+      "role": "button",
+      "name": "Clipboard"
+    },
+    {
+      "tag": "select",
+      "role": "combobox",
+      "name": "Select a productONEForgeRepairOrganizerRECPlayer XClipboard"
+    },
+    {
+      "tag": "h2",
+      "role": "heading",
+      "name": "KNOUX ONE"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "KNOUX-ONE"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "Open dossier↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "SW-01KNOUX ONEWindows Intelligence & Developer Suiteactive↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "SW-02KNOuX ForgeLocal-first engineering command centeractive↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "SW-03KNOuX RepairDiagnostics, repair and recovery workstationactive↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "SW-04KNOuX SmartOrganizerLocal-first file organization utilityactive↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "SW-05KNOuX RECLocal screen recorder and non-destructive recording workspaceactive↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "SW-06KNOuX Player XDesktop media player with FFmpeg inspection and OpenRouter modelsactive↗"
+    },
+    {
+      "tag": "a",
+      "role": "link",
+      "name": "SW-07KNOuX Clipboard AIClipboard workspace with guarded AI actionsrelease candidate↗"
     },
     {
       "tag": "nav",
@@ -335,131 +480,6 @@
       "tag": "button",
       "role": "button",
       "name": "Return to KNOUX ONE"
-    },
-    {
-      "tag": "input",
-      "role": "input",
-      "name": "Search KNOuX products"
-    },
-    {
-      "tag": "div",
-      "role": "group",
-      "name": "Filter by family"
-    },
-    {
-      "tag": "button",
-      "role": "button",
-      "name": "ALL FAMILIES"
-    },
-    {
-      "tag": "button",
-      "role": "button",
-      "name": "WINDOWS INTELLIGENCE"
-    },
-    {
-      "tag": "button",
-      "role": "button",
-      "name": "ENGINEERING TOOLING"
-    },
-    {
-      "tag": "button",
-      "role": "button",
-      "name": "SYSTEM MAINTENANCE"
-    },
-    {
-      "tag": "button",
-      "role": "button",
-      "name": "FILE MANAGEMENT"
-    },
-    {
-      "tag": "button",
-      "role": "button",
-      "name": "CAPTURE & MEDIA"
-    },
-    {
-      "tag": "button",
-      "role": "button",
-      "name": "DEVELOPER PRODUCTIVITY"
-    },
-    {
-      "tag": "p",
-      "role": "status",
-      "name": "07 / 07 SYSTEMS"
-    },
-    {
-      "tag": "svg",
-      "role": "presentation",
-      "name": ""
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "SW-01ONE"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "SW-02Forge"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "SW-03Repair"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "SW-04Organizer"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "SW-05REC"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "SW-06Player X"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "SW-07Clipboard"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "SW-01KNOUX ONEWindows Intelligence & Developer Suiteactive↗"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "SW-02KNOuX ForgeLocal-first engineering command centeractive↗"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "SW-03KNOuX RepairDiagnostics, repair and recovery workstationactive↗"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "SW-04KNOuX SmartOrganizerLocal-first file organization utilityactive↗"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "SW-05KNOuX RECLocal screen recorder and non-destructive recording workspaceactive↗"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "SW-06KNOuX Player XDesktop media player with FFmpeg inspection and OpenRouter modelsactive↗"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "SW-07KNOuX Clipboard AIClipboard workspace with guarded AI actionsrelease candidate↗"
     },
     {
       "tag": "h2",
@@ -800,26 +820,6 @@
       "tag": "footer",
       "role": "contentinfo",
       "name": "The work continuesLet's makewhat comes next.↗Divisions01 Software02 WordPress03 Web04 Growth05 Creative06 Solutions07 Labs08 InstitutionGrowth channelsGoogle Ad"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "Let's makewhat comes next.↗"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "01 Software"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "02 WordPress"
-    },
-    {
-      "tag": "a",
-      "role": "link",
-      "name": "03 Web"
     }
   ],
   "screenshot": "unavailable"

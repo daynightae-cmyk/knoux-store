@@ -1,0 +1,96 @@
+/*
+ * Styling for the shared WordPress.org catalogue paging controls.
+ *
+ * The controls are rendered by one shared component into three different
+ * surfaces (the cockpit side panels, the Theme Explorer and the Plugin
+ * Intelligence journey), so they carry their own module instead of relying on
+ * a host surface's classes. Without this module the browser's default white
+ * inputs and buttons sat inside the dark glass panels.
+ */
+
+.catalogPaging {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: -2px 0 2px;
+}
+
+.catalogTag {
+  display: flex;
+  flex: 1 1 100%;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  color: #8e7aa8;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.catalogTag span {
+  flex: none;
+  white-space: nowrap;
+}
+
+.catalogTag input {
+  flex: 1;
+  min-width: 0;
+  height: 26px;
+  padding: 0 9px;
+  border: 1px solid rgba(196, 158, 245, .22);
+  border-radius: 8px;
+  outline: 0;
+  background: rgba(8, 5, 19, .64);
+  color: #f7efff;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.catalogTag input::placeholder { color: #6f5c8a; }
+
+.catalogTag input:focus {
+  border-color: rgba(232, 121, 249, .7);
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, .14);
+}
+
+.catalogButton {
+  height: 26px;
+  padding: 0 9px;
+  border: 1px solid rgba(196, 158, 245, .25);
+  border-radius: 8px;
+  background: rgba(15, 9, 32, .72);
+  color: #e9d8ff;
+  font-size: 11px;
+  cursor: pointer;
+  transition: border-color .2s ease, background .2s ease, color .2s ease;
+}
+
+.catalogButton:hover:not(:disabled) {
+  border-color: rgba(232, 121, 249, .55);
+  background: rgba(40, 20, 72, .82);
+  color: #fff4ff;
+}
+
+.catalogButton:disabled {
+  color: #6f5c8a;
+  cursor: not-allowed;
+  opacity: .6;
+}
+
+.catalogButton:focus-visible {
+  outline: 2px solid rgba(232, 121, 249, .75);
+  outline-offset: 2px;
+}
+
+.catalogStatus {
+  flex: 1 1 100%;
+  margin: 0;
+  color: #8e7aa8;
+  font-size: 10px;
+  line-height: 1.35;
+}

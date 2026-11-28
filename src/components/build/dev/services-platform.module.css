@@ -63,7 +63,11 @@
   background: #170f26cc;
   color: #b79bd8;
 }
-.search input { flex: 1; min-width: 0; border: 0; background: transparent; color: #f0e7fb; font-size: 14px; outline: none; }
+.search .searchInput,
+.search input.searchInput {
+  flex: 1; min-width: 0; border: 0; background: transparent; color: #f0e7fb; font-size: 14px; outline: none;
+  border-radius: 0 !important; padding: 0 !important; min-height: 0 !important; width: 100%;
+}
 .search:focus-within { border-color: #dbb5ff; box-shadow: 0 0 14px #a465ed4d; }
 .select select {
   min-height: 46px;

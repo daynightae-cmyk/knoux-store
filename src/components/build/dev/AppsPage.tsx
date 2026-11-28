@@ -111,7 +111,7 @@ export function AppsPage() {
           <div className={styles.search}>
             <span aria-hidden="true">⌕</span>
             <label className="dev-visually-hidden" htmlFor="dev-app-search">Search apps, capabilities, or keywords</label>
-            <input id="dev-app-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search apps, capabilities, or keywords…" />
+            <input id="dev-app-search" className={styles.searchInput} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search apps, capabilities, or keywords…" />
           </div>
           <div className={styles.viewToggle} role="group" aria-label="Registry layout">
             <button type="button" aria-pressed={layout === 'grid'} aria-label="Grid view" onClick={() => setLayout('grid')}>

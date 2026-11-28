@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import type { ExternalItem, ExternalQueryResult, ExternalQueryState } from '@/lib/wordpress/external';
 import { readStudioCatalog } from '@/lib/wordpress/studio-client';
+import styles from './StudioCatalogData.module.css';
 
 /** Shared data controller for the existing Studio and the separately owned Cockpit. */
 export function useStudioCatalog(
@@ -45,14 +46,15 @@ export function useStudioCatalog(
 
 export function StudioCatalogPaging({ catalog, label }: { catalog: ReturnType<typeof useStudioCatalog>; label: string }) {
   return (
-    <div role="group" aria-label={label}>
-      <label>Filter by WordPress.org tag
+    <div className={styles.catalogPaging} role="group" aria-label={label}>
+      <label className={styles.catalogTag}>
+        <span>Filter by WordPress.org tag</span>
         <input type="search" value={catalog.tag} maxLength={80} onChange={(event) => catalog.setTag(event.target.value)} />
       </label>
-      <button type="button" disabled={catalog.loading || catalog.page <= 1} onClick={() => catalog.setPage(catalog.page - 1)}>Previous page</button>
-      <button type="button" disabled={catalog.loading || catalog.page >= catalog.totalPages} onClick={() => catalog.setPage(catalog.page + 1)}>Next page</button>
-      <p role="status">{catalog.loading ? 'Loading WordPress.org…' : catalog.note ?? (catalog.state === 'unavailable' ? 'WordPress.org is unavailable.' : catalog.state === 'empty' ? 'No matching WordPress.org items.' : 'Page ' + catalog.page)}</p>
-      {catalog.state === 'unavailable' ? <button type="button" onClick={catalog.retry}>Retry catalog</button> : null}
+      <button className={styles.catalogButton} type="button" disabled={catalog.loading || catalog.page <= 1} onClick={() => catalog.setPage(catalog.page - 1)}>Previous page</button>
+      <button className={styles.catalogButton} type="button" disabled={catalog.loading || catalog.page >= catalog.totalPages} onClick={() => catalog.setPage(catalog.page + 1)}>Next page</button>
+      <p className={styles.catalogStatus} role="status">{catalog.loading ? 'Loading WordPress.org…' : catalog.note ?? (catalog.state === 'unavailable' ? 'WordPress.org is unavailable.' : catalog.state === 'empty' ? 'No matching WordPress.org items.' : 'Page ' + catalog.page)}</p>
+      {catalog.state === 'unavailable' ? <button className={styles.catalogButton} type="button" onClick={catalog.retry}>Retry catalog</button> : null}
     </div>
   );
 }
