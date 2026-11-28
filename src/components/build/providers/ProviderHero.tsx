@@ -137,7 +137,7 @@ export function ProviderHero({ definitions, selected, onSelect, onGetApi, onBrow
                 <span>{name}</span>
                 <span className={s.arrow}>→</span>
                 <span className={s.statusBadge}>
-                  {d ? (active ? 'ACTIVE' : 'UNCONFIGURED') : '—'}
+                  {d ? 'REGISTERED' : '—'}
                 </span>
               </button>
             );
