@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { ParticleMark } from '@/components/brand/ParticleMark';
+import { MARK_PATHS, MARK_VIEW_BOX } from '@/lib/knouxMark';
 import type { ProviderDefinition } from '@/lib/ai/provider-os/types';
 import { providerMark } from './provider-marks';
 import s from './provider-hero.module.css';
@@ -15,9 +15,7 @@ const orbitSlots = [
   ['qwen', 'QwenCloud', 230], ['mistral', 'Mistral', 270], ['grok', 'Grok', 310],
 ] as const;
 
-// Set of provider IDs that have orbit nodes — used to gate the contextual panel
-// so it only appears for providers that actually orbit, avoiding overlap with
-// the default selected provider (OpenCode Console V2) which has no orbit node.
+// Set of provider IDs that have orbit nodes.
 const orbitProviderIds = new Set<string>(orbitSlots.map(([id]) => id));
 
 export function ProviderHero({ definitions, selected, connection, discoveredModels, onSelect, onGetApi, onBrowse, onInspect }: {
@@ -43,6 +41,7 @@ export function ProviderHero({ definitions, selected, connection, discoveredMode
     sync();
     return () => { observer.disconnect(); document.removeEventListener('visibilitychange', sync); };
   }, []);
+
   const current = definitions.find(definition => definition.id === selected);
   const currentMark = current ? providerMark(current.id) : null;
 
@@ -58,81 +57,91 @@ export function ProviderHero({ definitions, selected, connection, discoveredMode
 
   return (
     <section ref={hero} className={s.hero} data-paused={paused} aria-label="Provider Constellation">
+      {/* UniversalProviderEngine cosmic background */}
+      <div className={s.cosmicBg} aria-hidden="true" />
+      <div className={s.cosmicStars} aria-hidden="true" />
+      <div className={s.cosmicPlanet} aria-hidden="true" />
+      <div className={s.cosmicGlow} aria-hidden="true" />
+
       <button type="button" className={s.motionControl} aria-pressed={paused} onClick={() => setPaused((v) => !v)}>
         {paused ? 'Resume orbit' : 'Pause orbit'}
       </button>
-      {/* Deep sky: nebula banks, starfield, planetary horizon — all code, no photograph. */}
-      <div className={s.sky} aria-hidden="true" />
-      <div className={s.limb} aria-hidden="true" />
-      <div className={s.horizon} aria-hidden="true" />
-      {/* Centered KNOX identity — owns the top of the viewport. */}
+
       <Link href="/build" className={s.brand}><i aria-hidden="true" /> <b>KNOuX</b> <span>STORE</span></Link>
       <header className={s.title}>
         <h1>Provider Constellation</h1>
         <p>Connect, orchestrate, and route AI and compute providers across your workspace.</p>
       </header>
-      {/* Orbital paths drawn around the central instrument. */}
-      <svg className={s.orbits} viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
-        <defs>
-          <filter id="provider-orbit-glow" x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur stdDeviation="4" />
-          </filter>
-        </defs>
-        <g fill="none" stroke="#b88bf3" strokeWidth="1.2" opacity=".5">
-          <ellipse cx="500" cy="375" rx="360" ry="150" />
-          <ellipse cx="500" cy="375" rx="260" ry="95" opacity=".6" />
-          <ellipse cx="500" cy="375" rx="150" ry="48" opacity=".35" />
-        </g>
-        {/* Luminous orbital particles between the rings. */}
-        <g stroke="#f4ebff" fill="none">
-          {[45, 105, 165, 225, 285, 345].map((angle) => {
-            const rad = (angle * Math.PI) / 180;
-            const x = 500 + Math.cos(rad) * 310;
-            const y = 375 + Math.sin(rad) * 130;
-            return (
-              <g key={angle} data-flare="" opacity=".85">
-                <circle cx={x} cy={y} r="2.5" fill="#fff" />
-                <circle cx={x} cy={y} r="7" fill="none" stroke="#bd76ff" strokeWidth=".6" />
-              </g>
-            );
-          })}
-        </g>
-      </svg>
-      {/* Provider nodes on the elliptical orbit around the center. */}
-      {orbitSlots.map(([id, name, angle], index) => {
-        const d = definitions.find((p) => p.id === id);
-        const mark = providerMark(id);
-        const pos = orbitPosition(angle, 44, 21.5);
-        const phase = ((index / orbitSlots.length) * 100).toFixed(2);
-        return (
-          <div
-            key={id}
-            className={s.nodeWrapper}
-            style={{ '--x': pos.x, '--y': pos.y, '--phase': phase + '%' } as CSSProperties}
-          >
-            <button
-              type="button"
-              className={s.node}
-              disabled={!d}
-              aria-label={'Select ' + name}
-              aria-pressed={selected === id}
-              onClick={() => { if (d) { document.title = 'SELECT:' + d.id; onSelect(d); } }}
-            >
-              <span className={s.sphere} aria-hidden="true">
-                {mark ? <Image src={`/providers/${mark}.svg`} alt="" width={40} height={40} loading="eager" /> : <b data-provider={id} />}
-              </span>
-              <span>{name}</span>
-            </button>
+
+      {/* Orbit stage: CSS rings + orbiting provider nodes connected to real state */}
+      <div className={s.orbitStage}>
+        <div className={s.orbitRingOuter} />
+        <div className={s.orbitRingMiddle} />
+        <div className={s.orbitRingInner} />
+
+        {/* Central KNOuX core mark */}
+        <div className={s.core}>
+          <div className={s.coreGlow} />
+          <div className={s.coreMark}>
+            <svg className={s.mark} viewBox={`0 0 ${MARK_VIEW_BOX.width} ${MARK_VIEW_BOX.height}`} aria-hidden="true">
+              <defs>
+                <pattern id="provider-mark-particles" width="12" height="13" patternUnits="userSpaceOnUse">
+                  <circle cx="3" cy="3" r="1.6" fill="#fff" />
+                  <circle cx="9" cy="9" r="1" fill="#c6a4ff" />
+                  <circle cx="1" cy="10" r=".7" fill="#fff" />
+                  <circle cx="8" cy="2" r=".5" fill="#b486ff" />
+                </pattern>
+              </defs>
+              {MARK_PATHS.map(({ id, d }) => (
+                <path key={id} d={d} fill="url(#provider-mark-particles)" stroke="#e5caff" strokeWidth="3.5" strokeDasharray="2 3" />
+              ))}
+            </svg>
           </div>
-        );
-      })}
+          <span className={s.coreLabel}>Engine Core</span>
+        </div>
+
+        {/* Orbiting provider nodes - each connected to real provider selection */}
+        {orbitSlots.map(([id, name, angle], index) => {
+          const d = definitions.find((p) => p.id === id);
+          const mark = providerMark(id);
+          const pos = orbitPosition(angle, 44, 21.5);
+          const phase = ((index / orbitSlots.length) * 100).toFixed(2);
+          return (
+            <div
+              key={id}
+              className={s.nodeWrapper}
+              style={{ '--x': pos.x, '--y': pos.y, '--phase': phase + '%' } as CSSProperties}
+            >
+              <button
+                type="button"
+                className={s.orbitNode}
+                style={{ '--angle': `calc(${angle}deg + ${phase} * 3.6deg)` } as CSSProperties}
+                disabled={!d}
+                aria-label={'Select ' + name}
+                aria-pressed={selected === id}
+                onClick={() => { if (d) { document.title = 'SELECT:' + d.id; onSelect(d); } }}
+              >
+                <div className={s.nodeMark}>
+                  {mark ? (
+                    <Image src={`/providers/${mark}.svg`} alt="" width={40} height={40} loading="eager" className={s.markImg} style={{ filter: 'invert(1) drop-shadow(0 0 10px rgba(201,151,255,0.45))' }} />
+                  ) : (
+                    <b data-provider={id} />
+                  )}
+                </div>
+                <span className={s.nodeName}>{name}</span>
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
       {/* Dominant central provider instrument — the heart of the constellation.
           Rendered only when a provider is selected so it never intercepts
           orbit-node clicks on the unselected constellation. */}
       {current && (
         <div className={s.instrument} aria-hidden={!current}>
           <div className={s.instrumentMark} aria-hidden="true">
-            {currentMark ? <Image src={`/providers/${currentMark}.svg`} alt="" width={72} height={72} /> : <ParticleMark patternId="provider-mark-particles" className={s.seal} />}
+            {currentMark ? <Image src={`/providers/${currentMark}.svg`} alt="" width={72} height={72} /> : <b data-provider={current.id} />}
           </div>
           <div className={s.instrumentBody}>
             <div className={s.instrumentLabel}>
@@ -151,6 +160,7 @@ export function ProviderHero({ definitions, selected, connection, discoveredMode
           </div>
         </div>
       )}
+
       {/* Contextual panel — populated when a provider is selected, otherwise empty. */}
       {current && orbitProviderIds.has(current.id) && (
         <aside className={s.contextPanel} aria-label={current.name + ' details'}>
@@ -166,6 +176,7 @@ export function ProviderHero({ definitions, selected, connection, discoveredMode
           <p className={s.contextNote}>Connection testing checks authentication and discovery only; it does not generate content.</p>
         </aside>
       )}
+
       {/* Primary action — always visible, centered at the bottom, never clipped. */}
       <button type="button" className={s.getApi} onClick={onGetApi}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 14 4-4m-6 7-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m2-1 2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0" transform="translate(1 0)" /></svg>

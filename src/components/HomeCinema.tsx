@@ -65,7 +65,7 @@ export function HomeCinema() {
             <span><span className={styles.dot} /> KNOuX STORE</span>
             {playing
               ? <button ref={close} type="button" className={styles.control} onClick={closeFilm}>{closeLabel}</button>
-              : <span>ORIGINAL FILM / 01 · 00:30</span>}
+              : <span>ORIGINAL FILM / 01 ┬╖ 00:30</span>}
           </div>
 
           <div className={styles.screen} dir="ltr">
@@ -107,7 +107,7 @@ export function HomeCinema() {
             <span>{label}</span>
             <div className={styles.actions}>
               <a className={styles.control} href={FILM_WATCH_URL} target="_blank" rel="noopener noreferrer">
-                {watchLabel} <span aria-hidden="true">↗</span>
+                {watchLabel} <span aria-hidden="true">Γåù</span>
               </a>
             </div>
           </div>
@@ -115,7 +115,7 @@ export function HomeCinema() {
 
         <footer className={styles.footer}>
           <p>{privacy}</p>
-          <Link className={styles.control} href="/build">{buildLabel} <span aria-hidden="true">↗</span></Link>
+          <Link className={styles.control} href="/build">{buildLabel} <span aria-hidden="true">Γåù</span></Link>
         </footer>
       </div>
     </section>

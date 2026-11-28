@@ -11,7 +11,7 @@ import { authorizeBuildOwner } from '@/lib/build/generated-project-route';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
 
-/** GET /api/build/generated-projects — check if execution is enabled. */
+/** GET /api/build/generated-projects ΓÇö check if execution is enabled. */
 export async function GET() {
   const denied = await guardBuildApi(new NextRequest('http://localhost'), { scope: 'write' });
   if (denied) return denied;
@@ -41,7 +41,7 @@ export async function GET() {
   });
 }
 
-/** POST /api/build/generated-projects — apply a reviewed static project. */
+/** POST /api/build/generated-projects ΓÇö apply a reviewed static project. */
 export async function POST(request: NextRequest) {
   const owner = await authorizeBuildOwner(request, 'Sign in to apply generated projects.');
   if (!owner.ok) return owner.response;
