@@ -35,36 +35,131 @@ export function ProviderHero({ definitions, selected, onSelect, onGetApi, onBrow
     sync();
     return () => { observer.disconnect(); document.removeEventListener('visibilitychange', sync); };
   }, []);
-  return <section ref={hero} className={s.hero} data-paused={paused} aria-label="Universal Provider Engine">
-    <button type="button" className={s.motionControl} aria-pressed={paused} onClick={()=>setPaused(value=>!value)}>{paused?'Resume orbit':'Pause orbit'}</button>
-    <div className={s.planet} aria-hidden="true" />
-    <Link href="/build" className={s.brand}><i aria-hidden="true" /> <b>KNOuX</b> <span>STORE</span></Link>
-    <header className={s.title}><h1>Universal Provider Engine</h1><p>Connect. Discover. Route.</p></header>
-    <svg className={s.orbits} viewBox="0 0 1536 1024" preserveAspectRatio="none" aria-hidden="true">
-      <defs><filter id="provider-orbit-glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4" /></filter></defs>
-      <g fill="none" stroke="#b88bf3" strokeWidth="1.4">
-        <ellipse cx="768" cy="557" rx="631" ry="170" opacity=".35"/>
-        <ellipse cx="768" cy="531" rx="488" ry="209" opacity=".75"/>
-        <ellipse cx="768" cy="568" rx="348" ry="80" opacity=".38" transform="rotate(-6 768 568)"/>
-        <ellipse cx="768" cy="560" rx="170" ry="43" opacity=".8" transform="rotate(-8 768 560)"/>
-        <ellipse cx="768" cy="813" rx="370" ry="39" opacity=".35"/>
-        <ellipse cx="768" cy="813" rx="300" ry="24" opacity=".25"/>
-      </g>
-      {[[433,389], [649,332], [885,332], [1101,399], [510,519], [1055,534], [531,716], [1009,716], [156,599], [1374,540], [665,614], [916,550]].map(([x,y])=><g key={x}><circle cx={x} cy={y} r="6" fill="#bd76ff" filter="url(#provider-orbit-glow)"/><circle cx={x} cy={y} r="3" fill="#fff"/></g>)}
-    </svg>
-    <div className={s.leftPanel}><button type="button" onClick={onBrowse}><span aria-hidden="true">Γû▒</span> Providers</button>{positions.slice(0,3).map(([id,name])=>{const d=definitions.find(p=>p.id===id); const mark=providerMark(id);return <button key={id} type="button" disabled={!d} onClick={()=>d&&onSelect(d)}>{mark&&<Image src={'/providers/'+mark+'.svg'} alt="" width={23} height={23}/>}<span>{name}</span><span aria-hidden="true">ΓåÆ</span></button>})}</div>
-    <div className={s.rightPanel}><Link href="/build/ai/models"><span aria-hidden="true">Γùç</span> Model Discovery</Link><div aria-hidden="true" className={s.skeleton}>{Array.from({length:4},(_,i)=><i key={i}/>)}</div></div>
-    <div className={s.lowerLeft} aria-hidden="true"><div className={s.skeleton}>{Array.from({length:5},(_,i)=><i key={i}/>)}</div></div>
-    <div className={s.lowerRight} aria-hidden="true"><div className={s.skeleton}>{Array.from({length:5},(_,i)=><i key={i}/>)}</div></div>
-    {positions.map(([id,name,x,y], index)=>{const d=definitions.find(p=>p.id===id),mark=providerMark(id);return <button type="button" key={id} className={s.node} style={{'--x':x+'%','--y':y+'%','--phase':(([6,7,8,5,0,4,1,3,2][index] / 9)*100)+'%'} as CSSProperties} disabled={!d} aria-label={'Select '+name} aria-pressed={selected===id} onClick={()=>d&&onSelect(d)}><span className={s.sphere}>{mark?<Image src={'/providers/'+mark+'.svg'} alt="" width={48} height={48}/>:<b data-provider={id}>{id==='groq'?'groq':'≡¥òÅ'}</b>}</span><span>{name}</span></button>})}
-    <div className={s.core}>
-      <svg className={s.mark} viewBox={'0 0 '+MARK_VIEW_BOX.width+' '+MARK_VIEW_BOX.height} aria-hidden="true">
-        <defs><pattern id="provider-mark-particles" width="12" height="13" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.6" fill="#fff"/><circle cx="9" cy="9" r="1" fill="#c6a4ff"/><circle cx="1" cy="10" r=".7" fill="#fff"/><circle cx="8" cy="2" r=".5" fill="#b486ff"/></pattern></defs>
-        {MARK_PATHS.map(({id,d})=><path key={id} d={d} fill="url(#provider-mark-particles)" stroke="#e5caff" strokeWidth="3.5" strokeDasharray="2 3"/>)}
-      </svg>
-      <div className={s.coreLight} aria-hidden="true"/>
-      <div className={s.coreLinks}><button type="button" onClick={onBrowse} aria-label="Browse providers"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 4 21 11-21 11L3 15Z M3 24l21 11 21-11 M3 33l21 11 21-11"/></svg></button><Link href="/build/ai/models" aria-label="Discover models"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 3 20 11v22L24 47 4 36V14Z M4 14l20 11 20-11 M24 25v22"/></svg></Link></div>
-    </div>
-    <button type="button" className={s.getApi} onClick={onGetApi}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 14 4-4m-6 7-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m2-1 2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0" transform="translate(1 0)"/></svg>Get API</button>
-  </section>;
+
+  return (
+    <section ref={hero} className={s.hero} data-paused={paused} aria-label="Universal Provider Engine">
+      {/* Cosmic background from UniversalProviderEngine */}
+      <div className={s.cosmicBg} aria-hidden="true" />
+      <div className={s.cosmicStars} aria-hidden="true" />
+      <div className={s.cosmicPlanet} aria-hidden="true" />
+      <div className={s.cosmicGlow} aria-hidden="true" />
+
+      <button type="button" className={s.motionControl} aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? 'Resume orbit' : 'Pause orbit'}</button>
+
+      {/* Orbit stage: CSS rings + orbiting provider nodes connected to real state */}
+      <div className={s.orbitStage}>
+        <div className={s.orbitRingOuter} />
+        <div className={s.orbitRingMiddle} />
+        <div className={s.orbitRingInner} />
+
+        {/* Central KNOuX core mark */}
+        <div className={s.core}>
+          <div className={s.coreGlow} />
+          <div className={s.coreMark}>
+            <svg className={s.mark} viewBox={`0 0 ${MARK_VIEW_BOX.width} ${MARK_VIEW_BOX.height}`} aria-hidden="true">
+              <defs>
+                <pattern id="provider-mark-particles" width="12" height="13" patternUnits="userSpaceOnUse">
+                  <circle cx="3" cy="3" r="1.6" fill="#fff" />
+                  <circle cx="9" cy="9" r="1" fill="#c6a4ff" />
+                  <circle cx="1" cy="10" r=".7" fill="#fff" />
+                  <circle cx="8" cy="2" r=".5" fill="#b486ff" />
+                </pattern>
+              </defs>
+              {MARK_PATHS.map(({ id, d }) => (
+                <path key={id} d={d} fill="url(#provider-mark-particles)" stroke="#e5caff" strokeWidth="3.5" strokeDasharray="2 3" />
+              ))}
+            </svg>
+          </div>
+          <span className={s.coreLabel}>Engine Core</span>
+        </div>
+
+        {/* Orbiting provider nodes - each connected to real provider selection */}
+        {positions.map(([id, name], index) => {
+          const angle = (index / positions.length) * 360;
+          const d = definitions.find(p => p.id === id);
+          const mark = providerMark(id);
+          return (
+            <button
+              key={id}
+              type="button"
+              className={s.orbitNode}
+              style={{ '--angle': `${angle}deg` } as CSSProperties}
+              disabled={!d}
+              aria-label={`Select ${name}`}
+              aria-pressed={selected === id}
+              onClick={() => d && onSelect(d)}
+            >
+              <div className={s.nodeMark}>
+                {mark ? (
+                  <Image src={`/providers/${mark}.svg`} alt="" width={24} height={24} loading="eager" className={s.markImg} style={{ filter: 'invert(1) drop-shadow(0 0 10px rgba(201,151,255,0.45))' }} />
+                ) : (
+                  <b data-provider={id}>{id === 'groq' ? 'groq' : '≡'}</b>
+                )}
+              </div>
+              <span className={s.nodeName}>{name}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Header overlay */}
+      <div className={s.headerOverlay}>
+        <Link href="/build" className={s.brandLink}><span aria-hidden="true">•</span> <b>KNOuX</b> <span>STORE</span></Link>
+        <header className={s.title}>
+          <h1>Universal Provider Engine</h1>
+          <p>Connect. Discover. Route.</p>
+        </header>
+      </div>
+
+      {/* Left provider panel - real provider list connected to selection */}
+      <div className={s.providerPanel}>
+        <div className={s.panelHeader}>
+          <span className={s.panelTitle}>Providers</span>
+        </div>
+        <nav className={s.providerList} aria-label="Provider registry">
+          {positions.map(([id, name]) => {
+            const d = definitions.find(p => p.id === id);
+            const mark = providerMark(id);
+            const own = d ? [] : [];
+            const active = d ? undefined : undefined;
+            return (
+              <button
+                key={id}
+                type="button"
+                className={s.listItem}
+                aria-current={selected === id ? 'true' : undefined}
+                disabled={!d}
+                onClick={() => d && onSelect(d)}
+              >
+                {mark ? (
+                  <Image src={`/providers/${mark}.svg`} alt="" width={20} height={20} loading="eager" className={s.listMark} style={{ filter: 'invert(1) drop-shadow(0 0 10px rgba(201,151,255,0.45))' }} />
+                ) : (
+                  <b data-provider={id}>{id === 'groq' ? 'groq' : '≡'}</b>
+                )}
+                <span>{name}</span>
+                <span className={s.arrow}>→</span>
+                <span className={s.statusBadge}>
+                  {d ? (active ? 'ACTIVE' : 'UNCONFIGURED') : '—'}
+                </span>
+              </button>
+            );
+          })}
+          {!definitions.length ? <p className={s.emptyState}>Provider registry is unavailable until its status has been read.</p> : null}
+        </nav>
+      </div>
+
+      <div className={s.coreLinks}>
+        <button type="button" onClick={onBrowse} aria-label="Browse providers">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 4 21 11-21 11L3 15Z M3 24l21 11 21-11 M3 33l21 11 21-11" /></svg>
+        </button>
+        <Link href="/build/ai/models" aria-label="Discover models">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 3 20 11v22L24 47 4 36V14Z M4 14l20 11 20-11 M24 25v22" /></svg>
+        </Link>
+      </div>
+
+      <button type="button" className={s.getApi} onClick={onGetApi}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 14 4-4m-6 7-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m2-1 2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0" transform="translate(1 0)" /></svg>Get API
+      </button>
+    </section>
+  );
 }

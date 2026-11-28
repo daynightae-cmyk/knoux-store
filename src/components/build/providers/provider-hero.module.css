@@ -93,3 +93,361 @@
 @keyframes authReceiptIn{from{opacity:0;translate:-50% 8px}to{opacity:1;translate:-50% 0}}
 @media(prefers-reduced-motion:reduce){.authFeedback>svg{display:none}.authReceipt{animation:none}}
 :global([data-cosmic-reduced]) .authFeedback>svg{display:none}:global([data-cosmic-reduced]) .authReceipt{animation:none}
+
+/* Converged provider hero: UniversalProviderEngine visual design integrated with real provider state */
+
+/* Cosmic background */
+.cosmicBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(circle at 50% 0%, #1a0b2e 0%, #0a0515 60%, #05030a 100%);
+  pointer-events: none;
+}
+.cosmicStars {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.6;
+  background-image: radial-gradient(white, white 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: 0 0, 20px 20px;
+  animation: twinkle 6s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.cosmicPlanet {
+  position: absolute;
+  right: -140px;
+  bottom: -180px;
+  z-index: 1;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #6d28d9 0%, #4c1d95 45%, transparent 70%);
+  box-shadow: 0 0 120px rgba(139, 92, 246, 0.35), inset 0 0 60px rgba(255, 255, 255, 0.08);
+  opacity: 0.55;
+  animation: planetFloat 10s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.cosmicGlow {
+  position: absolute;
+  top: -200px;
+  left: 50%;
+  z-index: 1;
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.18) 0%, transparent 60%);
+  filter: blur(60px);
+  animation: glowPulse 8s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes twinkle {
+  from { opacity: 0.4; }
+  to { opacity: 0.85; }
+}
+@keyframes planetFloat {
+  from { transform: translate(0, 0) scale(1); opacity: 0.5; }
+  to { transform: translate(30px, -30px) scale(1.05); opacity: 0.7; }
+}
+@keyframes glowPulse {
+  from { opacity: 0.4; transform: translate(-50%, 0) scale(1); }
+  to { opacity: 0.85; transform: translate(-50%, 0) scale(1.12); }
+}
+
+/* Orbit stage with CSS rings and orbiting nodes */
+.orbitStage {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  min-height: 420px;
+}
+.orbitRingOuter, .orbitRingMiddle, .orbitRingInner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 1px solid rgba(196, 181, 253, 0.14);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.orbitRingOuter { width: 72%; height: 72%; animation: ringSpin 44s linear infinite; }
+.orbitRingMiddle { width: 52%; height: 52%; animation: ringSpin 30s linear infinite reverse; }
+.orbitRingInner { width: 34%; height: 34%; animation: ringSpin 20s linear infinite; }
+@keyframes ringSpin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Central core mark */
+.core {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, rgba(201, 151, 255, 0.35), transparent 55%);
+  box-shadow: 0 0 45px rgba(139, 92, 246, 0.25), inset 0 0 24px rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(196, 181, 253, 0.25);
+  animation: coreBreathe 5s ease-in-out infinite;
+}
+.coreGlow {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent, #a78bfa, transparent);
+  opacity: 0.5;
+  animation: coreSpin 3s linear infinite;
+  pointer-events: none;
+}
+.coreMark {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #0b0815;
+  border: 1px solid rgba(196, 181, 253, 0.35);
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.08);
+}
+.coreMark svg { width: 46px; height: 46px; animation: coreIconFloat 5s ease-in-out infinite; }
+.coreLabel {
+  position: absolute;
+  bottom: -22px;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #a78bfa;
+  font-weight: 700;
+}
+@keyframes coreSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes coreBreathe {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 45px rgba(139, 92, 246, 0.25); }
+  50% { transform: scale(1.04); box-shadow: 0 0 65px rgba(196, 181, 253, 0.35); }
+}
+@keyframes coreIconFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(2deg); }
+}
+
+/* Orbiting nodes - CSS-based circular motion */
+.orbitNode {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: rgba(15, 8, 24, 0.7);
+  border: 1px solid rgba(196, 181, 253, 0.28);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  padding: 6px;
+  color: #f3e8ff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.5);
+  animation: nodeOrbit 26s linear infinite;
+  animation-delay: calc(var(--angle, 0deg) * -0.0722s);
+}
+.orbitNode:hover, .orbitNode.active {
+  transform: translate(-50%, -50%) scale(1.18);
+  border-color: #c4b5fd;
+  box-shadow: 0 0 40px rgba(196, 181, 253, 0.45), 0 0 14px rgba(255, 255, 255, 0.1);
+  z-index: 15;
+  background: rgba(196, 181, 253, 0.14);
+}
+.orbitNode:disabled { opacity: 0.55; cursor: not-allowed; }
+.nodeMark {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(196, 181, 253, 0.35);
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 14px rgba(255, 255, 255, 0.06);
+}
+.markImg { width: 24px; height: 24px; }
+.nodeName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+@keyframes nodeOrbit {
+  from { transform: translate(-50%, -50%) rotate(0deg) translateX(210px) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg) translateX(210px) rotate(-360deg); }
+}
+
+/* Header overlay */
+.headerOverlay {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: clamp(24px, 4vw, 48px) clamp(20px, 5vw, 60px) 24px;
+}
+.brandLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  letter-spacing: 0.28em;
+  color: #a78bfa;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  text-decoration: none;
+}
+.headerOverlay .title { margin: 0; }
+.headerOverlay .title h1 {
+  font-size: clamp(42px, 8vw, 72px);
+  line-height: 1.05;
+  font-weight: 600;
+  margin: 0 0 8px;
+  letter-spacing: -0.04em;
+  background: linear-gradient(to bottom, #fff 60%, #c4b5fd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.headerOverlay .title p {
+  font-size: clamp(16px, 2vw, 20px);
+  letter-spacing: 0.35em;
+  color: #a78bfa;
+  margin: 0;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Provider panel (left side) */
+.providerPanel {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  backdrop-filter: blur(12px);
+  background: rgba(15, 8, 24, 0.55);
+  border: 1px solid rgba(196, 181, 253, 0.18);
+  border-radius: 20px;
+  padding: clamp(16px, 3vw, 24px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45), inset 0 0 20px rgba(196, 181, 253, 0.06);
+  max-width: 300px;
+}
+.panelHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.panelTitle {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #e9d5ff;
+}
+.providerList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.listItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: #ddd6fe;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+}
+.listItem:hover, .listItem[aria-current="true"] {
+  background: rgba(196, 181, 253, 0.12);
+  border-color: rgba(196, 181, 253, 0.45);
+  color: #fff;
+  transform: translateX(6px);
+}
+.listItem:disabled { opacity: 0.55; cursor: not-allowed; }
+.listMark { width: 20px; height: 20px; }
+.arrow {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-left: auto;
+}
+.listItem:hover .arrow, .listItem[aria-current="true"] .arrow {
+  transform: translateX(4px);
+  color: #c4b5fd;
+}
+.statusBadge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(196, 181, 253, 0.1);
+  color: #a78bfa;
+  margin-left: auto;
+}
+.emptyState {
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* Get API button and core links keep existing hero styles; override position for new layout */
+.coreLinks {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  gap: 12px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: rgba(15, 8, 24, 0.6);
+  border: 1px solid rgba(196, 181, 253, 0.25);
+  backdrop-filter: blur(8px);
+}
+.coreLinks button, .coreLinks a {
+  width: auto;
+  height: auto;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .cosmicStars, .cosmicPlanet, .cosmicGlow,
+  .orbitRingOuter, .orbitRingMiddle, .orbitRingInner,
+  .coreGlow, .coreMark svg, .core {
+    animation: none !important;
+  }
+  .core { transform: none !important; box-shadow: none !important; }
+  .orbitNode { animation: none !important; }
+}
